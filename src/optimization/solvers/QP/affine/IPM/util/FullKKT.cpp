@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -24,7 +24,7 @@ namespace affine {
 //   | A 0        0     | | dy |   |     -rb        |,
 //   | G 0    -(z <> s) | | dz | = | -rh + z <> rmu |
 //
-// where 
+// where
 //
 //   rc  = Q x + A^T y + G^T z + c,
 //   rb  = A x - b,
@@ -38,7 +38,7 @@ void KKT
   const Matrix<Real>& G,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
-        Matrix<Real>& J, 
+        Matrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -48,9 +48,9 @@ void KKT
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
-    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
-    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
     // Jxx := Q
     // ========
@@ -76,7 +76,7 @@ void KKT
     {
         // Jxy := A^T
         // ==========
-        Transpose( A, Jxy ); 
+        Transpose( A, Jxy );
 
         // Jxz := G^T
         // ==========
@@ -91,7 +91,7 @@ void KKT
   const ElementalMatrix<Real>& G,
   const ElementalMatrix<Real>& s,
   const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre, 
+        ElementalMatrix<Real>& JPre,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -146,7 +146,7 @@ void KKT
   const SparseMatrix<Real>& G,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -158,7 +158,7 @@ void KKT
     const Int numEntriesQ = Q.NumEntries();
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesG = G.NumEntries();
-    // Count the number of entries of Q that we'll use 
+    // Count the number of entries of Q that we'll use
     Int numUsedEntriesQ;
     if( onlyLower )
     {
@@ -214,12 +214,12 @@ void KKT
 template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
         Real gamma,
         Real delta,
         Real beta,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
     DEBUG_CSE
@@ -231,7 +231,7 @@ void StaticKKT
     const Int numEntriesQ = Q.NumEntries();
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesG = G.NumEntries();
-    // Count the number of entries of Q that we'll use 
+    // Count the number of entries of Q that we'll use
     Int numUsedEntriesQ;
     if( onlyLower )
     {
@@ -499,10 +499,10 @@ void FinishKKT
 template<typename Real>
 void KKTRHS
 ( const Matrix<Real>& rc,
-  const Matrix<Real>& rb, 
+  const Matrix<Real>& rb,
   const Matrix<Real>& rh,
-  const Matrix<Real>& rmu, 
-  const Matrix<Real>& z, 
+  const Matrix<Real>& rmu,
+  const Matrix<Real>& z,
         Matrix<Real>& d )
 {
     DEBUG_CSE
@@ -528,10 +528,10 @@ void KKTRHS
 template<typename Real>
 void KKTRHS
 ( const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rb,
   const ElementalMatrix<Real>& rh,
-  const ElementalMatrix<Real>& rmu, 
-  const ElementalMatrix<Real>& z, 
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& dPre )
 {
     DEBUG_CSE
@@ -562,10 +562,10 @@ void KKTRHS
 template<typename Real>
 void KKTRHS
 ( const DistMultiVec<Real>& rc,
-  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rb,
   const DistMultiVec<Real>& rh,
-  const DistMultiVec<Real>& rmu, 
-  const DistMultiVec<Real>& z, 
+  const DistMultiVec<Real>& rmu,
+  const DistMultiVec<Real>& z,
         DistMultiVec<Real>& d )
 {
     DEBUG_CSE
@@ -608,7 +608,7 @@ template<typename Real>
 void ExpandCoreSolution
 ( Int m, Int n, Int k,
   const Matrix<Real>& d,
-        Matrix<Real>& dx, 
+        Matrix<Real>& dx,
         Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
@@ -699,13 +699,13 @@ void ExpandCoreSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const Matrix<Real>& d,
   const Matrix<Real>& rmu,
   const Matrix<Real>& s,
-  const Matrix<Real>& z, 
+  const Matrix<Real>& z,
         Matrix<Real>& dx,
-        Matrix<Real>& dy, 
+        Matrix<Real>& dy,
         Matrix<Real>& dz,
         Matrix<Real>& ds )
 {
@@ -723,13 +723,13 @@ void ExpandSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& rmu,
   const ElementalMatrix<Real>& s,
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& dx,
-        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz,
         ElementalMatrix<Real>& ds )
 {
@@ -753,7 +753,7 @@ void ExpandSolution
   const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& dx,
-        DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz,
         DistMultiVec<Real>& ds )
 {

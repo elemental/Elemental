@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_OPTIMIZATION_MODELS_C_H
@@ -246,61 +246,61 @@ EL_EXPORT ElError ElCPXDistSparse_d
 /* Dantzig selector
    ================ */
 EL_EXPORT ElError ElDS_s
-( ElConstMatrix_s A, ElConstMatrix_s b, 
+( ElConstMatrix_s A, ElConstMatrix_s b,
   float lambda, ElMatrix_s x );
 EL_EXPORT ElError ElDS_d
-( ElConstMatrix_d A, ElConstMatrix_d b, 
+( ElConstMatrix_d A, ElConstMatrix_d b,
   double lambda, ElMatrix_d x );
 
 EL_EXPORT ElError ElDSDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b,
   float lambda, ElDistMatrix_s x );
 EL_EXPORT ElError ElDSDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b,
   double lambda, ElDistMatrix_d x );
 
 EL_EXPORT ElError ElDSSparse_s
-( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+( ElConstSparseMatrix_s A, ElConstMatrix_s b,
   float lambda, ElMatrix_s x );
 EL_EXPORT ElError ElDSSparse_d
-( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+( ElConstSparseMatrix_d A, ElConstMatrix_d b,
   double lambda, ElMatrix_d x );
 
 EL_EXPORT ElError ElDSDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b,
   float lambda, ElDistMultiVec_s x );
 EL_EXPORT ElError ElDSDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b,
   double lambda, ElDistMultiVec_d x );
 
 /* Expert verions
    -------------- */
 EL_EXPORT ElError ElDSX_s
-( ElConstMatrix_s A, ElConstMatrix_s b, 
+( ElConstMatrix_s A, ElConstMatrix_s b,
   float lambda, ElMatrix_s x, ElLPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElDSX_d
-( ElConstMatrix_d A, ElConstMatrix_d b, 
+( ElConstMatrix_d A, ElConstMatrix_d b,
   double lambda, ElMatrix_d x, ElLPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElDSXDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b,
   float lambda, ElDistMatrix_s x, ElLPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElDSXDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b,
   double lambda, ElDistMatrix_d x, ElLPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElDSXSparse_s
-( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+( ElConstSparseMatrix_s A, ElConstMatrix_s b,
   float lambda, ElMatrix_s x, ElLPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElDSXSparse_d
-( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+( ElConstSparseMatrix_d A, ElConstMatrix_d b,
   double lambda, ElMatrix_d x, ElLPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElDSXDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b,
   float lambda, ElDistMultiVec_s x, ElLPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElDSXDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b,
   double lambda, ElDistMultiVec_d x, ElLPAffineCtrl_d ctrl );
 
 /* Least Absolute Value regression
@@ -355,198 +355,109 @@ EL_EXPORT ElError ElLAVXDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, ElDistMultiVec_d x,
   ElLPAffineCtrl_d ctrl );
 
-/* Logistic regression
-   =================== */
-typedef enum {
-  EL_NO_PENALTY,
-  EL_L1_PENALTY,
-  EL_L2_PENALTY
-} ElRegularization;
-
-EL_EXPORT ElError ElLogisticRegression_s
-( ElConstMatrix_s G, ElConstMatrix_s q, ElMatrix_s z, float gamma, 
-  ElRegularization penalty, ElInt* numIts );
-EL_EXPORT ElError ElLogisticRegression_d
-( ElConstMatrix_d G, ElConstMatrix_d q, ElMatrix_d z, double gamma, 
-  ElRegularization penalty, ElInt* numIts );
-
-EL_EXPORT ElError ElLogisticRegressionDist_s
-( ElConstDistMatrix_s G, ElConstDistMatrix_s q, ElDistMatrix_s z, float gamma, 
-  ElRegularization penalty, ElInt* numIts );
-EL_EXPORT ElError ElLogisticRegressionDist_d
-( ElConstDistMatrix_d G, ElConstDistMatrix_d q, ElDistMatrix_d z, double gamma, 
-  ElRegularization penalty, ElInt* numIts );
-
-/* Model fit
-   ========= */
-EL_EXPORT ElError ElModelFit_s
-( void (*lossProx)(ElMatrix_s,float), 
-  void (*regProx)(ElMatrix_s,float),
-  ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s w,
-  ElInt* numIts );
-EL_EXPORT ElError ElModelFit_d
-( void (*lossProx)(ElMatrix_d,double), 
-  void (*regProx)(ElMatrix_d,double),
-  ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d w,
-  ElInt* numIts );
-
-EL_EXPORT ElError ElModelFitDist_s
-( void (*lossProx)(ElDistMatrix_s,float), 
-  void (*regProx)(ElDistMatrix_s,float),
-  ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s w,
-  ElInt* numIts );
-EL_EXPORT ElError ElModelFitDist_d
-( void (*lossProx)(ElDistMatrix_d,double), 
-  void (*regProx)(ElDistMatrix_d,double),
-  ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d w, 
-  ElInt* numIts );
-
-/* Expert versions
-   --------------- */
-typedef struct
-{
-  float rho;
-  ElInt maxIter;
-  bool inv;
-  bool progress;
-} ElModelFitCtrl_s;
-
-typedef struct
-{
-  double rho;
-  ElInt maxIter;
-  bool inv;
-  bool progress;
-} ElModelFitCtrl_d;
-
-EL_EXPORT ElError ElModelFitCtrlDefault_s( ElModelFitCtrl_s* ctrl );
-EL_EXPORT ElError ElModelFitCtrlDefault_d( ElModelFitCtrl_d* ctrl );
-
-EL_EXPORT ElError ElModelFitX_s
-( void (*lossProx)(ElMatrix_s,float), 
-  void (*regProx)(ElMatrix_s,float),
-  ElConstMatrix_s A, ElConstMatrix_s b, ElMatrix_s w,
-  ElModelFitCtrl_s ctrl, ElInt* numIts );
-EL_EXPORT ElError ElModelFitX_d
-( void (*lossProx)(ElMatrix_d,double), 
-  void (*regProx)(ElMatrix_d,double),
-  ElConstMatrix_d A, ElConstMatrix_d b, ElMatrix_d w,
-  ElModelFitCtrl_d ctrl, ElInt* numIts );
-
-EL_EXPORT ElError ElModelFitXDist_s
-( void (*lossProx)(ElDistMatrix_s,float), 
-  void (*regProx)(ElDistMatrix_s,float),
-  ElConstDistMatrix_s A, ElConstDistMatrix_s b, ElDistMatrix_s w,
-  ElModelFitCtrl_s ctrl, ElInt* numIts );
-EL_EXPORT ElError ElModelFitXDist_d
-( void (*lossProx)(ElDistMatrix_d,double), 
-  void (*regProx)(ElDistMatrix_d,double),
-  ElConstDistMatrix_d A, ElConstDistMatrix_d b, ElDistMatrix_d w, 
-  ElModelFitCtrl_d ctrl, ElInt* numIts );
-
 /* Robust least squares
    ==================== */
 EL_EXPORT ElError ElRLS_s
-( ElConstMatrix_s A, 
-  ElConstMatrix_s b, float rho, 
+( ElConstMatrix_s A,
+  ElConstMatrix_s b, float rho,
   ElMatrix_s x );
 EL_EXPORT ElError ElRLS_d
-( ElConstMatrix_d A, 
-  ElConstMatrix_d b, double rho, 
+( ElConstMatrix_d A,
+  ElConstMatrix_d b, double rho,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElRLSSparse_s
-( ElConstSparseMatrix_s A, 
-  ElConstMatrix_s b, float rho, 
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, float rho,
   ElMatrix_s x );
 EL_EXPORT ElError ElRLSSparse_d
-( ElConstSparseMatrix_d A, 
-  ElConstMatrix_d b, double rho, 
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, double rho,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElRLSDist_s
-( ElConstDistMatrix_s A, 
-  ElConstDistMatrix_s b, float rho, 
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s b, float rho,
   ElDistMatrix_s x );
 EL_EXPORT ElError ElRLSDist_d
-( ElConstDistMatrix_d A, 
-  ElConstDistMatrix_d b, double rho, 
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d b, double rho,
   ElDistMatrix_d x );
 
 EL_EXPORT ElError ElRLSDistSparse_s
-( ElConstDistSparseMatrix_s A, 
-  ElConstDistMultiVec_s b, float rho, 
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, float rho,
   ElDistMultiVec_s x );
 EL_EXPORT ElError ElRLSDistSparse_d
-( ElConstDistSparseMatrix_d A, 
-  ElConstDistMultiVec_d b, double rho, 
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, double rho,
   ElDistMultiVec_d x );
 
 /* Expert versions
    --------------- */
 EL_EXPORT ElError ElRLSX_s
-( ElConstMatrix_s A, 
-  ElConstMatrix_s b, float rho, 
+( ElConstMatrix_s A,
+  ElConstMatrix_s b, float rho,
   ElMatrix_s x,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElRLSX_d
-( ElConstMatrix_d A, 
-  ElConstMatrix_d b, double rho, 
+( ElConstMatrix_d A,
+  ElConstMatrix_d b, double rho,
   ElMatrix_d x,
   ElSOCPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElRLSXSparse_s
-( ElConstSparseMatrix_s A, 
-  ElConstMatrix_s b, float rho, 
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, float rho,
   ElMatrix_s x,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElRLSXSparse_d
-( ElConstSparseMatrix_d A, 
-  ElConstMatrix_d b, double rho, 
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, double rho,
   ElMatrix_d x,
   ElSOCPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElRLSXDist_s
-( ElConstDistMatrix_s A, 
-  ElConstDistMatrix_s b, float rho, 
+( ElConstDistMatrix_s A,
+  ElConstDistMatrix_s b, float rho,
   ElDistMatrix_s x,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElRLSXDist_d
-( ElConstDistMatrix_d A, 
-  ElConstDistMatrix_d b, double rho, 
+( ElConstDistMatrix_d A,
+  ElConstDistMatrix_d b, double rho,
   ElDistMatrix_d x,
   ElSOCPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElRLSXDistSparse_s
-( ElConstDistSparseMatrix_s A, 
-  ElConstDistMultiVec_s b, float rho, 
+( ElConstDistSparseMatrix_s A,
+  ElConstDistMultiVec_s b, float rho,
   ElDistMultiVec_s x,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElRLSXDistSparse_d
-( ElConstDistSparseMatrix_d A, 
-  ElConstDistMultiVec_d b, double rho, 
+( ElConstDistSparseMatrix_d A,
+  ElConstDistMultiVec_d b, double rho,
   ElDistMultiVec_d x,
   ElSOCPAffineCtrl_d ctrl );
 
 /* Robust non-negative least squares
    ================================= */
 EL_EXPORT ElError ElRNNLS_s
-( ElConstMatrix_s A, 
-  ElConstMatrix_s b, float rho, 
+( ElConstMatrix_s A,
+  ElConstMatrix_s b, float rho,
   ElMatrix_s x );
 EL_EXPORT ElError ElRNNLS_d
-( ElConstMatrix_d A, 
-  ElConstMatrix_d b, double rho, 
+( ElConstMatrix_d A,
+  ElConstMatrix_d b, double rho,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElRNNLSSparse_s
-( ElConstSparseMatrix_s A, 
-  ElConstMatrix_s b, float rho, 
+( ElConstSparseMatrix_s A,
+  ElConstMatrix_s b, float rho,
   ElMatrix_s x );
 EL_EXPORT ElError ElRNNLSSparse_d
-( ElConstSparseMatrix_d A, 
-  ElConstMatrix_d b, double rho, 
-  ElMatrix_d x ); 
+( ElConstSparseMatrix_d A,
+  ElConstMatrix_d b, double rho,
+  ElMatrix_d x );
 
 EL_EXPORT ElError ElRNNLSDist_s
 ( ElConstDistMatrix_s A,
@@ -678,12 +589,12 @@ EL_EXPORT ElError ElNNLSCtrlDefault_d( ElNNLSCtrl_d* ctrl );
 EL_EXPORT ElError ElNNLSX_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b,
-  ElMatrix_s x, 
+  ElMatrix_s x,
   ElNNLSCtrl_s ctrl );
 EL_EXPORT ElError ElNNLSX_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b,
-  ElMatrix_d x, 
+  ElMatrix_d x,
   ElNNLSCtrl_d ctrl );
 
 EL_EXPORT ElError ElNNLSXDist_s
@@ -750,12 +661,12 @@ EL_EXPORT ElError ElNMFCtrlDefault_d( ElNMFCtrl_d* ctrl );
 EL_EXPORT ElError ElNMFX_s
 ( ElConstMatrix_s A,
   ElMatrix_s X,
-  ElMatrix_s Y, 
+  ElMatrix_s Y,
   ElNMFCtrl_s ctrl );
 EL_EXPORT ElError ElNMFX_d
 ( ElConstMatrix_d A,
   ElMatrix_d X,
-  ElMatrix_d Y, 
+  ElMatrix_d Y,
   ElNMFCtrl_d ctrl );
 
 EL_EXPORT ElError ElNMFXDist_s
@@ -774,23 +685,23 @@ EL_EXPORT ElError ElNMFXDist_d
 EL_EXPORT ElError ElBPDN_s
 ( ElConstMatrix_s A,
   ElConstMatrix_s b,
-  float lambda, 
+  float lambda,
   ElMatrix_s x );
 EL_EXPORT ElError ElBPDN_d
 ( ElConstMatrix_d A,
   ElConstMatrix_d b,
-  double lambda, 
+  double lambda,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElBPDNDist_s
 ( ElConstDistMatrix_s A,
   ElConstDistMatrix_s b,
-  float lambda, 
+  float lambda,
   ElDistMatrix_s x );
 EL_EXPORT ElError ElBPDNDist_d
 ( ElConstDistMatrix_d A,
   ElConstDistMatrix_d b,
-  double lambda, 
+  double lambda,
   ElDistMatrix_d x );
 
 EL_EXPORT ElError ElBPDNSparse_s
@@ -907,80 +818,80 @@ EL_EXPORT ElError ElBPDNXDistSparse_d
   ElDistMultiVec_d x,
   ElBPDNCtrl_d ctrl );
 
-// Elastic net (EN): 
+// Elastic net (EN):
 //   min || b - A x ||_2^2 + lambda_1 || x ||_1 + lambda_2 || x ||_2^2
 // ===================================================================
 EL_EXPORT ElError ElEN_s
-( ElConstMatrix_s A, ElConstMatrix_s b, 
+( ElConstMatrix_s A, ElConstMatrix_s b,
   float lambda1, float lambda2,
   ElMatrix_s x );
 EL_EXPORT ElError ElEN_d
-( ElConstMatrix_d A, ElConstMatrix_d b, 
+( ElConstMatrix_d A, ElConstMatrix_d b,
   double lambda1, double lambda2,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElENDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b,
   float lambda1, float lambda2,
   ElDistMatrix_s x );
 EL_EXPORT ElError ElENDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b,
   double lambda1, double lambda2,
   ElDistMatrix_d x );
 
 EL_EXPORT ElError ElENSparse_s
-( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+( ElConstSparseMatrix_s A, ElConstMatrix_s b,
   float lambda1, float lambda2,
   ElMatrix_s x );
 EL_EXPORT ElError ElENSparse_d
-( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+( ElConstSparseMatrix_d A, ElConstMatrix_d b,
   double lambda1, double lambda2,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElENDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b,
   float lambda1, float lambda2,
   ElDistMultiVec_s x );
 EL_EXPORT ElError ElENDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b,
   double lambda1, double lambda2,
   ElDistMultiVec_d x );
 
 /* Expert verions
    -------------- */
 EL_EXPORT ElError ElENX_s
-( ElConstMatrix_s A, ElConstMatrix_s b, 
+( ElConstMatrix_s A, ElConstMatrix_s b,
   float lambda1, float lambda2,
   ElMatrix_s x, ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElENX_d
-( ElConstMatrix_d A, ElConstMatrix_d b, 
+( ElConstMatrix_d A, ElConstMatrix_d b,
   double lambda1, double lambda2,
   ElMatrix_d x, ElQPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElENXDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s b, 
+( ElConstDistMatrix_s A, ElConstDistMatrix_s b,
   float lambda1, float lambda2,
   ElDistMatrix_s x, ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElENXDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d b, 
+( ElConstDistMatrix_d A, ElConstDistMatrix_d b,
   double lambda1, double lambda2,
   ElDistMatrix_d x, ElQPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElENXSparse_s
-( ElConstSparseMatrix_s A, ElConstMatrix_s b, 
+( ElConstSparseMatrix_s A, ElConstMatrix_s b,
   float lambda1, float lambda2,
   ElMatrix_s x, ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElENXSparse_d
-( ElConstSparseMatrix_d A, ElConstMatrix_d b, 
+( ElConstSparseMatrix_d A, ElConstMatrix_d b,
   double lambda1, double lambda2,
   ElMatrix_d x, ElQPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElENXDistSparse_s
-( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b, 
+( ElConstDistSparseMatrix_s A, ElConstDistMultiVec_s b,
   float lambda1, float lambda2,
   ElDistMultiVec_s x, ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElENXDistSparse_d
-( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b, 
+( ElConstDistSparseMatrix_d A, ElConstDistMultiVec_d b,
   double lambda1, double lambda2,
   ElDistMultiVec_d x, ElQPAffineCtrl_d ctrl );
 
@@ -1039,16 +950,16 @@ EL_EXPORT ElError ElRPCAX_z
 ( ElConstMatrix_z M, ElMatrix_z L, ElMatrix_z S, ElRPCACtrl_d ctrl );
 
 EL_EXPORT ElError ElRPCAXDist_s
-( ElConstDistMatrix_s M, ElDistMatrix_s L, ElDistMatrix_s S, 
+( ElConstDistMatrix_s M, ElDistMatrix_s L, ElDistMatrix_s S,
   ElRPCACtrl_s ctrl );
 EL_EXPORT ElError ElRPCAXDist_d
-( ElConstDistMatrix_d M, ElDistMatrix_d L, ElDistMatrix_d S, 
+( ElConstDistMatrix_d M, ElDistMatrix_d L, ElDistMatrix_d S,
   ElRPCACtrl_d ctrl );
 EL_EXPORT ElError ElRPCAXDist_c
-( ElConstDistMatrix_c M, ElDistMatrix_c L, ElDistMatrix_c S, 
+( ElConstDistMatrix_c M, ElDistMatrix_c L, ElDistMatrix_c S,
   ElRPCACtrl_s ctrl );
 EL_EXPORT ElError ElRPCAXDist_z
-( ElConstDistMatrix_z M, ElDistMatrix_z L, ElDistMatrix_z S, 
+( ElConstDistMatrix_z M, ElDistMatrix_z L, ElDistMatrix_z S,
   ElRPCACtrl_d ctrl );
 
 /* Sparse inverse covariance selection
@@ -1095,7 +1006,7 @@ EL_EXPORT ElError ElSparseInvCovCtrlDefault_s( ElSparseInvCovCtrl_s* ctrl );
 EL_EXPORT ElError ElSparseInvCovCtrlDefault_d( ElSparseInvCovCtrl_d* ctrl );
 
 EL_EXPORT ElError ElSparseInvCovX_s
-( ElConstMatrix_s D, float lambda, ElMatrix_s Z, 
+( ElConstMatrix_s D, float lambda, ElMatrix_s Z,
   ElSparseInvCovCtrl_s ctrl, ElInt* numIts );
 EL_EXPORT ElError ElSparseInvCovX_d
 ( ElConstMatrix_d D, double lambda, ElMatrix_d Z,
@@ -1123,17 +1034,17 @@ EL_EXPORT ElError ElSparseInvCovXDist_z
 /* Support Vector Machine
    ====================== */
 EL_EXPORT ElError ElSVM_s
-( ElConstMatrix_s A, ElConstMatrix_s d, float lambda, 
+( ElConstMatrix_s A, ElConstMatrix_s d, float lambda,
   ElMatrix_s x );
 EL_EXPORT ElError ElSVM_d
-( ElConstMatrix_d A, ElConstMatrix_d d, double lambda, 
+( ElConstMatrix_d A, ElConstMatrix_d d, double lambda,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElSVMDist_s
-( ElConstDistMatrix_s A, ElConstDistMatrix_s d, float lambda, 
+( ElConstDistMatrix_s A, ElConstDistMatrix_s d, float lambda,
   ElDistMatrix_s x );
 EL_EXPORT ElError ElSVMDist_d
-( ElConstDistMatrix_d A, ElConstDistMatrix_d d, double lambda, 
+( ElConstDistMatrix_d A, ElConstDistMatrix_d d, double lambda,
   ElDistMatrix_d x );
 
 EL_EXPORT ElError ElSVMSparse_s
@@ -1154,15 +1065,11 @@ EL_EXPORT ElError ElSVMDistSparse_d
    -------------- */
 typedef struct
 {
-  bool useIPM;
-  ElModelFitCtrl_s modelFitCtrl;
   ElQPAffineCtrl_s ipmCtrl;
 } ElSVMCtrl_s;
 
 typedef struct
 {
-  bool useIPM;
-  ElModelFitCtrl_d modelFitCtrl;
   ElQPAffineCtrl_d ipmCtrl;
 } ElSVMCtrl_d;
 
@@ -1202,7 +1109,7 @@ EL_EXPORT ElError ElSVMXDistSparse_d
 EL_EXPORT ElError ElTV_s
 ( ElConstMatrix_s b, float lambda, ElMatrix_s x );
 EL_EXPORT ElError ElTV_d
-( ElConstMatrix_d b, double lambda, 
+( ElConstMatrix_d b, double lambda,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElTVDist_s
@@ -1223,57 +1130,57 @@ EL_EXPORT ElError ElTVDistSparse_d
 /* Expert versions
    --------------- */
 EL_EXPORT ElError ElTVX_s
-( ElConstMatrix_s b, float lambda, ElMatrix_s x, 
+( ElConstMatrix_s b, float lambda, ElMatrix_s x,
   ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElTVX_d
-( ElConstMatrix_d b, double lambda, ElMatrix_d x, 
+( ElConstMatrix_d b, double lambda, ElMatrix_d x,
   ElQPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElTVXDist_s
-( ElConstDistMatrix_s b, float lambda, ElDistMatrix_s x, 
+( ElConstDistMatrix_s b, float lambda, ElDistMatrix_s x,
   ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElTVXDist_d
-( ElConstDistMatrix_d b, double lambda, ElDistMatrix_d x, 
+( ElConstDistMatrix_d b, double lambda, ElDistMatrix_d x,
   ElQPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElTVXSparse_s
-( ElConstMatrix_s b, float lambda, ElMatrix_s x, 
+( ElConstMatrix_s b, float lambda, ElMatrix_s x,
   ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElTVXSparse_d
-( ElConstMatrix_d b, double lambda, ElMatrix_d x, 
+( ElConstMatrix_d b, double lambda, ElMatrix_d x,
   ElQPAffineCtrl_d ctrl );
 
 EL_EXPORT ElError ElTVXDistSparse_s
-( ElConstDistMultiVec_s b, float lambda, ElDistMultiVec_s x, 
+( ElConstDistMultiVec_s b, float lambda, ElDistMultiVec_s x,
   ElQPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElTVXDistSparse_d
-( ElConstDistMultiVec_d b, double lambda, ElDistMultiVec_d x, 
+( ElConstDistMultiVec_d b, double lambda, ElDistMultiVec_d x,
   ElQPAffineCtrl_d ctrl );
 
 /* Long-only Portfolio
    =================== */
 EL_EXPORT ElError ElLongOnlyPortfolioSparse_s
 ( ElConstMatrix_s d,
-  ElConstSparseMatrix_s F, 
+  ElConstSparseMatrix_s F,
   ElConstMatrix_s c,
   float gamma,
   ElMatrix_s x );
 EL_EXPORT ElError ElLongOnlyPortfolioSparse_d
 ( ElConstMatrix_d d,
-  ElConstSparseMatrix_d F, 
+  ElConstSparseMatrix_d F,
   ElConstMatrix_d c,
   double gamma,
   ElMatrix_d x );
 
 EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_s
 ( ElConstDistMultiVec_s d,
-  ElConstDistSparseMatrix_s F, 
+  ElConstDistSparseMatrix_s F,
   ElConstDistMultiVec_s c,
   float gamma,
   ElDistMultiVec_s x );
 EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_d
 ( ElConstDistMultiVec_d d,
-  ElConstDistSparseMatrix_d F, 
+  ElConstDistSparseMatrix_d F,
   ElConstDistMultiVec_d c,
   double gamma,
   ElDistMultiVec_d x );
@@ -1282,14 +1189,14 @@ EL_EXPORT ElError ElLongOnlyPortfolioDistSparse_d
    --------------- */
 EL_EXPORT ElError ElLongOnlyPortfolioXSparse_s
 ( ElConstMatrix_s d,
-  ElConstSparseMatrix_s F, 
+  ElConstSparseMatrix_s F,
   ElConstMatrix_s c,
   float gamma,
   ElMatrix_s x,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElLongOnlyPortfolioXSparse_d
 ( ElConstMatrix_d d,
-  ElConstSparseMatrix_d F, 
+  ElConstSparseMatrix_d F,
   ElConstMatrix_d c,
   double gamma,
   ElMatrix_d x,
@@ -1297,14 +1204,14 @@ EL_EXPORT ElError ElLongOnlyPortfolioXSparse_d
 
 EL_EXPORT ElError ElLongOnlyPortfolioXDistSparse_s
 ( ElConstDistMultiVec_s d,
-  ElConstDistSparseMatrix_s F, 
+  ElConstDistSparseMatrix_s F,
   ElConstDistMultiVec_s c,
   float gamma,
   ElDistMultiVec_s x,
   ElSOCPAffineCtrl_s ctrl );
 EL_EXPORT ElError ElLongOnlyPortfolioXDistSparse_d
 ( ElConstDistMultiVec_d d,
-  ElConstDistSparseMatrix_d F, 
+  ElConstDistSparseMatrix_d F,
   ElConstDistMultiVec_d c,
   double gamma,
   ElDistMultiVec_d x,

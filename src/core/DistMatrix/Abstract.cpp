@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -24,18 +24,18 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const El::Grid& grid, int root )
 { }
 
 template<typename T>
-AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A ) 
+AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
 EL_NO_EXCEPT
 : viewType_(A.viewType_),
   height_(A.height_),
-  width_(A.width_), 
+  width_(A.width_),
   colConstrained_(A.colConstrained_),
   rowConstrained_(A.rowConstrained_),
   rootConstrained_(A.rootConstrained_),
   colAlign_(A.colAlign_),
   rowAlign_(A.rowAlign_),
   colShift_(A.colShift_),
-  rowShift_(A.rowShift_), 
+  rowShift_(A.rowShift_),
   root_(A.root_),
   grid_(A.grid_)
 { matrix_.ShallowSwap( A.matrix_ ); }
@@ -80,15 +80,15 @@ AbstractDistMatrix<T>::SetGrid( const El::Grid& grid )
 {
     if( grid_ != &grid )
     {
-        grid_ = &grid; 
+        grid_ = &grid;
         Empty(false);
     }
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::FreeAlignments() 
-{ 
+AbstractDistMatrix<T>::FreeAlignments()
+{
     if( !Viewing() )
     {
         colConstrained_ = false;
@@ -113,17 +113,17 @@ AbstractDistMatrix<T>::MakeSizeConsistent( bool includingViewers )
         message[1] = width_;
     }
 
-    const auto& g = *grid_;
-    if( !g.InGrid() && !includingViewers )
+    const auto& grid = *grid_;
+    if( !grid.InGrid() && !includingViewers )
         LogicError("Non-participating process called MakeSizeConsistent");
-    if( g.InGrid() )
+    if( grid.InGrid() )
         mpi::Broadcast( message, msgSize, Root(), CrossComm() );
     if( includingViewers )
     {
-        const Int vcRoot = g.VCToViewing(0);
-        mpi::Broadcast( message, msgSize, vcRoot, g.ViewingComm() );
+        const Int vcRoot = grid.VCToViewing(0);
+        mpi::Broadcast( message, msgSize, vcRoot, grid.ViewingComm() );
     }
-    const Int newHeight = message[0]; 
+    const Int newHeight = message[0];
     const Int newWidth  = message[1];
     Resize( newHeight, newWidth );
 }
@@ -154,7 +154,7 @@ AbstractDistMatrix<T>::SetRoot( int root, bool constrain )
 // Move assignment
 // ---------------
 template<typename T>
-AbstractDistMatrix<T>& 
+AbstractDistMatrix<T>&
 AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 {
     DEBUG_CSE
@@ -208,10 +208,10 @@ Int AbstractDistMatrix<T>::DiagonalLength( Int offset ) const EL_NO_EXCEPT
 { return El::DiagonalLength(height_,width_,offset); }
 
 template<typename T>
-bool AbstractDistMatrix<T>::Viewing() const EL_NO_EXCEPT 
+bool AbstractDistMatrix<T>::Viewing() const EL_NO_EXCEPT
 { return IsViewing( viewType_ ); }
 template<typename T>
-bool AbstractDistMatrix<T>::Locked() const EL_NO_EXCEPT 
+bool AbstractDistMatrix<T>::Locked() const EL_NO_EXCEPT
 { return IsLocked( viewType_ ); }
 
 // Local matrix information
@@ -228,15 +228,15 @@ Int AbstractDistMatrix<T>::LDim() const EL_NO_EXCEPT
 { return matrix_.LDim(); }
 
 template<typename T>
-El::Matrix<T>& 
+El::Matrix<T>&
 AbstractDistMatrix<T>::Matrix() EL_NO_EXCEPT { return matrix_; }
 template<typename T>
-const El::Matrix<T>& 
+const El::Matrix<T>&
 AbstractDistMatrix<T>::LockedMatrix() const EL_NO_EXCEPT { return matrix_; }
 
 template<typename T>
 size_t
-AbstractDistMatrix<T>::AllocatedMemory() const EL_NO_EXCEPT 
+AbstractDistMatrix<T>::AllocatedMemory() const EL_NO_EXCEPT
 { return matrix_.MemorySize(); }
 
 template<typename T>
@@ -296,7 +296,7 @@ int AbstractDistMatrix<T>::Owner( Int i, Int j ) const EL_NO_EXCEPT
 
 template<typename T>
 Int AbstractDistMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(
       if( !IsLocalRow(i) )
@@ -321,7 +321,7 @@ Int AbstractDistMatrix<T>::LocalCol( Int j ) const EL_NO_RELEASE_EXCEPT
 template<typename T>
 Int AbstractDistMatrix<T>::LocalRow( Int i, int rowOwner ) const
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     DEBUG_ONLY(
       if( RowOwner(i) != rowOwner )
@@ -385,7 +385,7 @@ EL_NO_RELEASE_EXCEPT
             value = GetLocal( LocalRow(i), LocalCol(j) );
         mpi::Broadcast( value, owner, DistComm() );
     }
-    mpi::Broadcast( value, Root(), CrossComm() ); 
+    mpi::Broadcast( value, Root(), CrossComm() );
     return value;
 }
 
@@ -554,7 +554,7 @@ EL_NO_RELEASE_EXCEPT
 // --------------------
 template<typename T>
 void AbstractDistMatrix<T>::Reserve( Int numRemoteUpdates )
-{ 
+{
     DEBUG_CSE
     const Int currSize = remoteUpdates.size();
     remoteUpdates.reserve( currSize+numRemoteUpdates );
@@ -583,7 +583,7 @@ template<typename T>
 void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
 {
     DEBUG_CSE
-    const auto& g = Grid();
+    const auto& grid = Grid();
     const Dist colDist = ColDist();
     const Dist rowDist = RowDist();
     const Int totalSend = remoteUpdates.size();
@@ -597,16 +597,16 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     vector<int> sendCounts, owners(totalSend);
     if( includeViewers )
     {
-        comm = g.ViewingComm();
-        const int viewingSize = mpi::Size( g.ViewingComm() );
+        comm = grid.ViewingComm();
+        const int viewingSize = mpi::Size( grid.ViewingComm() );
         sendCounts.resize(viewingSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
             const Entry<T>& entry = remoteUpdates[k];
             const int distOwner = Owner(entry.i,entry.j);
             const int vcOwner =
-              g.CoordsToVC(colDist,rowDist,distOwner,redundantRoot);
-            owners[k] = g.VCToViewing(vcOwner);
+              grid.CoordsToVC(colDist,rowDist,distOwner,redundantRoot);
+            owners[k] = grid.VCToViewing(vcOwner);
             ++sendCounts[owners[k]];
         }
     }
@@ -614,14 +614,15 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
     {
         if( !Participating() )
             return;
-        comm = g.VCComm();
-        const int vcSize = mpi::Size( g.VCComm() );
+        comm = grid.VCComm();
+        const int vcSize = mpi::Size( grid.VCComm() );
         sendCounts.resize(vcSize,0);
         for( Int k=0; k<totalSend; ++k )
         {
             const Entry<T>& entry = remoteUpdates[k];
             const int distOwner = Owner(entry.i,entry.j);
-            owners[k] = g.CoordsToVC(colDist,rowDist,distOwner,redundantRoot);
+            owners[k] =
+              grid.CoordsToVC(colDist,rowDist,distOwner,redundantRoot);
             ++sendCounts[owners[k]];
         }
     }
@@ -651,7 +652,7 @@ void AbstractDistMatrix<T>::ProcessQueues( bool includeViewers )
 
 template<typename T>
 void AbstractDistMatrix<T>::ReservePulls( Int numPulls ) const
-{ 
+{
     DEBUG_CSE
     remotePulls_.reserve( numPulls );
 }
@@ -667,7 +668,7 @@ template<typename T>
 void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) const
 {
     DEBUG_CSE
-    const auto& g = Grid();
+    const auto& grid = Grid();
     const Dist colDist = ColDist();
     const Dist rowDist = RowDist();
     const int root = Root();
@@ -680,7 +681,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) 
     vector<int> recvCounts, owners(totalRecv);
     if( includeViewers )
     {
-        comm = g.ViewingComm();
+        comm = grid.ViewingComm();
         commSize = mpi::Size( comm );
         recvCounts.resize(commSize,0);
         for( Int k=0; k<totalRecv; ++k )
@@ -689,8 +690,8 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) 
             const Int i = valueInt.value;
             const Int j = valueInt.index;
             const int distOwner = Owner(i,j);
-            const int vcOwner = g.CoordsToVC(colDist,rowDist,distOwner,root);
-            const int owner = g.VCToViewing(vcOwner);
+            const int vcOwner = grid.CoordsToVC(colDist,rowDist,distOwner,root);
+            const int owner = grid.VCToViewing(vcOwner);
             owners[k] = owner;
             ++recvCounts[owner];
         }
@@ -699,7 +700,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) 
     {
         if( !Participating() )
             return;
-        comm = g.VCComm();
+        comm = grid.VCComm();
         commSize = mpi::Size( comm );
         recvCounts.resize(commSize,0);
         for( Int k=0; k<totalRecv; ++k )
@@ -708,7 +709,7 @@ void AbstractDistMatrix<T>::ProcessPullQueue( T* pullBuf, bool includeViewers ) 
             const Int i = valueInt.value;
             const Int j = valueInt.index;
             const int distOwner = Owner(i,j);
-            const int owner = g.CoordsToVC(colDist,rowDist,distOwner,root);
+            const int owner = grid.CoordsToVC(colDist,rowDist,distOwner,root);
             owners[k] = owner;
             ++recvCounts[owner];
         }
@@ -946,7 +947,7 @@ AbstractDistMatrix<T>::AssertValidSubmatrix
          ",",j+width-1,") of ",Height()," x ",Width()," matrix");
 }
 
-template<typename T> 
+template<typename T>
 void
 AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
 {
@@ -961,7 +962,7 @@ AbstractDistMatrix<T>::AssertSameSize( Int height, Int width ) const
 // =====================================
 
 template<typename T>
-void 
+void
 AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
 {
     matrix_.ShallowSwap( A.matrix_ );

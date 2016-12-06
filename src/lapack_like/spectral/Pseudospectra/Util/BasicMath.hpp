@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_PSEUDOSPECTRA_UTIL_BASICMATH_HPP
@@ -12,52 +12,54 @@
 namespace El {
 namespace pspec {
 
-template<typename F>
-bool TriangIsNormal( const Matrix<F>& U, Base<F> tol )
+template<typename Field>
+bool TriangIsNormal( const Matrix<Field>& U, Base<Field> tol )
 {
-    const Base<F> diagFrob = FrobeniusNorm(GetDiagonal(U));
-    const Base<F> upperFrob = FrobeniusNorm( U );
-    const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
+    const Base<Field> diagFrob = FrobeniusNorm(GetDiagonal(U));
+    const Base<Field> upperFrob = FrobeniusNorm( U );
+    const Base<Field> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;
 }
 
-template<typename F>
-bool TriangIsNormal( const ElementalMatrix<F>& UPre, Base<F> tol )
+template<typename Field>
+bool TriangIsNormal( const AbstractDistMatrix<Field>& UPre, Base<Field> tol )
 {
-    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> UProx( UPre );
     auto& U = UProx.GetLocked();
 
-    const Base<F> diagFrob = FrobeniusNorm(GetDiagonal(U));
-    const Base<F> upperFrob = FrobeniusNorm( U );
-    const Base<F> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
+    const Base<Field> diagFrob = FrobeniusNorm(GetDiagonal(U));
+    const Base<Field> upperFrob = FrobeniusNorm( U );
+    const Base<Field> offDiagFrob = Sqrt(upperFrob*upperFrob-diagFrob*diagFrob);
     return offDiagFrob <= tol*diagFrob;
 }
 
-template<typename F>
-bool QuasiTriangIsNormal( const Matrix<F>& U, Base<F> tol )
+template<typename Field>
+bool QuasiTriangIsNormal( const Matrix<Field>& U, Base<Field> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
-    const Base<F> eigFrob = FrobeniusNorm( w );
-    const Base<F> upperFrob = FrobeniusNorm( U );
-    const Base<F> strictlyUpperFrob = Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
+    const Base<Field> eigFrob = FrobeniusNorm( w );
+    const Base<Field> upperFrob = FrobeniusNorm( U );
+    const Base<Field> strictlyUpperFrob =
+      Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
     return strictlyUpperFrob <= tol*eigFrob;
 }
 
-template<typename F>
-bool QuasiTriangIsNormal( const ElementalMatrix<F>& U, Base<F> tol )
+template<typename Field>
+bool QuasiTriangIsNormal( const AbstractDistMatrix<Field>& U, Base<Field> tol )
 {
     const auto w = schur::QuasiTriangEig( U );
-    const Base<F> eigFrob = FrobeniusNorm( w );
-    const Base<F> upperFrob = FrobeniusNorm( U );
-    const Base<F> strictlyUpperFrob = Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
+    const Base<Field> eigFrob = FrobeniusNorm( w );
+    const Base<Field> upperFrob = FrobeniusNorm( U );
+    const Base<Field> strictlyUpperFrob =
+      Sqrt(upperFrob*upperFrob-eigFrob*eigFrob);
     return strictlyUpperFrob <= tol*eigFrob;
 }
 
-template<typename F>
-Base<F> NormCap() { return Base<F>(1)/limits::Epsilon<Base<F>>(); }
+template<typename Field>
+Base<Field> NormCap() { return Base<Field>(1)/limits::Epsilon<Base<Field>>(); }
 
-template<typename F>
-bool HasNan( const Matrix<F>& H )
+template<typename Field>
+bool HasNan( const Matrix<Field>& H )
 {
     DEBUG_CSE
     bool hasNan = false;
@@ -71,10 +73,10 @@ bool HasNan( const Matrix<F>& H )
     return hasNan;
 }
 
-template<typename F,typename FComp>
+template<typename Field,typename FieldComp>
 void ColumnSubtractions
-( const Matrix<FComp>& components,
-  const Matrix<F>& X, Matrix<F>& Y )
+( const Matrix<FieldComp>& components,
+  const Matrix<Field>& X, Matrix<Field>& Y )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -85,7 +87,7 @@ void ColumnSubtractions
     const Int m = Y.Height();
     for( Int j=0; j<numShifts; ++j )
     {
-        const F gamma = components(j);
+        const Field gamma = components(j);
         blas::Axpy( m, -gamma, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
     }
 }
@@ -117,10 +119,10 @@ void ColumnSubtractions
     }
 }
 
-template<typename F,typename FComp>
+template<typename Field,typename FieldComp>
 void ColumnSubtractions
-( const Matrix<FComp>& components,
-  const DistMatrix<F>& X, DistMatrix<F>& Y )
+( const Matrix<FieldComp>& components,
+  const DistMatrix<Field>& X, DistMatrix<Field>& Y )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -138,21 +140,23 @@ void ColumnSubtractions
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( XReal.ColAlign() != YReal.ColAlign() || 
+      if( XReal.ColAlign() != YReal.ColAlign() ||
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
     ColumnSubtractions
-    ( components, XReal.LockedMatrix(), XImag.LockedMatrix(), 
+    ( components, XReal.LockedMatrix(), XImag.LockedMatrix(),
                   YReal.Matrix(),       YImag.Matrix() );
 }
 
-template<typename F>
+template<typename Field>
 void InnerProducts
-( const Matrix<F>& X, const Matrix<F>& Y, Matrix<Base<F>>& innerProds )
+( const Matrix<Field>& X,
+  const Matrix<Field>& Y,
+        Matrix<Base<Field>>& innerProds )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int numShifts = X.Width();
     const Int m = X.Height();
     innerProds.Resize( numShifts, 1 );
@@ -168,7 +172,7 @@ void InnerProducts
 template<typename Real>
 void InnerProducts
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
-  const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
+  const Matrix<Real>& YReal, const Matrix<Real>& YImag,
         Matrix<Real>& innerProds )
 {
     DEBUG_CSE
@@ -180,16 +184,16 @@ void InnerProducts
         const Real alpha =
             blas::Dot( m, XReal.LockedBuffer(0,j), 1,
                           YReal.LockedBuffer(0,j), 1 );
-        const Real beta = 
+        const Real beta =
             blas::Dot( m, XImag.LockedBuffer(0,j), 1,
                           YImag.LockedBuffer(0,j), 1 );
         innerProds(j) = alpha+beta;
     }
 }
 
-template<typename F>
+template<typename Field>
 void InnerProducts
-( const Matrix<F>& X, const Matrix<F>& Y, Matrix<F>& innerProds )
+( const Matrix<Field>& X, const Matrix<Field>& Y, Matrix<Field>& innerProds )
 {
     DEBUG_CSE
     const Int numShifts = X.Width();
@@ -197,7 +201,7 @@ void InnerProducts
     innerProds.Resize( numShifts, 1 );
     for( Int j=0; j<numShifts; ++j )
     {
-        const F alpha =
+        const Field alpha =
             blas::Dot( m, X.LockedBuffer(0,j), 1,
                           Y.LockedBuffer(0,j), 1 );
         innerProds(j) = alpha;
@@ -207,7 +211,7 @@ void InnerProducts
 template<typename Real>
 void InnerProducts
 ( const Matrix<Real>& XReal, const Matrix<Real>& XImag,
-  const Matrix<Real>& YReal, const Matrix<Real>& YImag, 
+  const Matrix<Real>& YReal, const Matrix<Real>& YImag,
         Matrix<Complex<Real>>& innerProds )
 {
     DEBUG_CSE
@@ -219,10 +223,10 @@ void InnerProducts
         const Real alpha =
             blas::Dot( m, XReal.LockedBuffer(0,j), 1,
                           YReal.LockedBuffer(0,j), 1 );
-        const Real beta = 
+        const Real beta =
             blas::Dot( m, XImag.LockedBuffer(0,j), 1,
                           YImag.LockedBuffer(0,j), 1 );
-        const Real delta = 
+        const Real delta =
             blas::Dot( m, XReal.LockedBuffer(0,j), 1,
                           YImag.LockedBuffer(0,j), 1 );
         const Real gamma =
@@ -233,10 +237,12 @@ void InnerProducts
     }
 }
 
-// TODO: Use the appropriate distribution for 'innerProds'
-template<typename F>
+// TODO(poulson): Use the appropriate distribution for 'innerProds'
+template<typename Field>
 void InnerProducts
-( const DistMatrix<F>& X, const DistMatrix<F>& Y, Matrix<Base<F>>& innerProds )
+( const DistMatrix<Field>& X,
+  const DistMatrix<Field>& Y,
+        Matrix<Base<Field>>& innerProds )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -256,21 +262,23 @@ void InnerProducts
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( XReal.ColAlign() != YReal.ColAlign() || 
+      if( XReal.ColAlign() != YReal.ColAlign() ||
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
     InnerProducts
-    ( XReal.LockedMatrix(), XImag.LockedMatrix(), 
+    ( XReal.LockedMatrix(), XImag.LockedMatrix(),
       YReal.LockedMatrix(), YImag.LockedMatrix(), innerProds );
     const Int numLocShifts = XReal.LocalWidth();
     mpi::AllReduce
     ( innerProds.Buffer(), numLocShifts, mpi::SUM, XReal.ColComm() );
 }
 
-template<typename F>
+template<typename Field>
 void InnerProducts
-( const DistMatrix<F>& X, const DistMatrix<F>& Y, Matrix<F>& innerProds )
+( const DistMatrix<Field>& X,
+  const DistMatrix<Field>& Y,
+        Matrix<Field>& innerProds )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -290,23 +298,23 @@ void InnerProducts
 {
     DEBUG_CSE
     DEBUG_ONLY(
-      if( XReal.ColAlign() != YReal.ColAlign() || 
+      if( XReal.ColAlign() != YReal.ColAlign() ||
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
     InnerProducts
-    ( XReal.LockedMatrix(), XImag.LockedMatrix(), 
+    ( XReal.LockedMatrix(), XImag.LockedMatrix(),
       YReal.LockedMatrix(), YImag.LockedMatrix(), innerProds );
     const Int numLocShifts = XReal.LocalWidth();
     mpi::AllReduce
     ( innerProds.Buffer(), numLocShifts, mpi::SUM, XReal.ColComm() );
 }
 
-template<typename F>
-void FixColumns( Matrix<F>& X )
+template<typename Field>
+void FixColumns( Matrix<Field>& X )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     Matrix<Real> norms;
     ColumnTwoNorms( X, norms );
     const Int n = X.Width();
@@ -323,11 +331,11 @@ void FixColumns( Matrix<F>& X )
     }
 }
 
-template<typename F,Dist U,Dist V>
-void FixColumns( DistMatrix<F,U,V>& X )
+template<typename Field,Dist U,Dist V>
+void FixColumns( DistMatrix<Field,U,V>& X )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     DistMatrix<Real,V,STAR> norms( X.Grid() );
     ColumnTwoNorms( X, norms );
     const Int nLocal = X.LocalWidth();

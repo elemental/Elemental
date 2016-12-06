@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_APPLY_REFLECTORS_HPP
@@ -49,9 +49,10 @@ using FastComplex = typename FastComplexHelper<Real>::value;
 
 namespace El {
 
-template<typename F>
+template<typename Field>
 struct IsComplexBlasScalar {
-  static const bool value = IsComplex<F>::value && IsBlasScalar<F>::value;
+  static const bool value =
+    IsComplex<Field>::value && IsBlasScalar<Field>::value;
 };
 
 } // namespace El
@@ -63,19 +64,19 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
-template<typename F>
+template<typename Field>
 void ApplyReflectors
-( Matrix<F>& H,
+( Matrix<Field>& H,
   Int winBeg,
   Int winEnd,
   Int chaseBeg,
   Int packetBeg,
   Int transformRowBeg,
   Int transformColEnd,
-  Matrix<F>& Z,
+  Matrix<Field>& Z,
   bool wantSchurVecs,
-  Matrix<F>& U,
-  const Matrix<F>& W,
+  Matrix<Field>& U,
+  const Matrix<Field>& W,
   Int firstBulge,
   Int numBulges,
   bool accumulate,
@@ -103,7 +104,7 @@ void ApplyReflectors
         for( Int bulge=firstBulge; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
-            const F* w = &W(0,bulge);
+            const Field* w = &W(0,bulge);
             ApplyLeftReflector
             ( H(bulgeBeg+1,j), H(bulgeBeg+2,j), H(bulgeBeg+3,j), w );
         }
@@ -112,7 +113,7 @@ void ApplyReflectors
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const Field* w = &W(0,bulge);
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
@@ -129,14 +130,14 @@ void ApplyReflectors
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const Field* w = &W(0,bulge);
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+3); ++i )
             ApplyRightReflector( H(i,bulgeBeg+1), H(i,bulgeBeg+2), w );
 
         if( accumulate )
         {
             const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
-            for( Int i=0; i<UHeight; ++i ) 
+            for( Int i=0; i<UHeight; ++i )
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), w );
         }
@@ -149,7 +150,7 @@ void ApplyReflectors
     for( Int bulge=firstBulge+numFullBulges-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
+        const Field* w = &W(0,bulge);
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
             ApplyRightReflector
             ( H(i,bulgeBeg+1), H(i,bulgeBeg+2), H(i,bulgeBeg+3), w );
@@ -157,7 +158,7 @@ void ApplyReflectors
         if( accumulate )
         {
             const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
-            for( Int i=0; i<UHeight; ++i ) 
+            for( Int i=0; i<UHeight; ++i )
                 ApplyRightReflector
                 ( U(i,bulgeBegRel+1), U(i,bulgeBegRel+2), U(i,bulgeBegRel+3),
                   w );
@@ -198,7 +199,7 @@ void ApplyReflectors
     //
     //  H(k+4,k+1:k+3) -= conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2] [1; nu1; nu2]'.
     //
-    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
+    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing
     //
     //   innerProd = conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2]
     //             = conj(tau) H(k+4,k+3) nu2
@@ -210,12 +211,12 @@ void ApplyReflectors
     for( Int bulge=lastRowBulgeEnd-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* w = &W(0,bulge);
-        const F& tau = w[0];
-        const F& nu1 = w[1];
-        const F& nu2 = w[2];
+        const Field* w = &W(0,bulge);
+        const Field& tau = w[0];
+        const Field& nu1 = w[1];
+        const Field& nu2 = w[2];
 
-        const F innerProd = Conj(tau)*H(bulgeBeg+4,bulgeBeg+3)*nu2;
+        const Field innerProd = Conj(tau)*H(bulgeBeg+4,bulgeBeg+3)*nu2;
         H(bulgeBeg+4,bulgeBeg+1) = -innerProd;
         H(bulgeBeg+4,bulgeBeg+2) = -innerProd*Conj(nu1);
         H(bulgeBeg+4,bulgeBeg+3) -= innerProd*Conj(nu2);
@@ -223,25 +224,26 @@ void ApplyReflectors
 }
 
 // Unfortunately, it seems to be the case that it is noticeably faster
-// for this routine to manually inline the data access than to use the 
+// for this routine to manually inline the data access than to use the
 // (presumably inlined) Matrix::operator()(int,int) calls.
 #ifdef EL_REINTERPRET_COMPLEX
-template<typename F,typename=DisableIf<IsComplexBlasScalar<F>>>
+template<typename Field,
+         typename=DisableIf<IsComplexBlasScalar<Field>>>
 #else
-template<typename F>
+template<typename Field>
 #endif
 void ApplyReflectorsOpt
-( Matrix<F>& H,
+( Matrix<Field>& H,
   Int winBeg,
   Int winEnd,
   Int chaseBeg,
   Int packetBeg,
   Int transformRowBeg,
   Int transformColEnd,
-  Matrix<F>& Z,
+  Matrix<Field>& Z,
   bool wantSchurVecs,
-  Matrix<F>& U,
-  const Matrix<F>& W,
+  Matrix<Field>& U,
+  const Matrix<Field>& W,
   Int firstBulge,
   Int numBulges,
   bool accumulate,
@@ -258,10 +260,10 @@ void ApplyReflectorsOpt
     const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
     const Int clippedChaseBeg = Max(chaseBeg,winBeg-1);
 
-    F* EL_RESTRICT HBuf = H.Buffer();
-    F* EL_RESTRICT ZBuf = Z.Buffer();
-    F* EL_RESTRICT UBuf = U.Buffer();
-    const F* EL_RESTRICT WBuf = W.LockedBuffer();
+    Field* EL_RESTRICT HBuf = H.Buffer();
+    Field* EL_RESTRICT ZBuf = Z.Buffer();
+    Field* EL_RESTRICT UBuf = U.Buffer();
+    const Field* EL_RESTRICT WBuf = W.LockedBuffer();
     const Int HLDim = H.LDim();
     const Int ZLDim = Z.LDim();
     const Int ULDim = U.LDim();
@@ -278,14 +280,14 @@ void ApplyReflectorsOpt
         for( Int bulge=firstBulge; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
-            const F* EL_RESTRICT w = &WBuf[bulge*WLDim];
-            const F omega0 = w[0];
-            const F omega1 = w[1];
-            const F omega1Conj = Conj(w[1]);
-            const F omega2 = w[2];
-            const F omega2Conj = Conj(w[2]);
-            F* EL_RESTRICT hj = &HBuf[j*HLDim];
-            const F innerProd =
+            const Field* EL_RESTRICT w = &WBuf[bulge*WLDim];
+            const Field omega0 = w[0];
+            const Field omega1 = w[1];
+            const Field omega1Conj = Conj(w[1]);
+            const Field omega2 = w[2];
+            const Field omega2Conj = Conj(w[2]);
+            Field* EL_RESTRICT hj = &HBuf[j*HLDim];
+            const Field innerProd =
               omega0*(hj[bulgeBeg+1] + omega1Conj*hj[bulgeBeg+2] +
                       omega2Conj*hj[bulgeBeg+3]);
             hj[bulgeBeg+1] -= innerProd;
@@ -297,18 +299,18 @@ void ApplyReflectorsOpt
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* EL_RESTRICT w = &WBuf[bulge*WLDim];
-        const F omega0 = w[0];
-        const F omega1 = w[1];
-        const F omega1Conj = Conj(w[1]);
+        const Field* EL_RESTRICT w = &WBuf[bulge*WLDim];
+        const Field omega0 = w[0];
+        const Field omega1 = w[1];
+        const Field omega1Conj = Conj(w[1]);
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
         for( Int j=bulgeBeg+1; j<transformColEnd; ++j )
         {
-            F* EL_RESTRICT hj = &HBuf[j*HLDim];
-            const F innerProd =
+            Field* EL_RESTRICT hj = &HBuf[j*HLDim];
+            const Field innerProd =
               omega0*(hj[bulgeBeg+1] + omega1Conj*hj[bulgeBeg+2]);
             hj[bulgeBeg+1] -= innerProd;
             hj[bulgeBeg+2] -= innerProd*omega1;
@@ -323,16 +325,16 @@ void ApplyReflectorsOpt
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* EL_RESTRICT w = &WBuf[bulge*WLDim];
-        const F omega0Conj = Conj(w[0]);
-        const F omega1 = w[1];
-        const F omega1Conj = Conj(w[1]);
+        const Field* EL_RESTRICT w = &WBuf[bulge*WLDim];
+        const Field omega0Conj = Conj(w[0]);
+        const Field omega1 = w[1];
+        const Field omega1Conj = Conj(w[1]);
 
-        F* EL_RESTRICT h1 = &HBuf[(bulgeBeg+1)*HLDim];
-        F* EL_RESTRICT h2 = &HBuf[(bulgeBeg+2)*HLDim];
+        Field* EL_RESTRICT h1 = &HBuf[(bulgeBeg+1)*HLDim];
+        Field* EL_RESTRICT h2 = &HBuf[(bulgeBeg+2)*HLDim];
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+3); ++i )
         {
-            const F innerProd = omega0Conj*(h1[i] + omega1*h2[i]);
+            const Field innerProd = omega0Conj*(h1[i] + omega1*h2[i]);
             h1[i] -= innerProd;
             h2[i] -= innerProd*omega1Conj;
         }
@@ -340,22 +342,22 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
-            F* EL_RESTRICT u1 = &UBuf[(bulgeBegRel+1)*ULDim];
-            F* EL_RESTRICT u2 = &UBuf[(bulgeBegRel+2)*ULDim];
-            for( Int i=0; i<UHeight; ++i ) 
+            Field* EL_RESTRICT u1 = &UBuf[(bulgeBegRel+1)*ULDim];
+            Field* EL_RESTRICT u2 = &UBuf[(bulgeBegRel+2)*ULDim];
+            for( Int i=0; i<UHeight; ++i )
             {
-                const F innerProd = omega0Conj*(u1[i] + omega1*u2[i]);
+                const Field innerProd = omega0Conj*(u1[i] + omega1*u2[i]);
                 u1[i] -= innerProd;
                 u2[i] -= innerProd*omega1Conj;
             }
         }
         else if( wantSchurVecs )
         {
-            F* EL_RESTRICT z1 = &ZBuf[(bulgeBeg+1)*ZLDim];
-            F* EL_RESTRICT z2 = &ZBuf[(bulgeBeg+2)*ZLDim];
+            Field* EL_RESTRICT z1 = &ZBuf[(bulgeBeg+1)*ZLDim];
+            Field* EL_RESTRICT z2 = &ZBuf[(bulgeBeg+2)*ZLDim];
             for( Int i=0; i<ZHeight; ++i )
             {
-                const F innerProd = omega0Conj*(z1[i] + omega1*z2[i]);
+                const Field innerProd = omega0Conj*(z1[i] + omega1*z2[i]);
                 z1[i] -= innerProd;
                 z2[i] -= innerProd*omega1Conj;
             }
@@ -366,19 +368,19 @@ void ApplyReflectorsOpt
     for( Int bulge=firstBulge; bulge<firstBulge+numFullBulges; ++bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const F* EL_RESTRICT w = &WBuf[bulge*WLDim];
-        const F omega0Conj = Conj(w[0]);
-        const F omega1 = w[1];
-        const F omega1Conj = Conj(w[1]);
-        const F omega2 = w[2];
-        const F omega2Conj = Conj(w[2]);
+        const Field* EL_RESTRICT w = &WBuf[bulge*WLDim];
+        const Field omega0Conj = Conj(w[0]);
+        const Field omega1 = w[1];
+        const Field omega1Conj = Conj(w[1]);
+        const Field omega2 = w[2];
+        const Field omega2Conj = Conj(w[2]);
 
-        F* EL_RESTRICT h1 = &HBuf[(bulgeBeg+1)*HLDim];
-        F* EL_RESTRICT h2 = &HBuf[(bulgeBeg+2)*HLDim];
-        F* EL_RESTRICT h3 = &HBuf[(bulgeBeg+3)*HLDim];
+        Field* EL_RESTRICT h1 = &HBuf[(bulgeBeg+1)*HLDim];
+        Field* EL_RESTRICT h2 = &HBuf[(bulgeBeg+2)*HLDim];
+        Field* EL_RESTRICT h3 = &HBuf[(bulgeBeg+3)*HLDim];
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
         {
-            const F innerProd =
+            const Field innerProd =
               omega0Conj*(h1[i] + omega1*h2[i] + omega2*h3[i]);
             h1[i] -= innerProd;
             h2[i] -= innerProd*omega1Conj;
@@ -388,12 +390,12 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
-            F* EL_RESTRICT u1 = &UBuf[(bulgeBegRel+1)*ULDim];
-            F* EL_RESTRICT u2 = &UBuf[(bulgeBegRel+2)*ULDim];
-            F* EL_RESTRICT u3 = &UBuf[(bulgeBegRel+3)*ULDim];
-            for( Int i=0; i<UHeight; ++i ) 
+            Field* EL_RESTRICT u1 = &UBuf[(bulgeBegRel+1)*ULDim];
+            Field* EL_RESTRICT u2 = &UBuf[(bulgeBegRel+2)*ULDim];
+            Field* EL_RESTRICT u3 = &UBuf[(bulgeBegRel+3)*ULDim];
+            for( Int i=0; i<UHeight; ++i )
             {
-                const F innerProd =
+                const Field innerProd =
                   omega0Conj*(u1[i] + omega1*u2[i] + omega2*u3[i]);
                 u1[i] -= innerProd;
                 u2[i] -= innerProd*omega1Conj;
@@ -402,12 +404,12 @@ void ApplyReflectorsOpt
         }
         else if( wantSchurVecs )
         {
-            F* EL_RESTRICT z1 = &ZBuf[(bulgeBeg+1)*ZLDim];
-            F* EL_RESTRICT z2 = &ZBuf[(bulgeBeg+2)*ZLDim];
-            F* EL_RESTRICT z3 = &ZBuf[(bulgeBeg+3)*ZLDim];
+            Field* EL_RESTRICT z1 = &ZBuf[(bulgeBeg+1)*ZLDim];
+            Field* EL_RESTRICT z2 = &ZBuf[(bulgeBeg+2)*ZLDim];
+            Field* EL_RESTRICT z3 = &ZBuf[(bulgeBeg+3)*ZLDim];
             for( Int i=0; i<ZHeight; ++i )
             {
-                const F innerProd =
+                const Field innerProd =
                   omega0Conj*(z1[i] + omega1*z2[i] + omega2*z3[i]);
                 z1[i] -= innerProd;
                 z2[i] -= innerProd*omega1Conj;
@@ -444,7 +446,7 @@ void ApplyReflectorsOpt
     //
     //  H(k+4,k+1:k+3) -= conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2] [1; nu1; nu2]'.
     //
-    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
+    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing
     //
     //   innerProd = conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2]
     //             = conj(tau) H(k+4,k+3) nu2
@@ -456,17 +458,17 @@ void ApplyReflectorsOpt
     for( Int bulge=lastRowBulgeEnd-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        F* EL_RESTRICT h1 = &HBuf[(bulgeBeg+1)*HLDim]; 
-        F* EL_RESTRICT h2 = &HBuf[(bulgeBeg+2)*HLDim];
-        F* EL_RESTRICT h3 = &HBuf[(bulgeBeg+3)*HLDim];
+        Field* EL_RESTRICT h1 = &HBuf[(bulgeBeg+1)*HLDim];
+        Field* EL_RESTRICT h2 = &HBuf[(bulgeBeg+2)*HLDim];
+        Field* EL_RESTRICT h3 = &HBuf[(bulgeBeg+3)*HLDim];
 
-        const F* EL_RESTRICT w = &WBuf[bulge*WLDim];
-        const F omega0Conj = Conj(w[0]);
-        const F omega1Conj = Conj(w[1]);
-        const F omega2 = w[2];
-        const F omega2Conj = Conj(w[2]);
+        const Field* EL_RESTRICT w = &WBuf[bulge*WLDim];
+        const Field omega0Conj = Conj(w[0]);
+        const Field omega1Conj = Conj(w[1]);
+        const Field omega2 = w[2];
+        const Field omega2Conj = Conj(w[2]);
 
-        const F innerProd = omega0Conj*h3[bulgeBeg+4]*omega2;
+        const Field innerProd = omega0Conj*h3[bulgeBeg+4]*omega2;
         h1[bulgeBeg+4] = -innerProd;
         h2[bulgeBeg+4] = -innerProd*omega1Conj;
         h3[bulgeBeg+4] -= innerProd*omega2Conj;
@@ -477,30 +479,30 @@ void ApplyReflectorsOpt
 // The following performs all computation using the C99 complex classes in
 // <complex.h> and seems to yield significantly better performance than the
 // El::Complex variant (at least with g++ 5).
-template<typename F,
-         typename=EnableIf<IsComplexBlasScalar<F>>,
+template<typename Field,
+         typename=EnableIf<IsComplexBlasScalar<Field>>,
          typename=void>
 void ApplyReflectorsOpt
-( Matrix<F>& H,
+( Matrix<Field>& H,
   Int winBeg,
   Int winEnd,
   Int chaseBeg,
   Int packetBeg,
   Int transformRowBeg,
   Int transformColEnd,
-  Matrix<F>& Z,
+  Matrix<Field>& Z,
   bool wantSchurVecs,
-  Matrix<F>& U,
-  const Matrix<F>& W,
+  Matrix<Field>& U,
+  const Matrix<Field>& W,
   Int firstBulge,
   Int numBulges,
   bool accumulate,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
-    //typedef std::complex<Real> FastF; using std::conj;
-    typedef FastComplex<Real> FastF;
+    typedef Base<Field> Real;
+    //typedef std::complex<Real> FastField; using std::conj;
+    typedef FastComplex<Real> FastField;
 
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
@@ -512,11 +514,11 @@ void ApplyReflectorsOpt
     const Int numFullBulges = ( haveSmallBulge ? numBulges-1 : numBulges );
     const Int clippedChaseBeg = Max(chaseBeg,winBeg-1);
 
-    FastF* EL_RESTRICT HBuf = reinterpret_cast<FastF*>(H.Buffer());
-    FastF* EL_RESTRICT ZBuf = reinterpret_cast<FastF*>(Z.Buffer());
-    FastF* EL_RESTRICT UBuf = reinterpret_cast<FastF*>(U.Buffer());
-    const FastF* EL_RESTRICT WBuf =
-      reinterpret_cast<const FastF*>(W.LockedBuffer());
+    FastField* EL_RESTRICT HBuf = reinterpret_cast<FastField*>(H.Buffer());
+    FastField* EL_RESTRICT ZBuf = reinterpret_cast<FastField*>(Z.Buffer());
+    FastField* EL_RESTRICT UBuf = reinterpret_cast<FastField*>(U.Buffer());
+    const FastField* EL_RESTRICT WBuf =
+      reinterpret_cast<const FastField*>(W.LockedBuffer());
     const Int HLDim = H.LDim();
     const Int ZLDim = Z.LDim();
     const Int ULDim = U.LDim();
@@ -530,13 +532,13 @@ void ApplyReflectorsOpt
         // (which is only relevant when (j-packetBeg) % 3 = 0)
         const Int applyBulgeEnd =
           Min( firstBulge+numFullBulges, (j-packetBeg+2)/3 );
-        FastF* hj = reinterpret_cast<FastF*>(&HBuf[j*HLDim]);
+        FastField* hj = reinterpret_cast<FastField*>(&HBuf[j*HLDim]);
         for( Int bulge=firstBulge; bulge<applyBulgeEnd; ++bulge )
         {
             const Int bulgeBeg = packetBeg + 3*bulge;
-            const FastF* EL_RESTRICT w =
-              reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
-            const FastF innerProd =
+            const FastField* EL_RESTRICT w =
+              reinterpret_cast<const FastField*>(&WBuf[bulge*WLDim]);
+            const FastField innerProd =
               w[0]*(hj[bulgeBeg+1] + CConj(w[1])*hj[bulgeBeg+2] +
                     CConj(w[2])*hj[bulgeBeg+3]);
             hj[bulgeBeg+1] -= innerProd;
@@ -548,16 +550,17 @@ void ApplyReflectorsOpt
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const FastF* EL_RESTRICT w =
-          reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
+        const FastField* EL_RESTRICT w =
+          reinterpret_cast<const FastField*>(&WBuf[bulge*WLDim]);
         DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
         for( Int j=bulgeBeg+1; j<transformColEnd; ++j )
         {
-            FastF* EL_RESTRICT hj = reinterpret_cast<FastF*>(&HBuf[j*HLDim]);
-            const FastF innerProd =
+            FastField* EL_RESTRICT hj =
+              reinterpret_cast<FastField*>(&HBuf[j*HLDim]);
+            const FastField innerProd =
               w[0]*(hj[bulgeBeg+1] + CConj(w[1])*hj[bulgeBeg+2]);
             hj[bulgeBeg+1] -= innerProd;
             hj[bulgeBeg+2] -= innerProd*w[1];
@@ -572,18 +575,18 @@ void ApplyReflectorsOpt
     {
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const FastF* EL_RESTRICT w =
-          reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
-        const FastF omega0Conj = CConj(w[0]);
-        const FastF omega1 = w[1];
-        const FastF omega1Conj = CConj(w[1]);
-        FastF* EL_RESTRICT h1 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+1)*HLDim]);
-        FastF* EL_RESTRICT h2 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+2)*HLDim]);
+        const FastField* EL_RESTRICT w =
+          reinterpret_cast<const FastField*>(&WBuf[bulge*WLDim]);
+        const FastField omega0Conj = CConj(w[0]);
+        const FastField omega1 = w[1];
+        const FastField omega1Conj = CConj(w[1]);
+        FastField* EL_RESTRICT h1 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+1)*HLDim]);
+        FastField* EL_RESTRICT h2 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+2)*HLDim]);
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+3); ++i )
         {
-            const FastF innerProd = omega0Conj*(h1[i] + omega1*h2[i]);
+            const FastField innerProd = omega0Conj*(h1[i] + omega1*h2[i]);
             h1[i] -= innerProd;
             h2[i] -= innerProd*omega1Conj;
         }
@@ -591,26 +594,26 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
-            FastF* EL_RESTRICT u1 =
-              reinterpret_cast<FastF*>(&UBuf[(bulgeBegRel+1)*ULDim]);
-            FastF* EL_RESTRICT u2 =
-              reinterpret_cast<FastF*>(&UBuf[(bulgeBegRel+2)*ULDim]);
-            for( Int i=0; i<UHeight; ++i ) 
+            FastField* EL_RESTRICT u1 =
+              reinterpret_cast<FastField*>(&UBuf[(bulgeBegRel+1)*ULDim]);
+            FastField* EL_RESTRICT u2 =
+              reinterpret_cast<FastField*>(&UBuf[(bulgeBegRel+2)*ULDim]);
+            for( Int i=0; i<UHeight; ++i )
             {
-                const FastF innerProd = omega0Conj*(u1[i] + omega1*u2[i]);
+                const FastField innerProd = omega0Conj*(u1[i] + omega1*u2[i]);
                 u1[i] -= innerProd;
                 u2[i] -= innerProd*omega1Conj;
             }
         }
         else if( wantSchurVecs )
         {
-            FastF* EL_RESTRICT z1 =
-              reinterpret_cast<FastF*>(&ZBuf[(bulgeBeg+1)*ZLDim]);
-            FastF* EL_RESTRICT z2 =
-              reinterpret_cast<FastF*>(&ZBuf[(bulgeBeg+2)*ZLDim]);
+            FastField* EL_RESTRICT z1 =
+              reinterpret_cast<FastField*>(&ZBuf[(bulgeBeg+1)*ZLDim]);
+            FastField* EL_RESTRICT z2 =
+              reinterpret_cast<FastField*>(&ZBuf[(bulgeBeg+2)*ZLDim]);
             for( Int i=0; i<ZHeight; ++i )
             {
-                const FastF innerProd = omega0Conj*(z1[i] + omega1*z2[i]);
+                const FastField innerProd = omega0Conj*(z1[i] + omega1*z2[i]);
                 z1[i] -= innerProd;
                 z2[i] -= innerProd*omega1Conj;
             }
@@ -621,22 +624,22 @@ void ApplyReflectorsOpt
     for( Int bulge=firstBulge; bulge<firstBulge+numFullBulges; ++bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        const FastF* EL_RESTRICT w =
-          reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
-        FastF* EL_RESTRICT h1 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+1)*HLDim]);
-        FastF* EL_RESTRICT h2 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+2)*HLDim]);
-        FastF* EL_RESTRICT h3 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+3)*HLDim]);
-        const FastF omega0Conj = CConj(w[0]);
-        const FastF omega1 = w[1]; 
-        const FastF omega1Conj = CConj(w[1]);
-        const FastF omega2 = w[2];
-        const FastF omega2Conj = CConj(w[2]);
+        const FastField* EL_RESTRICT w =
+          reinterpret_cast<const FastField*>(&WBuf[bulge*WLDim]);
+        FastField* EL_RESTRICT h1 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+1)*HLDim]);
+        FastField* EL_RESTRICT h2 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+2)*HLDim]);
+        FastField* EL_RESTRICT h3 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+3)*HLDim]);
+        const FastField omega0Conj = CConj(w[0]);
+        const FastField omega1 = w[1];
+        const FastField omega1Conj = CConj(w[1]);
+        const FastField omega2 = w[2];
+        const FastField omega2Conj = CConj(w[2]);
         for( Int i=transformRowBeg; i<Min(winEnd,bulgeBeg+4); ++i )
         {
-            const FastF innerProd =
+            const FastField innerProd =
               omega0Conj*(h1[i] + omega1*h2[i] + omega2*h3[i]);
             h1[i] -= innerProd;
             h2[i] -= innerProd*omega1Conj;
@@ -646,15 +649,15 @@ void ApplyReflectorsOpt
         if( accumulate )
         {
             const Int bulgeBegRel = (bulgeBeg-clippedChaseBeg) - 1;
-            FastF* EL_RESTRICT u1 =
-              reinterpret_cast<FastF*>(&UBuf[(bulgeBegRel+1)*ULDim]);
-            FastF* EL_RESTRICT u2 =
-              reinterpret_cast<FastF*>(&UBuf[(bulgeBegRel+2)*ULDim]);
-            FastF* EL_RESTRICT u3 =
-              reinterpret_cast<FastF*>(&UBuf[(bulgeBegRel+3)*ULDim]);
-            for( Int i=0; i<UHeight; ++i ) 
+            FastField* EL_RESTRICT u1 =
+              reinterpret_cast<FastField*>(&UBuf[(bulgeBegRel+1)*ULDim]);
+            FastField* EL_RESTRICT u2 =
+              reinterpret_cast<FastField*>(&UBuf[(bulgeBegRel+2)*ULDim]);
+            FastField* EL_RESTRICT u3 =
+              reinterpret_cast<FastField*>(&UBuf[(bulgeBegRel+3)*ULDim]);
+            for( Int i=0; i<UHeight; ++i )
             {
-                const FastF innerProd =
+                const FastField innerProd =
                   omega0Conj*(u1[i]+omega1*u2[i]+omega2*u3[i]);
                 u1[i] -= innerProd;
                 u2[i] -= innerProd*omega1Conj;
@@ -663,15 +666,15 @@ void ApplyReflectorsOpt
         }
         else if( wantSchurVecs )
         {
-            FastF* EL_RESTRICT z1 =
-              reinterpret_cast<FastF*>(&ZBuf[(bulgeBeg+1)*ZLDim]);
-            FastF* EL_RESTRICT z2 =
-              reinterpret_cast<FastF*>(&ZBuf[(bulgeBeg+2)*ZLDim]);
-            FastF* EL_RESTRICT z3 =
-              reinterpret_cast<FastF*>(&ZBuf[(bulgeBeg+3)*ZLDim]);
+            FastField* EL_RESTRICT z1 =
+              reinterpret_cast<FastField*>(&ZBuf[(bulgeBeg+1)*ZLDim]);
+            FastField* EL_RESTRICT z2 =
+              reinterpret_cast<FastField*>(&ZBuf[(bulgeBeg+2)*ZLDim]);
+            FastField* EL_RESTRICT z3 =
+              reinterpret_cast<FastField*>(&ZBuf[(bulgeBeg+3)*ZLDim]);
             for( Int i=0; i<ZHeight; ++i )
             {
-                const FastF innerProd =
+                const FastField innerProd =
                   omega0Conj*(z1[i]+omega1*z2[i]+omega2*z3[i]);
                 z1[i] -= innerProd;
                 z2[i] -= innerProd*omega1Conj;
@@ -708,7 +711,7 @@ void ApplyReflectorsOpt
     //
     //  H(k+4,k+1:k+3) -= conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2] [1; nu1; nu2]'.
     //
-    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing 
+    // For convenience, since H(k+4,k+1:k+2)=0, we start by computing
     //
     //   innerProd = conj(tau) H(k+4,k+1:k+3) [1; nu1; nu2]
     //             = conj(tau) H(k+4,k+3) nu2
@@ -720,15 +723,15 @@ void ApplyReflectorsOpt
     for( Int bulge=lastRowBulgeEnd-1; bulge>=firstBulge; --bulge )
     {
         const Int bulgeBeg = packetBeg + 3*bulge;
-        FastF* EL_RESTRICT h1 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+1)*HLDim]);
-        FastF* EL_RESTRICT h2 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+2)*HLDim]);
-        FastF* EL_RESTRICT h3 =
-          reinterpret_cast<FastF*>(&HBuf[(bulgeBeg+3)*HLDim]);
-        const FastF* EL_RESTRICT w =
-          reinterpret_cast<const FastF*>(&WBuf[bulge*WLDim]);
-        const FastF innerProd = CConj(w[0])*h3[bulgeBeg+4]*w[2];
+        FastField* EL_RESTRICT h1 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+1)*HLDim]);
+        FastField* EL_RESTRICT h2 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+2)*HLDim]);
+        FastField* EL_RESTRICT h3 =
+          reinterpret_cast<FastField*>(&HBuf[(bulgeBeg+3)*HLDim]);
+        const FastField* EL_RESTRICT w =
+          reinterpret_cast<const FastField*>(&WBuf[bulge*WLDim]);
+        const FastField innerProd = CConj(w[0])*h3[bulgeBeg+4]*w[2];
         h1[bulgeBeg+4] = -innerProd;
         h2[bulgeBeg+4] = -innerProd*CConj(w[1]);
         h3[bulgeBeg+4] -= innerProd*CConj(w[2]);

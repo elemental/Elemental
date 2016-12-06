@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,9 +11,9 @@
 namespace El {
 namespace nnls {
 
-// Solve each problem 
+// Solve each problem
 //
-//   min || A x - b ||_2 
+//   min || A x - b ||_2
 //   s.t. x >= 0
 //
 // by transforming it into the explicit QP
@@ -27,9 +27,9 @@ namespace nnls {
 
 template<typename Real>
 void QP
-( const Matrix<Real>& A, 
-  const Matrix<Real>& B, 
-        Matrix<Real>& X, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -58,9 +58,9 @@ void QP
 
 template<typename Real>
 void QP
-( const ElementalMatrix<Real>& APre, 
-  const ElementalMatrix<Real>& BPre, 
-        ElementalMatrix<Real>& XPre,
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& BPre,
+        AbstractDistMatrix<Real>& XPre,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -99,9 +99,9 @@ void QP
 
 template<typename Real>
 void QP
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& B, 
-        Matrix<Real>& X, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -132,9 +132,9 @@ void QP
 
 template<typename Real>
 void QP
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& B, 
-        DistMultiVec<Real>& X, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& B,
+        DistMultiVec<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE

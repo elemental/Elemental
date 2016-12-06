@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_OPTIMIZATION_SOLVERS_HPP
@@ -33,17 +33,17 @@ inline Real MehrotraCentrality
 { return Min(Pow(muAff/mu,Real(3)),Real(1)); }
 
 template<typename Real>
-struct MehrotraCtrl 
+struct MehrotraCtrl
 {
-    // Mark whether or not the primal and/or dual variables were 
-    // user-initialized. 
+    // Mark whether or not the primal and/or dual variables were
+    // user-initialized.
     //
-    // For problems with 'direct' cone constraints, i.e., x in K, the primal 
+    // For problems with 'direct' cone constraints, i.e., x in K, the primal
     // variable is 'x' and the dual variables are 'y' and 'z'. For problems with
     // 'affine' cone constraints, i.e., (h - G x) in K, the primal variables are
     // 'x' and 's', while the dual variables are again 'y' and 'z'.
     //
-    // NOTE: User initialization has not yet been tested, so there might be a 
+    // NOTE: User initialization has not yet been tested, so there might be a
     //       trivial bug.
     bool primalInit=false, dualInit=false;
 
@@ -53,8 +53,8 @@ struct MehrotraCtrl
     // Exit the Interior Point Methods if this tolerance has been achieved.
     Real targetTol=Pow(limits::Epsilon<Real>(),Real(0.5));
 
-    // The maximum number of iterations of the IPM. This should only be 
-    // activated in pathological circumstances, as even 100 iterations of an 
+    // The maximum number of iterations of the IPM. This should only be
+    // activated in pathological circumstances, as even 100 iterations of an
     // IPM is excessive.
     Int maxIts=1000;
 
@@ -62,18 +62,18 @@ struct MehrotraCtrl
     // of 'maxStepRatio*alpha'.
     Real maxStepRatio=Real(0.99);
 
-    // For configuring how many reductions of the first-order optimality 
+    // For configuring how many reductions of the first-order optimality
     // conditions should be performed before solving a linear system.
     // For problems with 'affine' cone constraints, i.e., (h - G x) in K,
-    // this should remain as FULL_KKT. For sparse problems with 'direct' cone 
-    // constraints, i.e., x in K, both AUGMENTED_KKT (use a QSD solver) and 
+    // this should remain as FULL_KKT. For sparse problems with 'direct' cone
+    // constraints, i.e., x in K, both AUGMENTED_KKT (use a QSD solver) and
     // NORMAL_KKT (use a Cholesky solver) are also possible. The latter should
-    // be avoided when the normal equations are sufficiently denser than the 
+    // be avoided when the normal equations are sufficiently denser than the
     // (larger) augmented formulation.
     KKTSystem system=FULL_KKT;
 
     // Use Mehrotra's second-order corrector?
-    // TODO: Add support for Gondzio's correctors
+    // TODO(poulson): Add support for Gondzio's correctors
     bool mehrotra=true;
 
     // Force the primal and dual step lengths to be the same size?
@@ -81,18 +81,18 @@ struct MehrotraCtrl
 
     // The controls for quasi-(semi)definite solves
     RegSolveCtrl<Real> solveCtrl;
-  
+
     // Always use an iterative solver to resolve the regularization?
-    // TODO: Generalize this to a strategy (e.g., resolve if stagnating),
-    //       as this choice has been observed to substantially impact both the
-    //       cost and number of iterations.
+    // TODO(poulson): Generalize this to a strategy (e.g., resolve if
+    // stagnating), as this choice has been observed to substantially impact
+    // both the cost and number of iterations.
     bool resolveReg=true;
 
     // Wrap the Interior Point Method with an equilibration.
     // This should almost always be set to true.
     bool outerEquil=true;
 
-    // The size of the Krylov subspace used for loosely estimating two-norms of 
+    // The size of the Krylov subspace used for loosely estimating two-norms of
     // sparse matrices.
     Int basisSize = 6;
 
@@ -103,19 +103,19 @@ struct MehrotraCtrl
     bool time=false;
 
     // A lower bound on the maximum entry in the Nesterov-Todd scaling point
-    // before ad-hoc procedures to enforce the cone constraints should be 
+    // before ad-hoc procedures to enforce the cone constraints should be
     // employed.
     Real wSafeMaxNorm=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
     // If the Nesterov-Todd scaling point has an entry of magnitude greater than
     // the following and the minimum tolerance has been achieved, simply stop
     // and declare success. This is meant to prevent expensive (equilibrated)
-    // further steps which are too polluted with floating-point error to 
+    // further steps which are too polluted with floating-point error to
     // make substantial progress.
     Real wMaxLimit=Pow(limits::Epsilon<Real>(),Real(-0.4));
 
     // If the maximum entry in the NT scaling point is larger in magnitude than
-    // this value, then use Ruiz equilibration on the KKT system (with the 
+    // this value, then use Ruiz equilibration on the KKT system (with the
     // specified limit on the number of iterations).
     Real ruizEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.25));
     Int ruizMaxIter=3;
@@ -125,7 +125,7 @@ struct MehrotraCtrl
     // for solving the KKT system.
     Real diagEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
-    // Whether or not additional matrix-vector multiplications should be 
+    // Whether or not additional matrix-vector multiplications should be
     // performed in order to check the accuracy of the solution to each
     // block row of the KKT system.
 #ifdef EL_RELEASE
@@ -144,8 +144,8 @@ struct MehrotraCtrl
     Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
     Real reg2Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
 
-    // TODO: Add a user-definable (muAff,mu) -> sigma function to replace
-    //       the default, (muAff/mu)^3 
+    // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
+    // replace the default, (muAff/mu)^3
 };
 
 // Alternating Direction Method of Multipliers
@@ -156,7 +156,7 @@ struct ADMMCtrl
     Real rho=Real(1);
     Real alpha=Real(1.2);
     Int maxIter=500;
-    // TODO: Base upon machine epsilon?
+    // TODO(poulson): Base upon machine epsilon?
     Real absTol=Real(1e-6);
     Real relTol=Real(1e-4);
     bool inv=true;
@@ -180,7 +180,7 @@ namespace direct {
 
 // Attempt to solve a pair of Linear Programs in "direct" conic form:
 //
-//   min c^T x, 
+//   min c^T x,
 //   s.t. A x = b, x >= 0
 //
 //   max -b^T y
@@ -196,7 +196,7 @@ struct Ctrl
     ADMMCtrl<Real> admmCtrl;
     MehrotraCtrl<Real> mehrotraCtrl;
 
-    Ctrl( bool isSparse ) 
+    Ctrl( bool isSparse )
     { mehrotraCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
@@ -206,7 +206,7 @@ namespace affine {
 
 // Attempt to solve a pair of Linear Programs in "affine" conic form:
 //
-//   min c^T x, 
+//   min c^T x,
 //   s.t. A x = b, G x + s = h, s >= 0
 //
 //   max -b^T y - h^T z
@@ -230,7 +230,7 @@ struct Ctrl
 // -----------------
 template<typename Real>
 void LP
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
@@ -239,16 +239,16 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
 void LP
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
 void LP
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
@@ -257,7 +257,7 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 template<typename Real>
 void LP
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,
@@ -281,15 +281,15 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
 void LP
@@ -333,7 +333,7 @@ namespace direct {
 
 // Attempt to solve a pair of Quadratic Programs in "direct" conic form:
 //
-//   min (1/2) x^T Q x + c^T x, 
+//   min (1/2) x^T Q x + c^T x,
 //   s.t. A x = b, x >= 0
 //
 //   max (1/2) (A^T y - z + c)^T pinv(Q) (A^T y -z + c) - b^T y
@@ -357,7 +357,7 @@ namespace affine {
 
 // Attempt to solve a pair of Quadratic Programs in "affine" conic form:
 //
-//   min (1/2) x^T Q x + c^T x, 
+//   min (1/2) x^T Q x + c^T x,
 //   s.t. A x = b, G x + s = h, s >= 0
 //
 //   max (1/2) (A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c)  -b^T y - h^T z
@@ -377,27 +377,29 @@ struct Ctrl
 
 namespace box {
 
-// Solve (a set of) quadratic programs of the form 
+// Solve (a set of) quadratic programs of the form
 //   min (1/2) x' Q x + c' x, subject to l_b <= x <= u_b
 //    x
 
 // Alternating Direction Method of Multipliers
 // -------------------------------------------
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Int ADMM
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& C, 
+  const Matrix<Real>& C,
         Real lb,
         Real ub,
-        Matrix<Real>& X, 
+        Matrix<Real>& X,
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Int ADMM
-( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& C, 
+( const AbstractDistMatrix<Real>& Q,
+  const AbstractDistMatrix<Real>& C,
         Real lb,
         Real ub,
-        ElementalMatrix<Real>& X,
+        AbstractDistMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl=ADMMCtrl<Real>() );
 
 } // namespace box
@@ -409,7 +411,7 @@ Int ADMM
 template<typename Real>
 void QP
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, 
+  const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
@@ -418,18 +420,18 @@ void QP
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
-( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
+( const AbstractDistMatrix<Real>& Q,
+  const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
   const qp::direct::Ctrl<Real>& ctrl=qp::direct::Ctrl<Real>() );
 template<typename Real>
 void QP
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
@@ -439,7 +441,7 @@ void QP
 template<typename Real>
 void QP
 ( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A, 
+  const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,
@@ -464,16 +466,16 @@ void QP
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void QP
-( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const AbstractDistMatrix<Real>& Q,
+  const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& s,
   const qp::affine::Ctrl<Real>& ctrl=qp::affine::Ctrl<Real>() );
 template<typename Real>
 void QP
@@ -517,7 +519,7 @@ namespace direct {
 
 // Attempt to solve a pair of Second-Order Cone Programs in "direct" conic form:
 //
-//   min c^T x, 
+//   min c^T x,
 //   s.t. A x = b, x in K,
 //
 //   max -b^T y
@@ -548,7 +550,7 @@ namespace affine {
 
 // Attempt to solve a pair of Second-Order Cone Programs in "affine" conic form:
 //
-//   min c^T x, 
+//   min c^T x,
 //   s.t. A x = b, G x + s = h, s in K,
 //
 //   max -b^T y - h^T z
@@ -582,26 +584,26 @@ void SOCP
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
         Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z,  
+        Matrix<Real>& z,
   const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& b, 
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x,       
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,       
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
   const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Int>& orders,
@@ -612,14 +614,14 @@ void SOCP
   const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& z,
   const socp::direct::Ctrl<Real>& ctrl=socp::direct::Ctrl<Real>() );
 
 // Affine conic form
@@ -631,30 +633,30 @@ void SOCP
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
         Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z,  
+        Matrix<Real>& z,
         Matrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b, 
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x,       
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,       
-        ElementalMatrix<Real>& s,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& G,
+  const AbstractDistMatrix<Real>& b,
+  const AbstractDistMatrix<Real>& c,
+  const AbstractDistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+        AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -668,16 +670,16 @@ void SOCP
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 template<typename Real>
 void SOCP
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
   const socp::affine::Ctrl<Real>& ctrl=socp::affine::Ctrl<Real>() );
 

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -25,7 +25,7 @@ namespace direct {
 //   |  A 0        0    | | dy |   |   -rb    |,
 //   | -I 0   (-z <> x) | | dz | = | z <> rmu |
 //
-// where 
+// where
 //
 //   rc = A^T y - z + c,
 //   rb = A x - b,
@@ -33,7 +33,7 @@ namespace direct {
 
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
@@ -44,9 +44,9 @@ void KKT
 
     Zeros( J, 2*n+m, 2*n+m );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
-    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
-    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
-    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
     // Jyx := A
     // ========
@@ -69,7 +69,7 @@ void KKT
     {
         // Jxy := A^T
         // ==========
-        Transpose( A, Jxy ); 
+        Transpose( A, Jxy );
 
         // Jxz := -I
         // =========
@@ -80,7 +80,7 @@ void KKT
 
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A, 
+( const ElementalMatrix<Real>& A,
   const ElementalMatrix<Real>& x,
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& JPre, bool onlyLower )
@@ -129,7 +129,7 @@ void KKT
 
 template<typename Real>
 void KKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
         Real gamma,
         Real delta,
         Real beta,
@@ -146,7 +146,7 @@ void KKT
 
 template<typename Real>
 void KKT
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
         Real gamma,
         Real delta,
         Real beta,

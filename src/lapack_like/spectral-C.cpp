@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -335,7 +335,7 @@ ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
     ctrl->numShifts = &hess_schur::aed::NumShifts;
     ctrl->deflationSize = &hess_schur::aed::DeflationSize;
     ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;
-    
+
     ctrl->scalapack = false;
     ctrl->blockHeight = DefaultBlockHeight();
     ctrl->numBulgesPerBlock = &hess_schur::multibulge::NumBulgesPerBlock;
@@ -376,7 +376,7 @@ ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
     ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_s( &ctrl->sdcCtrl );
     ctrl->time = false;
-    return EL_SUCCESS; 
+    return EL_SUCCESS;
 }
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
 {
@@ -384,7 +384,7 @@ ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
     ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_d( &ctrl->sdcCtrl );
     ctrl->time = false;
-    return EL_SUCCESS; 
+    return EL_SUCCESS;
 }
 
 ElError ElSnapshotCtrlDefault( ElSnapshotCtrl* ctrl )
@@ -749,7 +749,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( Eig( *CReflect(A), *CReflect(w), *CReflect(X) ) ) } \
   /* Schur decomposition
      =================== */ \
-  /* Compute the eigenvalues (and possibly Schur factor) 
+  /* Compute the eigenvalues (and possibly Schur factor)
      --------------------------------------------------- */ \
   ElError ElSchur_ ## SIGBASE \
   ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, bool fullTriangle ) \
@@ -908,7 +908,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
         *CReflect(A), *CReflect(invNormMap), realSize, imagSize, box, \
         CReflect(ctrl) ); \
       *boxC = CReflect(box) ) } \
-  /* Triangular 
+  /* Triangular
      ^^^^^^^^^^ */ \
   ElError ElTriangularSpectralPortrait_ ## SIG \
   ( ElConstMatrix_ ## SIG U, ElMatrix_ ## SIGBASE invNormMap, \

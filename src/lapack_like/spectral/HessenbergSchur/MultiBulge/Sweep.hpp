@@ -18,14 +18,14 @@ namespace El {
 namespace hess_schur {
 namespace multibulge {
 
-template<typename F>
+template<typename Field>
 void SweepHelper
-(       Matrix<F>& H,
-  const Matrix<Complex<Base<F>>>& shifts,
-        Matrix<F>& Z,
-        Matrix<F>& U,
-        Matrix<F>& W,
-        Matrix<F>& WAccum,
+(       Matrix<Field>& H,
+  const Matrix<Complex<Base<Field>>>& shifts,
+        Matrix<Field>& Z,
+        Matrix<Field>& U,
+        Matrix<Field>& W,
+        Matrix<Field>& WAccum,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -79,7 +79,7 @@ void SweepHelper
     const Int maxSlabSize = 3*numBulges + chaseStride;
 
     DEBUG_ONLY(
-      if( H(winBeg+2,winBeg) != F(0) )
+      if( H(winBeg+2,winBeg) != Field(0) )
           LogicError("H was not upper Hessenberg");
     )
     for( Int chaseBeg=sweepBeg; chaseBeg<sweepEnd; chaseBeg+=chaseStride )
@@ -140,30 +140,30 @@ void SweepHelper
             const auto rightInd = IR(rightIndBeg,rightIndEnd);
             const auto horzInd = IR( Max(chaseBeg+1,winBeg), slabEnd );
             auto HHorzFar = H( horzInd, rightInd );
-            Gemm( ADJOINT, NORMAL, F(1), U, HHorzFar, WAccum );
+            Gemm( ADJOINT, NORMAL, Field(1), U, HHorzFar, WAccum );
             HHorzFar = WAccum;
 
             // Vertical far-from-diagonal application
             auto vertInd = IR(transformBeg,Max(winBeg,chaseBeg));
             auto HVertFar = H( vertInd, horzInd );
-            Gemm( NORMAL, NORMAL, F(1), HVertFar, U, WAccum );
+            Gemm( NORMAL, NORMAL, Field(1), HVertFar, U, WAccum );
             HVertFar = WAccum;
 
             if( ctrl.wantSchurVecs )
             {
                 auto ZSub = Z( ALL, horzInd );
-                Gemm( NORMAL, NORMAL, F(1), ZSub, U, WAccum );
+                Gemm( NORMAL, NORMAL, Field(1), ZSub, U, WAccum );
                 ZSub = WAccum;
             }
         }
     }
 }
 
-template<typename F>
+template<typename Field>
 void SweepHelper
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -192,14 +192,14 @@ void SweepHelper
     }
 }
 
-template<typename F>
+template<typename Field>
 void Sweep
-(       Matrix<F>& H,
-        Matrix<Complex<Base<F>>>& shifts,
-        Matrix<F>& Z,
-        Matrix<F>& U,
-        Matrix<F>& W,
-        Matrix<F>& WAccum,
+(       Matrix<Field>& H,
+        Matrix<Complex<Base<Field>>>& shifts,
+        Matrix<Field>& Z,
+        Matrix<Field>& U,
+        Matrix<Field>& W,
+        Matrix<Field>& WAccum,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -212,7 +212,7 @@ void Sweep
     )
     if( numShifts % 2 != 0 )
         LogicError("Expected an even number of shifts");
-    if( !IsComplex<F>::value )
+    if( !IsComplex<Field>::value )
         PairShifts( shifts );
 
     const Int maxBulgesPerSweep = Max( n/6, 1 );
@@ -227,11 +227,11 @@ void Sweep
     }
 }
 
-template<typename F>
+template<typename Field>
 void Sweep
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
@@ -254,8 +254,8 @@ void Sweep
     if( numShifts % 2 != 0 )
         LogicError("Expected an even number of shifts");
 
-    DistMatrix<Complex<Base<F>>,STAR,STAR> validShifts(shifts);
-    if( !IsComplex<F>::value )
+    DistMatrix<Complex<Base<Field>>,STAR,STAR> validShifts(shifts);
+    if( !IsComplex<Field>::value )
         PairShifts( validShifts.Matrix() );
 
     const Int maxBulgesPerSweep = Max( n/6, 1 );

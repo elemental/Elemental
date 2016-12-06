@@ -20,15 +20,15 @@ Real DampScaling( Real alpha )
         return Max(alpha,tol);
 }
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( Matrix<F>& A,
-  Matrix<Base<F>>& dRow,
-  Matrix<Base<F>>& dCol,
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& dRow,
+  Matrix<Base<Field>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     Ones( dRow, m, 1 );
@@ -59,15 +59,15 @@ void RuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& dRowPre,
-  ElementalMatrix<Base<F>>& dColPre,
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& dRowPre,
+  AbstractDistMatrix<Base<Field>>& dColPre,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
     control.colConstrain = true;
@@ -75,7 +75,7 @@ void RuizEquil
     control.colAlign = 0;
     control.rowAlign = 0;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dRowProx( dRowPre, control );
     DistMatrixWriteProxy<Real,Real,MR,STAR> dColProx( dColPre, control );
     auto& A = AProx.Get();
@@ -113,15 +113,15 @@ void RuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( SparseMatrix<F>& A,
-  Matrix<Base<F>>& dRow,
-  Matrix<Base<F>>& dCol,
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& dRow,
+  Matrix<Base<Field>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     Ones( dRow, m, 1 );
@@ -152,15 +152,15 @@ void RuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( DistSparseMatrix<F>& A,
-  DistMultiVec<Base<F>>& dRow,
-  DistMultiVec<Base<F>>& dCol,
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& dRow,
+  DistMultiVec<Base<Field>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -194,17 +194,17 @@ void RuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( Matrix<F>& A,
-  Matrix<F>& B,
-  Matrix<Base<F>>& dRowA,
-  Matrix<Base<F>>& dRowB,
-  Matrix<Base<F>>& dCol,
+( Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Base<Field>>& dRowA,
+  Matrix<Base<Field>>& dRowB,
+  Matrix<Base<Field>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
@@ -246,17 +246,17 @@ void StackedRuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre,
-  ElementalMatrix<Base<F>>& dRowAPre,
-  ElementalMatrix<Base<F>>& dRowBPre,
-  ElementalMatrix<Base<F>>& dColPre,
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& BPre,
+  AbstractDistMatrix<Base<Field>>& dRowAPre,
+  AbstractDistMatrix<Base<Field>>& dRowBPre,
+  AbstractDistMatrix<Base<Field>>& dColPre,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
     control.colConstrain = true;
@@ -264,8 +264,8 @@ void StackedRuizEquil
     control.colAlign = 0;
     control.rowAlign = 0;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
-    DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre, control );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre, control );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> BProx( BPre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dRowAProx( dRowAPre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dRowBProx( dRowBPre, control );
     DistMatrixWriteProxy<Real,Real,MR,STAR> dColProx( dColPre, control );
@@ -321,17 +321,17 @@ void StackedRuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( SparseMatrix<F>& A,
-  SparseMatrix<F>& B,
-  Matrix<Base<F>>& dRowA,
-  Matrix<Base<F>>& dRowB,
-  Matrix<Base<F>>& dCol,
+( SparseMatrix<Field>& A,
+  SparseMatrix<Field>& B,
+  Matrix<Base<Field>>& dRowA,
+  Matrix<Base<Field>>& dRowB,
+  Matrix<Base<Field>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
@@ -373,17 +373,17 @@ void StackedRuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( DistSparseMatrix<F>& A,
-  DistSparseMatrix<F>& B,
-  DistMultiVec<Base<F>>& dRowA,
-  DistMultiVec<Base<F>>& dRowB,
-  DistMultiVec<Base<F>>& dCol,
+( DistSparseMatrix<Field>& A,
+  DistSparseMatrix<Field>& B,
+  DistMultiVec<Base<Field>>& dRowA,
+  DistMultiVec<Base<Field>>& dRowB,
+  DistMultiVec<Base<Field>>& dCol,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
@@ -432,54 +432,54 @@ void StackedRuizEquil
     SetIndent( indent );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void RuizEquil \
-  ( Matrix<F>& A, \
-    Matrix<Base<F>>& dRow, \
-    Matrix<Base<F>>& dCol, \
-    bool progress ); \
-  template void RuizEquil \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& dRow, \
-    ElementalMatrix<Base<F>>& dCol, \
+  ( Matrix<Field>& A, \
+    Matrix<Base<Field>>& dRow, \
+    Matrix<Base<Field>>& dCol, \
     bool progress ); \
   template void RuizEquil \
-  ( SparseMatrix<F>& A, \
-    Matrix<Base<F>>& dRow, \
-    Matrix<Base<F>>& dCol, \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Base<Field>>& dRow, \
+    AbstractDistMatrix<Base<Field>>& dCol, \
     bool progress ); \
   template void RuizEquil \
-  ( DistSparseMatrix<F>& A, \
-    DistMultiVec<Base<F>>& dRow, \
-    DistMultiVec<Base<F>>& dCol, \
+  ( SparseMatrix<Field>& A, \
+    Matrix<Base<Field>>& dRow, \
+    Matrix<Base<Field>>& dCol, \
+    bool progress ); \
+  template void RuizEquil \
+  ( DistSparseMatrix<Field>& A, \
+    DistMultiVec<Base<Field>>& dRow, \
+    DistMultiVec<Base<Field>>& dCol, \
     bool progress ); \
   template void StackedRuizEquil \
-  ( Matrix<F>& A, \
-    Matrix<F>& B, \
-    Matrix<Base<F>>& dRowA, \
-    Matrix<Base<F>>& dRowB, \
-    Matrix<Base<F>>& dCol, \
+  ( Matrix<Field>& A, \
+    Matrix<Field>& B, \
+    Matrix<Base<Field>>& dRowA, \
+    Matrix<Base<Field>>& dRowB, \
+    Matrix<Base<Field>>& dCol, \
     bool progress ); \
   template void StackedRuizEquil \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& B, \
-    ElementalMatrix<Base<F>>& dRowA, \
-    ElementalMatrix<Base<F>>& dRowB, \
-    ElementalMatrix<Base<F>>& dCol, \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Field>& B, \
+    AbstractDistMatrix<Base<Field>>& dRowA, \
+    AbstractDistMatrix<Base<Field>>& dRowB, \
+    AbstractDistMatrix<Base<Field>>& dCol, \
     bool progress ); \
   template void StackedRuizEquil \
-  ( SparseMatrix<F>& A, \
-    SparseMatrix<F>& B, \
-    Matrix<Base<F>>& dRowA, \
-    Matrix<Base<F>>& dRowB, \
-    Matrix<Base<F>>& dCol, \
+  ( SparseMatrix<Field>& A, \
+    SparseMatrix<Field>& B, \
+    Matrix<Base<Field>>& dRowA, \
+    Matrix<Base<Field>>& dRowB, \
+    Matrix<Base<Field>>& dCol, \
     bool progress ); \
   template void StackedRuizEquil \
-  ( DistSparseMatrix<F>& A, \
-    DistSparseMatrix<F>& B, \
-    DistMultiVec<Base<F>>& dRowA, \
-    DistMultiVec<Base<F>>& dRowB, \
-    DistMultiVec<Base<F>>& dCol, \
+  ( DistSparseMatrix<Field>& A, \
+    DistSparseMatrix<Field>& B, \
+    DistMultiVec<Base<Field>>& dRowA, \
+    DistMultiVec<Base<Field>>& dRowB, \
+    DistMultiVec<Base<Field>>& dCol, \
     bool progress );
 
 #define EL_NO_INT_PROTO

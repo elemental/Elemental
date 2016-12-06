@@ -15,8 +15,8 @@ namespace multibulge {
 
 // TODO(poulson): Avoid temporaries for innerProd and innerProd*nu1 to void
 // memory allocations for heap scalars?
-template<typename F>
-inline void ApplyLeftReflector( F& eta0, F& eta1, const F* w )
+template<typename Field>
+inline void ApplyLeftReflector( Field& eta0, Field& eta1, const Field* w )
 {
     // Update
     //
@@ -25,29 +25,30 @@ inline void ApplyLeftReflector( F& eta0, F& eta1, const F* w )
     //
     // where tau is stored in w[0] and nu1 in w[1].
     //
-    const F& tau = w[0];
-    const F& nu1 = w[1];
+    const Field& tau = w[0];
+    const Field& nu1 = w[1];
 
-    const F innerProd = tau*(eta0+Conj(nu1)*eta1);
+    const Field innerProd = tau*(eta0+Conj(nu1)*eta1);
     eta0 -= innerProd;
     eta1 -= innerProd*nu1;
 }
 
-template<typename F>
-inline void ApplyRightReflector( F& eta0, F& eta1, const F* w )
+template<typename Field>
+inline void ApplyRightReflector( Field& eta0, Field& eta1, const Field* w )
 {
-    const F& tau = w[0];
-    const F& nu1 = w[1];
+    const Field& tau = w[0];
+    const Field& nu1 = w[1];
 
-    const F innerProd = Conj(tau)*(eta0+nu1*eta1);
+    const Field innerProd = Conj(tau)*(eta0+nu1*eta1);
     eta0 -= innerProd;
     eta1 -= innerProd*Conj(nu1);
 }
 
 // TODO(poulson): Avoid temporaries for innerProd, innerProd*nu1, and
 // innerProd*nu2 to avoid memory allocations for heap scalars?
-template<typename F>
-inline void ApplyLeftReflector( F& eta0, F& eta1, F& eta2, const F* w )
+template<typename Field>
+inline void ApplyLeftReflector
+( Field& eta0, Field& eta1, Field& eta2, const Field* w )
 {
     // Update
     //
@@ -57,24 +58,25 @@ inline void ApplyLeftReflector( F& eta0, F& eta1, F& eta2, const F* w )
     //
     // where tau is stored in w[0], nu1 in w[1], and nu2 in w[2].
     //
-    const F& tau = w[0];
-    const F& nu1 = w[1];
-    const F& nu2 = w[2];
+    const Field& tau = w[0];
+    const Field& nu1 = w[1];
+    const Field& nu2 = w[2];
 
-    const F innerProd = tau*(eta0+Conj(nu1)*eta1+Conj(nu2)*eta2);
+    const Field innerProd = tau*(eta0+Conj(nu1)*eta1+Conj(nu2)*eta2);
     eta0 -= innerProd;
     eta1 -= innerProd*nu1;
     eta2 -= innerProd*nu2;
 }
 
-template<typename F>
-inline void ApplyRightReflector( F& eta0, F& eta1, F& eta2, const F* w )
+template<typename Field>
+inline void ApplyRightReflector
+( Field& eta0, Field& eta1, Field& eta2, const Field* w )
 {
-    const F& tau = w[0];
-    const F& nu1 = w[1];
-    const F& nu2 = w[2];
+    const Field& tau = w[0];
+    const Field& nu1 = w[1];
+    const Field& nu2 = w[2];
 
-    const F innerProd = Conj(tau)*(eta0+nu1*eta1+nu2*eta2);
+    const Field innerProd = Conj(tau)*(eta0+nu1*eta1+nu2*eta2);
     eta0 -= innerProd;
     eta1 -= innerProd*Conj(nu1);
     eta2 -= innerProd*Conj(nu2);

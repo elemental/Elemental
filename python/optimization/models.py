@@ -447,105 +447,6 @@ def LAV(A,b,ctrl=None):
     return x
   else: TypeExcept()
 
-# Logistic regression
-# ===================
-(NO_PENALTY,L1_PENALTY,L2_PENALTY)=(0,1,2)
-
-lib.ElLogisticRegression_s.argtypes = \
-lib.ElLogisticRegressionDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,sType,c_uint,POINTER(iType)]
-lib.ElLogisticRegression_d.argtypes = \
-lib.ElLogisticRegressionDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,dType,c_uint,POINTER(iType)]
-
-def LogisticRegression(G,q,gamma,penalty=L1_PENALTY):
-  if type(G) is not type(q):
-    raise Exception('Types of G and q must match')
-  if G.tag != q.tag:
-    raise Exception('Datatypes of G and q must match')
-  numIts = iType()
-  if type(G) is Matrix:
-    z = Matrix(G.tag)
-    args = [G.obj,q.obj,z.obj,gamma,penalty,pointer(numIts)]
-    if   G.tag == sTag: lib.ElLogisticRegression_s(*args)
-    elif G.tag == dTag: lib.ElLogisticRegression_d(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(G) is DistMatrix:
-    z = DistMatrix(G.tag,MC,MR,G.Grid())
-    args = [G.obj,q.obj,z.obj,gamma,penalty,pointer(numIts)]
-    if   G.tag == sTag: lib.ElLogisticRegressionDist_s(*args)
-    elif G.tag == dTag: lib.ElLogisticRegressionDist_d(*args)
-    else: DataExcept()
-    return z, numIts
-  else: TypeExcept()
-
-# Model fit
-# =========
-lib.ElModelFitCtrlDefault_s.argtypes = \
-lib.ElModelFitCtrlDefault_d.argtypes = \
-  [c_void_p]
-class ModelFitCtrl_s(ctypes.Structure):
-  _fields_ = [("rho",sType),("maxIter",iType),("inv",bType),("progress",bType)]
-  def __init__(self):
-    lib.ElModelFitCtrlDefault_s(pointer(self)) 
-class ModelFitCtrl_d(ctypes.Structure):
-  _fields_ = [("rho",dType),("maxIter",iType),("inv",bType),("progress",bType)]
-  def __init__(self):
-    lib.ElModelFitCtrlDefault_d(pointer(self)) 
-
-lib.ElModelFit_s.argtypes = \
-lib.ElModelFitDist_s.argtypes = \
-  [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
-   c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElModelFit_d.argtypes = \
-lib.ElModelFitDist_d.argtypes = \
-  [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
-   c_void_p,c_void_p,c_void_p,POINTER(iType)]
-
-lib.ElModelFitX_s.argtypes = \
-lib.ElModelFitXDist_s.argtypes = \
-  [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
-   c_void_p,c_void_p,c_void_p,ModelFitCtrl_s,POINTER(iType)]
-lib.ElModelFitX_d.argtypes = \
-lib.ElModelFitXDist_d.argtypes = \
-  [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
-   c_void_p,c_void_p,c_void_p,ModelFitCtrl_d,POINTER(iType)]
-
-def ModelFit(lossProx,regProx,A,b,ctrl=None):
-  if type(A) is not type(b):
-    raise Exception('Types of A and b must match')
-  if A.tag != b.tag:
-    raise Exception('Datatypes of A and b must match')
-  numIts = iType()
-  cLoss = CFUNCTYPE(None,c_void_p,TagToType(A.tag))(lossProx)
-  cReg = CFUNCTYPE(None,c_void_p,TagToType(A.tag))(regProx)
-  if type(A) is Matrix:
-    w = Matrix(A.tag)
-    args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
-    argsCtrl = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts),ctrl]
-    if   A.tag == sTag: 
-      if ctrl==None: lib.ElModelFit_s(*args)
-      else:          lib.ElModelFitX_s(*argsCtrl)
-    elif A.tag == dTag: 
-      if ctrl==None: lib.ElModelFit_d(*args)
-      else:          lib.ElModelFitX_d(*argsCtrl)
-    else: DataExcept()
-    return w, numIts
-  elif type(A) is DistMatrix:
-    w = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
-    argsCtrl = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts),ctrl]
-    if   A.tag == sTag: 
-      if ctrl==None: lib.ElModelFitDist_s(*args)
-      else:          lib.ElModelFitXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
-      if ctrl==None: lib.ElModelFitDist_d(*args)
-      else:          lib.ElModelFitXDist_d(*argsCtrl)
-    else: DataExcept()
-    return w, numIts
-  else: TypeExcept()
-
 # Robust least squares
 # ====================
 lib.ElRLS_s.argtypes = \
@@ -1240,13 +1141,11 @@ lib.ElSVMCtrlDefault_s.argtypes = \
 lib.ElSVMCtrlDefault_d.argtypes = \
   [c_void_p]
 class SVMCtrl_s(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("modelFitCtrl",ModelFitCtrl_s),("ipmCtrl",QPAffineCtrl_s)]
+  _fields_ = [("ipmCtrl",QPAffineCtrl_s)]
   def __init__(self):
     lib.ElSVMCtrlDefault_s(pointer(self))
 class SVMCtrl_d(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("modelFitCtrl",ModelFitCtrl_d),("ipmCtrl",QPAffineCtrl_d)]
+  _fields_ = [("ipmCtrl",QPAffineCtrl_d)]
   def __init__(self):
     lib.ElSVMCtrlDefault_d(pointer(self))
 

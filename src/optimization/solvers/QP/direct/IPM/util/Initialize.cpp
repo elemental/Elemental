@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace direct {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2], which, in the case that G = -I and h = 0,
 //
 // 1) Minimize || x ||^2, s.t. A x = b  by solving
@@ -37,13 +37,13 @@ namespace direct {
 //    | A  0   0 | | y | = |  0 |,
 //    |-I  0  -I | | z |   |  0 |
 //
-//    where 'u = -z' is an unused dummy variable. A Schur-complement 
+//    where 'u = -z' is an unused dummy variable. A Schur-complement
 //    manipulation yields
 //
 //    | Q+I A^T | | -z |   | -c |
 //    | A    0  | |  y | = |  0 |.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min(x), and
 //      alpha_d := -min(z).
@@ -53,12 +53,12 @@ namespace direct {
 //      x := ( alpha_p > -sqrt(eps)*Max(1,||x||_2) ? x + (1+alpha_p)e : x )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision, 'e' is a vector of all ones 
-//    (for more general conic optimization problems, it is the product of 
-//    identity elements from the Jordan algebras whose squares yield the 
+//    where 'eps' is the machine precision, 'e' is a vector of all ones
+//    (for more general conic optimization problems, it is the product of
+//    identity elements from the Jordan algebras whose squares yield the
 //    relevant cone.
 //
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we also provide
 //    the ability to instead use an entrywise lower clip.
 //
@@ -74,7 +74,7 @@ namespace direct {
 template<typename Real>
 void Initialize
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, 
+  const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
@@ -131,7 +131,7 @@ void Initialize
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -181,7 +181,7 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& A,
   const ElementalMatrix<Real>& b,
   const ElementalMatrix<Real>& c,
         ElementalMatrix<Real>& x,
@@ -239,7 +239,7 @@ void Initialize
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -289,17 +289,17 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
         vector<Int>& map,
-        vector<Int>& invMap, 
+        vector<Int>& invMap,
         ldl::Separator& rootSep,
         ldl::NodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_CSE
@@ -380,7 +380,7 @@ void Initialize
 
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -434,20 +434,20 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A, 
+  const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMap& map,
-        DistMap& invMap, 
+        DistMap& invMap,
         ldl::DistSeparator& rootSep,
         ldl::DistNodeInfo& info,
         vector<Int>& mappedSources,
         vector<Int>& mappedTargets,
         vector<Int>& colOffs,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
     DEBUG_CSE
@@ -530,7 +530,7 @@ void Initialize
 
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //

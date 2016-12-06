@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,9 +11,10 @@
 namespace El {
 namespace pos_orth {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushPairInto
-(       Matrix<Real>& s, 
+(       Matrix<Real>& s,
         Matrix<Real>& z,
   const Matrix<Real>& w,
   Real wMaxNormLimit )
@@ -25,17 +26,18 @@ void PushPairInto
     {
         if( w(i) > wMaxNormLimit )
         {
-            // TODO: Switch to a non-adhoc modification     
+            // TODO(poulson): Switch to a non-adhoc modification
             z(i) += Min(Real(1)/wMaxNormLimit,maxMod);
         }
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushPairInto
-(       ElementalMatrix<Real>& sPre, 
-        ElementalMatrix<Real>& zPre,
-  const ElementalMatrix<Real>& wPre,
+(       AbstractDistMatrix<Real>& sPre,
+        AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& wPre,
   Real wMaxNormLimit )
 {
     DEBUG_CSE
@@ -62,15 +64,16 @@ void PushPairInto
     {
         if( wBuf[iLoc] > wMaxNormLimit )
         {
-            // TODO: Switch to a non-adhoc modification     
+            // TODO(poulson): Switch to a non-adhoc modification
             zBuf[iLoc] += Min(Real(1)/wMaxNormLimit,maxMod);
         }
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushPairInto
-(       DistMultiVec<Real>& s, 
+(       DistMultiVec<Real>& s,
         DistMultiVec<Real>& z,
   const DistMultiVec<Real>& w,
   Real wMaxNormLimit )
@@ -84,7 +87,7 @@ void PushPairInto
     {
         if( wBuf[iLoc] > wMaxNormLimit )
         {
-            // TODO: Switch to a non-adhoc modification     
+            // TODO(poulson): Switch to a non-adhoc modification
             zBuf[iLoc] += Min(Real(1)/wMaxNormLimit,maxMod);
         }
     }
@@ -97,9 +100,9 @@ void PushPairInto
     const Matrix<Real>& w, \
     Real wMaxNormLimit ); \
   template void PushPairInto \
-  (       ElementalMatrix<Real>& s, \
-          ElementalMatrix<Real>& z, \
-    const ElementalMatrix<Real>& w, \
+  (       AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& w, \
     Real wMaxNormLimit ); \
   template void PushPairInto \
   (       DistMultiVec<Real>& s, \

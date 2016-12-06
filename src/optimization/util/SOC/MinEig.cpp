@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,11 +11,12 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MinEig
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
         Matrix<Real>& minEigs,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
     DEBUG_CSE
@@ -23,16 +24,17 @@ void MinEig
 
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds(i) ) 
+        if( i == firstInds(i) )
             minEigs(i) = x(i)-minEigs(i);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MinEig
-( const ElementalMatrix<Real>& xPre, 
-        ElementalMatrix<Real>& minEigsPre,
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& minEigsPre,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_CSE
@@ -72,11 +74,12 @@ void MinEig
             minEigBuf[iLoc] = xBuf[iLoc] - minEigBuf[iLoc];
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MinEig
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& minEigs,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
@@ -101,10 +104,11 @@ void MinEig
             minEigBuf[iLoc] = xBuf[iLoc] - minEigBuf[iLoc];
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MinEig
-( const Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
+( const Matrix<Real>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
     DEBUG_CSE
@@ -114,16 +118,17 @@ Real MinEig
     Real minEig = limits::Max<Real>();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds(i) ) 
+        if( i == firstInds(i) )
             minEig = Min(minEigs(i),minEig);
     return minEig;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MinEig
-( const ElementalMatrix<Real>& x, 
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_CSE
@@ -150,10 +155,11 @@ Real MinEig
     return mpi::AllReduce( minEigLocal, mpi::MIN, x.DistComm() );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MinEig
-( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
@@ -179,10 +185,10 @@ Real MinEig
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void MinEig \
-  ( const ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& minEigs, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& minEigs, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void MinEig \
   ( const DistMultiVec<Real>& x, \
@@ -195,9 +201,9 @@ Real MinEig
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template Real MinEig \
-  ( const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template Real MinEig \
   ( const DistMultiVec<Real>& x, \

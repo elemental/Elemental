@@ -15,7 +15,8 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real DampScaling( Real alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
@@ -27,19 +28,19 @@ Real DampScaling( Real alpha )
 
 namespace cone {
 
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       Matrix<F>& A,
-        Matrix<F>& B,
-        Matrix<Base<F>>& dRowA,
-        Matrix<Base<F>>& dRowB,
-        Matrix<Base<F>>& dCol,
+(       Matrix<Field>& A,
+        Matrix<Field>& B,
+        Matrix<Base<Field>>& dRowA,
+        Matrix<Base<Field>>& dRowB,
+        Matrix<Base<Field>>& dCol,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
@@ -128,20 +129,20 @@ void GeomEquil
 }
 
 // TODO(poulson): Use lower-level access
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       ElementalMatrix<F>& APre,
-        ElementalMatrix<F>& BPre,
-        ElementalMatrix<Base<F>>& dRowAPre,
-        ElementalMatrix<Base<F>>& dRowBPre,
-        ElementalMatrix<Base<F>>& dColPre,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
+(       AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& BPre,
+        AbstractDistMatrix<Base<Field>>& dRowAPre,
+        AbstractDistMatrix<Base<Field>>& dRowBPre,
+        AbstractDistMatrix<Base<Field>>& dColPre,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
   Int cutoff,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
     control.colConstrain = true;
@@ -149,7 +150,7 @@ void GeomEquil
     control.colAlign = 0;
     control.rowAlign = 0;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR>
+    DistMatrixReadWriteProxy<Field,Field,MC,MR>
       AProx( APre, control ),
       BProx( BPre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR>
@@ -254,19 +255,19 @@ void GeomEquil
     DiagonalSolve( RIGHT, NORMAL, colScale, B );
 }
 
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       SparseMatrix<F>& A,
-        SparseMatrix<F>& B,
-        Matrix<Base<F>>& dRowA,
-        Matrix<Base<F>>& dRowB,
-        Matrix<Base<F>>& dCol,
+(       SparseMatrix<Field>& A,
+        SparseMatrix<Field>& B,
+        Matrix<Base<Field>>& dRowA,
+        Matrix<Base<Field>>& dRowB,
+        Matrix<Base<Field>>& dCol,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
@@ -397,7 +398,7 @@ void GeomEquil
     SetIndent( indent );
 
     // Scale each row so that its maximum entry is 1 or 0
-    F* valBufA = A.ValueBuffer();
+    Field* valBufA = A.ValueBuffer();
     Real* dRowABuf = dRowA.Buffer();
     for( Int i=0; i<mA; ++i )
     {
@@ -432,20 +433,20 @@ void GeomEquil
     DiagonalSolve( LEFT, NORMAL, maxAbsValsB, B );
 }
 
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       DistSparseMatrix<F>& A,
-        DistSparseMatrix<F>& B,
-        DistMultiVec<Base<F>>& dRowA,
-        DistMultiVec<Base<F>>& dRowB,
-        DistMultiVec<Base<F>>& dCol,
+(       DistSparseMatrix<Field>& A,
+        DistSparseMatrix<Field>& B,
+        DistMultiVec<Base<Field>>& dRowA,
+        DistMultiVec<Base<Field>>& dRowB,
+        DistMultiVec<Base<Field>>& dCol,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff,
   bool progress )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
@@ -583,7 +584,7 @@ void GeomEquil
     SetIndent( indent );
 
     // Scale each row of A so that its maximum entry is 1 or 0
-    F* valBufA = A.ValueBuffer();
+    Field* valBufA = A.ValueBuffer();
     const Int localHeightA = A.LocalHeight();
     Real* dRowABuf = dRowA.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeightA; ++iLoc )
@@ -618,40 +619,40 @@ void GeomEquil
     DiagonalSolve( LEFT, NORMAL, maxAbsValsB, B );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void GeomEquil \
-  (       Matrix<F>& A, \
-          Matrix<F>& B, \
-          Matrix<Base<F>>& dRowA, \
-          Matrix<Base<F>>& dRowB, \
-          Matrix<Base<F>>& dCol, \
+  (       Matrix<Field>& A, \
+          Matrix<Field>& B, \
+          Matrix<Base<Field>>& dRowA, \
+          Matrix<Base<Field>>& dRowB, \
+          Matrix<Base<Field>>& dCol, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     bool progress ); \
   template void GeomEquil \
-  (       ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B, \
-          ElementalMatrix<Base<F>>& dRowA, \
-          ElementalMatrix<Base<F>>& dRowB, \
-          ElementalMatrix<Base<F>>& dCol, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  (       AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Field>& B, \
+          AbstractDistMatrix<Base<Field>>& dRowA, \
+          AbstractDistMatrix<Base<Field>>& dRowB, \
+          AbstractDistMatrix<Base<Field>>& dCol, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff, bool progress ); \
   template void GeomEquil \
-  (       SparseMatrix<F>& A, \
-          SparseMatrix<F>& B, \
-          Matrix<Base<F>>& dRowA, \
-          Matrix<Base<F>>& dRowB, \
-          Matrix<Base<F>>& dCol, \
+  (       SparseMatrix<Field>& A, \
+          SparseMatrix<Field>& B, \
+          Matrix<Base<Field>>& dRowA, \
+          Matrix<Base<Field>>& dRowB, \
+          Matrix<Base<Field>>& dCol, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     bool progress ); \
   template void GeomEquil \
-  (       DistSparseMatrix<F>& A, \
-          DistSparseMatrix<F>& B, \
-          DistMultiVec<Base<F>>& dRowA, \
-          DistMultiVec<Base<F>>& dRowB, \
-          DistMultiVec<Base<F>>& dCol, \
+  (       DistSparseMatrix<Field>& A, \
+          DistSparseMatrix<Field>& B, \
+          DistMultiVec<Base<Field>>& dRowA, \
+          DistMultiVec<Base<Field>>& dRowB, \
+          DistMultiVec<Base<Field>>& dCol, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     Int cutoff, bool progress );

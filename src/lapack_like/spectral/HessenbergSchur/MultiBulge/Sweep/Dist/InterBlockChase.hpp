@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_HESS_MULTIBULGE_SWEEP_INTER_BLOCK_CHASE_HPP
@@ -23,7 +23,7 @@ namespace multibulge {
 // that the distribution block size be at least one plus six times the number
 // of bulges.
 //
-// If we had two bulges per block and a distribution block size of 16, then 
+// If we had two bulges per block and a distribution block size of 16, then
 // most of the 'even' intra-block chases would begin in the form
 //
 //                          ~ ~ ~ ~ ~ ~   ~ ~ ~ ~ ~ ~
@@ -176,7 +176,7 @@ namespace multibulge {
 // We note that the overlap of the second even bulge with the first odd bulge
 // is acceptable for the same reason that the two even bulges are allowed to
 // overlap: the Householder transformations that pushed the second even bulge
-// down the diagonal to overlap with the first odd bulge did not disturb the 
+// down the diagonal to overlap with the first odd bulge did not disturb the
 // odd bulge.
 //
 // Keeping with the minimal block size of 13, the subsequent 'odd' chase would
@@ -214,7 +214,7 @@ namespace multibulge {
 //     -------------------------------------------------------
 //
 // and end in the form
-//                    ~ ~ ~ ~ ~ ~   ~ ~ ~ ~ ~ ~ 
+//                    ~ ~ ~ ~ ~ ~   ~ ~ ~ ~ ~ ~
 //     -------------------------------------------------------
 //    | E E E E x x x x x x x x x | x x x x x x x x x x x x x |
 //    | E E E E x x x x x x x x x | x x x x x x x x x x x x x |
@@ -255,7 +255,7 @@ namespace multibulge {
 // upper-left inter-block chase of two bulges would begin in the
 // form
 //
-//        ~ ~ ~   ~ ~ ~ ~ ~ ~ 
+//        ~ ~ ~   ~ ~ ~ ~ ~ ~
 //       -----------------------------------
 //   ~  | x x x | x x x x x x x x x x x x x |
 //   ~  | x x x | x x x x x x x x x x x x x |
@@ -278,7 +278,7 @@ namespace multibulge {
 //
 // and end in the form
 //
-//        ~ ~ ~   ~ ~ ~ ~ ~ ~ 
+//        ~ ~ ~   ~ ~ ~ ~ ~ ~
 //       -----------------------------------
 //   ~  | x x x | x x x x x x x x x x x x x |
 //   ~  | x x x | x x x x x x x x x x x x x |
@@ -385,7 +385,7 @@ namespace multibulge {
 //       -----------------------------------------
 //
 // As in the case of the "introductory" inter-block chase, we perform such an
-// "exit" inter-block chase during the stage implied by the parity of the 
+// "exit" inter-block chase during the stage implied by the parity of the
 // top-left block.
 //
 // In order to prevent an inter-block chase that is both an "introduction" and
@@ -483,7 +483,7 @@ DetermineInteraction
                 // We need to introduce and chase a packet.
                 interaction.chaseType = COUPLED_INTRO_CHASE;
                 interaction.blockSize0 = state.firstBlockSize;
-                interaction.blockSize1 = state.blockSize; 
+                interaction.blockSize1 = state.blockSize;
             }
         }
         else
@@ -535,7 +535,7 @@ DetermineInteraction
             }
             else
             {
-                // This chase will introduce a packet and immediately chase 
+                // This chase will introduce a packet and immediately chase
                 // it into diagonal block (1,1)
                 interaction.chaseType = COUPLED_INTRO_CHASE;
                 interaction.blockSize0 = state.firstBlockSize;
@@ -550,7 +550,7 @@ DetermineInteraction
             // We will push a packet into the last block (and then exit it)
             interaction.chaseType = EXIT_CHASE;
             interaction.blockSize0 = state.blockSize;
-            interaction.blockSize1 = state.lastBlockSize; 
+            interaction.blockSize1 = state.lastBlockSize;
         }
         else
         {
@@ -610,7 +610,7 @@ DetermineInteraction
       interaction.blockSize1;
 
     interaction.householderBeg =
-      ( (interaction.chaseType==SIMPLE_INTRO_CHASE || 
+      ( (interaction.chaseType==SIMPLE_INTRO_CHASE ||
          interaction.chaseType==COUPLED_INTRO_CHASE) ?
         interaction.beg :
         interaction.beg + interaction.blockSize0 - 3*interaction.numBulges );
@@ -740,11 +740,11 @@ FormColumnInteractionList
 // of which only six rows and six columns are involved in the inter-block packet
 // chase. We can also obviously only transmit a single entry of the bottom-left
 // block (and the nonzero portions of the other quadrants).
-template<typename F>
+template<typename Field>
 void CollectBlock
 ( const InterBlockInteraction& interaction,
-  const DistMatrix<F,MC,MR,BLOCK>& H,
-        Matrix<F>& HBlock,
+  const DistMatrix<Field,MC,MR,BLOCK>& H,
+        Matrix<Field>& HBlock,
   const DistChaseState& state )
 {
     DEBUG_CSE
@@ -836,7 +836,7 @@ void CollectBlock
             auto HBlockTop = HBlock( ind0, ALL );
             auto HBlockBottom = HBlock( ind1, ALL );
 
-            HBlockTop = HInteractLoc; 
+            HBlockTop = HInteractLoc;
             El::Recv( HBlockBottom, grid.ColComm(), secondRow );
         }
         else
@@ -861,7 +861,7 @@ void CollectBlock
             auto HBlock11 = HBlock( ind1, ind1 );
 
             HBlock00 = HInteractLoc;
-            El::Recv( HBlock01, grid.VCComm(), proc01 ); 
+            El::Recv( HBlock01, grid.VCComm(), proc01 );
             El::Recv( HBlock10, grid.VCComm(), proc10 );
             El::Recv( HBlock11, grid.VCComm(), proc11 );
         }
@@ -880,11 +880,11 @@ void CollectBlock
     }
 }
 
-template<typename F>
+template<typename Field>
 void StoreBlock
 ( const InterBlockInteraction& interaction,
-        DistMatrix<F,MC,MR,BLOCK>& H,
-        Matrix<F>& HBlock,
+        DistMatrix<Field,MC,MR,BLOCK>& H,
+        Matrix<Field>& HBlock,
   const DistChaseState& state )
 {
     DEBUG_CSE
@@ -919,7 +919,7 @@ void StoreBlock
         // Only a single process participates in introductory chases, and they
         // occur over the entire top-left block (which must have been full).
         if( grid.Row() == secondRow && grid.Col() == secondCol )
-        { 
+        {
             HInteractLoc = HBlock;
         }
         else
@@ -1002,14 +1002,14 @@ void StoreBlock
     }
 }
 
-template<typename F>
+template<typename Field>
 void LocalChase
 ( bool evenToOdd,
   const InterBlockInteraction& interaction,
-        Matrix<F>& HBlock,
-        Matrix<F>& UBlock,
-        Matrix<F>& W,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+        Matrix<Field>& HBlock,
+        Matrix<Field>& UBlock,
+        Matrix<Field>& W,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
   const DistChaseState& state,
         bool progress )
 {
@@ -1026,7 +1026,7 @@ void LocalChase
     Int numSteps;
     if( interaction.chaseType == STANDARD_CHASE )
     {
-        // Standard chases involve stepHouseholderSize x stepHouseholderSize 
+        // Standard chases involve stepHouseholderSize x stepHouseholderSize
         // transformations; the effected index range expands by one in each step
         const Int stepHouseholderSize = 3*interaction.numBulges;
         numSteps = householderSize - stepHouseholderSize + 1;
@@ -1059,7 +1059,7 @@ void LocalChase
     }
     const Int bulgeOffset = state.bulgeBeg + packetOffset;
 
-    Matrix<F> ZDummy;
+    Matrix<Field> ZDummy;
     const Int chaseBeg = (interaction.householderBeg-interaction.beg)-1;
     const Int transformRowBeg = blockWinBeg;
     const Int transformColEnd = blockWinEnd;
@@ -1080,7 +1080,7 @@ void LocalChase
         {
             // At most one bulge is introduced every three steps;
             // recall that step-1 is the starting position of the right-most
-            // bulge 
+            // bulge
             packetBeg =
               Max(chaseBeg+Mod(step,3),(step-1)-3*(interaction.numBulges-1));
             numActiveBulges = Min( (step/3)+1, interaction.numBulges );
@@ -1116,17 +1116,17 @@ void LocalChase
     }
 }
 
-template<typename F>
+template<typename Field>
 void ApplyAccumulatedFromLeft
 ( const InterBlockInteraction& interaction,
-        DistMatrix<F,MC,MR,BLOCK>& H,
-  const Matrix<F>& U,
+        DistMatrix<Field,MC,MR,BLOCK>& H,
+  const Matrix<Field>& U,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
     DEBUG_CSE
     const Int n = H.Height();
-    const Int colBeg = interaction.end; 
+    const Int colBeg = interaction.end;
     const Int colEnd = ( ctrl.fullTriangle ? n : state.winEnd );
     const Int houseBeg = interaction.householderBeg;
     const Int houseEnd = interaction.householderEnd;
@@ -1142,12 +1142,12 @@ void ApplyAccumulatedFromLeft
     TransformRows( U, HRight );
 }
 
-template<typename F>
+template<typename Field>
 void ApplyAccumulatedFromRight
 ( const InterBlockInteraction& interaction,
-        DistMatrix<F,MC,MR,BLOCK>& H,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
-  const Matrix<F>& U,
+        DistMatrix<Field,MC,MR,BLOCK>& H,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
+  const Matrix<Field>& U,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
@@ -1177,11 +1177,11 @@ void ApplyAccumulatedFromRight
 
 } // namespace interblock
 
-template<typename F>
+template<typename Field>
 void InterBlockChase
-(       DistMatrix<F,MC,MR,BLOCK>& H,
-        DistMatrix<F,MC,MR,BLOCK>& Z,
-  const DistMatrix<Complex<Base<F>>,STAR,STAR>& shifts,
+(       DistMatrix<Field,MC,MR,BLOCK>& H,
+        DistMatrix<Field,MC,MR,BLOCK>& Z,
+  const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
         bool evenToOdd,
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
@@ -1191,7 +1191,7 @@ void InterBlockChase
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
     // If fullFirstBlock is false, then we need to subtract one from the block
     // index when computing the beginning shift.
-    
+
     if( state.introBlock < -1 )
         LogicError("state.introBlock was less than -1");
     if( state.introBlock >= state.endBlock )
@@ -1210,9 +1210,9 @@ void InterBlockChase
     // Count the number of chases handled by this process
     Int numDiagInteractions = 0;
     for( const auto& interaction : rowInteractionList )
-        if( interaction.onDiagonal ) 
+        if( interaction.onDiagonal )
             ++numDiagInteractions;
-    vector<Matrix<F>> UList(numDiagInteractions);
+    vector<Matrix<Field>> UList(numDiagInteractions);
 
     const int prevGridRow = Mod( grid.Row()-1, grid.Height() );
     const int nextGridRow = Mod( grid.Row()+1, grid.Height() );
@@ -1225,8 +1225,8 @@ void InterBlockChase
 
     // Chase the packets that we interact with in this step and store the
     // accumulated Householder reflections
-    Matrix<F> W;
-    Matrix<F> HBlock;
+    Matrix<Field> W;
+    Matrix<Field> HBlock;
     Int diagInteraction = 0;
     for( Int rowInteraction=0; rowInteraction<numRowInteractions;
          ++rowInteraction )
@@ -1247,7 +1247,7 @@ void InterBlockChase
             }
             else if( interaction.onDiagonal )
             {
-                auto& UBlock = UList[diagInteraction++]; 
+                auto& UBlock = UList[diagInteraction++];
                 const Int householderSize =
                   interaction.householderEnd - interaction.householderBeg;
                 UBlock.Resize( householderSize, householderSize );
@@ -1258,7 +1258,7 @@ void InterBlockChase
     }
 
     diagInteraction = 0;
-    Matrix<F> U;
+    Matrix<Field> U;
     for( Int rowInteraction=0; rowInteraction<numRowInteractions;
          ++rowInteraction )
     {
@@ -1271,7 +1271,9 @@ void InterBlockChase
             Zeros( U, householderSize, householderSize );
         DEBUG_ONLY(
           if( U.Height() != householderSize || U.Width() != householderSize )
-              LogicError("U was ",U.Height()," x ",U.Width()," instead of ",householderSize," for row interaction ",rowInteraction);
+              LogicError
+              ("U was ",U.Height()," x ",U.Width()," instead of ",
+               householderSize," for row interaction ",rowInteraction);
         )
 
         const int firstRow =
@@ -1282,7 +1284,7 @@ void InterBlockChase
 
         int ownerCol;
         if( interaction.chaseType == SIMPLE_INTRO_CHASE )
-            ownerCol = secondCol; 
+            ownerCol = secondCol;
         else if( firstRow == grid.Row() )
             ownerCol = firstCol;
         else
@@ -1306,7 +1308,9 @@ void InterBlockChase
             Zeros( U, householderSize, householderSize );
         DEBUG_ONLY(
           if( U.Height() != householderSize || U.Width() != householderSize )
-              LogicError("U was ",U.Height()," x ",U.Width()," instead of ",householderSize," for column interaction ",colInteraction);
+              LogicError
+              ("U was ",U.Height()," x ",U.Width()," instead of ",
+               householderSize," for column interaction ",colInteraction);
         )
 
         const int firstRow =
@@ -1317,7 +1321,7 @@ void InterBlockChase
 
         int ownerRow;
         if( interaction.chaseType == SIMPLE_INTRO_CHASE )
-            ownerRow = secondRow; 
+            ownerRow = secondRow;
         else if( firstCol == grid.Col() )
             ownerRow = firstRow;
         else

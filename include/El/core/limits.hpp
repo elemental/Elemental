@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LIMITS_HPP
@@ -89,10 +89,11 @@ namespace limits {
 // TODO: Extend this list of functions as needed
 
 // NOTE: These functions take arguments so that types such as BigFloat,
-//       which have configurable properties, can be passed a particular 
+//       which have configurable properties, can be passed a particular
 //       instance of the type to extract its limits
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Base()
 { return std::numeric_limits<Real>::radix; }
 #ifdef EL_HAVE_QD
@@ -119,10 +120,12 @@ inline BigFloat Base<BigFloat>()
 //       Demmel/LAPACK-style 'epsilon' and Higham/STL-style 'epsilon'.
 //       We call the former 'epsilon' and the latter 'precision' for
 //       consistency with LAPACK.
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Precision( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::epsilon(); }
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Epsilon( const Real& alpha=Real(1) )
 { return Precision<Real>()*std::numeric_limits<Real>::round_error(); }
 #ifdef EL_HAVE_QD
@@ -138,7 +141,7 @@ template<> inline QuadDouble Epsilon( const QuadDouble& alpha )
 #endif
 #ifdef EL_HAVE_QUAD
 // NOTE: The FLT128_* macros require support for the -std=gnu++11
-//       literal 'Q', which is *NOT* provided by GCC with -std=c++11, but 
+//       literal 'Q', which is *NOT* provided by GCC with -std=c++11, but
 //       *IS* provided by Intel with -std=c++11.
 template<> inline Quad Precision( const Quad& alpha )
 { return FLT128_EPSILON; }
@@ -148,7 +151,7 @@ template<> inline Quad Epsilon( const Quad& alpha )
 #ifdef EL_HAVE_MPC
 template<>
 inline BigFloat Precision<BigFloat>( const BigFloat& alpha )
-{ 
+{
     // NOTE: This 'precision' is the number of bits in the mantissa
     auto p = alpha.Precision();
 
@@ -158,7 +161,7 @@ inline BigFloat Precision<BigFloat>( const BigFloat& alpha )
 }
 template<>
 inline BigFloat Epsilon<BigFloat>( const BigFloat& alpha )
-{ 
+{
     // NOTE: This 'precision' is the number of bits in the mantissa
     auto p = alpha.Precision();
 
@@ -168,7 +171,8 @@ inline BigFloat Epsilon<BigFloat>( const BigFloat& alpha )
 }
 #endif
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 struct ExponentTypeHelper
 { typedef Real type; };
 #ifdef EL_HAVE_MPC
@@ -176,13 +180,16 @@ template<> struct ExponentTypeHelper<BigFloat>
 { typedef mpfr_exp_t type; };
 #endif
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 using ExponentType = typename ExponentTypeHelper<Real>::type;
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline ExponentType<Real> MaxExponent()
 { return std::numeric_limits<Real>::max_exponent; }
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline ExponentType<Real> MinExponent()
 { return std::numeric_limits<Real>::min_exponent; }
 #ifdef EL_HAVE_QD
@@ -221,16 +228,19 @@ MinExponent<BigFloat>()
 { return mpfr_get_emin(); }
 #endif
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Max( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::max(); }
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Min( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::min(); }
 // NOTE: These implementations do not use std::numeric_limits<Real>::lowest()
 //       because said routine does not seem to be provided by recent Intel
 //       implementations of C++11
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Lowest( const Real& alpha=Real(1) )
 { return -std::numeric_limits<Real>::max(); }
 #ifdef EL_USE_64BIT_INTS
@@ -281,14 +291,15 @@ inline BigFloat Lowest<BigFloat>( const BigFloat& alpha )
 { return -Max<BigFloat>(alpha); }
 #endif
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real SafeMin( const Real& alpha=Real(1) )
 {
     const Real one = Real(1);
     const Real eps = Epsilon<Real>();
     const Real minVal = Min<Real>();
     const Real invMax = one/Max<Real>();
-    static const Real safeMin = 
+    static const Real safeMin =
       ( invMax>minVal ? invMax*(one+eps) : minVal );
     return safeMin;
 }
@@ -323,13 +334,14 @@ inline BigFloat SafeMin( const BigFloat& alpha )
 // (which results in a different result with float, but the same with
 // double).
 //
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real SafeMinToSquare( const Real& alpha=Real(1) )
 {
     const Real base = Base<Real>();
     const Real eps = Epsilon<Real>();
     const Real safeMin = SafeMin<Real>();
-    static const Real safeMinToSquare = 
+    static const Real safeMinToSquare =
       Pow( base, Round((Log(safeMin/eps)/Log(base))/Real(2)) );
     return safeMinToSquare;
 }
@@ -339,7 +351,7 @@ inline BigFloat SafeMinToSquare( const BigFloat& alpha )
 {
     // TODO: Decide how to only recompute this when the precision changes
     const BigFloat two(2);
-    const BigFloat safeMinToSquare = 
+    const BigFloat safeMinToSquare =
       Pow( two, Round((Log2(SafeMin(alpha)/Epsilon(alpha)))/two) );
     return safeMinToSquare;
 }
@@ -348,13 +360,14 @@ inline BigFloat SafeMinToSquare( const BigFloat& alpha )
 // At the moment, this is only used within the subroutine CubicSecular within
 // the secular equation solver for the bidiagonal SVD. See LAPACK's
 // {s,d}laed6 [CITATION] for the motivation for these constants.
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real SafeMinToCube( const Real& alpha=Real(1) )
 {
     const Real base = Base<Real>();
     const Real eps = Epsilon<Real>();
     const Real safeMin = SafeMin<Real>();
-    static const Real safeMinToCube = 
+    static const Real safeMinToCube =
       Pow( base, Round((Log(safeMin/eps)/Log(base))/Real(3)) );
     return safeMinToCube;
 }
@@ -364,13 +377,14 @@ inline BigFloat SafeMinToCube( const BigFloat& alpha )
 {
     // TODO: Decide how to only recompute this when the precision changes
     const BigFloat base(2);
-    const BigFloat safeMinToSquare = 
+    const BigFloat safeMinToSquare =
       Pow( base, Round((Log2(SafeMin(alpha)/Epsilon(alpha)))/3) );
     return safeMinToSquare;
 }
 #endif
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline Real Infinity( const Real& alpha=Real(1) )
 { return std::numeric_limits<Real>::infinity(); }
 #ifdef EL_HAVE_QD
@@ -399,7 +413,8 @@ inline BigFloat Infinity<BigFloat>( const BigFloat& alpha )
 }
 #endif
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 inline bool IsFinite( const Real& alpha )
 { return std::isfinite(alpha); }
 #ifdef EL_HAVE_QD

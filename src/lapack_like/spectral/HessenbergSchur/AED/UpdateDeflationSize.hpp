@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HESS_SCHUR_AED_UPDATE_DEFLATION_SIZE_HPP
@@ -17,14 +17,14 @@ namespace aed {
 // --------------------------------------------
 // Cf. LAPACK's DLAQR0 for the high-level approach
 
-template<typename F>
+template<typename Field>
 void UpdateDeflationSize
 ( Int& deflationSize,
   Int& decreaseLevel,
   Int deflationSizeRec,
   Int numIterSinceDeflation,
-  Int numStaleIterBeforeExceptional, 
-  const Matrix<F>& hSubIter )
+  Int numStaleIterBeforeExceptional,
+  const Matrix<Field>& hSubIter )
 {
     const Int iterWinSize = hSubIter.Height() + 1;
     if( numIterSinceDeflation < numStaleIterBeforeExceptional )
@@ -50,7 +50,7 @@ void UpdateDeflationSize
     }
     if( numIterSinceDeflation < numStaleIterBeforeExceptional )
     {
-        decreaseLevel = -1; 
+        decreaseLevel = -1;
     }
     else if( decreaseLevel >= 0 || deflationSize == iterWinSize )
     {

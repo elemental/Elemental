@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,12 +13,13 @@ namespace soc {
 
 // Q_x y = (2 x x^T - det(x) R) y = 2 (x^T y) x - det(x) (R y)
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ApplyQuadratic
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
   const Matrix<Real>& y,
         Matrix<Real>& z,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
     DEBUG_CSE
@@ -43,13 +44,14 @@ void ApplyQuadratic
     z -= detRy;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ApplyQuadratic
-( const ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Real>& yPre,
-        ElementalMatrix<Real>& zPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& yPre,
+        AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
     DEBUG_CSE
@@ -71,7 +73,7 @@ void ApplyQuadratic
     auto& y = yProx.GetLocked();
     auto& z = zProx.Get();
     auto& orders = ordersProx.GetLocked();
-    auto& firstInds = firstIndsProx.GetLocked(); 
+    auto& firstInds = firstIndsProx.GetLocked();
 
     // detRy := det(x) R y
     DistMatrix<Real,VC,STAR> d(x.Grid());
@@ -93,19 +95,20 @@ void ApplyQuadratic
     z -= detRy;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ApplyQuadratic
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
     DEBUG_CSE
 
     // detRy := det(x) R y
-    DistMultiVec<Real> d(x.Comm()); 
+    DistMultiVec<Real> d(x.Comm());
     soc::Dets( x, d, orders, firstInds, cutoff );
     cone::Broadcast( d, orders, firstInds, cutoff );
     auto Ry = y;
@@ -124,7 +127,8 @@ void ApplyQuadratic
     z -= detRy;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ApplyQuadratic
 ( const Matrix<Real>& x,
         Matrix<Real>& y,
@@ -132,28 +136,30 @@ void ApplyQuadratic
   const Matrix<Int>& firstInds )
 {
     DEBUG_CSE
-    // TODO?: Optimize
-    Matrix<Real> z; 
+    // TODO(poulson)?: Optimize
+    Matrix<Real> z;
     soc::ApplyQuadratic( x, y, z, orders, firstInds );
     y = z;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ApplyQuadratic
-( const ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
+( const AbstractDistMatrix<Real>& x,
+        AbstractDistMatrix<Real>& y,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
   Int cutoff )
 {
     DEBUG_CSE
-    // TODO?: Optimize
-    DistMatrix<Real,VC,STAR> z(x.Grid()); 
+    // TODO(poulson)?: Optimize
+    DistMatrix<Real,VC,STAR> z(x.Grid());
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
-    y = z;
+    Copy( z, y );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ApplyQuadratic
 ( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
@@ -162,7 +168,7 @@ void ApplyQuadratic
   Int cutoff )
 {
     DEBUG_CSE
-    // TODO?: Optimize 
+    // TODO(poulson)?: Optimize
     DistMultiVec<Real> z(x.Comm());
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
     y = z;
@@ -176,11 +182,11 @@ void ApplyQuadratic
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void ApplyQuadratic \
-  ( const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void ApplyQuadratic \
   ( const DistMultiVec<Real>& x, \
@@ -195,10 +201,10 @@ void ApplyQuadratic
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void ApplyQuadratic \
-  ( const ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void ApplyQuadratic \
   ( const DistMultiVec<Real>& x, \

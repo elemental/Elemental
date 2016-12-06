@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,10 +11,11 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushInto
-(       Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
+(       Matrix<Real>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   Real minDist )
 {
@@ -34,11 +35,12 @@ void PushInto
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushInto
-(       ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+(       AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Real minDist, Int cutoff )
 {
     DEBUG_CSE
@@ -74,11 +76,12 @@ void PushInto
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushInto
-(       DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, 
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
   Real minDist, Int cutoff )
 {
     DEBUG_CSE
@@ -107,9 +110,9 @@ void PushInto
     const Matrix<Int>& firstInds, \
     Real minDist ); \
   template void PushInto \
-  (       ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  (       AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Real minDist, Int cutoff ); \
   template void PushInto \
   (       DistMultiVec<Real>& x, \

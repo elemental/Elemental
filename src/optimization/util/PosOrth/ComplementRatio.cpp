@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,7 +13,8 @@ namespace pos_orth {
 
 // Compute Max( s o z ) / Min( s o z ) to determine if we need to recenter
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real ComplementRatio
 ( const Matrix<Real>& s,
   const Matrix<Real>& z )
@@ -34,10 +35,11 @@ Real ComplementRatio
     return maxProd/minProd;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real ComplementRatio
-( const ElementalMatrix<Real>& sPre,
-  const ElementalMatrix<Real>& zPre )
+( const AbstractDistMatrix<Real>& sPre,
+  const AbstractDistMatrix<Real>& zPre )
 {
     DEBUG_CSE
 
@@ -59,7 +61,7 @@ Real ComplementRatio
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         maxLocProd = Max( sBuf[iLoc]*zBuf[iLoc], maxLocProd );
     const Real maxProd = mpi::AllReduce( maxLocProd, mpi::MAX, s.DistComm() );
-    
+
     Real minLocProd = maxProd;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         minLocProd = Min( sBuf[iLoc]*zBuf[iLoc], minLocProd );
@@ -68,7 +70,8 @@ Real ComplementRatio
     return maxProd/minProd;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real ComplementRatio
 ( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z )
@@ -82,7 +85,7 @@ Real ComplementRatio
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         maxLocProd = Max( sBuf[iLoc]*zBuf[iLoc], maxLocProd );
     const Real maxProd = mpi::AllReduce( maxLocProd, mpi::MAX, s.Comm() );
-    
+
     Real minLocProd = maxProd;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         minLocProd = Min( sBuf[iLoc]*zBuf[iLoc], minLocProd );
@@ -96,8 +99,8 @@ Real ComplementRatio
   ( const Matrix<Real>& s, \
     const Matrix<Real>& z ); \
   template Real ComplementRatio \
-  ( const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& z ); \
+  ( const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& z ); \
   template Real ComplementRatio \
   ( const DistMultiVec<Real>& s, \
     const DistMultiVec<Real>& z );

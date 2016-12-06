@@ -2,15 +2,15 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SOLVE_FGMRES_HPP
 #define EL_SOLVE_FGMRES_HPP
 
 // The pseudocode for Flexible GMRES can be found in "Algorithm 2.2" in
-//   Youcef Saad
+//   Yousef Saad
 //   "A flexible inner-outer preconditioned GMRES algorithm"
 //   SIAM J. Sci. Comput., Vol. 14, No. 2, pp. 461--469, 1993.
 
@@ -20,13 +20,26 @@ namespace El {
 
 namespace fgmres {
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// In what follows, 'applyA' should be a function of the form
+//
+//   void applyA
+//   ( Field alpha, const Matrix<Field>& x, Field beta, Matrix<Field>& y )
+//
+// and overwrite y := alpha A x + beta y. However, 'precond' should have the
+// form
+//
+//   void precond( Matrix<Field>& b )
+//
+// and overwrite b with an approximation of inv(A) b.
+//
+
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        Matrix<F>& b,
-        Base<F> relTol,
+        Matrix<Field>& b,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
@@ -41,16 +54,16 @@ Int Single
     const bool saveProducts = true;
     const bool time = false;
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = b.Height();
     Timer iterTimer;
 
     // x := 0
     // ======
-    Matrix<F> x;
+    Matrix<Field> x;
     Zeros( x, n, 1 );
 
-    Matrix<F> Ax0;
+    Matrix<Field> Ax0;
     if( saveProducts )
     {
         // A x_0 := 0
@@ -72,8 +85,8 @@ Int Single
     Int iter=0;
     bool converged = false;
     Matrix<Real> cs;
-    Matrix<F> sn, H, t;
-    Matrix<F> x0, V, Z, AZ, q;
+    Matrix<Field> sn, H, t;
+    Matrix<Field> x0, V, Z, AZ, q;
     while( !converged )
     {
         if( progress )
@@ -130,7 +143,7 @@ Int Single
 
             // w := A z_j
             // ----------
-            applyA( F(1), zj, F(0), w );
+            applyA( Field(1), zj, Field(0), w );
             if( saveProducts )
             {
                 auto Azj = AZ( ALL, IR(j) );
@@ -169,10 +182,10 @@ Int Single
             for( Int i=0; i<j; ++i )
             {
                 const Real& c = cs(i);
-                const F& s = sn(i);
-                const F sConj = Conj(s);
-                const F eta_i_j = H(i,j);
-                const F eta_ip1_j = H(i+1,j);
+                const Field& s = sn(i);
+                const Field sConj = Conj(s);
+                const Field eta_i_j = H(i,j);
+                const Field eta_ip1_j = H(i+1,j);
                 H(i,  j) =  c    *eta_i_j + s*eta_ip1_j;
                 H(i+1,j) = -sConj*eta_i_j + c*eta_ip1_j;
             }
@@ -180,16 +193,16 @@ Int Single
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            const F eta_j_j = H(j,j);
-            const F eta_jp1_j = delta;
+            const Field eta_j_j = H(j,j);
+            const Field eta_jp1_j = delta;
             if( !limits::IsFinite(RealPart(eta_j_j))   ||
                 !limits::IsFinite(ImagPart(eta_j_j))   ||
                 !limits::IsFinite(RealPart(eta_jp1_j)) ||
                 !limits::IsFinite(ImagPart(eta_jp1_j)) )
                 RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
-            F s;
-            F rho = Givens( eta_j_j, eta_jp1_j, c, s );
+            Field s;
+            Field rho = Givens( eta_j_j, eta_jp1_j, c, s );
             if( !limits::IsFinite(c) ||
                 !limits::IsFinite(RealPart(s)) ||
                 !limits::IsFinite(ImagPart(s)) ||
@@ -201,9 +214,9 @@ Int Single
             sn(j) = s;
             // Apply the rotation to the rotated beta*e_0 vector
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            const F sConj = Conj(s);
-            const F tau_j = t(j);
-            const F tau_jp1 = t(j+1);
+            const Field sConj = Conj(s);
+            const Field tau_j = t(j);
+            const Field tau_jp1 = t(j+1);
             t(j)   =  c    *tau_j + s*tau_jp1;
             t(j+1) = -sConj*tau_j + c*tau_jp1;
             // Minimize the residual
@@ -217,7 +230,7 @@ Int Single
             x = x0;
             auto Zj = Z( ALL, IR(0,j+1) );
             auto yj = y( IR(0,j+1), ALL );
-            Gemv( NORMAL, F(1), Zj, yj, F(1), x );
+            Gemv( NORMAL, Field(1), Zj, yj, Field(1), x );
 
             // w := b - A x
             // ------------
@@ -228,7 +241,7 @@ Int Single
                 // ^^^^^^^^^^^^^^^^^^^^^^^^^
                 q = Ax0;
                 auto AZj = AZ( ALL, IR(0,j+1) );
-                Gemv( NORMAL, F(1), AZj, yj, F(1), q );
+                Gemv( NORMAL, Field(1), AZj, yj, Field(1), q );
 
                 // w := b - A x
                 // ^^^^^^^^^^^^
@@ -236,7 +249,7 @@ Int Single
             }
             else
             {
-                applyA( F(-1), x, F(1), w );
+                applyA( Field(-1), x, Field(1), w );
             }
 
             if( time )
@@ -276,13 +289,13 @@ Int Single
 
 } // namespace fgmres
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int FGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
@@ -303,13 +316,13 @@ Int FGMRES
 
 namespace fgmres {
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        DistMultiVec<F>& b,
-        Base<F> relTol,
+        DistMultiVec<Field>& b,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
@@ -324,7 +337,7 @@ Int Single
     const bool saveProducts = true;
     const bool time = false;
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = b.Height();
     mpi::Comm comm = b.Comm();
     const int commRank = mpi::Rank(comm);
@@ -332,10 +345,10 @@ Int Single
 
     // x := 0
     // ======
-    DistMultiVec<F> x(comm);
+    DistMultiVec<Field> x(comm);
     Zeros( x, n, 1 );
 
-    DistMultiVec<F> Ax0(comm);
+    DistMultiVec<Field> Ax0(comm);
     if( saveProducts )
     {
         // A x_0 := 0
@@ -345,7 +358,7 @@ Int Single
 
     // w := b (= b - A x_0)
     // ====================
-    DistMultiVec<F> w(comm);
+    DistMultiVec<Field> w(comm);
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress && commRank == 0 )
@@ -357,8 +370,8 @@ Int Single
     Int iter=0;
     bool converged = false;
     Matrix<Real> cs;
-    Matrix<F> sn, H, t;
-    DistMultiVec<F> x0(comm), q(comm), V(comm), Z(comm), AZ(comm);
+    Matrix<Field> sn, H, t;
+    DistMultiVec<Field> x0(comm), q(comm), V(comm), Z(comm), AZ(comm);
     while( !converged )
     {
         if( progress && commRank == 0 )
@@ -424,7 +437,7 @@ Int Single
             // w := A z_j
             // ----------
             // NOTE: q currently contains z_j
-            applyA( F(1), q, F(0), w );
+            applyA( Field(1), q, Field(0), w );
             if( saveProducts )
             {
                 auto& AZLoc = AZ.Matrix();
@@ -464,10 +477,10 @@ Int Single
             for( Int i=0; i<j; ++i )
             {
                 const Real& c = cs(i);
-                const F& s = sn(i);
-                const F sConj = Conj(s);
-                const F eta_i_j = H(i,j);
-                const F eta_ip1_j = H(i+1,j);
+                const Field& s = sn(i);
+                const Field sConj = Conj(s);
+                const Field eta_i_j = H(i,j);
+                const Field eta_ip1_j = H(i+1,j);
                 H(i,  j) =  c    *eta_i_j + s*eta_ip1_j;
                 H(i+1,j) = -sConj*eta_i_j + c*eta_ip1_j;
             }
@@ -475,16 +488,16 @@ Int Single
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            const F eta_j_j = H(j,j);
-            const F eta_jp1_j = delta;
+            const Field eta_j_j = H(j,j);
+            const Field eta_jp1_j = delta;
             if( !limits::IsFinite(RealPart(eta_j_j))   ||
                 !limits::IsFinite(ImagPart(eta_j_j))   ||
                 !limits::IsFinite(RealPart(eta_jp1_j)) ||
                 !limits::IsFinite(ImagPart(eta_jp1_j)) )
                 RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
-            F s;
-            F rho = Givens( eta_j_j, eta_jp1_j, c, s );
+            Field s;
+            Field rho = Givens( eta_j_j, eta_jp1_j, c, s );
             if( !limits::IsFinite(c) ||
                 !limits::IsFinite(RealPart(s)) ||
                 !limits::IsFinite(ImagPart(s)) ||
@@ -496,9 +509,9 @@ Int Single
             sn(j) = s;
             // Apply the rotation to the rotated beta*e_0 vector
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            const F sConj = Conj(s);
-            const F tau_j = t(j);
-            const F tau_jp1 = t(j+1);
+            const Field sConj = Conj(s);
+            const Field tau_j = t(j);
+            const Field tau_jp1 = t(j+1);
             t(j)   =  c    *tau_j + s*tau_jp1;
             t(j+1) = -sConj*tau_j + c*tau_jp1;
             // Minimize the residual
@@ -512,7 +525,7 @@ Int Single
             x = x0;
             auto ZjLoc = ZLoc( ALL, IR(0,j+1) );
             auto yj = y( IR(0,j+1), ALL );
-            Gemv( NORMAL, F(1), ZjLoc, yj, F(1), x.Matrix() );
+            Gemv( NORMAL, Field(1), ZjLoc, yj, Field(1), x.Matrix() );
 
             // w := b - A x
             // ------------
@@ -524,7 +537,7 @@ Int Single
                 q = Ax0;
                 const auto& AZLoc = AZ.LockedMatrix();
                 auto AZjLoc = AZLoc( ALL, IR(0,j+1) );
-                Gemv( NORMAL, F(1), AZjLoc, yj, F(1), q.Matrix() );
+                Gemv( NORMAL, Field(1), AZjLoc, yj, Field(1), q.Matrix() );
 
                 // w := b - A x
                 // ^^^^^^^^^^^^
@@ -532,7 +545,7 @@ Int Single
             }
             else
             {
-                applyA( F(-1), x, F(1), w );
+                applyA( Field(-1), x, Field(1), w );
             }
 
             if( time && commRank == 0 )
@@ -572,13 +585,13 @@ Int Single
 
 } // namespace fgmres
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int FGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
@@ -588,7 +601,7 @@ Int FGMRES
     const Int width = B.Width();
 
     Int mostIts = 0;
-    DistMultiVec<F> u(B.Comm());
+    DistMultiVec<Field> u(B.Comm());
     Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();

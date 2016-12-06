@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
+// TODO(poulson): Lower-level access
 
 void EmbeddingMaps
 ( const Matrix<Int>& orders,
@@ -104,7 +104,7 @@ void EmbeddingMaps
 
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    // TODO: Send triplets instead?
+    // TODO(poulson): Send triplets instead?
     vector<Int> sendOrders, sendRoots;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -137,7 +137,7 @@ void EmbeddingMaps
       recvOrders.data(), numRecvRoots.data(), recvOffs.data(), comm );
     SwapClear( sendOrders );
 
-    // TODO: Sort based upon the roots. The current distribution
+    // TODO(poulson): Sort based upon the roots. The current distribution
     //       guarantees that they are already sorted.
 
     // Form the metadata for the original domain

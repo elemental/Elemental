@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SVD_PRODUCT_HPP
@@ -17,13 +17,13 @@ namespace svd {
 // Compute singular triplets
 // =========================
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const Matrix<F>& A,
-        Matrix<F>& U, 
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> tol,
   bool avoidU )
 {
     DEBUG_CSE
@@ -33,7 +33,7 @@ SVDInfo TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -46,14 +46,14 @@ SVDInfo TallAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        U.Resize( m, 0 );        
+        U.Resize( m, 0 );
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return info;
     }
 
     // C := A^H A
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
@@ -64,12 +64,12 @@ SVDInfo TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
@@ -78,12 +78,12 @@ SVDInfo TallAbsoluteProduct
     if( !avoidU )
     {
         // Y := A V
-        Matrix<F> Y;
-        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+        Matrix<Field> Y;
+        Gemm( NORMAL, NORMAL, Field(1), A, V, Y );
 
         // Set each column of U to be the corresponding normalized column of Y
         U = Y;
-        Matrix<Base<F>> colNorms;
+        Matrix<Base<Field>> colNorms;
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
@@ -91,13 +91,13 @@ SVDInfo TallAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  Base<F> relTol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> relTol,
   bool avoidU )
 {
     DEBUG_CSE
@@ -107,7 +107,7 @@ SVDInfo TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     SVDInfo info;
@@ -119,16 +119,16 @@ SVDInfo TallRelativeProduct
     }
 
     // C := A^H A
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     for( Int i=0; i<n; ++i )
     {
@@ -146,12 +146,12 @@ SVDInfo TallRelativeProduct
     if( !avoidU )
     {
         // Y := A V
-        Matrix<F> Y;
-        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+        Matrix<Field> Y;
+        Gemm( NORMAL, NORMAL, Field(1), A, V, Y );
 
         // Set each column of U to be the corresponding normalized column of Y
         U = Y;
-        Matrix<Base<F>> colNorms;
+        Matrix<Base<Field>> colNorms;
         ColumnTwoNorms( U, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, U );
     }
@@ -159,13 +159,13 @@ SVDInfo TallRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallProduct
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V, 
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidU )
 {
@@ -176,13 +176,13 @@ SVDInfo TallProduct
         return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const DistMatrix<F>& A,
-        DistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        DistMatrix<F>& V,
-  Base<F> tol,
+( const DistMatrix<Field>& A,
+        DistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        DistMatrix<Field>& V,
+  Base<Field> tol,
   bool avoidU )
 {
     DEBUG_CSE
@@ -193,7 +193,7 @@ SVDInfo TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -206,7 +206,7 @@ SVDInfo TallAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        U.Resize( m, 0 );        
+        U.Resize( m, 0 );
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return info;
@@ -214,7 +214,7 @@ SVDInfo TallAbsoluteProduct
 
     // C := A^H A
     const Grid& g = A.Grid();
-    DistMatrix<F> C(g);
+    DistMatrix<Field> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
@@ -225,12 +225,12 @@ SVDInfo TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
     auto& sLoc = s.Matrix();
@@ -240,8 +240,8 @@ SVDInfo TallAbsoluteProduct
     if( !avoidU )
     {
         // Y := A V
-        DistMatrix<F> Y(g);
-        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+        DistMatrix<Field> Y(g);
+        Gemm( NORMAL, NORMAL, Field(1), A, V, Y );
 
         // Set each column of U to be the corresponding normalized column of Y
         U = Y;
@@ -253,32 +253,32 @@ SVDInfo TallAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& VPre,
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& VPre,
+  Base<Field> tol,
   bool avoidU )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const DistMatrix<F>& A,
-        DistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        DistMatrix<F>& V,
-  Base<F> relTol,
+( const DistMatrix<Field>& A,
+        DistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        DistMatrix<Field>& V,
+  Base<Field> relTol,
   bool avoidU )
 {
     DEBUG_CSE
@@ -289,7 +289,7 @@ SVDInfo TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -302,11 +302,11 @@ SVDInfo TallRelativeProduct
     }
 
     // C := A^H A
-    DistMatrix<F> C(g);
+    DistMatrix<Field> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
@@ -332,8 +332,8 @@ SVDInfo TallRelativeProduct
     if( !avoidU )
     {
         // Y := A V
-        DistMatrix<F> Y(g);
-        Gemm( NORMAL, NORMAL, F(1), A, V, Y );
+        DistMatrix<Field> Y(g);
+        Gemm( NORMAL, NORMAL, Field(1), A, V, Y );
 
         // Set each column of U to be the corresponding normalized column of Y
         U = Y;
@@ -345,32 +345,32 @@ SVDInfo TallRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& VPre,
-  Base<F> relTol,
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& VPre,
+  Base<Field> relTol,
   bool avoidU )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return TallRelativeProduct( A, U, s, V, relTol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallProduct
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& V,
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidU )
 {
@@ -381,13 +381,13 @@ SVDInfo TallProduct
         return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const DistMatrix<F,VC,STAR>& A,
-        DistMatrix<F,VC,STAR>& U,
-        DistMatrix<Base<F>,STAR,STAR>& s, 
-        DistMatrix<F,STAR,STAR>& V,
-  Base<F> tol,
+( const DistMatrix<Field,VC,STAR>& A,
+        DistMatrix<Field,VC,STAR>& U,
+        DistMatrix<Base<Field>,STAR,STAR>& s,
+        DistMatrix<Field,STAR,STAR>& V,
+  Base<Field> tol,
   bool avoidU )
 {
     DEBUG_CSE
@@ -398,7 +398,7 @@ SVDInfo TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -411,7 +411,7 @@ SVDInfo TallAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        U.Resize( m, 0 );        
+        U.Resize( m, 0 );
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return info;
@@ -419,7 +419,7 @@ SVDInfo TallAbsoluteProduct
 
     // C := A^H A
     const Grid& g = A.Grid();
-    DistMatrix<F,STAR,STAR> C(g);
+    DistMatrix<Field,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
     El::AllReduce( C, A.ColComm() );
@@ -432,13 +432,13 @@ SVDInfo TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const int k = s.Height();
-    
+
     // Sigma := sqrt(Sigma^2)
     auto& sLoc = s.Matrix();
     for( Int i=0; i<k; ++i )
@@ -447,10 +447,10 @@ SVDInfo TallAbsoluteProduct
     if( !avoidU )
     {
         // Y := A V
-        DistMatrix<F,VC,STAR> Y(g);
+        DistMatrix<Field,VC,STAR> Y(g);
         Y.AlignWith( A );
         Zeros( Y, m, k );
-        LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+        LocalGemm( NORMAL, NORMAL, Field(1), A, V, Field(0), Y );
 
         // Set each column of U to be the corresponding normalized column of Y
         U = Y;
@@ -462,32 +462,32 @@ SVDInfo TallAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const DistMatrix<F,VC,STAR>& A,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& sPre, 
-        AbstractDistMatrix<F>& VPre,
-  Base<F> tol,
+( const DistMatrix<Field,VC,STAR>& A,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+        AbstractDistMatrix<Field>& VPre,
+  Base<Field> tol,
   bool avoidU )
 {
     DEBUG_CSE
-    DistMatrixWriteProxy<F,F,VC,STAR> UProx( UPre );
-    DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
+    DistMatrixWriteProxy<Field,Field,VC,STAR> UProx( UPre );
+    DistMatrixWriteProxy<Base<Field>,Base<Field>,STAR,STAR> sProx( sPre );
+    DistMatrixWriteProxy<Field,Field,STAR,STAR> VProx( VPre );
     auto& s = sProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const DistMatrix<F,VC,STAR>& A,
-        DistMatrix<F,VC,STAR>& U,
-        DistMatrix<Base<F>,STAR,STAR>& s, 
-        DistMatrix<F,STAR,STAR>& V,
-  Base<F> relTol,
+( const DistMatrix<Field,VC,STAR>& A,
+        DistMatrix<Field,VC,STAR>& U,
+        DistMatrix<Base<Field>,STAR,STAR>& s,
+        DistMatrix<Field,STAR,STAR>& V,
+  Base<Field> relTol,
   bool avoidU )
 {
     DEBUG_CSE
@@ -498,7 +498,7 @@ SVDInfo TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -511,18 +511,18 @@ SVDInfo TallRelativeProduct
     }
 
     // C := A^H A
-    DistMatrix<F,STAR,STAR> C(g);
+    DistMatrix<Field,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
     El::AllReduce( C, A.ColComm() );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, V, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
     auto& sLoc = s.Matrix();
     for( Int i=0; i<n; ++i )
@@ -542,10 +542,10 @@ SVDInfo TallRelativeProduct
     if( !avoidU )
     {
         // Y := A V
-        DistMatrix<F,VC,STAR> Y(g);
+        DistMatrix<Field,VC,STAR> Y(g);
         Y.AlignWith( A );
         Zeros( Y, m, k );
-        LocalGemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+        LocalGemm( NORMAL, NORMAL, Field(1), A, V, Field(0), Y );
 
         // Set each column of U to be the corresponding normalized column of Y
         U = Y;
@@ -557,32 +557,32 @@ SVDInfo TallRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const DistMatrix<F,VC,STAR>& A,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& sPre, 
-        AbstractDistMatrix<F>& VPre,
-  Base<F> relTol,
+( const DistMatrix<Field,VC,STAR>& A,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& sPre,
+        AbstractDistMatrix<Field>& VPre,
+  Base<Field> relTol,
   bool avoidU )
 {
     DEBUG_CSE
-    DistMatrixWriteProxy<Base<F>,Base<F>,STAR,STAR> sProx( sPre );
-    DistMatrixWriteProxy<F,F,VC,STAR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,STAR,STAR> VProx( VPre );
+    DistMatrixWriteProxy<Base<Field>,Base<Field>,STAR,STAR> sProx( sPre );
+    DistMatrixWriteProxy<Field,Field,VC,STAR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,STAR,STAR> VProx( VPre );
     auto& s = sProx.Get();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return TallRelativeProduct( A, U, s, V, relTol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallProduct
-( const DistMatrix<F,VC,STAR>& A,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& V,
-  Base<F> tol,
+( const DistMatrix<Field,VC,STAR>& A,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidU )
 {
@@ -593,13 +593,13 @@ SVDInfo TallProduct
         return TallAbsoluteProduct( A, U, s, V, tol, avoidU );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideAbsoluteProduct
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> tol,
   bool avoidV )
 {
     DEBUG_CSE
@@ -609,7 +609,7 @@ SVDInfo WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -622,14 +622,14 @@ SVDInfo WideAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        U.Resize( m, 0 );        
+        U.Resize( m, 0 );
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return info;
     }
 
     // C := A A^H
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
@@ -640,12 +640,12 @@ SVDInfo WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, U, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
@@ -654,10 +654,10 @@ SVDInfo WideAbsoluteProduct
     if( !avoidV )
     {
         // (Sigma V) := A^H U
-        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+        Gemm( ADJOINT, NORMAL, Field(1), A, U, V );
 
         // Normalize each column of Sigma V
-        Matrix<Base<F>> colNorms;
+        Matrix<Base<Field>> colNorms;
         ColumnTwoNorms( V, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, V );
     }
@@ -665,13 +665,13 @@ SVDInfo WideAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideRelativeProduct
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V,
-  Base<F> relTol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> relTol,
   bool avoidV )
 {
     DEBUG_CSE
@@ -681,7 +681,7 @@ SVDInfo WideRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     SVDInfo info;
@@ -693,16 +693,16 @@ SVDInfo WideRelativeProduct
     }
 
     // C := A A^H
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, U, ctrl );
     // TODO(poulson): Incorporate HermitianEigInfo into SVDInfo
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
     for( Int i=0; i<m; ++i )
     {
@@ -720,10 +720,10 @@ SVDInfo WideRelativeProduct
     if( !avoidV )
     {
         // (Sigma V) := A^H U
-        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+        Gemm( ADJOINT, NORMAL, Field(1), A, U, V );
 
         // Normalize each column of Sigma V
-        Matrix<Base<F>> colNorms;
+        Matrix<Base<Field>> colNorms;
         ColumnTwoNorms( V, colNorms );
         DiagonalSolve( RIGHT, NORMAL, colNorms, V );
     }
@@ -731,13 +731,13 @@ SVDInfo WideRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideProduct
-( const Matrix<F>& A,
-        Matrix<F>& U,
-        Matrix<Base<F>>& s,
-        Matrix<F>& V, 
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidV )
 {
@@ -748,13 +748,13 @@ SVDInfo WideProduct
         return WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideAbsoluteProduct
-( const DistMatrix<F>& A,
-        DistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        DistMatrix<F>& V,
-  Base<F> tol,
+( const DistMatrix<Field>& A,
+        DistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        DistMatrix<Field>& V,
+  Base<Field> tol,
   bool avoidV )
 {
     DEBUG_CSE
@@ -764,7 +764,7 @@ SVDInfo WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     SVDInfo info;
@@ -777,7 +777,7 @@ SVDInfo WideAbsoluteProduct
     }
     if( tol >= frobNorm )
     {
-        U.Resize( m, 0 );        
+        U.Resize( m, 0 );
         s.Resize( 0, 1 );
         V.Resize( n, 0 );
         return info;
@@ -785,7 +785,7 @@ SVDInfo WideAbsoluteProduct
 
     // C := A A^H
     const Grid& g = A.Grid();
-    DistMatrix<F> C( g );
+    DistMatrix<Field> C( g );
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
@@ -796,11 +796,11 @@ SVDInfo WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, U, ctrl );
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
     auto& sLoc = s.Matrix();
@@ -810,7 +810,7 @@ SVDInfo WideAbsoluteProduct
     if( !avoidV )
     {
         // (Sigma V) := A^H U
-        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+        Gemm( ADJOINT, NORMAL, Field(1), A, U, V );
 
         // Normalize each column of Sigma V
         DistMatrix<Real,MR,STAR> colNorms(g);
@@ -821,32 +821,32 @@ SVDInfo WideAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideAbsoluteProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& VPre,
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& VPre,
+  Base<Field> tol,
   bool avoidV )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return WideAbsoluteProduct( A, U, s, V, tol, avoidV );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideRelativeProduct
-( const DistMatrix<F>& A,
-        DistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        DistMatrix<F>& V,
-  Base<F> relTol,
+( const DistMatrix<Field>& A,
+        DistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        DistMatrix<Field>& V,
+  Base<Field> relTol,
   bool avoidV )
 {
     DEBUG_CSE
@@ -857,7 +857,7 @@ SVDInfo WideRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -870,15 +870,15 @@ SVDInfo WideRelativeProduct
     }
 
     // C := A A^H
-    DistMatrix<F> C( g );
+    DistMatrix<Field> C( g );
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [U,Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, U, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
     auto& sLoc = s_STAR_STAR.Matrix();
@@ -899,7 +899,7 @@ SVDInfo WideRelativeProduct
     if( !avoidV )
     {
         // (Sigma V) := A^H U
-        Gemm( ADJOINT, NORMAL, F(1), A, U, V );
+        Gemm( ADJOINT, NORMAL, Field(1), A, U, V );
 
         // Normalize each column of Sigma V
         DistMatrix<Real,MR,STAR> colNorms(g);
@@ -910,32 +910,32 @@ SVDInfo WideRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideRelativeProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<F>& UPre,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& VPre,
-  Base<F> relTol,
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& VPre,
+  Base<Field> relTol,
   bool avoidV )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> VProx( VPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
     auto& A = AProx.GetLocked();
     auto& U = UProx.Get();
     auto& V = VProx.Get();
     return WideRelativeProduct( A, U, s, V, relTol, avoidV );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideProduct
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& V,
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidV )
 {
@@ -951,13 +951,13 @@ SVDInfo WideProduct
 // TODO: Update the above note and the following routines now that A is not
 //       overwritten
 
-template<typename F>
+template<typename Field>
 SVDInfo Product
-( const Matrix<F>& A,
-        Matrix<F>& U, 
-        Matrix<Base<F>>& s,
-        Matrix<F>& V, 
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Field>& U,
+        Matrix<Base<Field>>& s,
+        Matrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidU,
   bool avoidV )
@@ -970,13 +970,13 @@ SVDInfo Product
         return WideProduct( A, U, s, V, tol, relative, avoidV );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Product
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& U,
-        AbstractDistMatrix<Base<F>>& s, 
-        AbstractDistMatrix<F>& V,
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& U,
+        AbstractDistMatrix<Base<Field>>& s,
+        AbstractDistMatrix<Field>& V,
+  Base<Field> tol,
   bool relative,
   bool avoidU,
   bool avoidV )
@@ -992,11 +992,11 @@ SVDInfo Product
 // Compute singular values
 // =======================
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> tol )
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1005,7 +1005,7 @@ SVDInfo TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Real frobNorm = FrobeniusNorm( A );
     SVDInfo info;
@@ -1022,7 +1022,7 @@ SVDInfo TallAbsoluteProduct
     }
 
     // C := A^H A
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [Sigma^2] := eig(C), where each sigma > tol
@@ -1033,11 +1033,11 @@ SVDInfo TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
@@ -1046,11 +1046,11 @@ SVDInfo TallAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> relTol )
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1059,20 +1059,20 @@ SVDInfo TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = A.Width();
     SVDInfo info;
 
     // C := A^H A
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     for( Int i=0; i<n; ++i )
     {
@@ -1089,11 +1089,11 @@ SVDInfo TallRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallProduct
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE
@@ -1103,11 +1103,11 @@ SVDInfo TallProduct
         return TallAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const DistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol )
+( const DistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1117,7 +1117,7 @@ SVDInfo TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Grid& g = A.Grid();
     const Real frobNorm = FrobeniusNorm( A );
@@ -1135,7 +1135,7 @@ SVDInfo TallAbsoluteProduct
     }
 
     // C := A^H A
-    DistMatrix<F> C(g);
+    DistMatrix<Field> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [Sigma^2] := eig(C), where each sigma > tol
@@ -1146,11 +1146,11 @@ SVDInfo TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     ctrl.tridiagEigCtrl.subset = subset;
     HermitianEig( LOWER, C, s, ctrl );
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
     auto& sLoc = s.Matrix();
@@ -1160,23 +1160,23 @@ SVDInfo TallAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return TallAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const DistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> relTol )
+( const DistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1186,17 +1186,17 @@ SVDInfo TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = A.Width();
     const Grid& g = A.Grid();
     SVDInfo info;
 
     // C := A^H A
-    DistMatrix<F> C(g);
+    DistMatrix<Field> C(g);
     Herk( LOWER, ADJOINT, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
@@ -1220,23 +1220,23 @@ SVDInfo TallRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> relTol )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return TallRelativeProduct( A, s, relTol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallProduct
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE
@@ -1246,11 +1246,11 @@ SVDInfo TallProduct
         return TallAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const DistMatrix<F,VC,STAR>& A,
-        DistMatrix<Base<F>,STAR,STAR>& s, 
-  Base<F> tol )
+( const DistMatrix<Field,VC,STAR>& A,
+        DistMatrix<Base<Field>,STAR,STAR>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1260,7 +1260,7 @@ SVDInfo TallAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
@@ -1279,7 +1279,7 @@ SVDInfo TallAbsoluteProduct
 
     // C := A^H A
     const Grid& g = A.Grid();
-    DistMatrix<F,STAR,STAR> C(g);
+    DistMatrix<Field,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
     El::AllReduce( C, A.ColComm() );
@@ -1292,12 +1292,12 @@ SVDInfo TallAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
     const int k = s.Height();
-    
+
     // Sigma := sqrt(Sigma^2)
     auto& sLoc = s.Matrix();
     for( Int i=0; i<k; ++i )
@@ -1306,24 +1306,24 @@ SVDInfo TallAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallAbsoluteProduct
-( const DistMatrix<F,VC,STAR>& A,
-        AbstractDistMatrix<Base<F>>& sPre, 
-  Base<F> tol )
+( const DistMatrix<Field,VC,STAR>& A,
+        AbstractDistMatrix<Base<Field>>& sPre,
+  Base<Field> tol )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
     return TallAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const DistMatrix<F,VC,STAR>& A,
-        DistMatrix<Base<F>,STAR,STAR>& s, 
-  Base<F> relTol )
+( const DistMatrix<Field,VC,STAR>& A,
+        DistMatrix<Base<Field>,STAR,STAR>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1333,24 +1333,24 @@ SVDInfo TallRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
     SVDInfo info;
 
     // C := A^H A
-    DistMatrix<F,STAR,STAR> C(g);
+    DistMatrix<Field,STAR,STAR> C(g);
     Zeros( C, n, n );
     Herk( LOWER, ADJOINT, Real(1), A.LockedMatrix(), Real(0), C.Matrix() );
     El::AllReduce( C, A.ColComm() );
 
     // [V,Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where each sigma > twoNorm*relTol
     auto& sLoc = s.Matrix();
     for( Int i=0; i<n; ++i )
@@ -1369,24 +1369,24 @@ SVDInfo TallRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallRelativeProduct
-( const DistMatrix<F,VC,STAR>& A,
-        AbstractDistMatrix<Base<F>>& sPre, 
-  Base<F> relTol )
+( const DistMatrix<Field,VC,STAR>& A,
+        AbstractDistMatrix<Base<Field>>& sPre,
+  Base<Field> relTol )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
     return TallRelativeProduct( A, s, relTol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo TallProduct
-( const DistMatrix<F,VC,STAR>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol,
+( const DistMatrix<Field,VC,STAR>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE
@@ -1396,11 +1396,11 @@ SVDInfo TallProduct
         return TallAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideAbsoluteProduct
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> tol )
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1409,7 +1409,7 @@ SVDInfo WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     SVDInfo info;
@@ -1426,7 +1426,7 @@ SVDInfo WideAbsoluteProduct
     }
 
     // C := A A^H
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [Sigma^2] := eig(C), where each sigma > tol
@@ -1437,11 +1437,11 @@ SVDInfo WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int k = s.Height();
     for( Int i=0; i<k; ++i )
@@ -1450,11 +1450,11 @@ SVDInfo WideAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideRelativeProduct
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> relTol )
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1463,20 +1463,20 @@ SVDInfo WideRelativeProduct
       if( relTol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     SVDInfo info;
 
     // C := A A^H
-    Matrix<F> C;
+    Matrix<Field> C;
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where each sigma > relTol*twoNorm
     for( Int i=0; i<m; ++i )
     {
@@ -1493,11 +1493,11 @@ SVDInfo WideRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideProduct
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE
@@ -1507,11 +1507,11 @@ SVDInfo WideProduct
         return WideAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideAbsoluteProduct
-( const DistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol )
+( const DistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1520,7 +1520,7 @@ SVDInfo WideAbsoluteProduct
       if( tol < 0 )
           LogicError("negative threshold does not make sense");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = A.Width();
     const Real frobNorm = FrobeniusNorm( A );
     SVDInfo info;
@@ -1538,7 +1538,7 @@ SVDInfo WideAbsoluteProduct
 
     // C := A A^H
     const Grid& g = A.Grid();
-    DistMatrix<F> C( g );
+    DistMatrix<Field> C( g );
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [Sigma^2] := eig(C), where each sigma > tol
@@ -1549,11 +1549,11 @@ SVDInfo WideAbsoluteProduct
     //       bound with exact computation, it has been observed that it can
     //       be lower than the finite-precision result in practice
     subset.upperBound = 2*frobNorm*frobNorm;
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.subset = subset;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
-    
+
     // Sigma := sqrt(Sigma^2)
     const Int localHeight = s.LocalHeight();
     auto& sLoc = s.Matrix();
@@ -1563,23 +1563,23 @@ SVDInfo WideAbsoluteProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideAbsoluteProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return WideAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideRelativeProduct
-( const DistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> relTol )
+( const DistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -1590,20 +1590,20 @@ SVDInfo WideRelativeProduct
           LogicError("negative threshold does not make sense");
     )
     const Int m = A.Height();
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
     SVDInfo info;
 
     // C := A A^H
-    DistMatrix<F> C( g );
+    DistMatrix<Field> C( g );
     Herk( LOWER, NORMAL, Real(1), A, C );
 
     // [Sigma^2] := eig(C)
-    HermitianEigCtrl<F> ctrl;
+    HermitianEigCtrl<Field> ctrl;
     ctrl.tridiagEigCtrl.sort = DESCENDING;
     HermitianEig( LOWER, C, s, ctrl );
     const Real twoNorm = Sqrt(MaxNorm(s));
-    
+
     // Sigma := sqrt(Sigma^2), where all sigmas > relTol*twoNorm
     DistMatrix<Real,STAR,STAR> s_STAR_STAR( s );
     auto& sLoc = s_STAR_STAR.Matrix();
@@ -1623,23 +1623,23 @@ SVDInfo WideRelativeProduct
     return info;
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideRelativeProduct
-( const AbstractDistMatrix<F>& APre,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> relTol )
+( const AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> relTol )
 {
     DEBUG_CSE
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return WideRelativeProduct( A, s, relTol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo WideProduct
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE
@@ -1649,11 +1649,11 @@ SVDInfo WideProduct
         return WideAbsoluteProduct( A, s, tol );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Product
-( const Matrix<F>& A,
-        Matrix<Base<F>>& s,
-  Base<F> tol,
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE
@@ -1663,11 +1663,11 @@ SVDInfo Product
         return WideProduct( A, s, tol, relative );
 }
 
-template<typename F>
+template<typename Field>
 SVDInfo Product
-( const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<Base<F>>& s, 
-  Base<F> tol,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& s,
+  Base<Field> tol,
   bool relative )
 {
     DEBUG_CSE

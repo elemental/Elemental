@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SVD_UTIL_HPP
@@ -12,11 +12,11 @@
 namespace El {
 namespace svd {
 
-template<typename F>
-bool CheckScale( Matrix<F>& A, Base<F>& scale )
+template<typename Field>
+bool CheckScale( Matrix<Field>& A, Base<Field>& scale )
 {
     scale = 1;
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Real oneNormOfA = OneNorm( A );
     const Real safeMin = limits::SafeMin<Real>();
     const Real precision = limits::Precision<Real>();
@@ -39,11 +39,11 @@ bool CheckScale( Matrix<F>& A, Base<F>& scale )
         return false;
 }
 
-template<typename F>
-bool CheckScale( AbstractDistMatrix<F>& A, Base<F>& scale )
+template<typename Field>
+bool CheckScale( AbstractDistMatrix<Field>& A, Base<Field>& scale )
 {
     scale = 1;
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Real oneNormOfA = OneNorm( A );
     const Real safeMin = limits::SafeMin<Real>();
     const Real precision = limits::Precision<Real>();

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,9 +11,9 @@
 namespace El {
 namespace nnls {
 
-// Solve each problem 
+// Solve each problem
 //
-//   min || A x - b ||_2 
+//   min || A x - b ||_2
 //   s.t. x >= 0
 //
 // by transforming it into the SOCP
@@ -42,9 +42,9 @@ namespace nnls {
 
 template<typename Real>
 void SOCP
-( const Matrix<Real>& A, 
-  const Matrix<Real>& B, 
-        Matrix<Real>& X, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -62,7 +62,7 @@ void SOCP
     }
     for( Int i=0; i<n; ++i )
     {
-        orders.Set( i+m+1, 0, 1 ); 
+        orders.Set( i+m+1, 0, 1 );
         firstInds.Set( i+m+1, 0, i+m+1 );
     }
 
@@ -90,7 +90,7 @@ void SOCP
     Zeros( bHat, 0, 1 );
 
     Matrix<Real> h;
-    Zeros( h, m+n+1, 1 ); 
+    Zeros( h, m+n+1, 1 );
 
     Zeros( X, n, k );
     Matrix<Real> xHat, y, z, s;
@@ -108,9 +108,9 @@ void SOCP
 
 template<typename Real>
 void SOCP
-( const ElementalMatrix<Real>& APre, 
-  const ElementalMatrix<Real>& BPre, 
-        ElementalMatrix<Real>& XPre,
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& BPre,
+        AbstractDistMatrix<Real>& XPre,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -135,7 +135,7 @@ void SOCP
     auto& ordersLoc = orders.Matrix();
     auto& firstIndsLoc = firstInds.Matrix();
     {
-        const Int localHeight = orders.LocalHeight();    
+        const Int localHeight = orders.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = orders.GlobalRow(iLoc);
@@ -176,7 +176,7 @@ void SOCP
     Zeros( bHat, 0, 1 );
 
     DistMatrix<Real> h(g);
-    Zeros( h, m+n+1, 1 );    
+    Zeros( h, m+n+1, 1 );
 
     Zeros( X, n, k );
     DistMatrix<Real> xHat(g), y(g), z(g), s(g);
@@ -186,7 +186,7 @@ void SOCP
         hb = B( ALL, IR(j) );
 
         El::SOCP( AHat, G, bHat, c, h, orders, firstInds, xHat, y, z, s, ctrl );
-        
+
         auto x = X( ALL, IR(j) );
         x = xHat( IR(1,END), ALL );
     }
@@ -194,9 +194,9 @@ void SOCP
 
 template<typename Real>
 void SOCP
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& B, 
-        Matrix<Real>& X, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -247,7 +247,7 @@ void SOCP
     Matrix<Real> h;
     Zeros( h, m+n+1, 1 );
 
-    Zeros( X, n, k ); 
+    Zeros( X, n, k );
     Matrix<Real> xHat, y, z, s;
     for( Int j=0; j<k; ++j )
     {
@@ -263,9 +263,9 @@ void SOCP
 
 template<typename Real>
 void SOCP
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& B, 
-        DistMultiVec<Real>& X, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& B,
+        DistMultiVec<Real>& X,
   const socp::affine::Ctrl<Real>& ctrl )
 {
     DEBUG_CSE
@@ -281,7 +281,7 @@ void SOCP
     auto& ordersLoc = orders.Matrix();
     auto& firstIndsLoc = firstInds.Matrix();
     {
-        const Int localHeight = orders.LocalHeight();    
+        const Int localHeight = orders.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = orders.GlobalRow(iLoc);
@@ -351,7 +351,7 @@ void SOCP
     Zeros( h, m+n+1, 1 );
 
     X.SetComm( A.Comm() );
-    Zeros( X, n, k ); 
+    Zeros( X, n, k );
     DistMultiVec<Real> x(comm), xHat(comm), y(comm), z(comm), s(comm);
     auto& BLoc = B.LockedMatrix();
     auto& xHatLoc = xHat.LockedMatrix();
