@@ -11,7 +11,7 @@ Source0:	https://github.com/elemental/Elemental/archive/%{archive}.tar.gz
 #gcc.gnu.org/bugzilla/show_bug.cgi?id=78636
 ExcludeArch: %{power64}
 
-%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}}
+%{!?_pkgdocdir:%global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
 BuildRequires: environment-modules
 BuildRequires: cmake
