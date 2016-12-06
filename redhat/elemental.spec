@@ -11,6 +11,7 @@ Source0:	https://github.com/elemental/Elemental/archive/%{archive}.tar.gz
 #gcc.gnu.org/bugzilla/show_bug.cgi?id=78636
 ExcludeArch: %{power64}
 
+%{?_pkgdocdir}%{!?_pkgdocdir:%{_docdir}/%{name}}
 
 BuildRequires: environment-modules
 BuildRequires: cmake
@@ -175,7 +176,7 @@ make -C $MPI_COMPILER install/fast DESTDIR=%{buildroot} INSTALL="install -p" CPP
 rm -f ${buildroot}/$MPI_BIN/tests-*
 %{_mpich_unload}
 
-mv %{buildroot}%{_docdir}/Elemental %{buildroot}%_pkgdocdir
+mv %{buildroot}%{_docdir}/Elemental %{buildroot}%_pkgdocdir/
 rm -rf %{buildroot}/%{_prefix}/conf
 
 #The Elemental headers
