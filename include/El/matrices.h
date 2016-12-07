@@ -325,14 +325,6 @@ EL_EXPORT ElError ElFourier_z( ElMatrix_z A, ElInt n );
 EL_EXPORT ElError ElFourierDist_c( ElDistMatrix_c A, ElInt n );
 EL_EXPORT ElError ElFourierDist_z( ElDistMatrix_z A, ElInt n );
 
-/* Fourier-Identity
-   ================ */
-EL_EXPORT ElError ElFourierIdentity_c( ElMatrix_c A, ElInt n );
-EL_EXPORT ElError ElFourierIdentity_z( ElMatrix_z A, ElInt n );
-
-EL_EXPORT ElError ElFourierIdentityDist_c( ElDistMatrix_c A, ElInt n );
-EL_EXPORT ElError ElFourierIdentityDist_z( ElDistMatrix_z A, ElInt n );
-
 /* GCD matrix
    ========== */
 EL_EXPORT ElError ElGCDMatrix_i( ElMatrix_i G, ElInt m, ElInt n );
@@ -1119,25 +1111,6 @@ EL_EXPORT ElError ElWalshDist_s( ElDistMatrix_s A, ElInt k, bool binary );
 EL_EXPORT ElError ElWalshDist_d( ElDistMatrix_d A, ElInt k, bool binary );
 EL_EXPORT ElError ElWalshDist_c( ElDistMatrix_c A, ElInt k, bool binary );
 EL_EXPORT ElError ElWalshDist_z( ElDistMatrix_z A, ElInt k, bool binary );
-
-/* Walsh-Identity
-   ============== */
-EL_EXPORT ElError ElWalshIdentity_i( ElMatrix_i A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentity_s( ElMatrix_s A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentity_d( ElMatrix_d A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentity_c( ElMatrix_c A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentity_z( ElMatrix_z A, ElInt k, bool binary );
-
-EL_EXPORT ElError ElWalshIdentityDist_i
-( ElDistMatrix_i A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentityDist_s
-( ElDistMatrix_s A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentityDist_d
-( ElDistMatrix_d A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentityDist_c
-( ElDistMatrix_c A, ElInt k, bool binary );
-EL_EXPORT ElError ElWalshIdentityDist_z
-( ElDistMatrix_z A, ElInt k, bool binary );
 
 /* Whale
    ===== */
