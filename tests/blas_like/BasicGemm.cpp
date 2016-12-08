@@ -147,6 +147,8 @@ int main( int argc, char *argv[] )
           El::Input("--blocksize","algorithmic blocksize",128);
         const bool testSequential =
           El::Input("--testSequential","test sequential Gemm?",true);
+        const bool testHigherPrec =
+          El::Input("--testHigherPrec","test higher precisions?",false);
         const bool instrument =
           El::Input("--instrument","instrument Gemm?",true);
         El::Int gridHeight = El::Input("--gridHeight","process grid height",0);
@@ -169,31 +171,33 @@ int main( int argc, char *argv[] )
         ( m, n, k, grid, testSequential, instrument );
         TestGemm<El::Complex<double>>
         ( m, n, k, grid, testSequential, instrument );
+
+        if( testHigherPrec )
+        {
 #ifdef EL_HAVE_QD
-        TestGemm<El::DoubleDouble>
-        ( m, n, k, grid, testSequential, instrument );
-        TestGemm<El::Complex<El::DoubleDouble>>
-        ( m, n, k, grid, testSequential, instrument );
-        TestGemm<El::QuadDouble>
-        ( m, n, k, grid, testSequential, instrument );
-        TestGemm<El::Complex<El::QuadDouble>>
-        ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::DoubleDouble>
+            ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::Complex<El::DoubleDouble>>
+            ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::QuadDouble>
+            ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::Complex<El::QuadDouble>>
+            ( m, n, k, grid, testSequential, instrument );
 #endif
 #ifdef EL_HAVE_QUAD
-        TestGemm<El::Quad>
-        ( m, n, k, grid, testSequential, instrument );
-        TestGemm<El::Complex<El::Quad>>
-        ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::Quad>
+            ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::Complex<El::Quad>>
+            ( m, n, k, grid, testSequential, instrument );
 #endif
 #ifdef EL_HAVE_MPC
-        TestGemm<El::BigFloat>
-        ( m, n, k, grid, testSequential, instrument );
-        TestGemm<El::Complex<El::BigFloat>>
-        ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::BigFloat>
+            ( m, n, k, grid, testSequential, instrument );
+            TestGemm<El::Complex<El::BigFloat>>
+            ( m, n, k, grid, testSequential, instrument );
 #endif
+        }
     } catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }
-
-
