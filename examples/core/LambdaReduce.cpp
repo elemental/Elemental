@@ -1,96 +1,109 @@
-#include <El.hpp>
-using namespace El;
+/*
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
 
-template<typename T,typename=EnableIf<IsReal<T>>>
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
+   http://opensource.org/licenses/BSD-2-Clause
+*/
+#include <El.hpp>
+
+template<typename T,
+         typename=El::EnableIf<El::IsReal<T>>>
 void LambdaTest()
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<T>());
+    if( El::mpi::Rank() == 0 )
+        El::Output("Testing with ",El::TypeName<T>());
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::Rank( comm );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
+    const int rank = El::mpi::Rank( comm );
 
     const T sumOfRanks =
-      mpi::AllReduce
+      El::mpi::AllReduce
       ( T(rank), []( const T& x, const T& y ) { return x+y; },
         true, comm );
     if( rank == 0 )
-        Output("sum of ranks=",sumOfRanks);
+        El::Output("sum of ranks=",sumOfRanks);
 
-    const T minRank = 
-      mpi::AllReduce
-      ( T(rank), []( const T& x, const T& y ) { return Min(x,y); },
+    const T minRank =
+      El::mpi::AllReduce
+      ( T(rank), []( const T& x, const T& y ) { return El::Min(x,y); },
         true, comm );
     if( rank == 0 )
-        Output("minimum rank=",minRank);
+        El::Output("minimum rank=",minRank);
 
-    const T maxRank = 
-      mpi::AllReduce
-      ( T(rank), []( const T& x, const T& y ) { return Max(x,y); },
+    const T maxRank =
+      El::mpi::AllReduce
+      ( T(rank), []( const T& x, const T& y ) { return El::Max(x,y); },
         true, comm );
     if( rank == 0 )
-        Output("maximum rank=",maxRank);
+        El::Output("maximum rank=",maxRank);
 
-    const T prodRank = 
-      mpi::AllReduce
+    const T prodRank =
+      El::mpi::AllReduce
       ( T(rank+1), []( const T& x, const T& y ) { return x*y; }, true, comm );
     if( rank == 0 )
-        Output("product of ranks (plus one)=",prodRank);
+        El::Output("product of ranks (plus one)=",prodRank);
 }
 
-template<typename T,typename=DisableIf<IsReal<T>>,typename=void>
+template<typename T,
+         typename=El::DisableIf<El::IsReal<T>>,
+         typename=void>
 void LambdaTest()
 {
-    if( mpi::Rank() == 0 )
-        Output("Testing with ",TypeName<T>());
+    if( El::mpi::Rank() == 0 )
+        El::Output("Testing with ",El::TypeName<T>());
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::Rank( comm );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
+    const int rank = El::mpi::Rank( comm );
 
     const T sumOfRanks =
-      mpi::AllReduce
+      El::mpi::AllReduce
       ( T(rank), []( const T& x, const T& y ) { return x+y; },
         true, comm );
     if( rank == 0 )
-        Output("sum of ranks=",sumOfRanks);
+        El::Output("sum of ranks=",sumOfRanks);
 
-    const T prodRank = 
-      mpi::AllReduce
+    const T prodRank =
+      El::mpi::AllReduce
       ( T(rank+1), []( const T& x, const T& y ) { return x*y; }, true, comm );
     if( rank == 0 )
-        Output("product of ranks (plus one)=",prodRank);
+        El::Output("product of ranks (plus one)=",prodRank);
 }
 
 int main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
 
     try
     {
-        LambdaTest<Int>();
+        LambdaTest<El::Int>();
 
         LambdaTest<float>();
-        LambdaTest<Complex<float>>();
+        LambdaTest<El::Complex<float>>();
 
         LambdaTest<double>();
-        LambdaTest<Complex<double>>();
+        LambdaTest<El::Complex<double>>();
 
 #ifdef EL_HAVE_QD
-        LambdaTest<DoubleDouble>();
-        LambdaTest<QuadDouble>();
+        LambdaTest<El::DoubleDouble>();
+        LambdaTest<El::Complex<El::DoubleDouble>>();
+        LambdaTest<El::QuadDouble>();
+        LambdaTest<El::Complex<El::QuadDouble>>();
 #endif
 
 #ifdef EL_HAVE_QUAD
-        LambdaTest<Quad>();
-        LambdaTest<Complex<Quad>>();
+        LambdaTest<El::Quad>();
+        LambdaTest<El::Complex<El::Quad>>();
 #endif
 
 #ifdef EL_HAVE_MPC
-        LambdaTest<BigInt>();
-        LambdaTest<BigFloat>();
+        LambdaTest<El::BigInt>();
+        LambdaTest<El::BigFloat>();
+        LambdaTest<El::Complex<El::BigFloat>>();
 #endif
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }
