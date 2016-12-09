@@ -35,7 +35,7 @@ int main( int argc, char* argv[] )
         const Real eta =
           El::Input
           ("--eta","eta for LLL",
-           Real(1)/Real(2) + Pow(El::limits::Epsilon<Real>(),Real(0.9)));
+           Real(1)/Real(2) + El::Pow(El::limits::Epsilon<Real>(),Real(0.9)));
         const El::Int varInt =
           El::Input
           ("--variant",
@@ -218,7 +218,7 @@ int main( int argc, char* argv[] )
         ctrl.enumCtrl.customMaxOneNorms = true;
         const El::Int startIndex = Max(n/2-1,0);
         const El::Int numPhases = ((n-startIndex)+phaseLength-1) / phaseLength;
-        Output("numPhases=",numPhases);
+        El::Output("numPhases=",numPhases);
         ctrl.enumCtrl.minInfNorms.resize( numPhases, 0 );
         ctrl.enumCtrl.maxInfNorms.resize( numPhases, 1 );
         ctrl.enumCtrl.minOneNorms.resize( numPhases, 0 );
@@ -279,7 +279,7 @@ int main( int argc, char* argv[] )
 
         auto b0 = B( El::ALL, El::IR(0) );
         const Real b0Norm = El::FrobeniusNorm( b0 );
-        Output("|| b_0 ||_2 = ",b0Norm);
+        El::Output("|| b_0 ||_2 = ",b0Norm);
         if( print )
             El::Print( b0, "b0" );
         bool succeeded = false;
