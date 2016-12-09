@@ -1,26 +1,28 @@
 /*
    Copyright (c) 2009-2016, Jack Poulson
-                      2013, Jeff Hammond
-                      2013, Jed Brown
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   Copyright (c) 2013, Jeff Hammond
+   All rights reserved.
+
+   Copyright (c) 2013, Jed Brown
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
-
-// TODO: Introduce macros to shorten the explicit instantiation code
 
 typedef unsigned char* UCP;
 
 namespace {
 
-inline void 
+inline void
 SafeMpi( int mpiError ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_ONLY(
-      if( mpiError != MPI_SUCCESS )    
+      if( mpiError != MPI_SUCCESS )
       {
           char errorString[MPI_MAX_ERROR_STRING];
           int lengthOfErrorString;
@@ -35,7 +37,7 @@ MPI_Op NativeOp( const El::mpi::Op& op )
 {
     MPI_Op opC;
     if( op == El::mpi::SUM )
-        opC = El::mpi::SumOp<T>().op; 
+        opC = El::mpi::SumOp<T>().op;
     else if( op == El::mpi::PROD )
         opC = El::mpi::ProdOp<T>().op;
     else if( op == El::mpi::MAX )
@@ -65,10 +67,10 @@ void Initialize( int& argc, char**& argv ) EL_NO_EXCEPT
 { MPI_Init( &argc, &argv ); }
 
 int InitializeThread( int& argc, char**& argv, int required ) EL_NO_EXCEPT
-{ 
-    int provided; 
+{
+    int provided;
 #ifdef EL_HAVE_MPI_INIT_THREAD
-    MPI_Init_thread( &argc, &argv, required, &provided ); 
+    MPI_Init_thread( &argc, &argv, required, &provided );
 #else
     MPI_Init( &argc, &argv );
     provided = 0; // equivalent to MPI_THREAD_SINGLE
@@ -80,7 +82,7 @@ void Finalize() EL_NO_EXCEPT
 { MPI_Finalize(); }
 
 bool Initialized() EL_NO_EXCEPT
-{ 
+{
     int initialized;
     MPI_Initialized( &initialized );
     return initialized;
@@ -127,7 +129,7 @@ void Free( Datatype& type ) EL_NO_RELEASE_EXCEPT
     SafeMpi( MPI_Type_free( &type ) );
 }
 
-// Communicator manipulation 
+// Communicator manipulation
 // =========================
 int Rank( Comm comm ) EL_NO_RELEASE_EXCEPT
 {
@@ -149,7 +151,7 @@ int Size( Comm comm ) EL_NO_RELEASE_EXCEPT
         int size;
         SafeMpi( MPI_Comm_size( comm.comm, &size ) );
         return size;
-    } 
+    }
     else return UNDEFINED;
 }
 
@@ -157,8 +159,8 @@ void Create( Comm parentComm, Group subsetGroup, Comm& subsetComm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
-    SafeMpi( 
-        MPI_Comm_create( parentComm.comm, subsetGroup.group, &subsetComm.comm ) 
+    SafeMpi(
+        MPI_Comm_create( parentComm.comm, subsetGroup.group, &subsetComm.comm )
     );
 }
 
@@ -199,17 +201,17 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-// Cartesian communicator routines 
+// Cartesian communicator routines
 // ===============================
 
 void CartCreate
-( Comm comm, int numDims, const int* dimensions, const int* periods, 
+( Comm comm, int numDims, const int* dimensions, const int* periods,
   bool reorder, Comm& cartComm ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
     SafeMpi
     ( MPI_Cart_create
-      ( comm.comm, numDims, const_cast<int*>(dimensions), 
+      ( comm.comm, numDims, const_cast<int*>(dimensions),
         const_cast<int*>(periods), reorder, &cartComm.comm ) );
 }
 
@@ -217,13 +219,13 @@ void CartSub( Comm comm, const int* remainingDims, Comm& subComm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
-    SafeMpi( 
+    SafeMpi(
       MPI_Cart_sub
-      ( comm.comm, const_cast<int*>(remainingDims), &subComm.comm ) 
+      ( comm.comm, const_cast<int*>(remainingDims), &subComm.comm )
     );
 }
 
-// Group manipulation 
+// Group manipulation
 // ==================
 
 int Rank( Group group ) EL_NO_RELEASE_EXCEPT
@@ -252,7 +254,7 @@ void Dup( Group group, Group& newGroup ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
     // For some reason, MPI_Group_dup does not exist
-    Excl( group, 0, 0, newGroup ); 
+    Excl( group, 0, 0, newGroup );
 }
 
 void Union( Group groupA, Group groupB, Group& newGroup ) EL_NO_RELEASE_EXCEPT
@@ -265,9 +267,9 @@ void Incl( Group group, int n, const int* ranks, Group& subGroup )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
-    SafeMpi( 
+    SafeMpi(
       MPI_Group_incl
-      ( group.group, n, const_cast<int*>(ranks), &subGroup.group ) 
+      ( group.group, n, const_cast<int*>(ranks), &subGroup.group )
     );
 }
 
@@ -285,8 +287,8 @@ void Difference( Group parent, Group subset, Group& complement )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
-    SafeMpi( 
-      MPI_Group_difference( parent.group, subset.group, &complement.group ) 
+    SafeMpi(
+      MPI_Group_difference( parent.group, subset.group, &complement.group )
     );
 }
 
@@ -344,18 +346,18 @@ EL_NO_RELEASE_EXCEPT
 }
 
 void Translate
-( Group origGroup, int size, const int* origRanks, 
+( Group origGroup, int size, const int* origRanks,
   Group newGroup,                  int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
     SafeMpi
     ( MPI_Group_translate_ranks
-      ( origGroup.group, size, const_cast<int*>(origRanks), 
+      ( origGroup.group, size, const_cast<int*>(origRanks),
         newGroup.group, newRanks ) );
 }
 
 void Translate
-( Comm origComm,  int size, const int* origRanks, 
+( Comm origComm,  int size, const int* origRanks,
   Group newGroup,                 int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
@@ -366,7 +368,7 @@ void Translate
 }
 
 void Translate
-( Group origGroup,  int size, const int* origRanks, 
+( Group origGroup,  int size, const int* origRanks,
   Comm newComm,                     int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
@@ -377,7 +379,7 @@ void Translate
 }
 
 void Translate
-( Comm origComm,  int size, const int* origRanks, 
+( Comm origComm,  int size, const int* origRanks,
   Comm newComm,                   int* newRanks ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
@@ -420,7 +422,8 @@ void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT
 }
 
 // Ensure that the request finishes before continuing
-template<typename T,typename>
+template<typename T,
+         typename/*=EnableIf<IsPacked<T>>*/>
 void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
@@ -437,7 +440,8 @@ void WaitAll( int numRequests, Request<T>* requests ) EL_NO_RELEASE_EXCEPT
 }
 
 // Ensure that several requests finish before continuing
-template<typename T,typename>
+template<typename T,
+         typename/*=EnableIf<IsPacked<T>>*/>
 void WaitAll( int numRequests, Request<T>* requests, Status* statuses )
 EL_NO_RELEASE_EXCEPT
 {
@@ -445,7 +449,7 @@ EL_NO_RELEASE_EXCEPT
 #ifndef EL_MPI_REQUEST_IS_NOT_POINTER
     // Both MPICH and OpenMPI define MPI_Request to be a pointer to a structure,
     // which implies that the following code is legal. AFAIK, there are not
-    // any popular MPI implementations which should break this logic, but 
+    // any popular MPI implementations which should break this logic, but
     // the alternative #ifdef logic is provided in case a breakage is observed.
     vector<MPI_Request> backends( numRequests );
     for( Int j=0; j<numRequests; ++j )
@@ -464,7 +468,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
@@ -478,7 +484,9 @@ void Wait( Request<T>& request, Status& status ) EL_NO_RELEASE_EXCEPT
     request.buffer.clear();
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void WaitAll( int numRequests, Request<T>* requests, Status* statuses )
 EL_NO_RELEASE_EXCEPT
 {
@@ -486,7 +494,7 @@ EL_NO_RELEASE_EXCEPT
 #ifndef EL_MPI_REQUEST_IS_NOT_POINTER
     // Both MPICH and OpenMPI define MPI_Request to be a pointer to a structure,
     // which implies that the following code is legal. AFAIK, there are not
-    // any popular MPI implementations which should break this logic, but 
+    // any popular MPI implementations which should break this logic, but
     // the alternative #ifdef logic is provided in case a breakage is observed.
     vector<MPI_Request> backends( numRequests );
     for( Int j=0; j<numRequests; ++j )
@@ -538,17 +546,19 @@ int GetCount( Status& status ) EL_NO_RELEASE_EXCEPT
     return count;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedSend( const Real* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     SafeMpi
     ( MPI_Send
       ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, tag, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedSend
 ( const Complex<Real>* buf, int count, int to, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -557,17 +567,19 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Send
-      ( const_cast<Complex<Real>*>(buf), 2*count, TypeMap<Real>(), to, 
+      ( const_cast<Complex<Real>*>(buf), 2*count, TypeMap<Real>(), to,
         tag, comm.comm ) );
 #else
     SafeMpi
     ( MPI_Send
-      ( const_cast<Complex<Real>*>(buf), count, 
+      ( const_cast<Complex<Real>*>(buf), count,
         TypeMap<Complex<Real>>(), to, tag, comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedSend( const T* buf, int count, int to, int tag, Comm comm )
 {
     DEBUG_CSE
@@ -589,39 +601,43 @@ template<typename T>
 void Send( T b, int to, Comm comm ) EL_NO_RELEASE_EXCEPT
 { TaggedSend( b, to, 0, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedISend
 ( const Real* buf, int count, int to, int tag, Comm comm,
   Request<Real>& request )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     SafeMpi
     ( MPI_Isend
-      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
+      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to,
         tag, comm.comm, &request.backend ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedISend
-( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm,
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Isend
-      ( const_cast<Complex<Real>*>(buf), 2*count, 
+      ( const_cast<Complex<Real>*>(buf), 2*count,
         TypeMap<Real>(), to, tag, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Isend
-      ( const_cast<Complex<Real>*>(buf), count, 
+      ( const_cast<Complex<Real>*>(buf), count,
         TypeMap<Complex<Real>>(), to, tag, comm.comm, &request.backend ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedISend
 ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
@@ -638,7 +654,7 @@ template<typename T>
 void ISend
 ( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
-{ TaggedISend( buf, count, to, 0, comm, request ); } 
+{ TaggedISend( buf, count, to, 0, comm, request ); }
 
 template<typename T>
 void TaggedISend( T b, int to, int tag, Comm comm, Request<T>& request )
@@ -650,39 +666,43 @@ void ISend( T b, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISend( b, to, 0, comm, request ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedIRSend
 ( const Real* buf, int count, int to, int tag, Comm comm,
   Request<Real>& request )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     DEBUG_CSE
     SafeMpi
     ( MPI_Irsend
-      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
+      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to,
         tag, comm.comm, &request.backend ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedIRSend
-( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm,
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Irsend
-      ( const_cast<Complex<Real>*>(buf), 2*count, 
+      ( const_cast<Complex<Real>*>(buf), 2*count,
         TypeMap<Real>(), to, tag, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Irsend
-      ( const_cast<Complex<Real>*>(buf), count, 
+      ( const_cast<Complex<Real>*>(buf), count,
         TypeMap<Complex<Real>>(), to, tag, comm.comm, &request.backend ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedIRSend
 ( const T* buf, int count, int to, int tag, Comm comm,
   Request<T>& request )
@@ -692,7 +712,7 @@ EL_NO_RELEASE_EXCEPT
     Serialize( count, buf, request.buffer );
     SafeMpi
     ( MPI_Irsend
-      ( request.buffer.data(), count, TypeMap<T>(), to, 
+      ( request.buffer.data(), count, TypeMap<T>(), to,
         tag, comm.comm, &request.backend ) );
 }
 
@@ -700,7 +720,7 @@ template<typename T>
 void IRSend
 ( const T* buf, int count, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
-{ TaggedIRSend( buf, count, to, 0, comm, request ); } 
+{ TaggedIRSend( buf, count, to, 0, comm, request ); }
 
 template<typename T>
 void TaggedIRSend( T b, int to, int tag, Comm comm, Request<T>& request )
@@ -712,7 +732,8 @@ void IRSend( T b, int to, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedIRSend( b, to, 0, comm, request ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedISSend
 ( const Real* buf, int count, int to, int tag, Comm comm,
   Request<Real>& request ) EL_NO_RELEASE_EXCEPT
@@ -720,30 +741,33 @@ void TaggedISSend
     DEBUG_CSE
     SafeMpi
     ( MPI_Issend
-      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to, 
+      ( const_cast<Real*>(buf), count, TypeMap<Real>(), to,
         tag, comm.comm, &request.backend ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedISSend
-( const Complex<Real>* buf, int count, int to, int tag, Comm comm, 
+( const Complex<Real>* buf, int count, int to, int tag, Comm comm,
   Request<Complex<Real>>& request ) EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Issend
-      ( const_cast<Complex<Real>*>(buf), 2*count, 
+      ( const_cast<Complex<Real>*>(buf), 2*count,
         TypeMap<Real>(), to, tag, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Issend
-      ( const_cast<Complex<Real>*>(buf), count, 
+      ( const_cast<Complex<Real>*>(buf), count,
         TypeMap<Complex<Real>>(), to, tag, comm.comm, &request.backend ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedISSend
 ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
@@ -752,7 +776,7 @@ EL_NO_RELEASE_EXCEPT
     Serialize( count, buf, request.buffer );
     SafeMpi
     ( MPI_Issend
-      ( request.buffer.data(), count, TypeMap<T>(), to, 
+      ( request.buffer.data(), count, TypeMap<T>(), to,
         tag, comm.comm, &request.backend ) );
 }
 
@@ -766,7 +790,8 @@ void TaggedISSend( T b, int to, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { TaggedISSend( &b, 1, to, tag, comm, request ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedRecv( Real* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -776,7 +801,8 @@ EL_NO_RELEASE_EXCEPT
     ( MPI_Recv( buf, count, TypeMap<Real>(), from, tag, comm.comm, &status ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedRecv( Complex<Real>* buf, int count, int from, int tag, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -792,7 +818,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedRecv( T* buf, int count, int from, int tag, Comm comm )
 {
     DEBUG_CSE
@@ -821,7 +849,8 @@ T Recv( int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { return TaggedRecv<T>( from, ANY_TAG, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedIRecv
 ( Real* buf, int count, int from, int tag, Comm comm, Request<Real>& request )
 EL_NO_RELEASE_EXCEPT
@@ -832,7 +861,8 @@ EL_NO_RELEASE_EXCEPT
       ( buf, count, TypeMap<Real>(), from, tag, comm.comm, &request.backend ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedIRecv
 ( Complex<Real>* buf, int count, int from, int tag, Comm comm,
   Request<Complex<Real>>& request )
@@ -852,7 +882,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedIRecv
 ( T* buf, int count, int from, int tag, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
@@ -883,7 +915,8 @@ T IRecv( int from, Comm comm, Request<T>& request )
 EL_NO_RELEASE_EXCEPT
 { return TaggedIRecv<T>( from, ANY_TAG, comm, request ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedSendRecv
 ( const Real* sbuf, int sc, int to,   int stag,
         Real* rbuf, int rc, int from, int rtag, Comm comm )
@@ -894,11 +927,12 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Sendrecv
       ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(), to,   stag,
-        rbuf,                    rc, TypeMap<Real>(), from, rtag, 
+        rbuf,                    rc, TypeMap<Real>(), from, rtag,
         comm.comm, &status ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedSendRecv
 ( const Complex<Real>* sbuf, int sc, int to,   int stag,
         Complex<Real>* rbuf, int rc, int from, int rtag, Comm comm )
@@ -910,19 +944,21 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Sendrecv
       ( const_cast<Complex<Real>*>(sbuf), 2*sc, TypeMap<Real>(), to,   stag,
-        rbuf,                             2*rc, TypeMap<Real>(), from, rtag, 
+        rbuf,                             2*rc, TypeMap<Real>(), from, rtag,
         comm.comm, &status ) );
 #else
     SafeMpi
     ( MPI_Sendrecv
-      ( const_cast<Complex<Real>*>(sbuf), 
+      ( const_cast<Complex<Real>*>(sbuf),
         sc, TypeMap<Complex<Real>>(), to,   stag,
-        rbuf,                          
+        rbuf,
         rc, TypeMap<Complex<Real>>(), from, rtag, comm.comm, &status ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedSendRecv
 ( const T* sbuf, int sc, int to,   int stag,
         T* rbuf, int rc, int from, int rtag, Comm comm )
@@ -935,14 +971,14 @@ void TaggedSendRecv
     SafeMpi
     ( MPI_Sendrecv
       ( packedSend.data(), sc, TypeMap<T>(), to,   stag,
-        packedRecv.data(), rc, TypeMap<T>(), from, rtag, 
+        packedRecv.data(), rc, TypeMap<T>(), from, rtag,
         comm.comm, &status ) );
     Deserialize( rc, packedRecv, rbuf );
 }
 
 template<typename T>
 void SendRecv
-( const T* sbuf, int sc, int to, 
+( const T* sbuf, int sc, int to,
         T* rbuf, int rc, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { TaggedSendRecv( sbuf, sc, to, 0, rbuf, rc, from, ANY_TAG, comm ); }
@@ -950,10 +986,10 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ 
-    T rb; 
-    TaggedSendRecv( &sb, 1, to, stag, &rb, 1, from, rtag, comm ); 
-    return rb; 
+{
+    T rb;
+    TaggedSendRecv( &sb, 1, to, stag, &rb, 1, from, rtag, comm );
+    return rb;
 }
 
 template<typename T>
@@ -961,7 +997,8 @@ T SendRecv( T sb, int to, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { return TaggedSendRecv( sb, to, 0, from, ANY_TAG, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedSendRecv
 ( Real* buf, int count, int to, int stag, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -974,7 +1011,8 @@ EL_NO_RELEASE_EXCEPT
         &status ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void TaggedSendRecv
 ( Complex<Real>* buf, int count, int to, int stag, int from, int rtag,
   Comm comm )
@@ -985,17 +1023,19 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
     SafeMpi
     ( MPI_Sendrecv_replace
-      ( buf, 2*count, TypeMap<Real>(), to, stag, from, rtag, comm.comm, 
+      ( buf, 2*count, TypeMap<Real>(), to, stag, from, rtag, comm.comm,
         &status ) );
 #else
     SafeMpi
     ( MPI_Sendrecv_replace
-      ( buf, count, TypeMap<Complex<Real>>(), 
+      ( buf, count, TypeMap<Complex<Real>>(),
         to, stag, from, rtag, comm.comm, &status ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void TaggedSendRecv
 ( T* buf, int count, int to, int stag, int from, int rtag, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -1017,7 +1057,8 @@ void SendRecv( T* buf, int count, int to, int from, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { TaggedSendRecv( buf, count, to, 0, from, ANY_TAG, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Broadcast( Real* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1027,7 +1068,8 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi( MPI_Bcast( buf, count, TypeMap<Real>(), root, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Broadcast( Complex<Real>* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1041,7 +1083,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Broadcast( T* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1060,7 +1104,8 @@ template<typename T>
 void Broadcast( T& b, int root, Comm comm ) EL_NO_RELEASE_EXCEPT
 { Broadcast( &b, 1, root, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void IBroadcast
 ( Real* buf, int count, int root, Comm comm, Request<Real>& request )
 {
@@ -1074,7 +1119,8 @@ void IBroadcast
 #endif
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void IBroadcast
 ( Complex<Real>* buf, int count, int root, Comm comm,
   Request<Complex<Real>>& request )
@@ -1096,7 +1142,9 @@ void IBroadcast
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void IBroadcast
 ( T* buf, int count, int root, Comm comm, Request<T>& request )
 {
@@ -1119,7 +1167,8 @@ template<typename T>
 void IBroadcast( T& b, int root, Comm comm, Request<T>& request )
 { IBroadcast( &b, 1, root, comm, request ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
@@ -1132,7 +1181,8 @@ EL_NO_RELEASE_EXCEPT
         rbuf,                    rc, TypeMap<Real>(), root, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
@@ -1149,12 +1199,14 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Gather
       ( const_cast<Complex<Real>*>(sbuf), sc, TypeMap<Complex<Real>>(),
-        rbuf,                             rc, TypeMap<Complex<Real>>(), 
+        rbuf,                             rc, TypeMap<Complex<Real>>(),
         root, comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Gather
 ( const T* sbuf, int sc,
         T* rbuf, int rc, int root, Comm comm )
@@ -1178,7 +1230,8 @@ EL_NO_RELEASE_EXCEPT
         Deserialize( totalRecv, packedRecv, rbuf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void IGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc,
@@ -1197,7 +1250,8 @@ void IGather
 #endif
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void IGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc,
@@ -1210,13 +1264,13 @@ void IGather
     SafeMpi
     ( MPI_Igather
       ( const_cast<Complex<Real>*>(sbuf), 2*sc, TypeMap<Real>(),
-        rbuf,                             2*rc, TypeMap<Real>(), 
+        rbuf,                             2*rc, TypeMap<Real>(),
         root, comm.comm, &request.backend ) );
 #else
     SafeMpi
     ( MPI_Igather
       ( const_cast<Complex<Real>*>(sbuf), sc, TypeMap<Complex<Real>>(),
-        rbuf,                             rc, TypeMap<Complex<Real>>(), 
+        rbuf,                             rc, TypeMap<Complex<Real>>(),
         root, comm.comm, &request.backend ) );
 #endif
 #else
@@ -1224,7 +1278,9 @@ void IGather
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void IGather
 ( const T* sbuf, int sc,
         T* rbuf, int rc,
@@ -1251,7 +1307,8 @@ void IGather
 #endif
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Gather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds,
@@ -1261,18 +1318,19 @@ EL_NO_RELEASE_EXCEPT
     DEBUG_CSE
     SafeMpi
     ( MPI_Gatherv
-      ( const_cast<Real*>(sbuf), 
-        sc,       
+      ( const_cast<Real*>(sbuf),
+        sc,
         TypeMap<Real>(),
-        rbuf,                    
-        const_cast<int*>(rcs), 
-        const_cast<int*>(rds), 
+        rbuf,
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
         TypeMap<Real>(),
-        root, 
+        root,
         comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Gather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, int root,
@@ -1302,19 +1360,21 @@ EL_NO_RELEASE_EXCEPT
 #else
     SafeMpi
     ( MPI_Gatherv
-      ( const_cast<Complex<Real>*>(sbuf), 
-        sc,       
+      ( const_cast<Complex<Real>*>(sbuf),
+        sc,
         TypeMap<Complex<Real>>(),
-        rbuf,  
-        const_cast<int*>(rcs), 
-        const_cast<int*>(rds), 
+        rbuf,
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
         TypeMap<Complex<Real>>(),
-        root, 
+        root,
         comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Gather
 ( const T* sbuf, int sc,
         T* rbuf, const int* rcs, const int* rds,
@@ -1348,7 +1408,8 @@ EL_NO_RELEASE_EXCEPT
         Deserialize( totalRecv, packedRecv, rbuf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm )
@@ -1358,18 +1419,19 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
-      ( (UCP)const_cast<Real*>(sbuf), sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
-        (UCP)rbuf,                    sizeof(Real)*rc, MPI_UNSIGNED_CHAR, 
+      ( (UCP)const_cast<Real*>(sbuf), sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
+        (UCP)rbuf,                    sizeof(Real)*rc, MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
     SafeMpi
     ( MPI_Allgather
-      ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(), 
+      ( const_cast<Real*>(sbuf), sc, TypeMap<Real>(),
         rbuf,                    rc, TypeMap<Real>(), comm.comm ) );
 #endif
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
@@ -1380,9 +1442,9 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Allgather
       ( (UCP)const_cast<Complex<Real>*>(sbuf),
-        2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
+        2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
         (UCP)rbuf,
-        2*sizeof(Real)*rc, MPI_UNSIGNED_CHAR, 
+        2*sizeof(Real)*rc, MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
  #ifdef EL_AVOID_COMPLEX_MPI
@@ -1401,7 +1463,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void AllGather
 ( const T* sbuf, int sc,
         T* rbuf, int rc, Comm comm )
@@ -1422,7 +1486,8 @@ EL_NO_RELEASE_EXCEPT
     Deserialize( totalRecv, packedRecv, rbuf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllGather
 ( const Real* sbuf, int sc,
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
@@ -1439,24 +1504,25 @@ EL_NO_RELEASE_EXCEPT
     }
     SafeMpi
     ( MPI_Allgatherv
-      ( (UCP)const_cast<Real*>(sbuf), sizeof(Real)*sc,   MPI_UNSIGNED_CHAR, 
-        (UCP)rbuf, byteRcs.data(), byteRds.data(), MPI_UNSIGNED_CHAR, 
+      ( (UCP)const_cast<Real*>(sbuf), sizeof(Real)*sc,   MPI_UNSIGNED_CHAR,
+        (UCP)rbuf, byteRcs.data(), byteRds.data(), MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
     SafeMpi
     ( MPI_Allgatherv
-      ( const_cast<Real*>(sbuf), 
-        sc, 
-        TypeMap<Real>(), 
-        rbuf,   
-        const_cast<int*>(rcs), 
-        const_cast<int*>(rds), 
-        TypeMap<Real>(), 
+      ( const_cast<Real*>(sbuf),
+        sc,
+        TypeMap<Real>(),
+        rbuf,
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
+        TypeMap<Real>(),
         comm.comm ) );
 #endif
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllGather
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
@@ -1474,9 +1540,9 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Allgatherv
       ( (UCP)const_cast<Complex<Real>*>(sbuf),
-        2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR, 
+        2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
         (UCP)rbuf, byteRcs.data(), byteRds.data(),
-        MPI_UNSIGNED_CHAR, 
+        MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
  #ifdef EL_AVOID_COMPLEX_MPI
@@ -1494,19 +1560,21 @@ EL_NO_RELEASE_EXCEPT
  #else
     SafeMpi
     ( MPI_Allgatherv
-      ( const_cast<Complex<Real>*>(sbuf), 
-        sc, 
+      ( const_cast<Complex<Real>*>(sbuf),
+        sc,
         TypeMap<Complex<Real>>(),
-        rbuf, 
-        const_cast<int*>(rcs), 
-        const_cast<int*>(rds), 
+        rbuf,
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
         TypeMap<Complex<Real>>(),
         comm.comm ) );
  #endif
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void AllGather
 ( const T* sbuf, int sc,
         T* rbuf, const int* rcs, const int* rds, Comm comm )
@@ -1533,7 +1601,8 @@ EL_NO_RELEASE_EXCEPT
     Deserialize( totalRecv, packedRecv, rbuf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scatter
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, int root, Comm comm )
@@ -1546,7 +1615,8 @@ EL_NO_RELEASE_EXCEPT
         rbuf,                    rc, TypeMap<Real>(), root, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scatter
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, int root, Comm comm )
@@ -1563,12 +1633,14 @@ EL_NO_RELEASE_EXCEPT
     SafeMpi
     ( MPI_Scatter
       ( const_cast<Complex<Real>*>(sbuf), sc, TypeMap<Complex<Real>>(),
-        rbuf,                             rc, TypeMap<Complex<Real>>(), 
+        rbuf,                             rc, TypeMap<Complex<Real>>(),
         root, comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Scatter
 ( const T* sbuf, int sc,
         T* rbuf, int rc, int root, Comm comm )
@@ -1591,7 +1663,8 @@ EL_NO_RELEASE_EXCEPT
     Deserialize( rc, packedRecv, rbuf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scatter( Real* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1601,19 +1674,20 @@ EL_NO_RELEASE_EXCEPT
     {
         SafeMpi
         ( MPI_Scatter
-          ( buf,          sc, TypeMap<Real>(), 
+          ( buf,          sc, TypeMap<Real>(),
             MPI_IN_PLACE, rc, TypeMap<Real>(), root, comm.comm ) );
     }
     else
     {
         SafeMpi
         ( MPI_Scatter
-          ( 0,   sc, TypeMap<Real>(), 
+          ( 0,   sc, TypeMap<Real>(),
             buf, rc, TypeMap<Real>(), root, comm.comm ) );
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scatter( Complex<Real>* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1624,12 +1698,12 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         SafeMpi
         ( MPI_Scatter
-          ( buf,          2*sc, TypeMap<Real>(), 
+          ( buf,          2*sc, TypeMap<Real>(),
             MPI_IN_PLACE, 2*rc, TypeMap<Real>(), root, comm.comm ) );
 #else
         SafeMpi
         ( MPI_Scatter
-          ( buf,          sc, TypeMap<Complex<Real>>(), 
+          ( buf,          sc, TypeMap<Complex<Real>>(),
             MPI_IN_PLACE, rc, TypeMap<Complex<Real>>(), root, comm.comm ) );
 #endif
     }
@@ -1638,18 +1712,20 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_AVOID_COMPLEX_MPI
         SafeMpi
         ( MPI_Scatter
-          ( 0,   2*sc, TypeMap<Real>(), 
+          ( 0,   2*sc, TypeMap<Real>(),
             buf, 2*rc, TypeMap<Real>(), root, comm.comm ) );
 #else
         SafeMpi
         ( MPI_Scatter
-          ( 0,   sc, TypeMap<Complex<Real>>(), 
+          ( 0,   sc, TypeMap<Complex<Real>>(),
             buf, rc, TypeMap<Complex<Real>>(), root, comm.comm ) );
 #endif
     }
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Scatter( T* buf, int sc, int rc, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1658,7 +1734,7 @@ EL_NO_RELEASE_EXCEPT
     const int commRank = mpi::Rank(comm);
     const int totalSend = sc*commSize;
 
-    // TODO: Use in-place option?
+    // TODO(poulson): Use in-place option?
 
     std::vector<byte> packedSend, packedRecv;
     if( commRank == root )
@@ -1672,7 +1748,8 @@ EL_NO_RELEASE_EXCEPT
     Deserialize( rc, packedRecv, buf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllToAll
 ( const Real* sbuf, int sc,
         Real* rbuf, int rc, Comm comm )
@@ -1685,7 +1762,8 @@ EL_NO_RELEASE_EXCEPT
         rbuf,                    rc, TypeMap<Real>(), comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllToAll
 ( const Complex<Real>* sbuf, int sc,
         Complex<Real>* rbuf, int rc, Comm comm )
@@ -1709,7 +1787,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void AllToAll
 ( const T* sbuf, int sc,
         T* rbuf, int rc, Comm comm )
@@ -1730,27 +1810,29 @@ EL_NO_RELEASE_EXCEPT
     Deserialize( totalRecv, packedRecv, rbuf );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllToAll
-( const Real* sbuf, const int* scs, const int* sds, 
+( const Real* sbuf, const int* scs, const int* sds,
         Real* rbuf, const int* rcs, const int* rds, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
     DEBUG_CSE
     SafeMpi
     ( MPI_Alltoallv
-      ( const_cast<Real*>(sbuf), 
-        const_cast<int*>(scs), 
-        const_cast<int*>(sds), 
+      ( const_cast<Real*>(sbuf),
+        const_cast<int*>(scs),
+        const_cast<int*>(sds),
         TypeMap<Real>(),
-        rbuf, 
-        const_cast<int*>(rcs), 
-        const_cast<int*>(rds), 
+        rbuf,
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
         TypeMap<Real>(),
         comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllToAll
 ( const Complex<Real>* sbuf, const int* scs, const int* sds,
         Complex<Real>* rbuf, const int* rcs, const int* rds, Comm comm )
@@ -1777,19 +1859,21 @@ EL_NO_RELEASE_EXCEPT
 #else
     SafeMpi
     ( MPI_Alltoallv
-      ( const_cast<Complex<Real>*>(sbuf), 
-        const_cast<int*>(scs), 
-        const_cast<int*>(sds), 
+      ( const_cast<Complex<Real>*>(sbuf),
+        const_cast<int*>(scs),
+        const_cast<int*>(sds),
         TypeMap<Complex<Real>>(),
-        rbuf, 
-        const_cast<int*>(rcs), 
-        const_cast<int*>(rds), 
+        rbuf,
+        const_cast<int*>(rcs),
+        const_cast<int*>(rds),
         TypeMap<Complex<Real>>(),
         comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void AllToAll
 ( const T* sbuf, const int* scs, const int* sds,
         T* rbuf, const int* rcs, const int* rds, Comm comm )
@@ -1816,14 +1900,14 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 vector<T> AllToAll
 ( const vector<T>& sendBuf,
-  const vector<int>& sendCounts, 
+  const vector<int>& sendCounts,
   const vector<int>& sendOffs,
   Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
-    const int commSize = Size( comm ); 
+    const int commSize = Size( comm );
     vector<int> recvCounts(commSize);
-    AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm ); 
+    AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
     vector<int> recvOffs;
     const int totalRecv = El::Scan( recvCounts, recvOffs );
     vector<T> recvBuf(totalRecv);
@@ -1833,7 +1917,8 @@ EL_NO_RELEASE_EXCEPT
     return recvBuf;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Reduce
 ( const Real* sbuf, Real* rbuf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -1849,9 +1934,10 @@ EL_NO_RELEASE_EXCEPT
         opC, root, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Reduce
-( const Complex<Real>* sbuf, 
+( const Complex<Real>* sbuf,
         Complex<Real>* rbuf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1866,7 +1952,7 @@ EL_NO_RELEASE_EXCEPT
         SafeMpi
         ( MPI_Reduce
           ( const_cast<Complex<Real>*>(sbuf),
-            rbuf, 2*count, TypeMap<Real>(), opC, 
+            rbuf, 2*count, TypeMap<Real>(), opC,
             root, comm.comm ) );
     }
     else
@@ -1881,12 +1967,14 @@ EL_NO_RELEASE_EXCEPT
     MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Reduce
-      ( const_cast<Complex<Real>*>(sbuf), 
+      ( const_cast<Complex<Real>*>(sbuf),
         rbuf, count, TypeMap<Complex<Real>>(), opC, root, comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Reduce
 ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -1919,7 +2007,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     T rb;
     Reduce( &sb, &rb, 1, op, root, comm );
     return rb;
@@ -1928,13 +2016,14 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T Reduce( T sb, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     T rb;
     Reduce( &sb, &rb, 1, SUM, root, comm );
     return rb;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Reduce( Real* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1949,7 +2038,7 @@ EL_NO_RELEASE_EXCEPT
     {
         SafeMpi
         ( MPI_Reduce
-          ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, root, 
+          ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, root,
             comm.comm ) );
     }
     else
@@ -1958,7 +2047,8 @@ EL_NO_RELEASE_EXCEPT
           ( buf, 0, count, TypeMap<Real>(), opC, root, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Reduce( Complex<Real>* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -1976,7 +2066,7 @@ EL_NO_RELEASE_EXCEPT
             {
                 SafeMpi
                 ( MPI_Reduce
-                  ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC, 
+                  ( MPI_IN_PLACE, buf, 2*count, TypeMap<Real>(), opC,
                     root, comm.comm ) );
             }
             else
@@ -1991,13 +2081,13 @@ EL_NO_RELEASE_EXCEPT
             {
                 SafeMpi
                 ( MPI_Reduce
-                  ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+                  ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC,
                     root, comm.comm ) );
             }
             else
                 SafeMpi
                 ( MPI_Reduce
-                  ( buf, 0, count, TypeMap<Complex<Real>>(), opC, 
+                  ( buf, 0, count, TypeMap<Complex<Real>>(), opC,
                     root, comm.comm ) );
         }
 #else
@@ -2006,19 +2096,21 @@ EL_NO_RELEASE_EXCEPT
         {
             SafeMpi
             ( MPI_Reduce
-              ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+              ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC,
                 root, comm.comm ) );
         }
         else
             SafeMpi
             ( MPI_Reduce
-              ( buf, 0, count, TypeMap<Complex<Real>>(), opC, root, 
+              ( buf, 0, count, TypeMap<Complex<Real>>(), opC, root,
                 comm.comm ) );
 #endif
     }
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Reduce( T* buf, int count, Op op, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2028,7 +2120,7 @@ EL_NO_RELEASE_EXCEPT
 
     MPI_Op opC = NativeOp<T>( op );
 
-    // TODO: Use in-place option?
+    // TODO(poulson): Use in-place option?
 
     const int commRank = mpi::Rank(comm);
     std::vector<byte> packedSend, packedRecv;
@@ -2049,7 +2141,8 @@ void Reduce( T* buf, int count, int root, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { Reduce( buf, count, SUM, root, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllReduce( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2059,12 +2152,13 @@ EL_NO_RELEASE_EXCEPT
         MPI_Op opC = NativeOp<Real>( op );
         SafeMpi
         ( MPI_Allreduce
-          ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(), opC, 
+          ( const_cast<Real*>(sbuf), rbuf, count, TypeMap<Real>(), opC,
             comm.comm ) );
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllReduce
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -2093,13 +2187,15 @@ EL_NO_RELEASE_EXCEPT
         MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Allreduce
-          ( const_cast<Complex<Real>*>(sbuf), 
+          ( const_cast<Complex<Real>*>(sbuf),
             rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
 #endif
     }
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void AllReduce
 ( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -2135,7 +2231,8 @@ T AllReduce( T sb, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { return AllReduce( sb, SUM, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllReduce( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2149,7 +2246,8 @@ EL_NO_RELEASE_EXCEPT
       ( MPI_IN_PLACE, buf, count, TypeMap<Real>(), opC, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void AllReduce( Complex<Real>* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2170,19 +2268,21 @@ EL_NO_RELEASE_EXCEPT
         MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Allreduce
-          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), 
+          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(),
             opC, comm.comm ) );
     }
 #else
     MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Allreduce
-      ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+      ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC,
         comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void AllReduce( T* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2207,7 +2307,8 @@ void AllReduce( T* buf, int count, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { AllReduce( buf, count, SUM, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void ReduceScatter( Real* sbuf, Real* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2231,7 +2332,8 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void ReduceScatter
 ( Complex<Real>* sbuf, Complex<Real>* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -2264,7 +2366,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void ReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2275,7 +2379,8 @@ EL_NO_RELEASE_EXCEPT
     const int totalSend = rc*commSize;
     const int totalRecv = rc;
 
-    // TODO: Add AllReduce approach via EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    // TODO(poulson): Add AllReduce approach via
+    // EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
 #if defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
     MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
@@ -2309,7 +2414,8 @@ T ReduceScatter( T sb, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { return ReduceScatter( sb, SUM, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void ReduceScatter( Real* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2335,8 +2441,8 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-// TODO: Handle case where op is not summation
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void ReduceScatter( Complex<Real>* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2369,7 +2475,9 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void ReduceScatter( T* buf, int rc, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2380,7 +2488,8 @@ EL_NO_RELEASE_EXCEPT
     const int totalSend = rc*commSize;
     const int totalRecv = rc;
 
-    // TODO: Add AllReduce approach via EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    // TODO(poulson): Add AllReduce approach via
+    // EL_REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
 #if defined(EL_HAVE_MPI_REDUCE_SCATTER_BLOCK)
     MPI_Op opC = NativeOp<T>( op );
     std::vector<byte> packedSend, packedRecv;
@@ -2404,7 +2513,8 @@ void ReduceScatter( T* buf, int rc, Comm comm )
 EL_NO_RELEASE_EXCEPT
 { ReduceScatter( buf, rc, SUM, comm ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void ReduceScatter
 ( const Real* sbuf, Real* rbuf, const int* rcs, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -2413,11 +2523,12 @@ EL_NO_RELEASE_EXCEPT
     MPI_Op opC = NativeOp<Real>( op );
     SafeMpi
     ( MPI_Reduce_scatter
-      ( const_cast<Real*>(sbuf), 
+      ( const_cast<Real*>(sbuf),
         rbuf, const_cast<int*>(rcs), TypeMap<Real>(), opC, comm.comm ) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void ReduceScatter
 ( const Complex<Real>* sbuf, Complex<Real>* rbuf, const int* rcs,
   Op op, Comm comm )
@@ -2444,20 +2555,22 @@ EL_NO_RELEASE_EXCEPT
         SafeMpi
         ( MPI_Reduce_scatter
           ( const_cast<Complex<Real>*>(sbuf),
-            rbuf, const_cast<int*>(rcs), TypeMap<Complex<Real>>(), 
+            rbuf, const_cast<int*>(rcs), TypeMap<Complex<Real>>(),
             opC, comm.comm ) );
     }
 #else
     MPI_Op opC = NativeOp<Complex<Real>>( op );
     SafeMpi
     ( MPI_Reduce_scatter
-      ( const_cast<Complex<Real>*>(sbuf), 
-        rbuf, const_cast<int*>(rcs), TypeMap<Complex<Real>>(), opC, 
+      ( const_cast<Complex<Real>*>(sbuf),
+        rbuf, const_cast<int*>(rcs), TypeMap<Complex<Real>>(), opC,
         comm.comm ) );
 #endif
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void ReduceScatter
 ( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
@@ -2503,7 +2616,8 @@ void VerifySendsAndRecvs
              " but recv'd ",actualRecvCounts[q]," from process ",q);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scan( const Real* sbuf, Real* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2518,9 +2632,10 @@ EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scan
-( const Complex<Real>* sbuf, 
+( const Complex<Real>* sbuf,
         Complex<Real>* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2548,13 +2663,15 @@ EL_NO_RELEASE_EXCEPT
         MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Scan
-          ( const_cast<Complex<Real>*>(sbuf), 
+          ( const_cast<Complex<Real>*>(sbuf),
             rbuf, count, TypeMap<Complex<Real>>(), opC, comm.comm ) );
 #endif
     }
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2581,7 +2698,7 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T Scan( T sb, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     T rb;
     Scan( &sb, &rb, 1, op, comm );
     return rb;
@@ -2590,13 +2707,14 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 T Scan( T sb, Comm comm )
 EL_NO_RELEASE_EXCEPT
-{ 
+{
     T rb;
     Scan( &sb, &rb, 1, SUM, comm );
     return rb;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scan( Real* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2610,7 +2728,8 @@ EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsPacked<Real>>*/>
 void Scan( Complex<Real>* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
@@ -2630,20 +2749,22 @@ EL_NO_RELEASE_EXCEPT
             MPI_Op opC = NativeOp<Complex<Real>>( op );
             SafeMpi
             ( MPI_Scan
-              ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+              ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC,
                 comm.comm ) );
         }
 #else
         MPI_Op opC = NativeOp<Complex<Real>>( op );
         SafeMpi
         ( MPI_Scan
-          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC, 
+          ( MPI_IN_PLACE, buf, count, TypeMap<Complex<Real>>(), opC,
             comm.comm ) );
 #endif
     }
 }
 
-template<typename T,typename,typename>
+template<typename T,
+         typename/*=DisableIf<IsPacked<T>>*/,
+         typename/*=void*/>
 void Scan( T* buf, int count, Op op, Comm comm )
 EL_NO_RELEASE_EXCEPT
 {
