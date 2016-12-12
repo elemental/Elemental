@@ -50,7 +50,7 @@ void NNLS
         Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -66,7 +66,7 @@ void NNLS
         AbstractDistMatrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -82,7 +82,7 @@ void NNLS
         Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -98,7 +98,7 @@ void NNLS
         DistMultiVec<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )

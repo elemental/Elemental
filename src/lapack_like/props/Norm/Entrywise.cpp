@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> EntrywiseNorm( const Matrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
@@ -28,7 +28,7 @@ Base<Field> EntrywiseNorm( const Matrix<Field>& A, Base<Field> p )
 template<typename Field>
 Base<Field> EntrywiseNorm( const SparseMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
@@ -42,7 +42,7 @@ template<typename Field>
 Base<Field> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -86,7 +86,7 @@ template<typename Field>
 Base<Field> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
@@ -107,7 +107,7 @@ template<typename Field>
 Base<Field> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
@@ -115,14 +115,14 @@ template<typename Field>
 Base<Field> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 template<typename Field>
 Base<Field> EntrywiseNorm( const AbstractDistMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real norm;
     if( A.Participating() )
@@ -144,7 +144,7 @@ Base<Field> EntrywiseNorm( const AbstractDistMatrix<Field>& A, Base<Field> p )
 template<typename Field>
 Base<Field> EntrywiseNorm( const DistSparseMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     Real localSum = 0;
@@ -159,7 +159,7 @@ Base<Field> EntrywiseNorm( const DistSparseMatrix<Field>& A, Base<Field> p )
 template<typename Field>
 Base<Field> EntrywiseNorm( const DistMultiVec<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Matrix<Field>& ALoc = A.LockedMatrix();
 
@@ -176,7 +176,7 @@ template<typename Field>
 Base<Field> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -232,7 +232,7 @@ template<typename Field>
 Base<Field> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const DistSparseMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     Real localSum = 0;
@@ -255,7 +255,7 @@ template<typename Field>
 Base<Field> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 
@@ -263,7 +263,7 @@ template<typename Field>
 Base<Field> SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const DistSparseMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEntrywiseNorm( uplo, A, p );
 }
 

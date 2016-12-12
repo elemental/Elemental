@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const C phi = Sqrt( C(0,omega/pi) );
@@ -62,7 +62,7 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 template<typename Real>
 void FoxLi( AbstractDistMatrix<Complex<Real>>& APre, Int n, Real omega )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const C phi = Sqrt( C(0,omega/pi) );

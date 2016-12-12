@@ -32,7 +32,7 @@ inline void LowerBackwardMultiply
 ( const NodeInfo& info, 
   const Front<F>& front, MatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto* dupMV = X.duplicateMV;
     auto* dupMat = X.duplicateMat;
@@ -94,7 +94,7 @@ inline void LowerBackwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMultiVecNode<F>& X, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardMultiply
@@ -135,7 +135,7 @@ inline void LowerBackwardMultiply
             sendSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
             recvSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
         }
-        DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+        EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
         vector<int> sendOffs, recvOffs;
         const int sendBufSize = Scan( sendSizes, sendOffs );
         const int recvBufSize = Scan( recvSizes, recvOffs );
@@ -192,7 +192,7 @@ inline void LowerBackwardMultiply
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardMultiply
@@ -231,7 +231,7 @@ inline void LowerBackwardMultiply
             sendSizes[q] = X.commMeta.childRecvInds[q].size()/2;
             recvSizes[q] = X.commMeta.numChildSendInds[q];
         }
-        DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+        EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
         vector<int> sendOffs, recvOffs;
         const int sendBufSize = Scan( sendSizes, sendOffs );
         const int recvBufSize = Scan( recvSizes, recvOffs );

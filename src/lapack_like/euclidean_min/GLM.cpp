@@ -58,7 +58,7 @@ namespace glm {
 template<typename F>
 void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Width();
@@ -115,7 +115,7 @@ void Overwrite
   AbstractDistMatrix<F>& DPre,
   AbstractDistMatrix<F>& YPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -191,7 +191,7 @@ void GLM
         Matrix<F>& X,
         Matrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B );
     X = D;
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -205,7 +205,7 @@ void GLM
         AbstractDistMatrix<F>& X,
         AbstractDistMatrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B );
     Copy( D, X );
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -220,7 +220,7 @@ void GLM
         Matrix<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();
@@ -313,7 +313,7 @@ void GLM
         DistMultiVec<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();

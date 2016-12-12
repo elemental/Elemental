@@ -16,7 +16,7 @@ template<typename Field>
 SafeProduct<Base<Field>> AfterCholesky
 ( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
 
@@ -39,7 +39,7 @@ template<typename Field>
 SafeProduct<Base<Field>>
 Cholesky( UpperOrLower uplo, Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> det( A.Height() );
     try
     {
@@ -58,7 +58,7 @@ template<typename Field>
 SafeProduct<Base<Field>> AfterCholesky
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
@@ -91,7 +91,7 @@ template<typename Field>
 SafeProduct<Base<Field>>
 Cholesky( UpperOrLower uplo, AbstractDistMatrix<Field>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();

@@ -24,7 +24,7 @@ OneNormConvergenceTest
         Matrix<Int >& activeItCounts,
         Int numIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Int n = activeX.Height();
 
@@ -92,8 +92,8 @@ OneNormConvergenceTest
         DistMatrix<Int ,VR,STAR>& activeItCounts,
         Int numIts )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( activeX.Height() != activeY.Height() ||
           activeY.Height() != activeZ.Height() )
           LogicError("active{X,Y,Z} should be the same height");
@@ -197,7 +197,7 @@ HagerHigham
   Matrix<Real>& invNorms,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -356,7 +356,7 @@ HagerHigham
   Matrix<Real>& invNorms,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -529,7 +529,7 @@ HagerHigham
         AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<C,C,MC,MR> UProx( UPre );
@@ -728,7 +728,7 @@ HagerHigham
         AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

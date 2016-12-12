@@ -16,7 +16,7 @@ template<typename F>
 void ColumnTwoNormsHelper
 ( const Matrix<F>& ALoc, Matrix<Base<F>>& normsLoc, mpi::Comm comm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int mLocal = ALoc.Height();
     const Int nLocal = ALoc.Width();
@@ -45,7 +45,7 @@ void ColumnTwoNormsHelper
   const Matrix<Real>& AImagLoc,
         Matrix<Real>& normsLoc, mpi::Comm comm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int mLocal = ARealLoc.Height();
     const Int nLocal = ARealLoc.Width();
 
@@ -72,7 +72,7 @@ void ColumnTwoNormsHelper
 template<typename F>
 void ColumnTwoNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = X.Height();
     const Int n = X.Width();
     norms.Resize( n, 1 );
@@ -88,7 +88,7 @@ void ColumnTwoNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
 template<typename F>
 void ColumnMaxNorms( const Matrix<F>& X, Matrix<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -107,7 +107,7 @@ template<typename F,Dist U,Dist V>
 void ColumnTwoNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.AlignWith( A );
     norms.Resize( A.Width(), 1 );
     if( A.Height() == 0 )
@@ -122,7 +122,7 @@ template<typename F,Dist U,Dist V>
 void ColumnMaxNorms
 ( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.AlignWith( A );
     norms.Resize( A.Width(), 1 );
     ColumnMaxNorms( A.LockedMatrix(), norms.Matrix() );
@@ -132,7 +132,7 @@ void ColumnMaxNorms
 template<typename F>
 void ColumnTwoNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.Resize( X.Width(), 1 );
     ColumnTwoNormsHelper( X.LockedMatrix(), norms, X.Comm() );
 }
@@ -140,7 +140,7 @@ void ColumnTwoNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 template<typename F>
 void ColumnMaxNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ColumnMaxNorms( X.LockedMatrix(), norms );
     AllReduce( norms, X.Comm(), mpi::MAX );
 }
@@ -148,7 +148,7 @@ void ColumnMaxNorms( const DistMultiVec<F>& X, Matrix<Base<F>>& norms )
 template<typename F>
 void ColumnTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Width();
     norms.Resize( n, 1 );
@@ -171,7 +171,7 @@ void ColumnTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 template<typename F>
 void ColumnMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.Resize( A.Width(), 1 );
     Zero( norms );
 
@@ -186,7 +186,7 @@ template<typename F>
 void ColumnTwoNorms
 ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     norms.Resize( A.Width(), 1 );
     Zero( norms );
@@ -257,7 +257,7 @@ template<typename F>
 void ColumnMaxNorms
 ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     norms.Resize( A.Width(), 1 );
     Zero( norms );
@@ -302,7 +302,7 @@ void ColumnTwoNorms
   const Matrix<Real>& XImag,
         Matrix<Real>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XReal.Height();
     const Int n = XReal.Width();
     norms.Resize( n, 1 );
@@ -325,7 +325,7 @@ void ColumnTwoNorms
   const DistMatrix<Real,U,V>& XImag,
         DistMatrix<Real,V,STAR>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( XReal.RowAlign() != norms.ColAlign() )
         LogicError("Invalid norms alignment");
     norms.Resize( XReal.Width(), 1 );
@@ -347,7 +347,7 @@ void ColumnTwoNorms
   const DistMultiVec<Real>& XImag, 
         Matrix<Real>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.Resize( XReal.Width(), 1 );
     if( XReal.Height() == 0 )
     {

@@ -14,7 +14,7 @@ template<typename Field>
 Base<Field>
 TwoNormEstimate( const Matrix<Field>& A, Base<Field> tol, Int maxIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -49,7 +49,7 @@ template<typename Field>
 Base<Field> TwoNormEstimate
 ( const AbstractDistMatrix<Field>& APre, Base<Field> tol, Int maxIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
@@ -122,7 +122,7 @@ Base<Field> HermitianTwoNormEstimate
   Base<Field> tol,
   Int maxIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
 
@@ -160,7 +160,7 @@ Base<Field> HermitianTwoNormEstimate
   Base<Field> tol,
   Int maxIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
@@ -200,7 +200,7 @@ template<typename Field>
 Base<Field> SymmetricTwoNormEstimate
 ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> tol, Int maxIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
 
@@ -240,7 +240,7 @@ Base<Field> SymmetricTwoNormEstimate
   Base<Field> tol,
   Int maxIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );

@@ -22,7 +22,7 @@ void NearestPlane
         Matrix<F>& Y,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = B.Height();
     const Int n = B.Width();
     const Int numRHS = T.Width();
@@ -96,7 +96,7 @@ void NearestPlane
         Matrix<F>& Y,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // LLL-reduce B
     Matrix<F> BRed( B ), QR, t;

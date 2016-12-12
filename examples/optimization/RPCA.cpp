@@ -23,7 +23,7 @@
 template<typename Field>
 int Corrupt( El::DistMatrix<Field>& A, double probCorrupt )
 {
-    DEBUG_ONLY(El::CallStackEntry cse("Corrupt"))
+    EL_DEBUG_ONLY(El::CallStackEntry cse("Corrupt"))
     typedef El::Base<Field> Real;
 
     El::Int numLocalCorrupt = 0;

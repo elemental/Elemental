@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> KyFanNorm( const Matrix<Field>& A, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return KyFanSchattenNorm( A, k, Base<Field>(1) );
 }
 
@@ -21,7 +21,7 @@ template<typename Field>
 Base<Field>
 HermitianKyFanNorm( UpperOrLower uplo, const Matrix<Field>& A, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
@@ -29,14 +29,14 @@ template<typename Field>
 Base<Field>
 SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<Field>& A, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
 template<typename Field>
 Base<Field> KyFanNorm( const AbstractDistMatrix<Field>& A, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return KyFanSchattenNorm( A, k, Base<Field>(1) );
 }
 
@@ -44,7 +44,7 @@ template<typename Field>
 Base<Field> HermitianKyFanNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
@@ -52,7 +52,7 @@ template<typename Field>
 Base<Field> SymmetricKyFanNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 

@@ -16,7 +16,7 @@ Base<Field> LogDetDiv
   const Matrix<Field>& A,
   const Matrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
         LogicError("A and B must be square matrices of the same size");
@@ -56,7 +56,7 @@ Base<Field> LogDetDiv
   const AbstractDistMatrix<Field>& A,
   const AbstractDistMatrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )

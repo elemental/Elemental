@@ -32,7 +32,7 @@ void SymmetricRuizEquil
   Matrix<Base<Field>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -60,7 +60,7 @@ void SymmetricRuizEquil
   AbstractDistMatrix<Base<Field>>& dPre,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
@@ -100,7 +100,7 @@ void SymmetricRuizEquil
   Matrix<Base<Field>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -126,7 +126,7 @@ void SymmetricRuizEquil
   DistMultiVec<Base<Field>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();

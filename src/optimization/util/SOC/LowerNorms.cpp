@@ -19,9 +19,9 @@ void LowerNorms
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -48,7 +48,7 @@ void LowerNorms
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, lowerNormsPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -68,7 +68,7 @@ void LowerNorms
     auto& firstInds = firstIndsProx.GetLocked();
 
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
@@ -100,9 +100,9 @@ void LowerNorms
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");

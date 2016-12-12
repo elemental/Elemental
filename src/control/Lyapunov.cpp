@@ -22,8 +22,8 @@ void Lyapunov
 ( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( C.Height() != A.Height() || C.Width() != A.Height() )
@@ -49,8 +49,8 @@ void Lyapunov
   const ElementalMatrix<F>& C, 
         ElementalMatrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( C.Height() != A.Height() || C.Width() != A.Height() )

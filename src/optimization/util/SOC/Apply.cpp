@@ -22,7 +22,7 @@ void Apply
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
@@ -45,7 +45,7 @@ void Apply
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -99,7 +99,7 @@ void Apply
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     soc::Dots( x, y, z, orders, firstInds );
     auto xRoots = x;
     auto yRoots = y;
@@ -132,7 +132,7 @@ void Apply
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
     Matrix<Real> z;
     soc::Apply( x, y, z, orders, firstInds );
@@ -148,7 +148,7 @@ void Apply
   const AbstractDistMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid());
     soc::Apply( x, y, z, orders, firstInds, cutoff );
@@ -164,7 +164,7 @@ void Apply
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
     DistMultiVec<Real> z(x.Comm());
     soc::Apply( x, y, z, orders, firstInds, cutoff );

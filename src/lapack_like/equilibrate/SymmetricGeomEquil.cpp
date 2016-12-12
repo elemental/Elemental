@@ -41,7 +41,7 @@ template<typename Field>
 void SymmetricGeomEquil
 ( Matrix<Field>& A, Matrix<Base<Field>>& d, bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Ensure A is symmetric
     typedef Base<Field> Real;
     const Int n = A.Height();
@@ -126,7 +126,7 @@ void SymmetricGeomEquil
   AbstractDistMatrix<Base<Field>>& dPre,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
@@ -227,7 +227,7 @@ void SymmetricGeomEquil
   Matrix<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -314,7 +314,7 @@ void SymmetricGeomEquil
   DistMultiVec<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();

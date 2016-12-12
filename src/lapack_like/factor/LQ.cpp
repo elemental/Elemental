@@ -23,7 +23,7 @@ void LQ
   Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     lq::Householder( A, householderScalars, signature );
 }
 
@@ -33,7 +33,7 @@ void LQ
   AbstractDistMatrix<F>& householderScalars,
   AbstractDistMatrix<Base<F>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     lq::Householder( A, householderScalars, signature );
 }
 

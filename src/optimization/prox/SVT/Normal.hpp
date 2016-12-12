@@ -16,7 +16,7 @@ namespace svt {
 template<typename Field>
 Int Normal( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     Matrix<Field> U, V;
@@ -35,7 +35,7 @@ template<typename Field>
 Int Normal
 ( AbstractDistMatrix<Field>& APre, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );

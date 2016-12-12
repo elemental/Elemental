@@ -17,7 +17,7 @@ namespace hessenberg {
 template<typename F>
 void LowerBlocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     householderScalars.Resize( Max(n-1,0), 1 );
 
@@ -72,8 +72,8 @@ void LowerBlocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre ))
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>

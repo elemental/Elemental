@@ -25,7 +25,7 @@ Int Bisect
   vector<Int>& perm,
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef EL_HAVE_METIS
     // METIS assumes that there are no self-connections or connections 
     // outside the sources, so we must manually remove them from our graph
@@ -48,7 +48,7 @@ Int Bisect
     {
         const Int source = sourceBuf[edge];
         const Int target = targetBuf[edge];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
@@ -85,7 +85,7 @@ Int Bisect
     for( Int s=0; s<numSources; ++s )
         perm[s] = offsets[part[s]]++;
  
-    DEBUG_ONLY(EnsurePermutation( perm ))
+    EL_DEBUG_ONLY(EnsurePermutation( perm ))
     BuildChildrenFromPerm
     ( graph, perm, sizes[0], leftChild, sizes[1], rightChild );
     return sizes[2];
@@ -102,7 +102,7 @@ Int Bisect
         bool& onLeft, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef EL_HAVE_METIS
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size( comm );
@@ -136,7 +136,7 @@ Int Bisect
     {
         const Int source = sourceBuf[localEdge];
         const Int target = targetBuf[localEdge];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )
@@ -311,7 +311,7 @@ Int Bisect
         LogicError("ParMETIS was not available");
 #endif
     }
-    DEBUG_ONLY(EnsurePermutation( perm ))
+    EL_DEBUG_ONLY(EnsurePermutation( perm ))
     BuildChildFromPerm( graph, perm, sizes[0], sizes[1], onLeft, child );
     return sizes[2];
 #else
@@ -322,7 +322,7 @@ Int Bisect
 
 void EnsurePermutation( const vector<Int>& map )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = map.size();
     vector<Int> timesMapped( numSources, 0 );
     for( Int i=0; i<numSources; ++i )
@@ -336,7 +336,7 @@ void EnsurePermutation( const vector<Int>& map )
 
 void EnsurePermutation( const DistMap& map )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = map.Comm();
     const int commRank = mpi::Rank( comm );
     const Int numSources = map.NumSources();
@@ -359,8 +359,8 @@ void BuildChildrenFromPerm
   Int leftChildSize, Graph& leftChild,
   Int rightChildSize, Graph& rightChild )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       const Int sepSize = graph.NumSources() - leftChildSize - rightChildSize;
     )
     const Int numSources = graph.NumSources();
@@ -394,7 +394,7 @@ void BuildChildrenFromPerm
             const Int target = ( invTarget < numSources ? 
                                  perm[invTarget] :
                                  invTarget );
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( target >= leftChildSize && target < (numSources-sepSize) )
                   LogicError("Invalid bisection, left set touches right set at (",source,",",target,") since leftChildSize=",leftChildSize);
             )
@@ -418,7 +418,7 @@ void BuildChildrenFromPerm
             const Int target = ( invTarget < numSources ?
                                  perm[invTarget] :
                                  invTarget );
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( target < leftChildSize )
                   LogicError("Invalid bisection, right set touches left set at (",source,",",target,") since leftChildSize=",leftChildSize);
             )
@@ -438,10 +438,10 @@ void BuildChildFromPerm
         bool& onLeft,
         DistGraph& child )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numTargets = graph.NumTargets();
     const Int numLocalSources = graph.NumLocalSources();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int numSources = graph.NumSources();
       const Int sepSize = numSources - leftChildSize - rightChildSize;
     )
@@ -624,7 +624,7 @@ void BuildChildFromPerm
             const Int target = recvInds[off++];
             if( onLeft )
             {
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target >= leftChildSize && 
                       target < (numSources-sepSize) )
                       LogicError
@@ -637,7 +637,7 @@ void BuildChildFromPerm
             }
             else
             {
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < leftChildSize )
                       LogicError
                       ("Invalid bisection, right set touches left set");

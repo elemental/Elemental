@@ -21,7 +21,7 @@ SkewHermitianEig
         Matrix<Base<Field>>& wImag,
   const HermitianEigCtrl<Complex<Base<Field>>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Complex<Base<Field>>> A;
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<Field>>(0,-1), uplo, A );
@@ -36,7 +36,7 @@ SkewHermitianEig
         AbstractDistMatrix<Base<Field>>& wImag,
   const HermitianEigCtrl<Complex<Base<Field>>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Complex<Base<Field>>> A(G.Grid());
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<Field>>(0,-1), uplo, A );
@@ -54,7 +54,7 @@ SkewHermitianEig
         Matrix<Complex<Base<Field>>>& Q,
   const HermitianEigCtrl<Complex<Base<Field>>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Complex<Base<Field>>> A;
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<Field>>(0,-1), uplo, A );
@@ -70,7 +70,7 @@ SkewHermitianEig
         AbstractDistMatrix<Complex<Base<Field>>>& Q,
   const HermitianEigCtrl<Complex<Base<Field>>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Complex<Base<Field>>> A(G.Grid());
     Copy( G, A );
     ScaleTrapezoid( Complex<Base<Field>>(0,-1), uplo, A );

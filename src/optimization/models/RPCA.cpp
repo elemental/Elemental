@@ -43,7 +43,7 @@ void ADMM
         Matrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
@@ -139,7 +139,7 @@ void ADMM
         AbstractDistMatrix<Field>& SPre,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR>
       MProx( MPre );
     DistMatrixWriteProxy<Field,Field,MC,MR>
@@ -247,7 +247,7 @@ void ALM
         Matrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
@@ -538,7 +538,7 @@ void RPCA
         Matrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl );
     else
@@ -552,7 +552,7 @@ void RPCA
         AbstractDistMatrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl );
     else

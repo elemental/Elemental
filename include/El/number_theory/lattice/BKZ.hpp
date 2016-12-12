@@ -207,7 +207,7 @@ static Timer enumTimer, bkzTimer;
 template<typename F>
 bool TrivialCoordinates( const Matrix<F>& v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = v.Height();    
     if( n == 0 )
         LogicError("Invalid coordinate length");
@@ -426,7 +426,7 @@ BKZInfo<Base<F>> BKZWithQ
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
 
@@ -775,7 +775,7 @@ BKZInfo<Base<F>> BKZ
   Matrix<F>& R,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Matrix<F> t;
     Matrix<Real> d;
@@ -792,7 +792,7 @@ BKZInfo<Base<F>> BKZWithQ
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = B.Width();
 
@@ -1131,7 +1131,7 @@ BKZ
   Matrix<F>& R,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Matrix<F> t;
     Matrix<Real> d;
@@ -1167,7 +1167,7 @@ LowerPrecisionMerge
         Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef ConvertBase<F,RealLower> FLower;
     const string typeString = TypeName<RealLower>();
 
@@ -1299,7 +1299,7 @@ RecursiveHelper
   bool maintainU,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( maintainU )
         LogicError("Recursive BKZ does not yet support computing U");
@@ -1467,7 +1467,7 @@ RecursiveBKZWithQ
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
     Matrix<F> U;
@@ -1485,7 +1485,7 @@ RecursiveBKZWithQ
   Matrix<Base<F>>& d,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this runtime-tunable
     Int numShuffles = 1;
     bool maintainU=true;
@@ -1498,7 +1498,7 @@ BKZ
 ( Matrix<F>& B,
   const BKZCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> R;
     return BKZ( B, R, ctrl );
 }

@@ -21,7 +21,7 @@ void Hessenberg
   Matrix<F>& A,
   Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == UPPER )
         hessenberg::UpperBlocked( A, householderScalars );
     else
@@ -34,7 +34,7 @@ void Hessenberg
   AbstractDistMatrix<F>& A,
   AbstractDistMatrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == UPPER )
         hessenberg::UpperBlocked( A, householderScalars );
     else
@@ -46,7 +46,7 @@ namespace hessenberg {
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Hessenberg( uplo, A, householderScalars );
     if( uplo == LOWER )
@@ -58,7 +58,7 @@ void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 template<typename F> 
 void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,STAR,STAR> householderScalars(A.Grid());
     Hessenberg( uplo, A, householderScalars );
     if( uplo == LOWER )

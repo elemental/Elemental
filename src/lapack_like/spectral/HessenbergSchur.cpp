@@ -23,7 +23,7 @@ HessenbergSchur
   Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     auto ctrlMod( ctrl );
     ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
@@ -59,7 +59,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<F>& ZPre,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     AssertScaLAPACKSupport();
     HessenbergSchurInfo info;
@@ -113,7 +113,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<F>& ZPre,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("ScalapackHelper should never be called for this datatype");
     HessenbergSchurInfo info;
     return info;
@@ -126,7 +126,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<Complex<Base<F>>>& wPre,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     AssertScaLAPACKSupport();
     HessenbergSchurInfo info;
@@ -170,7 +170,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<Complex<Base<F>>>& wPre,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("ScalapackHelper should never be called for this datatype");
     HessenbergSchurInfo info;
     return info;
@@ -186,7 +186,7 @@ HessenbergSchur
   AbstractDistMatrix<F>& ZPre,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> HProx( HPre );
@@ -247,7 +247,7 @@ HessenbergSchur
   Matrix<Complex<Base<F>>>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     auto ctrlMod( ctrl );
     ctrlMod.winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
@@ -276,7 +276,7 @@ HessenbergSchur
   AbstractDistMatrix<Complex<Base<F>>>& wPre,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR,BLOCK> HProx( HPre );
@@ -325,7 +325,7 @@ void SweepHelper
   Matrix<Real>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -366,7 +366,7 @@ void SweepHelper
   DistMatrix<Real,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -404,7 +404,7 @@ void SweepHelper
   Matrix<Complex<Real>>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -449,7 +449,7 @@ void SweepHelper
   DistMatrix<Complex<Real>,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -491,7 +491,7 @@ void Sweep
   Matrix<F>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SweepHelper( H, shifts, Z, ctrl );
 }
 
@@ -502,7 +502,7 @@ void Sweep
   DistMatrix<F,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SweepHelper( H, shifts, Z, ctrl );
 }
 

@@ -20,7 +20,7 @@ template<typename Real>
 void NormalUniformSpectrum
 ( Matrix<Complex<Real>>& A, Int n, Complex<Real> center, Real radius )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     A.Resize( n, n );
 
@@ -43,7 +43,7 @@ void NormalUniformSpectrum
 ( ElementalMatrix<Complex<Real>>& APre, Int n, 
   Complex<Real> center, Real radius )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );

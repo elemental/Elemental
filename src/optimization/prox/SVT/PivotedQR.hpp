@@ -18,8 +18,8 @@ template<typename Field>
 Int PivotedQR
 ( Matrix<Field>& A, const Base<Field>& tau, Int numSteps, bool relative )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( numSteps > Min(A.Height(),A.Width()) )
           LogicError("number of steps is too large");
     )
@@ -65,8 +65,8 @@ Int PivotedQR
 ( AbstractDistMatrix<Field>& APre, const Base<Field>& tau, Int numSteps,
   bool relative )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( numSteps > Min(APre.Height(),APre.Width()) )
           LogicError("number of steps is too large");
     )

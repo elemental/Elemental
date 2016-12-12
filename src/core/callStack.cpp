@@ -12,7 +12,7 @@
 namespace {
 
 // Debugging
-DEBUG_ONLY(
+EL_DEBUG_ONLY(
   std::stack<std::string> callStack;
   bool tracingEnabled = false;
 )
@@ -22,7 +22,7 @@ DEBUG_ONLY(
 namespace El {
 
 // If we are not in RELEASE mode, then implement wrappers for a call stack
-DEBUG_ONLY(
+EL_DEBUG_ONLY(
 
   void EnableTracing() { ::tracingEnabled = true; }
   void DisableTracing() { ::tracingEnabled = false; }
@@ -87,6 +87,6 @@ DEBUG_ONLY(
       os.flush();
   }
 
-) // DEBUG_ONLY
+) // EL_DEBUG_ONLY
 
 } // namespace El

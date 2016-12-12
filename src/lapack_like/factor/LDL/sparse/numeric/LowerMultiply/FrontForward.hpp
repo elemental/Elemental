@@ -26,8 +26,8 @@ namespace ldl {
 template<typename F>
 void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal multiply:\n",
@@ -44,7 +44,7 @@ void FrontVanillaLowerForwardMultiply( const Matrix<F>& L, Matrix<F>& X )
 template<typename F>
 void FrontLowerForwardMultiply( const Front<F>& front, Matrix<F>& W )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( Unfactored(front.type) )
         LogicError("Cannot multiply against an unfactored front");
     if( BlockFactorization(front.type) || PivotedFactorization(front.type) )
@@ -63,8 +63,8 @@ template<typename F>
 void FrontVanillaLowerForwardMultiply
 ( const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -98,8 +98,8 @@ template<typename F>
 void FrontVanillaLowerForwardMultiply
 ( const DistMatrix<F>& L, DistMatrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -131,7 +131,7 @@ template<typename F>
 void 
 FrontLowerForwardMultiply( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( front.type == LDL_1D )
         FrontVanillaLowerForwardMultiply( front.L1D, W );
     else
@@ -142,7 +142,7 @@ template<typename F>
 void 
 FrontLowerForwardMultiply( const DistFront<F>& front, DistMatrix<F>& W )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( front.type == LDL_2D )
         FrontVanillaLowerForwardMultiply( front.L2D, W );
     else

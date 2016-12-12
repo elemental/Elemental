@@ -19,7 +19,7 @@ void HermitianFunction
   Matrix<Field>& A,
   function<Base<Field>(const Base<Field>&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<Field> Real;
@@ -42,7 +42,7 @@ void HermitianFunction
   AbstractDistMatrix<Field>& APre,
   function<Base<Field>(const Base<Field>&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -75,7 +75,7 @@ void HermitianFunction
   Matrix<Complex<Real>>& A,
   function<Complex<Real>(const Real&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -101,7 +101,7 @@ void HermitianFunction
   AbstractDistMatrix<Complex<Real>>& APre,
   function<Complex<Real>(const Real&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadWriteProxy<C,C,MC,MR> AProx( APre );

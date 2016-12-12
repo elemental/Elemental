@@ -44,7 +44,7 @@ struct Separator
         if( uncaught_exception() )
         {
             cerr << "Uncaught exception" << endl;
-            DEBUG_ONLY(DumpCallStack())
+            EL_DEBUG_ONLY(DumpCallStack())
             return;
         }
 
@@ -73,7 +73,7 @@ struct DistSeparator
         if( uncaught_exception() )
         {
             cerr << "Uncaught exception" << endl;
-            DEBUG_ONLY(DumpCallStack())
+            EL_DEBUG_ONLY(DumpCallStack())
             return;
         }
 

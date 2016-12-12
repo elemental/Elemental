@@ -24,7 +24,7 @@ void VigilantDeflation
   Int numBulges,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Real zero(0);
     const Field complexZero(0);

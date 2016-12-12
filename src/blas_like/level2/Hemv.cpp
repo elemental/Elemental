@@ -16,7 +16,7 @@ void Hemv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Symv( uplo, alpha, A, x, beta, y, true );
 }
 
@@ -28,7 +28,7 @@ void Hemv
   T beta,        AbstractDistMatrix<T>& y,
   const SymvCtrl<T>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Symv( uplo, alpha, A, x, beta, y, true, ctrl );
 }
 

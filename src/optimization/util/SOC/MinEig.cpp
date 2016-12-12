@@ -19,7 +19,7 @@ void MinEig
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     soc::LowerNorms( x, minEigs, orders, firstInds );
 
     const Int height = x.Height();
@@ -37,7 +37,7 @@ void MinEig
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, minEigsPre, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -56,7 +56,7 @@ void MinEig
 
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -83,10 +83,10 @@ void MinEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -111,7 +111,7 @@ Real MinEig
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Real> minEigs;
     soc::MinEig( x, minEigs, orders, firstInds );
 
@@ -131,7 +131,7 @@ Real MinEig
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( x, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -163,7 +163,7 @@ Real MinEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<Real> minEigs(x.Comm());
     soc::MinEig( x, minEigs, orders, firstInds, cutoff );
 

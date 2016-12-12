@@ -67,13 +67,13 @@ Merge
   Matrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m0 = s0.Height();
     const Int m1 = s1.Height();
     const Int n0 = m0 + 1;
     const Int n1 = n - n0;
     const bool square = ( m1 == n1 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
@@ -479,7 +479,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<m; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -898,7 +898,7 @@ Merge
   DistMatrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = s0.Grid();
     const bool amRoot = ( g.Rank() == 0 );
     const Int m0 = s0.Height();
@@ -906,7 +906,7 @@ Merge
     const Int n0 = m0 + 1;
     const Int n1 = n - n0;
     const bool square = ( m1 == n1 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
@@ -1351,7 +1351,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<m; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -1728,7 +1728,7 @@ DivideAndConquer
         Matrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = mainDiag.Height();
     const Int n = superDiag.Height() + 1;
     const auto& dcCtrl = ctrl.dcCtrl;
@@ -1853,7 +1853,7 @@ DivideAndConquer
   const BidiagSVDCtrl<Real>& ctrl,
   bool topLevel=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = U.Grid();
     const Int m = mainDiag.Height();
     const Int n = superDiag.Height() + 1;

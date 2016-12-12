@@ -18,7 +18,7 @@ Real MaxStep
   const Matrix<Real>& ds,
         Real upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = s.Height();
     Real alpha = upperBound;
     for( Int i=0; i<k; ++i )
@@ -36,7 +36,7 @@ Real MaxStep
   const AbstractDistMatrix<Real>& dsPre,
   Real upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Decide if more general intermediate distributions should
     // be supported.
@@ -77,7 +77,7 @@ Real MaxStep
   const DistMultiVec<Real>& ds,
   Real upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int kLocal = s.LocalHeight();
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
     const Real* dsBuf = ds.LockedMatrix().LockedBuffer();

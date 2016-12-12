@@ -24,7 +24,7 @@ namespace schur {
 template<typename F>
 int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -94,7 +94,7 @@ template<typename F>
 int InverseFreeSign
 ( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();
@@ -168,7 +168,7 @@ int InverseFreeSign
 template<typename F>
 Base<F> InverseFreeSignDivide( Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -209,7 +209,7 @@ Base<F> InverseFreeSignDivide( Matrix<F>& X )
 template<typename F>
 ValueInt<Base<F>> InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();

@@ -13,7 +13,7 @@ namespace El {
 template<typename Ring>
 Base<Ring> MaxNorm( const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -29,7 +29,7 @@ Base<Ring> MaxNorm( const Matrix<Ring>& A )
 template<typename Ring>
 Base<Ring> MaxNorm( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int numEntries = A.NumEntries();
     const Ring* AValBuf = A.LockedValueBuffer();
@@ -44,7 +44,7 @@ Base<Ring> MaxNorm( const SparseMatrix<Ring>& A )
 template<typename Ring>
 Base<Ring> HermitianMaxNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -71,7 +71,7 @@ Base<Ring> HermitianMaxNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 template<typename Ring>
 Base<Ring> HermitianMaxNorm( UpperOrLower uplo, const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -95,21 +95,21 @@ Base<Ring> HermitianMaxNorm( UpperOrLower uplo, const SparseMatrix<Ring>& A )
 template<typename Ring>
 Base<Ring> SymmetricMaxNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianMaxNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> SymmetricMaxNorm( UpperOrLower uplo, const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianMaxNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> MaxNorm( const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Ring> norm=0;
     if( A.Participating() )
     {
@@ -123,7 +123,7 @@ Base<Ring> MaxNorm( const AbstractDistMatrix<Ring>& A )
 template<typename Ring>
 Base<Ring> MaxNorm( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numLocalEntries = A.NumLocalEntries();
     const Ring* AValBuf = A.LockedValueBuffer();
 
@@ -137,7 +137,7 @@ Base<Ring> MaxNorm( const DistSparseMatrix<Ring>& A )
 template<typename Ring>
 Base<Ring> MaxNorm( const DistMultiVec<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Ring> localNorm = MaxNorm( A.LockedMatrix() );
     return mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
 }
@@ -146,7 +146,7 @@ template<typename Ring>
 Base<Ring>
 HermitianMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
     typedef Base<Ring> Real;
@@ -189,7 +189,7 @@ template<typename Ring>
 Base<Ring>
 HermitianMaxNorm( UpperOrLower uplo, const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
     const Int numLocalEntries = A.NumLocalEntries();
@@ -213,7 +213,7 @@ template<typename Ring>
 Base<Ring>
 SymmetricMaxNorm( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianMaxNorm( uplo, A );
 }
 
@@ -221,7 +221,7 @@ template<typename Ring>
 Base<Ring>
 SymmetricMaxNorm( UpperOrLower uplo, const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianMaxNorm( uplo, A );
 }
 

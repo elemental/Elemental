@@ -20,7 +20,7 @@ void Bidiag
   Matrix<F>& householderScalarsP,
   Matrix<F>& householderScalarsQ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() >= A.Width() )
         bidiag::UpperBlocked( A, householderScalarsP, householderScalarsQ );
     else
@@ -33,7 +33,7 @@ void Bidiag
   AbstractDistMatrix<F>& householderScalarsP,
   AbstractDistMatrix<F>& householderScalarsQ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() >= A.Width() )
         bidiag::UpperBlocked( A, householderScalarsP, householderScalarsQ );
     else
@@ -45,7 +45,7 @@ namespace bidiag {
 template<typename F>
 void Explicit( Matrix<F>& A, Matrix<F>& P, Matrix<F>& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalarsP, householderScalarsQ;
     Bidiag( A, householderScalarsP, householderScalarsQ );
     if( A.Height() >= A.Width() )
@@ -80,7 +80,7 @@ void Explicit
   DistMatrix<F>& P,
   DistMatrix<F>& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,MD,STAR> householderScalarsP(A.Grid()),
       householderScalarsQ(A.Grid());
     Bidiag( A, householderScalarsP, householderScalarsQ );
@@ -116,7 +116,7 @@ void Explicit
   AbstractDistMatrix<F>& PPre,
   AbstractDistMatrix<F>& QPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre );
     DistMatrixWriteProxy<F,F,MC,MR>
@@ -131,7 +131,7 @@ void Explicit
 template<typename F>
 void ExplicitCondensed( Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalarsP, householderScalarsQ;
     Bidiag( A, householderScalarsP, householderScalarsQ );
     if( A.Height() >= A.Width() )
@@ -149,7 +149,7 @@ void ExplicitCondensed( Matrix<F>& A )
 template<typename F> 
 void ExplicitCondensed( AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,STAR,STAR> householderScalarsP(A.Grid()),
       householderScalarsQ(A.Grid());
     Bidiag( A, householderScalarsP, householderScalarsQ );

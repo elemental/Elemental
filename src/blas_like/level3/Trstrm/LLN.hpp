@@ -15,7 +15,7 @@ namespace trstrm {
 template<typename F>
 void LLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool isUnit = ( diag==UNIT );
     const Int n = L.Height();
     const Int LLDim = L.LDim();
@@ -55,7 +55,7 @@ void LLN
         Matrix<F>& X,
   bool checkIfSingular=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = L.Height();
     const Int bsize = Blocksize();
 
@@ -95,7 +95,7 @@ void LLN
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = LPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();

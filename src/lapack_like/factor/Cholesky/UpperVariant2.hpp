@@ -19,8 +19,8 @@ namespace cholesky {
 template<typename F>
 void UpperVariant2Blocked( Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )
@@ -49,8 +49,8 @@ void UpperVariant2Blocked( Matrix<F>& A )
 template<typename F>
 void UpperVariant2Blocked( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("Can only compute Cholesky factor of square matrices");
     )

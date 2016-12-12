@@ -23,7 +23,7 @@ SingleShift
         Matrix<Complex<Real>>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> F;
     const Real zero(0), threeFourths=Real(3)/Real(4);
     const Int maxIter=30;    

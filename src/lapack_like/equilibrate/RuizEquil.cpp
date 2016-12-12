@@ -27,7 +27,7 @@ void RuizEquil
   Matrix<Base<Field>>& dCol,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -66,7 +66,7 @@ void RuizEquil
   AbstractDistMatrix<Base<Field>>& dColPre,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
@@ -120,7 +120,7 @@ void RuizEquil
   Matrix<Base<Field>>& dCol,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -159,7 +159,7 @@ void RuizEquil
   DistMultiVec<Base<Field>>& dCol,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -203,7 +203,7 @@ void StackedRuizEquil
   Matrix<Base<Field>>& dCol,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -255,7 +255,7 @@ void StackedRuizEquil
   AbstractDistMatrix<Base<Field>>& dColPre,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
@@ -330,7 +330,7 @@ void StackedRuizEquil
   Matrix<Base<Field>>& dCol,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -382,7 +382,7 @@ void StackedRuizEquil
   DistMultiVec<Base<Field>>& dCol,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();

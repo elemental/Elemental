@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 void LowerClip( Matrix<Real>& X, const Real& lowerBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto lowerClip = [&]( const Real& alpha ) { return Max(lowerBound,alpha); };
     EntrywiseMap( X, MakeFunction(lowerClip) );
 }
@@ -21,7 +21,7 @@ void LowerClip( Matrix<Real>& X, const Real& lowerBound )
 template<typename Real>
 void UpperClip( Matrix<Real>& X, const Real& upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto upperClip = [&]( const Real& alpha ) { return Min(upperBound,alpha); };
     EntrywiseMap( X, MakeFunction(upperClip) );
 }
@@ -29,7 +29,7 @@ void UpperClip( Matrix<Real>& X, const Real& upperBound )
 template<typename Real>
 void Clip( Matrix<Real>& X, const Real& lowerBound, const Real& upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto clip = [&]( const Real& alpha )
       { return Max(lowerBound,Min(upperBound,alpha)); };
     EntrywiseMap( X, MakeFunction(clip) );

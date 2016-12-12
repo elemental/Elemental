@@ -17,7 +17,7 @@ template<typename F>
 inline LDLPivot
 BunchParlett( const Matrix<F>& A, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );
@@ -45,7 +45,7 @@ template<typename F>
 inline LDLPivot
 BunchParlett( const DistMatrix<F>& A, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( gamma == Real(0) )
         gamma = LDLPivotConstant<Real>( BUNCH_PARLETT );

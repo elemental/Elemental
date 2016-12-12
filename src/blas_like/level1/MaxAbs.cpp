@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 Base<F> MaxAbs( const Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const F* ABuf = A.LockedBuffer();
@@ -30,8 +30,8 @@ Base<F> MaxAbs( const Matrix<F>& A )
 template<typename F>
 Base<F> MaxAbs( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -56,8 +56,8 @@ Base<F> MaxAbs( const AbstractDistMatrix<F>& A )
 template<typename F>
 Base<F> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -84,8 +84,8 @@ Base<F> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 Base<F> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

@@ -18,8 +18,8 @@ void RowFilter
 ( const ElementalMatrix<T>& A, 
         ElementalMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != Collect(B.RowDist()) ||
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");
@@ -45,8 +45,8 @@ void RowFilter
 ( const BlockMatrix<T>& A, 
         BlockMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != Collect(B.RowDist()) ||
           A.RowDist() != B.ColDist() )
           LogicError("Incompatible distributions");

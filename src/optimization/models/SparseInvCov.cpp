@@ -26,7 +26,7 @@ Int SparseInvCov
         Matrix<Field>& Z,
   const SparseInvCovCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = D.Width();
 
@@ -114,7 +114,7 @@ Int SparseInvCov
         AbstractDistMatrix<Field>& ZPre,
   const SparseInvCovCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Field,Field,MC,MR> ZProx( ZPre );
     auto& Z = ZProx.Get();

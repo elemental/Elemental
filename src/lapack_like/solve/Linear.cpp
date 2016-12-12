@@ -30,8 +30,8 @@ void Panel
 template<typename Field>
 void RowEchelon( Matrix<Field>& A, Matrix<Field>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
@@ -79,8 +79,8 @@ void RowEchelon( Matrix<Field>& A, Matrix<Field>& B )
 template<typename Field>
 void RowEchelon( DistMatrix<Field>& A, DistMatrix<Field>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
@@ -176,7 +176,7 @@ namespace lin_solve {
 template<typename Field>
 void Overwrite( Matrix<Field>& A, Matrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Perform Gaussian elimination
     RowEchelon( A, B );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Field(1), A, B );
@@ -186,7 +186,7 @@ template<typename Field>
 void Overwrite
 ( AbstractDistMatrix<Field>& APre, AbstractDistMatrix<Field>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
@@ -212,7 +212,7 @@ void Overwrite
 template<typename Field>
 void LinearSolve( const Matrix<Field>& A, Matrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
@@ -263,7 +263,7 @@ void LinearSolve
         AbstractDistMatrix<Field>& B,
   bool scalapack )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( scalapack )
     {
 #ifdef EL_HAVE_SCALAPACK
@@ -299,7 +299,7 @@ void LinearSolve
         Matrix<Field>& B,
   const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> X;
     LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
@@ -311,7 +311,7 @@ void LinearSolve
         DistMultiVec<Field>& B,
   const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<Field> X;
     X.SetComm( B.Comm() );
     LeastSquares( NORMAL, A, B, X, ctrl );

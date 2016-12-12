@@ -64,17 +64,17 @@ DistGraph::DistGraph( Int numSources, Int numTargets, mpi::Comm comm )
 DistGraph::DistGraph( const Graph& graph )
 : numSources_(-1), numTargets_(-1)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     *this = graph;
 }
 
 DistGraph::DistGraph( const DistGraph& graph )
 : numSources_(-1), numTargets_(-1), comm_(mpi::COMM_WORLD)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( &graph != this )
         *this = graph;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Tried to construct DistGraph with itself");
     )
@@ -94,14 +94,14 @@ DistGraph::~DistGraph()
 // -----------
 const DistGraph& DistGraph::operator=( const Graph& graph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( graph, *this );
     return *this;
 }
 
 const DistGraph& DistGraph::operator=( const DistGraph& graph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( graph, *this );
     return *this;
 }
@@ -110,7 +110,7 @@ const DistGraph& DistGraph::operator=( const DistGraph& graph )
 // ------------------------------------
 DistGraph DistGraph::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistGraph subGraph(this->Comm());
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -118,7 +118,7 @@ DistGraph DistGraph::operator()( Range<Int> I, Range<Int> J ) const
 
 DistGraph DistGraph::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistGraph subGraph(this->Comm());
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -126,7 +126,7 @@ DistGraph DistGraph::operator()( Range<Int> I, const vector<Int>& J ) const
 
 DistGraph DistGraph::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistGraph subGraph(this->Comm());
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -135,7 +135,7 @@ DistGraph DistGraph::operator()( const vector<Int>& I, Range<Int> J ) const
 DistGraph DistGraph::operator()
 ( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistGraph subGraph(this->Comm());
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -239,28 +239,28 @@ void DistGraph::Reserve( Int numLocalEdges, Int numRemoteEdges )
 
 void DistGraph::Connect( Int source, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueConnection( source, target, true );
     ProcessLocalQueues();
 }
 
 void DistGraph::ConnectLocal( Int localSource, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueLocalConnection( localSource, target );
     ProcessLocalQueues();
 }
 
 void DistGraph::Disconnect( Int source, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueDisconnection( source, target, true );
     ProcessLocalQueues();
 }
 
 void DistGraph::DisconnectLocal( Int localSource, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueLocalDisconnection( localSource, target );
     ProcessLocalQueues();
 }
@@ -275,7 +275,7 @@ bool DistGraph::FrozenSparsity() const EL_NO_EXCEPT
 void DistGraph::QueueConnection( Int source, Int target, bool passive )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     const Int firstLocalSource = blocksize_*commRank_;
@@ -294,14 +294,14 @@ EL_NO_RELEASE_EXCEPT
 void DistGraph::QueueLocalConnection( Int localSource, Int target )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( NumLocalEdges() == Capacity() )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource >= numLocalSources_ )
           LogicError
           ("Local source out of bounds: ",localSource," is not in [0,",
@@ -322,7 +322,7 @@ EL_NO_RELEASE_EXCEPT
 void DistGraph::QueueDisconnection( Int source, Int target, bool passive )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use FrozenSparsity()
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
@@ -341,11 +341,11 @@ EL_NO_RELEASE_EXCEPT
 void DistGraph::QueueLocalDisconnection( Int localSource, Int target )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use FrozenSparsity()
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource >= numLocalSources_ )
           LogicError
           ("Local source out of bounds: ",localSource," is not in [0,",
@@ -366,8 +366,8 @@ EL_NO_RELEASE_EXCEPT
 
 void DistGraph::ProcessQueues()
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
@@ -449,7 +449,7 @@ void DistGraph::ProcessQueues()
 
 void DistGraph::ProcessLocalQueues()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( locallyConsistent_ )
         return;
 
@@ -536,9 +536,9 @@ int DistGraph::SourceOwner( Int source ) const EL_NO_RELEASE_EXCEPT
 
 Int DistGraph::GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( sLoc == END ) sLoc = numLocalSources_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( sLoc < 0 || sLoc >= NumLocalSources() )
           LogicError("Invalid local source index");
     )
@@ -547,9 +547,9 @@ Int DistGraph::GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT
 
 Int DistGraph::LocalSource( Int s ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( s == END ) s = numSources_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( s < 0 || s >= NumSources() )
           LogicError("Invalid global source index");
     )
@@ -560,8 +560,8 @@ Int DistGraph::LocalSource( Int s ) const EL_NO_RELEASE_EXCEPT
 // --------------------------
 Int DistGraph::Source( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localEdge < 0 || localEdge >= (Int)sources_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -570,8 +570,8 @@ Int DistGraph::Source( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 
 Int DistGraph::Target( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localEdge < 0 || localEdge >= (Int)targets_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -580,9 +580,9 @@ Int DistGraph::Target( Int localEdge ) const EL_NO_RELEASE_EXCEPT
 
 Int DistGraph::SourceOffset( Int localSource ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( localSource == END ) localSource = numLocalSources_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource > numLocalSources_ )
           LogicError
           ("Out of bounds localSource: ",localSource,
@@ -594,7 +594,7 @@ Int DistGraph::SourceOffset( Int localSource ) const EL_NO_RELEASE_EXCEPT
 
 Int DistGraph::Offset( Int localSource, Int target ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( localSource == END ) localSource = numLocalSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     const Int* targetBuf = LockedTargetBuffer();
@@ -606,8 +606,8 @@ Int DistGraph::Offset( Int localSource, Int target ) const EL_NO_RELEASE_EXCEPT
 
 Int DistGraph::NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertLocallyConsistent())
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertLocallyConsistent())
     if( localSource == END ) localSource = numLocalSources_ - 1;
     return SourceOffset(localSource+1) - SourceOffset(localSource);
 }
@@ -615,7 +615,7 @@ Int DistGraph::NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT
 double DistGraph::Imbalance() const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numLocalEdges = NumLocalEdges();
     double numEdges = mpi::AllReduce( numLocalEdges, comm_ );
     double maxLocalEdges = mpi::AllReduce( numLocalEdges, mpi::MAX, comm_ );
@@ -639,7 +639,7 @@ const Int* DistGraph::LockedOffsetBuffer() const EL_NO_EXCEPT
 
 void DistGraph::ForceNumLocalEdges( Int numLocalEdges )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     sources_.resize( numLocalEdges );
     targets_.resize( numLocalEdges );
     locallyConsistent_ = false;
@@ -666,7 +666,7 @@ void DistGraph::AssertLocallyConsistent() const
 }
 DistGraphMultMeta DistGraph::InitializeMultMeta() const
 {
-    DEBUG_ONLY(CSE cse("DistSparseMatrix::InitializeMultMeta"))
+    EL_DEBUG_ONLY(CSE cse("DistSparseMatrix::InitializeMultMeta"))
     if( multMeta.ready )
         return multMeta;
     mpi::Comm comm = Comm();
@@ -756,7 +756,7 @@ DistGraphMultMeta DistGraph::InitializeMultMeta() const
 
 void DistGraph::ComputeSourceOffsets()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int sourceOffset = 0;
     Int prevSource = blocksize_*commRank_-1;
     localSourceOffsets_.resize( numLocalSources_+1 );
@@ -765,7 +765,7 @@ void DistGraph::ComputeSourceOffsets()
     for( Int e=0; e<numLocalEdges; ++e )
     {
         const Int source = sourceBuf[e];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )

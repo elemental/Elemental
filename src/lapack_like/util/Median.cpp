@@ -13,7 +13,7 @@ namespace El {
 template<typename Real,typename>
 ValueInt<Real> Median( const Matrix<Real>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
     if( m != 1 && n != 1 )
@@ -37,7 +37,7 @@ ValueInt<Real> Median( const Matrix<Real>& x )
 template<typename Real,typename>
 ValueInt<Real> Median( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( x.ColDist() == STAR && x.RowDist() == STAR )
     {
         return Median( x.LockedMatrix() );

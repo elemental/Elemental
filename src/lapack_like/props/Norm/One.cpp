@@ -13,7 +13,7 @@ namespace El {
 template<typename Ring>
 Base<Ring> OneNorm( const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -32,7 +32,7 @@ Base<Ring> OneNorm( const Matrix<Ring>& A )
 template<typename Ring>
 Base<Ring> HermitianOneNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int height = A.Height();
 
@@ -70,14 +70,14 @@ Base<Ring> HermitianOneNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 template<typename Ring>
 Base<Ring> SymmetricOneNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> OneNorm( const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     Real norm;
     if( A.Participating() )
@@ -116,7 +116,7 @@ template<typename Ring>
 Base<Ring>
 HermitianOneNorm( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     if( A.Height() != A.Width() )
         RuntimeError("Hermitian matrices must be square.");
@@ -228,14 +228,14 @@ template<typename Ring>
 Base<Ring>
 SymmetricOneNorm( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> OneNorm( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SparseMatrix<Ring> ATrans;
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );
@@ -244,7 +244,7 @@ Base<Ring> OneNorm( const SparseMatrix<Ring>& A )
 template<typename Ring>
 Base<Ring> OneNorm( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistSparseMatrix<Ring> ATrans(A.Comm());
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );
@@ -254,7 +254,7 @@ template<typename Ring>
 Base<Ring> HermitianTridiagOneNorm
 ( const Matrix<Base<Ring>>& d, const Matrix<Ring>& e )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int n = d.Height();
 

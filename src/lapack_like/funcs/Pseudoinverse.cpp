@@ -15,7 +15,7 @@ namespace El {
 template<typename Field>
 void Pseudoinverse( Matrix<Field>& A, Base<Field> tolerance )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -44,7 +44,7 @@ template<typename Field>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, Matrix<Field>& A, Base<Field> tolerance )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Get the EVD of A
@@ -74,7 +74,7 @@ void HermitianPseudoinverse
 template<typename Field>
 void Pseudoinverse( AbstractDistMatrix<Field>& APre, Base<Field> tolerance )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
@@ -109,7 +109,7 @@ template<typename Field>
 void HermitianPseudoinverse
 ( UpperOrLower uplo, AbstractDistMatrix<Field>& APre, Base<Field> tolerance )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );

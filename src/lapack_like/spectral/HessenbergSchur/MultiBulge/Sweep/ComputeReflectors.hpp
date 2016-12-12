@@ -27,7 +27,7 @@ void ComputeReflectors
         Int numBulges,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Real realZero(0);
     const Field zero(0);
@@ -36,7 +36,7 @@ void ComputeReflectors
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
     const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( lastBulgeBeg > winEnd-3 )
           LogicError
           ("Last bulge starts too late: lastBulgeBeg=",lastBulgeBeg,

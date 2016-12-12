@@ -22,7 +22,7 @@ Householder
   Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -63,8 +63,8 @@ Householder
   AbstractDistMatrix<F>& householderScalarsPre,
   AbstractDistMatrix<Base<F>>& signaturePre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre, signaturePre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( APre, householderScalarsPre, signaturePre ))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);

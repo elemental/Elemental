@@ -17,7 +17,7 @@ namespace El {
 template<typename Field>
 void FrobeniusProx( Matrix<Field>& A, const Base<Field>& tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Base<Field> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         A *= 1-1/(tau*frobNorm);
@@ -28,7 +28,7 @@ void FrobeniusProx( Matrix<Field>& A, const Base<Field>& tau )
 template<typename Field>
 void FrobeniusProx( AbstractDistMatrix<Field>& A, const Base<Field>& tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Base<Field> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         A *= 1-1/(tau*frobNorm);

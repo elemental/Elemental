@@ -43,7 +43,7 @@ void Transform2x2
 template<typename T>
 void Transform2x2( const Matrix<T>& G, Matrix<T>& a1, Matrix<T>& a2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     T* a1Buf = a1.Buffer();
     T* a2Buf = a2.Buffer();
     const Int inc1 = ( a1.Height() == 1 ? a1.LDim() : 1 );
@@ -64,7 +64,7 @@ void Transform2x2
         AbstractDistMatrix<T>& a1,
         AbstractDistMatrix<T>& a2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef unique_ptr<AbstractDistMatrix<T>> ADMPtr;
 
     // TODO: Optimize by attempting SendRecv when possible
@@ -92,7 +92,7 @@ void Transform2x2
         AbstractDistMatrix<T>& a1,
         AbstractDistMatrix<T>& a2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
     const auto& G = GProx.GetLocked();
     Transform2x2( G.LockedMatrix(), a1, a2 );
@@ -103,7 +103,7 @@ void Transform2x2Rows
 ( const Matrix<T>& G,
         Matrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto a1 = A( IR(i1), ALL );
     auto a2 = A( IR(i2), ALL );
     Transform2x2( G, a1, a2 );
@@ -113,7 +113,7 @@ template<typename T>
 void Transform2x2Rows
 ( const Matrix<T>& G, AbstractDistMatrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const int rowOwner1 = A.RowOwner(i1);
     const int rowOwner2 = A.RowOwner(i2);
@@ -173,7 +173,7 @@ void Transform2x2Rows
 ( const AbstractDistMatrix<T>& GPre,
         AbstractDistMatrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
     const auto& G = GProx.GetLocked();
     Transform2x2Rows( G.LockedMatrix(), A, i1, i2 );
@@ -183,7 +183,7 @@ template<typename T>
 void Transform2x2Cols
 ( const Matrix<T>& G, Matrix<T>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Since the scalar version of Transform2x2 assumes that a1 and a2 are
     // row vectors, we implicitly transpose G on input to it so that we can
     // apply [a1, a2] G via G^T [a1^T; a2^T].
@@ -196,7 +196,7 @@ template<typename T>
 void Transform2x2Cols
 ( const Matrix<T>& G, AbstractDistMatrix<T>& A, Int j1, Int j2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const int colOwner1 = A.ColOwner(j1);
     const int colOwner2 = A.ColOwner(j2);
@@ -260,7 +260,7 @@ void Transform2x2Cols
 ( const AbstractDistMatrix<T>& GPre,
         AbstractDistMatrix<T>& A, Int j1, Int j2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<T,T,STAR,STAR> GProx( GPre );
     const auto& G = GProx.GetLocked();
     Transform2x2Cols( G.LockedMatrix(), A, j1, j2 );

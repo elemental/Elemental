@@ -49,7 +49,7 @@ Front<F>::Front
   bool conjugate )
 : sparseLeaf(false), parent(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Pull( A, reordering, info, conjugate );
 }
 
@@ -67,8 +67,8 @@ void Front<F>::Pull
   const NodeInfo& rootInfo,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != (Int)reordering.size() )
           LogicError("Mapping was not the right size");
     )
@@ -77,7 +77,7 @@ void Front<F>::Pull
 
     // Invert the reordering
     const Int n = reordering.size();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Height() != n || A.Width() != n )
           LogicError("Expected A to be square and consistent with reordering");
     )
@@ -159,7 +159,7 @@ void Front<F>::Pull
                     {
                         const Int origOff = Find( node.origLowerStruct, i );
                         const Int row = node.origLowerRelInds[origOff];
-                        DEBUG_ONLY(
+                        EL_DEBUG_ONLY(
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
@@ -196,7 +196,7 @@ void Front<F>::Pull
                     {
                         const Int origOff = Find( node.origLowerStruct, i );
                         const Int row = node.origLowerRelInds[origOff];
-                        DEBUG_ONLY(
+                        EL_DEBUG_ONLY(
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
@@ -215,15 +215,15 @@ void Front<F>::PullUpdate
   const vector<Int>& reordering,
   const NodeInfo& rootInfo )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != (Int)reordering.size() )
           LogicError("Mapping was not the right size");
     )
 
     // Invert the reordering
     const Int n = reordering.size();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Height() != n || A.Width() != n )
           LogicError("Expected A to be square and consistent with reordering");
     )
@@ -271,7 +271,7 @@ void Front<F>::PullUpdate
                     {
                         const Int origOff = Find( node.origLowerStruct, i );
                         const Int row = node.origLowerRelInds[origOff];
-                        DEBUG_ONLY(
+                        EL_DEBUG_ONLY(
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
@@ -291,7 +291,7 @@ void Front<F>::Push
   const vector<Int>& reordering,
   const NodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Invert the reordering
     const Int n = reordering.size();
@@ -410,7 +410,7 @@ void Front<F>::Push
 template<typename F>
 void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
 
@@ -524,7 +524,7 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
 template<typename F>
 const Front<F>& Front<F>::operator=( const Front<F>& front )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     isHermitian = front.isHermitian;
     sparseLeaf = front.sparseLeaf;
     type = front.type;
@@ -556,7 +556,7 @@ Int Front<F>::Height() const
 template<typename F>
 Int Front<F>::NumEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
     function<void(const Front<F>&)> count =
       [&]( const Front<F>& front )
@@ -597,7 +597,7 @@ Int Front<F>::NumEntries() const
 template<typename F>
 Int Front<F>::NumTopLeftEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
     function<void(const Front<F>&)> count =
       [&]( const Front<F>& front )
@@ -632,7 +632,7 @@ Int Front<F>::NumTopLeftEntries() const
 template<typename F>
 Int Front<F>::NumBottomLeftEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
     function<void(const Front<F>&)> count =
       [&]( const Front<F>& front )
@@ -657,7 +657,7 @@ Int Front<F>::NumBottomLeftEntries() const
 template<typename F>
 double Front<F>::FactorGFlops() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
     function<void(const Front<F>&)> count =
       [&]( const Front<F>& front )
@@ -698,7 +698,7 @@ double Front<F>::FactorGFlops() const
 template<typename F>
 double Front<F>::SolveGFlops( Int numRHS ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
     function<void(const Front<F>&)> count =
       [&]( const Front<F>& front )

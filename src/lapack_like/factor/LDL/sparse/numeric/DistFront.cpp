@@ -44,7 +44,7 @@ DistFront<F>::DistFront
   bool conjugate )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Pull( A, reordering, sep, info, conjugate );
 }
 
@@ -67,7 +67,7 @@ void UnpackEntriesLocal
         vector<int>& offs, 
         vector<int>& entryOffs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Delete any existing children
     for( auto* childFront : front.children )
@@ -110,7 +110,7 @@ void UnpackEntriesLocal
             for( Int k=0; k<numEntries; ++k )
             {
                 const Int target = rTargets[entryOff++];
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -134,7 +134,7 @@ void UnpackEntriesLocal
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -173,7 +173,7 @@ void UnpackEntriesLocal
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -205,7 +205,7 @@ void UnpackEntries
         vector<int>& offs, 
         vector<int>& entryOffs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = *node.grid;
 
     if( sep.child == nullptr )
@@ -248,7 +248,7 @@ void UnpackEntries
             const Int target = rTargets[entryOff];
             ++entryOff;
 
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( target < off+t )
                   LogicError("Received entry from upper triangle");
             )
@@ -277,7 +277,7 @@ void DistFront<F>::Pull
   const DistNodeInfo& rootInfo,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     Pull
     ( A, reordering, rootSep, rootInfo, 
@@ -296,8 +296,8 @@ void DistFront<F>::Pull
         vector<Int>& colOffs,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -454,7 +454,7 @@ void DistFront<F>::Pull
                 }
             }
         }
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( index != sEntriesOffs[q]+sEntriesSizes[q] )
               LogicError("index was not the correct value");
         )
@@ -510,7 +510,7 @@ void DistFront<F>::PullUpdate
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     PullUpdate
     ( A, reordering, rootSep, rootInfo, mappedSources, mappedTargets, colOffs );
@@ -527,8 +527,8 @@ void DistFront<F>::PullUpdate
         vector<Int>& mappedTargets,
         vector<Int>& colOffs )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
@@ -685,7 +685,7 @@ void DistFront<F>::PullUpdate
                 }
             }
         }
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( index != sEntriesOffs[q]+sEntriesSizes[q] )
               LogicError("index was not the correct value");
         )
@@ -758,7 +758,7 @@ void DistFront<F>::PullUpdate
                     const Int target = rTargets[entryOff];
                     ++entryOff;
 
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( target < off+t )
                           LogicError("Received entry from upper triangle");
                     )
@@ -809,7 +809,7 @@ void DistFront<F>::PullUpdate
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -830,7 +830,7 @@ void DistFront<F>::PullUpdate
     unpackEntries( rootSep, rootInfo, *this );
     if( time && commRank == 0 )
         Output("Unpack: ",timer.Stop()," secs");
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       for( Int q=0; q<commSize; ++q )
           if( entryOffs[q] != rEntriesOffs[q]+rEntriesSizes[q] )
               LogicError("entryOffs were incorrect");
@@ -845,7 +845,7 @@ void DistFront<F>::Push
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine needs to be written");
 }
 
@@ -855,7 +855,7 @@ void DistFront<F>::Unpack
   const DistSeparator& rootSep, 
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = rootInfo.grid->Comm();
     A.SetComm( comm );
     const Int n = rootInfo.off + rootInfo.size;
@@ -1049,7 +1049,7 @@ template<typename F>
 const DistFront<F>& 
 DistFront<F>::operator=( const DistFront<F>& front )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     isHermitian = front.isHermitian;
     type = front.type;
     if( front.child == nullptr )
@@ -1084,7 +1084,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
 template<typename F>
 Int DistFront<F>::NumLocalEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1110,7 +1110,7 @@ Int DistFront<F>::NumLocalEntries() const
 template<typename F>
 Int DistFront<F>::NumTopLeftLocalEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1142,7 +1142,7 @@ Int DistFront<F>::NumTopLeftLocalEntries() const
 template<typename F>
 Int DistFront<F>::NumBottomLeftLocalEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1176,7 +1176,7 @@ Int DistFront<F>::NumBottomLeftLocalEntries() const
 template<typename F>
 double DistFront<F>::LocalFactorGFlops( bool selInv ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1214,7 +1214,7 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
 template<typename F>
 double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
     function<void(const DistFront<F>&)> count =
       [&]( const DistFront<F>& front )
@@ -1250,7 +1250,7 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
 template<typename F>
 void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     vector<int> gridHeights, gridWidths;
     GetChildGridDims( info, gridHeights, gridWidths );
@@ -1267,7 +1267,7 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
     teamSizes[1] = teamSize - teamSizes[0];
     teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
     teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( teamSizes[0] != gridHeights[0]*gridWidths[0] )
           RuntimeError("Computed left grid incorrectly");
       if( teamSizes[1] != gridHeights[1]*gridWidths[1] )
@@ -1308,7 +1308,7 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
             {
                 const Int iChild = rowInds[iPre];
                 const Int i = info.childRelInds[c][iChild];
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( iChild < jChild )
                       LogicError("Invalid iChild");
                 )
@@ -1329,7 +1329,7 @@ template<typename F>
 void DistFront<F>::ComputeCommMeta
 ( const DistNodeInfo& info, bool computeRecvInds ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     commMeta.Empty();
     if( child == nullptr )
         return;

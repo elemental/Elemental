@@ -23,7 +23,7 @@ DoubleShift
   Matrix<Real>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real realZero(0);
     const Int maxIter=30;    
     // Cf. LAPACK for these somewhat arbitrary constants

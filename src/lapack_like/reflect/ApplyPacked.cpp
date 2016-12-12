@@ -38,7 +38,7 @@ void ApplyPackedReflectors
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )
@@ -117,7 +117,7 @@ void ApplyPackedReflectors
   const AbstractDistMatrix<F>& householderScalars,
         AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )

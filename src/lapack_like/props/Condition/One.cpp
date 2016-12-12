@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> OneCondition( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Matrix<Field> B( A );
     const Real oneNorm = OneNorm( B );
@@ -27,7 +27,7 @@ Base<Field> OneCondition( const Matrix<Field>& A )
 template<typename Field>
 Base<Field> OneCondition( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrix<Field> B( A );
     const Real oneNorm = OneNorm( B );

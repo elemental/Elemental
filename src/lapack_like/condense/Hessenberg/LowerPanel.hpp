@@ -27,10 +27,10 @@ void LowerPanel
   Matrix<F>& V,
   Matrix<F>& G )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nU = U.Width();
     const Int n = A.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( nU >= n )
           LogicError("V is too wide for the panel factorization");
       if( U.Height() != A.Height() )
@@ -122,10 +122,10 @@ void LowerPanel
   DistMatrix<F,MR,  STAR>& V_MR_STAR,
   DistMatrix<F,STAR,STAR>& G_STAR_STAR )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nU = U_MC_STAR.Width();
     const Int n = A.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( A, householderScalars, U_MC_STAR, U_MR_STAR, V_MR_STAR, G_STAR_STAR );
       if( A.ColAlign() != U_MC_STAR.ColAlign() )

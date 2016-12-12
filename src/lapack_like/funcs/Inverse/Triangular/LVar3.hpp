@@ -16,8 +16,8 @@ template<typename Field>
 void
 LVar3Unb( UnitOrNonUnit diag, Matrix<Field>& L )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() != L.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -46,8 +46,8 @@ template<typename Field>
 void
 LVar3( UnitOrNonUnit diag, Matrix<Field>& L )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() != L.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -77,8 +77,8 @@ template<typename Field>
 void
 LVar3( UnitOrNonUnit diag, AbstractDistMatrix<Field>& LPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( LPre.Height() != LPre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

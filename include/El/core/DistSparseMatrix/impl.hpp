@@ -40,13 +40,13 @@ DistSparseMatrix<T>::DistSparseMatrix( Int height, Int width, mpi::Comm comm )
 template<typename T>
 DistSparseMatrix<T>::DistSparseMatrix( const DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     distGraph_.numSources_ = -1;
     distGraph_.numTargets_ = -1;
     distGraph_.comm_ = mpi::COMM_WORLD;
     if( &A != this )
         *this = A;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Tried to construct DistMultiVec via itself");
     )
@@ -122,7 +122,7 @@ bool DistSparseMatrix<T>::FrozenSparsity() const EL_NO_EXCEPT
 template<typename T>
 void DistSparseMatrix<T>::Update( Int row, Int col, T value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueUpdate( row, col, value, true );
     ProcessLocalQueues();
 }
@@ -134,7 +134,7 @@ void DistSparseMatrix<T>::Update( const Entry<T>& entry )
 template<typename T>
 void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueLocalUpdate( localRow, col, value );
     ProcessLocalQueues();
 }
@@ -146,7 +146,7 @@ void DistSparseMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
 template<typename T>
 void DistSparseMatrix<T>::Zero( Int row, Int col )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueZero( row, col, true );
     ProcessLocalQueues();
 }
@@ -154,7 +154,7 @@ void DistSparseMatrix<T>::Zero( Int row, Int col )
 template<typename T>
 void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueLocalZero( localRow, col );
     ProcessLocalQueues();
 }
@@ -163,7 +163,7 @@ template<typename T>
 void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use FrozenSparsity()
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
@@ -188,7 +188,7 @@ template<typename T>
 void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = distGraph_.Offset( localRow, col );
@@ -211,7 +211,7 @@ template<typename T>
 void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
@@ -224,7 +224,7 @@ template<typename T>
 void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = distGraph_.Offset( localRow, col );
@@ -240,8 +240,8 @@ EL_NO_RELEASE_EXCEPT
 template<typename T>
 void DistSparseMatrix<T>::ProcessQueues()
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( distGraph_.sources_.size() != distGraph_.targets_.size() ||
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
@@ -326,7 +326,7 @@ void DistSparseMatrix<T>::ProcessQueues()
 template<typename T>
 void DistSparseMatrix<T>::ProcessLocalQueues()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( distGraph_.locallyConsistent_ )
         return;
 
@@ -399,7 +399,7 @@ template<typename T>
 const DistSparseMatrix<T>&
 DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     distGraph_ = A.distGraph_;
     vals_ = A.vals_;
     remoteVals_ = A.remoteVals_;
@@ -413,7 +413,7 @@ DistSparseMatrix<T>
 DistSparseMatrix<T>::operator()
 ( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistSparseMatrix<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -424,7 +424,7 @@ DistSparseMatrix<T>
 DistSparseMatrix<T>::operator()
 ( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistSparseMatrix<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -435,7 +435,7 @@ DistSparseMatrix<T>
 DistSparseMatrix<T>::operator()
 ( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistSparseMatrix<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -446,7 +446,7 @@ DistSparseMatrix<T>
 DistSparseMatrix<T>::operator()
 ( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistSparseMatrix<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -457,7 +457,7 @@ DistSparseMatrix<T>::operator()
 template<typename T>
 const DistSparseMatrix<T>& DistSparseMatrix<T>::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -468,7 +468,7 @@ template<typename T>
 const DistSparseMatrix<T>&
 DistSparseMatrix<T>::operator+=( const DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -477,7 +477,7 @@ template<typename T>
 const DistSparseMatrix<T>&
 DistSparseMatrix<T>::operator-=( const DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -536,21 +536,21 @@ Int DistSparseMatrix<T>::Blocksize() const EL_NO_EXCEPT
 template<typename T>
 int DistSparseMatrix<T>::RowOwner( Int i ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.SourceOwner(i);
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.GlobalSource(iLoc);
 }
 
 template<typename T>
 Int DistSparseMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.LocalSource(i);
 }
 
@@ -560,7 +560,7 @@ template<typename T>
 Int DistSparseMatrix<T>::Row( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.Source( localInd );
 }
 
@@ -568,7 +568,7 @@ template<typename T>
 Int DistSparseMatrix<T>::Col( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.Target( localInd );
 }
 
@@ -576,7 +576,7 @@ template<typename T>
 Int DistSparseMatrix<T>::RowOffset( Int localRow ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.SourceOffset( localRow );
 }
 
@@ -584,7 +584,7 @@ template<typename T>
 Int DistSparseMatrix<T>::Offset( Int localRow, Int col ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.Offset( localRow, col );
 }
 
@@ -592,7 +592,7 @@ template<typename T>
 Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.NumConnections( localRow );
 }
 
@@ -600,7 +600,7 @@ template<typename T>
 double DistSparseMatrix<T>::Imbalance() const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.Imbalance();
 }
 
@@ -608,8 +608,8 @@ template<typename T>
 T DistSparseMatrix<T>::Value( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localInd < 0 || localInd >= (Int)vals_.size() )
           LogicError("Entry number out of bounds");
       AssertLocallyConsistent();
@@ -687,7 +687,7 @@ const T* DistSparseMatrix<T>::LockedValueBuffer() const EL_NO_EXCEPT
 template<typename T>
 void DistSparseMatrix<T>::ForceNumLocalEntries( Int numLocalEntries )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     distGraph_.ForceNumLocalEdges( numLocalEntries );
     vals_.resize( numLocalEntries );
 }
@@ -721,7 +721,7 @@ template<typename T>
 void DistSparseMatrix<T>::MappedSources
 ( const DistMap& reordering, vector<Int>& mappedSources ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = Comm();
     const int commRank = mpi::Rank( comm );
     Timer timer;
@@ -747,7 +747,7 @@ void DistSparseMatrix<T>::MappedTargets
   vector<Int>& mappedTargets,
   vector<Int>& colOffs ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( mappedTargets.size() != 0 && colOffs.size() != 0 )
         return;
 

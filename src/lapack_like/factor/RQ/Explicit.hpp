@@ -15,7 +15,7 @@ namespace rq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> t;
     Matrix<Base<F>> d;
     Householder( A, t, d );
@@ -25,7 +25,7 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,MD,STAR> householderScalars(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
     Householder( A, householderScalars, signature );

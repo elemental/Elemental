@@ -18,7 +18,7 @@ void Overwrite
   Matrix<Field>& A, Matrix<Field>& B,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -28,7 +28,7 @@ void Overwrite
   AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -40,7 +40,7 @@ void HermitianSolve
   const Matrix<Field>& A, Matrix<Field>& B,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -50,7 +50,7 @@ void HermitianSolve
   const AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
@@ -60,7 +60,7 @@ void HermitianSolve
 ( const SparseMatrix<Field>& A, Matrix<Field>& B,
   bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 
@@ -70,7 +70,7 @@ void HermitianSolve
 ( const DistSparseMatrix<Field>& A, DistMultiVec<Field>& B,
   bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 

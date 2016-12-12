@@ -23,7 +23,7 @@ void TestRandomHelper
   const El::HessenbergSchurCtrl& ctrl,
   bool print )
 {
-    El::DEBUG_CSE
+    EL_DEBUG_CSE
     typedef El::Base<Field> Real;
     const El::Int n = H.Height();
     const Real eps = El::limits::Epsilon<Real>();
@@ -111,7 +111,7 @@ void TestRandomHelper
 template<typename Field>
 void TestRandom( El::Int n, const El::HessenbergSchurCtrl& ctrl, bool print )
 {
-    El::DEBUG_CSE
+    EL_DEBUG_CSE
     El::Output("Testing uniform Hessenberg with ",El::TypeName<Field>());
 
     El::Matrix<Field> H;

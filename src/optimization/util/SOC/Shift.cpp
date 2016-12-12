@@ -19,9 +19,9 @@ void Shift
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -41,7 +41,7 @@ void Shift
   const AbstractDistMatrix<Int>& ordersPre,
   const AbstractDistMatrix<Int>& firstIndsPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -58,7 +58,7 @@ void Shift
     auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -82,10 +82,10 @@ void Shift
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int height = x.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )

@@ -27,7 +27,7 @@ void QR
   Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qr::Householder( A, householderScalars, signature );
 }
 
@@ -39,7 +39,7 @@ void ScaLAPACKHelper
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int m = A.Height();
@@ -59,7 +59,7 @@ void ScaLAPACKHelper
 ( DistMatrix<F,MC,MR,BLOCK>& A,
   DistMatrix<F,MR,STAR,BLOCK>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("ScaLAPACK does not support ",TypeName<F>());
 }
 
@@ -71,7 +71,7 @@ void QR
   AbstractDistMatrix<F>& householderScalars,
   AbstractDistMatrix<Base<F>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qr::Householder( A, householderScalars, signature );
 }
 
@@ -86,7 +86,7 @@ void QR
   Permutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qr::BusingerGolub( A, householderScalars, signature, Omega, ctrl );
 }
 
@@ -98,7 +98,7 @@ void QR
   DistPermutation& Omega,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qr::BusingerGolub( A, householderScalars, signature, Omega, ctrl );
 }
 

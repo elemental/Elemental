@@ -19,7 +19,7 @@ namespace El {
 template<typename Field>
 PolarInfo Polar( Matrix<Field>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = polar::QDWH( A, ctrl.qdwhCtrl );
@@ -31,7 +31,7 @@ PolarInfo Polar( Matrix<Field>& A, const PolarCtrl& ctrl )
 template<typename Field>
 PolarInfo Polar( AbstractDistMatrix<Field>& A, const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = polar::QDWH( A, ctrl.qdwhCtrl );
@@ -43,7 +43,7 @@ PolarInfo Polar( AbstractDistMatrix<Field>& A, const PolarCtrl& ctrl )
 template<typename Field>
 PolarInfo Polar( Matrix<Field>& A, Matrix<Field>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = polar::QDWH( A, P, ctrl.qdwhCtrl );
@@ -58,7 +58,7 @@ PolarInfo Polar
   AbstractDistMatrix<Field>& P,
   const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = polar::QDWH( A, P, ctrl.qdwhCtrl );
@@ -73,7 +73,7 @@ PolarInfo HermitianPolar
   Matrix<Field>& A,
   const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = herm_polar::QDWH( uplo, A, ctrl.qdwhCtrl );
@@ -88,7 +88,7 @@ PolarInfo HermitianPolar
   AbstractDistMatrix<Field>& A,
   const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = herm_polar::QDWH( uplo, A, ctrl.qdwhCtrl );
@@ -101,7 +101,7 @@ template<typename Field>
 PolarInfo HermitianPolar
 ( UpperOrLower uplo, Matrix<Field>& A, Matrix<Field>& P, const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = herm_polar::QDWH( uplo, A, P, ctrl.qdwhCtrl );
@@ -117,7 +117,7 @@ PolarInfo HermitianPolar
   AbstractDistMatrix<Field>& P,
   const PolarCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PolarInfo info;
     if( ctrl.qdwh )
         info.qdwhInfo = herm_polar::QDWH( uplo, A, P, ctrl.qdwhCtrl );

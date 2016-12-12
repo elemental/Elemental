@@ -16,7 +16,7 @@ void SymmetricDiagonalEquil
   Matrix<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -30,7 +30,7 @@ void SymmetricDiagonalEquil
   AbstractDistMatrix<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
@@ -44,7 +44,7 @@ void SymmetricDiagonalEquil
   Matrix<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     auto maxSqrt = []( const Field& delta )
       { return Sqrt(Max(Abs(delta),Real(1))); };
@@ -63,7 +63,7 @@ void SymmetricDiagonalEquil
   DistMultiVec<Base<Field>>& d,
   bool progress, bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);

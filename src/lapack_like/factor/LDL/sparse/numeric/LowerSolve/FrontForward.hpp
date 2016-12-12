@@ -30,8 +30,8 @@ void FrontVanillaLowerForwardSolve
 ( const Matrix<F>& L,
         Matrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
@@ -53,7 +53,7 @@ void FrontIntraPivLowerForwardSolve
   const Permutation& P,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = L.Width();
     auto XT = X( IR(0,n),   ALL );
     P.PermuteRows( XT );
@@ -65,8 +65,8 @@ void FrontBlockLowerForwardSolve
 ( const Matrix<F>& L,
         Matrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal solve:\n",
@@ -89,9 +89,9 @@ void FrontBlockLowerForwardSolve
 template<typename F>
 void FrontLowerForwardSolve( const Front<F>& front, Matrix<F>& W )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const LDLFrontType type = front.type;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( Unfactored(type) )
           LogicError("Cannot solve against an unfactored front");
     )
@@ -219,8 +219,8 @@ void FrontVanillaLowerForwardSolve
         DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -243,7 +243,7 @@ void FrontIntraPivLowerForwardSolve
         DistMatrix<F,VC,STAR>& X,
   bool singleL11AllGather=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = L.Width();
     auto XT = X( IR(0,n), ALL );
@@ -257,8 +257,8 @@ void FrontVanillaLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -293,8 +293,8 @@ void FrontVanillaLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != XPre.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != XPre.Height() )
@@ -334,7 +334,7 @@ void FrontIntraPivLowerForwardSolve
   const DistPermutation& P,
         DistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = L.Width();
     auto XT = X( IR(0,n), ALL );
@@ -348,8 +348,8 @@ void FrontFastLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -391,7 +391,7 @@ void FrontFastIntraPivLowerForwardSolve
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = L.Width();
     auto XT = X( IR(0,n), ALL );
@@ -405,8 +405,8 @@ void FrontFastLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -463,7 +463,7 @@ void FrontFastIntraPivLowerForwardSolve
   const DistPermutation& P,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = L.Width();
     auto XT = X( IR(0,n), ALL );
@@ -477,8 +477,8 @@ void FrontFastLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -514,7 +514,7 @@ void FrontFastIntraPivLowerForwardSolve
   const DistPermutation& P,
         DistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = L.Width();
     auto XT = X( IR(0,n), ALL );
@@ -528,8 +528,8 @@ void FrontBlockLowerForwardSolve
 ( const DistMatrix<F,VC,STAR>& L,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -570,8 +570,8 @@ void FrontBlockLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F,VC,STAR>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -625,8 +625,8 @@ void FrontBlockLowerForwardSolve
 ( const DistMatrix<F>& L,
         DistMatrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -662,7 +662,7 @@ FrontLowerForwardSolve
 ( const DistFront<F>& front,
         DistMatrix<F,VC,STAR>& W )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const LDLFrontType type = front.type;
 
     // TODO: Add support for LDL_2D
@@ -690,7 +690,7 @@ template<typename F>
 void 
 FrontLowerForwardSolve( const DistFront<F>& front, DistMatrix<F>& W )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const LDLFrontType type = front.type;
 
     if( type == LDL_2D )

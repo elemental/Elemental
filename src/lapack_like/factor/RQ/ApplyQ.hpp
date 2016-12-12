@@ -21,7 +21,7 @@ void ApplyQ
   const Matrix<Base<F>>& signature,
         Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;
@@ -76,7 +76,7 @@ void ApplyQ
   const AbstractDistMatrix<Base<F>>& signature,
         AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal!=onLeft;

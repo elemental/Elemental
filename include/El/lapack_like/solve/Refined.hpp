@@ -50,8 +50,8 @@ Int Single
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -127,8 +127,8 @@ Int Pair
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( B.Width() != 2 )
           LogicError("Expected a pair of right-hand sides");
     )
@@ -301,7 +301,7 @@ Int Batch
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -357,7 +357,7 @@ Int RefinedSolve
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::Single
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -380,8 +380,8 @@ Int PromotedSingle
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -464,8 +464,8 @@ Int PromotedPair
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( B.Width() != 2 )
           LogicError("Expected a pair of right-hand sides");
     )
@@ -652,7 +652,7 @@ Int PromotedBatch
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -713,7 +713,7 @@ PromotedRefinedSolve
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::PromotedSingle
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -735,7 +735,7 @@ PromotedRefinedSolve
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
@@ -750,8 +750,8 @@ Int Single
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -829,7 +829,7 @@ Int Batch
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -887,7 +887,7 @@ Int RefinedSolve
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::Single
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -907,8 +907,8 @@ Int PromotedSingle
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -991,7 +991,7 @@ Int PromotedBatch
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
@@ -1055,7 +1055,7 @@ PromotedRefinedSolve
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::PromotedSingle
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -1074,7 +1074,7 @@ PromotedRefinedSolve
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 

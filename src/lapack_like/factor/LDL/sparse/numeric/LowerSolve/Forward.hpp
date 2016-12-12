@@ -31,7 +31,7 @@ void LowerForwardSolve
   const Front<F>& front,
         MatrixNode<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -80,7 +80,7 @@ void LowerForwardSolve
   const DistFront<F>& front,
         DistMultiVecNode<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const bool frontIs1D = FrontIs1D( front.type );
     const Grid& grid = ( frontIs1D ? front.L1D.Grid() : front.L2D.Grid() );
@@ -93,7 +93,7 @@ void LowerForwardSolve
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
           LogicError("Incompatible front type mixture");
     )
@@ -125,7 +125,7 @@ void LowerForwardSolve
         sendSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
         recvSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
     }
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+    EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );
@@ -185,8 +185,8 @@ void LowerForwardSolve
   const DistFront<F>& front,
         DistMatrixNode<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( FrontIs1D(front.type) )
           LogicError("Front was not 2D");
     )
@@ -201,7 +201,7 @@ void LowerForwardSolve
 
     const auto& childInfo = *info.child;
     const auto& childFront = *front.child;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
           LogicError("Incompatible front type mixture");
     )
@@ -233,7 +233,7 @@ void LowerForwardSolve
         sendSizes[q] = X.commMeta.numChildSendInds[q];
         recvSizes[q] = X.commMeta.childRecvInds[q].size()/2;
     }
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+    EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );
@@ -253,7 +253,7 @@ void LowerForwardSolve
         {
             const Int j = childU.GlobalCol(jChildLoc);
             const int q = W.Owner( iParent, j );
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( packOffs[q] >= sendBufSize )
                   LogicError("packOffs[",q,"]=",packOffs[q]," >= ",sendBufSize);
             )

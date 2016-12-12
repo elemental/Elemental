@@ -23,7 +23,7 @@ void SolveAfter
   const Matrix<F>& B,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( m > n )
@@ -83,7 +83,7 @@ void SolveAfter
   const AbstractDistMatrix<F>& B,
         AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = APre.Height();
     const Int n = APre.Width();
     if( m > n )

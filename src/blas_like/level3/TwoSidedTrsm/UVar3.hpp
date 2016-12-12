@@ -15,8 +15,8 @@ namespace twotrsm {
 template<typename F> 
 void UVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( U.Height() != U.Width() )
@@ -92,8 +92,8 @@ void UVar3
         AbstractDistMatrix<F>& APre,
   const AbstractDistMatrix<F>& UPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       if( UPre.Height() != UPre.Width() )

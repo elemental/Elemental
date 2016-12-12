@@ -15,8 +15,8 @@ void UTUnb
 ( Orientation orientation, const Matrix<F>& U, Matrix<F>& x, 
   bool checkIfSingular=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("L must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -112,8 +112,8 @@ void UT
 ( Orientation orientation, const Matrix<F>& U, Matrix<F>& x,
   bool checkIfSingular=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("U must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -170,8 +170,8 @@ void UT
         AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, xPre );
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");

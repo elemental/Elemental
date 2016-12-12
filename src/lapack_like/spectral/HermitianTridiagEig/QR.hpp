@@ -17,7 +17,7 @@ template<typename Real,
 Real WilkinsonShift
 ( const Real& alpha00, const Real& alpha01, const Real& alpha11 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Following Parlett's "The Symmetric Eigenvalue Problem" [CITATION],
     // the eigenvalue of [alpha00, alpha01; alpha01, alpha11] closest to
     // alpha00 should not be naively evaluated as
@@ -98,7 +98,7 @@ void QLSweep
   const Base<Field>& shift,
   bool wantEigVecs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
@@ -151,7 +151,7 @@ void QRSweep
   const Base<Field>& shift,
   bool wantEigVecs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = d.Height();
     const Real zero(0), one(1), two(2);
@@ -205,7 +205,7 @@ Helper
   Matrix<Field>& Q,
   const HermitianTridiagEigCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = d.Height();
     const Int mQ = Q.Height();
@@ -508,14 +508,14 @@ Helper
 // TODO(poulson): Lift these routines up somewhere else?
 void AllocatePackedQRInfo( vector<Int>& packedQRInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     packedQRInfo.resize( 2 );
 }
 
 void PackQRInfo
 ( const herm_tridiag_eig::QRInfo& qrInfo, vector<Int>& packedQRInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( packedQRInfo.size() != 2 )
         LogicError("Expected packedQRInfo to be of size 2");
     Int offset = 0;
@@ -526,7 +526,7 @@ void PackQRInfo
 void UnpackQRInfo
 ( const vector<Int>& packedQRInfo, herm_tridiag_eig::QRInfo& qrInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( packedQRInfo.size() != 2 )
         LogicError("Expected packedQRInfo to be of size 2");
     Int offset = 0;
@@ -541,7 +541,7 @@ QRAlg
   Matrix<Real>& subDiag,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = false;
     Matrix<Real> Q;
@@ -555,7 +555,7 @@ QRAlg
   AbstractDistMatrix<Real>& subDiagPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Real,Real,STAR,STAR> mainDiagProx( mainDiagPre );
     DistMatrixReadProxy<Real,Real,STAR,STAR> subDiagProx( subDiagPre );
@@ -599,7 +599,7 @@ QRAlg
   Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = true;
@@ -624,7 +624,7 @@ QRAlg
   Matrix<Complex<Real>>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = true;
@@ -653,7 +653,7 @@ QRAlg
   AbstractDistMatrix<Real>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiagPre.Height();
 
     DistMatrixReadWriteProxy<Real,Real,STAR,STAR> mainDiagProx( mainDiagPre );
@@ -696,7 +696,7 @@ QRAlg
   AbstractDistMatrix<Complex<Real>>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiagPre.Height();
     typedef Complex<Real> Field;
 

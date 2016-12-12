@@ -40,7 +40,7 @@ void LAV
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
@@ -91,7 +91,7 @@ void LAV
         AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
     auto& x = xProx.Get();
@@ -147,7 +147,7 @@ void LAV
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
@@ -205,7 +205,7 @@ void LAV
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

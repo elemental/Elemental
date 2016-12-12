@@ -39,7 +39,7 @@ void GeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -141,7 +141,7 @@ void GeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
@@ -266,7 +266,7 @@ void GeomEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -445,7 +445,7 @@ void GeomEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();

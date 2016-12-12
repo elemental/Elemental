@@ -24,8 +24,8 @@ void LocalAccumulateLUT
   const DistMatrix<T,MC,STAR>& X,
         DistMatrix<T,MR,STAR>& Z )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( U, X, Z );
       if( U.Height() != U.Width() ||
           U.Height() != X.Height() ||
@@ -72,8 +72,8 @@ void LUTA
   const AbstractDistMatrix<T>& UPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -122,8 +122,8 @@ void LUTCOld
   const AbstractDistMatrix<T>& UPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -188,8 +188,8 @@ void LUTC
   const AbstractDistMatrix<T>& UPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, XPre );
       if( orientation == NORMAL )
           LogicError("Expected (Conjugate)Transpose option");
@@ -251,7 +251,7 @@ void LUT
   const AbstractDistMatrix<T>& U,
         AbstractDistMatrix<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         LUTA( orientation, diag, U, X );

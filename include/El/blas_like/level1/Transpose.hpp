@@ -72,7 +72,7 @@ void PartialColAllGather
 template<typename T>
 void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( n, m );
@@ -111,7 +111,7 @@ void Transpose
         ElementalMatrix<T>& B,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto AData = A.DistData();
     const auto BData = B.DistData();
 
@@ -172,7 +172,7 @@ void Transpose
         BlockMatrix<T>& B, 
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto AData = A.DistData();
     const auto BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
@@ -237,7 +237,7 @@ void Transpose
         AbstractDistMatrix<T>& B, 
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Wrap() == ELEMENT && B.Wrap() == ELEMENT )
     {
         const auto& ACast = static_cast<const ElementalMatrix<T>&>(A);
@@ -276,7 +276,7 @@ template<typename T>
 void Transpose
 ( const SparseMatrix<T>& A, SparseMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B.Resize( A.Width(), A.Height() );
     Zero( B, false );
     TransposeAxpy( T(1), A, B, conjugate );
@@ -286,7 +286,7 @@ template<typename T>
 void Transpose
 ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B.SetComm( A.Comm() );
     B.Resize( A.Width(), A.Height() );
     Zero( B, false );
@@ -296,14 +296,14 @@ void Transpose
 template<typename T>
 void Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Transpose( A, B, true );
 }   
 
 template<typename T>
 void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Transpose( A, B, true );
 }   
 
@@ -311,7 +311,7 @@ template<typename T>
 void Adjoint
 ( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 { 
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Transpose( A, B, true );
 }   
 
@@ -319,21 +319,21 @@ template<typename T>
 void Adjoint
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 { 
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Transpose( A, B, true );
 }   
 
 template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Transpose( A, B, true );
 }   
 
 template<typename T>
 void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Transpose( A, B, true );
 }
 

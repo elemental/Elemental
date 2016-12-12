@@ -14,10 +14,10 @@ namespace El {
 template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
     )
@@ -54,10 +54,10 @@ ValueInt<Real> VectorMinLoc( const Matrix<Real>& x )
 template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
       if( !x.Grid().InGrid() )
@@ -109,8 +109,8 @@ ValueInt<Real> VectorMinLoc( const AbstractDistMatrix<Real>& x )
 template<typename Real,typename>
 ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("Input should have been a vector");
     )
@@ -134,7 +134,7 @@ ValueInt<Real> VectorMinLoc( const DistMultiVec<Real>& x )
 template<typename Real,typename>
 Entry<Real> MinLoc( const Matrix<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Real* ABuf = A.LockedBuffer();
@@ -163,8 +163,8 @@ Entry<Real> MinLoc( const Matrix<Real>& A )
 template<typename Real,typename>
 Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -206,8 +206,8 @@ Entry<Real> MinLoc( const AbstractDistMatrix<Real>& A )
 template<typename Real,typename>
 Entry<Real> SymmetricMinLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -258,8 +258,8 @@ template<typename Real,typename>
 Entry<Real>
 SymmetricMinLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

@@ -23,8 +23,8 @@ void LocalAccumulateRUN
   const DistMatrix<T,STAR,MC  >& X,
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( U, X, ZTrans );
       if( U.Height() != U.Width() || U.Height() != X.Width() ||
           U.Height() != ZTrans.Height() )
@@ -69,8 +69,8 @@ void RUNA
   const AbstractDistMatrix<T>& UPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, XPre );
       // TODO: More input checks
     )
@@ -117,8 +117,8 @@ void RUNCOld
   const AbstractDistMatrix<T>& UPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
           LogicError
@@ -169,8 +169,8 @@ void RUNC
   const AbstractDistMatrix<T>& UPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, XPre );
       if( UPre.Height() != UPre.Width() || XPre.Width() != UPre.Height() )
           LogicError
@@ -226,7 +226,7 @@ void RUN
   const AbstractDistMatrix<T>& U,
         AbstractDistMatrix<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
         RUNA( diag, U, X );

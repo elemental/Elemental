@@ -76,7 +76,7 @@ void Overwrite
   Matrix<F>& D,
   Matrix<F>& X, bool computeResidual )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -170,7 +170,7 @@ void Overwrite
   AbstractDistMatrix<F>& XPre,
   bool computeResidual )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -279,7 +279,7 @@ void LSE
   const Matrix<F>& D,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -292,7 +292,7 @@ void LSE
   const AbstractDistMatrix<F>& D,
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
@@ -306,7 +306,7 @@ void LSE
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();
@@ -392,7 +392,7 @@ void LSE
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();

@@ -13,8 +13,8 @@ namespace El {
 template<typename Field>
 Field SoftThreshold( const Field& alpha, const Base<Field>& tau )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( tau < 0 )
           LogicError("Negative threshold does not make sense");
     )
@@ -25,7 +25,7 @@ Field SoftThreshold( const Field& alpha, const Base<Field>& tau )
 template<typename Field>
 void SoftThreshold( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> tauMod = tau;
     if( relative )
         tauMod *= MaxNorm(A);
@@ -38,7 +38,7 @@ template<typename Field>
 void SoftThreshold
 ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> tauMod = tau;
     if( relative )
         tauMod *= MaxNorm(A);

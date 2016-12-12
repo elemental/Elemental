@@ -18,7 +18,7 @@ void Condense
   Matrix<Complex<Base<F>>>& w,
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Timer timer;
 
     Matrix<F> householderScalars;
@@ -40,7 +40,7 @@ void Condense
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckRealSchur(A))
+        EL_DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -51,7 +51,7 @@ void Condense
   Matrix<F>& Q, 
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Timer timer;
 
     Matrix<F> householderScalars;
@@ -76,7 +76,7 @@ void Condense
     else
     {
         MakeTrapezoidal( UPPER, A, -1 );
-        DEBUG_ONLY(CheckRealSchur(A))
+        EL_DEBUG_ONLY(CheckRealSchur(A))
     }
 }
 
@@ -86,7 +86,7 @@ void Condense
   AbstractDistMatrix<Complex<Base<F>>>& w,
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = A.Grid();
     Timer timer;
 
@@ -121,7 +121,7 @@ void Condense
   AbstractDistMatrix<F>& Q,
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = A.Grid();
     Timer timer;
 

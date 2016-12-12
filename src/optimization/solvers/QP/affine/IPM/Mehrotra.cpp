@@ -47,7 +47,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -356,7 +356,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -742,7 +742,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -1128,7 +1128,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;

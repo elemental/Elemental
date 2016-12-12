@@ -19,7 +19,7 @@ namespace El {
 template<typename Real> 
 void Whale( Matrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;
@@ -37,7 +37,7 @@ void Whale( Matrix<Complex<Real>>& A, Int n )
 template<typename Real>
 void Whale( AbstractDistMatrix<Complex<Real>>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n < 5 )
         LogicError("Must be at least 5x5 to have a fourth-order symbol");
     typedef Complex<Real> C;

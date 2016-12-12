@@ -17,7 +17,7 @@ namespace triang_inv {
 template<typename Field>
 void Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<Field>& A  )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         LVar3( diag, A );
     else
@@ -28,7 +28,7 @@ template<typename Field>
 void Var3
 ( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<Field>& A  )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         LVar3( diag, A );
     else
@@ -41,7 +41,7 @@ template<typename Field>
 void TriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     triang_inv::Var3( uplo, diag, A );
 }
 
@@ -49,7 +49,7 @@ template<typename Field>
 void TriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, AbstractDistMatrix<Field>& A  )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     triang_inv::Var3( uplo, diag, A );
 }
 
@@ -57,7 +57,7 @@ template<typename Field>
 void LocalTriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<Field,STAR,STAR>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TriangularInverse( uplo, diag, A.Matrix() );
 }
 

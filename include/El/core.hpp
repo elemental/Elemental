@@ -31,16 +31,12 @@
 #include <type_traits> // std::enable_if
 #include <vector>
 
-// The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge,
-// the only preprocessor names defined by Elemental that is not namespaced
-// with "EL". Given how frequently they are used, I will leave it as-is
-// unless/until a user/developer complains.
 #ifdef EL_RELEASE
-# define DEBUG_ONLY(cmd)
-# define RELEASE_ONLY(cmd) cmd;
+# define EL_DEBUG_ONLY(cmd)
+# define EL_RELEASE_ONLY(cmd) cmd;
 #else
-# define DEBUG_ONLY(cmd) cmd;
-# define RELEASE_ONLY(cmd)
+# define EL_DEBUG_ONLY(cmd) cmd;
+# define EL_RELEASE_ONLY(cmd)
 #endif
 
 #ifdef EL_HAVE_NO_EXCEPT
@@ -57,8 +53,6 @@
 
 #define EL_CONCAT2(name1,name2) name1 ## name2
 #define EL_CONCAT(name1,name2) EL_CONCAT2(name1,name2)
-
-// TODO: Think of how to better decouple the following components
 
 #ifdef EL_HAVE_QUADMATH
 #include <quadmath.h>

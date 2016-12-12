@@ -21,7 +21,7 @@ Real APosterioriThreshold
   const Real& twoNorm,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Real thresh = Max(m,n)*twoNorm*limits::Epsilon<Real>();
     auto tol = ctrl.tol;
     auto tolType = ctrl.tolType;
@@ -71,7 +71,7 @@ void PrepareBidiagonal
   Matrix<Real>& sFlipList,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m == 0 || n == 0 )
         return;
 
@@ -208,7 +208,7 @@ void PrepareBidiagonal
   Matrix<Real>& offDiag,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Real> U, V, cDeflateList, sDeflateList, cFlipList, sFlipList;
     PrepareBidiagonal
     ( uplo, m, n, mainDiag, offDiag, U, V,
@@ -224,7 +224,7 @@ Helper
   Matrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( mainDiag.Height() != offDiag.Height() &&
         mainDiag.Height() != offDiag.Height()+1 )
         LogicError("Invalid main and superdiagonal lengths");
@@ -297,13 +297,13 @@ Helper
 // TODO(poulson): Lift these routines up somewhere else?
 void AllocatePackedQRInfo( vector<Int>& packedQRInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     packedQRInfo.resize( 11 );
 }
 
 void PackQRInfo( const bidiag_svd::QRInfo& qrInfo, vector<Int>& packedQRInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( packedQRInfo.size() != 11 )
         LogicError("Expected packedQRInfo to be of size 11");
     Int offset = 0;
@@ -322,7 +322,7 @@ void PackQRInfo( const bidiag_svd::QRInfo& qrInfo, vector<Int>& packedQRInfo )
 
 void UnpackQRInfo( const vector<Int>& packedQRInfo, bidiag_svd::QRInfo& qrInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( packedQRInfo.size() != 11 )
         LogicError("Expected packedQRInfo to be of size 11");
     Int offset = 0;
@@ -348,7 +348,7 @@ Helper
   DistMatrix<Real,STAR,STAR>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( mainDiag.Height() != offDiag.Height() &&
         mainDiag.Height() != offDiag.Height()+1 )
         LogicError("Invalid main and superdiagonal lengths");
@@ -495,7 +495,7 @@ Helper
         Matrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto mainDiag( mainDiagOrig );
     auto offDiag( offDiagOrig );
     return Helper( uplo, mainDiag, offDiag, s, ctrl );
@@ -510,7 +510,7 @@ Helper
         AbstractDistMatrix<Real>& sPre,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Real,STAR,STAR> mainDiag(mainDiagPre), offDiag(offDiagPre);
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
@@ -526,7 +526,7 @@ Helper
         Matrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int mainDiagHeight = mainDiag.Height();
     const Int offDiagHeight = offDiag.Height();
     // We can implicitly rotate by the complex conjugates
@@ -548,7 +548,7 @@ Helper
         AbstractDistMatrix<Real>& s,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Complex<Real>,VC,STAR>
       mainDiag(mainDiagPre), offDiag(offDiagPre);
     const Grid& g = mainDiag.Grid();
@@ -578,7 +578,7 @@ BidiagSVD
         Matrix<Base<Field>>& s,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiagOrig, offDiagOrig, s, ctrl );
 }
 
@@ -591,7 +591,7 @@ BidiagSVD
         AbstractDistMatrix<Base<Field>>& s,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiagOrig, offDiagOrig, s, ctrl );
 }
 
@@ -608,7 +608,7 @@ Helper
   Matrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int m = ( uplo==UPPER ? mainDiag.Height() : offDiag.Height()+1 );
     const Int n = ( uplo==UPPER ? offDiag.Height()+1 : mainDiag.Height() );
@@ -867,7 +867,7 @@ Helper
   DistMatrix<Real,VC,STAR>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Grid& g = mainDiag.Grid();
     const Int m = ( uplo==UPPER ? mainDiag.Height() : offDiag.Height()+1 );
@@ -1226,7 +1226,7 @@ Helper
         Matrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto mainDiag( mainDiagOrig );
     auto offDiag( offDiagOrig );
     return Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
@@ -1243,7 +1243,7 @@ Helper
         AbstractDistMatrix<Real>& VPre,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Real,STAR,STAR> mainDiag( mainDiagOrig );
     DistMatrix<Real,STAR,STAR> offDiag( offDiagOrig );
 
@@ -1267,7 +1267,7 @@ Helper
   Matrix<Complex<Real>>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
 
     auto ctrlMod = ctrl;
@@ -1325,7 +1325,7 @@ Helper
   DistMatrix<Complex<Real>,VC,STAR>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Grid& g = mainDiag.Grid();
 
@@ -1384,7 +1384,7 @@ Helper
         Matrix<Complex<Real>>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto mainDiag( mainDiagOrig );
     auto offDiag( offDiagOrig );
     return Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
@@ -1401,7 +1401,7 @@ Helper
         AbstractDistMatrix<Complex<Real>>& VPre,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     DistMatrix<Real,STAR,STAR> mainDiag( mainDiagOrig ),
       offDiag( offDiagOrig );
@@ -1426,7 +1426,7 @@ Helper
         Matrix<Complex<Real>>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
 
     const Int mainDiagHeight = mainDiag.Height();
@@ -1500,7 +1500,7 @@ Helper
         AbstractDistMatrix<Complex<Real>>& VPre,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Grid& g = mainDiagOrig.Grid();
 
@@ -1594,7 +1594,7 @@ BidiagSVD
         Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
@@ -1609,7 +1609,7 @@ BidiagSVD
         AbstractDistMatrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
@@ -1624,7 +1624,7 @@ BidiagSVD
         Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 
@@ -1639,7 +1639,7 @@ BidiagSVD
         AbstractDistMatrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return bidiag_svd::Helper( uplo, mainDiag, offDiag, U, s, V, ctrl );
 }
 

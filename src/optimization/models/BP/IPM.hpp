@@ -41,7 +41,7 @@ void LPIPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -77,7 +77,7 @@ void LPIPM
         AbstractDistMatrix<Real>& xPre,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
     const auto& A = AProx.GetLocked();
@@ -121,7 +121,7 @@ void LPIPM
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -162,7 +162,7 @@ void LPIPM
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -227,7 +227,7 @@ void SOCPIPM
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -271,7 +271,7 @@ void SOCPIPM
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -317,7 +317,7 @@ void SOCPIPM
         AbstractDistMatrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -380,7 +380,7 @@ void SOCPIPM
         DistMultiVec<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -455,7 +455,7 @@ void SOCPIPM
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -524,7 +524,7 @@ void SOCPIPM
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -595,7 +595,7 @@ void SOCPIPM
         AbstractDistMatrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -686,7 +686,7 @@ void SOCPIPM
         DistMultiVec<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

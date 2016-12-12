@@ -18,7 +18,7 @@ using namespace El;
 template<typename T>
 void TestMultiply(Int m, Int n=1)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     Output("Testing with ",TypeName<T>());
 

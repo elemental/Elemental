@@ -16,8 +16,8 @@ namespace copy {
 template<typename T>
 void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != B.ColDist() ||
           Collect(A.RowDist()) != B.RowDist() )
           LogicError("Incompatible distributions");
@@ -142,10 +142,10 @@ void RowAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 template<typename T>
 void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.ColDist() != B.ColDist() ||
           Collect(A.RowDist()) != B.RowDist() )
           LogicError("Incompatible distributions");
@@ -163,7 +163,7 @@ void RowAllGather( const BlockMatrix<T>& A, BlockMatrix<T>& B )
     // TODO(poulson): Realign if the cuts are different
     if( A.BlockHeight() != B.BlockHeight() || A.ColCut() != B.ColCut() )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           Output("Performing expensive GeneralPurpose RowAllGather");
         )
         GeneralPurpose( A, B );

@@ -53,7 +53,7 @@ void EN
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -116,7 +116,7 @@ void EN
         AbstractDistMatrix<Real>& xPre,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
     auto& x = xProx.Get();
@@ -183,7 +183,7 @@ void EN
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -255,7 +255,7 @@ void EN
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

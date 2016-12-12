@@ -174,7 +174,7 @@ void csrmv
   const BlasInt* pntrb, const BlasInt* pntre,
   const float* x, float beta, float* y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char transA = OrientationToChar( orientation );
     if( transA == 'C' )
         transA = 'T';
@@ -190,7 +190,7 @@ void csrmv
   const BlasInt* pntrb, const BlasInt* pntre,
   const double* x, double beta, double* y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char transA = OrientationToChar( orientation );
     if( transA == 'C' )
         transA = 'T';
@@ -206,7 +206,7 @@ void csrmv
   const BlasInt* pntrb, const BlasInt* pntre,
   const Complex<float>* x, Complex<float> beta, Complex<float>* y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char transA = OrientationToChar( orientation );
     mkl_ccsrmv
     ( &transA, &m, &k, 
@@ -226,7 +226,7 @@ void csrmv
   const BlasInt* pntrb, const BlasInt* pntre,
   const Complex<double>* x, Complex<double> beta, Complex<double>* y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char transA = OrientationToChar( orientation );
     mkl_zcsrmv
     ( &transA, &m, &k,

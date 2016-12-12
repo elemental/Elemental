@@ -16,7 +16,7 @@ void Contract
 ( const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
@@ -68,7 +68,7 @@ void Contract
 ( const BlockMatrix<T>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();

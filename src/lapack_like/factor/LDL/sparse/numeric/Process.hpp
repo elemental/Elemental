@@ -29,7 +29,7 @@ template<typename F>
 inline void 
 Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int updateSize = info.lowerStruct.size();
     auto& FBR = front.workDense;
     FBR.Empty();
@@ -111,7 +111,7 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
     else
     {
         auto& FL = front.LDense;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( FL.Height() != info.size+updateSize || FL.Width() != info.size )
               LogicError("Front was not the proper size");
         )
@@ -148,7 +148,7 @@ inline void
 Process
 ( const DistNodeInfo& info, DistFront<F>& front, LDLFrontType factorType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Switch to a sequential algorithm if possible
     if( front.duplicate != nullptr )
@@ -181,7 +181,7 @@ Process
 
     const Int updateSize = info.lowerStruct.size();
     front.work.Empty();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( front.L2D.Height() != info.size+updateSize ||
           front.L2D.Width() != info.size )
           LogicError("Front was not the proper size");
@@ -221,7 +221,7 @@ Process
             sendBuf[offs[q]++] = childU.GetLocal(iChildLoc,jChildLoc);
         }
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       for( int q=0; q<commSize; ++q )
       {
           if( offs[q]-sendOffs[q] != front.commMeta.numChildSendInds[q] )
@@ -235,7 +235,7 @@ Process
 
     // AllToAll to send and receive the child updates
     vector<F> recvBuf( recvBufSize );
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+    EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     SparseAllToAll
     ( sendBuf, sendSizes, sendOffs,
       recvBuf, recvSizes, recvOffs, comm );

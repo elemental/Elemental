@@ -30,9 +30,9 @@ void LUNBlock
         Matrix<F>& X,
         Matrix<F>& scales )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -218,10 +218,10 @@ void LUN
         Matrix<F>& X,
         Matrix<F>& scales ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -240,7 +240,7 @@ void LUN
     const Real smallNum = overflowPair.first;
     const Real bigNum = overflowPair.second;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( MaxNorm(U) >= bigNum )
           LogicError("Entries in matrix are too large");
     )
@@ -354,10 +354,10 @@ void LUN
         AbstractDistMatrix<F>& XPre,
         AbstractDistMatrix<F>& scalesPre ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
   
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( UPre.Height() != UPre.Width() )
           LogicError("Triangular matrix must be square");
       if( UPre.Width() != XPre.Height() )

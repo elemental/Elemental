@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 void Covariance( const Matrix<Field>& D, Matrix<Field>& S )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numObs = D.Height();
     const Int n = D.Width();
 
@@ -40,7 +40,7 @@ template<typename Field>
 void Covariance
 ( const AbstractDistMatrix<Field>& DPre, AbstractDistMatrix<Field>& SPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR>
       DProx( DPre );

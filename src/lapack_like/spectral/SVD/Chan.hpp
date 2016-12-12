@@ -22,8 +22,8 @@ SVDInfo ChanUpper
   Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( ctrl.fullChanRatio <= 1.0 )
@@ -138,8 +138,8 @@ SVDInfo ChanUpper
   DistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -256,7 +256,7 @@ SVDInfo ChanUpper
   AbstractDistMatrix<Field>& VPre,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -272,8 +272,8 @@ SVDInfo ChanUpper
   Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ctrl.valChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint");
     )
@@ -294,8 +294,8 @@ SVDInfo ChanUpper
   AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, s );
       if( ctrl.valChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint");
@@ -317,7 +317,7 @@ SVDInfo ChanUpper
   AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     return ChanUpper( A, s, ctrl );
@@ -336,8 +336,8 @@ SVDInfo Chan
   Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ctrl.fullChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
     )
@@ -384,8 +384,8 @@ SVDInfo Chan
   DistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( ctrl.fullChanRatio <= 1.0 )
           LogicError("Nonsensical switchpoint for SVD");
@@ -433,7 +433,7 @@ SVDInfo Chan
   AbstractDistMatrix<Field>& VPre,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -453,7 +453,7 @@ SVDInfo Chan
   Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SVDInfo info;
 
     // Check if we need to rescale the matrix, and do so if necessary
@@ -491,7 +491,7 @@ SVDInfo Chan
   AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SVDInfo info;
 
     // Check if we need to rescale the matrix, and do so if necessary
@@ -529,7 +529,7 @@ SVDInfo Chan
   AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     return Chan( A, s, ctrl );

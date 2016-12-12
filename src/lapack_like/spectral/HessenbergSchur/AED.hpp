@@ -63,7 +63,7 @@ AED
   Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int minMultiBulgeSize = Max( ctrl.minMultiBulgeSize, 4 );
     HessenbergSchurInfo info;
@@ -180,7 +180,7 @@ AED
   DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int blockSize = H.BlockHeight();
     const Grid& grid = H.Grid();

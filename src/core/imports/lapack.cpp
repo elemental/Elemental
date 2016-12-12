@@ -412,7 +412,7 @@ void Copy
 template<typename F>
 F Reflector( BlasInt n, F& chi, F* x, BlasInt incx )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real; 
     const Real zero(0);
 
@@ -711,7 +711,7 @@ BlasInt SymmetricTridiagEigWrapper
   float* w,
   float* Z, BlasInt ldZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return 0;
 
@@ -744,7 +744,7 @@ BlasInt SymmetricTridiagEigWrapper
 ( char job, char range, BlasInt n, double* d, double* e, double vl, double vu,
   BlasInt il, BlasInt iu, double absTol, double* w, double* Z, BlasInt ldZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return 0;
 
@@ -781,14 +781,14 @@ BlasInt SymmetricTridiagEigWrapper
 void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'N', 'A', n, d, e, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'N', 'A', n, d, e, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
@@ -799,7 +799,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float vl, float vu, 
   float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricTridiagEigWrapper
     ( 'N', 'V', n, d, e, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -807,7 +807,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double vl, double vu, 
   double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricTridiagEigWrapper
     ( 'N', 'V', n, d, e, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -818,7 +818,7 @@ void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, BlasInt il, BlasInt iu, 
   float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -826,7 +826,7 @@ void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, BlasInt il, BlasInt iu, 
   double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'N', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -840,7 +840,7 @@ void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ, 
   float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'V', 'A', n, d, e, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -848,7 +848,7 @@ void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ, 
   double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'V', 'A', n, d, e, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -859,7 +859,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ,
   float vl, float vu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricTridiagEigWrapper
     ( 'V', 'V', n, d, e, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -867,7 +867,7 @@ BlasInt SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ,
   double vl, double vu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricTridiagEigWrapper
     ( 'V', 'V', n, d, e, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -878,7 +878,7 @@ void SymmetricTridiagEig
 ( BlasInt n, float* d, float* e, float* w, float* Z, BlasInt ldZ, 
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -886,7 +886,7 @@ void SymmetricTridiagEig
 ( BlasInt n, double* d, double* e, double* w, double* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricTridiagEigWrapper
     ( 'V', 'I', n, d, e, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -899,7 +899,7 @@ BlasInt HermitianEigWrapper
   float vl, float vu, BlasInt il, BlasInt iu, float absTol, 
   float* w, float* Z, BlasInt ldZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return 0;
 
@@ -933,7 +933,7 @@ BlasInt HermitianEigWrapper
   double vl, double vu, BlasInt il, BlasInt iu, double absTol, 
   double* w, double* Z, BlasInt ldZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return 0;
 
@@ -967,7 +967,7 @@ BlasInt HermitianEigWrapper
   float vl, float vu, BlasInt il, BlasInt iu, float absTol, 
   float* w, scomplex* Z, BlasInt ldZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return 0;
 
@@ -1004,7 +1004,7 @@ BlasInt HermitianEigWrapper
   double vl, double vu, BlasInt il, BlasInt iu, double absTol, 
   double* w, dcomplex* Z, BlasInt ldZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return 0;
 
@@ -1044,28 +1044,28 @@ BlasInt HermitianEigWrapper
 void HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
 void HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, 0, 1 );
 }
@@ -1076,7 +1076,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, 
   float vl, float vu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -1084,7 +1084,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w, 
   double vl, double vu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -1092,7 +1092,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w, 
   float vl, float vu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -1100,7 +1100,7 @@ BlasInt HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w, 
   double vl, double vu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'N', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, 0, 1 );
 }
@@ -1111,7 +1111,7 @@ void HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, 
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -1119,7 +1119,7 @@ void HermitianEig
 ( char uplo, BlasInt n, double* A, BlasInt ldA, double* w, 
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -1127,7 +1127,7 @@ void HermitianEig
 ( char uplo, BlasInt n, scomplex* A, BlasInt ldA, float* w, 
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -1135,7 +1135,7 @@ void HermitianEig
 ( char uplo, BlasInt n, dcomplex* A, BlasInt ldA, double* w, 
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'N', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, 0, 1 );
 }
@@ -1149,7 +1149,7 @@ void HermitianEig
 ( char uplo, BlasInt n, float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ, 
   float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1158,7 +1158,7 @@ void HermitianEig
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
   double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1167,7 +1167,7 @@ void HermitianEig
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1176,7 +1176,7 @@ void HermitianEig
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'A', uplo, n, A, ldA, 0, 0, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1188,7 +1188,7 @@ BlasInt HermitianEig
   float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
   float vl, float vu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1197,7 +1197,7 @@ BlasInt HermitianEig
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ,
   double vl, double vu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1206,7 +1206,7 @@ BlasInt HermitianEig
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   float vl, float vu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1215,7 +1215,7 @@ BlasInt HermitianEig
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   double vl, double vu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianEigWrapper
     ( 'V', 'V', uplo, n, A, ldA, vl, vu, 0, 0, absTol, w, Z, ldZ );
 }
@@ -1227,7 +1227,7 @@ void HermitianEig
   float* A, BlasInt ldA, float* w, float* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1236,7 +1236,7 @@ void HermitianEig
   double* A, BlasInt ldA, double* w, double* Z, BlasInt ldZ, 
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1245,7 +1245,7 @@ void HermitianEig
   scomplex* A, BlasInt ldA, float* w, scomplex* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, float absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1254,7 +1254,7 @@ void HermitianEig
   dcomplex* A, BlasInt ldA, double* w, dcomplex* Z, BlasInt ldZ,
   BlasInt il, BlasInt iu, double absTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigWrapper
     ( 'V', 'I', uplo, n, A, ldA, 0, 0, il+1, iu+1, absTol, w, Z, ldZ );
 }
@@ -1264,7 +1264,7 @@ void HermitianEig
 
 void BidiagDQDS( BlasInt n, float* d, float* e )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BlasInt info;
     vector<float> work( 4*n );
     EL_LAPACK(slasq1)( &n, d, e, work.data(), &info );
@@ -1285,7 +1285,7 @@ void BidiagDQDS( BlasInt n, float* d, float* e )
 
 void BidiagDQDS( BlasInt n, double* d, double* e )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BlasInt info;
     vector<double> work( 4*n );
     EL_LAPACK(dlasq1)( &n, d, e, work.data(), &info );
@@ -1311,7 +1311,7 @@ void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU,
   float* d, float* e, float* VTrans, BlasInt ldVT, float* U, BlasInt ldU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n==0 )
         return;
 
@@ -1336,7 +1336,7 @@ void BidiagSVDQRAlg
 ( char uplo, BlasInt n, BlasInt numColsVT, BlasInt numRowsU, 
   double* d, double* e, double* VTrans, BlasInt ldVT, double* U, BlasInt ldU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n==0 )
         return;
 
@@ -1363,7 +1363,7 @@ void BidiagSVDQRAlg
   scomplex* VH, BlasInt ldVH,
   scomplex* U,  BlasInt ldU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n==0 )
         return;
 
@@ -1394,7 +1394,7 @@ void BidiagSVDQRAlg
   dcomplex* VH, BlasInt ldVH,
   dcomplex* U,  BlasInt ldU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n==0 )
         return;
 
@@ -1430,7 +1430,7 @@ void DivideAndConquerSVD
   float* VTrans, BlasInt ldvt,
   bool thin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1475,7 +1475,7 @@ void DivideAndConquerSVD
   double* VTrans, BlasInt ldvt,
   bool thin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1520,7 +1520,7 @@ void DivideAndConquerSVD
   scomplex* VH, BlasInt ldva,
   bool thin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1570,7 +1570,7 @@ void DivideAndConquerSVD
   dcomplex* VH, BlasInt ldva,
   bool thin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1623,7 +1623,7 @@ void QRSVD
   float* VTrans, BlasInt ldvt,
   bool thin, bool avoidU, bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1665,7 +1665,7 @@ void QRSVD
   double* VTrans, BlasInt ldvt,
   bool thin, bool avoidU, bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1707,7 +1707,7 @@ void QRSVD
   scomplex* VH, BlasInt ldva,
   bool thin, bool avoidU, bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1753,7 +1753,7 @@ void QRSVD
   dcomplex* VH, BlasInt ldva,
   bool thin, bool avoidU, bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1796,7 +1796,7 @@ void QRSVD
 
 void SVD( BlasInt m, BlasInt n, float* A, BlasInt ldA, float* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1821,7 +1821,7 @@ void SVD( BlasInt m, BlasInt n, float* A, BlasInt ldA, float* s )
 
 void SVD( BlasInt m, BlasInt n, double* A, BlasInt ldA, double* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1846,7 +1846,7 @@ void SVD( BlasInt m, BlasInt n, double* A, BlasInt ldA, double* s )
 
 void SVD( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, float* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -1873,7 +1873,7 @@ void SVD( BlasInt m, BlasInt n, scomplex* A, BlasInt ldA, float* s )
 
 void SVD( BlasInt m, BlasInt n, dcomplex* A, BlasInt ldA, double* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( m==0 || n==0 )
         return;
 
@@ -2139,7 +2139,7 @@ bool Solve2x2FullPiv
   const Real& smallNum,
   const Real& minPiv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1), two(2);
     // Avoid tedious index calculations for the 2x2 LU with full pivoting
     // using cached tables in the same manner as LAPACK's {s,d}lasy2
@@ -2246,7 +2246,7 @@ bool Solve4x4FullPiv
   const Real& smallNum,
   const Real& minPiv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1), eight(8);
     bool perturbed = false;
 
@@ -2403,7 +2403,7 @@ bool SmallSylvester
         Real* X, BlasInt XLDim,
         Real& XInfNorm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Real epsilon = limits::Epsilon<Real>();
     const Real smallNum = limits::SafeMin<Real>() / epsilon;
@@ -2705,9 +2705,9 @@ void Helper
   Real* work,
   bool testAccuracy )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Uphold LAPACK's conventions for allowing n1, n2 in {0,1,2}
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n1 < 0 || n1 > 2 )
           LogicError("n1 must be in {0,1,2}");
       if( n2 < 0 || n2 > 2 )
@@ -3147,7 +3147,7 @@ void AdjacentSchurExchange
   Real* work,
   bool testAccuracy )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool wantSchurVecs = false;
     Real* Q=nullptr;
     BlasInt QLDim = 1;
@@ -3166,7 +3166,7 @@ void AdjacentSchurExchange
   Real* work,
   bool testAccuracy )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool wantSchurVecs = true;
     adjacent_schur::Helper
     ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, n1, n2, work, testAccuracy );
@@ -3297,7 +3297,7 @@ void Helper
   Real* work,
   bool testAccuracy )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     if( n <= 1 )
         return;
@@ -3478,7 +3478,7 @@ void Helper
   BlasInt j1,
   BlasInt j2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n <= 1 || j1 == j2 )
         return;
 
@@ -3524,7 +3524,7 @@ void SchurExchange
   Real* work,
   bool testAccuracy )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool wantSchurVecs = false;
     Real* Q=nullptr;
     BlasInt QLDim = 1;
@@ -3539,7 +3539,7 @@ void SchurExchange
   BlasInt j1,
   BlasInt j2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool wantSchurVecs = false;
     Complex<Real>* Q=nullptr;
     BlasInt QLDim = 1;
@@ -3556,7 +3556,7 @@ void SchurExchange
   Real* work,
   bool testAccuracy )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool wantSchurVecs = true;
     schur_exchange::Helper
     ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2, work, testAccuracy );
@@ -3570,7 +3570,7 @@ void SchurExchange
   BlasInt j1,
   BlasInt j2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool wantSchurVecs = true;
     schur_exchange::Helper
     ( wantSchurVecs, n, T, TLDim, Q, QLDim, j1, j2 );
@@ -3749,7 +3749,7 @@ void HessenbergSchur
   bool fullTriangle,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -3800,7 +3800,7 @@ void HessenbergSchur
   bool fullTriangle,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -3851,7 +3851,7 @@ void HessenbergSchur
   bool fullTriangle,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -3898,7 +3898,7 @@ void HessenbergSchur
   bool fullTriangle,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -3947,7 +3947,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4000,7 +4000,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4053,7 +4053,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4102,7 +4102,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool useAED )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4147,25 +4147,25 @@ void HessenbergSchur
 
 void HessenbergEig( BlasInt n, float* H, BlasInt ldH, scomplex* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, ldH, w, false );
 }
 
 void HessenbergEig( BlasInt n, double* H, BlasInt ldH, dcomplex* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, ldH, w, false );
 }
 
 void HessenbergEig( BlasInt n, scomplex* H, BlasInt ldH, scomplex* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, ldH, w, false );
 }
 
 void HessenbergEig( BlasInt n, dcomplex* H, BlasInt ldH, dcomplex* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, ldH, w, false );
 }
 
@@ -4183,7 +4183,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4232,7 +4232,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4281,7 +4281,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4325,7 +4325,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4370,7 +4370,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4435,7 +4435,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4500,7 +4500,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 
@@ -4560,7 +4560,7 @@ void Schur
   bool fullTriangle,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( n == 0 )
         return;
 

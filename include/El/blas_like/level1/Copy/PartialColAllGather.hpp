@@ -17,7 +17,7 @@ void PartialColAllGather
 ( const DistMatrix<T,        U,   V>& A, 
         DistMatrix<T,Partial<U>(),V>& B ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -45,7 +45,7 @@ void PartialColAllGather
     if( !A.Participating() )
         return;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.LocalWidth() != A.Width() )
           LogicError("This routine assumes rows are not distributed");
     )
@@ -134,7 +134,7 @@ void PartialColAllGather
 ( const DistMatrix<T,        U,   V,BLOCK>& A, 
         DistMatrix<T,Partial<U>(),V,BLOCK>& B ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

@@ -23,8 +23,8 @@ Blocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -74,8 +74,8 @@ Blocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, dSubPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

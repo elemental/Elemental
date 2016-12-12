@@ -18,7 +18,7 @@ namespace hess_schur {
 template<typename Field>
 Int DetectSmallSubdiagonal( const Matrix<Field>& H )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     const Int n = H.Height();
@@ -76,7 +76,7 @@ Int DetectSmallSubdiagonal
   const Matrix<Field>& hSub,
   const Matrix<Field>& hSuper )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     const Int n = hMain.Height();
@@ -129,10 +129,10 @@ Int DetectSmallSubdiagonal
 template<typename Real>
 Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Int n = H.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n < 2 )
           LogicError("WilkinsonShift requires n >= 2");
     )
@@ -146,7 +146,7 @@ Complex<Real> WilkinsonShift( const Matrix<Complex<Real>>& H )
     // NOTE:
     // eta10 should be real, but it is possibly negative, and so we will
     // interpret it as a complex number so that the square-root is well-defined
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( ImagPart(eta10) != zero )
           LogicError("Subdiagonal assumed real");
     )
@@ -184,7 +184,7 @@ ChooseStart
 ( const Matrix<Complex<Real>>& H,
         Complex<Real> shift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Real ulp = limits::Precision<Real>();
 
@@ -222,7 +222,7 @@ void Sweep
   Matrix<Complex<Real>>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Int n = H.Height();
     const Int nZ = Z.Height();
@@ -346,7 +346,7 @@ void SweepOpt
   Matrix<Complex<Real>>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Int n = H.Height();
     const Int nZ = Z.Height();

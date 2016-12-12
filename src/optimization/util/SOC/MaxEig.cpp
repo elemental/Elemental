@@ -19,7 +19,7 @@ void MaxEig
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     soc::LowerNorms( x, maxEigs, orders, firstInds );
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
@@ -36,7 +36,7 @@ void MaxEig
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, maxEigsPre, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -54,7 +54,7 @@ void MaxEig
     auto& firstInds = firstIndsProx.GetLocked();
 
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
@@ -82,10 +82,10 @@ void MaxEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -110,7 +110,7 @@ Real MaxEig
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Real> maxEigs;
     soc::MaxEig( x, maxEigs, orders, firstInds );
 
@@ -130,7 +130,7 @@ Real MaxEig
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( x, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -162,7 +162,7 @@ Real MaxEig
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<Real> maxEigs(x.Comm());
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 

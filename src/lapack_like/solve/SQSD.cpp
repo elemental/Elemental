@@ -20,7 +20,7 @@ namespace El {
 template<typename F>
 void SQSDSolve( Int n0, UpperOrLower uplo, const Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Orientation orient = NORMAL;
     const bool conjugate = true;
     // TODO(poulson): LDLPivotCtrl control structure
@@ -34,7 +34,7 @@ void SQSDSolve
   const AbstractDistMatrix<F>& A,
         AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Orientation orient = NORMAL;
     const bool conjugate = true;
     // TODO(poulson): LDLPivotCtrl control structure
@@ -48,7 +48,7 @@ void SQSDSolve
         Matrix<F>& B,
   const SQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( !ctrl.canOverwrite )
     {
@@ -127,7 +127,7 @@ void SQSDSolve
         Matrix<F>& B,
   const SQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.canOverwrite = true;
@@ -141,7 +141,7 @@ void SQSDSolve
         DistMultiVec<F>& B,
   const SQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( !ctrl.canOverwrite )
     {
@@ -220,7 +220,7 @@ void SQSDSolve
         DistMultiVec<F>& B,
   const SQSDCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.canOverwrite = true;

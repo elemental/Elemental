@@ -63,7 +63,7 @@ bool PivotedFactorization( LDLFrontType type )
 
 LDLFrontType ConvertTo2D( LDLFrontType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLFrontType newType;
     switch( type )
     {
@@ -88,7 +88,7 @@ LDLFrontType ConvertTo2D( LDLFrontType type )
 
 LDLFrontType ConvertTo1D( LDLFrontType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLFrontType newType;
     switch( type )
     {
@@ -113,7 +113,7 @@ LDLFrontType ConvertTo1D( LDLFrontType type )
 
 LDLFrontType AppendSelInv( LDLFrontType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLFrontType newType=LDL_SELINV_2D;
     switch( type )
     {
@@ -128,7 +128,7 @@ LDLFrontType AppendSelInv( LDLFrontType type )
 
 LDLFrontType RemoveSelInv( LDLFrontType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLFrontType newType=LDL_2D;
     switch( type )
     {

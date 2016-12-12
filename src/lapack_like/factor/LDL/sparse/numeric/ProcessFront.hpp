@@ -26,8 +26,8 @@ namespace ldl {
 template<typename F>
 void ProcessFrontVanilla( Matrix<F>& AL, Matrix<F>& ABR, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width() + ABR.Width() )
@@ -77,7 +77,7 @@ void ProcessFrontIntraPiv
   Matrix<F>& ABR,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
@@ -102,7 +102,7 @@ void ProcessFrontBlock
   bool conjugate,
   bool intraPiv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = AL.Width();
 
     auto ATL = AL( IR(0,n  ), ALL );
@@ -153,9 +153,9 @@ void ProcessFrontBlock
 template<typename F>
 void ProcessFront( Front<F>& front, LDLFrontType factorType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     front.type = factorType;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( front.sparseLeaf )
           LogicError("This should not be possible");
     )
@@ -194,8 +194,8 @@ void ProcessFrontVanilla
   DistMatrix<F>& ABR,
   bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ABR.Height() != ABR.Width() )
           LogicError("ABR must be square");
       if( AL.Height() != AL.Width()+ABR.Height() )
@@ -275,7 +275,7 @@ void ProcessFrontIntraPiv
   DistMatrix<F>& ABR,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = AL.Grid();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -309,7 +309,7 @@ void ProcessFrontBlock
   bool conjugate,
   bool intraPiv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = AL.Width();
 
     auto ATL = AL( IR(0,n  ), ALL );
@@ -357,8 +357,8 @@ void ProcessFrontBlock
 template<typename F>
 void ProcessFront( DistFront<F>& front, LDLFrontType factorType )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( FrontIs1D(front.type) )
           LogicError("Expected front to be in a 2D distribution");
     )

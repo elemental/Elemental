@@ -14,14 +14,14 @@ namespace El {
 template<typename T>
 void Rademacher( Matrix<T>& A, Int m, Int n )
 { 
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ThreeValued( A, m, n, 1. );
 }
 
 template<typename T>
 void Rademacher( AbstractDistMatrix<T>& A, Int m, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ThreeValued( A, m, n, 1. );
 }
 

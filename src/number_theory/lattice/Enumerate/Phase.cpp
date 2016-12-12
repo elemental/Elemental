@@ -19,7 +19,7 @@ void CoordinatesToSparse
   const Matrix<Field>& v,
         Matrix<Field>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     y = v;
     Trmv( UPPER, NORMAL, UNIT, N, y );
     Round( y );
@@ -31,7 +31,7 @@ void TransposedCoordinatesToSparse
   const Matrix<Field>& v,
         Matrix<Field>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     y = v;
     Trmv( LOWER, TRANSPOSE, UNIT, NTrans, y );
     Round( y );
@@ -43,7 +43,7 @@ void BatchCoordinatesToSparse
   const Matrix<Field>& V,
         Matrix<Field>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Y = V;
     Trmm( LEFT, UPPER, NORMAL, UNIT, Field(1), N, Y );
     Round( Y );
@@ -55,7 +55,7 @@ void BatchTransposedCoordinatesToSparse
   const Matrix<Field>& V,
         Matrix<Field>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Y = V;
     Trmm( LEFT, LOWER, TRANSPOSE, UNIT, Field(1), NTrans, Y );
     Round( Y );
@@ -67,7 +67,7 @@ void SparseToCoordinates
   const Matrix<Field>& y,
         Matrix<Field>& v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = N.Height();
 
     v = y;
@@ -88,7 +88,7 @@ void TransposedSparseToCoordinates
   const Matrix<Field>& y,
         Matrix<Field>& v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = NTrans.Height();
 
     v = y;
@@ -112,7 +112,7 @@ void BatchSparseToCoordinatesUnblocked
   const Matrix<Field>& Y,
         Matrix<Field>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = N.Height();
     const Int numRHS = Y.Width();
 
@@ -137,7 +137,7 @@ void BatchTransposedSparseToCoordinatesUnblocked
   const Matrix<Field>& Y,
         Matrix<Field>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = NTrans.Height();
     const Int numRHS = Y.Width();
 
@@ -166,7 +166,7 @@ void BatchSparseToCoordinates
         Matrix<Field>& V,
         Int blocksize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = N.Height();
     const Int numRHS = Y.Width();
 
@@ -202,7 +202,7 @@ void BatchTransposedSparseToCoordinates
         Matrix<Field>& V,
         Int blocksize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = NTrans.Height();
     const Int numRHS = Y.Width();
 
@@ -237,7 +237,7 @@ Base<Field> CoordinatesToNorm
   const Matrix<Field>& N,
   const Matrix<Field>& v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> z( v );
     Trmv( UPPER, NORMAL, UNIT, N, z );
     DiagonalScale( LEFT, NORMAL, d, z );
@@ -250,7 +250,7 @@ Base<Field> TransposedCoordinatesToNorm
   const Matrix<Field>& NTrans,
   const Matrix<Field>& v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> z( v );
     Trmv( LOWER, TRANSPOSE, UNIT, NTrans, z );
     DiagonalScale( LEFT, NORMAL, d, z );
@@ -261,7 +261,7 @@ template<typename Field>
 Matrix<Base<Field>>
 NestedColumnTwoNorms( const Matrix<Field>& Z, Int numNested=1 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = Z.Height();
     const Int numRHS = Z.Width();
@@ -290,7 +290,7 @@ Matrix<Base<Field>> BatchCoordinatesToNorms
   const Matrix<Field>& V,
         Int numNested=1 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> Z( V );
     // TODO(poulson): Decide whether this branch is necessary or not...
     if( V.Width() == 1 )
@@ -309,7 +309,7 @@ Matrix<Base<Field>> BatchTransposedCoordinatesToNorms
   const Matrix<Field>& V,
         Int numNested=1 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> Z( V );
     // TODO(poulson): Decide whether this branch is necessary or not...
     if( V.Width() == 1 )
@@ -326,7 +326,7 @@ Base<Field> SparseToNormLowerBound
 ( const Matrix<Base<Field>>& d,
   const Matrix<Field>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = d.Height();
     const Real* dBuf = d.LockedBuffer();
@@ -351,7 +351,7 @@ Matrix<Base<Field>> BatchSparseToNormLowerBound
 ( const Matrix<Base<Field>>& d,
   const Matrix<Field>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int numRHS = Y.Width();
     Matrix<Real> normBounds;
@@ -367,7 +367,7 @@ Base<Field> SparseToNorm
   const Matrix<Field>& N,
   const Matrix<Field>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> v;
     SparseToCoordinates( N, y, v );
     return CoordinatesToNorm( d, N, v );
@@ -379,7 +379,7 @@ Base<Field> TransposedSparseToNorm
   const Matrix<Field>& NTrans,
   const Matrix<Field>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> v;
     TransposedSparseToCoordinates( NTrans, y, v );
     return TransposedCoordinatesToNorm( d, NTrans, v );
@@ -393,7 +393,7 @@ Matrix<Base<Field>> BatchSparseToNorm
         Int blocksize,
         Int numNested=1 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> V;
     BatchSparseToCoordinates( N, Y, V, blocksize );
     return BatchCoordinatesToNorms( d, N, V, numNested );
@@ -407,7 +407,7 @@ Matrix<Base<Field>> BatchTransposedSparseToNorm
         Int blocksize,
         Int numNested=1 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> V;
     BatchTransposedSparseToCoordinates( NTrans, Y, V, blocksize );
     return BatchTransposedCoordinatesToNorms( d, NTrans, V, numNested );
@@ -648,7 +648,7 @@ void PhaseEnumerationLeafInner
   const Int baseInf,
   const Int baseOne )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = ctrl.phaseOffsets.back();
     const Int minInf = ctrl.minInfNorms.back();
     const Int maxInf = ctrl.maxInfNorms.back();
@@ -703,7 +703,7 @@ void PhaseEnumerationLeaf
   const PhaseEnumerationCtrl& ctrl,
         vector<pair<Int,Field>>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Enqueue the zero phase if it is admissible
     if( ctrl.minInfNorms.back() == Int(0) &&
@@ -726,7 +726,7 @@ void PhaseEnumerationNodeInner
   const Int baseInf,
   const Int baseOne )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = cache.Height();
     if( ctrl.earlyExit && cache.FoundVector() )
         return;
@@ -806,7 +806,7 @@ void PhaseEnumerationNode
         vector<pair<Int,Field>>& y,
   const Int phase )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int baseInfNorm = 0;
     const Int baseOneNorm = 0;
     PhaseEnumerationNodeInner
@@ -832,7 +832,7 @@ PhaseEnumeration
         Matrix<Field>& v,
         Int progressLevel )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = N.Height();
     if( n <= 1 )
         return pair<Base<Field>,Int>(2*normUpperBounds(0)+1,0);
@@ -903,7 +903,7 @@ Base<Field> PhaseEnumeration
         Matrix<Field>& v,
         Int progressLevel )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Base<Field>> normUpperBounds(1,1);
     normUpperBounds(0) = normUpperBound;
     auto pair = 

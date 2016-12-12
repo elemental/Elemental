@@ -24,7 +24,7 @@ AEDInfo NibbleHelper
   Matrix<Real>& V,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     AEDInfo info;
 
@@ -63,7 +63,7 @@ AEDInfo NibbleHelper
     ctrlSub.alg = ( ctrl.recursiveAED ? HESSENBERG_SCHUR_AED
                                       : HESSENBERG_SCHUR_MULTIBULGE );
     auto infoSub = HessenbergSchur( T, w, V, ctrlSub );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( infoSub.numUnconverged != 0 )
           Output(infoSub.numUnconverged," eigenvalues did not converge");
     )
@@ -194,7 +194,7 @@ AEDInfo NibbleHelper
   Matrix<Complex<Real>>& V,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> Field;
     const Int n = H.Height();
     AEDInfo info;
@@ -234,7 +234,7 @@ AEDInfo NibbleHelper
     ctrlSub.alg = ( ctrl.recursiveAED ? HESSENBERG_SCHUR_AED
                                       : HESSENBERG_SCHUR_MULTIBULGE );
     auto infoSub = HessenbergSchur( T, w, V, ctrlSub );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( infoSub.numUnconverged != 0 )
           Output(infoSub.numUnconverged," eigenvalues did not converge");
     )
@@ -345,7 +345,7 @@ AEDInfo Nibble
   Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
@@ -404,7 +404,7 @@ AEDInfo Nibble
   DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Grid& grid = H.Grid();
     AEDInfo info;

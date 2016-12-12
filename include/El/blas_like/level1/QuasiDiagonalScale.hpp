@@ -20,7 +20,7 @@ void QuasiDiagonalScale
         Matrix<F>& X,
   bool conjugated )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = X.Height();
     const Int n = X.Width();
     Matrix<F> D( 2, 2 );
@@ -100,13 +100,13 @@ void LeftQuasiDiagonalScale
   const DistMatrix<F,U,V>& XNext,
   bool conjugated )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int m = X.Height();
     const Int mLocal = X.LocalHeight();
     const Int colStride = X.ColStride();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int colAlignPrev = Mod(X.ColAlign()+1,colStride);
       const Int colAlignNext = Mod(X.ColAlign()-1,colStride);
       if( d.ColAlign() != X.ColAlign() || dSub.ColAlign() != X.ColAlign() )
@@ -185,13 +185,13 @@ void RightQuasiDiagonalScale
   const DistMatrix<F,U,V>& XNext,
   bool conjugated )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     const Int n = X.Width();
     const Int nLocal = X.LocalWidth();
     const Int rowStride = X.RowStride();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int rowAlignPrev = Mod(X.RowAlign()+1,rowStride);
       const Int rowAlignNext = Mod(X.RowAlign()-1,rowStride);
       if( d.ColAlign() != X.RowAlign() || dSub.ColAlign() != X.RowAlign() )
@@ -265,7 +265,7 @@ QuasiDiagonalScale
         DistMatrix<F,U,V>& X,
   bool conjugated )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = X.Grid();
     const Int colAlign = X.ColAlign();
     const Int rowAlign = X.RowAlign();
@@ -360,7 +360,7 @@ QuasiDiagonalScale
         DistMatrix<F,U,V,BLOCK>& X,
   bool conjugated )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet supported");
 }
 

@@ -19,8 +19,8 @@ namespace mod {
 template<typename F>
 void UpperUpdate( Matrix<F>& U, Matrix<F>& V )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Cholesky factors must be square");
       if( V.Height() != U.Height() )
@@ -74,8 +74,8 @@ void UpperUpdate
 ( AbstractDistMatrix<F>& UPre,
   AbstractDistMatrix<F>& VPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( UPre.Height() != UPre.Width() )
           LogicError("Cholesky factors must be square");
       if( VPre.Height() != UPre.Height() )
@@ -144,8 +144,8 @@ void UpperUpdate
 template<typename F>
 void UpperDowndate( Matrix<F>& U, Matrix<F>& V )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Cholesky factors must be square");
       if( V.Height() != U.Height() )
@@ -198,8 +198,8 @@ template<typename F>
 void UpperDowndate
 ( AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& VPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( UPre.Height() != UPre.Width() )
           LogicError("Cholesky factors must be square");
       if( VPre.Height() != UPre.Height() )
@@ -270,7 +270,7 @@ void UpperDowndate
 template<typename F>
 void UpperMod( Matrix<F>& U, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;
@@ -292,7 +292,7 @@ void UpperMod
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( alpha == Real(0) )
         return;

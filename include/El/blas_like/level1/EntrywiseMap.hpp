@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void EntrywiseMap( Matrix<T>& A, function<T(const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     T* ABuf = A.Buffer();
@@ -27,7 +27,7 @@ void EntrywiseMap( Matrix<T>& A, function<T(const T&)> func )
 template<typename T>
 void EntrywiseMap( SparseMatrix<T>& A, function<T(const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
@@ -41,7 +41,7 @@ void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(const T&)> func )
 template<typename T>
 void EntrywiseMap( DistSparseMatrix<T>& A, function<T(const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
@@ -56,7 +56,7 @@ template<typename S,typename T>
 void EntrywiseMap
 ( const Matrix<S>& A, Matrix<T>& B, function<T(const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const S* ABuf = A.LockedBuffer();
@@ -76,7 +76,7 @@ void EntrywiseMap
         SparseMatrix<T>& B,
         function<T(const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numEntries = A.NumEntries();
     B.ForceNumEntries( numEntries );
     B.Graph() = A.LockedGraph();
@@ -123,7 +123,7 @@ void EntrywiseMap
         DistSparseMatrix<T>& B,
         function<T(const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numLocalEntries = A.NumLocalEntries();
     B.ForceNumLocalEntries( numLocalEntries );
     B.DistGraph() = A.LockedDistGraph();
@@ -140,7 +140,7 @@ void EntrywiseMap
         DistMultiVec<T>& B,
         function<T(const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B.SetComm( A.Comm() );
     B.Resize( A.Height(), A.Width() );
     EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );

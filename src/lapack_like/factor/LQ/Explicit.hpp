@@ -15,7 +15,7 @@ namespace lq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     LQ( A, householderScalars, signature );
@@ -30,7 +30,7 @@ void ExplicitTriang( Matrix<F>& A )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> householderScalars(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
@@ -46,7 +46,7 @@ void ExplicitTriang( AbstractDistMatrix<F>& A )
 template<typename F>
 void ExplicitUnitary( Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     LQ( A, householderScalars, signature );
@@ -61,7 +61,7 @@ void ExplicitUnitary( Matrix<F>& A )
 template<typename F>
 void ExplicitUnitary( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = APre.Grid();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -82,7 +82,7 @@ void ExplicitUnitary( AbstractDistMatrix<F>& APre )
 template<typename F>
 void Explicit( Matrix<F>& L, Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     LQ( A, householderScalars, signature );
@@ -104,7 +104,7 @@ void Explicit( Matrix<F>& L, Matrix<F>& A )
 template<typename F>
 void Explicit( AbstractDistMatrix<F>& L, AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = APre.Grid();
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

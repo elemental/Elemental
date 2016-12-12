@@ -17,7 +17,7 @@ namespace pivot {
 template<typename F>
 LDLPivot Full( const Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -28,7 +28,7 @@ LDLPivot Full( const Matrix<F>& A )
 template<typename F>
 LDLPivot Full( const DistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto diagMax = VectorMaxAbsLoc( GetDiagonal(A) );
     LDLPivot pivot;
     pivot.nb = 1;
@@ -43,7 +43,7 @@ LDLPivot PanelFull
   const Matrix<F>& X,
   const Matrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Form updated diagonal
     const Int height = d.Height();
@@ -69,8 +69,8 @@ LDLPivot PanelFull
   const DistMatrix<F,MC,STAR>& X,
   const DistMatrix<F,MR,STAR>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColAlign() != X.ColAlign() || A.RowAlign() != Y.ColAlign() )
           LogicError("A, X, and Y are not properly aligned");
     )
@@ -111,8 +111,8 @@ LDLPivot PanelFull
 template<typename F>
 void PivotedLowerUnblocked( Matrix<F>& A, Permutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -156,8 +156,8 @@ void PivotedLowerUnblocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
@@ -211,10 +211,10 @@ void PivotedLowerPanel
   Int bsize,
   Int off )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
     )
@@ -279,10 +279,10 @@ void PivotedLowerPanel
   Int bsize,
   Int off )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
     )
@@ -344,8 +344,8 @@ void PivotedLowerPanel
 template<typename F>
 void PivotedLowerVariant3Blocked( Matrix<F>& A, Permutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -377,8 +377,8 @@ void PivotedLowerVariant3Blocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

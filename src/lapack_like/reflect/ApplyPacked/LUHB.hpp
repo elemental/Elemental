@@ -40,14 +40,14 @@ void LUHBUnblocked
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( H.Width() != A.Height() )
           LogicError("H's width and A's height must match");
     )
     const Int nH = H.Width(); 
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag");
@@ -86,14 +86,14 @@ void LUHBBlocked
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( H.Width() != A.Height() )
           LogicError("H's width and A's height must match");
     )
     const Int nH = H.Width(); 
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag");
@@ -141,7 +141,7 @@ void LUHB
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numRHS = A.Width();
     const Int blocksize = Blocksize();
     if( numRHS < blocksize )
@@ -162,8 +162,8 @@ void LUHBUnblocked
   const AbstractDistMatrix<F>& householderScalarsPre,
         AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
 
     // We gather the entire set of Householder scalars at the start rather than
     // continually paying the latency cost of the broadcasts in a 'Get' call
@@ -176,7 +176,7 @@ void LUHBUnblocked
 
     const Int nH = H.Width();
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag");
@@ -223,8 +223,8 @@ void LUHBBlocked
   const AbstractDistMatrix<F>& householderScalarsPre,
         AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( H, householderScalarsPre, APre ))
 
     DistMatrixReadProxy<F,F,MC,STAR>
       householderScalarsProx( householderScalarsPre );
@@ -235,7 +235,7 @@ void LUHBBlocked
 
     const Int nH = H.Width();
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag");
@@ -309,7 +309,7 @@ void LUHB
   const AbstractDistMatrix<F>& householderScalars,
         AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numRHS = A.Width();
     const Int blocksize = Blocksize();
     if( numRHS < blocksize )

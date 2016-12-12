@@ -21,7 +21,7 @@ Int ZDependenceSearch
         Matrix<Field>& U,
   const LLLCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( z.Width() != 1 )
         LogicError("z was assumed to be a column vector");
 

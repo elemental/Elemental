@@ -18,7 +18,7 @@ template<typename Field>
 Int TSQR
 ( AbstractDistMatrix<Field>& APre, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,VC,STAR> AProx( APre );
     auto& A = AProx.Get();

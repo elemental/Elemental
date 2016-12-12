@@ -15,14 +15,14 @@ namespace El {
 template<typename F1,typename F2>
 void Cauchy( Matrix<F1>& A, const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
     auto cauchyFill =
       [&]( Int i, Int j ) -> F1
       {
-         DEBUG_ONLY(
+         EL_DEBUG_ONLY(
              // TODO: Use tolerance instead?
              if( x[i] == y[j] )
                  LogicError
@@ -39,14 +39,14 @@ void Cauchy
 ( AbstractDistMatrix<F1>& A,
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.size();
     const Int n = y.size();
     A.Resize( m, n );
     auto cauchyFill =
       [&]( Int i, Int j ) -> F1
       {
-         DEBUG_ONLY(
+         EL_DEBUG_ONLY(
              // TODO: Use tolerance instead?
              if( x[i] == y[j] )
                  LogicError

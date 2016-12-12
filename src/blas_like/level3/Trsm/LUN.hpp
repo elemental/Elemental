@@ -21,7 +21,7 @@ void LUNLarge
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -76,7 +76,7 @@ void LUNMedium
         AbstractDistMatrix<F>& XPre,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -131,8 +131,8 @@ void LUNSmall
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( U, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError

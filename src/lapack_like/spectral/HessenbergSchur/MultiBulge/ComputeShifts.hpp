@@ -22,7 +22,7 @@ Int ConsistentlyComputeEigenvalues
         DistMatrix<Complex<Base<Field>>,STAR,STAR>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Because double-precision floating-point computation is often
     // non-deterministic due to extra-precision computation being frequent but
     // not guaranteed, we must be careful to not allow this non-determinism to
@@ -58,7 +58,7 @@ Int ComputeShifts
         Int numStaleIterBeforeExceptional,
   const HessenbergSchurCtrl& ctrlShifts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;
@@ -124,7 +124,7 @@ Int ComputeShifts
         Int numStaleIterBeforeExceptional,
   const HessenbergSchurCtrl& ctrlShifts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;
@@ -206,7 +206,7 @@ Int ComputeShifts
         Int numStaleIterBeforeExceptional,
   const HessenbergSchurCtrl& ctrlShifts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;
@@ -259,7 +259,7 @@ Int ComputeShifts
         Int numStaleIterBeforeExceptional,
   const HessenbergSchurCtrl& ctrlShifts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int shiftBeg = Max(iterBeg,winEnd-numShiftsRec);
     const Int numShifts = winEnd - shiftBeg;

@@ -19,12 +19,12 @@ void GatherSubdiagonal
   const IR& winInd,
         DistMatrix<Field,STAR,STAR>& hSubWin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
     const Int blockSize = H.BlockHeight();
     const Grid& grid = H.Grid();
     const auto& HLoc = H.LockedMatrix();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( H.BlockHeight() != H.BlockWidth() )
           LogicError("Assumed square distribution blocks");
       if( H.ColCut() != H.RowCut() )
@@ -108,12 +108,12 @@ void GatherBidiagonal
         DistMatrix<Field,STAR,STAR>& hMainWin,
         DistMatrix<Field,STAR,STAR>& hSubWin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
     const Int blockSize = H.BlockHeight();
     const Grid& grid = H.Grid();
     const auto& HLoc = H.LockedMatrix();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( H.BlockHeight() != H.BlockWidth() )
           LogicError("Assumed square distribution blocks");
       if( H.ColCut() != H.RowCut() )
@@ -204,12 +204,12 @@ void GatherTridiagonal
         DistMatrix<Field,STAR,STAR>& hSubWin,
         DistMatrix<Field,STAR,STAR>& hSuperWin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int winSize = winInd.end - winInd.beg;
     const Int blockSize = H.BlockHeight();
     const Grid& grid = H.Grid();
     const auto& HLoc = H.LockedMatrix();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( H.BlockHeight() != H.BlockWidth() )
           LogicError("Assumed square distribution blocks");
       if( H.ColCut() != H.RowCut() )

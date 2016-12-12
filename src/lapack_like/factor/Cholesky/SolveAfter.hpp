@@ -19,8 +19,8 @@ void SolveAfter
   const Matrix<F>& A,
         Matrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -50,8 +50,8 @@ void SolveAfter
   const Permutation& P,
         Matrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -82,8 +82,8 @@ void SolveAfter
   const AbstractDistMatrix<F>& A,
         AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -114,8 +114,8 @@ void SolveAfter
   const DistPermutation& P, 
         AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");

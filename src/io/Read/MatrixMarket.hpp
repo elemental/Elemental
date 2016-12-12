@@ -15,7 +15,7 @@ namespace read {
 template<typename T>
 void MatrixMarket( Matrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -219,7 +219,7 @@ void MatrixMarket( Matrix<T>& A, const string filename )
 template<typename T>
 void MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use a WriteProxy instead
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
@@ -235,7 +235,7 @@ void MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 template<typename T>
 void MatrixMarket( SparseMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -406,7 +406,7 @@ void MatrixMarket( SparseMatrix<T>& A, const string filename )
 template<typename T>
 void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )

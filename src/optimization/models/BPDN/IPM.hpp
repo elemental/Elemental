@@ -58,7 +58,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -118,7 +118,7 @@ void IPM
         AbstractDistMatrix<Real>& xPre,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
     const auto& A = AProx.GetLocked();
@@ -185,7 +185,7 @@ void IPM
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -254,7 +254,7 @@ void IPM
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

@@ -39,14 +39,14 @@ void LLVBUnblocked
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( H.Height() != A.Height() )
           LogicError("A and H must be the same height");
     )
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag.");
@@ -85,14 +85,14 @@ void LLVBBlocked
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( H.Height() != A.Height() )
           LogicError("H and A must have the same height");
     )
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag");
@@ -140,7 +140,7 @@ void LLVB
   const Matrix<F>& householderScalars,
         Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numRHS = A.Width();
     const Int blocksize = Blocksize();
     if( numRHS < blocksize )
@@ -161,8 +161,8 @@ void LLVBUnblocked
   const AbstractDistMatrix<F>& householderScalarsPre, 
         AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( H.Height() != APre.Height() )
           LogicError("A and H must be the same height");
       AssertSameGrids( H, householderScalarsPre, APre );
@@ -179,7 +179,7 @@ void LLVBUnblocked
 
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag.");
@@ -226,8 +226,8 @@ void LLVBBlocked
   const AbstractDistMatrix<F>& householderScalarsPre, 
         AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( H.Height() != APre.Height() )
           LogicError("H and A must have the same height");
       AssertSameGrids( H, householderScalarsPre, APre );
@@ -242,7 +242,7 @@ void LLVBBlocked
 
     const Int m = H.Height();
     const Int diagLength = H.DiagonalLength(offset);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalars.Height() != diagLength )
           LogicError
           ("householderScalars must be the same length as H's offset diag");
@@ -314,7 +314,7 @@ void LLVB
   const AbstractDistMatrix<F>& householderScalars, 
         AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numRHS = A.Width();
     const Int blocksize = Blocksize();
     if( numRHS < blocksize )

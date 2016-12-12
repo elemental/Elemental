@@ -434,7 +434,7 @@ DetermineInteraction
   const Grid& grid,
   const DistChaseState& state )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( diagBlockRow < Max(state.introBlock,0) ||
         diagBlockRow >= state.endBlock )
         LogicError("Diagonal block row was not in the active range");
@@ -655,7 +655,7 @@ FormRowInteractionList
   const Grid& grid,
   const DistChaseState& state )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<InterBlockInteraction> interactionList;
     // Only loop over the blocks that are assigned to our process row
     // and occur within the active window.
@@ -687,7 +687,7 @@ FormColumnInteractionList
   const Grid& grid,
   const DistChaseState& state )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<InterBlockInteraction> interactionList;
     // Only loop over the blocks that are assigned to our process column
     // and occur within the active window.
@@ -747,7 +747,7 @@ void CollectBlock
         Matrix<Field>& HBlock,
   const DistChaseState& state )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto& HLoc = H.LockedMatrix();
     const Grid& grid = H.Grid();
 
@@ -759,7 +759,7 @@ void CollectBlock
       Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( (grid.Row() != firstRow && grid.Row() != secondRow) ||
           (grid.Col() != firstCol && grid.Col() != secondCol) )
           LogicError("This process does not participate in this interaction");
@@ -887,7 +887,7 @@ void StoreBlock
         Matrix<Field>& HBlock,
   const DistChaseState& state )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto& HLoc = H.Matrix();
     const Grid& grid = H.Grid();
 
@@ -899,7 +899,7 @@ void StoreBlock
       Mod( state.winRowAlign+interaction.block0, grid.Width() );
     const int secondRow = Mod( firstRow+1, grid.Height() );
     const int secondCol = Mod( firstCol+1, grid.Width() );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( (grid.Row() != firstRow && grid.Row() != secondRow) ||
           (grid.Col() != firstCol && grid.Col() != secondCol) )
           LogicError("This process does not participate in this interaction");
@@ -1013,7 +1013,7 @@ void LocalChase
   const DistChaseState& state,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto& shiftsLoc = shifts.LockedMatrix();
     const Int blockWinBeg = 0;
     const Int blockWinEnd = interaction.blockSize0 + interaction.blockSize1;
@@ -1124,13 +1124,13 @@ void ApplyAccumulatedFromLeft
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int colBeg = interaction.end;
     const Int colEnd = ( ctrl.fullTriangle ? n : state.winEnd );
     const Int houseBeg = interaction.householderBeg;
     const Int houseEnd = interaction.householderEnd;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( houseEnd-houseBeg != U.Height() )
           LogicError
           ("U was of size ",U.Height()," but householder indices are [",
@@ -1151,12 +1151,12 @@ void ApplyAccumulatedFromRight
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int rowBeg = ( ctrl.fullTriangle ? 0 : state.winBeg );
     const Int rowEnd = interaction.beg;
     const Int houseBeg = interaction.householderBeg;
     const Int houseEnd = interaction.householderEnd;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( houseEnd-houseBeg != U.Height() )
           LogicError
           ("U was of size ",U.Height()," but householder indices are [",
@@ -1186,7 +1186,7 @@ void InterBlockChase
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = H.Grid();
     const bool fullFirstBlock = ( state.firstBlockSize == state.blockSize );
     // If fullFirstBlock is false, then we need to subtract one from the block
@@ -1269,7 +1269,7 @@ void InterBlockChase
             U = UList[diagInteraction++];
         else
             Zeros( U, householderSize, householderSize );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( U.Height() != householderSize || U.Width() != householderSize )
               LogicError
               ("U was ",U.Height()," x ",U.Width()," instead of ",
@@ -1306,7 +1306,7 @@ void InterBlockChase
             U = UList[diagInteraction++];
         else
             Zeros( U, householderSize, householderSize );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( U.Height() != householderSize || U.Width() != householderSize )
               LogicError
               ("U was ",U.Height()," x ",U.Width()," instead of ",

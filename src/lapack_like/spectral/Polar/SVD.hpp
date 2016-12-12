@@ -18,7 +18,7 @@ namespace polar {
 template<typename Field>
 void SVD( Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Get the SVD of A
@@ -35,7 +35,7 @@ void SVD( Matrix<Field>& A )
 template<typename Field>
 void SVD( Matrix<Field>& A, Matrix<Field>& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Get the SVD of A
@@ -55,7 +55,7 @@ void SVD( Matrix<Field>& A, Matrix<Field>& P )
 template<typename Field>
 void SVD( AbstractDistMatrix<Field>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
@@ -76,7 +76,7 @@ void SVD( AbstractDistMatrix<Field>& APre )
 template<typename Field>
 void SVD( AbstractDistMatrix<Field>& APre, AbstractDistMatrix<Field>& PPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );

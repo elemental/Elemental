@@ -25,10 +25,10 @@ namespace ldl {
 template<typename F>
 InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n != 0 && dSub.Height() != n-1 )
           LogicError("dSub was the wrong length");
     )
@@ -69,11 +69,11 @@ Inertia
   const DistMatrix<F,MC,STAR>& dSub,
   const DistMatrix<F,MC,STAR>& dSubPrev )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         if( dPrev.Height() != n )
             LogicError("dPrev was the wrong length");
         if( n != 0 )
@@ -84,7 +84,7 @@ Inertia
     )
 
     const Int colStride = d.ColStride();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         const Int colAlign = d.ColAlign();
         const Int colAlignPrev = (colAlign+1) % colStride;
         if( dSub.ColAlign() != colAlign )
@@ -145,7 +145,7 @@ template<typename F>
 InertiaType Inertia
 ( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Grid& g = d.Grid();
 

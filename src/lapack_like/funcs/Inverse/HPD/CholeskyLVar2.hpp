@@ -20,8 +20,8 @@ template<typename Field>
 void
 CholeskyLVar2( Matrix<Field>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )
@@ -59,8 +59,8 @@ template<typename Field>
 void
 CholeskyLVar2( AbstractDistMatrix<Field>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("Nonsquare matrices cannot be triangular");
     )

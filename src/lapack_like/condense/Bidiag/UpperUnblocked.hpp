@@ -18,12 +18,12 @@ void UpperUnblocked
   Matrix<F>& householderScalarsP,
   Matrix<F>& householderScalarsQ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int householderScalarsPHeight = Max(n-1,0);
     const Int householderScalarsQHeight = n;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m < n )
           LogicError("A must be at least as tall as it is wide");
     )
@@ -106,8 +106,8 @@ void UpperUnblocked
   AbstractDistMatrix<F>& householderScalarsPPre,
   AbstractDistMatrix<F>& householderScalarsQPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, householderScalarsPPre, householderScalarsQPre )
     )
     DistMatrixReadWriteProxy<F,F,MC,MR>
@@ -121,7 +121,7 @@ void UpperUnblocked
 
     const Int m = A.Height();
     const Int n = A.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m < n )
           LogicError("A must be at least as tall as it is wide");
     )

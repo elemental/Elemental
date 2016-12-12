@@ -43,7 +43,7 @@ DistMap::~DistMap()
 
 void DistMap::Translate( vector<Int>& localInds ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<int> origOwners;
     if( origOwners.size() != localInds.size() )
     {
@@ -64,7 +64,7 @@ void DistMap::Translate( vector<Int>& localInds ) const
 void DistMap::Translate
 ( vector<Int>& localInds, const vector<int>& origOwners ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numLocalInds = localInds.size();
 
     // Count how many indices we need each process to map
@@ -107,7 +107,7 @@ void DistMap::Translate
     {
         const Int i = fulfills[s];
         const Int iLocal = i - blocksize_*commRank_;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( iLocal < 0 || iLocal >= (Int)map_.size() )
               LogicError
               ("invalid request: i=",i,", iLocal=",iLocal,
@@ -134,7 +134,7 @@ void DistMap::Translate
 
 void DistMap::Extend( DistMap& firstMap ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Ensure that the communicators are congruent and that the maps
     //       are compatible sizes.
     Translate( firstMap.map_ ); 
@@ -142,7 +142,7 @@ void DistMap::Extend( DistMap& firstMap ) const
 
 void DistMap::Extend( const DistMap& firstMap, DistMap& compositeMap ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     compositeMap = firstMap;
     Extend( compositeMap );
 }
@@ -190,8 +190,8 @@ int DistMap::RowOwner( Int i ) const { return i / blocksize_; }
 
 Int DistMap::GetLocal( Int localSource ) const
 { 
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource >= (Int)map_.size() )
           LogicError("local source is out of bounds");
     )
@@ -200,8 +200,8 @@ Int DistMap::GetLocal( Int localSource ) const
 
 void DistMap::SetLocal( Int localSource, Int target )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource >= (Int)map_.size() )
           LogicError("local source is out of bounds");
     )
@@ -243,7 +243,7 @@ const DistMap& DistMap::operator=( const DistMap& map )
 
 void InvertMap( const vector<Int>& map, vector<Int>& inverseMap ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int n = map.size();
     inverseMap.resize( n );
     for( int i=0; i<n; ++i )
@@ -252,7 +252,7 @@ void InvertMap( const vector<Int>& map, vector<Int>& inverseMap )
 
 void InvertMap( const DistMap& map, DistMap& inverseMap ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = map.Comm();
     const int commSize = mpi::Size( comm );
     const Int numLocalSources = map.NumLocalSources();
@@ -277,7 +277,7 @@ void InvertMap( const DistMap& map, DistMap& inverseMap )
     vector<int> sendOffs, recvOffs;
     const int numSends = Scan( sendSizes, sendOffs );
     const int numRecvs = Scan( recvSizes, recvOffs );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( numSends != 2*numLocalSources )
           LogicError("Miscalculated numSends");
       if( numRecvs != 2*numLocalSources )

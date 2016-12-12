@@ -26,8 +26,8 @@ namespace El {
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -40,8 +40,8 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -54,8 +54,8 @@ void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p )
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -95,7 +95,7 @@ void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 template<typename F> 
 void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( scalapack )
     {
         cholesky::ScaLAPACKHelper( uplo, A );
@@ -113,7 +113,7 @@ template<typename F>
 void Cholesky
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         cholesky::PivotedLowerVariant3Blocked( A, p );
     else
@@ -128,7 +128,7 @@ void Cholesky
 template<typename F> 
 void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         cholesky::ReverseLowerVariant3Blocked( A );
     else
@@ -147,7 +147,7 @@ void ReverseCholesky
 template<typename F>
 void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
@@ -163,7 +163,7 @@ void CholeskyMod
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
@@ -175,7 +175,7 @@ void CholeskyMod
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
@@ -188,7 +188,7 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

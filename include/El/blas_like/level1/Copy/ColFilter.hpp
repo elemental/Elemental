@@ -16,8 +16,8 @@ namespace copy {
 template<typename T>
 void ColFilter( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != Collect(B.ColDist()) ||
           A.RowDist() != B.RowDist() )
           LogicError("Incompatible distributions");
@@ -83,8 +83,8 @@ template<typename T>
 void ColFilter
 ( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != Collect(B.ColDist()) ||
           A.RowDist() != B.RowDist() )
           LogicError("Incompatible distributions");
@@ -103,7 +103,7 @@ void ColFilter
     // TODO(poulson): Realign if the cuts are different
     if( A.BlockWidth() != B.BlockWidth() || A.RowCut() != B.RowCut() )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           Output("Performing expensive GeneralPurpose ColFilter");
         )
         GeneralPurpose( A, B );

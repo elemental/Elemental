@@ -86,7 +86,7 @@ DistChaseState BuildDistChaseState
   const DistMatrix<Complex<Base<Field>>,STAR,STAR>& shifts,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int numBulges = shifts.Height() / 2;
     const Grid& grid = H.Grid();
@@ -192,7 +192,7 @@ void AdvanceChaseState
 ( const DistMatrix<Field,MC,MR,BLOCK>& H,
         DistChaseState& state )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = H.Grid();
 
     if( state.endBlock == state.numWinBlocks )
@@ -247,7 +247,7 @@ void AdvanceChaseState
     else
     {
         // Introduce another packet at the beginning of the window
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( state.introBlock >= 0 )
               LogicError("Inconsistent chase state");
         )

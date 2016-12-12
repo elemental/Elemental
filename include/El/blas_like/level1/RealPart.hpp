@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     AReal.Resize( m, n );

@@ -28,7 +28,7 @@ SVDInfo ScaLAPACKHelper
         AbstractDistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertScaLAPACKSupport();
     SVDInfo info;
 #ifdef EL_HAVE_SCALAPACK
@@ -102,7 +102,7 @@ SVDInfo ScaLAPACKHelper
         AbstractDistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SVDInfo info;
     LogicError("ScaLAPACK does not support this datatype");
     return info;
@@ -118,7 +118,7 @@ SVDInfo LAPACKHelper
       Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     if( !ctrl.overwrite )
         LogicError("LAPACKHelper assumes ctrl.overwrite == true");
@@ -192,7 +192,7 @@ SVDInfo LAPACKHelper
       Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SVDInfo info;
     LogicError("LAPACK does not support this datatype");
     return info;
@@ -208,7 +208,7 @@ SVDInfo SVD
         Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -223,7 +223,7 @@ SVDInfo SVD
       Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto& bidiagSVDCtrl = ctrl.bidiagSVDCtrl;
     if( (bidiagSVDCtrl.wantU && bidiagSVDCtrl.accumulateU) ||
         (bidiagSVDCtrl.wantV && bidiagSVDCtrl.accumulateV) )
@@ -278,7 +278,7 @@ SVDInfo SVD
         AbstractDistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
     auto ctrlMod( ctrl );
     ctrlMod.overwrite = true;
@@ -293,7 +293,7 @@ SVDInfo SVD
         AbstractDistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const auto& bidiagSVDCtrl = ctrl.bidiagSVDCtrl;
     if( (bidiagSVDCtrl.wantU && bidiagSVDCtrl.accumulateU) ||
         (bidiagSVDCtrl.wantV && bidiagSVDCtrl.accumulateV) )
@@ -359,7 +359,7 @@ SVDInfo LAPACKHelper
         Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     if( !ctrl.overwrite )
         LogicError("LAPACKHelper assumes ctrl.overwrite == true");
@@ -405,7 +405,7 @@ SVDInfo LAPACKHelper
         Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SVDInfo info;
     LogicError("LAPACK does not support this datatype");
     return info;
@@ -419,7 +419,7 @@ SVDInfo ScaLAPACKHelper
         AbstractDistMatrix<Base<Field>>& sPre,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertScaLAPACKSupport();
     SVDInfo info;
 #ifdef EL_HAVE_SCALAPACK
@@ -474,7 +474,7 @@ SVDInfo ScaLAPACKHelper
         AbstractDistMatrix<Base<Field>>& sPre,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SVDInfo info;
     LogicError("ScaLAPACK does not support this datatype");
     return info;
@@ -488,7 +488,7 @@ SVDInfo SVD
         Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.bidiagSVDCtrl.approach == PRODUCT_SVD )
     {
         auto tolType = ctrl.bidiagSVDCtrl.tolType;
@@ -512,7 +512,7 @@ SVDInfo SVD
         Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<Field> AMod;
     if( ctrl.overwrite )
@@ -550,7 +550,7 @@ SVDInfo SVD
         AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( IsBlasScalar<Field>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, s, ctrl );
@@ -579,7 +579,7 @@ SVDInfo SVD
         AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( IsBlasScalar<Field>::value && ctrl.useScaLAPACK )
     {
         return svd::ScaLAPACKHelper( A, s, ctrl );
@@ -610,7 +610,7 @@ SVDInfo TSQR
 ( const AbstractDistMatrix<Field>& A,
         AbstractDistMatrix<Base<Field>>& s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field,VC,STAR> ACopy( A );
     return TSQR( ACopy, s, true );
 }
@@ -621,7 +621,7 @@ SVDInfo TSQR
   AbstractDistMatrix<Base<Field>>& sPre,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         DistMatrix<Field,VC,STAR> A( APre );
@@ -664,7 +664,7 @@ SVDInfo TSQR
         AbstractDistMatrix<Base<Field>>& sPre,
         AbstractDistMatrix<Field>& VPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Field,Field,VC,STAR> UProx( UPre );
     DistMatrixWriteProxy<Base<Field>,Base<Field>,CIRC,CIRC> sProx( sPre );

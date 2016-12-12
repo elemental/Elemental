@@ -21,7 +21,7 @@ void TwoSidedTrsm
         Matrix<F>& A,
   const Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -34,7 +34,7 @@ void TwoSidedTrsm
         AbstractDistMatrix<F>& A,
   const AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -89,7 +89,7 @@ void TwoSidedTrsm
         DistMatrix<F,MC,MR,BLOCK>& A,
   const DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     twotrsm::ScaLAPACKHelper( uplo, diag, A, B );
 }
 

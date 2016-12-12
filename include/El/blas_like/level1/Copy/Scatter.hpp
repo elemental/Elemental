@@ -17,7 +17,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int m = A.Height();
@@ -93,7 +93,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC,BLOCK>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO(poulson): More efficient implementation
     GeneralPurpose( A, B );
@@ -104,7 +104,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         DistMatrix<T,STAR,STAR>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     B.Resize( A.Height(), A.Width() );
     if( B.Participating() )
@@ -120,7 +120,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC,BLOCK>& A,
         DistMatrix<T,STAR,STAR,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     B.Resize( A.Height(), A.Width() );
     if( B.Participating() )

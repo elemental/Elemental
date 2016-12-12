@@ -16,7 +16,7 @@ template<typename T>
 inline void
 Ascii( Matrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);
@@ -64,7 +64,7 @@ template<typename T>
 inline void
 Ascii( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
         RuntimeError("Could not open ",filename);

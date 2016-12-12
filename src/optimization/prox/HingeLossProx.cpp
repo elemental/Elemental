@@ -13,7 +13,7 @@ namespace El {
 template<typename Real>
 void HingeLossProx( Matrix<Real>& A, const Real& tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto hingeProx =
       [=]( const Real& alpha ) -> Real
       { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }
@@ -24,7 +24,7 @@ void HingeLossProx( Matrix<Real>& A, const Real& tau )
 template<typename Real>
 void HingeLossProx( AbstractDistMatrix<Real>& A, const Real& tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto hingeProx =
       [=]( const Real& alpha ) -> Real
       { if( alpha < 1 ) { return Min(alpha+1/tau,Real(1)); }

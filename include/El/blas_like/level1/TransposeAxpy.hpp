@@ -18,7 +18,7 @@ void TransposeAxpy
         Matrix<T>& Y,
         bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
@@ -34,7 +34,7 @@ void TransposeAxpy
         const Int lengthX = ( nX==1 ? mX : nX );
         const Int incX = ( nX==1 ? 1  : ldX );
         const Int incY = ( nY==1 ? 1  : ldY );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int mY = Y.Height();
           const Int lengthY = ( nY==1 ? mY : nY );
           if( lengthX != lengthY )
@@ -48,7 +48,7 @@ void TransposeAxpy
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int mY = Y.Height();
           if( mX != nY || nX != mY )
               LogicError("Nonconformal TransposeAxpy");
@@ -83,7 +83,7 @@ void TransposeAxpy
         SparseMatrix<T>& Y,
         bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( X.Height() != Y.Width() || X.Width() != Y.Height() )
         LogicError("X and Y must have transposed dimensions");
     const T alpha = T(alphaS);
@@ -104,8 +104,8 @@ void TransposeAxpy
         ElementalMatrix<T>& B,
         bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != B.Width() || A.Width() != B.Height() )
           LogicError("A and B must have transposed dimensions");
@@ -139,7 +139,7 @@ void TransposeAxpy
         DistSparseMatrix<T>& B,
         bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != B.Width() || A.Width() != B.Height() )
         LogicError("A and B must have transposed dimensions");
     if( A.Comm() != B.Comm() )
@@ -159,14 +159,14 @@ void TransposeAxpy
 template<typename T,typename S>
 void AdjointAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 
 template<typename T,typename S>
 void AdjointAxpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 
@@ -174,7 +174,7 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 
@@ -182,7 +182,7 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 

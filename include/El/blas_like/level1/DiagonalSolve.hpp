@@ -19,13 +19,13 @@ void DiagonalSolve
         Matrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != m )
               LogicError("Invalid left diagonal solve dimension");
         )
@@ -41,7 +41,7 @@ void DiagonalSolve
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != n )
               LogicError("Invalid right diagonal solve dimension");
         )
@@ -62,9 +62,9 @@ void SymmetricDiagonalSolve
 ( const Matrix<Base<F>>& d,
         Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( d.Height() != n )
           LogicError("Invalid symmetric diagonal solve dimension");
     )
@@ -80,8 +80,8 @@ void DiagonalSolve
         DistMatrix<F,U,V>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( dPre, A );
     )
     if( side == LEFT )
@@ -121,8 +121,8 @@ void DiagonalSolve
         DistMatrix<F,U,V,BLOCK>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( dPre, A );
     )
     if( side == LEFT )
@@ -168,7 +168,7 @@ void DiagonalSolve
         AbstractDistMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     #define GUARD(CDIST,RDIST,WRAP) \
       A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
     #define PAYLOAD(CDIST,RDIST,WRAP) \
@@ -184,8 +184,8 @@ void DiagonalSolve
         SparseMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
     )
@@ -197,7 +197,7 @@ void DiagonalSolve
     const FDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
@@ -212,7 +212,7 @@ void DiagonalSolve
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Width() )
               LogicError("The size of d must match the width of A");
         )
@@ -230,8 +230,8 @@ void DiagonalSolve
 template<typename F>
 void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -252,7 +252,7 @@ void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
         const Int j = colBuf[k];
         const Real deltaRow = dBuf[i];
         const Real deltaCol = dBuf[j];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( deltaRow*deltaCol == Real(0) )
               throw SingularMatrixException();
         )
@@ -267,8 +267,8 @@ void DiagonalSolve
         DistSparseMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -285,7 +285,7 @@ void DiagonalSolve
 
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The length of d must match the height of A");
         )
@@ -295,7 +295,7 @@ void DiagonalSolve
             const Int i = rBuf[k];
             const Int iLoc = i - firstLocalRow;
             const F delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( checkIfSingular && delta == F(0) )
                   throw SingularMatrixException();
             )
@@ -336,8 +336,8 @@ void SymmetricDiagonalSolve
 ( const DistMultiVec<Base<F>>& d,
         DistSparseMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -389,7 +389,7 @@ void DiagonalSolve
         DistMultiVec<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), X.Comm() ) )
@@ -406,7 +406,7 @@ void DiagonalSolve
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const F delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( checkIfSingular && delta == F(0) )
               throw SingularMatrixException();
         )

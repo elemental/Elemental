@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void UpdateDiagonal( Matrix<T>& A, T alpha, const Matrix<T>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const T&)> func
     ( [alpha]( T& beta, const T& gamma ) { beta += alpha*gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -24,7 +24,7 @@ template<typename T>
 void UpdateRealPartOfDiagonal
 ( Matrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateRealPart(beta,alpha*gamma); } );
@@ -35,7 +35,7 @@ template<typename T>
 void UpdateImagPartOfDiagonal
 ( Matrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateImagPart(beta,alpha*gamma); } );
@@ -46,7 +46,7 @@ template<typename T,Dist U,Dist V>
 void UpdateDiagonal
 ( DistMatrix<T,U,V>& A, T alpha, const ElementalMatrix<T>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const T&)> func
     ( [alpha]( T& beta, const T& gamma ) { beta += alpha*gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
@@ -57,7 +57,7 @@ void UpdateRealPartOfDiagonal
 ( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateRealPart(beta,alpha*gamma); } );
@@ -69,7 +69,7 @@ void UpdateImagPartOfDiagonal
 ( DistMatrix<T,U,V>& A, Base<T> alpha, const ElementalMatrix<Base<T>>& d,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateImagPart(beta,alpha*gamma); } );
@@ -81,7 +81,7 @@ void UpdateDiagonal
 ( SparseMatrix<T>& A, T alpha, const Matrix<T>& d, Int offset,
   bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const T&)> func
     ( [alpha]( T& beta, const T& gamma ) { beta += alpha*gamma; } );
     UpdateMappedDiagonal( A, d, func, offset, diagExists );
@@ -92,7 +92,7 @@ void UpdateRealPartOfDiagonal
 ( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset,
   bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateRealPart(beta,alpha*gamma); } );
@@ -104,7 +104,7 @@ void UpdateImagPartOfDiagonal
 ( SparseMatrix<T>& A, Base<T> alpha, const Matrix<Base<T>>& d, Int offset,
   bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateImagPart(beta,alpha*gamma); } );
@@ -116,7 +116,7 @@ void UpdateDiagonal
 ( DistSparseMatrix<T>& A, T alpha, const DistMultiVec<T>& d, Int offset,
   bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const T&)> func
     ( [alpha]( T& beta, const T& gamma ) { beta += alpha*gamma; } );
     UpdateMappedDiagonal( A, d, func, offset, diagExists );
@@ -127,7 +127,7 @@ void UpdateRealPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha,
   const DistMultiVec<Base<T>>& d, Int offset, bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateRealPart(beta,alpha*gamma); } );
@@ -139,7 +139,7 @@ void UpdateImagPartOfDiagonal
 ( DistSparseMatrix<T>& A, Base<T> alpha,
   const DistMultiVec<Base<T>>& d, Int offset, bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<void(T&,const Base<T>&)> func
     ( [alpha]( T& beta, const Base<T>& gamma )
     { UpdateImagPart(beta,alpha*gamma); } );

@@ -36,7 +36,7 @@ namespace El {
 
 Int Blocksize()
 {
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( ::blocksizeStack.empty() )
           LogicError("Attempted to extract blocksize from empty stack");
     )
@@ -45,7 +45,7 @@ Int Blocksize()
 
 void SetBlocksize( Int blocksize )
 {
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( ::blocksizeStack.empty() )
           LogicError("Attempted to set blocksize at top of empty stack");
     )
@@ -57,7 +57,7 @@ void PushBlocksizeStack( Int blocksize )
 
 void PopBlocksizeStack()
 {
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( ::blocksizeStack.empty() )
           LogicError("Attempted to pop an empty blocksize stack");
     )

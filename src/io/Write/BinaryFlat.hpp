@@ -16,7 +16,7 @@ template<typename T>
 inline void
 BinaryFlat( const Matrix<T>& A, string basename="matrix" )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     
     string filename = basename + "." + FileExtension(BINARY_FLAT);
     ofstream file( filename.c_str(), std::ios::binary );

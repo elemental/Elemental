@@ -26,7 +26,7 @@ Int ModifyShifts
         Matrix<Complex<Real>>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Compute the ideal number of (even) shifts to apply this sweep
     Int numShiftsIdeal = Min( numShiftsRec, Max(2,newIterWinSize-1) );
     numShiftsIdeal = numShiftsIdeal - Mod(numShiftsIdeal,2);
@@ -176,7 +176,7 @@ Int ModifyShifts
         DistMatrix<Complex<Real>,STAR,STAR>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = H.Grid();
     auto& wLoc = w.Matrix();
 
@@ -343,7 +343,7 @@ Int ModifyShifts
         Matrix<Complex<Real>>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> F;
 
     // Compute the ideal number of (even) shifts to apply this sweep
@@ -449,7 +449,7 @@ Int ModifyShifts
         DistMatrix<Complex<Real>,STAR,STAR>& w,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> F;
     auto& wLoc = w.Matrix();
     const Grid& grid = H.Grid();

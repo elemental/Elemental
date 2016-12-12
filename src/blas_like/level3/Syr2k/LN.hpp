@@ -18,7 +18,7 @@ void LN_C
         AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int r = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -74,7 +74,7 @@ void LN_Dot
   const bool conjugate,
   Int blockSize=2000 )
 {
-    DEBUG_CSE 
+    EL_DEBUG_CSE 
     const Int n = CPre.Height();
     const Grid& g = APre.Grid();
 
@@ -133,8 +133,8 @@ void LN
         AbstractDistMatrix<T>& C,
   bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B, C );
       if( A.Height() != C.Height() || A.Height() != C.Width() ||
           B.Height() != C.Height() || B.Height() != C.Width() ||

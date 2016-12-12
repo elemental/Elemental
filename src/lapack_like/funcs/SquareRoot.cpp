@@ -27,7 +27,7 @@ NewtonStep
         Matrix<Field>& XNew,
         Matrix<Field>& XTmp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     Permutation P;
@@ -48,7 +48,7 @@ NewtonStep
         DistMatrix<Field>& XNew,
         DistMatrix<Field>& XTmp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     DistPermutation P(X.Grid());
@@ -65,7 +65,7 @@ template<typename Field>
 int
 Newton( Matrix<Field>& A, const SquareRootCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Matrix<Field> B(A), C, XTmp;
     Matrix<Field> *X=&B, *XNew=&C;
@@ -106,7 +106,7 @@ int
 Newton
 ( AbstractDistMatrix<Field>& APre, const SquareRootCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -152,7 +152,7 @@ Newton
 template<typename Field>
 void SquareRoot( Matrix<Field>& A, const SquareRootCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
@@ -160,7 +160,7 @@ template<typename Field>
 void SquareRoot
 ( AbstractDistMatrix<Field>& A, const SquareRootCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
@@ -175,7 +175,7 @@ void HPSDSquareRoot
   Matrix<Field>& A,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Get the EVD of A
@@ -225,7 +225,7 @@ void HPSDSquareRoot
   AbstractDistMatrix<Field>& APre,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();

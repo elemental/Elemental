@@ -23,7 +23,7 @@ void HermitianSVD
   Matrix<Field>& V,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         auto ACopy( A );
@@ -73,7 +73,7 @@ void HermitianSVD
         Matrix<Base<Field>>& s,
         Matrix<Field>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -88,7 +88,7 @@ void HermitianSVD
   AbstractDistMatrix<Field>& V,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( !overwrite )
     {
@@ -137,7 +137,7 @@ void HermitianSVD
         AbstractDistMatrix<Base<Field>>& s,
         AbstractDistMatrix<Field>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -153,7 +153,7 @@ void HermitianSVD
   Matrix<Base<Field>>& s,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         Matrix<Field> ACopy( A );
@@ -177,7 +177,7 @@ template<typename Field>
 void HermitianSVD
 ( UpperOrLower uplo, const Matrix<Field>& A, Matrix<Base<Field>>& s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }
@@ -189,7 +189,7 @@ void HermitianSVD
   AbstractDistMatrix<Base<Field>>& s,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         DistMatrix<Field> ACopy( A );
@@ -214,7 +214,7 @@ void HermitianSVD
   const AbstractDistMatrix<Field>& A,
         AbstractDistMatrix<Base<Field>>& s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }

@@ -18,13 +18,13 @@ void DiagonalScale
   const Matrix<TDiag>& d,
         Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != m )
               LogicError("Invalid left diagonal scaling dimension");
         )
@@ -37,7 +37,7 @@ void DiagonalScale
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != n )
               LogicError("Invalid right diagonal scaling dimension");
         )
@@ -57,7 +57,7 @@ void DiagonalScale
   const AbstractDistMatrix<TDiag>& dPre,
         DistMatrix<T,U,V,wrapType>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( wrapType == ELEMENT )
     {
         if( side == LEFT )
@@ -128,7 +128,7 @@ void DiagonalScale
   const AbstractDistMatrix<TDiag>& d,
         AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     #define GUARD(CDIST,RDIST,WRAP) \
       A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
     #define PAYLOAD(CDIST,RDIST,WRAP) \
@@ -144,7 +144,7 @@ void DiagonalScale
   const Matrix<TDiag>& d,
         SparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
@@ -155,7 +155,7 @@ void DiagonalScale
     const TDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
@@ -168,7 +168,7 @@ void DiagonalScale
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Width() )
               LogicError("The size of d must match the width of A");
         )
@@ -188,7 +188,7 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     if( !mpi::Congruent( d.Comm(), A.Comm() ) )
@@ -201,7 +201,7 @@ void DiagonalScale
     const Int firstLocalRow = d.FirstLocalRow();
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
@@ -216,7 +216,7 @@ void DiagonalScale
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Width() )
               LogicError("The size of d must match the width of A");
         )
@@ -255,8 +255,8 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistMultiVec<T>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( !mpi::Congruent( d.Comm(), X.Comm() ) )

@@ -19,7 +19,7 @@ PanelHouseholder
   Matrix<Field>& householderScalars,
   Matrix<Base<Field>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -74,8 +74,8 @@ PanelHouseholder
   AbstractDistMatrix<Field>& householderScalars,
   AbstractDistMatrix<Base<Field>>& signature )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
     typedef Base<Field> Real;
     const Grid& grid = A.Grid();
     DistMatrix<Field,STAR,MR  > a1R_STAR_MR(grid);

@@ -44,7 +44,7 @@ Graph::Graph( Int numSources, Int numTargets )
 Graph::Graph( const Graph& graph )
 : numSources_(-1), numTargets_(-1)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( &graph != this )
         *this = graph;
     else
@@ -54,7 +54,7 @@ Graph::Graph( const Graph& graph )
 Graph::Graph( const DistGraph& graph )
 : numSources_(-1), numTargets_(-1)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     *this = graph;
 }
 
@@ -67,14 +67,14 @@ Graph::~Graph() { }
 // -------------
 const Graph& Graph::operator=( const Graph& graph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( graph, *this );
     return *this;
 }
 
 const Graph& Graph::operator=( const DistGraph& graph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( graph, *this );
     return *this;
 }
@@ -83,7 +83,7 @@ const Graph& Graph::operator=( const DistGraph& graph )
 // ------------------------------------
 Graph Graph::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Graph subGraph;
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -91,7 +91,7 @@ Graph Graph::operator()( Range<Int> I, Range<Int> J ) const
 
 Graph Graph::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Graph subGraph;
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -99,7 +99,7 @@ Graph Graph::operator()( Range<Int> I, const vector<Int>& J ) const
 
 Graph Graph::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Graph subGraph;
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -107,7 +107,7 @@ Graph Graph::operator()( const vector<Int>& I, Range<Int> J ) const
 
 Graph Graph::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Graph subGraph;
     GetSubgraph( *this, I, J, subGraph );
     return subGraph;
@@ -141,7 +141,7 @@ void Graph::Resize( Int numVertices )
 
 void Graph::Resize( Int numSources, Int numTargets )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numSources_ == numSources && numTargets_ == numTargets )
         return;
 
@@ -168,14 +168,14 @@ void Graph::Reserve( Int numEdges )
 
 void Graph::Connect( Int source, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueConnection( source, target );
     ProcessQueues();
 }
 
 void Graph::Disconnect( Int source, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueDisconnection( source, target );
     ProcessQueues();
 }
@@ -186,14 +186,14 @@ bool Graph::FrozenSparsity() const EL_NO_EXCEPT { return frozenSparsity_; }
 
 void Graph::QueueConnection( Int source, Int target )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( NumEdges() == Capacity() )
           cerr << "WARNING: Pushing back without first reserving space" << endl;
     )
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( source < 0 || source >= numSources_ )
           LogicError
           ("Source out of bounds: ",source," not in [0,",numSources_,")");
@@ -211,7 +211,7 @@ void Graph::QueueConnection( Int source, Int target )
 
 void Graph::QueueDisconnection( Int source, Int target )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     if( !FrozenSparsity() )
@@ -223,8 +223,8 @@ void Graph::QueueDisconnection( Int source, Int target )
 
 void Graph::ProcessQueues()
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( sources_.size() != targets_.size() )
           LogicError("Inconsistent graph buffer sizes");
     )
@@ -283,13 +283,13 @@ Int Graph::NumTargets() const EL_NO_EXCEPT { return numTargets_; }
 
 Int Graph::NumEdges() const EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return sources_.size();
 }
 
 Int Graph::Capacity() const EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return Min(sources_.capacity(),targets_.capacity());
 }
 
@@ -297,8 +297,8 @@ bool Graph::Consistent() const EL_NO_EXCEPT { return consistent_; }
 
 Int Graph::Source( Int edge ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( edge < 0 || edge >= (Int)sources_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -307,8 +307,8 @@ Int Graph::Source( Int edge ) const EL_NO_RELEASE_EXCEPT
 
 Int Graph::Target( Int edge ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( edge < 0 || edge >= (Int)targets_.size() )
           LogicError("Edge number out of bounds");
     )
@@ -317,9 +317,9 @@ Int Graph::Target( Int edge ) const EL_NO_RELEASE_EXCEPT
 
 Int Graph::SourceOffset( Int source ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( source < 0 )
           LogicError("Negative source index");
       if( source > numSources_ )
@@ -333,7 +333,7 @@ Int Graph::SourceOffset( Int source ) const EL_NO_RELEASE_EXCEPT
 
 Int Graph::Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     const Int* targetBuf = LockedTargetBuffer();
@@ -345,7 +345,7 @@ Int Graph::Offset( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
 
 bool Graph::EdgeExists( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
     if( target == END ) target = numTargets_ - 1;
     Int index = Offset( source, target );
@@ -357,9 +357,9 @@ bool Graph::EdgeExists( Int source, Int target ) const EL_NO_RELEASE_EXCEPT
 
 Int Graph::NumConnections( Int source ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( source == END ) source = numSources_ - 1;
-    DEBUG_ONLY(AssertConsistent())
+    EL_DEBUG_ONLY(AssertConsistent())
     return SourceOffset(source+1) - SourceOffset(source);
 }
 
@@ -369,7 +369,7 @@ Int* Graph::OffsetBuffer() EL_NO_EXCEPT { return sourceOffsets_.data(); }
 
 void Graph::ForceNumEdges( Int numEdges )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     sources_.resize( numEdges );
     targets_.resize( numEdges );
     consistent_ = false;
@@ -390,7 +390,7 @@ const Int* Graph::LockedOffsetBuffer() const EL_NO_EXCEPT
 
 void Graph::ComputeSourceOffsets()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int sourceOffset = 0;
     Int prevSource = -1;
     sourceOffsets_.resize( numSources_+1 );
@@ -399,7 +399,7 @@ void Graph::ComputeSourceOffsets()
     for( Int e=0; e<numEdges; ++e )
     {
         const Int source = sourceBuf[e];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( source < prevSource )
               RuntimeError("sources were not properly sorted");
         )

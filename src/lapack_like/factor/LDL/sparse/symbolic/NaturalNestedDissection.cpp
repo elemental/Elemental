@@ -26,7 +26,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
@@ -183,7 +183,7 @@ NaturalNestedDissectionRecursion
         Int off, 
         Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -316,7 +316,7 @@ void NaturalNestedDissection
         NodeInfo& node,
         Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -329,7 +329,7 @@ void NaturalNestedDissection
 
     // Construct the distributed reordering    
     BuildMap( sep, map );
-    DEBUG_ONLY(EnsurePermutation( map ))
+    EL_DEBUG_ONLY(EnsurePermutation( map ))
 
     // Run the symbolic analysis
     Analysis( node );
@@ -346,7 +346,7 @@ void NaturalNestedDissection
         Int cutoff, 
         bool storeFactRecvInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused 
 
     DistMap perm( graph.NumSources(), graph.Comm() );
@@ -360,7 +360,7 @@ void NaturalNestedDissection
 
     // Construct the distributed reordering    
     BuildMap( sep, map );
-    DEBUG_ONLY(EnsurePermutation(map))
+    EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
     Analysis( node, storeFactRecvInds );

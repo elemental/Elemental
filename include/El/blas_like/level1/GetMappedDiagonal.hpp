@@ -18,7 +18,7 @@ void GetMappedDiagonal
         function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int diagLength = A.DiagonalLength(offset);
     d.Resize( diagLength, 1 );
 
@@ -43,8 +43,8 @@ void GetMappedDiagonal
         function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, dPre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -89,8 +89,8 @@ void GetMappedDiagonal
         function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, d ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, d ))
 
     // TODO(poulson): Make this more efficient
     const Int diagLength = A.DiagonalLength(offset);
@@ -120,7 +120,7 @@ void GetMappedDiagonal
         function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();
@@ -158,7 +158,7 @@ void GetMappedDiagonal
         function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();

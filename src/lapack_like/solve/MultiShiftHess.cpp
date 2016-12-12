@@ -28,7 +28,7 @@ LN
   const Matrix<F>& shifts,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     X *= alpha;
 
     const Int m = X.Height();
@@ -125,7 +125,7 @@ UN
   const Matrix<F>& shifts,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     X *= alpha;
 
     const Int m = X.Height();
@@ -224,7 +224,7 @@ LN
   const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
     auto& X = XProx.Get();
@@ -346,7 +346,7 @@ UN
   const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,STAR,VR> XProx( XPre );
     auto& X = XProx.Get();
@@ -469,7 +469,7 @@ void MultiShiftHessSolve
   const Matrix<F>& shifts,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )
@@ -495,7 +495,7 @@ void MultiShiftHessSolve
   const AbstractDistMatrix<F>& shifts,
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )

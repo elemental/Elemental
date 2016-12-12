@@ -20,8 +20,8 @@ void LowerBlockedSquare
   AbstractDistMatrix<F>& tPre,
   const SymvCtrl<F>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, tPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
@@ -33,7 +33,7 @@ void LowerBlockedSquare
     auto& t = tProx.Get();
 
     const Grid& g = A.Grid();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( g.Height() != g.Width() )
           LogicError("The process grid must be square");
     )

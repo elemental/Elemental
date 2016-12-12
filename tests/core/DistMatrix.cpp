@@ -14,7 +14,7 @@ void
 Check( DistMatrix<T,AColDist,ARowDist>& A, 
        DistMatrix<T,BColDist,BRowDist>& B, bool print )
 {
-    DEBUG_ONLY(CallStackEntry cse("Check"))
+    EL_DEBUG_ONLY(CallStackEntry cse("Check"))
     const Grid& g = A.Grid();
 
     const Int height = B.Height();
@@ -161,7 +161,7 @@ template<typename T>
 void
 DistMatrixTest( Int m, Int n, const Grid& g, bool print )
 {
-    DEBUG_ONLY(CallStackEntry cse("DistMatrixTest"))
+    EL_DEBUG_ONLY(CallStackEntry cse("DistMatrixTest"))
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<T>());
     CheckAll<T,CIRC,CIRC>( m, n, g, print );
     CheckAll<T,MC,  MR  >( m, n, g, print );

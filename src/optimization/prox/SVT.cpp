@@ -18,14 +18,14 @@ namespace El {
 template<typename Field>
 Int SVT( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return svt::Normal( A, tau, relative );
 }
 
 template<typename Field>
 Int SVT( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: This should be less accurate (but faster) than svt::Normal
     return svt::Cross( A, tau, relative );
 }
@@ -34,7 +34,7 @@ template<typename Field>
 Int SVT
 ( Matrix<Field>& A, const Base<Field>& tau, Int relaxedRank, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
@@ -44,7 +44,7 @@ Int SVT
 ( AbstractDistMatrix<Field>& A, const Base<Field>& tau,
   Int relaxedRank, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
@@ -53,7 +53,7 @@ Int SVT
 template<typename Field,Dist U>
 Int SVT( DistMatrix<Field,U,STAR>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return svt::TSQR( A, tau, relative );
 }
 

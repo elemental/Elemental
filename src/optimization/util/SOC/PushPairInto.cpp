@@ -28,7 +28,7 @@ void PushPairInto
   const Matrix<Int>& firstInds,
   Real wMaxNormLimit )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<Real> sLower, zLower;
     soc::LowerNorms( s, sLower, orders, firstInds );
@@ -56,7 +56,7 @@ void PushPairInto
   const AbstractDistMatrix<Int>& firstIndsPre,
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -108,7 +108,7 @@ void PushPairInto
   const DistMultiVec<Int>& firstInds,
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMultiVec<Real> sLower(s.Comm()), zLower(z.Comm());
     soc::LowerNorms( s, sLower, orders, firstInds, cutoff );

@@ -14,7 +14,7 @@ template<typename Field>
 void HermitianInverse
 ( UpperOrLower uplo, Matrix<Field>& A, const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricInverse( uplo, A, true, ctrl );
 }
 
@@ -23,7 +23,7 @@ void HermitianInverse
 ( UpperOrLower uplo, AbstractDistMatrix<Field>& A,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricInverse( uplo, A, true, ctrl );
 }
 
@@ -32,7 +32,7 @@ void LocalHermitianInverse
 ( UpperOrLower uplo, DistMatrix<Field,STAR,STAR>& A,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricInverse( uplo, A.Matrix(), true, ctrl );
 }
 

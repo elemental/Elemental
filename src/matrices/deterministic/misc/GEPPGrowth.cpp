@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void GEPPGrowth( Matrix<T>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Identity( A, n, n );
     if( n <= 1 )
         return;
@@ -32,7 +32,7 @@ void GEPPGrowth( Matrix<T>& A, Int n )
 template<typename T>
 void GEPPGrowth( ElementalMatrix<T>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Identity( A, n, n );
     if( n <= 1 )
         return;

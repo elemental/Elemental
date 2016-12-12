@@ -30,7 +30,7 @@ template<typename F>
 ValueInt<Base<F>>
 QDWHDivide( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -77,7 +77,7 @@ QDWHDivide
   DistMatrix<F>& G,
   bool returnQ=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // G := sgn(G)
     // G := 1/2 ( G + I )
@@ -126,7 +126,7 @@ RandomizedSignDivide
   bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -195,7 +195,7 @@ RandomizedSignDivide
   bool returnQ, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Grid& g = A.Grid();
@@ -264,7 +264,7 @@ SpectralDivide
   Matrix<F>& A,
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -313,7 +313,7 @@ SpectralDivide
   Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -361,7 +361,7 @@ SpectralDivide
   DistMatrix<F>& A, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -411,7 +411,7 @@ SpectralDivide
   DistMatrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = A.Height();
@@ -460,7 +460,7 @@ void SDC
   Matrix<Base<F>>& w, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -501,7 +501,7 @@ void SDC
   Matrix<F>& Q, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = A.Height();
     w.Resize( n, 1 );
@@ -552,7 +552,7 @@ void SDC
   AbstractDistMatrix<Base<F>>& wPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Int n = APre.Height();
@@ -611,7 +611,7 @@ void SDC
   AbstractDistMatrix<F>& QPre, 
   const HermitianSDCCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     typedef Base<F> Real;
     const Grid& g = APre.Grid();

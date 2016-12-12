@@ -765,7 +765,7 @@ Complex<BigFloat>::Complex
 
 Complex<BigFloat>::Complex( const Complex<realType>& a, mpfr_prec_t prec )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( &a != this )
     {
         Init( prec );
@@ -775,7 +775,7 @@ Complex<BigFloat>::Complex( const Complex<realType>& a, mpfr_prec_t prec )
           a.LockedImagPointer(),
           mpc::RoundingMode() ); 
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
     else
         LogicError("Tried to construct Complex<BigFloat> with itself");
     )
@@ -799,7 +799,7 @@ Complex<BigFloat>::~Complex()
 
 Complex<BigFloat>& Complex<BigFloat>::operator=( Complex<BigFloat>&& a )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpc_swap( Pointer(), a.Pointer() );
     std::swap( numLimbs_, a.numLimbs_ );
     return *this;
@@ -1428,7 +1428,7 @@ size_t Complex<BigFloat>::SerializedSize() const
 
 byte* Complex<BigFloat>::Serialize( byte* buf ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: We don't have to necessarily serialize the precisions, as
     //       they are known a priori (as long as the user does not fiddle
     //       with SetPrecision)
@@ -1457,7 +1457,7 @@ byte* Complex<BigFloat>::Serialize( byte* buf ) const
 
 const byte* Complex<BigFloat>::Deserialize( const byte* buf )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Ensure that the precisions matched already
 
     std::memcpy( &mpcFloat_->re->_mpfr_prec, buf, sizeof(mpfr_prec_t) );

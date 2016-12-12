@@ -29,7 +29,7 @@ BusingerGolub
   Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     auto ctrlCopy = ctrl;
@@ -69,7 +69,7 @@ BusingerGolub
   AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -112,7 +112,7 @@ void ID
         Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> B( A );
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
@@ -125,7 +125,7 @@ void ID
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
@@ -141,7 +141,7 @@ void ID
         AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> B( A );
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
@@ -154,7 +154,7 @@ void ID
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
         id::BusingerGolub( A, Omega, Z, ctrl );

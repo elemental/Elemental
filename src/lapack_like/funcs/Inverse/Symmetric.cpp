@@ -18,7 +18,7 @@ void SymmetricInverse
   bool conjugate,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
     {
         Permutation P;
@@ -43,7 +43,7 @@ void SymmetricInverse
   bool conjugate,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -73,7 +73,7 @@ void LocalSymmetricInverse
   bool conjugate,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricInverse( uplo, A.Matrix(), conjugate, ctrl );
 }
 

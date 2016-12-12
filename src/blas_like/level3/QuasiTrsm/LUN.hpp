@@ -17,7 +17,7 @@ namespace quasitrsm {
 template<typename F>
 void LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = X.Height();
     const Int n = X.Width();
     typedef Base<F> Real;
@@ -99,7 +99,7 @@ void LUNUnb( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 void LUN( const Matrix<F>& U, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -137,7 +137,7 @@ void LUNLarge
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -199,7 +199,7 @@ void LUNMedium
 ( const AbstractDistMatrix<F>& UPre, AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -262,8 +262,8 @@ void LUNSmall
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( U, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError

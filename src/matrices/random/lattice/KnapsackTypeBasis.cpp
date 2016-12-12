@@ -17,7 +17,7 @@ namespace El {
 template<typename T>
 void KnapsackTypeBasis( Matrix<T>& A, Int n, Base<T> radius )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     A.Resize( n+1, n );
     auto AT = A( IR(0,n), IR(0,n) );
     auto aB = A( IR(n),   IR(0,n) );
@@ -29,7 +29,7 @@ void KnapsackTypeBasis( Matrix<T>& A, Int n, Base<T> radius )
 template<typename T>
 void KnapsackTypeBasis( AbstractDistMatrix<T>& APre, Int n, Base<T> radius )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixWriteProxy<T,T,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 

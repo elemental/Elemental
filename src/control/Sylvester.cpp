@@ -28,7 +28,7 @@ void Sylvester
   Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Sign( W, ctrl );
     Matrix<F> WTL, WTR,
               WBL, WBR;
@@ -59,7 +59,7 @@ void Sylvester
   ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
     auto& W = WProx.Get();
@@ -97,8 +97,8 @@ void Sylvester
         Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( B.Height() != B.Width() )
@@ -129,8 +129,8 @@ void Sylvester
         ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( B.Height() != B.Width() )

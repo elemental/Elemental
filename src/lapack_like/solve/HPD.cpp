@@ -19,7 +19,7 @@ void Overwrite
   Matrix<Field>& A,
   Matrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
@@ -31,7 +31,7 @@ void Overwrite
   AbstractDistMatrix<Field>& APre,
   AbstractDistMatrix<Field>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> BProx( BPre );
@@ -51,7 +51,7 @@ void HPDSolve
   const Matrix<Field>& A,
         Matrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
@@ -63,7 +63,7 @@ void HPDSolve
   const AbstractDistMatrix<Field>& A,
         AbstractDistMatrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
@@ -75,7 +75,7 @@ void HPDSolve
         Matrix<Field>& B,
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::NodeInfo info;
     ldl::Separator rootSep;
     vector<Int> map, invMap;
@@ -101,7 +101,7 @@ void HPDSolve
         DistMultiVec<Field>& B,
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
     DistMap map, invMap;

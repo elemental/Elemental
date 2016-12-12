@@ -238,7 +238,7 @@ public:
     : std::runtime_error( msg ) { }
 };
 
-DEBUG_ONLY(
+EL_DEBUG_ONLY(
     void EnableTracing();
     void DisableTracing();
 
@@ -395,11 +395,11 @@ Int Find( const vector<Int>& sortedInds, Int index );
 # define EL_FUNCTION __func__
 #endif
 
-#define LOGIC_ERROR(...) \
- LogicError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
-#define RUNTIME_ERROR(...) \
- RuntimeError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
-#define DEBUG_CSE DEBUG_ONLY(CSE cse(EL_FUNCTION))
+#define EL_LOGIC_ERROR(...) \
+ El::LogicError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
+#define EL_RUNTIME_ERROR(...) \
+ El::RuntimeError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
+#define EL_DEBUG_CSE EL_DEBUG_ONLY(El::CSE cse(EL_FUNCTION))
 
 } // namespace El
 

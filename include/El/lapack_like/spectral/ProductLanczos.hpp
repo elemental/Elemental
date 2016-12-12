@@ -20,7 +20,7 @@ void ProductLanczos
         Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> s;
     if( m >= n )
     {
@@ -55,7 +55,7 @@ Base<Field> ProductLanczosDecomp
         Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> s;
     if( m >= n )
     {
@@ -88,7 +88,7 @@ void ProductLanczos
         AbstractDistMatrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
     DistMultiVec<Field> s(comm);
     if( m >= n )
@@ -124,7 +124,7 @@ Base<Field> ProductLanczosDecomp
         DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
     DistMultiVec<Field> s(comm);
     if( m >= n )

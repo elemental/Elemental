@@ -18,8 +18,8 @@ namespace herm_tridiag {
 template<typename F>
 void LowerBlocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -66,8 +66,8 @@ void LowerBlocked
   AbstractDistMatrix<F>& householderScalarsPre, 
   const SymvCtrl<F>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, householderScalarsPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

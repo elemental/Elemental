@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void Recv( Matrix<T>& A, mpi::Comm comm, int source )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     const Int size = height*width;

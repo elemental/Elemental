@@ -16,8 +16,8 @@ template<typename T>
 void PartialColFilter
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != Partial(B.ColDist()) ||
           A.RowDist() != B.RowDist() )
           LogicError("Incompatible distributions");
@@ -94,7 +94,7 @@ template<typename T>
 void PartialColFilter
 ( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

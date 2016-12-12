@@ -23,7 +23,7 @@ void Schur
   Matrix<Complex<Base<F>>>& w,
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
     if( ctrl.useSDC )
     {
@@ -46,7 +46,7 @@ void Schur
   Matrix<F>& Q,
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );
@@ -60,7 +60,7 @@ void Schur
   AbstractDistMatrix<Complex<Base<F>>>& w, 
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
     if( ctrl.useSDC )
     {
@@ -85,7 +85,7 @@ void Schur
   AbstractDistMatrix<F>& Q,
   const SchurCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool fullTriangle = ctrl.hessSchurCtrl.fullTriangle;
     if( ctrl.useSDC )
         schur::SDC( A, w, Q, fullTriangle, ctrl.sdcCtrl );

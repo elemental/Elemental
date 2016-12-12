@@ -17,7 +17,7 @@ namespace quasitrsm {
 template<typename F>
 void LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = X.Height();
     const Int n = X.Width();
@@ -105,7 +105,7 @@ void LLNUnb( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 template<typename F>
 void LLN( const Matrix<F>& L, Matrix<F>& X, bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -136,7 +136,7 @@ void LLNLarge
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -191,7 +191,7 @@ void LLNMedium
         AbstractDistMatrix<F>& XPre, 
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = LPre.Grid();
@@ -247,8 +247,8 @@ void LLNSmall
         DistMatrix<F,colDist,STAR>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.ColAlign() != X.ColAlign() )
           LogicError("L and X are assumed to be aligned");
     )

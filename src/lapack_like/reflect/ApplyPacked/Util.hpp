@@ -17,7 +17,7 @@ void FixDiagonal
   const Matrix<F>& householderScalars,
         Matrix<F>& SInv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     for( Int j=0; j<SInv.Height(); ++j )
     {
         const F value = householderScalars(j);
@@ -34,7 +34,7 @@ void FixDiagonal
   const DistMatrix<F,STAR,STAR>& householderScalars,
         DistMatrix<F,STAR,STAR>& SInv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto& householderScalarsLoc = householderScalars.LockedMatrix();
     auto& SInvLoc = SInv.Matrix();
     for( Int j=0; j<SInv.Height(); ++j )

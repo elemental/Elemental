@@ -24,9 +24,9 @@ void Dots
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -39,7 +39,7 @@ void Dots
     for( Int i=0; i<height; )
     {
         const Int order = orders(i);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int firstInd = firstInds(i);
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
@@ -63,7 +63,7 @@ void Dots
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -84,7 +84,7 @@ void Dots
     auto& orders = ordersProx.GetLocked();
     auto& firstInds = firstIndsProx.GetLocked();
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
@@ -189,7 +189,7 @@ void Dots
   const DistMultiVec<Int>& firstInds,
         Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
@@ -197,7 +197,7 @@ void Dots
     const Int localHeight = x.LocalHeight();
     const Int firstLocalRow = x.FirstLocalRow();
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");

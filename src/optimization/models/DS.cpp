@@ -69,7 +69,7 @@ void Var1
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
     Matrix<Real> c, AHat, bHat, G, h;
@@ -134,7 +134,7 @@ void Var1
         AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
@@ -207,7 +207,7 @@ void Var2
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m), tInd(2*n+m,3*n+m);
@@ -285,7 +285,7 @@ void Var2
         AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
     auto& x = xProx.Get();
@@ -368,7 +368,7 @@ void Var2
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesA = A.NumEntries();
@@ -450,7 +450,7 @@ void Var2
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numLocalEntriesA = A.NumLocalEntries();
@@ -570,7 +570,7 @@ void DS
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var1( A, b, lambda, x, ctrl );
 }
 
@@ -582,7 +582,7 @@ void DS
         AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var1( A, b, lambda, x, ctrl );
 }
 
@@ -594,7 +594,7 @@ void DS
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var2( A, b, lambda, x, ctrl );
 }
 
@@ -606,7 +606,7 @@ void DS
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var2( A, b, lambda, x, ctrl );
 }
 

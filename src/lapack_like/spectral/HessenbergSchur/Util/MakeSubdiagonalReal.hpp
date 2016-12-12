@@ -47,7 +47,7 @@ void MakeSubdiagonalReal
   Matrix<Complex<Real>>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
     const Int nZ = Z.Height();
@@ -79,7 +79,7 @@ void MakeSubdiagonalReal
   DistMatrix<Complex<Real>,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );

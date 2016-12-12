@@ -25,7 +25,7 @@ Int RegularizedSolveAfterNoPromote
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Use time in these lambdas
     auto applyA =
@@ -60,7 +60,7 @@ Int RegularizedSolveAfterNoPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Use time in these lambdas
     auto applyA =
@@ -97,7 +97,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     
     typedef Base<Field> Real; 
     typedef Promote<Real> PReal;
@@ -143,7 +143,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterNoPromote
       ( A, reg, invMap, info, front, B, relTol, maxRefineIts, progress, time );
 }
@@ -163,7 +163,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     typedef Promote<Real> PReal;
     typedef Promote<Field> PField;
@@ -211,7 +211,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfter
       ( A, reg, d, invMap, info, front, B,
         relTol, maxRefineIts, progress, time );
@@ -230,7 +230,7 @@ Int RegularizedSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterPromote
            ( A, reg, invMap, info, front, B, relTol, maxRefineIts, 
              progress, time );
@@ -250,7 +250,7 @@ Int RegularizedSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, 
              B, relTol, maxRefineIts, progress, time );
@@ -270,7 +270,7 @@ Int RegularizedSolveAfterNoPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Use time in these lambdas
     auto applyA =
@@ -306,7 +306,7 @@ Int RegularizedSolveAfterNoPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterNoPromote
            ( A, reg, invMap, info, front, B, meta,
@@ -328,7 +328,7 @@ Int RegularizedSolveAfterNoPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Use time in these lambdas
     auto applyA =
@@ -367,7 +367,7 @@ Int RegularizedSolveAfterNoPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterNoPromote
            ( A, reg, d, invMap, info, front, B, meta,
@@ -389,7 +389,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     typedef Promote<Real> PReal;
     typedef Promote<Field> PField;
@@ -438,7 +438,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterNoPromote
       ( A, reg, invMap, info, front, B, meta,
         relTol, maxRefineIts, progress, time );
@@ -457,7 +457,7 @@ Int RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterPromote
            ( A, reg, invMap, info, front, B, meta,
@@ -480,7 +480,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     typedef Promote<Real> PReal;
     typedef Promote<Field> PField;
@@ -531,7 +531,7 @@ RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterNoPromote
       ( A, reg, d, invMap, info, front, B, meta,
         relTol, maxRefineIts, progress, time );
@@ -551,7 +551,7 @@ Int RegularizedSolveAfterPromote
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfterPromote
            ( A, reg, d, invMap, info, front, B, meta,
@@ -572,7 +572,7 @@ Int RegularizedSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterPromote
     ( A, reg, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
@@ -591,7 +591,7 @@ Int RegularizedSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfter
            ( A, reg, invMap, info, front, B, meta,
@@ -613,7 +613,7 @@ Int RegularizedSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RegularizedSolveAfterPromote
     ( A, reg, d, invMap, info, front, B, meta,
       relTol, maxRefineIts, progress, time );
@@ -633,7 +633,7 @@ Int RegularizedSolveAfter
   bool progress,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return RegularizedSolveAfter
     ( A, reg, d, invMap, info, front, B, meta,
@@ -655,7 +655,7 @@ Int LGMRESSolveAfter
   Int maxRefineIts,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
@@ -689,7 +689,7 @@ Int LGMRESSolveAfter
   Int maxRefineIts,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
@@ -723,7 +723,7 @@ Int LGMRESSolveAfter
   Int maxRefineIts,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const DistMultiVec<Field>& X,
@@ -757,7 +757,7 @@ Int LGMRESSolveAfter
   Int maxRefineIts,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return LGMRESSolveAfter
            ( A, reg, invMap, info, front, B, meta,
@@ -781,7 +781,7 @@ Int LGMRESSolveAfter
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const DistMultiVec<Field>& X,
@@ -816,7 +816,7 @@ Int LGMRESSolveAfter
   Int maxRefineIts,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return LGMRESSolveAfter
            ( A, reg, d, invMap, info, front, B, meta,
@@ -839,7 +839,7 @@ Int FGMRESSolveAfter
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
@@ -874,7 +874,7 @@ Int FGMRESSolveAfter
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
@@ -909,7 +909,7 @@ Int FGMRESSolveAfter
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const DistMultiVec<Field>& X,
@@ -944,7 +944,7 @@ Int FGMRESSolveAfter
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return FGMRESSolveAfter
            ( A, reg, invMap, info, front, B, meta,
@@ -970,7 +970,7 @@ Int FGMRESSolveAfter
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto applyA =
       [&]( Field alpha, const DistMultiVec<Field>& X,
@@ -1006,7 +1006,7 @@ Int FGMRESSolveAfter
         bool progress,
         bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return FGMRESSolveAfter
            ( A, reg, d, invMap, info, front, B, meta,
@@ -1026,7 +1026,7 @@ Int SolveAfter
         Matrix<Field>& B,
   const RegSolveCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     switch( ctrl.alg )
     {
     case REG_SOLVE_FGMRES:
@@ -1058,7 +1058,7 @@ Int SolveAfter
         Matrix<Field>& B,
   const RegSolveCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     switch( ctrl.alg )
     {
     case REG_SOLVE_FGMRES:
@@ -1090,7 +1090,7 @@ Int SolveAfter
         ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     switch( ctrl.alg )
     {
     case REG_SOLVE_FGMRES:
@@ -1121,7 +1121,7 @@ Int SolveAfter
         DistMultiVec<Field>& B,
   const RegSolveCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return SolveAfter( A, reg, invMap, info, front, B, meta, ctrl );
 }
@@ -1138,7 +1138,7 @@ Int SolveAfter
         ldl::DistMultiVecNodeMeta& meta,
   const RegSolveCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     switch( ctrl.alg )
     {
     case REG_SOLVE_FGMRES:
@@ -1170,7 +1170,7 @@ Int SolveAfter
         DistMultiVec<Field>& B,
   const RegSolveCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return SolveAfter( A, reg, d, invMap, info, front, B, meta, ctrl );
 }

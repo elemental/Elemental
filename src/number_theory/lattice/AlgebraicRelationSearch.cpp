@@ -25,7 +25,7 @@ Int AlgebraicRelationSearch
   Matrix<Field>& U,
   const LLLCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = n+1;
 

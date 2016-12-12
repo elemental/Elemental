@@ -16,11 +16,11 @@ namespace El {
 template<typename F>
 ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
     )
@@ -64,11 +64,11 @@ ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )
 template<typename F>
 ValueInt<Base<F>> VectorMinAbsLoc( const AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
       if( !x.Grid().InGrid() )
@@ -129,7 +129,7 @@ ValueInt<Base<F>> VectorMinAbsLoc( const AbstractDistMatrix<F>& x )
 template<typename F>
 Entry<Base<F>> MinAbsLoc( const Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -165,8 +165,8 @@ Entry<Base<F>> MinAbsLoc( const Matrix<F>& A )
 template<typename F>
 Entry<Base<F>> MinAbsLoc( const AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -216,8 +216,8 @@ Entry<Base<F>> MinAbsLoc( const AbstractDistMatrix<F>& A )
 template<typename F>
 Entry<Base<F>> SymmetricMinAbsLoc( UpperOrLower uplo, const Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -274,8 +274,8 @@ template<typename F>
 Entry<Base<F>>
 SymmetricMinAbsLoc( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

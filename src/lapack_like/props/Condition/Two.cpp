@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> TwoCondition( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Matrix<Real> s;
     SVD( A, s );
@@ -28,7 +28,7 @@ Base<Field> TwoCondition( const Matrix<Field>& A )
 template<typename Field>
 Base<Field> TwoCondition( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     SVD( A, s );

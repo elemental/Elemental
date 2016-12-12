@@ -19,7 +19,7 @@ void GRQ
   Matrix<F>& householderScalarsB,
   Matrix<Base<F>>& signatureB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     RQ( A, householderScalarsA, signatureA );
     rq::ApplyQ( RIGHT, ADJOINT, A, householderScalarsA, signatureA, B );
     QR( B, householderScalarsB, signatureB );
@@ -34,7 +34,7 @@ void GRQ
   AbstractDistMatrix<F>& householderScalarsB,
   AbstractDistMatrix<Base<F>>& signatureB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
@@ -50,7 +50,7 @@ namespace grq {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalarsA;
     Matrix<Base<F>> signatureA;
     RQ( A, householderScalarsA, signatureA );
@@ -62,7 +62,7 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();

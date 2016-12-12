@@ -24,7 +24,7 @@ Int ADMM
         Matrix<Field>& z,
   const ADMMCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
     // NOTE: If m >= n and A has full column rank, then basis pursuit is
     //       irrelevant, as there is a unique solution, which is found
@@ -156,7 +156,7 @@ Int ADMM
         AbstractDistMatrix<Field>& zPre,
   const ADMMCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR>
       AProx( APre ),

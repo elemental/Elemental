@@ -15,21 +15,21 @@ namespace El {
 template<typename Field>
 void Inverse( Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     inverse::LUPartialPiv( A );
 }
 
 template<typename Field>
 void Inverse( AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     inverse::LUPartialPiv( A );
 }
 
 template<typename Field>
 void LocalInverse( DistMatrix<Field,STAR,STAR>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Inverse( A.Matrix() );
 }
 

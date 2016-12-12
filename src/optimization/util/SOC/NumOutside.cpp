@@ -22,7 +22,7 @@ Int NumOutside
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
 
@@ -50,7 +50,7 @@ Int NumOutside
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -90,7 +90,7 @@ Int NumOutside
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMultiVec<Real> d(x.Comm());
     soc::Dets( x, d, orders, firstInds, cutoff );

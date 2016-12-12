@@ -37,9 +37,9 @@ Real TwoByTwo
         Real& delta1MinusShift,
   FlipOrClip negativeFix=CLIP_NEGATIVES )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1), two(2);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( whichValue < 0 || whichValue > 1 )
           LogicError("Invalid singular value request");
       if( delta1 <= delta0 )
@@ -171,7 +171,7 @@ Real TwoByTwo
   const Real& zeta1,
   FlipOrClip negativeFix=CLIP_NEGATIVES )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Real delta0MinusShift, delta1MinusShift;
     return
       TwoByTwo

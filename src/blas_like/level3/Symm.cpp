@@ -25,7 +25,7 @@ void Symm
   T beta,        Matrix<T>& C,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT && B.Width() == 1 )
     {
         Symv( uplo, alpha, A, B, beta, C , conjugate );
@@ -60,7 +60,7 @@ void Symm
   T beta,        AbstractDistMatrix<T>& C,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT && B.Width() == 1 )
     {
         Symv( uplo, alpha, A, B, beta, C , conjugate );

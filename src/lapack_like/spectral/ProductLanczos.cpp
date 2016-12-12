@@ -16,7 +16,7 @@ void ProductLanczos
         Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -61,7 +61,7 @@ Base<Field> ProductLanczosDecomp
         Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -104,7 +104,7 @@ void ProductLanczos
         AbstractDistMatrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
@@ -150,7 +150,7 @@ Base<Field> ProductLanczosDecomp
         DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();

@@ -18,7 +18,7 @@ void NormsFromScaledSquares
         Matrix<Real>& normsLoc,
         mpi::Comm comm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nLocal = localScales.Height();
 
     // Find the maximum relative scales

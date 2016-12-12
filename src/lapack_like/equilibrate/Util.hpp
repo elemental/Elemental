@@ -14,7 +14,7 @@ namespace El {
 template<typename Field>
 Base<Field> MinAbsNonzero( const Matrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -35,7 +35,7 @@ template<typename Field>
 Base<Field>
 MinAbsNonzero( const SparseMatrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int numEntries = A.NumEntries();
     Real minAbs = upperBound;
@@ -52,7 +52,7 @@ template<typename Field>
 Base<Field> MinAbsNonzero
 ( const AbstractDistMatrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real minAbs;
     if( A.Participating() )
@@ -68,7 +68,7 @@ template<typename Field>
 Base<Field>
 MinAbsNonzero( const DistSparseMatrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int numEntries = A.NumLocalEntries();
     Real minLocAbs = upperBound;
@@ -86,7 +86,7 @@ void GeometricColumnScaling
 ( const DistMatrix<Field,      U,V   >& A,
         DistMatrix<Base<Field>,V,STAR>& geomScaling )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrix<Real,V,STAR> maxScaling(A.Grid());
     ColumnMaxNorms( A, maxScaling );
@@ -108,7 +108,7 @@ void StackedGeometricColumnScaling
   const Matrix<Field>& B,
         Matrix<Base<Field>>& geomScaling )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     Matrix<Real> maxScalingA, maxScalingB;
@@ -153,7 +153,7 @@ void StackedGeometricColumnScaling
   const DistMatrix<Field,      U,V   >& B,
         DistMatrix<Base<Field>,V,STAR>& geomScaling )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: Assuming A.ColComm() == B.ColComm() and that the row alignments
     //       are equal
     typedef Base<Field> Real;
@@ -207,7 +207,7 @@ void GeometricRowScaling
 ( const Matrix<Field>& A,
         Matrix<Base<Field>>& geomScaling )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Matrix<Real> maxScaling;
     RowMaxNorms( A, maxScaling );
@@ -226,7 +226,7 @@ void GeometricRowScaling
 ( const DistMatrix<Field,      U,V   >& A,
         DistMatrix<Base<Field>,U,STAR>& geomScaling )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrix<Real,U,STAR> maxScaling(A.Grid());
     RowMaxNorms( A, maxScaling );

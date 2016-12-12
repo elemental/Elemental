@@ -13,7 +13,7 @@ namespace El {
 template<typename T>
 T Trace( const Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
 
@@ -29,7 +29,7 @@ T Trace( const Matrix<T>& A )
 template<typename T>
 T Trace( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute trace of nonsquare matrix");
 

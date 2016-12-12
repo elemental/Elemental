@@ -12,7 +12,7 @@ using namespace El;
 template<typename Real,typename=EnableIf<IsReal<Real>>>
 void TestTwoByTwoUpper( Int numTests, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing with ",TypeName<Real>());
     const Real eps = limits::Epsilon<Real>();
 

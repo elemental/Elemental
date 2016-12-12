@@ -301,7 +301,7 @@ void BlockedRowFilter
   const T* A, Int ALDim,
         T* B, Int BLDim )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int firstBlockWidth = blockWidth - rowCut;
 
     // Loop over the block columns from this portion
@@ -336,7 +336,7 @@ void BlockedColFilter
   const T* A, Int ALDim,
         T* B, Int BLDim )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int firstBlockHeight = blockHeight - colCut;
 
     // Loop over the block rows from this portion

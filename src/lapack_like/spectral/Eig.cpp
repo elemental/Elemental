@@ -18,7 +18,7 @@ void Helper
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     Matrix<Real> Q;
@@ -39,7 +39,7 @@ void Helper
   Matrix<Complex<Real>>& w,
   Matrix<Complex<Real>>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     Schur( A, w, X );
@@ -56,7 +56,7 @@ void Helper
   AbstractDistMatrix<Complex<Real>>& w,
   AbstractDistMatrix<Complex<Real>>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProxy( APre );
@@ -83,7 +83,7 @@ void Helper
   AbstractDistMatrix<Complex<Real>>& w,
   AbstractDistMatrix<Complex<Real>>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadProxy<C,C,MC,MR> AProxy( APre );
@@ -107,7 +107,7 @@ void Eig
   Matrix<Complex<Base<Field>>>& w,
   Matrix<Complex<Base<Field>>>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     eig::Helper( A, w, X );
 }
 
@@ -117,7 +117,7 @@ void Eig
   AbstractDistMatrix<Complex<Base<Field>>>& w,
   AbstractDistMatrix<Complex<Base<Field>>>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     eig::Helper( A, w, X );
 }
 

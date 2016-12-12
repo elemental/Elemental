@@ -25,7 +25,7 @@ namespace El {
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,MR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::ColAllGather( A, *this );
     return *this;
 }
@@ -33,7 +33,7 @@ BDM& BDM::operator=( const DistMatrix<T,MC,MR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,MC,MR,BLOCK> A_MC_MR(this->Grid());
     A_MC_MR.AlignRowsWith(*this);
     A_MC_MR = A;
@@ -44,7 +44,7 @@ BDM& BDM::operator=( const DistMatrix<T,MC,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const BDM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::Translate( A, *this );
     return *this;
 }
@@ -52,7 +52,7 @@ BDM& BDM::operator=( const BDM& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MD,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -61,7 +61,7 @@ BDM& BDM::operator=( const DistMatrix<T,MD,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MD,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -70,7 +70,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,MD,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,MC,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VC,BLOCK> A_STAR_VC( A );
     DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( this->Grid() );
     A_STAR_VR.AlignRowsWith(*this);
@@ -84,7 +84,7 @@ BDM& BDM::operator=( const DistMatrix<T,MR,MC,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A );
     DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( A_VR_STAR );
     A_VR_STAR.Empty();
@@ -101,7 +101,7 @@ BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VC,BLOCK> A_STAR_VC( A );
     DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( this->Grid() );
     A_STAR_VR.AlignRowsWith(*this);
@@ -118,7 +118,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VC,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,MC,MR,BLOCK> A_MC_MR(this->Grid());
     A_MC_MR.AlignRowsWith(*this);
     A_MC_MR = A;
@@ -129,7 +129,7 @@ BDM& BDM::operator=( const DistMatrix<T,VC,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR(this->Grid());
     A_STAR_VR.AlignRowsWith(*this);
     A_STAR_VR = A;
@@ -140,7 +140,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VR,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( A );
     DistMatrix<T,MC,MR,BLOCK> A_MC_MR( this->Grid() );
     A_MC_MR.AlignRowsWith(*this);
@@ -154,7 +154,7 @@ BDM& BDM::operator=( const DistMatrix<T,VR,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::PartialRowAllGather( A, *this );
     return *this;
 }
@@ -162,7 +162,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,VR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::RowFilter( A, *this );
     return *this;
 }
@@ -170,7 +170,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<T,MC,MR,BLOCK> A_MC_MR( A );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
@@ -181,7 +181,7 @@ BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     #define GUARD(CDIST,RDIST,WRAP) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
       BLOCK == WRAP

@@ -415,7 +415,7 @@ void Pow( const BigInt& alpha, const unsigned long& beta, BigInt& gamma )
 
 void Pow( const BigInt& alpha, const unsigned long long& beta, BigInt& gamma )
 {
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( beta > static_cast<unsigned long long>(ULONG_MAX) )
       {
           RuntimeError("Excessively large exponent for Pow: ",beta); 

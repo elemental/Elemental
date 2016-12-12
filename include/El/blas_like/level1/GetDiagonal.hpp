@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void GetDiagonal( const Matrix<T>& A, Matrix<T>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<T(const T&)> identity( []( const T& alpha ) { return alpha; } );
     GetMappedDiagonal( A, d, identity, offset );
 }
@@ -23,7 +23,7 @@ template<typename T>
 void GetRealPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<Base<T>(const T&)> realPart
     ( []( const T& alpha ) { return RealPart(alpha); } );
     GetMappedDiagonal( A, d, realPart, offset );
@@ -33,7 +33,7 @@ template<typename T>
 void GetImagPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<Base<T>(const T&)> imagPart
     ( []( const T& alpha ) { return ImagPart(alpha); } );
     GetMappedDiagonal( A, d, imagPart, offset );
@@ -69,7 +69,7 @@ template<typename T,Dist U,Dist V,DistWrap wrap>
 void GetDiagonal
 ( const DistMatrix<T,U,V,wrap>& A, AbstractDistMatrix<T>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<T(const T&)> identity( []( const T& alpha ) { return alpha; } );
     GetMappedDiagonal( A, d, identity, offset );
 }
@@ -78,7 +78,7 @@ template<typename T,Dist U,Dist V,DistWrap wrap>
 void GetRealPartOfDiagonal
 ( const DistMatrix<T,U,V,wrap>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<Base<T>(const T&)> realPart
     ( []( const T& alpha ) { return RealPart(alpha); } );
     GetMappedDiagonal( A, d, realPart, offset );
@@ -88,7 +88,7 @@ template<typename T,Dist U,Dist V,DistWrap wrap>
 void GetImagPartOfDiagonal
 ( const DistMatrix<T,U,V,wrap>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     function<Base<T>(const T&)> imagPart
     ( []( const T& alpha ) { return ImagPart(alpha); } );
     GetMappedDiagonal( A, d, imagPart, offset );
