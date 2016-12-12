@@ -17,8 +17,9 @@ namespace El {
 //
 // where F and G are Symmetric Positive Semi-Definite (and F is n0 x n0).
 
-template<typename F>
-void SQSDSolve( Int n0, UpperOrLower uplo, const Matrix<F>& A, Matrix<F>& B )
+template<typename Field>
+void SQSDSolve
+( Int n0, UpperOrLower uplo, const Matrix<Field>& A, Matrix<Field>& B )
 {
     EL_DEBUG_CSE
     const Orientation orient = NORMAL;
@@ -27,12 +28,12 @@ void SQSDSolve( Int n0, UpperOrLower uplo, const Matrix<F>& A, Matrix<F>& B )
     return SymmetricSolve( uplo, orient, A, B, conjugate );
 }
 
-template<typename F>
+template<typename Field>
 void SQSDSolve
 ( Int n0,
   UpperOrLower uplo,
-  const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& B )
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B )
 {
     EL_DEBUG_CSE
     const Orientation orient = NORMAL;
@@ -41,15 +42,15 @@ void SQSDSolve
     return SymmetricSolve( uplo, orient, A, B, conjugate );
 }
 
-template<typename F>
+template<typename Field>
 void SQSDSolve
 ( Int n0,
-        SparseMatrix<F>& A,
-        Matrix<F>& B,
-  const SQSDCtrl<Base<F>>& ctrl )
+        SparseMatrix<Field>& A,
+        Matrix<Field>& B,
+  const SQSDCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     if( !ctrl.canOverwrite )
     {
         auto ACopy( A );
@@ -65,8 +66,8 @@ void SQSDSolve
         const Real normScale = TwoNormEstimate( A, ctrl.basisSize );
         if( ctrl.progress )
             Output("Estimated || A ||_2 ~= ",normScale);
-        A *= F(1)/normScale;
-        B *= F(1)/normScale;
+        A *= Field(1)/normScale;
+        B *= Field(1)/normScale;
     }
     // TODO(poulson): Add equilibration
 
@@ -103,7 +104,7 @@ void SQSDSolve
     if( ctrl.time )
         Output("  ND: ",timer.Stop()," secs");
     InvertMap( map, invMap );
-    ldl::Front<F> AModFront( AMod, map, info );
+    ldl::Front<Field> AModFront( AMod, map, info );
     if( ctrl.time )
         timer.Start();
     LDL( info, AModFront );
@@ -120,12 +121,12 @@ void SQSDSolve
         Output("  Solve: ",timer.Stop()," secs");
 }
 
-template<typename F>
+template<typename Field>
 void SQSDSolve
 ( Int n0,
-  const SparseMatrix<F>& A,
-        Matrix<F>& B,
-  const SQSDCtrl<Base<F>>& ctrl )
+  const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
+  const SQSDCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
     auto ACopy( A );
@@ -134,15 +135,15 @@ void SQSDSolve
     SQSDSolve( n0, ACopy, B, ctrlMod );
 }
 
-template<typename F>
+template<typename Field>
 void SQSDSolve
 ( Int n0,
-        DistSparseMatrix<F>& A,
-        DistMultiVec<F>& B,
-  const SQSDCtrl<Base<F>>& ctrl )
+        DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
+  const SQSDCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     if( !ctrl.canOverwrite )
     {
         auto ACopy( A );
@@ -163,8 +164,8 @@ void SQSDSolve
         const Real normScale = TwoNormEstimate( A, ctrl.basisSize );
         if( ctrl.progress && commRank == 0 )
             Output("Estimated || A ||_2 ~= ",normScale);
-        A *= F(1)/normScale;
-        B *= F(1)/normScale;
+        A *= Field(1)/normScale;
+        B *= Field(1)/normScale;
     }
     // TODO(poulson): Add equilibration
 
@@ -195,7 +196,7 @@ void SQSDSolve
     if( commRank == 0 && ctrl.time )
         Output("  ND: ",timer.Stop()," secs");
     InvertMap( map, invMap );
-    ldl::DistFront<F> AModFront( AMod, map, rootSep, info );
+    ldl::DistFront<Field> AModFront( AMod, map, rootSep, info );
 
     if( commRank == 0 && ctrl.time )
         timer.Start();
@@ -213,12 +214,12 @@ void SQSDSolve
         Output("  Solve: ",timer.Stop()," secs");
 }
 
-template<typename F>
+template<typename Field>
 void SQSDSolve
 ( Int n0,
-  const DistSparseMatrix<F>& A,
-        DistMultiVec<F>& B,
-  const SQSDCtrl<Base<F>>& ctrl )
+  const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
+  const SQSDCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
     auto ACopy( A );
@@ -227,37 +228,37 @@ void SQSDSolve
     SQSDSolve( n0, ACopy, B, ctrlMod );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void SQSDSolve \
   ( Int n0, \
     UpperOrLower uplo, \
-    const Matrix<F>& A, \
-          Matrix<F>& B ); \
+    const Matrix<Field>& A, \
+          Matrix<Field>& B ); \
   template void SQSDSolve \
   ( Int n0, \
     UpperOrLower uplo, \
-    const AbstractDistMatrix<F>& A, \
-          AbstractDistMatrix<F>& B ); \
+    const AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Field>& B ); \
   template void SQSDSolve \
   ( Int n0, \
-    const SparseMatrix<F>& A, \
-          Matrix<F>& B, \
-    const SQSDCtrl<Base<F>>& ctrl ); \
+    const SparseMatrix<Field>& A, \
+          Matrix<Field>& B, \
+    const SQSDCtrl<Base<Field>>& ctrl ); \
   template void SQSDSolve \
   ( Int n0, \
-          SparseMatrix<F>& A, \
-          Matrix<F>& B, \
-    const SQSDCtrl<Base<F>>& ctrl ); \
+          SparseMatrix<Field>& A, \
+          Matrix<Field>& B, \
+    const SQSDCtrl<Base<Field>>& ctrl ); \
   template void SQSDSolve \
   ( Int n0, \
-    const DistSparseMatrix<F>& A, \
-          DistMultiVec<F>& B, \
-    const SQSDCtrl<Base<F>>& ctrl ); \
+    const DistSparseMatrix<Field>& A, \
+          DistMultiVec<Field>& B, \
+    const SQSDCtrl<Base<Field>>& ctrl ); \
   template void SQSDSolve \
   ( Int n0, \
-          DistSparseMatrix<F>& A, \
-          DistMultiVec<F>& B, \
-    const SQSDCtrl<Base<F>>& ctrl );
+          DistSparseMatrix<Field>& A, \
+          DistMultiVec<Field>& B, \
+    const SQSDCtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

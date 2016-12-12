@@ -57,7 +57,6 @@ int main( int argc, char* argv[] )
 
         El::Matrix<Scalar> B;
         El::KnapsackTypeBasis( B, n, radius );
-        const El::Int m = B.Height();
         const Real BOrigOne = El::OneNorm( B );
         El::Output("|| B_orig ||_1 = ",BOrigOne);
         if( print )
@@ -102,15 +101,13 @@ int main( int argc, char* argv[] )
             El::Print( B, "B" );
             El::Print( R, "R" );
         }
-        El::Print( B, "BKZ" );
         const Real BOneNorm = El::OneNorm( B );
         El::Output("|| B ||_1 = ",BOneNorm);
 
         auto b0 = B( El::ALL, El::IR(0) );
         const Real b0Norm = El::FrobeniusNorm( b0 );
         El::Output("|| b_0 ||_2 = ",b0Norm);
-        if( print )
-            El::Print( b0, "b0" );
+        El::Print( b0, "b0" );
     }
     catch( std::exception& e ) { El::ReportException(e); }
     return 0;
