@@ -279,8 +279,7 @@ int main( int argc, char* argv[] )
         auto b0 = B( El::ALL, El::IR(0) );
         const Real b0Norm = El::FrobeniusNorm( b0 );
         El::Output("|| b_0 ||_2 = ",b0Norm);
-        if( print )
-            El::Print( b0, "b0" );
+        El::Print( b0, "b0" );
         bool succeeded = false;
         if( b0Norm <= challenge )
         {
