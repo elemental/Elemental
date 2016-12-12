@@ -49,8 +49,7 @@ main( int argc, char* argv[] )
 
         // Reform H with the exponentials of the original eigenvalues
         auto expFunc = []( Real alpha ) { return El::Exp(alpha); };
-        El::HermitianFunction
-        ( El::LOWER, H, std::function<Real(Real)>(expFunc) );
+        El::HermitianFunction( El::LOWER, H, El::MakeFunction(expFunc) );
         if( print )
         {
             El::MakeHermitian( El::LOWER, H );

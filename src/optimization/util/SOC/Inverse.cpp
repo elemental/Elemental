@@ -26,8 +26,8 @@ void Inverse
     Matrix<Real> dInv;
     soc::Dets( x, dInv, orders, firstInds );
     cone::Broadcast( dInv, orders, firstInds );
-    auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
-    EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
+    auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };
+    EntrywiseMap( dInv, MakeFunction(entryInv) );
 
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
@@ -66,8 +66,8 @@ void Inverse
     DistMatrix<Real,VC,STAR> dInv(x.Grid());
     soc::Dets( x, dInv, orders, firstInds, cutoff );
     cone::Broadcast( dInv, orders, firstInds );
-    auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
-    EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
+    auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };
+    EntrywiseMap( dInv, MakeFunction(entryInv) );
 
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
@@ -89,8 +89,8 @@ void Inverse
     DistMultiVec<Real> dInv(x.Comm());
     soc::Dets( x, dInv, orders, firstInds, cutoff );
     cone::Broadcast( dInv, orders, firstInds );
-    auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
-    EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
+    auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };
+    EntrywiseMap( dInv, MakeFunction(entryInv) );
 
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );

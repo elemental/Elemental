@@ -14,7 +14,7 @@ namespace El {
 namespace svt {
 
 template<typename Field>
-Int Normal( Matrix<Field>& A, Base<Field> tau, bool relative )
+Int Normal( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
     typedef Base<Field> Real;
@@ -32,7 +32,8 @@ Int Normal( Matrix<Field>& A, Base<Field> tau, bool relative )
 }
 
 template<typename Field>
-Int Normal( AbstractDistMatrix<Field>& APre, Base<Field> tau, bool relative )
+Int Normal
+( AbstractDistMatrix<Field>& APre, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
     typedef Base<Field> Real;

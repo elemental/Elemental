@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename Real>
-inline Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     static const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -21,7 +21,7 @@ inline Real DampScaling( Real alpha )
 }
 
 template<typename Real>
-inline Real SquareRootScaling( Real alpha )
+Real SquareRootScaling( const Real& alpha )
 {
     return Sqrt(alpha);
 }
@@ -44,8 +44,8 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         // TODO(poulson): Replace with SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -84,8 +84,8 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         // TODO(poulson): Replace with SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -112,8 +112,8 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }
@@ -140,8 +140,8 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }

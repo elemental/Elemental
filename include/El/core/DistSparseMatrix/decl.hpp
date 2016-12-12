@@ -186,11 +186,6 @@ private:
 
     static bool CompareEntries( const Entry<T>& a, const Entry<T>& b );
 
-    template<typename U,typename V>
-    friend void EntrywiseMap
-    ( const DistSparseMatrix<U>& A, DistSparseMatrix<V>& B,
-      function<V(U)> func );
-
     template<typename U> friend class SparseMatrix;
 };
 

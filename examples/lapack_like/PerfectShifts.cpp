@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
 
 // The following example performs a bulge sweep using a pair of eigenvalues
 // using both a given datatype and an equivalent substituting the base datatype
@@ -24,7 +23,7 @@ void TestRandomHelper
   const El::HessenbergSchurCtrl& ctrl,
   bool print )
 {
-    DEBUG_CSE
+    El::DEBUG_CSE
     typedef El::Base<Field> Real;
     const El::Int n = H.Height();
     const Real eps = El::limits::Epsilon<Real>();
@@ -57,8 +56,8 @@ void TestRandomHelper
     // Find a pair of shifts which are either both real or complex
     // conjugates
     w = wCopy;
-    const Int numShifts = 2;
-    Int shiftOffset = -1;
+    const El::Int numShifts = 2;
+    El::Int shiftOffset = -1;
     if( El::IsComplex<Field>::value )
     {
         shiftOffset = 0;
@@ -112,7 +111,7 @@ void TestRandomHelper
 template<typename Field>
 void TestRandom( El::Int n, const El::HessenbergSchurCtrl& ctrl, bool print )
 {
-    DEBUG_CSE
+    El::DEBUG_CSE
     El::Output("Testing uniform Hessenberg with ",El::TypeName<Field>());
 
     El::Matrix<Field> H;

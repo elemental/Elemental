@@ -25,20 +25,10 @@ void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 
 template<typename T>
 void ImagPart
-( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag )
 { 
-    auto imagPart = []( T alpha ) { return ImagPart(alpha); };
-    function<Base<T>(T)> realLambda( imagPart );
-    EntrywiseMap( A, AImag, realLambda );
-}
-
-template<typename T>
-void ImagPart
-( const BlockMatrix<T>& A, BlockMatrix<Base<T>>& AImag )
-{ 
-    auto imagPart = []( T alpha ) { return ImagPart(alpha); };
-    function<Base<T>(T)> realLambda( imagPart );
-    EntrywiseMap( A, AImag, realLambda );
+    auto imagPart = []( const T& alpha ) { return ImagPart(alpha); };
+    EntrywiseMap( A, AImag, MakeFunction(imagPart) );
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1
@@ -51,10 +41,7 @@ void ImagPart
   EL_EXTERN template void ImagPart \
   ( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
   EL_EXTERN template void ImagPart \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag ); \
-  EL_EXTERN template void ImagPart \
-  ( const BlockMatrix<T>& A, \
-          BlockMatrix<Base<T>>& AImag );
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

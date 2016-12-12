@@ -10,13 +10,13 @@
 
 namespace El {
 
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& B,
-        Base<F> gamma,
-        Matrix<F>& X,
+  const Matrix<Field>& A,
+  const Matrix<Field>& B,
+        Base<Field> gamma,
+        Matrix<Field>& X,
   RidgeAlg alg )
 {
     DEBUG_CSE
@@ -24,24 +24,24 @@ void Ridge
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
-    if( orientation == TRANSPOSE && IsComplex<F>::value )
+    if( orientation == TRANSPOSE && IsComplex<Field>::value )
         LogicError("Transpose version of complex Ridge not yet supported");
 
     if( m >= n )
     {
-        Matrix<F> Z;
+        Matrix<Field> Z;
         if( alg == RIDGE_CHOLESKY )
         {
             if( orientation == NORMAL )
-                Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
+                Herk( LOWER, ADJOINT, Base<Field>(1), A, Z );
             else
-                Herk( LOWER, NORMAL, Base<F>(1), A, Z );
-            ShiftDiagonal( Z, F(gamma*gamma) );
+                Herk( LOWER, NORMAL, Base<Field>(1), A, Z );
+            ShiftDiagonal( Z, Field(gamma*gamma) );
             Cholesky( LOWER, Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( ADJOINT, NORMAL, Field(1), A, B, X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( NORMAL, NORMAL, Field(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else if( alg == RIDGE_QR )
@@ -53,43 +53,43 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma) );
+            FillDiagonal( ZB, Field(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( ADJOINT, NORMAL, Field(1), A, B, X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( NORMAL, NORMAL, Field(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else
         {
-            Matrix<F> U, V;
-            Matrix<Base<F>> s;
+            Matrix<Field> U, V;
+            Matrix<Base<Field>> s;
             if( orientation == NORMAL )
             {
-                SVDCtrl<Base<F>> ctrl;
+                SVDCtrl<Base<Field>> ctrl;
                 ctrl.overwrite = false;
                 SVD( A, U, s, V, ctrl );
             }
             else
             {
-                Matrix<F> AAdj;
+                Matrix<Field> AAdj;
                 Adjoint( A, AAdj );
 
-                SVDCtrl<Base<F>> ctrl;
+                SVDCtrl<Base<Field>> ctrl;
                 ctrl.overwrite = true;
                 SVD( AAdj, U, s, V, ctrl );
             }
             auto sigmaMap =
-              [=]( Base<F> sigma )
+              [=]( const Base<Field>& sigma )
               { return sigma / (sigma*sigma + gamma*gamma); };
-            EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
-            Gemm( ADJOINT, NORMAL, F(1), U, B, X );
+            EntrywiseMap( s, MakeFunction(sigmaMap) );
+            Gemm( ADJOINT, NORMAL, Field(1), U, B, X );
             DiagonalScale( LEFT, NORMAL, s, X );
             U = X;
-            Gemm( NORMAL, NORMAL, F(1), V, U, X );
+            Gemm( NORMAL, NORMAL, Field(1), V, U, X );
         }
     }
     else
@@ -98,21 +98,21 @@ void Ridge
     }
 }
 
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& APre,
-  const AbstractDistMatrix<F>& BPre,
-        Base<F> gamma,
-        AbstractDistMatrix<F>& XPre,
+  const AbstractDistMatrix<Field>& APre,
+  const AbstractDistMatrix<Field>& BPre,
+        Base<Field> gamma,
+        AbstractDistMatrix<Field>& XPre,
         RidgeAlg alg )
 {
     DEBUG_CSE
 
-    DistMatrixReadProxy<F,F,MC,MR>
+    DistMatrixReadProxy<Field,Field,MC,MR>
       AProx( APre ),
       BProx( BPre );
-    DistMatrixWriteProxy<F,F,MC,MR>
+    DistMatrixWriteProxy<Field,Field,MC,MR>
       XProx( XPre );
     auto& A = AProx.GetLocked();
     auto& B = BProx.GetLocked();
@@ -121,24 +121,24 @@ void Ridge
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
-    if( orientation == TRANSPOSE && IsComplex<F>::value )
+    if( orientation == TRANSPOSE && IsComplex<Field>::value )
         LogicError("Transpose version of complex Ridge not yet supported");
 
     if( m >= n )
     {
-        DistMatrix<F> Z(A.Grid());
+        DistMatrix<Field> Z(A.Grid());
         if( alg == RIDGE_CHOLESKY )
         {
             if( orientation == NORMAL )
-                Herk( LOWER, ADJOINT, Base<F>(1), A, Z );
+                Herk( LOWER, ADJOINT, Base<Field>(1), A, Z );
             else
-                Herk( LOWER, NORMAL, Base<F>(1), A, Z );
-            ShiftDiagonal( Z, F(gamma*gamma) );
+                Herk( LOWER, NORMAL, Base<Field>(1), A, Z );
+            ShiftDiagonal( Z, Field(gamma*gamma) );
             Cholesky( LOWER, Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( ADJOINT, NORMAL, Field(1), A, B, X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( NORMAL, NORMAL, Field(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else if( alg == RIDGE_QR )
@@ -150,44 +150,44 @@ void Ridge
                 ZT = A;
             else
                 Adjoint( A, ZT );
-            FillDiagonal( ZB, F(gamma) );
+            FillDiagonal( ZB, Field(gamma) );
             // NOTE: This QR factorization could exploit the upper-triangular
             //       structure of the diagonal matrix ZB
             qr::ExplicitTriang( Z );
             if( orientation == NORMAL )
-                Gemm( ADJOINT, NORMAL, F(1), A, B, X );
+                Gemm( ADJOINT, NORMAL, Field(1), A, B, X );
             else
-                Gemm( NORMAL, NORMAL, F(1), A, B, X );
+                Gemm( NORMAL, NORMAL, Field(1), A, B, X );
             cholesky::SolveAfter( LOWER, NORMAL, Z, X );
         }
         else
         {
-            DistMatrix<F> U(A.Grid()), V(A.Grid());
-            DistMatrix<Base<F>,VR,STAR> s(A.Grid());
+            DistMatrix<Field> U(A.Grid()), V(A.Grid());
+            DistMatrix<Base<Field>,VR,STAR> s(A.Grid());
             if( orientation == NORMAL )
             {
-                SVDCtrl<Base<F>> ctrl;
+                SVDCtrl<Base<Field>> ctrl;
                 ctrl.overwrite = false;
                 SVD( A, U, s, V, ctrl );
             }
             else
             {
-                DistMatrix<F> AAdj(A.Grid());
+                DistMatrix<Field> AAdj(A.Grid());
                 Adjoint( A, AAdj );
 
-                SVDCtrl<Base<F>> ctrl;
+                SVDCtrl<Base<Field>> ctrl;
                 ctrl.overwrite = true;
                 SVD( AAdj, U, s, V );
             }
 
             auto sigmaMap =
-              [=]( Base<F> sigma )
+              [=]( const Base<Field>& sigma )
               { return sigma / (sigma*sigma + gamma*gamma); };
-            EntrywiseMap( s, function<Base<F>(Base<F>)>(sigmaMap) );
-            Gemm( ADJOINT, NORMAL, F(1), U, B, X );
+            EntrywiseMap( s, MakeFunction(sigmaMap) );
+            Gemm( ADJOINT, NORMAL, Field(1), U, B, X );
             DiagonalScale( LEFT, NORMAL, s, X );
             U = X;
-            Gemm( NORMAL, NORMAL, F(1), V, U, X );
+            Gemm( NORMAL, NORMAL, Field(1), V, U, X );
         }
     }
     else
@@ -196,14 +196,14 @@ void Ridge
     }
 }
 
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const SparseMatrix<F>& A,
-  const Matrix<F>& B,
-        Base<F> gamma,
-        Matrix<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl )
+  const SparseMatrix<Field>& A,
+  const Matrix<Field>& B,
+        Base<Field> gamma,
+        Matrix<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -212,21 +212,21 @@ void Ridge
     )
 
     const Int n = A.Width();
-    SparseMatrix<F> G;
+    SparseMatrix<Field> G;
     Zeros( G, n, n );
     ShiftDiagonal( G, gamma );
 
     Tikhonov( orientation, A, B, G, X, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A,
-  const DistMultiVec<F>& B,
-        Base<F> gamma,
-        DistMultiVec<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl )
+  const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Field>& B,
+        Base<Field> gamma,
+        DistMultiVec<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     DEBUG_ONLY(
@@ -235,42 +235,42 @@ void Ridge
     )
 
     const Int n = A.Width();
-    DistSparseMatrix<F> G(A.Comm());
+    DistSparseMatrix<Field> G(A.Comm());
     Zeros( G, n, n );
     ShiftDiagonal( G, gamma );
 
     Tikhonov( orientation, A, B, G, X, ctrl );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void Ridge \
   ( Orientation orientation, \
-    const Matrix<F>& A, \
-    const Matrix<F>& B, \
-          Base<F> gamma, \
-          Matrix<F>& X, \
+    const Matrix<Field>& A, \
+    const Matrix<Field>& B, \
+          Base<Field> gamma, \
+          Matrix<Field>& X, \
           RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const AbstractDistMatrix<F>& A, \
-    const AbstractDistMatrix<F>& B, \
-          Base<F> gamma, \
-          AbstractDistMatrix<F>& X, \
+    const AbstractDistMatrix<Field>& A, \
+    const AbstractDistMatrix<Field>& B, \
+          Base<Field> gamma, \
+          AbstractDistMatrix<Field>& X, \
           RidgeAlg alg ); \
   template void Ridge \
   ( Orientation orientation, \
-    const SparseMatrix<F>& A, \
-    const Matrix<F>& B, \
-          Base<F> gamma, \
-          Matrix<F>& X, \
-    const LeastSquaresCtrl<Base<F>>& ctrl ); \
+    const SparseMatrix<Field>& A, \
+    const Matrix<Field>& B, \
+          Base<Field> gamma, \
+          Matrix<Field>& X, \
+    const LeastSquaresCtrl<Base<Field>>& ctrl ); \
   template void Ridge \
   ( Orientation orientation, \
-    const DistSparseMatrix<F>& A, \
-    const DistMultiVec<F>& B, \
-          Base<F> gamma, \
-          DistMultiVec<F>& X, \
-    const LeastSquaresCtrl<Base<F>>& ctrl );
+    const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Field>& B, \
+          Base<Field> gamma, \
+          DistMultiVec<Field>& X, \
+    const LeastSquaresCtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

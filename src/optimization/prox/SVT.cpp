@@ -16,14 +16,14 @@
 namespace El {
 
 template<typename Field>
-Int SVT( Matrix<Field>& A, Base<Field> tau, bool relative )
+Int SVT( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
     return svt::Normal( A, tau, relative );
 }
 
 template<typename Field>
-Int SVT( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative )
+Int SVT( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
     // NOTE: This should be less accurate (but faster) than svt::Normal
@@ -31,7 +31,8 @@ Int SVT( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative )
 }
 
 template<typename Field>
-Int SVT( Matrix<Field>& A, Base<Field> tau, Int relaxedRank, bool relative )
+Int SVT
+( Matrix<Field>& A, const Base<Field>& tau, Int relaxedRank, bool relative )
 {
     DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
@@ -40,7 +41,8 @@ Int SVT( Matrix<Field>& A, Base<Field> tau, Int relaxedRank, bool relative )
 
 template<typename Field>
 Int SVT
-( AbstractDistMatrix<Field>& A, Base<Field> tau, Int relaxedRank, bool relative )
+( AbstractDistMatrix<Field>& A, const Base<Field>& tau,
+  Int relaxedRank, bool relative )
 {
     DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
@@ -49,7 +51,7 @@ Int SVT
 
 // Singular-value soft-thresholding based on TSQR
 template<typename Field,Dist U>
-Int SVT( DistMatrix<Field,U,STAR>& A, Base<Field> tau, bool relative )
+Int SVT( DistMatrix<Field,U,STAR>& A, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
     return svt::TSQR( A, tau, relative );
@@ -57,30 +59,32 @@ Int SVT( DistMatrix<Field,U,STAR>& A, Base<Field> tau, bool relative )
 
 #define PROTO_DIST(Field,U) \
   template Int SVT \
-  ( DistMatrix<Field,U,STAR>& A, Base<Field> tau, bool relative );
+  ( DistMatrix<Field,U,STAR>& A, const Base<Field>& tau, bool relative );
 
 #define PROTO(Field) \
-  template Int SVT( Matrix<Field>& A, Base<Field> tau, bool relative ); \
   template Int SVT \
-  ( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int SVT \
-  ( Matrix<Field>& A, Base<Field> tau, Int relaxedRank, bool relative ); \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int SVT \
-  ( AbstractDistMatrix<Field>& A, Base<Field> tau, Int relaxedRank, \
-    bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, \
+    Int relaxedRank, bool relative ); \
+  template Int SVT \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, \
+    Int relaxedRank, bool relative ); \
   template Int svt::Cross \
-  ( Matrix<Field>& A, Base<Field> tau, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int svt::Cross \
-  ( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative ); \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int svt::Cross \
-  ( DistMatrix<Field,VC,STAR>& A, Base<Field> tau, bool relative ); \
+  ( DistMatrix<Field,VC,STAR>& A, const Base<Field>& tau, bool relative ); \
   template Int svt::PivotedQR \
-  ( Matrix<Field>& A, Base<Field> tau, Int numSteps, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, Int numSteps, bool relative ); \
   template Int svt::PivotedQR \
-  ( AbstractDistMatrix<Field>& A, Base<Field> tau, Int numSteps, \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, Int numSteps, \
     bool relative ); \
   template Int svt::TSQR \
-  ( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative ); \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative ); \
   PROTO_DIST(Field,MC  ) \
   PROTO_DIST(Field,MD  ) \
   PROTO_DIST(Field,MR  ) \

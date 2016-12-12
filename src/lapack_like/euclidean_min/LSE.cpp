@@ -322,9 +322,9 @@ void LSE
     if( ctrl.equilibrate )
     {
         ColumnTwoNorms( W, dC );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dC, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dC, MakeFunction(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
     else
@@ -410,9 +410,9 @@ void LSE
     if( ctrl.equilibrate )
     {
         ColumnTwoNorms( W, dC );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dC, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dC, MakeFunction(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
     else

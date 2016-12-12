@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
 
 int
 main( int argc, char* argv[] )
@@ -26,16 +25,16 @@ main( int argc, char* argv[] )
         const El::Grid grid( comm );
 
         const double& pi = El::Pi<double>();
-        auto fourier = [&]( Int i, Int j ) { return (-2*pi*i*j)/n; };
-        auto phase = [&]( Int i, Int j )
+        auto fourier = [&]( El::Int i, El::Int j ) { return (-2*pi*i*j)/n; };
+        auto phase = [&]( El::Int i, El::Int j )
           {
             return fourier(i,j) +
               El::Sqrt(double(i)*double(i) + double(j)*double(j));
           };
 
         El::DistMatrix<El::Complex<double>> F(grid), G(grid);
-        El::Egorov( F, std::function<double(Int,Int)>(fourier), n );
-        El::Egorov( G, std::function<double(Int,Int)>(phase),   n );
+        El::Egorov( F, El::MakeFunction(fourier), n );
+        El::Egorov( G, El::MakeFunction(phase),   n );
 
         if( display )
         {

@@ -39,18 +39,17 @@ main( int argc, char* argv[] )
         // using the eigenvalue decomposition of the Jacobi matrix for the
         // Legendre polynomials.
         El::DistMatrix<double> points(grid), X(grid);
-        El::HermitianTridiagEig( GetDiagonal(J), GetDiagonal(J,-1), points, X );
+        El::HermitianTridiagEig
+        ( GetDiagonal(J), GetDiagonal(J,-1), points, X );
         if( display )
             El::Display( points, "Quadrature points" );
         if( print )
             El::Print( points, "points" );
         auto firstRow = X( El::IR(0,1), El::ALL );
         El::DistMatrix<double> weights( firstRow );
-        auto entry_to_weight_lambda =
-          []( double gamma ) { return 2*gamma*gamma; };
-        auto entry_to_weight_func =
-          std::function<double(double)>(entry_to_weight_lambda);
-        El::EntrywiseMap( weights, entry_to_weight_func );
+        auto entryToWeight =
+          []( const double& gamma ) { return 2*gamma*gamma; };
+        El::EntrywiseMap( weights, El::MakeFunction(entryToWeight) );
         if( display )
             El::Display( weights, "Quadrature weights" );
         if( print )

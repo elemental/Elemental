@@ -11,44 +11,49 @@
 namespace El {
 
 template<typename Field>
-Field SoftThreshold( Field alpha, Base<Field> tau )
+Field SoftThreshold( const Field& alpha, const Base<Field>& tau )
 {
     DEBUG_CSE
     DEBUG_ONLY(
       if( tau < 0 )
-            LogicError("Negative threshold does not make sense");
+          LogicError("Negative threshold does not make sense");
     )
     const Base<Field> scale = Abs(alpha);
     return ( scale <= tau ? Field(0) : alpha-(alpha/scale)*tau );
 }
 
 template<typename Field>
-void SoftThreshold( Matrix<Field>& A, Base<Field> tau, bool relative )
+void SoftThreshold( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
+    Base<Field> tauMod = tau;
     if( relative )
-        tau *= MaxNorm(A);
-    auto softThresh = [&]( Field alpha ) { return SoftThreshold(alpha,tau); };
-    EntrywiseMap( A, function<Field(Field)>(softThresh) );
+        tauMod *= MaxNorm(A);
+    auto softThresh =
+      [&]( const Field& alpha ) { return SoftThreshold(alpha,tauMod); };
+    EntrywiseMap( A, MakeFunction(softThresh) );
 }
 
 template<typename Field>
 void SoftThreshold
-( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative )
+( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative )
 {
     DEBUG_CSE
+    Base<Field> tauMod = tau;
     if( relative )
-        tau *= MaxNorm(A);
-    auto softThresh = [&]( Field alpha ) { return SoftThreshold(alpha,tau); };
-    EntrywiseMap( A, function<Field(Field)>(softThresh) );
+        tauMod *= MaxNorm(A);
+    auto softThresh =
+      [&]( const Field& alpha ) { return SoftThreshold(alpha,tauMod); };
+    EntrywiseMap( A, MakeFunction(softThresh) );
 }
 
 #define PROTO(Field) \
-  template Field SoftThreshold( Field alpha, Base<Field> tau ); \
+  template Field SoftThreshold \
+  ( const Field& alpha, const Base<Field>& tau ); \
   template void SoftThreshold \
-  ( Matrix<Field>& A, Base<Field> tau, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template void SoftThreshold \
-  ( AbstractDistMatrix<Field>& A, Base<Field> tau, bool relative );
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

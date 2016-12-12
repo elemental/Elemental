@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_HADAMARD_HPP
@@ -13,7 +13,7 @@
 
 namespace El {
 
-template<typename T> 
+template<typename T>
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
     DEBUG_CSE
@@ -28,10 +28,10 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
             C(i,j) = A(i,j)*B(i,j);
 }
 
-template<typename T> 
+template<typename T>
 void Hadamard
 ( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B, 
+  const ElementalMatrix<T>& B,
         ElementalMatrix<T>& C )
 {
     DEBUG_CSE
@@ -53,7 +53,7 @@ void Hadamard
     Hadamard( A.LockedMatrix(), B.LockedMatrix(), C.Matrix() );
 }
 
-template<typename T> 
+template<typename T>
 void Hadamard
 ( const DistMultiVec<T>& A, const DistMultiVec<T>& B, DistMultiVec<T>& C )
 {

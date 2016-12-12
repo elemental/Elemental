@@ -102,12 +102,12 @@ void HermitianSVD
 
     typedef Base<Field> Real;
     DistMatrix<Real,STAR,STAR> sSgn( s );
-    auto sgnLambda = []( Real sigma ) { return Sgn(sigma,false); };
-    EntrywiseMap( sSgn, function<Real(Real)>(sgnLambda) );
+    auto sgnLambda = []( const Real& sigma ) { return Sgn(sigma,false); };
+    EntrywiseMap( sSgn, MakeFunction(sgnLambda) );
 
     // Set the singular values to the absolute value of the eigenvalues
-    auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, function<Real(Real)>(absLambda) );
+    auto absLambda = []( const Real& sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, MakeFunction(absLambda) );
 
     auto pairs = TaggedSort( s, DESCENDING );
     DistMatrix<Field,VC,STAR> V_VC_STAR( V );
@@ -167,8 +167,8 @@ void HermitianSVD
     HermitianEig( uplo, A, s );
 
     // Set the singular values to the absolute value of the eigenvalues
-    auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, function<Real(Real)>(absLambda) );
+    auto absLambda = []( const Real& sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, MakeFunction(absLambda) );
 
     Sort( s, DESCENDING );
 }
@@ -202,8 +202,8 @@ void HermitianSVD
 
     // Set the singular values to the absolute value of the eigenvalues
     typedef Base<Field> Real;
-    auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, function<Real(Real)>(absLambda) );
+    auto absLambda = []( const Real& sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, MakeFunction(absLambda) );
 
     Sort( s, DESCENDING );
 }

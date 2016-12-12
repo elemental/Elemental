@@ -25,20 +25,10 @@ void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
 
 template<typename T>
 void RealPart
-( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal )
 { 
-    auto realPart = []( T alpha ) { return RealPart(alpha); };
-    function<Base<T>(T)> realLambda( realPart );
-    EntrywiseMap( A, AReal, realLambda );
-}
-
-template<typename T>
-void RealPart
-( const BlockMatrix<T>& A, BlockMatrix<Base<T>>& AReal )
-{ 
-    auto realPart = []( T alpha ) { return RealPart(alpha); };
-    function<Base<T>(T)> realLambda( realPart );
-    EntrywiseMap( A, AReal, realLambda );
+    auto realPart = []( const T& alpha ) { return RealPart(alpha); };
+    EntrywiseMap( A, AReal, MakeFunction(realPart) );
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1
@@ -51,10 +41,7 @@ void RealPart
   EL_EXTERN template void RealPart \
   ( const Matrix<T>& A, Matrix<Base<T>>& AReal ); \
   EL_EXTERN template void RealPart \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AReal ); \
-  EL_EXTERN template void RealPart \
-  ( const BlockMatrix<T>& A, \
-          BlockMatrix<Base<T>>& AReal );
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

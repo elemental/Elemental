@@ -174,10 +174,9 @@ int main( int argc, char* argv[] )
         El::BKZCtrl<Real> ctrl;
         ctrl.blocksize = blocksize;
         ctrl.variableBlocksize = variableBsize;
-        ctrl.blocksizeFunc = std::function<El::Int(El::Int)>(blocksizeLambda);
+        ctrl.blocksizeFunc = El::MakeFunction(blocksizeLambda);
         ctrl.variableEnumType = variableEnumType;
-        ctrl.enumTypeFunc =
-          std::function<El::EnumType(El::Int)>(enumTypeLambda);
+        ctrl.enumTypeFunc = El::MakeFunction(enumTypeLambda);
         ctrl.multiEnumWindow = multiEnumWindow;
         ctrl.time = timeBKZ;
         ctrl.progress = progressBKZ;

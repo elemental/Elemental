@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename Real>
-Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -45,14 +45,14 @@ void RuizEquil
         // Rescale the columns
         // -------------------
         ColumnMaxNorms( A, colScale );
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
 
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
     }
@@ -99,14 +99,14 @@ void RuizEquil
         // Rescale the columns
         // -------------------
         ColumnMaxNorms( A, colScale );
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
 
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRow );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
     }
@@ -138,14 +138,14 @@ void RuizEquil
         // Rescale the columns
         // -------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
 
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRow );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -180,14 +180,14 @@ void RuizEquil
         // Rescale the columns
         // -------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
 
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRow );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -226,7 +226,7 @@ void StackedRuizEquil
         ColumnMaxNorms( B, colScaleB );
         for( Int j=0; j<n; ++j )
             colScale(j) = Max(colScale(j),colScaleB(j));
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -234,12 +234,12 @@ void StackedRuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         RowMaxNorms( B, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScale, B );
     }
@@ -301,7 +301,7 @@ void StackedRuizEquil
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             colScaleLoc(jLoc) =
               Max(colScaleLoc(jLoc),colScaleBLoc(jLoc));
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -309,12 +309,12 @@ void StackedRuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         RowMaxNorms( B, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScale, B );
     }
@@ -353,7 +353,7 @@ void StackedRuizEquil
         ColumnMaxNorms( B, maxAbsValsB );
         for( Int j=0; j<n; ++j )
             scales(j) = Max(scales(j),maxAbsValsB(j));
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
@@ -361,12 +361,12 @@ void StackedRuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         RowMaxNorms( B, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
     }
@@ -412,7 +412,7 @@ void StackedRuizEquil
         ColumnMaxNorms( B, maxAbsValsB );
         for( Int jLoc=0; jLoc<localHeight; ++jLoc )
             scalesLoc(jLoc) = Max(scalesLoc(jLoc),maxAbsValsBLoc(jLoc));
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
@@ -420,12 +420,12 @@ void StackedRuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         RowMaxNorms( B, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
     }

@@ -47,11 +47,11 @@ template<> std::string TypeName<Quad>();
 template<> std::string TypeName<BigInt>();
 template<> std::string TypeName<BigFloat>();
 #endif
-template<typename F,
-         typename=EnableIf<IsComplex<F>>,
+template<typename Field,
+         typename=EnableIf<IsComplex<Field>>,
          typename=void>
 std::string TypeName()
-{ return std::string("Complex<")+TypeName<Base<F>>()+std::string(">"); }
+{ return std::string("Complex<")+TypeName<Base<Field>>()+std::string(">"); }
 
 // Types that Matrix, DistMatrix, etc. are instantiatable with
 // -----------------------------------------------------------
@@ -115,7 +115,7 @@ using ConvertBase = typename ConvertBaseHelper<F,RealNew>::type;
 
 // Increase the precision (if possible)
 // ------------------------------------
-template<typename F> struct PromoteHelper { typedef F type; };
+template<typename Field> struct PromoteHelper { typedef Field type; };
 template<> struct PromoteHelper<float> { typedef double type; };
 
 // Handle the promotion of 'double'
@@ -150,7 +150,7 @@ template<> struct PromoteHelper<Quad> { typedef BigFloat type; };
 template<typename Real> struct PromoteHelper<Complex<Real>>
 { typedef Complex<typename PromoteHelper<Real>::type> type; };
 
-template<typename F> using Promote = typename PromoteHelper<F>::type;
+template<typename Field> using Promote = typename PromoteHelper<Field>::type;
 
 template<typename S,typename T>
 struct CanCast
@@ -171,7 +171,7 @@ struct CanBidirectionalCast
 // A superset of IsScalar that includes pointers, as well as 'int'
 // (which is different than Int if 64-bit integers are enabled)
 // ------------------------------------------------------------
-// TODO: Reuse IsScalar
+// TODO(poulson): Reuse IsScalar
 template<typename T> struct IsData { static const bool value=false; };
 template<typename T> struct IsData<T*> { static const bool value=true; };
 template<typename T> struct IsData<const T*> { static const bool value=true; };
@@ -201,7 +201,7 @@ template<typename T> struct IsData<Complex<T>>
 
 // Pretty-printing
 // ---------------
-// TODO: Move into core/imports/quadmath.hpp?
+// TODO(poulson): Move into core/imports/quadmath.hpp?
 #ifdef EL_HAVE_QUAD
 std::ostream& operator<<( std::ostream& os, const Quad& alpha );
 std::istream& operator>>( std::istream& is,       Quad& alpha );
@@ -315,9 +315,9 @@ void Conj
 
 // Complex argument
 // ----------------
-template<typename F,
-         typename=EnableIf<IsField<F>>>
-Base<F> Arg( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsField<Field>>>
+Base<Field> Arg( const Field& alpha );
 #ifdef EL_HAVE_QUAD
 template<> Quad Arg( const Complex<Quad>& alpha );
 #endif
@@ -425,7 +425,7 @@ template<typename Real,
          typename=EnableIf<IsReal<Real>>>
 Real Sgn( const Real& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 #ifdef EL_HAVE_MPC
-// TODO: Continue adding BigInt support
+// TODO(poulson): Continue adding BigInt support
 BigInt Sgn( const BigInt& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 BigFloat Sgn( const BigFloat& alpha, bool symmetric=true ) EL_NO_EXCEPT;
 #endif
@@ -442,10 +442,10 @@ EL_NO_EXCEPT;
 
 // Exponentiation
 // ==============
-template<typename F,
-         typename=EnableIf<IsField<F>>,
-         typename=EnableIf<IsStdScalar<F>>>
-F Exp( const F& alpha ) EL_NO_EXCEPT;
+template<typename Field,
+         typename=EnableIf<IsField<Field>>,
+         typename=EnableIf<IsStdScalar<Field>>>
+Field Exp( const Field& alpha ) EL_NO_EXCEPT;
 template<typename Real,
          typename=EnableIf<IsField<Real>>,
          typename=DisableIf<IsStdScalar<Real>>,
@@ -524,7 +524,7 @@ BigFloat Pow( const BigFloat& alpha, const long int& beta );
 BigFloat Pow( const BigFloat& alpha, const long long int& beta );
 BigFloat Pow( const BigFloat& alpha, const BigInt& beta );
 Complex<BigFloat> Pow( const Complex<BigFloat>& alpha, const BigFloat& beta );
-// TODO: Complex<BigFloat> variants
+// TODO(poulson): Complex<BigFloat> variants
 
 // Versions which avoid temporaries
 void Pow
@@ -553,9 +553,9 @@ void Pow
 ( const BigFloat& alpha, const BigInt& beta, BigFloat& gamma );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Log( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Log( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Log( const Complex<Real>& alpha );
@@ -580,13 +580,13 @@ double Log( const Integer& alpha );
 template<> double Log( const BigInt& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Log2( const F& alpha );
-template<typename F,
-         typename=EnableIf<IsField<F>>,
-         typename=DisableIf<IsStdField<F>>>
-F Log2( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Log2( const Field& alpha );
+template<typename Field,
+         typename=EnableIf<IsField<Field>>,
+         typename=DisableIf<IsStdField<Field>>>
+Field Log2( const Field& alpha );
 #ifdef EL_HAVE_QD
 DoubleDouble Log2( const DoubleDouble& alpha );
 QuadDouble Log2( const QuadDouble& alpha );
@@ -611,13 +611,13 @@ double Log2( const Integer& alpha );
 template<> double Log2( const BigInt& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Log10( const F& alpha );
-template<typename F,
-         typename=EnableIf<IsField<F>>,
-         typename=DisableIf<IsStdField<F>>>
-F Log10( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Log10( const Field& alpha );
+template<typename Field,
+         typename=EnableIf<IsField<Field>>,
+         typename=DisableIf<IsStdField<Field>>>
+Field Log10( const Field& alpha );
 #ifdef EL_HAVE_QD
 DoubleDouble Log10( const DoubleDouble& alpha );
 QuadDouble Log10( const QuadDouble& alpha );
@@ -645,9 +645,9 @@ template<> double Log10( const BigInt& alpha );
 // Contrary to the STL, we do not define the square-root of an integral argument
 // to be a double-precision result because, for example, the square-root of
 // a BigInt may not be representable as a double even if the result is integer
-template<typename F,
-         typename=EnableIf<IsStdScalar<F>>>
-F Sqrt( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdScalar<Field>>>
+Field Sqrt( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>,
          typename=void>
@@ -669,9 +669,9 @@ Complex<BigFloat> Sqrt( const Complex<BigFloat>& alpha );
 #endif
 
 // Versions which avoid temporaries if necessary
-template<typename F,
-         typename=EnableIf<IsScalar<F>>>
-void Sqrt( const F& alpha, F& sqrtAlpha );
+template<typename Field,
+         typename=EnableIf<IsScalar<Field>>>
+void Sqrt( const Field& alpha, Field& sqrtAlpha );
 #ifdef EL_HAVE_MPC
 void Sqrt( const BigInt& alpha, BigInt& sqrtAlpha );
 void Sqrt( const BigFloat& alpha, BigFloat& sqrtAlpha );
@@ -696,9 +696,9 @@ void ISqrt( const BigInt& alpha, BigInt& alphaSqrt );
 
 // Trigonometric functions
 // =======================
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Cos( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Cos( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Cos( const Complex<Real>& alpha );
@@ -716,9 +716,9 @@ BigFloat Cos( const BigFloat& alpha );
 Complex<BigFloat> Cos( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Sin( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Sin( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Sin( const Complex<Real>& alpha );
@@ -735,9 +735,9 @@ BigFloat Sin( const BigFloat& alpha );
 Complex<BigFloat> Sin( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Tan( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Tan( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Tan( const Complex<Real>& alpha );
@@ -755,9 +755,9 @@ BigFloat Tan( const BigFloat& alpha );
 Complex<BigFloat> Tan( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Acos( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Acos( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Acos( const Complex<Real>& alpha );
@@ -775,9 +775,9 @@ BigFloat Acos( const BigFloat& alpha );
 Complex<BigFloat> Acos( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Asin( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Asin( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Asin( const Complex<Real>& alpha );
@@ -795,9 +795,9 @@ BigFloat Asin( const BigFloat& alpha );
 Complex<BigFloat> Asin( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Atan( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Atan( const Field& alpha );
 template<typename Real,
          typename=DisableIf<IsStdField<Real>>>
 Complex<Real> Atan( const Complex<Real>& alpha );
@@ -839,9 +839,9 @@ BigFloat Atan2( const BigFloat& y, const BigFloat& x );
 
 // Hyperbolic functions
 // ====================
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Cosh( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Cosh( const Field& alpha );
 template<typename Real,
          typename=EnableIf<IsField<Real>>,
          typename=DisableIf<IsStdField<Real>>>
@@ -860,9 +860,9 @@ BigFloat Cosh( const BigFloat& alpha );
 Complex<BigFloat> Cosh( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Sinh( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Sinh( const Field& alpha );
 template<typename Real,
          typename=EnableIf<IsField<Real>>,
          typename=DisableIf<IsStdField<Real>>>
@@ -881,13 +881,13 @@ BigFloat Sinh( const BigFloat& alpha );
 Complex<BigFloat> Sinh( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Tanh( const F& alpha );
-template<typename F,
-         typename=EnableIf<IsField<F>>,
-         typename=DisableIf<IsStdField<F>>>
-F Tanh( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Tanh( const Field& alpha );
+template<typename Field,
+         typename=EnableIf<IsField<Field>>,
+         typename=DisableIf<IsStdField<Field>>>
+Field Tanh( const Field& alpha );
 
 #ifdef EL_HAVE_QD
 DoubleDouble Tanh( const DoubleDouble& alpha );
@@ -902,9 +902,9 @@ BigFloat Tanh( const BigFloat& alpha );
 Complex<BigFloat> Tanh( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Acosh( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Acosh( const Field& alpha );
 template<typename Real,
          typename=EnableIf<IsField<Real>>,
          typename=DisableIf<IsStdField<Real>>>
@@ -923,9 +923,9 @@ BigFloat Acosh( const BigFloat& alpha );
 Complex<BigFloat> Acosh( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Asinh( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Asinh( const Field& alpha );
 template<typename Real,
          typename=EnableIf<IsField<Real>>,
          typename=DisableIf<IsStdField<Real>>>
@@ -944,9 +944,9 @@ BigFloat Asinh( const BigFloat& alpha );
 Complex<BigFloat> Asinh( const Complex<BigFloat>& alpha );
 #endif
 
-template<typename F,
-         typename=EnableIf<IsStdField<F>>>
-F Atanh( const F& alpha );
+template<typename Field,
+         typename=EnableIf<IsStdField<Field>>>
+Field Atanh( const Field& alpha );
 template<typename Real,
          typename=EnableIf<IsField<Real>>,
          typename=DisableIf<IsStdField<Real>>>
@@ -1037,14 +1037,16 @@ template<> BigFloat Floor( const BigFloat& alpha );
 // Two-norm formation
 // ==================
 // TODO(poulson): Move this somewhere more fitting; perhaps in blas_like/
-template<typename F,
-         typename=EnableIf<IsField<F>>>
+template<typename Field,
+         typename=EnableIf<IsField<Field>>>
 void UpdateScaledSquare
-( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT;
-template<typename F,
-         typename=EnableIf<IsField<F>>>
+( const Field& alpha, Base<Field>& scale, Base<Field>& scaledSquare )
+EL_NO_EXCEPT;
+template<typename Field,
+         typename=EnableIf<IsField<Field>>>
 void DowndateScaledSquare
-( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT;
+( const Field& alpha, Base<Field>& scale, Base<Field>& scaledSquare )
+EL_NO_RELEASE_EXCEPT;
 
 // Solve a quadratic equation
 // ==========================

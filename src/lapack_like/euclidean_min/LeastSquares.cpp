@@ -265,19 +265,19 @@ void LeastSquares
     Matrix<Real> dR, dC;
     if( ctrl.equilibrate )
     {
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
         if( m >= n )
         {
             ColumnTwoNorms( ABar, dC );
-            EntrywiseMap( dC, function<Real(Real)>(normMap) );
+            EntrywiseMap( dC, MakeFunction(normMap) );
             DiagonalSolve( RIGHT, NORMAL, dC, ABar );
             Ones( dR, m, 1 );
         }
         else
         {
             RowTwoNorms( ABar, dR );
-            EntrywiseMap( dR, function<Real(Real)>(normMap) );
+            EntrywiseMap( dR, MakeFunction(normMap) );
             DiagonalSolve( LEFT, NORMAL, dR, ABar );
             Ones( dC, n, 1 );
         }
@@ -443,19 +443,19 @@ void LeastSquares
     DistMultiVec<Real> dR(comm), dC(comm);
     if( ctrl.equilibrate )
     {
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
         if( m >= n )
         {
             ColumnTwoNorms( ABar, dC );
-            EntrywiseMap( dC, function<Real(Real)>(normMap) );
+            EntrywiseMap( dC, MakeFunction(normMap) );
             DiagonalSolve( RIGHT, NORMAL, dC, ABar );
             Ones( dR, m, 1 );
         }
         else
         {
             RowTwoNorms( ABar, dR );
-            EntrywiseMap( dR, function<Real(Real)>(normMap) );
+            EntrywiseMap( dR, MakeFunction(normMap) );
             DiagonalSolve( LEFT, NORMAL, dR, ABar );
             Ones( dC, n, 1 );
         }

@@ -12,33 +12,33 @@ namespace El {
 
 namespace reg_ldl {
 
-template<typename F>
-inline Int RegularizedSolveAfterNoPromote
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
+template<typename Field>
+Int RegularizedSolveAfterNoPromote
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-        Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts, 
         bool progress,
         bool time )
 {
     DEBUG_CSE
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<F>& X, Matrix<F>& Y )
+      [&]( const Matrix<Field>& X, Matrix<Field>& Y )
       {
         Y = X;
         DiagonalScale( LEFT, NORMAL, reg, Y ); 
-        Multiply( NORMAL, F(1), A, X, F(1), Y );
+        Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
     auto applyAInv = 
-      [&]( Matrix<F>& Y )
+      [&]( Matrix<Field>& Y )
       {
-        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::MatrixNode<Field> YNodal( invMap, info, Y );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y );
       };
@@ -46,35 +46,35 @@ inline Int RegularizedSolveAfterNoPromote
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterNoPromote
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d, 
+template<typename Field>
+Int RegularizedSolveAfterNoPromote
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d, 
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts, 
   bool progress,
   bool time )
 {
     DEBUG_CSE
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<F>& X, Matrix<F>& Y )
+      [&]( const Matrix<Field>& X, Matrix<Field>& Y )
       {
         Y = X;
         DiagonalScale( LEFT, NORMAL, reg, Y ); 
-        Multiply( NORMAL, F(1), A, X, F(1), Y );
+        Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
     auto applyAInv = 
-      [&]( Matrix<F>& Y )
+      [&]( Matrix<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
-        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::MatrixNode<Field> YNodal( invMap, info, Y );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y );
         DiagonalSolve( LEFT, NORMAL, d, Y );
@@ -83,44 +83,44 @@ inline Int RegularizedSolveAfterNoPromote
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline DisableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+DisableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts, 
   bool progress,
   bool time )
 {
     DEBUG_CSE
     
-    typedef Base<F> Real; 
+    typedef Base<Field> Real; 
     typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    // TODO: Avoid reforming these each call
-    SparseMatrix<PF> AProm;
+    // TODO(poulson): Avoid reforming these each call
+    SparseMatrix<PField> AProm;
     Copy( A, AProm );
     Matrix<PReal> regProm;
     Copy( reg, regProm );
 
     // TODO: Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<PF>& XProm, Matrix<PF>& YProm )
+      [&]( const Matrix<PField>& XProm, Matrix<PField>& YProm )
       {
         YProm = XProm; 
         DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
-        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
+        Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
       }; 
     auto applyAInv =  
-      [&]( Matrix<F>& Y )
+      [&]( Matrix<Field>& Y )
       {
-        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::MatrixNode<Field> YNodal( invMap, info, Y );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y );
       };
@@ -129,16 +129,16 @@ RegularizedSolveAfterPromote
            ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline EnableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+EnableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts, 
   bool progress,
   bool time )
@@ -148,45 +148,45 @@ RegularizedSolveAfterPromote
       ( A, reg, invMap, info, front, B, relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline DisableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+DisableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d, 
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d, 
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts, 
   bool progress,
   bool time )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    // TODO: Avoid reforming these each call
-    SparseMatrix<PF> AProm;
+    // TODO(poulson): Avoid reforming these each call
+    SparseMatrix<PField> AProm;
     Copy( A, AProm );
     Matrix<PReal> regProm;
     Copy( reg, regProm );
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const Matrix<PF>& XProm, Matrix<PF>& YProm )
+      [&]( const Matrix<PField>& XProm, Matrix<PField>& YProm )
       {
         YProm = XProm; 
         DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
-        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
+        Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
       }; 
     auto applyAInv =  
-      [&]( Matrix<F>& Y )
+      [&]( Matrix<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
-        ldl::MatrixNode<F> YNodal( invMap, info, Y );
+        ldl::MatrixNode<Field> YNodal( invMap, info, Y );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y );
         DiagonalSolve( LEFT, NORMAL, d, Y );
@@ -196,17 +196,17 @@ RegularizedSolveAfterPromote
            ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline EnableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+EnableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d, 
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d, 
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts, 
   bool progress,
   bool time )
@@ -217,15 +217,15 @@ RegularizedSolveAfterPromote
         relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts, 
   bool progress,
   bool time )
@@ -236,16 +236,16 @@ Int RegularizedSolveAfter
              progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d, 
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d, 
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -256,35 +256,35 @@ Int RegularizedSolveAfter
              B, relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+template<typename Field>
+Int RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
 {
     DEBUG_CSE
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<F>& X, DistMultiVec<F>& Y )
+      [&]( const DistMultiVec<Field>& X, DistMultiVec<Field>& Y )
       {
         Y = X;
         DiagonalScale( LEFT, NORMAL, reg, Y ); 
-        Multiply( NORMAL, F(1), A, X, F(1), Y );
+        Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& Y )
+      [&]( DistMultiVec<Field>& Y )
       {
-        // TODO: Switch to DistMatrixNode with large numbers of RHS
-        ldl::DistMultiVecNode<F> YNodal;
+        // TODO(poulson): Switch to DistMatrixNode with large numbers of RHS
+        ldl::DistMultiVecNode<Field> YNodal;
         YNodal.Pull( invMap, info, Y, meta );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y, meta );
@@ -293,15 +293,15 @@ inline Int RegularizedSolveAfterNoPromote
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+template<typename Field>
+Int RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -313,37 +313,37 @@ inline Int RegularizedSolveAfterNoPromote
              relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+template<typename Field>
+Int RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
 {
     DEBUG_CSE
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<F>& X, DistMultiVec<F>& Y )
+      [&]( const DistMultiVec<Field>& X, DistMultiVec<Field>& Y )
       {
         Y = X;
         DiagonalScale( LEFT, NORMAL, reg, Y ); 
-        Multiply( NORMAL, F(1), A, X, F(1), Y );
+        Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& Y )
+      [&]( DistMultiVec<Field>& Y )
       {
-        // TODO: Switch to DistMatrixNode with large numbers of RHS
+        // TODO(poulson): Switch to DistMatrixNode with large numbers of RHS
         DiagonalSolve( LEFT, NORMAL, d, Y );
-        ldl::DistMultiVecNode<F> YNodal;
+        ldl::DistMultiVecNode<Field> YNodal;
         YNodal.Pull( invMap, info, Y, meta );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y, meta );
@@ -353,16 +353,16 @@ inline Int RegularizedSolveAfterNoPromote
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+template<typename Field>
+Int RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -374,45 +374,46 @@ inline Int RegularizedSolveAfterNoPromote
              relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline DisableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+DisableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    // TODO: Perform these conversions less frequently at a higher level
-    DistSparseMatrix<PF> AProm(A.Comm());
+    // TODO(poulson): Perform these conversions less frequently at a higher
+    // level
+    DistSparseMatrix<PField> AProm(A.Comm());
     Copy( A, AProm );
     DistMultiVec<PReal> regProm(reg.Comm());
     Copy( reg, regProm );
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<PF>& XProm, DistMultiVec<PF>& YProm )
+      [&]( const DistMultiVec<PField>& XProm, DistMultiVec<PField>& YProm )
       {
         YProm = XProm;
         DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
-        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
+        Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& Y )
+      [&]( DistMultiVec<Field>& Y )
       {
-        // TODO: Switch to DistMatrixNode for large numbers of RHS
-        ldl::DistMultiVecNode<F> YNodal;
+        // TODO(poulson): Switch to DistMatrixNode for large numbers of RHS
+        ldl::DistMultiVecNode<Field> YNodal;
         YNodal.Pull( invMap, info, Y, meta );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y, meta );
@@ -422,17 +423,17 @@ RegularizedSolveAfterPromote
            ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline EnableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+EnableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -443,15 +444,15 @@ RegularizedSolveAfterPromote
         relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+template<typename Field>
+Int RegularizedSolveAfterPromote
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -463,46 +464,47 @@ inline Int RegularizedSolveAfterPromote
              relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline DisableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+DisableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    // TODO: Perform these conversions less frequently at a higher level
-    DistSparseMatrix<PF> AProm(A.Comm());
+    // TODO(poulson): Perform these conversions less frequently at a higher
+    // level
+    DistSparseMatrix<PField> AProm(A.Comm());
     Copy( A, AProm );
     DistMultiVec<PReal> regProm(reg.Comm());
     Copy( reg, regProm );
 
-    // TODO: Use time in these lambdas
+    // TODO(poulson): Use time in these lambdas
     auto applyA =
-      [&]( const DistMultiVec<PF>& XProm, DistMultiVec<PF>& YProm )
+      [&]( const DistMultiVec<PField>& XProm, DistMultiVec<PField>& YProm )
       {
         YProm = XProm;
         DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
-        Multiply( NORMAL, PF(1), AProm, XProm, PF(1), YProm );
+        Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
       };
     auto applyAInv = 
-      [&]( DistMultiVec<F>& Y )
+      [&]( DistMultiVec<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
-        ldl::DistMultiVecNode<F> YNodal;
+        ldl::DistMultiVecNode<Field> YNodal;
         YNodal.Pull( invMap, info, Y, meta );
         ldl::SolveAfter( info, front, YNodal );
         YNodal.Push( invMap, info, Y, meta );
@@ -513,18 +515,18 @@ RegularizedSolveAfterPromote
            ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
-template<typename F>
-inline EnableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field>
+EnableIf<IsSame<Field,Promote<Field>>,Int>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -535,16 +537,16 @@ RegularizedSolveAfterPromote
         relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
-inline Int RegularizedSolveAfterPromote
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
+template<typename Field>
+Int RegularizedSolveAfterPromote
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d, 
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -556,16 +558,16 @@ inline Int RegularizedSolveAfterPromote
              relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -576,15 +578,15 @@ Int RegularizedSolveAfter
       relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -596,17 +598,17 @@ Int RegularizedSolveAfter
              relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d, 
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -617,16 +619,16 @@ Int RegularizedSolveAfter
       relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d, 
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d, 
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int maxRefineIts,
   bool progress,
   bool time )
@@ -638,30 +640,30 @@ Int RegularizedSolveAfter
       relTol, maxRefineIts, progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int LGMRESSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int restart,
   Int maxIts,
-  Base<F> relTolRefine,
+  Base<Field> relTolRefine,
   Int maxRefineIts,
   bool progress )
 {
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const Matrix<F>& X, F beta, Matrix<F>& Y )
+      [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( Matrix<F>& W )
+      [&]( Matrix<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, invMap, info, front, W, 
@@ -671,31 +673,31 @@ Int LGMRESSolveAfter
     return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int LGMRESSolveAfter
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d,
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d,
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  Base<Field> relTol,
   Int restart,
   Int maxIts,
-  Base<F> relTolRefine,
+  Base<Field> relTolRefine,
   Int maxRefineIts,
   bool progress )
 {
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const Matrix<F>& X, F beta, Matrix<F>& Y )
+      [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( Matrix<F>& W )
+      [&]( Matrix<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, d, invMap, info, front, W, 
@@ -705,31 +707,32 @@ Int LGMRESSolveAfter
     return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int LGMRESSolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  Base<F> relTol,
+  Base<Field> relTol,
   Int restart,
   Int maxIts,
-  Base<F> relTolRefine,
+  Base<Field> relTolRefine,
   Int maxRefineIts,
   bool progress )
 {
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const DistMultiVec<F>& X, F beta, DistMultiVec<F>& Y )
+      [&]( Field alpha, const DistMultiVec<Field>& X,
+           Field beta, DistMultiVec<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( DistMultiVec<F>& W )
+      [&]( DistMultiVec<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, invMap, info, front, W, meta,
@@ -739,18 +742,18 @@ Int LGMRESSolveAfter
     return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int LGMRESSolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int restart,
   Int maxIts,
-  Base<F> relTolRefine,
+  Base<Field> relTolRefine,
   Int maxRefineIts,
   bool progress )
 {
@@ -761,32 +764,33 @@ Int LGMRESSolveAfter
              relTol, restart, maxIts, relTolRefine, maxRefineIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int LGMRESSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-        Base<F> relTol,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts,
         bool progress )
 {
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const DistMultiVec<F>& X, F beta, DistMultiVec<F>& Y )
+      [&]( Field alpha, const DistMultiVec<Field>& X,
+           Field beta, DistMultiVec<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( DistMultiVec<F>& W )
+      [&]( DistMultiVec<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, d, invMap, info, front, W, meta,
@@ -796,19 +800,19 @@ Int LGMRESSolveAfter
     return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int LGMRESSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  Base<Field> relTol,
   Int restart,
   Int maxIts,
-  Base<F> relTolRefine,
+  Base<Field> relTolRefine,
   Int maxRefineIts,
   bool progress )
 {
@@ -819,18 +823,18 @@ Int LGMRESSolveAfter
              relTol, restart, maxIts, relTolRefine, maxRefineIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int FGMRESSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-        Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts, 
         bool progress,
         bool time )
@@ -838,12 +842,12 @@ Int FGMRESSolveAfter
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const Matrix<F>& X, F beta, Matrix<F>& Y )
+      [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( Matrix<F>& W )
+      [&]( Matrix<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, invMap, info, front, W, 
@@ -853,19 +857,19 @@ Int FGMRESSolveAfter
     return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int FGMRESSolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-        Base<F> relTol,
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts, 
         bool progress,
         bool time )
@@ -873,12 +877,12 @@ Int FGMRESSolveAfter
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const Matrix<F>& X, F beta, Matrix<F>& Y )
+      [&]( Field alpha, const Matrix<Field>& X, Field beta, Matrix<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( Matrix<F>& W )
+      [&]( Matrix<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, d, invMap, info, front, W,
@@ -888,19 +892,19 @@ Int FGMRESSolveAfter
     return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int FGMRESSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-        Base<F> relTol,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts, 
         bool progress,
         bool time )
@@ -908,12 +912,13 @@ Int FGMRESSolveAfter
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const DistMultiVec<F>& X, F beta, DistMultiVec<F>& Y )
+      [&]( Field alpha, const DistMultiVec<Field>& X,
+           Field beta, DistMultiVec<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( DistMultiVec<F>& W )
+      [&]( DistMultiVec<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, invMap, info, front, W, meta,
@@ -923,18 +928,18 @@ Int FGMRESSolveAfter
     return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int FGMRESSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts, 
         bool progress,
         bool time )
@@ -947,20 +952,20 @@ Int FGMRESSolveAfter
              progress, time );
 }
 
-template<typename F>
+template<typename Field>
 Int FGMRESSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-        Base<F> relTol,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts, 
         bool progress,
         bool time )
@@ -968,12 +973,13 @@ Int FGMRESSolveAfter
     DEBUG_CSE
 
     auto applyA =
-      [&]( F alpha, const DistMultiVec<F>& X, F beta, DistMultiVec<F>& Y )
+      [&]( Field alpha, const DistMultiVec<Field>& X,
+           Field beta, DistMultiVec<Field>& Y )
       {
           Multiply( NORMAL, alpha, A, X, beta, Y );
       };
     auto precond =
-      [&]( DistMultiVec<F>& W )
+      [&]( DistMultiVec<Field>& W )
       {
         RegularizedSolveAfter
         ( A, reg, d, invMap, info, front, W, meta,
@@ -983,19 +989,19 @@ Int FGMRESSolveAfter
     return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
 }
 
-template<typename F>
+template<typename Field>
 Int FGMRESSolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
-        Base<F> relTolRefine,
+        Base<Field> relTolRefine,
         Int maxRefineIts, 
         bool progress,
         bool time )
@@ -1008,17 +1014,17 @@ Int FGMRESSolveAfter
              progress, time );
 }
 
-// TODO: Add RGMRES
+// TODO(poulson): Add RGMRES
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
   const vector<Int>& invMap,
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     switch( ctrl.alg )
@@ -1041,16 +1047,16 @@ Int SolveAfter
     }
 }
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d,
+( const SparseMatrix<Field>& A, 
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d,
   const vector<Int>& invMap, 
   const ldl::NodeInfo& info,
-  const ldl::Front<F>& front, 
-        Matrix<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const ldl::Front<Field>& front, 
+        Matrix<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     switch( ctrl.alg )
@@ -1073,16 +1079,16 @@ Int SolveAfter
     }
 }
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const RegSolveCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     switch( ctrl.alg )
@@ -1105,32 +1111,32 @@ Int SolveAfter
     }
 }
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return SolveAfter( A, reg, invMap, info, front, B, meta, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
         ldl::DistMultiVecNodeMeta& meta,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const RegSolveCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     switch( ctrl.alg )
@@ -1153,129 +1159,129 @@ Int SolveAfter
     }
 }
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
+( const DistSparseMatrix<Field>& A, 
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
   const DistMap& invMap, 
   const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front, 
-        DistMultiVec<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl )
+  const ldl::DistFront<Field>& front, 
+        DistMultiVec<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl )
 {
     DEBUG_CSE
     ldl::DistMultiVecNodeMeta meta;
     return SolveAfter( A, reg, d, invMap, info, front, B, meta, ctrl );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template Int RegularizedSolveAfter \
-  ( const SparseMatrix<F>& A, \
-    const Matrix<Base<F>>& reg, \
+  ( const SparseMatrix<Field>& A, \
+    const Matrix<Base<Field>>& reg, \
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front, \
-          Matrix<F>& B, \
-    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
+    const ldl::Front<Field>& front, \
+          Matrix<Field>& B, \
+    Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
-  ( const SparseMatrix<F>& A, \
-    const Matrix<Base<F>>& reg, \
-    const Matrix<Base<F>>& d, \
+  ( const SparseMatrix<Field>& A, \
+    const Matrix<Base<Field>>& reg, \
+    const Matrix<Base<Field>>& d, \
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front, \
-          Matrix<F>& B, \
-    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
+    const ldl::Front<Field>& front, \
+          Matrix<Field>& B, \
+    Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
-    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
+    Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
-    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
+    Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
-    const DistMultiVec<Base<F>>& d, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
+    const DistMultiVec<Base<Field>>& d, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
-    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
+    Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int RegularizedSolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
-    const DistMultiVec<Base<F>>& d, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
+    const DistMultiVec<Base<Field>>& d, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
-    Base<F> relTol, Int maxRefineIts, bool progress, bool time ); \
+    Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
   template Int SolveAfter \
-  ( const SparseMatrix<F>& A, \
-    const Matrix<Base<F>>& reg, \
+  ( const SparseMatrix<Field>& A, \
+    const Matrix<Base<Field>>& reg, \
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front, \
-          Matrix<F>& B, \
-    const RegSolveCtrl<Base<F>>& ctrl ); \
+    const ldl::Front<Field>& front, \
+          Matrix<Field>& B, \
+    const RegSolveCtrl<Base<Field>>& ctrl ); \
   template Int SolveAfter \
-  ( const SparseMatrix<F>& A, \
-    const Matrix<Base<F>>& reg, \
-    const Matrix<Base<F>>& d, \
+  ( const SparseMatrix<Field>& A, \
+    const Matrix<Base<Field>>& reg, \
+    const Matrix<Base<Field>>& d, \
     const vector<Int>& invMap, \
     const ldl::NodeInfo& info, \
-    const ldl::Front<F>& front, \
-          Matrix<F>& B, \
-    const RegSolveCtrl<Base<F>>& ctrl ); \
+    const ldl::Front<Field>& front, \
+          Matrix<Field>& B, \
+    const RegSolveCtrl<Base<Field>>& ctrl ); \
   template Int SolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
-    const RegSolveCtrl<Base<F>>& ctrl ); \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
+    const RegSolveCtrl<Base<Field>>& ctrl ); \
   template Int SolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
-    const RegSolveCtrl<Base<F>>& ctrl ); \
+    const RegSolveCtrl<Base<Field>>& ctrl ); \
   template Int SolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
-    const DistMultiVec<Base<F>>& d, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
+    const DistMultiVec<Base<Field>>& d, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
-    const RegSolveCtrl<Base<F>>& ctrl ); \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
+    const RegSolveCtrl<Base<Field>>& ctrl ); \
   template Int SolveAfter \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& reg, \
-    const DistMultiVec<Base<F>>& d, \
+  ( const DistSparseMatrix<Field>& A, \
+    const DistMultiVec<Base<Field>>& reg, \
+    const DistMultiVec<Base<Field>>& d, \
     const DistMap& invMap, \
     const ldl::DistNodeInfo& info, \
-    const ldl::DistFront<F>& front, \
-          DistMultiVec<F>& B, \
+    const ldl::DistFront<Field>& front, \
+          DistMultiVec<Field>& B, \
           ldl::DistMultiVecNodeMeta& meta, \
-    const RegSolveCtrl<Base<F>>& ctrl );
+    const RegSolveCtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

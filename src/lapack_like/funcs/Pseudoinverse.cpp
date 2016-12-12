@@ -63,8 +63,9 @@ void HermitianPseudoinverse
     }
     // Invert above the tolerance
     auto omegaMap =
-      [=]( Real omega ) { return ( omega < tolerance ? Real(0) : 1/omega ); };
-    EntrywiseMap( w, function<Real(Real)>(omegaMap) );
+      [=]( const Real& omega )
+      { return ( omega < tolerance ? Real(0) : 1/omega ); };
+    EntrywiseMap( w, MakeFunction(omegaMap) );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
@@ -131,8 +132,9 @@ void HermitianPseudoinverse
     }
     // Invert above the tolerance
     auto omegaMap =
-      [=]( Real omega ) { return ( omega < tolerance ? Real(0) : 1/omega ); };
-    EntrywiseMap( w, function<Real(Real)>(omegaMap) );
+      [=]( const Real& omega )
+      { return ( omega < tolerance ? Real(0) : 1/omega ); };
+    EntrywiseMap( w, MakeFunction(omegaMap) );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );

@@ -14,7 +14,7 @@
 //       said paper is the adjoint of the LAPACK definition (as well as
 //       leaving out a conjugation necessary for the complex case).
 
-// TODO: Expose interface which does not solve against Q, since that step
+// TODO(poulson): Expose interface which does not solve against Q, since that step
 //       is not needed for two-norm pseudospectra
 
 namespace El {

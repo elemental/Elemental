@@ -12,29 +12,29 @@ namespace El {
 
 namespace hpd_solve {
 
-template<typename F>
+template<typename Field>
 void Overwrite
 ( UpperOrLower uplo,
   Orientation orientation,
-  Matrix<F>& A,
-  Matrix<F>& B )
+  Matrix<Field>& A,
+  Matrix<Field>& B )
 {
     DEBUG_CSE
     Cholesky( uplo, A );
     cholesky::SolveAfter( uplo, orientation, A, B );
 }
 
-template<typename F>
+template<typename Field>
 void Overwrite
 ( UpperOrLower uplo,
   Orientation orientation,
-  AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre )
+  AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& BPre )
 {
     DEBUG_CSE
 
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> BProx( BPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> BProx( BPre );
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
@@ -44,35 +44,35 @@ void Overwrite
 
 } // namespace hpd_solve
 
-template<typename F>
+template<typename Field>
 void HPDSolve
 ( UpperOrLower uplo,
   Orientation orientation,
-  const Matrix<F>& A,
-        Matrix<F>& B )
+  const Matrix<Field>& A,
+        Matrix<Field>& B )
 {
     DEBUG_CSE
-    Matrix<F> ACopy( A );
+    Matrix<Field> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
 
-template<typename F>
+template<typename Field>
 void HPDSolve
 ( UpperOrLower uplo,
   Orientation orientation,
-  const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& B )
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B )
 {
     DEBUG_CSE
-    DistMatrix<F> ACopy( A );
+    DistMatrix<Field> ACopy( A );
     hpd_solve::Overwrite( uplo, orientation, ACopy, B );
 }
 
-// TODO: Add iterative refinement parameter
-template<typename F>
+// TODO(poulson): Add iterative refinement parameter
+template<typename Field>
 void HPDSolve
-( const SparseMatrix<F>& A,
-        Matrix<F>& B,
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
   const BisectCtrl& ctrl )
 {
     DEBUG_CSE
@@ -82,11 +82,11 @@ void HPDSolve
     ldl::NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
     InvertMap( map, invMap );
 
-    ldl::Front<F> front( A, map, info, true );
+    ldl::Front<Field> front( A, map, info, true );
     LDL( info, front );
 
-    // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
-    //       right-hand sides
+    // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
+    // multiple right-hand sides
     /*
     ldl::SolveWithIterativeRefinement
     ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
@@ -94,11 +94,11 @@ void HPDSolve
     ldl::SolveAfter( invMap, info, front, B );
 }
 
-// TODO: Add iterative refinement parameter
-template<typename F>
+// TODO(poulson): Add iterative refinement parameter
+template<typename Field>
 void HPDSolve
-( const DistSparseMatrix<F>& A,
-        DistMultiVec<F>& B,
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
   const BisectCtrl& ctrl )
 {
     DEBUG_CSE
@@ -108,11 +108,11 @@ void HPDSolve
     ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
     InvertMap( map, invMap );
 
-    ldl::DistFront<F> front( A, map, rootSep, info, true );
+    ldl::DistFront<Field> front( A, map, rootSep, info, true );
     LDL( info, front );
 
-    // TODO: Extend ldl::SolveWithIterativeRefinement to support multiple
-    //       right-hand sides
+    // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
+    // multiple right-hand sides
     /*
     ldl::SolveWithIterativeRefinement
     ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
@@ -120,23 +120,24 @@ void HPDSolve
     ldl::SolveAfter( invMap, info, front, B );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void hpd_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    Matrix<F>& A, Matrix<F>& B ); \
+    Matrix<Field>& A, Matrix<Field>& B ); \
   template void hpd_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+    AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, Matrix<F>& B ); \
+    const Matrix<Field>& A, Matrix<Field>& B ); \
   template void HPDSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B ); \
+    const AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B ); \
   template void HPDSolve \
-  ( const SparseMatrix<F>& A, Matrix<F>& B, const BisectCtrl& ctrl ); \
+  ( const SparseMatrix<Field>& A, Matrix<Field>& B, const BisectCtrl& ctrl ); \
   template void HPDSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, const BisectCtrl& ctrl );
+  ( const DistSparseMatrix<Field>& A, DistMultiVec<Field>& B, \
+    const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -164,7 +164,7 @@ void BusingerGolub
     auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,signature);
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 
     // Ensure that t is the correct length
@@ -482,7 +482,7 @@ void BusingerGolub
     auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,signature);
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 }
 

@@ -15,7 +15,7 @@
 namespace El {
 
 template<typename Field>
-void FrobeniusProx( Matrix<Field>& A, Base<Field> tau )
+void FrobeniusProx( Matrix<Field>& A, const Base<Field>& tau )
 {
     DEBUG_CSE
     const Base<Field> frobNorm = FrobeniusNorm( A );
@@ -26,7 +26,7 @@ void FrobeniusProx( Matrix<Field>& A, Base<Field> tau )
 }
 
 template<typename Field>
-void FrobeniusProx( AbstractDistMatrix<Field>& A, Base<Field> tau )
+void FrobeniusProx( AbstractDistMatrix<Field>& A, const Base<Field>& tau )
 {
     DEBUG_CSE
     const Base<Field> frobNorm = FrobeniusNorm( A );
@@ -37,8 +37,10 @@ void FrobeniusProx( AbstractDistMatrix<Field>& A, Base<Field> tau )
 }
 
 #define PROTO(Field) \
-  template void FrobeniusProx( Matrix<Field>& A, Base<Field> tau ); \
-  template void FrobeniusProx( AbstractDistMatrix<Field>& A, Base<Field> tau );
+  template void FrobeniusProx \
+  ( Matrix<Field>& A, const Base<Field>& tau ); \
+  template void FrobeniusProx \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

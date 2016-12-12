@@ -28,11 +28,12 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
       A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const Matrix<S>& A, Matrix<T>& B )
 {
     DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
 template<typename T,Dist U,Dist V>
@@ -110,7 +111,8 @@ void Copy( const BlockMatrix<S>& A, DistMatrix<T,U,V,BLOCK>& B )
     Copy( BOrig.LockedMatrix(), B.Matrix() );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 {
     DEBUG_CSE
@@ -145,7 +147,8 @@ void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
     }
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_CSE
@@ -168,7 +171,8 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
     }
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
 {
     DEBUG_CSE
@@ -231,14 +235,16 @@ void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B )
     B = A;
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B )
 {
     DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 {
     DEBUG_CSE
@@ -265,14 +271,16 @@ void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
     B = A;
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
 {
     DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
     DEBUG_CSE
@@ -357,11 +365,12 @@ void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
     B.Matrix() = A.LockedMatrix();
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
 {
     DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
 template<typename T>

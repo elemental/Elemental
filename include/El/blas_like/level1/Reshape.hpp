@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_RESHAPE_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Reshape
 (       Int mNew,
-        Int nNew, 
+        Int nNew,
   const Matrix<T>& A,
         Matrix<T>& B )
 {
@@ -48,12 +48,12 @@ Matrix<T> Reshape( Int mNew, Int nNew, const Matrix<T>& A )
     return B;
 }
 
-// TODO: Merge with implementation of GetSubmatrix via a function which maps
-//       the coordinates in A to the coordinates in B
+// TODO(poulson): Merge with implementation of GetSubmatrix via a function
+// which maps the coordinates in A to the coordinates in B
 template<typename T>
 void Reshape
 (       Int mNew,
-        Int nNew, 
+        Int nNew,
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
@@ -68,10 +68,10 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    B.SetGrid( g ); 
+    B.SetGrid( g );
     B.Resize( mNew, nNew );
     Zero( B );
-    
+
     B.Reserve( mLocal*nLocal );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
@@ -138,7 +138,7 @@ SparseMatrix<T> Reshape( Int mNew, Int nNew, const SparseMatrix<T>& A )
 template<typename T>
 void Reshape
 (       Int mNew,
-        Int nNew, 
+        Int nNew,
   const DistSparseMatrix<T>& A,
         DistSparseMatrix<T>& B )
 {

@@ -12,28 +12,28 @@
 namespace El {
 namespace lq {
 
-template<typename F>
+template<typename Field>
 void
 PanelHouseholder
-( Matrix<F>& A,
-  Matrix<F>& householderScalars,
-  Matrix<Base<F>>& signature )
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalars,
+  Matrix<Base<Field>>& signature )
 {
     DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     householderScalars.Resize( minDim, 1 );
     signature.Resize( minDim, 1 );
 
-    Matrix<F> z21;
+    Matrix<Field> z21;
 
     for( Int k=0; k<minDim; ++k )
     {
         const Range<Int> ind1( k ), ind2( k+1, END ), indR( k, n );
 
-        F& alpha11 = A(k,k);
+        Field& alpha11 = A(k,k);
         auto a12 = A( ind1, ind2 );
         auto a1R = A( ind1, indR );
         auto A2R = A( ind2, indR );
@@ -41,18 +41,18 @@ PanelHouseholder
         // Find tau and v such that
         //  |alpha11 a12| /I - tau |1  | |1 conj(v)|\ = |beta 0|
         //                \        |v^T|            /
-        const F tau = RightReflector( alpha11, a12 );
+        const Field tau = RightReflector( alpha11, a12 );
         householderScalars(k) = tau;
 
         // Temporarily set a1R = | 1 v |
-        const F alpha = alpha11;
+        const Field alpha = alpha11;
         alpha11 = 1;
 
         // A2R := A2R Hous(a1R^T,tau)
         //      = A2R (I - tau a1R^T conj(a1R))
         //      = A2R - tau (A2R a1R^T) conj(a1R)
         Zeros( z21, A2R.Height(), 1 );
-        Gemv( NORMAL, F(1), A2R, a1R, F(0), z21 );
+        Gemv( NORMAL, Field(1), A2R, a1R, Field(0), z21 );
         Ger( -tau, z21, a1R, A2R );
 
         // Reset alpha11's value
@@ -63,23 +63,23 @@ PanelHouseholder
     GetRealPartOfDiagonal(L,signature);
     auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, signature, L );
 }
 
-template<typename F>
+template<typename Field>
 void
 PanelHouseholder
-( DistMatrix<F>& A,
-  AbstractDistMatrix<F>& householderScalars,
-  AbstractDistMatrix<Base<F>>& signature )
+( DistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars,
+  AbstractDistMatrix<Base<Field>>& signature )
 {
     DEBUG_CSE
     DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
-    DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);
-    DistMatrix<F,MC,  STAR> z21_MC_STAR(g);
+    typedef Base<Field> Real;
+    const Grid& grid = A.Grid();
+    DistMatrix<Field,STAR,MR  > a1R_STAR_MR(grid);
+    DistMatrix<Field,MC,  STAR> z21_MC_STAR(grid);
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -98,15 +98,15 @@ PanelHouseholder
         // Find tau and v such that
         //  |alpha11 a12| /I - tau |1  | |1 conj(v)|\ = |beta 0|
         //                \        |v^T|            /
-        const F tau = RightReflector( alpha11, a12 );
+        const Field tau = RightReflector( alpha11, a12 );
         householderScalars.Set( k, 0, tau );
 
         // Temporarily set a1R = | 1 v |
-        F alpha = 0;
+        Field alpha = 0;
         if( alpha11.IsLocal(0,0) )
         {
             alpha = alpha11.GetLocal(0,0);
-            alpha11.SetLocal(0,0,F(1));
+            alpha11.SetLocal(0,0,Field(1));
         }
 
         // A2R := A2R Hous(a1R^T,tau)
@@ -116,7 +116,7 @@ PanelHouseholder
         a1R_STAR_MR = a1R;
         z21_MC_STAR.AlignWith( A2R );
         Zeros( z21_MC_STAR, A2R.Height(), 1 );
-        LocalGemv( NORMAL, F(1), A2R, a1R_STAR_MR, F(0), z21_MC_STAR );
+        LocalGemv( NORMAL, Field(1), A2R, a1R_STAR_MR, Field(0), z21_MC_STAR );
         El::AllReduce( z21_MC_STAR, A2R.RowComm() );
         Ger
         ( -tau, z21_MC_STAR.LockedMatrix(),
@@ -132,7 +132,7 @@ PanelHouseholder
     GetRealPartOfDiagonal(L,signature);
     auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( RIGHT, LOWER, NORMAL, signature, L );
 }
 

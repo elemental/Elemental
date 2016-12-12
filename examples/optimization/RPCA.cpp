@@ -7,7 +7,6 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
 
 //
 // This driver generates a random low-rank matrix and then randomly corrupts
@@ -22,7 +21,7 @@ using namespace El;
 
 // Corrupt a portion of the entries with uniform samples from the unit ball
 template<typename Field>
-int Corrupt( DistMatrix<Field>& A, double probCorrupt )
+int Corrupt( El::DistMatrix<Field>& A, double probCorrupt )
 {
     DEBUG_ONLY(El::CallStackEntry cse("Corrupt"))
     typedef El::Base<Field> Real;
@@ -123,7 +122,7 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             El::Output
             ("Using ",STrue.Grid().Height()," x ",STrue.Grid().Width(),
-             " grid and blocksize of ",Blocksize());
+             " grid and blocksize of ",El::Blocksize());
 
         // M = LTrue + STrue
         El::DistMatrix<Scalar> M( LTrue );

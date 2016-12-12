@@ -232,7 +232,7 @@ HagerHigham
         Adjoint( U, UAdj );
 
     auto unitMap =
-      []( C alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
+      []( const C& alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -265,7 +265,7 @@ HagerHigham
             ( LEFT, UPPER, NORMAL, C(1), UCopy, activeShifts, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against (U - zI)^H
             MultiShiftTrsm
@@ -279,7 +279,7 @@ HagerHigham
             ( UPPER, NORMAL, C(1), U, activeShifts, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against (H - zI)^H
             Matrix<C> activeShiftsConj;
@@ -390,7 +390,7 @@ HagerHigham
         Adjoint( U, UAdj );
 
     auto unitMap =
-      []( C alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
+      []( const C& alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -424,7 +424,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against Q (U - zI)^H Q^H
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -441,7 +441,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against Q (H - zI)^H Q^H
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -579,7 +579,7 @@ HagerHigham
     }
 
     auto unitMap =
-      []( C alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
+      []( const C& alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -615,7 +615,7 @@ HagerHigham
             ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against (U - zI)^H
             MultiShiftTrsm
@@ -630,7 +630,7 @@ HagerHigham
             activeY = activeV_STAR_VR;
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against (H - zI)^H
             activeV_STAR_VR = activeZ;
@@ -779,7 +779,7 @@ HagerHigham
     }
 
     auto unitMap =
-      []( C alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
+      []( const C& alpha ) { return alpha==C(0) ? C(1) : alpha/Abs(alpha); };
 
     // Simultaneously run inverse iteration for various shifts
     Timer timer;
@@ -817,7 +817,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against Q (U - zI)^H Q^H
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );
@@ -836,7 +836,7 @@ HagerHigham
             Gemm( NORMAL, NORMAL, C(1), Q, activeV, activeY );
 
             activeZ = activeY;
-            EntrywiseMap( activeZ, function<C(C)>(unitMap) );
+            EntrywiseMap( activeZ, MakeFunction(unitMap) );
 
             // Solve against Q (H - zI)^H Q^H
             Gemm( ADJOINT, NORMAL, C(1), Q, activeZ, activeV );

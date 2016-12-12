@@ -46,15 +46,16 @@ main( int argc, char* argv[] )
         w_MR_STAR = w;
         for( El::Int jLoc=0; jLoc<G.LocalWidth(); ++jLoc )
             for( El::Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
-                G.UpdateLocal( iLoc, jLoc, w_MR_STAR.GetLocal(jLoc,0)*offset );
+                G.UpdateLocal
+                ( iLoc, jLoc, w_MR_STAR.GetLocal(jLoc,0)*offset );
 
-        // Label each example based upon its location relative to the hyperplane
+        // Label each example
         El::DistMatrix<Real> q;
         El::Ones( q, m, 1 );
         El::Gemv( El::NORMAL, Real(1), G, w, -offset, q );
-        auto sgnMap = []( Real alpha )
+        auto sgnMap = []( const Real& alpha )
                       { return alpha >= 0 ? Real(1) : Real(-1); };
-        El::EntrywiseMap( q, std::function<Real(Real)>(sgnMap) );
+        El::EntrywiseMap( q, El::MakeFunction(sgnMap) );
 
         if( El::mpi::Rank(comm) == 0 )
             El::Output("offset=",offset);
@@ -96,7 +97,7 @@ main( int argc, char* argv[] )
         El::DistMatrix<Real> qSVM;
         El::Ones( qSVM, m, 1 );
         El::Gemv( El::NORMAL, Real(1), G, wSVM, -offsetSVM, qSVM );
-        El::EntrywiseMap( qSVM, std::function<Real(Real)>(sgnMap) );
+        El::EntrywiseMap( qSVM, El::MakeFunction(sgnMap) );
         if( print )
             El::Print( qSVM, "qSVM" );
         qSVM -= q;

@@ -15,7 +15,7 @@ template<typename T,typename S>
 void GetMappedDiagonal
 ( const Matrix<T>& A,
         Matrix<S>& d,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
     DEBUG_CSE
@@ -40,7 +40,7 @@ template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A,
         AbstractDistMatrix<S>& dPre,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
     DEBUG_CSE
@@ -86,7 +86,7 @@ template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V,BLOCK>& A,
         AbstractDistMatrix<S>& d,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
     DEBUG_CSE
@@ -117,7 +117,7 @@ template<typename T,typename S>
 void GetMappedDiagonal
 ( const SparseMatrix<T>& A,
         Matrix<S>& d,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
     DEBUG_CSE
@@ -155,7 +155,7 @@ template<typename T,typename S>
 void GetMappedDiagonal
 ( const DistSparseMatrix<T>& A,
         DistMultiVec<S>& d,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
     DEBUG_CSE
@@ -201,17 +201,17 @@ void GetMappedDiagonal
   EL_EXTERN template void GetMappedDiagonal \
   ( const Matrix<T>& A, \
           Matrix<T>& d, \
-          function<T(T)> func, \
+          function<T(const T&)> func, \
           Int offset ); \
   EL_EXTERN template void GetMappedDiagonal \
   ( const SparseMatrix<T>& A, \
           Matrix<T>& d, \
-          function<T(T)> func, \
+          function<T(const T&)> func, \
           Int offset ); \
   EL_EXTERN template void GetMappedDiagonal \
   ( const DistSparseMatrix<T>& A, \
           DistMultiVec<T>& d, \
-          function<T(T)> func, \
+          function<T(const T&)> func, \
           Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE

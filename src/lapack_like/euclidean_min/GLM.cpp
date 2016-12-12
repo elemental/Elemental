@@ -236,9 +236,9 @@ void GLM
     if( ctrl.equilibrate )
     {
         RowTwoNorms( W, dR );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dR, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dR, MakeFunction(normMap) );
         DiagonalSolve( LEFT, NORMAL, dR, W );
     }
     else
@@ -331,9 +331,9 @@ void GLM
     if( ctrl.equilibrate )
     {
         RowTwoNorms( W, dR );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dR, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dR, MakeFunction(normMap) );
         DiagonalSolve( LEFT, NORMAL, dR, W );
     }
     else

@@ -17,7 +17,7 @@ namespace El {
 
 template<typename Real,
          typename=EnableIf<IsReal<Real>>>
-Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -77,7 +77,7 @@ void GeomEquil
         // Geometrically equilibrate the columns
         // -------------------------------------
         StackedGeometricColumnScaling( A, B, colScale );
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -85,7 +85,7 @@ void GeomEquil
         // Geometrically equilibrate the rows
         // ----------------------------------
         GeometricRowScaling( A, rowScaleA );
-        EntrywiseMap( rowScaleA, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScaleA, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
@@ -93,7 +93,7 @@ void GeomEquil
         // intrusive change
         GeometricRowScaling( B, rowScaleB );
         cone::AllReduce( rowScaleB, orders, firstInds, mpi::MAX );
-        EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScaleB, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
@@ -202,7 +202,7 @@ void GeomEquil
         // Geometrically equilibrate the columns
         // -------------------------------------
         StackedGeometricColumnScaling( A, B, colScale );
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -210,7 +210,7 @@ void GeomEquil
         // Geometrically equilibrate the rows
         // ----------------------------------
         GeometricRowScaling( A, rowScaleA );
-        EntrywiseMap( rowScaleA, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScaleA, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
@@ -218,7 +218,7 @@ void GeomEquil
         // intrusive change
         GeometricRowScaling( B, rowScaleB );
         cone::AllReduce( rowScaleB, orders, firstInds, mpi::MAX, cutoff );
-        EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScaleB, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
@@ -335,7 +335,7 @@ void GeomEquil
                 colScaleBuf[j] = scale;
             }
         }
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -356,7 +356,7 @@ void GeomEquil
                 rowScaleABuf[i] = scale;
             }
         }
-        EntrywiseMap( rowScaleA, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScaleA, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
@@ -376,7 +376,7 @@ void GeomEquil
                 rowScaleBBuf[i] = scale;
             }
         }
-        EntrywiseMap( rowScaleB, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScaleB, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScaleB, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScaleB, B );
 
@@ -517,7 +517,7 @@ void GeomEquil
                 scalesBuf[jLoc] = scale;
             }
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
@@ -540,7 +540,7 @@ void GeomEquil
                 scalesBuf[iLoc] = Max(propScale,sqrtDamp*maxAbs);
             }
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
@@ -562,7 +562,7 @@ void GeomEquil
                 scalesBuf[iLoc] = Max(propScale,sqrtDamp*maxAbs);
             }
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
 

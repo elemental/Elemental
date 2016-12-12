@@ -22,7 +22,7 @@
 namespace El {
 
 template<typename Real>
-Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     static const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -32,7 +32,7 @@ Real DampScaling( Real alpha )
 }
 
 template<typename Real>
-Real SquareRootScaling( Real alpha )
+Real SquareRootScaling( const Real& alpha )
 {
     return Sqrt(alpha);
 }
@@ -42,12 +42,12 @@ void SymmetricGeomEquil
 ( Matrix<Field>& A, Matrix<Base<Field>>& d, bool progress )
 {
     DEBUG_CSE
-    // TODO: Ensure A is symmetric
+    // TODO(poulson): Ensure A is symmetric
     typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10;
     const Real damp = Real(1)/Real(1000);
@@ -70,7 +70,7 @@ void SymmetricGeomEquil
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
-        // TODO: Reimplement this as a standalone routine?
+        // TODO(poulson): Reimplement this as a standalone routine?
         for( Int j=0; j<n; ++j )
         {
             auto aCol = A( ALL, IR(j) );
@@ -81,8 +81,8 @@ void SymmetricGeomEquil
             const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
             scales(j) = scale;
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
@@ -145,12 +145,12 @@ void SymmetricGeomEquil
     const Int nLocal = A.LocalWidth();
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10;
     const Real relTol = Real(9)/Real(10);
 
-    // TODO: Incorporate damping
+    // TODO(poulson): Incorporate damping
     //const Real damp = Real(1)/Real(1000);
     //const Real sqrtDamp = Sqrt(damp);
 
@@ -170,12 +170,12 @@ void SymmetricGeomEquil
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
-        // TODO: Remove GeometricColumnScaling
+        // TODO(poulson): Remove GeometricColumnScaling
         GeometricColumnScaling( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        // TODO: SymmetricDiagonalSolve
+        // TODO(poulson): SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
@@ -208,7 +208,7 @@ void SymmetricGeomEquil
         }
         mpi::AllReduce( scales.Buffer(), nLocal, mpi::MAX, A.ColComm() );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        // TODO: SymmetricDiagonalSolve
+        // TODO(poulson): SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -232,7 +232,7 @@ void SymmetricGeomEquil
     const Int n = A.Height();
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10;
     const Real damp = Real(1)/Real(1000);
@@ -265,8 +265,8 @@ void SymmetricGeomEquil
             const Real scale = Max(propScale,sqrtDamp*maxAbs);
             scales(j) = scale;
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
@@ -322,7 +322,7 @@ void SymmetricGeomEquil
     d.SetComm( comm );
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
     const Int maxIter = 10;
     const Real damp = Real(1)/Real(1000);
@@ -360,8 +360,8 @@ void SymmetricGeomEquil
             const Real scale = Max(propScale,sqrtDamp*maxAbs);
             scalesLoc(iLoc) = scale;
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
