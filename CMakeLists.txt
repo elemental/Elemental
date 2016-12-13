@@ -349,9 +349,16 @@ endif()
 
 if(APPLE AND EL_RELEASE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
   NOT EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM)
-  message(FATAL_ERROR "Due to what appears to be a bug in GCC's enforcement of 16-byte stack alignments when using -O3 on OS X, Release builds with GCC on OS X are currently disabled by default. Please see the comments towards the bottom of https://github.com/elemental/Elemental/issues/181 for more details. If you know what you're doing, feel free to rebuild with -D EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM=ON")
-# Also see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=35271 for what appears
-# to be a related (although, now quite dated) issue.
+  # There seems to only be a problem for the 5.x and 6.x series, as 4.9 seems
+  # to be fine, even with -O3 optimization.
+  #
+  # Please see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=35271 for what
+  # appears to be a related (although, now quite dated) issue.
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+    # This version of GCC should be fine.
+  else()
+    message(FATAL_ERROR "Due to what appears to be a bug in GCC 5.x and 6.x (you appear to be using GCC ${CMAKE_CXX_COMPILER_VERSION}) enforcement of 16-byte stack alignments when using -O3 on OS X, Release builds with GCC on OS X are currently disabled by default. Please see the comments towards the bottom of https://github.com/elemental/Elemental/issues/181 for more details. If you know what you're doing, feel free to rebuild with -D EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM=ON")
+  endif()
 endif()
 
 # Handle RPATHs for Mac
