@@ -21,13 +21,13 @@ void Inverse
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<Real> dInv;
     soc::Dets( x, dInv, orders, firstInds );
     cone::Broadcast( dInv, orders, firstInds );
-    auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
-    EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
+    auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };
+    EntrywiseMap( dInv, MakeFunction(entryInv) );
 
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
@@ -44,7 +44,7 @@ void Inverse
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, xInvPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -66,8 +66,8 @@ void Inverse
     DistMatrix<Real,VC,STAR> dInv(x.Grid());
     soc::Dets( x, dInv, orders, firstInds, cutoff );
     cone::Broadcast( dInv, orders, firstInds );
-    auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
-    EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
+    auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };
+    EntrywiseMap( dInv, MakeFunction(entryInv) );
 
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
@@ -84,13 +84,13 @@ void Inverse
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMultiVec<Real> dInv(x.Comm());
     soc::Dets( x, dInv, orders, firstInds, cutoff );
     cone::Broadcast( dInv, orders, firstInds );
-    auto entryInv = [=]( Real alpha ) { return Real(1)/alpha; };
-    EntrywiseMap( dInv, function<Real(Real)>(entryInv) );
+    auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };
+    EntrywiseMap( dInv, MakeFunction(entryInv) );
 
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );

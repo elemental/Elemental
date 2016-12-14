@@ -14,7 +14,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Matrix<Real> T;
     ProductLanczos( A, T, basisSize );
@@ -39,7 +39,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Grid grid( A.Comm() );
     DistMatrix<Real,STAR,STAR> T(grid);
@@ -64,7 +64,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Matrix<Real> T;
     Lanczos( A, T, basisSize );
@@ -91,7 +91,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Grid grid( A.Comm() );
 

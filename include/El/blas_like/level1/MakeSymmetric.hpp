@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     if( A.Height() != n )
         LogicError("Cannot make non-square matrix symmetric");
@@ -56,7 +56,7 @@ template<typename T>
 void MakeSymmetric
 ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -75,7 +75,7 @@ void MakeSymmetric
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -126,7 +126,7 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -179,28 +179,28 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 

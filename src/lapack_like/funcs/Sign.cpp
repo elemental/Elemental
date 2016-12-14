@@ -23,7 +23,7 @@ NewtonStep
         Matrix<Field>& XNew,
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Calculate mu while forming XNew := inv(X)
@@ -54,7 +54,7 @@ NewtonStep
         DistMatrix<Field>& XNew,
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Calculate mu while forming B := inv(X)
@@ -85,7 +85,7 @@ NewtonSchulzStep
         Matrix<Field>& XTmp,
         Matrix<Field>& XNew )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = X.Height();
 
@@ -104,7 +104,7 @@ NewtonSchulzStep
         DistMatrix<Field>& XTmp,
         DistMatrix<Field>& XNew )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = X.Height();
 
@@ -123,7 +123,7 @@ template<typename Field>
 Int
 Newton( Matrix<Field>& A, const SignCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -162,7 +162,7 @@ template<typename Field>
 Int
 Newton( DistMatrix<Field>& A, const SignCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -204,7 +204,7 @@ Newton( DistMatrix<Field>& A, const SignCtrl<Base<Field>>& ctrl )
 template<typename Field>
 void Sign( Matrix<Field>& A, const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     sign::Newton( A, ctrl );
 }
 
@@ -212,7 +212,7 @@ template<typename Field>
 void Sign
 ( Matrix<Field>& A, Matrix<Field>& N, const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> ACopy( A );
     sign::Newton( A, ctrl );
     Gemm( NORMAL, NORMAL, Field(1), A, ACopy, N );
@@ -221,7 +221,7 @@ void Sign
 template<typename Field>
 void Sign( AbstractDistMatrix<Field>& APre, const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -235,7 +235,7 @@ void Sign
   AbstractDistMatrix<Field>& NPre,
   const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> NProx( NPre );
@@ -259,7 +259,7 @@ template<typename Field>
 void HermitianSign
 ( UpperOrLower uplo, Matrix<Field>& A, const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Get the EVD of A
@@ -290,7 +290,7 @@ void HermitianSign
   Matrix<Field>& N,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     // Get the EVD of A
@@ -328,7 +328,7 @@ void HermitianSign
   AbstractDistMatrix<Field>& APre,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -363,7 +363,7 @@ void HermitianSign
   AbstractDistMatrix<Field>& NPre,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> NProx( NPre );

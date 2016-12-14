@@ -16,7 +16,7 @@ namespace El {
 template<typename Field>
 SafeProduct<Field> SafeDeterminant( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> B( A );
     return det::LUPartialPiv( B );
 }
@@ -24,7 +24,7 @@ SafeProduct<Field> SafeDeterminant( const Matrix<Field>& A )
 template<typename Field>
 SafeProduct<Field> SafeDeterminant( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> B( A );
     return det::LUPartialPiv( B );
 }
@@ -33,7 +33,7 @@ template<typename Field>
 SafeProduct<Base<Field>> SafeHPDDeterminant
 ( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> B( A );
     return hpd_det::Cholesky( uplo, B );
 }
@@ -42,7 +42,7 @@ template<typename Field>
 SafeProduct<Base<Field>> SafeHPDDeterminant
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> B( A );
     return hpd_det::Cholesky( uplo, B );
 }
@@ -50,7 +50,7 @@ SafeProduct<Base<Field>> SafeHPDDeterminant
 template<typename Field>
 SafeProduct<Field> SafeDeterminant( Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> B;
     if( canOverwrite )
     {
@@ -67,7 +67,7 @@ template<typename Field>
 SafeProduct<Field>
 SafeDeterminant( AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
         return det::LUPartialPiv( A );
@@ -83,7 +83,7 @@ template<typename Field>
 SafeProduct<Base<Field>> SafeHPDDeterminant
 ( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
         return hpd_det::Cholesky( uplo, A );
@@ -99,7 +99,7 @@ template<typename Field>
 SafeProduct<Base<Field>> SafeHPDDeterminant
 ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
         return hpd_det::Cholesky( uplo, A );
@@ -114,7 +114,7 @@ SafeProduct<Base<Field>> SafeHPDDeterminant
 template<typename Field>
 Field Determinant( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Field> safeDet = SafeDeterminant( A );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
@@ -122,7 +122,7 @@ Field Determinant( const Matrix<Field>& A )
 template<typename Field>
 Field Determinant( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Field> safeDet = SafeDeterminant( A );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
@@ -130,7 +130,7 @@ Field Determinant( const AbstractDistMatrix<Field>& A )
 template<typename Field>
 Base<Field> HPDDeterminant( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
@@ -139,7 +139,7 @@ template<typename Field>
 Base<Field>
 HPDDeterminant( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
@@ -147,7 +147,7 @@ HPDDeterminant( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 template<typename Field>
 Field Determinant( Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Field> safeDet = SafeDeterminant( A, canOverwrite );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
@@ -155,7 +155,7 @@ Field Determinant( Matrix<Field>& A, bool canOverwrite )
 template<typename Field>
 Field Determinant( AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Field> safeDet = SafeDeterminant( A, canOverwrite );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
@@ -164,7 +164,7 @@ template<typename Field>
 Base<Field> HPDDeterminant
 ( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet =
       SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
@@ -174,7 +174,7 @@ template<typename Field>
 Base<Field> HPDDeterminant
 ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet =
       SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);

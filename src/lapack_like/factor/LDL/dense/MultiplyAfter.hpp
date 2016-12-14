@@ -15,8 +15,8 @@ namespace ldl {
 template<typename F>
 void MultiplyAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -33,8 +33,8 @@ template<typename F>
 void MultiplyAfter
 ( const AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& B, bool conjugated )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, B );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
@@ -61,8 +61,8 @@ void MultiplyAfter
         Matrix<F>& B,
   bool conjugated )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -87,8 +87,8 @@ void MultiplyAfter
         AbstractDistMatrix<F>& BPre,
   bool conjugated )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, BPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

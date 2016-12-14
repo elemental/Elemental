@@ -22,8 +22,8 @@ void Snapshot
         bool deflate,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_CSE
-    auto logMap = []( Real alpha ) { return Log(alpha); };
+    EL_DEBUG_CSE
+    auto logMap = []( const Real& alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave =
@@ -63,7 +63,7 @@ void Snapshot
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, MakeFunction(logMap) );
         if( imgSave )
         {
             auto title = BuildString( snapCtrl.imgBase, "_", numIts );
@@ -97,8 +97,8 @@ void FinalSnapshot
   const Matrix<Int>& itCounts,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_CSE
-    auto logMap = []( Real alpha ) { return Log(alpha); };
+    EL_DEBUG_CSE
+    auto logMap = []( const Real& alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = ( snapCtrl.numSaveFreq >= 0 );
@@ -122,7 +122,7 @@ void FinalSnapshot
                 Write( itCountMap, base+"_counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, MakeFunction(logMap) );
         if( imgSave )
         {
             string base = snapCtrl.imgBase;
@@ -157,8 +157,8 @@ void Snapshot
         bool deflate,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_CSE
-    auto logMap = []( Real alpha ) { return Log(alpha); };
+    EL_DEBUG_CSE
+    auto logMap = []( const Real& alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave =
@@ -200,7 +200,7 @@ void Snapshot
             snapCtrl.numSaveCount = 0;
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, MakeFunction(logMap) );
         if( imgSave )
         {
             auto title = BuildString( snapCtrl.imgBase, "_", numIts );
@@ -234,8 +234,8 @@ void FinalSnapshot
   const DistMatrix<Int, VR,STAR>& itCounts,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_CSE
-    auto logMap = []( Real alpha ) { return Log(alpha); };
+    EL_DEBUG_CSE
+    auto logMap = []( const Real& alpha ) { return Log(alpha); };
     if( snapCtrl.realSize != 0 && snapCtrl.imagSize != 0 )
     {
         const bool numSave = ( snapCtrl.numSaveFreq >= 0 );
@@ -259,7 +259,7 @@ void FinalSnapshot
                 Write( itCountMap, base+"_counts", snapCtrl.numFormat );
         }
         if( imgSave || imgDisp )
-            EntrywiseMap( estMap, function<Real(Real)>(logMap) );
+            EntrywiseMap( estMap, MakeFunction(logMap) );
         if( imgSave )
         {
             string base = snapCtrl.imgBase;

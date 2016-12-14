@@ -23,8 +23,8 @@ HermitianGenDefEig
   Matrix<Base<Field>>& w,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() || B.Height() != B.Width() )
           LogicError("Hermitian matrices must be square.");
     )
@@ -47,8 +47,8 @@ HermitianGenDefEig
   AbstractDistMatrix<Base<Field>>& w,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, BPre, w );
       if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
           LogicError("Hermitian matrices must be square.");
@@ -80,8 +80,8 @@ HermitianGenDefEig
   Matrix<Field>& X,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() || B.Height() != B.Width() )
           LogicError("Hermitian matrices must be square.");
     )
@@ -116,8 +116,8 @@ HermitianGenDefEig
   AbstractDistMatrix<Field>& XPre,
   const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, BPre, w, XPre );
       if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
           LogicError("Hermitian matrices must be square.");

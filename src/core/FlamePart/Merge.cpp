@@ -16,8 +16,8 @@ namespace El {
 template<typename T>
 void Merge1x2( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( BL.Locked() || BR.Locked() )
           LogicError("Cannot grab an unlocked view of a locked matrix");
       if( BL.Height() != BR.Height() )
@@ -36,8 +36,8 @@ void Merge1x2
   ElementalMatrix<T>& BL,
   ElementalMatrix<T>& BR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, BL, BR );
       AssertSameDists( A, BL, BR );
       AssertConforming1x2( BL, BR );
@@ -50,8 +50,8 @@ void Merge1x2
 template<typename T>
 void LockedMerge1x2( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( BL.Height() != BR.Height() )
           LogicError("1x2 must have consistent height to combine");
       if( BL.LDim() != BR.LDim() )
@@ -68,8 +68,8 @@ void LockedMerge1x2
 (       ElementalMatrix<T>& A,
   const ElementalMatrix<T>& BL, const ElementalMatrix<T>& BR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, BL, BR );
       AssertSameDists( A, BL, BR );
       AssertConforming1x2( BL, BR );
@@ -121,8 +121,8 @@ DistMatrix<T,U,V> LockedMerge1x2
 template<typename T>
 void Merge2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( BT.Locked() || BB.Locked() )
           LogicError("Cannot grab an unlocked view of a locked matrix");
       if( BT.Width() != BB.Width() )
@@ -141,8 +141,8 @@ void Merge2x1
   ElementalMatrix<T>& BT,
   ElementalMatrix<T>& BB )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, BT, BB );
       AssertSameDists( A, BT, BB );
       AssertConforming2x1( BT, BB );
@@ -155,8 +155,8 @@ void Merge2x1
 template<typename T>
 void LockedMerge2x1( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( BT.Width() != BB.Width() )
           LogicError("2x1 must have consistent width to combine");
       if( BT.LDim() != BB.LDim() )
@@ -174,8 +174,8 @@ void LockedMerge2x1
   const ElementalMatrix<T>& BT,
   const ElementalMatrix<T>& BB )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, BT, BB );
       AssertSameDists( A, BT, BB );
       AssertConforming2x1( BT, BB );
@@ -232,8 +232,8 @@ void Merge2x2
   Matrix<T>& BBL,
   Matrix<T>& BBR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( BTL.Locked() || BTR.Locked() || BBL.Locked() || BBR.Locked() )
           LogicError("Cannot grab an unlocked view of a locked matrix");
       if( BTL.Width() != BBL.Width()   ||
@@ -263,8 +263,8 @@ void Merge2x2
   ElementalMatrix<T>& BBL,
   ElementalMatrix<T>& BBR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, BTL, BTR, BBL, BBR );
       AssertSameDists( A, BTL, BTR, BBL, BBR );
       AssertConforming2x2( BTL, BTR, BBL, BBR );
@@ -282,8 +282,8 @@ void LockedMerge2x2
   const Matrix<T>& BBL,
   const Matrix<T>& BBR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( BTL.Width() != BBL.Width()   ||
           BTR.Width() != BBR.Width()   ||
           BTL.Height() != BTR.Height() ||
@@ -311,8 +311,8 @@ void LockedMerge2x2
   const ElementalMatrix<T>& BBL,
   const ElementalMatrix<T>& BBR )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, BTL, BTR, BBL, BBR );
       AssertSameDists( A, BTL, BTR, BBL, BBR );
       AssertConforming2x2( BTL, BTR, BBL, BBR );

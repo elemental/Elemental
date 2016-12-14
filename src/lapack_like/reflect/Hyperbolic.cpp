@@ -21,8 +21,8 @@ namespace El {
 template<typename F>
 F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
     )
@@ -37,8 +37,8 @@ F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
       if( ImagPart(chi) != Base<F>(0) )
@@ -83,8 +83,8 @@ template<typename F>
 F LeftHyperbolicReflector
 ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -107,8 +107,8 @@ F LeftHyperbolicReflector
 template<typename F>
 F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
     )
@@ -131,7 +131,7 @@ F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 template<typename F>
 F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const F tau = LeftHyperbolicReflector( chi, x );
     Conjugate( x );
     return tau;
@@ -140,7 +140,7 @@ F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightHyperbolicReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const F tau = LeftHyperbolicReflector( chi, x );
     Conjugate( x );
     return tau;
@@ -150,8 +150,8 @@ template<typename F>
 F RightHyperbolicReflector
 ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -174,8 +174,8 @@ F RightHyperbolicReflector
 template<typename F>
 F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
     )

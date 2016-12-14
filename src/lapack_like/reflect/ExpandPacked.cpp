@@ -22,7 +22,7 @@ void ExpandPackedReflectors
         Matrix<F>& H,
   const Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV
         ( conjugation, offset, H, householderScalars );
@@ -37,7 +37,7 @@ void ExpandPackedReflectors
         AbstractDistMatrix<F>& H,
   const AbstractDistMatrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV
         ( conjugation, offset, H, householderScalars );

@@ -17,8 +17,8 @@ namespace schur {
 template<typename Real>
 void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     typedef Complex<Real> C;
 
     Copy( UQuasi, U );
@@ -61,10 +61,10 @@ void RealToComplex
         Matrix<Complex<Real>>& U,
         Matrix<Complex<Real>>& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     Copy( UQuasi, U );
     Copy( QQuasi, Q );
     const Int n = U.Height();
@@ -109,13 +109,13 @@ void RealToComplex
 ( const AbstractDistMatrix<        Real >& UQuasi, 
         AbstractDistMatrix<Complex<Real>>& UPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre );
     auto& U = UProx.Get();
 
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     Copy( UQuasi, U );
 
     const Int n = U.Height();
@@ -171,14 +171,14 @@ void RealToComplex
         AbstractDistMatrix<Complex<Real>>& UPre,
         AbstractDistMatrix<Complex<Real>>& QPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre ), QProx( QPre );
     auto& U = UProx.Get();
     auto& Q = QProx.Get();
 
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     Copy( UQuasi, U );
     Copy( QQuasi, Q );
 

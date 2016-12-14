@@ -215,7 +215,7 @@ Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
         const Int floorIndex = Int(Floor(realIndex));
         const Int ceilIndex = Int(Ceil(realIndex));
         const Real indexFrac = realIndex-floorIndex;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( ceilIndex >= numPoints )
               LogicError("Invalid ceiling index of ",ceilIndex);
         )
@@ -239,7 +239,7 @@ Base<Field> ShortVectorEnumeration
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -450,7 +450,7 @@ MultiShortVectorEnumeration
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -693,7 +693,7 @@ Base<Field> ShortestVectorEnumeration
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -711,7 +711,7 @@ Base<Field> ShortestVectorEnrichment
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -730,7 +730,7 @@ Base<Field> ShortestVectorEnrichment
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -751,7 +751,7 @@ Base<Field> ShortestVectorEnumeration
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -828,7 +828,7 @@ MultiShortestVectorEnumeration
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -924,7 +924,7 @@ Base<Field> ShortestVectorEnrichment
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -946,7 +946,7 @@ MultiShortestVectorEnrichment
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -975,7 +975,7 @@ Base<Field> ShortestVectorEnrichment
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
@@ -998,7 +998,7 @@ MultiShortestVectorEnrichment
         Matrix<Field>& v,
   const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );

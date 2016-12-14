@@ -67,7 +67,7 @@ template<typename T>
 BDM::DistMatrix( const BDM& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -82,7 +82,7 @@ template<Dist U,Dist V>
 BDM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -97,7 +97,7 @@ template<typename T>
 BDM::DistMatrix( const AbstractDistMatrix<T>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -114,7 +114,7 @@ template<typename T>
 BDM::DistMatrix( const BlockMatrix<T>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -137,7 +137,7 @@ template<Dist U,Dist V>
 BDM::DistMatrix( const DistMatrix<T,U,V>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -178,7 +178,7 @@ BDM::ConstructDiagonal
 template<typename T>
 BDM BDM::operator()( Range<Int> I, Range<Int> J )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( this->Locked() )
         return LockedView( *this, I, J );
     else
@@ -188,7 +188,7 @@ BDM BDM::operator()( Range<Int> I, Range<Int> J )
 template<typename T>
 const BDM BDM::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return LockedView( *this, I, J );
 }
 
@@ -197,7 +197,7 @@ const BDM BDM::operator()( Range<Int> I, Range<Int> J ) const
 template<typename T>
 BDM BDM::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -206,7 +206,7 @@ BDM BDM::operator()( Range<Int> I, const vector<Int>& J ) const
 template<typename T>
 BDM BDM::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -215,7 +215,7 @@ BDM BDM::operator()( const vector<Int>& I, Range<Int> J ) const
 template<typename T>
 BDM BDM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -227,7 +227,7 @@ BDM BDM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 template<typename T>
 BDM& BDM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     #define GUARD(CDIST,RDIST,WRAP) \
       A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
     #define PAYLOAD(CDIST,RDIST,WRAP) \
@@ -242,7 +242,7 @@ template<typename T>
 template<Dist U,Dist V>
 BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use either AllGather or Gather if the distribution of this matrix
     //       is respectively either (STAR,STAR) or (CIRC,CIRC)
     // TODO: Specially handle cases where the block size is 1 x 1
@@ -265,7 +265,7 @@ BDM& BDM::operator=( BDM&& A )
 template<typename T>
 const BDM& BDM::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -275,7 +275,7 @@ const BDM& BDM::operator*=( T alpha )
 template<typename T>
 const BDM& BDM::operator+=( const BCM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -283,7 +283,7 @@ const BDM& BDM::operator+=( const BCM& A )
 template<typename T>
 const BDM& BDM::operator+=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -291,7 +291,7 @@ const BDM& BDM::operator+=( const ADM& A )
 template<typename T>
 const BDM& BDM::operator-=( const BCM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -299,7 +299,7 @@ const BDM& BDM::operator-=( const BCM& A )
 template<typename T>
 const BDM& BDM::operator-=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }

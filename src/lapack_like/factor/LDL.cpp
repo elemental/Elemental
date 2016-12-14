@@ -39,14 +39,14 @@ namespace El {
 template<typename F>
 void LDL( Matrix<F>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::Var3( A, conjugate );
 }
 
 template<typename F>
 void LDL( AbstractDistMatrix<F>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::Var3( A, conjugate );
 }
 
@@ -64,7 +64,7 @@ void LDL
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::Pivoted( A, dSub, p, conjugate, ctrl );
 }
 
@@ -76,7 +76,7 @@ void LDL
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ldl::Pivoted( A, dSub, p, conjugate, ctrl );
 }
 
@@ -88,7 +88,7 @@ void LDL
         ldl::Front<F>& front,
   LDLFrontType newType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !Unfactored(front.type) )
         LogicError("Matrix is already factored");
 
@@ -108,7 +108,7 @@ void LDL
         ldl::DistFront<F>& front,
   LDLFrontType newType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !Unfactored(front.type) )
         LogicError("Matrix is already factored");
 

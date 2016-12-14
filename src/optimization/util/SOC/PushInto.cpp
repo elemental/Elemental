@@ -19,7 +19,7 @@ void PushInto
   const Matrix<Int>& firstInds,
   Real minDist )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<Real> d;
     soc::LowerNorms( x, d, orders, firstInds );
@@ -43,7 +43,7 @@ void PushInto
   const AbstractDistMatrix<Int>& firstIndsPre,
   Real minDist, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -84,7 +84,7 @@ void PushInto
   const DistMultiVec<Int>& firstInds,
   Real minDist, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMultiVec<Real> d(x.Comm());
     soc::LowerNorms( x, d, orders, firstInds, cutoff );

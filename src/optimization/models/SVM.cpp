@@ -19,7 +19,7 @@ void SVM
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
@@ -31,7 +31,7 @@ void SVM
         AbstractDistMatrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
@@ -43,7 +43,7 @@ void SVM
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
@@ -55,7 +55,7 @@ void SVM
         DistMultiVec<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 

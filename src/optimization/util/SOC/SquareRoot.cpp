@@ -22,7 +22,7 @@ void SquareRoot
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
@@ -34,7 +34,7 @@ void SquareRoot
     {
         const Int order = orders(i);
         const Int firstInd = firstInds(i);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
@@ -57,7 +57,7 @@ void SquareRoot
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, xRootPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -114,7 +114,7 @@ void SquareRoot
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 

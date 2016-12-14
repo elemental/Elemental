@@ -48,7 +48,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
     // TODO(poulson): Move these into the control structure
@@ -393,7 +393,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& sPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = true;
 
@@ -779,7 +779,7 @@ void Mehrotra
         Matrix<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
 
@@ -1235,7 +1235,7 @@ void Mehrotra
         DistMultiVec<Real>& s,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
 

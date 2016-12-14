@@ -16,7 +16,7 @@ void Hemm
 ( LeftOrRight side, UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Symm( side, uplo, alpha, A, B, beta, C, true );
 }
 
@@ -26,7 +26,7 @@ void Hemm
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Symm( side, uplo, alpha, A, B, beta, C, true );
 }
 

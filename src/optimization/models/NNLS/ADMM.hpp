@@ -33,7 +33,7 @@ ADMM
         Matrix<Real>& X,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real maxReal = limits::Max<Real>();
 
     Matrix<Real> Q, C;
@@ -52,7 +52,7 @@ ADMM
         AbstractDistMatrix<Real>& X,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real maxReal = limits::Max<Real>();
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );

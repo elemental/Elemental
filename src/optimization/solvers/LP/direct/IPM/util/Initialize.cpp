@@ -83,7 +83,7 @@ void Initialize
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( primalInit )
@@ -191,7 +191,7 @@ void Initialize
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -305,7 +305,7 @@ void Initialize
   bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
@@ -334,7 +334,7 @@ void Initialize
   bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     mpi::Comm comm = A.Comm();
     DistSparseMatrix<Real> Q(comm);

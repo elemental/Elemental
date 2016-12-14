@@ -12,90 +12,90 @@ namespace El {
 
 namespace herm_solve {
 
-template<typename F>
+template<typename Field>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  Matrix<F>& A, Matrix<F>& B,
-  const LDLPivotCtrl<Base<F>>& ctrl )
+  Matrix<Field>& A, Matrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
-  const LDLPivotCtrl<Base<F>>& ctrl )
+  AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     symm_solve::Overwrite( uplo, orientation, A, B, true, ctrl );
 }
 
 } // namespace herm_solve
 
-template<typename F>
+template<typename Field>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const Matrix<F>& A, Matrix<F>& B,
-  const LDLPivotCtrl<Base<F>>& ctrl )
+  const Matrix<Field>& A, Matrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B,
-  const LDLPivotCtrl<Base<F>>& ctrl )
+  const AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( uplo, orientation, A, B, true, ctrl );
 }
 
-// TODO: Add iterative refinement parameter
-template<typename F>
+// TODO(poulson): Add iterative refinement parameter
+template<typename Field>
 void HermitianSolve
-( const SparseMatrix<F>& A, Matrix<F>& B,
+( const SparseMatrix<Field>& A, Matrix<Field>& B,
   bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 
-// TODO: Add iterative refinement parameter
-template<typename F>
+// TODO(poulson): Add iterative refinement parameter
+template<typename Field>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
+( const DistSparseMatrix<Field>& A, DistMultiVec<Field>& B,
   bool tryLDL, const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSolve( A, B, true, tryLDL, ctrl );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void herm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    Matrix<F>& A, Matrix<F>& B, \
-    const LDLPivotCtrl<Base<F>>& ctrl ); \
+    Matrix<Field>& A, Matrix<Field>& B, \
+    const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void herm_solve::Overwrite \
   ( UpperOrLower uplo, Orientation orientation, \
-    AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    const LDLPivotCtrl<Base<F>>& ctrl ); \
+    AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B, \
+    const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const Matrix<F>& A, Matrix<F>& B, \
-    const LDLPivotCtrl<Base<F>>& ctrl ); \
+    const Matrix<Field>& A, Matrix<Field>& B, \
+    const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void HermitianSolve \
   ( UpperOrLower uplo, Orientation orientation, \
-    const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& B, \
-    const LDLPivotCtrl<Base<F>>& ctrl ); \
+    const AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B, \
+    const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void HermitianSolve \
-  ( const SparseMatrix<F>& A, Matrix<F>& B, \
+  ( const SparseMatrix<Field>& A, Matrix<Field>& B, \
     bool tryLDL, const BisectCtrl& ctrl ); \
   template void HermitianSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
+  ( const DistSparseMatrix<Field>& A, DistMultiVec<Field>& B, \
     bool tryLDL, const BisectCtrl& ctrl );
 
 #define EL_NO_INT_PROTO

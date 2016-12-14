@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Send( const Matrix<T>& A, mpi::Comm comm, int destination )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     const Int size = height*width;

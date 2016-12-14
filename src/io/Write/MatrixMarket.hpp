@@ -15,7 +15,7 @@ namespace write {
 template<typename T>
 void MatrixMarket( const Matrix<T>& A, string basename="matrix" )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     
     string filename = basename + "." + FileExtension(MATRIX_MARKET);
     ofstream file( filename.c_str(), std::ios::binary );
@@ -60,7 +60,7 @@ void MatrixMarket( const Matrix<T>& A, string basename="matrix" )
 template<typename T>
 void MatrixMarket( const SparseMatrix<T>& A, string basename="matrix" )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     
     string filename = basename + "." + FileExtension(MATRIX_MARKET);
     ofstream file( filename.c_str(), std::ios::binary );

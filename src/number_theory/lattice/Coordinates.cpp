@@ -20,7 +20,7 @@ bool LatticeCoordinates
   const Matrix<Field>& y,
         Matrix<Field>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();

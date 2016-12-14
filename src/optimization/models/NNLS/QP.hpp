@@ -32,7 +32,7 @@ void QP
         Matrix<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = A.Width();
     const Int k = B.Width();
@@ -63,7 +63,7 @@ void QP
         AbstractDistMatrix<Real>& XPre,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),
@@ -104,7 +104,7 @@ void QP
         Matrix<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = A.Width();
     const Int k = B.Width();
@@ -137,7 +137,7 @@ void QP
         DistMultiVec<Real>& X,
   const qp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int m = A.Height();
     const Int n = A.Width();

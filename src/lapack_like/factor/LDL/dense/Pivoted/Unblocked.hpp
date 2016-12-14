@@ -17,7 +17,7 @@ template<typename F>
 LDLPivot
 Select( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -34,7 +34,7 @@ template<typename F>
 LDLPivot
 Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
@@ -58,8 +58,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -144,8 +144,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       AssertSameGrids( APre, dSub );

@@ -49,9 +49,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 # "OpenMP_CXX_FLAGS"
 #   Overrides the default compile flags for adding OpenMP support to CXX code
 
-# TODO: Add list of MPI variables here, such as "MPI_CXX_COMPILE_FLAGS"
+# TODO(poulson): Add list of MPI variables here, such as
+# "MPI_CXX_COMPILE_FLAGS"
 
-# TODO: Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
+# TODO(poulson): Add discussion of "MATH_LIBS" and "REFERENCE_ROOT"
 
 get_property(SUPPORTS_SHARED GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
 if(SUPPORTS_SHARED)
@@ -349,9 +350,18 @@ endif()
 
 if(APPLE AND EL_RELEASE AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
   NOT EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM)
-  message(FATAL_ERROR "Due to what appears to be a bug in GCC's enforcement of 16-byte stack alignments when using -O3 on OS X, Release builds with GCC on OS X are currently disabled by default. Please see the comments towards the bottom of https://github.com/elemental/Elemental/issues/181 for more details. If you know what you're doing, feel free to rebuild with -D EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM=ON")
-# Also see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=35271 for what appears
-# to be a related (although, now quite dated) issue.
+  # There seems to only be a problem for the 5.x and 6.x series, as 4.9 seems
+  # to be fine, even with -O3 optimization.
+  #
+  # Please see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=35271 for what
+  # appears to be a related (although, now quite dated) issue.
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+    # This version of GCC might be fine; there are issues with GCC exception
+    # handling (at the very least, effecting Homebrew GCC 4.9 on Sierra).
+    message(WARNING "Please ensure that your version of GCC is functioning on this platform. Homebrew GCC 4.9 is known to cause segfaults when C++ exceptions are thrown on OS X Sierra.")
+  else()
+    message(FATAL_ERROR "Due to what appears to be a bug in GCC 5.x and 6.x (you appear to be using GCC ${CMAKE_CXX_COMPILER_VERSION}) enforcement of 16-byte stack alignments when using -O3 on OS X, Release builds with GCC on OS X are currently disabled by default. Please see the comments towards the bottom of https://github.com/elemental/Elemental/issues/181 for more details. If you know what you're doing, feel free to rebuild with -D EL_IGNORE_OSX_GCC_ALIGNMENT_PROBLEM=ON")
+  endif()
 endif()
 
 # Handle RPATHs for Mac

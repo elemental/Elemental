@@ -14,9 +14,9 @@ namespace El {
 namespace svt {
 
 template<typename Field>
-Int Cross( Matrix<Field>& A, Base<Field> tau, bool relative )
+Int Cross( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     Matrix<Field> U;
@@ -40,9 +40,10 @@ Int Cross( Matrix<Field>& A, Base<Field> tau, bool relative )
 }
 
 template<typename Field>
-Int Cross( AbstractDistMatrix<Field>& APre, Base<Field> tau, bool relative )
+Int Cross
+( AbstractDistMatrix<Field>& APre, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     typedef Base<Field> Real;
@@ -64,9 +65,10 @@ Int Cross( AbstractDistMatrix<Field>& APre, Base<Field> tau, bool relative )
 }
 
 template<typename Field>
-Int Cross( DistMatrix<Field,VC,STAR>& A, Base<Field> tau, bool relative )
+Int Cross
+( DistMatrix<Field,VC,STAR>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrix<Field,VC,STAR> U( A.Grid() );

@@ -13,7 +13,7 @@ namespace El {
 template<typename F>
 Base<F> LatticeLogPotential( const Matrix<F>& R )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = R.Height();
     const Int n = R.Width();

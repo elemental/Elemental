@@ -16,8 +16,8 @@ PermutationMeta::PermutationMeta
         Int permAlign,
         mpi::Comm permComm )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( perm, invPerm ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( perm, invPerm ))
     comm = permComm;
     align = permAlign;
     const Int permStride = mpi::Size( permComm );
@@ -93,7 +93,7 @@ PermutationMeta::PermutationMeta
     // Construct the send and recv displacements from the counts
     const Int totalSend = Scan( sendCounts, sendDispls );
     const Int totalRecv = Scan( recvCounts, recvDispls );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( totalSend != totalRecv )
           LogicError
           ("Send and recv counts do not match: send=",totalSend,", recv=",

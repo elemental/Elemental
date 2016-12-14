@@ -285,7 +285,7 @@ void ApplyGivensSequence
   const Matrix<F>& sList,
   Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Assert the correct lengths of cList and sList
     typedef Base<F> Real;
     const Real one(1);
@@ -425,7 +425,7 @@ void ApplyGivensSequence
   const Matrix<Base<F>>& sList,
   Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Assert the correct lengths of cList and sList
     typedef Base<F> Real;
     const Real one(1), zero(0);

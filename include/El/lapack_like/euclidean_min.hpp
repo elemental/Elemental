@@ -23,22 +23,22 @@ namespace El {
 //
 //    min_X || X ||_F s.t. op(A) X = B.
 //
-template<typename F>
+template<typename Field>
 void LeastSquares
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& B,
-        Matrix<F>& X );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& B,
+        Matrix<Field>& X );
+template<typename Field>
 void LeastSquares
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<F>& X );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& B,
+        AbstractDistMatrix<Field>& X );
 
 template<typename Real>
 struct SQSDCtrl
-{   
+{
     bool scaleTwoNorm=true;
     Int basisSize=15; // only used if 'scaleTwoNorm' is true
 
@@ -90,37 +90,37 @@ struct LeastSquaresCtrl
     }
 };
 
-template<typename F>
+template<typename Field>
 void LeastSquares
 ( Orientation orientation,
-  const SparseMatrix<F>& A,
-  const Matrix<F>& Y,
-        Matrix<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
-template<typename F>
+  const SparseMatrix<Field>& A,
+  const Matrix<Field>& Y,
+        Matrix<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
+template<typename Field>
 void LeastSquares
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A,
-  const DistMultiVec<F>& Y,
-        DistMultiVec<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+  const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Field>& Y,
+        DistMultiVec<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
 
 // Dense versions which overwrite their input
 // ------------------------------------------
 namespace ls {
 
-template<typename F>
+template<typename Field>
 void Overwrite
 ( Orientation orientation,
-        Matrix<F>& A,
-  const Matrix<F>& B,
-        Matrix<F>& X );
-template<typename F>
+        Matrix<Field>& A,
+  const Matrix<Field>& B,
+        Matrix<Field>& X );
+template<typename Field>
 void Overwrite
 ( Orientation orientation,
-        AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-        AbstractDistMatrix<F>& X );
+        AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& B,
+        AbstractDistMatrix<Field>& X );
 
 } // namespace ls
 
@@ -138,39 +138,39 @@ enum RidgeAlg {
 }
 using namespace RidgeAlgNS;
 
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& B,
-        Base<F> gamma,
-        Matrix<F>& X,
+  const Matrix<Field>& A,
+  const Matrix<Field>& B,
+        Base<Field> gamma,
+        Matrix<Field>& X,
   RidgeAlg alg=RIDGE_CHOLESKY );
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-  Base<F> gamma,
-        AbstractDistMatrix<F>& X,
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& B,
+  Base<Field> gamma,
+        AbstractDistMatrix<Field>& X,
   RidgeAlg alg=RIDGE_CHOLESKY );
 
-template<typename F>
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const SparseMatrix<F>& A,
-  const Matrix<F>& B,
-        Base<F> gamma,
-        Matrix<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
-template<typename F>
+  const SparseMatrix<Field>& A,
+  const Matrix<Field>& B,
+        Base<Field> gamma,
+        Matrix<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
+template<typename Field>
 void Ridge
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A,
-  const DistMultiVec<F>& B,
-        Base<F> gamma,
-        DistMultiVec<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+  const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Field>& B,
+        Base<Field> gamma,
+        DistMultiVec<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
 
 // Tikhonov regularization
 // =======================
@@ -194,75 +194,75 @@ enum TikhonovAlg {
 }
 using namespace TikhonovAlgNS;
 
-template<typename F>
+template<typename Field>
 void Tikhonov
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& B,
-  const Matrix<F>& G,
-        Matrix<F>& X,
+  const Matrix<Field>& A,
+  const Matrix<Field>& B,
+  const Matrix<Field>& G,
+        Matrix<Field>& X,
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
-template<typename F>
+template<typename Field>
 void Tikhonov
 ( Orientation orientation,
-  const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-  const AbstractDistMatrix<F>& G,
-        AbstractDistMatrix<F>& X,
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& B,
+  const AbstractDistMatrix<Field>& G,
+        AbstractDistMatrix<Field>& X,
   TikhonovAlg alg=TIKHONOV_CHOLESKY );
 
-template<typename F>
+template<typename Field>
 void Tikhonov
 ( Orientation orientation,
-  const SparseMatrix<F>& A,
-  const Matrix<F>& B,
-  const SparseMatrix<F>& G,
-        Matrix<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
-template<typename F>
+  const SparseMatrix<Field>& A,
+  const Matrix<Field>& B,
+  const SparseMatrix<Field>& G,
+        Matrix<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
+template<typename Field>
 void Tikhonov
 ( Orientation orientation,
-  const DistSparseMatrix<F>& A,
-  const DistMultiVec<F>& B,
-  const DistSparseMatrix<F>& G,
-        DistMultiVec<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+  const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Field>& B,
+  const DistSparseMatrix<Field>& G,
+        DistMultiVec<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
 
 // Equality-constrained Least Squarees
 // ===================================
 // Solve
 //   min_X || A X - C ||_F subject to B X = D
-template<typename F>
+template<typename Field>
 void LSE
-( const Matrix<F>& A,
-  const Matrix<F>& B,
-  const Matrix<F>& C,
-  const Matrix<F>& D,
-        Matrix<F>& X );
-template<typename F>
+( const Matrix<Field>& A,
+  const Matrix<Field>& B,
+  const Matrix<Field>& C,
+  const Matrix<Field>& D,
+        Matrix<Field>& X );
+template<typename Field>
 void LSE
-( const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-  const AbstractDistMatrix<F>& C,
-  const AbstractDistMatrix<F>& D,
-        AbstractDistMatrix<F>& X );
+( const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& B,
+  const AbstractDistMatrix<Field>& C,
+  const AbstractDistMatrix<Field>& D,
+        AbstractDistMatrix<Field>& X );
 
-template<typename F>
+template<typename Field>
 void LSE
-( const SparseMatrix<F>& A,
-  const SparseMatrix<F>& B,
-  const Matrix<F>& C,
-  const Matrix<F>& D,
-        Matrix<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
-template<typename F>
+( const SparseMatrix<Field>& A,
+  const SparseMatrix<Field>& B,
+  const Matrix<Field>& C,
+  const Matrix<Field>& D,
+        Matrix<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
+template<typename Field>
 void LSE
-( const DistSparseMatrix<F>& A,
-  const DistSparseMatrix<F>& B,
-  const DistMultiVec<F>& C,
-  const DistMultiVec<F>& D,
-        DistMultiVec<F>& X,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+( const DistSparseMatrix<Field>& A,
+  const DistSparseMatrix<Field>& B,
+  const DistMultiVec<Field>& C,
+  const DistMultiVec<Field>& D,
+        DistMultiVec<Field>& X,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
 
 // Dense versions which overwrite inputs where possible
 // ----------------------------------------------------
@@ -270,21 +270,21 @@ namespace lse {
 
 // A and B are overwritten with their factorizations and both C and D
 // are modified
-template<typename F>
+template<typename Field>
 void Overwrite
-( Matrix<F>& A,
-  Matrix<F>& B,
-  Matrix<F>& C,
-  Matrix<F>& D,
-  Matrix<F>& X,
+( Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Field>& C,
+  Matrix<Field>& D,
+  Matrix<Field>& X,
   bool computeResidual=false );
-template<typename F>
+template<typename Field>
 void Overwrite
-( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<F>& B,
-  AbstractDistMatrix<F>& C,
-  AbstractDistMatrix<F>& D,
-  AbstractDistMatrix<F>& X,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B,
+  AbstractDistMatrix<Field>& C,
+  AbstractDistMatrix<Field>& D,
+  AbstractDistMatrix<Field>& X,
   bool computeResidual=false );
 
 } // namespace lse
@@ -294,55 +294,55 @@ void Overwrite
 // Solve
 //   min_{X,Y} || Y ||_F subject to A X + B Y = D
 
-template<typename F>
+template<typename Field>
 void GLM
-( const Matrix<F>& A,
-  const Matrix<F>& B,
-  const Matrix<F>& D,
-        Matrix<F>& X,
-        Matrix<F>& Y );
-template<typename F>
+( const Matrix<Field>& A,
+  const Matrix<Field>& B,
+  const Matrix<Field>& D,
+        Matrix<Field>& X,
+        Matrix<Field>& Y );
+template<typename Field>
 void GLM
-( const AbstractDistMatrix<F>& A,
-  const AbstractDistMatrix<F>& B,
-  const AbstractDistMatrix<F>& D,
-        AbstractDistMatrix<F>& X,
-        AbstractDistMatrix<F>& Y );
+( const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& B,
+  const AbstractDistMatrix<Field>& D,
+        AbstractDistMatrix<Field>& X,
+        AbstractDistMatrix<Field>& Y );
 
-template<typename F>
+template<typename Field>
 void GLM
-( const SparseMatrix<F>& A,
-  const SparseMatrix<F>& B,
-  const Matrix<F>& D,
-        Matrix<F>& X,
-        Matrix<F>& Y,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
-template<typename F>
+( const SparseMatrix<Field>& A,
+  const SparseMatrix<Field>& B,
+  const Matrix<Field>& D,
+        Matrix<Field>& X,
+        Matrix<Field>& Y,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
+template<typename Field>
 void GLM
-( const DistSparseMatrix<F>& A,
-  const DistSparseMatrix<F>& B,
-  const DistMultiVec<F>& D,
-        DistMultiVec<F>& X,
-        DistMultiVec<F>& Y,
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+( const DistSparseMatrix<Field>& A,
+  const DistSparseMatrix<Field>& B,
+  const DistMultiVec<Field>& D,
+        DistMultiVec<Field>& X,
+        DistMultiVec<Field>& Y,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
 
 // Dense versions which overwrite the input where possible
 // -------------------------------------------------------
 namespace glm {
 
 // A and B are overwritten with their factorizations and X is returned in D
-template<typename F>
+template<typename Field>
 void Overwrite
-( Matrix<F>& A,
-  Matrix<F>& B,
-  Matrix<F>& D,
-  Matrix<F>& Y );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Field>& D,
+  Matrix<Field>& Y );
+template<typename Field>
 void Overwrite
-( AbstractDistMatrix<F>& A,
-  AbstractDistMatrix<F>& B,
-  AbstractDistMatrix<F>& D,
-  AbstractDistMatrix<F>& Y );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B,
+  AbstractDistMatrix<Field>& D,
+  AbstractDistMatrix<Field>& Y );
 
 } // namespace glm
 

@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> LogBarrier( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
 }
@@ -21,7 +21,7 @@ Base<Field> LogBarrier( UpperOrLower uplo, const Matrix<Field>& A )
 template<typename Field>
 Base<Field> LogBarrier( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet =
       SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
@@ -30,7 +30,7 @@ Base<Field> LogBarrier( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 template<typename Field>
 Base<Field> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
 }
@@ -39,7 +39,7 @@ template<typename Field>
 Base<Field> LogBarrier
 ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeProduct<Base<Field>> safeDet =
       SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;

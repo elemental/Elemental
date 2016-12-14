@@ -17,7 +17,7 @@ void TestSequentialLeastSquares
 ( Int numRHS, double gamma, const string& filename,
   bool feasible, bool ones, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Output("Testing with ",TypeName<F>());
 
@@ -112,7 +112,7 @@ void TestLeastSquares
 ( Int numRHS, double gamma, const string& filename, bool feasible, bool ones,
   bool print, mpi::Comm comm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const int commRank = mpi::Rank(comm);
     OutputFromRoot(comm,"Testing with ",TypeName<F>());

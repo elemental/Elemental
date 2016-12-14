@@ -16,7 +16,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const Matrix<T>& A, Base<T> beta, Matrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -25,7 +25,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const Matrix<T>& A, Matrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     C.Resize( n, n );
     Zero( C );
@@ -38,7 +38,7 @@ void Herk
   Base<T> alpha, const AbstractDistMatrix<T>& A, 
   Base<T> beta,        AbstractDistMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -47,7 +47,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     C.Resize( n, n );
     Zero( C );
@@ -60,7 +60,7 @@ void Herk
   Base<T> alpha, const SparseMatrix<T>& A,
   Base<T> beta,        SparseMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -70,7 +70,7 @@ void Herk
   Base<T> alpha, const SparseMatrix<T>& A,
                        SparseMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Syrk( uplo, orientation, T(alpha), A, C, true );
 }
 
@@ -80,7 +80,7 @@ void Herk
   Base<T> alpha, const DistSparseMatrix<T>& A,
   Base<T> beta,        DistSparseMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Syrk( uplo, orientation, T(alpha), A, T(beta), C, true );
 }
 
@@ -90,7 +90,7 @@ void Herk
   Base<T> alpha, const DistSparseMatrix<T>& A,
                        DistSparseMatrix<T>& C )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Syrk( uplo, orientation, T(alpha), A, C, true );
 }
 

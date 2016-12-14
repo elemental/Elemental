@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> Norm( const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {
@@ -48,7 +48,7 @@ template<typename Field>
 Base<Field> SymmetricNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {
@@ -83,7 +83,7 @@ template<typename Field>
 Base<Field>
 HermitianNorm( UpperOrLower uplo, const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {
@@ -117,7 +117,7 @@ HermitianNorm( UpperOrLower uplo, const Matrix<Field>& A, NormType type )
 template<typename Field>
 Base<Field> Norm( const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {
@@ -152,7 +152,7 @@ template<typename Field>
 Base<Field> SymmetricNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {
@@ -187,7 +187,7 @@ template<typename Field>
 Base<Field> HermitianNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {

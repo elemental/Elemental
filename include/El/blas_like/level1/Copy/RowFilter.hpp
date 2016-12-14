@@ -17,8 +17,8 @@ template<typename T>
 void RowFilter
 ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.ColDist() != B.ColDist() ||
           A.RowDist() != Collect(B.RowDist()) )
           LogicError("Incompatible distributions");
@@ -85,9 +85,9 @@ template<typename T>
 void RowFilter
 ( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.ColDist() != B.ColDist() ||
           A.RowDist() != Collect(B.RowDist()) )
           LogicError("Incompatible distributions");
@@ -105,7 +105,7 @@ void RowFilter
     // TODO(poulson): Realign if the cuts are different
     if( A.BlockHeight() != B.BlockHeight() || A.ColCut() != B.ColCut() )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           Output("Performing expensive GeneralPurpose RowFilter");
         )
         GeneralPurpose( A, B );

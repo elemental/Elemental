@@ -59,28 +59,28 @@ namespace lapack {
 
 void Eig( BlasInt n, float* A, BlasInt ldA, scomplex* w, bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool fullTriangle = false;
     Schur( n, A, ldA, w, fullTriangle, time );
 }
 
 void Eig( BlasInt n, double* A, BlasInt ldA, dcomplex* w, bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool fullTriangle = false;
     Schur( n, A, ldA, w, fullTriangle, time );
 }
 
 void Eig( BlasInt n, scomplex* A, BlasInt ldA, scomplex* w, bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool fullTriangle = false;
     Schur( n, A, ldA, w, fullTriangle, time );
 }
 
 void Eig( BlasInt n, dcomplex* A, BlasInt ldA, dcomplex* w, bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool fullTriangle = false;
     Schur( n, A, ldA, w, fullTriangle, time );
 }
@@ -104,7 +104,7 @@ void Eig
   float* XPacked, BlasInt ldX,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;
 
@@ -133,7 +133,7 @@ void Eig
   double* XPacked, BlasInt ldX,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;
 
@@ -162,7 +162,7 @@ void Eig
   scomplex* X, BlasInt ldX,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     float* XPacked = (float*)X;    
     Eig( n, A, ldA, w, XPacked, ldX );
     // Unpack the eigenvectors
@@ -200,7 +200,7 @@ void Eig
   dcomplex* X, BlasInt ldX,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double* XPacked = (double*)X;    
     Eig( n, A, ldA, w, XPacked, ldX );
     // Unpack the eigenvectors
@@ -238,7 +238,7 @@ void Eig
   scomplex* X, BlasInt ldX,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<float> rWork( 2*n );
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;
@@ -263,7 +263,7 @@ void Eig
   dcomplex* X, BlasInt ldX,
   bool time )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<double> rWork( 2*n );
     const char jobVL='N', jobVR='V';
     const BlasInt fakeLDim = 1;

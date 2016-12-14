@@ -121,7 +121,7 @@ Real ChooseStepLength
   const Real& upperBound,
   const Real& delta=limits::Epsilon<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Real step;
     if( y0 >= Real(0) && yDet >= Real(0) )
     {
@@ -167,7 +167,7 @@ Real MaxStep
   const Matrix<Int>& firstInds,
   Real upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int height = x.Height();
 
@@ -196,7 +196,7 @@ Real MaxStep
     {
         const Int order = orderBuf[i];
         const Int firstInd = firstIndBuf[i];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
@@ -223,7 +223,7 @@ Real MaxStep
   const AbstractDistMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
 
     ElementalProxyCtrl control;
@@ -286,7 +286,7 @@ Real MaxStep
   const DistMultiVec<Int>& firstInds,
   Real upperBound, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
     mpi::Comm comm = x.Comm();
 

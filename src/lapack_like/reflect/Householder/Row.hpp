@@ -20,8 +20,8 @@ namespace reflector {
 template<typename F>
 F Row( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
       if( x.ColRank() != x.ColAlign() )
@@ -93,8 +93,8 @@ F Row( F& chi, AbstractDistMatrix<F>& x )
 template<typename F>
 F Row( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( chi.ColRank() != chi.ColAlign() || x.ColRank() != x.ColAlign() )
           LogicError("Reflecting from incorrect process");
     )

@@ -21,7 +21,7 @@ void TransformRows
 ( const Matrix<Field>& V,
         Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Consider forming chunk-by-chunk to save memory
     Matrix<Field> ACopy( A );
     Gemm( ADJOINT, NORMAL, Field(1), V, ACopy, A );
@@ -32,7 +32,7 @@ void TransformRows
 ( const Matrix<Field>& V,
         DistMatrix<Field,MC,MR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Grid& grid = A.Grid();
 
@@ -120,7 +120,7 @@ void TransformColumns
 ( const Matrix<Field>& V,
         Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Consider forming chunk-by-chunk to save memory
     Matrix<Field> ACopy( A );
     Gemm( NORMAL, NORMAL, Field(1), ACopy, V, A );
@@ -132,7 +132,7 @@ void TransformColumns
 ( const Matrix<Field>& V,
         DistMatrix<Field,MC,MR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int width = A.Width();
     const Grid& grid = A.Grid();
 

@@ -103,7 +103,7 @@ void EvaluateSecular
         State<Real>& state,
   bool penalizeDerivative=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Int n = z.Height();
     const Int origin = state.origin;
@@ -166,7 +166,7 @@ void EvaluateSecularLast
         LastState<Real>& state,
   bool penalizeDerivative=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Int n = z.Height();
     const Int origin = n-1;
@@ -212,7 +212,7 @@ void SecularInitialGuess
         State<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1);
     const Int k = whichValue;
     const Int n = d.Height();
@@ -344,7 +344,7 @@ void SecularInitialGuessLast
         LastState<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     const Real zero(0), one(1);
     const Real rhoInv = one / rho;
@@ -451,7 +451,7 @@ void SecularUpdate
         SecularEVDInfo& info,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = d.Height();
     const Int k = whichValue;
@@ -816,7 +816,7 @@ void SecularUpdateLast
         LastState<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = state.dMinusShift.Height();
     const Int origin = n-1;
@@ -927,12 +927,12 @@ SecularInner
         State<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( k == n-1 )
           LogicError("SecularInner meant for inner eigenvalues");
       if( n <= 2 )
@@ -983,7 +983,7 @@ SecularInner
     initialize = false;
     while( true )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( !limits::IsFinite(state.rootEst) )
           {
               RuntimeError("Produced non-finite rootEst=",state.rootEst);
@@ -1026,11 +1026,11 @@ SecularLast
         LastState<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( k != n-1 )
           LogicError("SecularLast meant for largest eigenvalue");
       if( n <= 2 )
@@ -1099,10 +1099,10 @@ SecularEigenvalue
         Real& eigenvalue,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
           LogicError("Invalid eigenvalue request");
@@ -1155,10 +1155,10 @@ SecularEigenvalue
         Matrix<Real>& dMinusShift,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
           LogicError("Invalid eigenvalue request");
@@ -1217,7 +1217,7 @@ SecularEVD
         Matrix<Real>& Q,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     SecularEVDInfo info;
 

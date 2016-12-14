@@ -39,8 +39,8 @@ namespace El {
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -53,7 +53,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     F alpha = chi(0);
     const F tau = LeftReflector( alpha, x );
@@ -65,8 +65,8 @@ F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -89,8 +89,8 @@ F LeftReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 template<typename F>
 F LeftReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
     )
@@ -116,8 +116,8 @@ F LeftReflector( F& chi, AbstractDistMatrix<F>& x )
 template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
       if( x.Height() != 1 && x.Width() != 1 )
@@ -132,8 +132,8 @@ F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -146,8 +146,8 @@ F RightReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -170,8 +170,8 @@ F RightReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
     )

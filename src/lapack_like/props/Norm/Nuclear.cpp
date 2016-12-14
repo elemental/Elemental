@@ -13,28 +13,28 @@ namespace El {
 template<typename Field>
 Base<Field> NuclearNorm( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SchattenNorm( A, Base<Field>(1) );
 }
 
 template<typename Field>
 Base<Field> HermitianNuclearNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianSchattenNorm( uplo, A, Base<Field>(1) );
 }
 
 template<typename Field>
 Base<Field> SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricSchattenNorm( uplo, A, Base<Field>(1) );
 }
 
 template<typename Field>
 Base<Field> NuclearNorm( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SchattenNorm( A, Base<Field>(1) );
 }
 
@@ -42,7 +42,7 @@ template<typename Field>
 Base<Field> HermitianNuclearNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianSchattenNorm( uplo, A, Base<Field>(1) );
 }
 
@@ -50,7 +50,7 @@ template<typename Field>
 Base<Field> SymmetricNuclearNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return SymmetricSchattenNorm( uplo, A, Base<Field>(1) );
 }
 

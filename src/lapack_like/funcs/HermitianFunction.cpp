@@ -17,9 +17,9 @@ template<typename Field>
 void HermitianFunction
 ( UpperOrLower uplo,
   Matrix<Field>& A,
-  function<Base<Field>(Base<Field>)> func )
+  function<Base<Field>(const Base<Field>&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Base<Field> Real;
@@ -40,9 +40,9 @@ template<typename Field>
 void HermitianFunction
 ( UpperOrLower uplo,
   AbstractDistMatrix<Field>& APre,
-  function<Base<Field>(Base<Field>)> func )
+  function<Base<Field>(const Base<Field>&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -73,9 +73,9 @@ template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo,
   Matrix<Complex<Real>>& A,
-  function<Complex<Real>(Real)> func )
+  function<Complex<Real>(const Real&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -99,9 +99,9 @@ template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo,
   AbstractDistMatrix<Complex<Real>>& APre,
-  function<Complex<Real>(Real)> func )
+  function<Complex<Real>(const Real&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadWriteProxy<C,C,MC,MR> AProx( APre );
@@ -135,22 +135,22 @@ void HermitianFunction
   template void HermitianFunction \
   ( UpperOrLower uplo, \
     Matrix<Field>& A, \
-    function<Base<Field>(Base<Field>)> func ); \
+    function<Base<Field>(const Base<Field>&)> func ); \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
     AbstractDistMatrix<Field>& A, \
-    function<Base<Field>(Base<Field>)> func );
+    function<Base<Field>(const Base<Field>&)> func );
 
 #define PROTO_REAL(Real) \
   PROTO_COMPLEX(Real) \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
     Matrix<Complex<Real>>& A, \
-    function<Complex<Real>(Real)> func ); \
+    function<Complex<Real>(const Real&)> func ); \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
     AbstractDistMatrix<Complex<Real>>& A, \
-    function<Complex<Real>(Real)> func );
+    function<Complex<Real>(const Real&)> func );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -122,7 +122,7 @@ void TwoByTwoUpperStandard
         Real& cV,
         Real& sV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1), two(2), four(4);
 
     // Specially handle the diagonal matrix diag([alpha00;alpha11])
@@ -291,7 +291,7 @@ void TwoByTwoUpper
         Real& cV,
         Real& sV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real alpha00Abs = Abs(alpha00);
     const Real alpha01Abs = Abs(alpha01);
     const Real alpha11Abs = Abs(alpha11);
@@ -371,7 +371,7 @@ void TwoByTwoUpper
         Real& sigmaMax,
         Real& sigmaMin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1), two(2);
     const Real alpha00Abs = Abs(alpha00);
     const Real alpha01Abs = Abs(alpha01);

@@ -20,8 +20,8 @@ void DiagonalScaleTrapezoid
         Matrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( side==LEFT && (d.Height()!=A.Height() || d.Width()!=1) )
           LogicError("d should have been a vector of the height of A");
       if( side==RIGHT && (d.Height()!=A.Width() || d.Width()!=1) )
@@ -94,7 +94,7 @@ void DiagonalScaleTrapezoid
         DistMatrix<T,U,V>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -221,7 +221,7 @@ void DiagonalScaleTrapezoid
         DistMatrix<T,U,V,BLOCK>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -354,7 +354,7 @@ void DiagonalScaleTrapezoid
         AbstractDistMatrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     #define GUARD(CDIST,RDIST,WRAP) \
       A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
     #define PAYLOAD(CDIST,RDIST,WRAP) \
@@ -372,7 +372,7 @@ void DiagonalScaleTrapezoid
         SparseMatrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -385,7 +385,7 @@ void DiagonalScaleTrapezoid
         DistSparseMatrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 

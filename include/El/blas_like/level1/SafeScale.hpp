@@ -20,7 +20,7 @@ bool SafeScaleStep
   const Real& smallNum,
   const Real& bigNum )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Real shrunkDenominator = denominator * smallNum;
     if( Abs(shrunkDenominator) > Abs(numerator) && numerator != zero )
@@ -45,7 +45,7 @@ bool SafeScaleStep
 template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, F& alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -65,7 +65,7 @@ void SafeScale( Base<F> numerator, Base<F> denominator, F& alpha )
 template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -87,7 +87,7 @@ void SafeScaleTrapezoid
 ( Base<F> numerator, Base<F> denominator,
   UpperOrLower uplo, Matrix<F>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -108,7 +108,7 @@ template<typename F>
 void SafeScale
 ( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeScale( numerator, denominator, A.Matrix() );
 }
 
@@ -117,7 +117,7 @@ void SafeScaleTrapezoid
 ( Base<F> numerator, Base<F> denominator,
   UpperOrLower uplo, AbstractDistMatrix<F>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -137,7 +137,7 @@ void SafeScaleTrapezoid
 template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -159,7 +159,7 @@ void SafeScaleTrapezoid
 ( Base<F> numerator, Base<F> denominator,
   UpperOrLower uplo, SparseMatrix<F>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -179,7 +179,7 @@ void SafeScaleTrapezoid
 template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -201,7 +201,7 @@ void SafeScaleTrapezoid
 ( Base<F> numerator, Base<F> denominator,
   UpperOrLower uplo, DistSparseMatrix<F>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
@@ -221,7 +221,7 @@ void SafeScaleTrapezoid
 template<typename F>
 void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SafeScale( numerator, denominator, A.Matrix() );
 }
 
@@ -229,7 +229,7 @@ template<typename F>
 void SafeScaleHermitianTridiag
 ( Base<F> numerator, Base<F> denominator, Matrix<Base<F>>& d, Matrix<F>& e )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();

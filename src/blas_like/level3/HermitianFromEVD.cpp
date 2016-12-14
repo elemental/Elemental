@@ -21,7 +21,7 @@ void HermitianFromEVD
   const Matrix<Base<F>>& w,
   const Matrix<F>& Z )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> Z1Copy, Y1;
 
     const Int m = Z.Height();
@@ -51,7 +51,7 @@ void HermitianFromEVD
   const AbstractDistMatrix<Base<F>>& wPre,
   const AbstractDistMatrix<F>& ZPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixWriteProxy<F,F,MC,MR> AProx( APre );

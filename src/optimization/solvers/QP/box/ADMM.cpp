@@ -36,7 +36,7 @@ ADMM
         Matrix<Real>& Z,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = Q.Height();
     const Int k = C.Width();
 
@@ -147,7 +147,7 @@ ADMM
         AbstractDistMatrix<Real>& ZPre,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       QProx( QPre ),

@@ -19,7 +19,7 @@ void Tikhonov
         Matrix<F>& X,
   TikhonovAlg alg )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
@@ -74,7 +74,7 @@ void Tikhonov
         AbstractDistMatrix<F>& XPre,
   TikhonovAlg alg )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),
@@ -195,7 +195,7 @@ void Tikhonov
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Explicitly form W := op(A)
     // ==========================
@@ -250,7 +250,7 @@ void Tikhonov
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = A.Comm();
 
     // Explicitly form W := op(A)

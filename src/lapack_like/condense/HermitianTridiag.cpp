@@ -19,7 +19,7 @@ void Ger2Sub
   const DistMatrix<F,MR,STAR>& y_MR,
         DistMatrix<F,MC,MR  >& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const F* x_MC_Buf = x_MC.LockedBuffer();
@@ -54,7 +54,7 @@ template<typename F>
 void HermitianTridiag
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         herm_tridiag::LowerBlocked( A, householderScalars );
     else
@@ -68,7 +68,7 @@ void HermitianTridiag
   AbstractDistMatrix<F>& householderScalarsPre,
   const HermitianTridiagCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>
@@ -163,7 +163,7 @@ namespace herm_tridiag {
 template<typename F>
 void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     HermitianTridiag( uplo, A, householderScalars );
     if( uplo == UPPER )
@@ -178,7 +178,7 @@ void ExplicitCondensed
   AbstractDistMatrix<F>& A, 
   const HermitianTridiagCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,STAR,STAR> householderScalars(A.Grid());
     HermitianTridiag( uplo, A, householderScalars, ctrl );
     if( uplo == UPPER )

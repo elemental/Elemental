@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_UPDATEMAPPEDDIAGONAL_HPP
@@ -15,10 +15,10 @@ template<typename T,typename S>
 void UpdateMappedDiagonal
 (       Matrix<T>& A,
   const Matrix<S>& d,
-        function<void(T&,S)> func,
+        function<void(T&,const S&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
@@ -34,12 +34,12 @@ void UpdateMappedDiagonal
 template<typename T,typename S>
 void UpdateMappedDiagonal
 (       SparseMatrix<T>& A,
-  const Matrix<S>& d, 
-        function<void(T&,S)> func,
+  const Matrix<S>& d,
+        function<void(T&,const S&)> func,
         Int offset,
         bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = d.Height();
@@ -52,7 +52,7 @@ void UpdateMappedDiagonal
             const Int i = iStart + k;
             const Int j = jStart + k;
             const Int e = A.Offset( i, j );
-            func( valBuf[e], dBuf[Min(i,j)]); 
+            func( valBuf[e], dBuf[Min(i,j)]);
         }
     }
     else
@@ -74,12 +74,12 @@ void UpdateMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 (       DistMatrix<T,U,V>& A,
-  const AbstractDistMatrix<S>& dPre, 
-        function<void(T&,S)> func,
+  const AbstractDistMatrix<S>& dPre,
+        function<void(T&,const S&)> func,
         Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, dPre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -118,12 +118,12 @@ void UpdateMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void UpdateMappedDiagonal
 (       DistMatrix<T,U,V,BLOCK>& A,
-  const AbstractDistMatrix<S>& d, 
-        function<void(T&,S)> func,
+  const AbstractDistMatrix<S>& d,
+        function<void(T&,const S&)> func,
         Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, d ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, d ))
     if( d.Participating() && d.RedundantRank() == 0 )
     {
         const Int iStart = Max(-offset,0);
@@ -143,12 +143,12 @@ void UpdateMappedDiagonal
 template<typename T,typename S>
 void UpdateMappedDiagonal
 (       DistSparseMatrix<T>& A,
-  const DistMultiVec<S>& d, 
-        function<void(T&,S)> func,
+  const DistMultiVec<S>& d,
+        function<void(T&,const S&)> func,
         Int offset,
         bool diagExists )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( offset != 0 )
         LogicError("Offset assumed to be zero for distributed sparse matrices");
 
@@ -174,7 +174,7 @@ void UpdateMappedDiagonal
             func( updateValue, dBuf[iLoc] );
             A.QueueLocalUpdate( iLoc, i, updateValue );
         }
-        A.ProcessLocalQueues(); 
+        A.ProcessLocalQueues();
     }
 }
 
@@ -188,12 +188,12 @@ void UpdateMappedDiagonal
   EL_EXTERN template void UpdateMappedDiagonal \
   (       Matrix<T>& A, \
     const Matrix<T>& d, \
-          function<void(T&,T)> func, \
+          function<void(T&,const T&)> func, \
           Int offset ); \
   EL_EXTERN template void UpdateMappedDiagonal \
   (       SparseMatrix<T>& A, \
     const Matrix<T>& d, \
-          function<void(T&,T)> func, \
+          function<void(T&,const T&)> func, \
           Int offset, \
           bool diagExists );
 

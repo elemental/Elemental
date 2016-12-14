@@ -22,7 +22,7 @@ void ComputeNewEstimates
   const vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -57,7 +57,7 @@ void ComputeNewEstimates
   const vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts.Matrix() );
 }
 
@@ -74,7 +74,7 @@ void Deflate
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Timer timer;
     if( progress )
         timer.Start();
@@ -115,7 +115,7 @@ void Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
@@ -144,7 +144,7 @@ void Deflate
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     const Int localTo = activeX.LocalCol(swapTo);
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( HDiagList[localFrom].Height() != n )
                           LogicError("Invalid HDiagList size");
                       if( HDiagList[localTo].Height() != n )
@@ -160,7 +160,7 @@ void Deflate
                 else if( activeX.IsLocalCol(swapFrom) )
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( HDiagList[localFrom].Height() != n )
                           LogicError("Invalid HDiagList size");
                       if( HSubdiagList[localFrom].Height() != n )
@@ -177,7 +177,7 @@ void Deflate
                 else if( activeX.IsLocalCol(swapTo) )
                 {
                     const Int localTo = activeX.LocalCol(swapTo);
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( HDiagList[localTo].Height() != n )
                           LogicError("Invalid HDiagList size");
                       if( HSubdiagList[localTo].Height() != n )
@@ -226,7 +226,7 @@ Lanczos
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -413,7 +413,7 @@ Lanczos
         AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

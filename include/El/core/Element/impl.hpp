@@ -112,7 +112,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 void SetImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("Nonsensical assignment");
 }
 template<typename Real>
@@ -135,7 +135,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 void UpdateImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("Nonsensical update");
 }
 template<typename Real>
@@ -809,13 +809,13 @@ void DowndateScaledSquare
     Real alphaAbs = Abs(alpha);
     if( alphaAbs != Real(0) )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( alphaAbs > scale )
               LogicError("Tried to downdate with too large of a value");
         )
         const Real relScale = alphaAbs/scale;
         scaledSquare -= relScale*relScale;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( scaledSquare < Real(0) )
               LogicError("Downdate produced a negative value");
         )

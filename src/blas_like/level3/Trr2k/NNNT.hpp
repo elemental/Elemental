@@ -25,8 +25,8 @@ void Trr2kNNNT
   const AbstractDistMatrix<T>& DPre,
         AbstractDistMatrix<T>& EPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( EPre.Height() != EPre.Width()  || APre.Width()  != CPre.Width()  ||
           APre.Height() != EPre.Height() || CPre.Height() != EPre.Height() ||
           BPre.Width()  != EPre.Width()  || DPre.Height() != EPre.Width()  ||

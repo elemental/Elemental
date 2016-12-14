@@ -11,7 +11,7 @@
 namespace El {
 
 template<typename Real>
-inline Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     static const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -21,19 +21,19 @@ inline Real DampScaling( Real alpha )
 }
 
 template<typename Real>
-inline Real SquareRootScaling( Real alpha )
+Real SquareRootScaling( const Real& alpha )
 {
     return Sqrt(alpha);
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( Matrix<F>& A,
-  Matrix<Base<F>>& d,
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
 
@@ -44,8 +44,8 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         // TODO(poulson): Replace with SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -54,14 +54,14 @@ void SymmetricRuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<Base<F>>& dPre,
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& dPre,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
     control.colConstrain = true;
@@ -69,7 +69,7 @@ void SymmetricRuizEquil
     control.colAlign = 0;
     control.rowAlign = 0;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dProx( dPre, control );
     auto& A = AProx.Get();
     auto& d = dProx.Get();
@@ -84,8 +84,8 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         // TODO(poulson): Replace with SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
@@ -94,14 +94,14 @@ void SymmetricRuizEquil
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( SparseMatrix<F>& A,
-  Matrix<Base<F>>& d,
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
 
@@ -112,22 +112,22 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }
     SetIndent( indent );
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( DistSparseMatrix<F>& A,
-  DistMultiVec<Base<F>>& d,
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& d,
   Int maxIter, bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
     mpi::Comm comm = A.Comm();
     d.SetComm( comm );
@@ -140,30 +140,30 @@ void SymmetricRuizEquil
         // Rescale the columns (and rows)
         // ------------------------------
         ColumnMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
     }
     SetIndent( indent );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void SymmetricRuizEquil \
-  ( Matrix<F>& A, \
-    Matrix<Base<F>>& d, \
+  ( Matrix<Field>& A, \
+    Matrix<Base<Field>>& d, \
     Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& d, \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Base<Field>>& d, \
     Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
-  ( SparseMatrix<F>& A, \
-    Matrix<Base<F>>& d, \
+  ( SparseMatrix<Field>& A, \
+    Matrix<Base<Field>>& d, \
     Int maxIter, bool progress ); \
   template void SymmetricRuizEquil \
-  ( DistSparseMatrix<F>& A, \
-    DistMultiVec<Base<F>>& d, \
+  ( DistSparseMatrix<Field>& A, \
+    DistMultiVec<Base<Field>>& d, \
     Int maxIter, bool progress );
 
 #define EL_NO_INT_PROTO

@@ -23,10 +23,10 @@ void UpperPanel
   DistMatrix<F,MR,STAR>& W_MR_STAR,
   const SymvCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     const Int nW = W.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, W, t );
       if( n != A.Width() )
           LogicError("A must be square.");

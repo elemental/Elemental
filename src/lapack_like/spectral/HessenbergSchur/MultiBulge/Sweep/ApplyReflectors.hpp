@@ -82,11 +82,11 @@ void ApplyReflectors
   bool accumulate,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
     const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( lastBulgeBeg > winEnd-3 )
           LogicError("Last bulge starts too late");
     )
@@ -114,7 +114,7 @@ void ApplyReflectors
         const Int bulge = firstBulge + numFullBulges;
         const Int bulgeBeg = packetBeg + 3*bulge;
         const Field* w = &W(0,bulge);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
@@ -249,11 +249,11 @@ void ApplyReflectorsOpt
   bool accumulate,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
     const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( lastBulgeBeg > winEnd-3 )
           LogicError("Last bulge starts too late");
     )
@@ -303,7 +303,7 @@ void ApplyReflectorsOpt
         const Field omega0 = w[0];
         const Field omega1 = w[1];
         const Field omega1Conj = Conj(w[1]);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )
@@ -499,7 +499,7 @@ void ApplyReflectorsOpt
   bool accumulate,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     //typedef std::complex<Real> FastField; using std::conj;
     typedef FastComplex<Real> FastField;
@@ -507,7 +507,7 @@ void ApplyReflectorsOpt
     const Int lastBulge = firstBulge + numBulges - 1;
     const Int lastBulgeBeg = packetBeg + 3*lastBulge;
     const bool haveSmallBulge = ( lastBulgeBeg == winEnd-3 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( lastBulgeBeg > winEnd-3 )
           LogicError("Last bulge starts too late");
     )
@@ -552,7 +552,7 @@ void ApplyReflectorsOpt
         const Int bulgeBeg = packetBeg + 3*bulge;
         const FastField* EL_RESTRICT w =
           reinterpret_cast<const FastField*>(&WBuf[bulge*WLDim]);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( bulgeBeg+1 < winBeg )
               LogicError("bulgeBeg=",bulgeBeg,", winBeg=",winBeg);
         )

@@ -16,7 +16,7 @@ template<typename Field>
 SafeProduct<Field> AfterLUPartialPiv
 ( const Matrix<Field>& A, const Permutation& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 
@@ -44,7 +44,7 @@ SafeProduct<Field> AfterLUPartialPiv
 template<typename Field>
 SafeProduct<Field> LUPartialPiv( Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
     SafeProduct<Field> det( A.Height() );
@@ -67,7 +67,7 @@ SafeProduct<Field> AfterLUPartialPiv
 ( const AbstractDistMatrix<Field>& APre,
   const DistPermutation& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 
@@ -108,7 +108,7 @@ template<typename Field>
 SafeProduct<Field>
 LUPartialPiv( AbstractDistMatrix<Field>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( APre.Height() != APre.Width() )
         LogicError("Cannot compute det of nonsquare matrix");
 

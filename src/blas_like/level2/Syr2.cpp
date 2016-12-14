@@ -17,8 +17,8 @@ void Syr2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( (x.Width() != 1 && x.Height() != 1) ||
@@ -56,8 +56,8 @@ void Syr2
            const AbstractDistMatrix<T>& y,
                  AbstractDistMatrix<T>& APre, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, x, y );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

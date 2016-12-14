@@ -18,7 +18,7 @@ template<typename Field>
 void TriangEig( Matrix<Field>& U, Matrix<Field>& X )
 {
 
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = U.Height();
 
     // Make X the negative of the strictly upper triangle of  U
@@ -48,7 +48,7 @@ void TriangEig
 ( const AbstractDistMatrix<Field>& UPre,
         AbstractDistMatrix<Field>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> XProx( XPre );

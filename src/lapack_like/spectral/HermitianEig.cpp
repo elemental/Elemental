@@ -176,7 +176,7 @@ BlackBox
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     HermitianEigInfo info;
     if( A.Height() != A.Width() )
@@ -260,7 +260,7 @@ HermitianEig
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     if( ctrl.useSDC )
@@ -283,8 +283,8 @@ SequentialHelper
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( IsDistributed(A) )
           LogicError("A should not`have been distributed");
       if( IsDistributed(w) )
@@ -322,7 +322,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<Base<F>>& wPre,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( APre );
     auto& A = AProx.Get();
@@ -375,7 +375,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<Base<F>>& wPre,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine should not be called");
     HermitianEigInfo info;
     return info;
@@ -390,7 +390,7 @@ BlackBox
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     HermitianEigInfo info;
 
@@ -501,7 +501,7 @@ HermitianEig
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
@@ -543,7 +543,7 @@ BlackBox
   Matrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigInfo info;
 
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
@@ -569,7 +569,7 @@ BlackBox
   AbstractDistMatrix<F>& QPre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = APre.Grid();
     HermitianEigInfo info;
 
@@ -616,7 +616,7 @@ HermitianEig
   Matrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     auto subset = ctrl.tridiagEigCtrl.subset;
@@ -706,8 +706,8 @@ SequentialHelper
   AbstractDistMatrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( IsDistributed(A) )
           LogicError("A should not`have been distributed");
       if( IsDistributed(w) )
@@ -758,7 +758,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<F>& QPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( APre );
     auto& A = AProx.Get();
@@ -825,7 +825,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine should not be called");
     HermitianEigInfo info;
     return info;
@@ -841,7 +841,7 @@ MRRR
   AbstractDistMatrix<F>& QPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = APre.Height();
     const Grid& g = APre.Grid();
@@ -1002,7 +1002,7 @@ HermitianEig
   AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     auto subset = ctrl.tridiagEigCtrl.subset;

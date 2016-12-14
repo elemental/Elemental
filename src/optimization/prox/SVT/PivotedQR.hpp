@@ -15,10 +15,11 @@ namespace svt {
 // Preprocess with numSteps iterations of pivoted QR factorization
 
 template<typename Field>
-Int PivotedQR( Matrix<Field>& A, Base<Field> tau, Int numSteps, bool relative )
+Int PivotedQR
+( Matrix<Field>& A, const Base<Field>& tau, Int numSteps, bool relative )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( numSteps > Min(A.Height(),A.Width()) )
           LogicError("number of steps is too large");
     )
@@ -61,11 +62,11 @@ Int PivotedQR( Matrix<Field>& A, Base<Field> tau, Int numSteps, bool relative )
 
 template<typename Field>
 Int PivotedQR
-( AbstractDistMatrix<Field>& APre, Base<Field> tau, Int numSteps,
+( AbstractDistMatrix<Field>& APre, const Base<Field>& tau, Int numSteps,
   bool relative )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( numSteps > Min(APre.Height(),APre.Width()) )
           LogicError("number of steps is too large");
     )

@@ -15,7 +15,7 @@ void TestRandomHelper
   const HessenbergSchurCtrl& hessSchurCtrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     const Real eps = limits::Epsilon<Real>();
@@ -61,7 +61,7 @@ void TestRandomHelper
   const HessenbergSchurCtrl& hessSchurCtrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     const Real eps = limits::Epsilon<Real>();
@@ -112,7 +112,7 @@ void TestRandomHelper
 template<typename F>
 void TestRandom( Int n, const HessenbergSchurCtrl& ctrl, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing uniform with ",TypeName<F>());
     Matrix<F> A;
     Uniform( A, n, n );
@@ -125,7 +125,7 @@ template<typename F>
 void TestRandom
 ( Int n, const Grid& grid, const HessenbergSchurCtrl& ctrl, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing uniform with ",TypeName<F>());
     DistMatrix<F> A(grid);
     Uniform( A, n, n );

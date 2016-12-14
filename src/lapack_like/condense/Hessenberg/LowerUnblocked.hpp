@@ -15,7 +15,7 @@ namespace hessenberg {
 template<typename F>
 void LowerUnblocked( Matrix<F>& A, Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     const Int householderScalarsHeight = Max(n-1,0);
     householderScalars.Resize( householderScalarsHeight, 1 );
@@ -74,7 +74,7 @@ void LowerUnblocked
 ( AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<F>& householderScalarsPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     DistMatrixWriteProxy<F,F,STAR,STAR>

@@ -26,8 +26,8 @@ SVDInfo TallAbsoluteProduct
   Base<Field> tol,
   bool avoidU )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
@@ -100,8 +100,8 @@ SVDInfo TallRelativeProduct
   Base<Field> relTol,
   bool avoidU )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
@@ -169,7 +169,7 @@ SVDInfo TallProduct
   bool relative,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
@@ -185,8 +185,8 @@ SVDInfo TallAbsoluteProduct
   Base<Field> tol,
   bool avoidU )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -262,7 +262,7 @@ SVDInfo TallAbsoluteProduct
   Base<Field> tol,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -281,8 +281,8 @@ SVDInfo TallRelativeProduct
   Base<Field> relTol,
   bool avoidU )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -354,7 +354,7 @@ SVDInfo TallRelativeProduct
   Base<Field> relTol,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -374,7 +374,7 @@ SVDInfo TallProduct
   bool relative,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
@@ -390,8 +390,8 @@ SVDInfo TallAbsoluteProduct
   Base<Field> tol,
   bool avoidU )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -471,7 +471,7 @@ SVDInfo TallAbsoluteProduct
   Base<Field> tol,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixWriteProxy<Field,Field,VC,STAR> UProx( UPre );
     DistMatrixWriteProxy<Base<Field>,Base<Field>,STAR,STAR> sProx( sPre );
     DistMatrixWriteProxy<Field,Field,STAR,STAR> VProx( VPre );
@@ -490,8 +490,8 @@ SVDInfo TallRelativeProduct
   Base<Field> relTol,
   bool avoidU )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -566,7 +566,7 @@ SVDInfo TallRelativeProduct
   Base<Field> relTol,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixWriteProxy<Base<Field>,Base<Field>,STAR,STAR> sProx( sPre );
     DistMatrixWriteProxy<Field,Field,VC,STAR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,STAR,STAR> VProx( VPre );
@@ -586,7 +586,7 @@ SVDInfo TallProduct
   bool relative,
   bool avoidU )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return TallRelativeProduct( A, U, s, V, tol, avoidU );
     else
@@ -602,8 +602,8 @@ SVDInfo WideAbsoluteProduct
   Base<Field> tol,
   bool avoidV )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -674,8 +674,8 @@ SVDInfo WideRelativeProduct
   Base<Field> relTol,
   bool avoidV )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( relTol < 0 )
@@ -741,7 +741,7 @@ SVDInfo WideProduct
   bool relative,
   bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return WideRelativeProduct( A, U, s, V, tol, avoidV );
     else
@@ -757,8 +757,8 @@ SVDInfo WideAbsoluteProduct
   Base<Field> tol,
   bool avoidV )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -830,7 +830,7 @@ SVDInfo WideAbsoluteProduct
   Base<Field> tol,
   bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -849,8 +849,8 @@ SVDInfo WideRelativeProduct
   Base<Field> relTol,
   bool avoidV )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, U, s, V );
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
@@ -919,7 +919,7 @@ SVDInfo WideRelativeProduct
   Base<Field> relTol,
   bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -939,7 +939,7 @@ SVDInfo WideProduct
   bool relative,
   bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return WideRelativeProduct( A, U, s, V, tol, avoidV );
     else
@@ -962,7 +962,7 @@ SVDInfo Product
   bool avoidU,
   bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: If m(A) >=~ n(A) but avoidV requested, find a way to make use of it
     if( A.Height() >= A.Width() )
         return TallProduct( A, U, s, V, tol, relative, avoidU );
@@ -981,7 +981,7 @@ SVDInfo Product
   bool avoidU,
   bool avoidV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: If m(A) >=~ n(A) but avoidV requested, find a way to make use of it
     if( A.Height() >= A.Width() )
         return TallProduct( A, U, s, V, tol, relative, avoidU );
@@ -998,8 +998,8 @@ SVDInfo TallAbsoluteProduct
         Matrix<Base<Field>>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( tol < 0 )
@@ -1052,8 +1052,8 @@ SVDInfo TallRelativeProduct
         Matrix<Base<Field>>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
       if( relTol < 0 )
@@ -1096,7 +1096,7 @@ SVDInfo TallProduct
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return TallRelativeProduct( A, s, tol );
     else
@@ -1109,8 +1109,8 @@ SVDInfo TallAbsoluteProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1166,7 +1166,7 @@ SVDInfo TallAbsoluteProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return TallAbsoluteProduct( A, s, tol );
@@ -1178,8 +1178,8 @@ SVDInfo TallRelativeProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1226,7 +1226,7 @@ SVDInfo TallRelativeProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return TallRelativeProduct( A, s, relTol );
@@ -1239,7 +1239,7 @@ SVDInfo TallProduct
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return TallRelativeProduct( A, s, tol );
     else
@@ -1252,8 +1252,8 @@ SVDInfo TallAbsoluteProduct
         DistMatrix<Base<Field>,STAR,STAR>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1312,7 +1312,7 @@ SVDInfo TallAbsoluteProduct
         AbstractDistMatrix<Base<Field>>& sPre,
   Base<Field> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
@@ -1325,8 +1325,8 @@ SVDInfo TallRelativeProduct
         DistMatrix<Base<Field>,STAR,STAR>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, s );
       if( A.Height() < A.Width() )
           LogicError("A must be at least as tall as it is wide");
@@ -1375,7 +1375,7 @@ SVDInfo TallRelativeProduct
         AbstractDistMatrix<Base<Field>>& sPre,
   Base<Field> relTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrixWriteProxy<Real,Real,STAR,STAR> sProx( sPre );
     auto& s = sProx.Get();
@@ -1389,7 +1389,7 @@ SVDInfo TallProduct
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return TallRelativeProduct( A, s, tol );
     else
@@ -1402,8 +1402,8 @@ SVDInfo WideAbsoluteProduct
         Matrix<Base<Field>>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -1456,8 +1456,8 @@ SVDInfo WideRelativeProduct
         Matrix<Base<Field>>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( relTol < 0 )
@@ -1500,7 +1500,7 @@ SVDInfo WideProduct
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return WideRelativeProduct( A, s, tol );
     else
@@ -1513,8 +1513,8 @@ SVDInfo WideAbsoluteProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
       if( tol < 0 )
@@ -1569,7 +1569,7 @@ SVDInfo WideAbsoluteProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return WideAbsoluteProduct( A, s, tol );
@@ -1581,8 +1581,8 @@ SVDInfo WideRelativeProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, s );
       if( A.Width() < A.Height() )
           LogicError("A must be at least as wide as it is tall");
@@ -1629,7 +1629,7 @@ SVDInfo WideRelativeProduct
         AbstractDistMatrix<Base<Field>>& s,
   Base<Field> relTol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
     return WideRelativeProduct( A, s, relTol );
@@ -1642,7 +1642,7 @@ SVDInfo WideProduct
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( relative )
         return WideRelativeProduct( A, s, tol );
     else
@@ -1656,7 +1656,7 @@ SVDInfo Product
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() >= A.Width() )
         return TallProduct( A, s, tol, relative );
     else
@@ -1670,7 +1670,7 @@ SVDInfo Product
   Base<Field> tol,
   bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() >= A.Width() )
         return TallProduct( A, s, tol, relative );
     else

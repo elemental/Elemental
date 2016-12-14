@@ -125,7 +125,7 @@ inline void ComputeStructAndRelInds
 ( Int theirSize, const vector<Int>& theirLowerStruct, DistNodeInfo& node )
 {
     const auto& myLowerStruct = node.child->lowerStruct;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !IsStrictlySorted(myLowerStruct) )
       {
           if( IsSorted(myLowerStruct) )
@@ -187,7 +187,7 @@ inline void ComputeStructAndRelInds
     node.lowerStruct.resize( lowerStructSize );
     for( Int i=0; i<lowerStructSize; ++i )
         node.lowerStruct[i] = fullStruct[node.size+i];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         // Ensure that the root process computed a lowerStruct of the same size
         Int rootLowerStructSize;
         if( mpi::Rank(node.comm) == 0 )
@@ -200,7 +200,7 @@ inline void ComputeStructAndRelInds
 
 Int Analysis( NodeInfo& node, Int myOff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Recurse on the children
     // NOTE: Cleanup of existing info children should be added
@@ -212,7 +212,7 @@ Int Analysis( NodeInfo& node, Int myOff )
         myOff = Analysis( *node.children[c], myOff );
     }
     
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !IsStrictlySorted(node.origLowerStruct) )
       {
           if( IsSorted(node.origLowerStruct) )
@@ -228,7 +228,7 @@ Int Analysis( NodeInfo& node, Int myOff )
         auto fullStruct = node.origLowerStruct;
         for( NodeInfo* child : node.children )
         {
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
                 if( !IsStrictlySorted(child->lowerStruct) )
                 {
                     if( IsSorted(child->lowerStruct) )
@@ -287,7 +287,7 @@ Int Analysis( NodeInfo& node, Int myOff )
 
 void Analysis( DistNodeInfo& node, bool computeFactRecvInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     node.grid = new Grid( node.comm );
 

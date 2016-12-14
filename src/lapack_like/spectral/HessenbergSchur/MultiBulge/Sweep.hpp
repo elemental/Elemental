@@ -28,18 +28,18 @@ void SweepHelper
         Matrix<Field>& WAccum,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( winEnd-winBeg < 4 )
           LogicError
           ("multibulge::Sweep shouldn't be called for window sizes < 4");
     )
 
     const Int numShifts = shifts.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( numShifts < 2 )
           LogicError("Expected at least one pair of shifts...");
       if( numShifts % 2 != 0 )
@@ -78,7 +78,7 @@ void SweepHelper
     // distance of the packet (chaseStride)
     const Int maxSlabSize = 3*numBulges + chaseStride;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( H(winBeg+2,winBeg) != Field(0) )
           LogicError("H was not upper Hessenberg");
     )
@@ -166,9 +166,9 @@ void SweepHelper
         DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Check that H is upper Hessenberg
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( H.Height() < 2*H.BlockHeight() )
           LogicError("H spans less than two full blocks");
     )
@@ -202,11 +202,11 @@ void Sweep
         Matrix<Field>& WAccum,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
 
     const Int numShifts = shifts.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( numShifts < 2 )
           LogicError("Expected at least one pair of shifts...");
     )
@@ -234,20 +234,20 @@ void Sweep
         DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ctrl.wantSchurVecs && Z.DistData() != H.DistData() )
           LogicError("The distributions of H and Z should match");
     )
     // TODO(poulson): Check that H is upper Hessenberg
     const Int n = H.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n < 2*H.BlockHeight() )
           LogicError("H spans less than two full blocks");
     )
 
     const Int numShifts = shifts.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( numShifts < 2 )
           LogicError("Expected at least one pair of shifts...");
     )

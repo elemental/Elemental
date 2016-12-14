@@ -26,8 +26,8 @@ void Grid::FinalizeDefault()
 
 const Grid& Grid::Default() EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( defaultGrid == 0 )
           LogicError
           ("Attempted to return a non-existant default grid. Please ensure "
@@ -47,7 +47,7 @@ int Grid::FindFactor( int p ) EL_NO_EXCEPT
 Grid::Grid( mpi::Comm comm, GridOrder order )
 : haveViewers_(false), order_(order)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::Dup( comm, viewingComm_ );
@@ -65,7 +65,7 @@ Grid::Grid( mpi::Comm comm, GridOrder order )
 Grid::Grid( mpi::Comm comm, int height, GridOrder order )
 : haveViewers_(false), order_(order)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Extract our rank, the underlying group, and the number of processes
     mpi::Dup( comm, viewingComm_ );
@@ -84,7 +84,7 @@ Grid::Grid( mpi::Comm comm, int height, GridOrder order )
 
 void Grid::SetUpGrid()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( size_ % height_ != 0 )
         LogicError
         ("Grid height, ",height_,", does not evenly divide grid size, ",size_);
@@ -174,7 +174,7 @@ void Grid::SetUpGrid()
         mpi::Split( cartComm_, mdPerpRank_, mdRank_,     mdComm_     );
         mpi::Split( cartComm_, mdRank_,     mdPerpRank_, mdPerpComm_ );
 
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           mpi::ErrorHandlerSet( mcComm_,     mpi::ERRORS_RETURN );
           mpi::ErrorHandlerSet( mrComm_,     mpi::ERRORS_RETURN );
           mpi::ErrorHandlerSet( vcComm_,     mpi::ERRORS_RETURN );
@@ -287,7 +287,7 @@ mpi::Comm Grid::Comm() const EL_NO_EXCEPT
 Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, GridOrder order )
 : haveViewers_(true), order_(order)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Extract our rank and the underlying group from the viewing comm
     mpi::Dup( viewers, viewingComm_ );
@@ -378,7 +378,7 @@ int Grid::CoordsToVC
     {
         return VRToVC(distRank);
     }
-    DEBUG_ONLY(else LogicError("Invalid data distribution"))
+    EL_DEBUG_ONLY(else LogicError("Invalid data distribution"))
     return -1;
 }
 

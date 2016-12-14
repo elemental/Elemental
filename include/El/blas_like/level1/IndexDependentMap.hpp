@@ -12,9 +12,9 @@
 namespace El {
 
 template<typename T>
-void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,T)> func )
+void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -24,9 +24,9 @@ void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,T)> func )
 
 template<typename T>
 void IndexDependentMap
-( AbstractDistMatrix<T>& A, function<T(Int,Int,T)> func )
+( AbstractDistMatrix<T>& A, function<T(Int,Int,const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     auto& ALoc = A.Matrix();
@@ -43,9 +43,9 @@ void IndexDependentMap
 
 template<typename S,typename T>
 void IndexDependentMap
-( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,S)> func )
+( const Matrix<S>& A, Matrix<T>& B, function<T(Int,Int,const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
@@ -58,9 +58,9 @@ template<typename S,typename T,Dist U,Dist V,DistWrap wrap>
 void IndexDependentMap
 ( const DistMatrix<S,U,V,wrap>& A,
         DistMatrix<T,U,V,wrap>& B,
-  function<T(Int,Int,S)> func )
+  function<T(Int,Int,const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     B.AlignWith( A.DistData() );
@@ -82,9 +82,9 @@ template<typename S,typename T,Dist U,Dist V>
 void IndexDependentMap
 ( const AbstractDistMatrix<S>& A,
         DistMatrix<T,U,V>& B,
-  function<T(Int,Int,S)> func )
+  function<T(Int,Int,const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Wrap() == ELEMENT && A.DistData() == B.DistData() )
     {
         auto& ACast = static_cast<const DistMatrix<T,U,V>&>(A);
@@ -110,9 +110,9 @@ template<typename S,typename T,Dist U,Dist V>
 void IndexDependentMap
 ( const AbstractDistMatrix<S>& A,
         DistMatrix<T,U,V,BLOCK>& B,
-  function<T(Int,Int,S)> func )
+  function<T(Int,Int,const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Wrap() == BLOCK && A.DistData() == B.DistData() )
     {
         auto& ACast = static_cast<const DistMatrix<T,U,V,BLOCK>&>(A);
@@ -148,31 +148,31 @@ void IndexDependentMap
   EL_EXTERN template void IndexDependentMap \
   ( const DistMatrix<T,U,V>& A, \
           DistMatrix<T,U,V>& B, \
-          function<T(Int,Int,T)> func ); \
+          function<T(Int,Int,const T&)> func ); \
   EL_EXTERN template void IndexDependentMap \
   ( const DistMatrix<T,U,V,BLOCK>& A, \
           DistMatrix<T,U,V,BLOCK>& B, \
-          function<T(Int,Int,T)> func ); \
+          function<T(Int,Int,const T&)> func ); \
   EL_EXTERN template void IndexDependentMap \
   ( const AbstractDistMatrix<T>& A, \
           DistMatrix<T,U,V>& B, \
-          function<T(Int,Int,T)> func ); \
+          function<T(Int,Int,const T&)> func ); \
   EL_EXTERN template void IndexDependentMap \
   ( const AbstractDistMatrix<T>& A, \
           DistMatrix<T,U,V,BLOCK>& B, \
-          function<T(Int,Int,T)> func );
+          function<T(Int,Int,const T&)> func );
 
 #define PROTO(T) \
   EL_EXTERN template void IndexDependentMap \
   ( Matrix<T>& A, \
-    function<T(Int,Int,T)> func ); \
+    function<T(Int,Int,const T&)> func ); \
   EL_EXTERN template void IndexDependentMap \
   ( AbstractDistMatrix<T>& A, \
-    function<T(Int,Int,T)> func ); \
+    function<T(Int,Int,const T&)> func ); \
   EL_EXTERN template void IndexDependentMap \
   ( const Matrix<T>& A, \
           Matrix<T>& B, \
-          function<T(Int,Int,T)> func ); \
+          function<T(Int,Int,const T&)> func ); \
   PROTO_DIST(T,CIRC,CIRC) \
   PROTO_DIST(T,MC,  MR  ) \
   PROTO_DIST(T,MC,  STAR) \

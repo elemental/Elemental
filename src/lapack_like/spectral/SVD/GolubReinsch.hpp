@@ -22,7 +22,7 @@ SVDInfo GolubReinsch
   Matrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
@@ -102,7 +102,7 @@ SVDInfo GolubReinsch
   DistMatrix<Field>& V,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool avoidU = !ctrl.bidiagSVDCtrl.wantU;
@@ -189,7 +189,7 @@ void GolubReinsch
   AbstractDistMatrix<Field>& VPre,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     DistMatrixWriteProxy<Field,Field,MC,MR> UProx( UPre );
     DistMatrixWriteProxy<Field,Field,MC,MR> VProx( VPre );
@@ -205,7 +205,7 @@ SVDInfo GolubReinsch
   Matrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     SVDInfo info;
@@ -240,7 +240,7 @@ SVDInfo GolubReinsch
   AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -276,7 +276,7 @@ SVDInfo GolubReinsch
   AbstractDistMatrix<Base<Field>>& s,
   const SVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     return GolubReinsch( A, s, ctrl );

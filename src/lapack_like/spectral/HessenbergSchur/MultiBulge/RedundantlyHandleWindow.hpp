@@ -22,7 +22,7 @@ void ConsistentlyComputeDecomposition
         Matrix<Field>& Z,
   const HessenbergSchurCtrl& ctrl=HessenbergSchurCtrl() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Because double-precision floating-point computation is often
     // non-deterministic due to extra-precision computation being frequent but
     // not guaranteed, we must be careful to not allow this non-determinism to
@@ -50,7 +50,7 @@ RedundantlyHandleWindow
   DistMatrix<Field,MC,MR,BLOCK>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     const Int winBeg = ( ctrl.winBeg==END ? n : ctrl.winBeg );
     const Int winEnd = ( ctrl.winEnd==END ? n : ctrl.winEnd );

@@ -41,8 +41,8 @@ LV
         Matrix<F>& H,
   const Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( offset > 0 || offset < -H.Height() )
           LogicError("Transforms out of bounds");
       if( householderScalars.Height() != H.DiagonalLength( offset ) )
@@ -128,8 +128,8 @@ LV
         AbstractDistMatrix<F>& HPre,
   const AbstractDistMatrix<F>& householderScalarsPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( HPre, householderScalarsPre );
       if( offset > 0 || offset < -HPre.Height() )
           LogicError("Transforms out of bounds");

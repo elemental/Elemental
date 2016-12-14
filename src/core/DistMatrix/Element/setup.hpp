@@ -48,7 +48,7 @@ template<typename T>
 DM::DistMatrix( const DM& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -63,7 +63,7 @@ template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -78,7 +78,7 @@ template<typename T>
 DM::DistMatrix( const AbstractDistMatrix<T>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -98,7 +98,7 @@ template<typename T>
 DM::DistMatrix( const ElementalMatrix<T>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -120,7 +120,7 @@ template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( COLDIST == CIRC && ROWDIST == CIRC )
         this->matrix_.SetViewType( OWNER );
     this->SetShifts();
@@ -162,14 +162,14 @@ DM::ConstructDiagonal
 template<typename T>
 DM DM::operator()( Range<Int> I, Range<Int> J )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return View( *this, I, J );
 }
 
 template<typename T>
 const DM DM::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return LockedView( *this, I, J );
 }
 
@@ -178,7 +178,7 @@ const DM DM::operator()( Range<Int> I, Range<Int> J ) const
 template<typename T>
 DM DM::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DM ASub( this->Grid() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -187,7 +187,7 @@ DM DM::operator()( Range<Int> I, const vector<Int>& J ) const
 template<typename T>
 DM DM::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DM ASub( this->Grid() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -196,7 +196,7 @@ DM DM::operator()( const vector<Int>& I, Range<Int> J ) const
 template<typename T>
 DM DM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DM ASub( this->Grid() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -207,7 +207,7 @@ DM DM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 template<typename T>
 DM& DM::operator=( const DM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::Translate( A, *this );
     return *this;
 }
@@ -215,7 +215,7 @@ DM& DM::operator=( const DM& A )
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use either AllGather or Gather if the distribution of this matrix
     //       is respectively either (STAR,STAR) or (CIRC,CIRC)
     #define GUARD(CDIST,RDIST,WRAP) \
@@ -231,7 +231,7 @@ template<typename T>
 template<Dist U,Dist V>
 DM& DM::operator=( const DistMatrix<T,U,V,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson):
     // Use either AllGather or Gather if the distribution of this matrix
     // is respectively either (STAR,STAR) or (CIRC,CIRC)
@@ -259,7 +259,7 @@ DM& DM::operator=( const DistMatrix<T,U,V,BLOCK>& A )
 template<typename T>
 DM& DM::operator=( DM&& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( this->Viewing() || A.Viewing() )
         this->operator=( (const DM&)A );
     else
@@ -272,7 +272,7 @@ DM& DM::operator=( DM&& A )
 template<typename T>
 const DM& DM::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -282,7 +282,7 @@ const DM& DM::operator*=( T alpha )
 template<typename T>
 const DM& DM::operator+=( const EM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -290,7 +290,7 @@ const DM& DM::operator+=( const EM& A )
 template<typename T>
 const DM& DM::operator+=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -298,7 +298,7 @@ const DM& DM::operator+=( const ADM& A )
 template<typename T>
 const DM& DM::operator-=( const EM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -306,7 +306,7 @@ const DM& DM::operator-=( const EM& A )
 template<typename T>
 const DM& DM::operator-=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }

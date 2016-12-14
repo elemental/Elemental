@@ -28,10 +28,10 @@ Real InverseInfinityNormOfBidiagInverse
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     const Real zero(0);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n == 0 )
           LogicError("Requested inverse of norm of empty matrix");
     )
@@ -58,10 +58,10 @@ Real InverseOneNormOfBidiagInverse
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     const Real zero(0);
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n == 0 )
           LogicError("Requested inverse of norm of empty matrix");
     )
@@ -95,7 +95,7 @@ Real MinSingularValueEstimateOfBidiag
   const Matrix<Real>& superDiag,
   bool looseBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real invOneNormOfInv =
       InverseOneNormOfBidiagInverse(mainDiag,superDiag);
     if( looseBound )
@@ -119,7 +119,7 @@ Real MaxSingularValueEstimateOfBidiag
 ( const Matrix<Real>& mainDiag,
   const Matrix<Real>& superDiag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return Max( MaxNorm(mainDiag), MaxNorm(superDiag) );
 }
 
@@ -140,7 +140,7 @@ void Sweep
         Matrix<Base<Field>>& sVList,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = mainDiag.Height();
     const Real zero(0), one(1);
@@ -397,7 +397,7 @@ Helper
   Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = mainDiag.Height();
     const Int mU = U.Height();
@@ -781,7 +781,7 @@ LAPACKHelper
   Matrix<Real>& superDiag,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     bidiag_svd::QRInfo info;
 
@@ -813,7 +813,7 @@ LAPACKHelper
   Matrix<Real>& superDiag,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bidiag_svd::QRInfo info;
     LogicError("LAPACK does not support this datatype");
     return info;
@@ -828,7 +828,7 @@ QRAlg
   Matrix<Real>& superDiag,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( superDiag.Height() != mainDiag.Height()-1 )
         LogicError("Invalid superDiag length");
     if( IsBlasScalar<Real>::value && ctrl.qrCtrl.useLAPACK )
@@ -856,7 +856,7 @@ FLAMEHelper
   Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     bidiag_svd::QRInfo info;
 
@@ -880,7 +880,7 @@ FLAMEHelper
   Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bidiag_svd::QRInfo info;
     LogicError("libFLAME does not support this datatype");
     return info;
@@ -897,7 +897,7 @@ LAPACKHelper
   Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = mainDiag.Height();
     bidiag_svd::QRInfo info;
@@ -941,7 +941,7 @@ LAPACKHelper
   Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bidiag_svd::QRInfo info;
     LogicError("LAPACK does not support this datatype");
     return info;
@@ -958,7 +958,7 @@ QRAlg
   Matrix<Field>& V,
   const BidiagSVDCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     if( superDiag.Height() != n-1 )
         LogicError("Invalid superDiag length");

@@ -18,8 +18,8 @@ namespace cholesky {
 template<typename F>
 void PivotedUpperUnblocked( Matrix<F>& A, Permutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -66,8 +66,8 @@ void PivotedUpperUnblocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )
@@ -124,10 +124,10 @@ void PivotedUpperPanel
   Int bsize,
   Int off )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
     )
@@ -193,10 +193,10 @@ PivotedUpperPanel
   Int bsize,
   Int off )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto A = AFull( IR(off,END), IR(off,END) );
     const Int n = A.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
     )
@@ -258,8 +258,8 @@ PivotedUpperPanel
 template<typename F>
 void PivotedUpperVariant3Blocked( Matrix<F>& A, Permutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -291,8 +291,8 @@ void PivotedUpperVariant3Blocked
 ( AbstractDistMatrix<F>& APre,
   DistPermutation& P )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

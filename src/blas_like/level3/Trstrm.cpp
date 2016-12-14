@@ -21,8 +21,8 @@ void Trstrm
   F alpha, const Matrix<F>& A, Matrix<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() || X.Height() != X.Width() )
           LogicError("Triangular matrices must be square");
       if( A.Height() != X.Height() )
@@ -76,7 +76,7 @@ void Trstrm
   F alpha, const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )

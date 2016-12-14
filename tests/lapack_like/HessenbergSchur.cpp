@@ -12,7 +12,7 @@ using namespace El;
 template<typename F>
 void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = 3;
     const Real eps = limits::Epsilon<Real>();
@@ -71,7 +71,7 @@ void TestLAPACKHelper
   const HessenbergSchurCtrl& ctrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = H.Height();
     Matrix<F> T, Z;
@@ -112,7 +112,7 @@ void TestRandomHelper
   bool testSweep,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = H.Height();
     const Real eps = limits::Epsilon<Real>();
@@ -191,7 +191,7 @@ void TestRandomHelper
   const HessenbergSchurCtrl& ctrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = H.Height();
     const Real eps = limits::Epsilon<Real>();
@@ -243,7 +243,7 @@ template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 void TestRandom
 ( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     Matrix<F> H;
@@ -260,7 +260,7 @@ template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
 void TestRandom
 ( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing uniform Hessenberg with ",TypeName<F>());
 
     Matrix<F> H;
@@ -276,7 +276,7 @@ template<typename F>
 void TestRandom
 ( Int n, const Grid& grid, const HessenbergSchurCtrl& ctrl, bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( grid.Rank() == 0 )
         Output("Testing uniform Hessenberg with ",TypeName<F>());
 

@@ -21,8 +21,8 @@ void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const Matrix<F>& A, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
       if( A.Height() != A.Width() )
@@ -46,7 +46,7 @@ void Trsv
 ( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   const AbstractDistMatrix<F>& A, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
     {
         if( orientation == NORMAL )

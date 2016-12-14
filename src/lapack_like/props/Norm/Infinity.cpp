@@ -13,7 +13,7 @@ namespace El {
 template<typename Ring>
 Base<Ring> InfinityNorm( const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -36,21 +36,21 @@ Base<Ring> InfinityNorm( const Matrix<Ring>& A )
 template<typename Ring>
 Base<Ring> HermitianInfinityNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianInfinityNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> InfinityNorm( const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Compute the partial row sums defined by our local matrix, A[U,V]
     typedef Base<Ring> Real;
 
@@ -95,7 +95,7 @@ template<typename Ring>
 Base<Ring> HermitianInfinityNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianOneNorm( uplo, A );
 }
 
@@ -103,14 +103,14 @@ template<typename Ring>
 Base<Ring> SymmetricInfinityNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianInfinityNorm( uplo, A );
 }
 
 template<typename Ring>
 Base<Ring> InfinityNorm( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int height = A.Height();
     const Ring* valBuf = A.LockedValueBuffer();
@@ -137,7 +137,7 @@ Base<Ring> InfinityNorm( const SparseMatrix<Ring>& A )
 template<typename Ring>
 Base<Ring> InfinityNorm( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Ring> Real;
     const Int localHeight = A.LocalHeight();
     const Ring* valBuf = A.LockedValueBuffer();
@@ -165,7 +165,7 @@ template<typename Ring>
 Base<Ring> HermitianTridiagInfinityNorm
 ( const Matrix<Base<Ring>>& d, const Matrix<Ring>& e )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianTridiagOneNorm( d, e );
 }
 

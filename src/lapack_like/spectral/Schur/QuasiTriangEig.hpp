@@ -19,7 +19,7 @@ void QuasiTriangEig
   const Matrix<F>& dSup,
   Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = dMain.Height();
     Matrix<F> H11(2,2);
     w.Resize( n, 1 );
@@ -48,7 +48,7 @@ void QuasiTriangEig
 template<typename F>
 void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto dMain = GetDiagonal(U);
     auto dSub = GetDiagonal(U,-1);
     auto dSup = GetDiagonal(U,+1);
@@ -58,7 +58,7 @@ void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Complex<Base<F>>> w;
     QuasiTriangEig( U, w );
     return w;
@@ -69,7 +69,7 @@ void QuasiTriangEig
 ( const AbstractDistMatrix<F>& UPre,
         AbstractDistMatrix<Complex<Base<F>>>& wPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
@@ -91,7 +91,7 @@ template<typename F>
 DistMatrix<Complex<Base<F>>,VR,STAR> 
 QuasiTriangEig( const AbstractDistMatrix<F>& U )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());
     QuasiTriangEig( U, w );
     return w;

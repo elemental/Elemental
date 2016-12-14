@@ -61,7 +61,7 @@ Base<Field> NormCap() { return Base<Field>(1)/limits::Epsilon<Base<Field>>(); }
 template<typename Field>
 bool HasNan( const Matrix<Field>& H )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     bool hasNan = false;
     const Int m = H.Height();
     const Int n = H.Width();
@@ -78,8 +78,8 @@ void ColumnSubtractions
 ( const Matrix<FieldComp>& components,
   const Matrix<Field>& X, Matrix<Field>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( components.Width() != 1 )
           LogicError("components assumed to be a column vector");
     )
@@ -98,8 +98,8 @@ void ColumnSubtractions
   const Matrix<Real>& XReal, const Matrix<Real>& XImag,
         Matrix<Real>& YReal,       Matrix<Real>& YImag )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( components.Width() != 1 )
           LogicError("components assumed to be a column vector");
     )
@@ -124,8 +124,8 @@ void ColumnSubtractions
 ( const Matrix<FieldComp>& components,
   const DistMatrix<Field>& X, DistMatrix<Field>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
@@ -138,8 +138,8 @@ void ColumnSubtractions
   const DistMatrix<Real>& XReal, const DistMatrix<Real>& XImag,
         DistMatrix<Real>& YReal,       DistMatrix<Real>& YImag )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( XReal.ColAlign() != YReal.ColAlign() ||
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
@@ -155,7 +155,7 @@ void InnerProducts
   const Matrix<Field>& Y,
         Matrix<Base<Field>>& innerProds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int numShifts = X.Width();
     const Int m = X.Height();
@@ -175,7 +175,7 @@ void InnerProducts
   const Matrix<Real>& YReal, const Matrix<Real>& YImag,
         Matrix<Real>& innerProds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numShifts = XReal.Width();
     const Int m = XReal.Height();
     innerProds.Resize( numShifts, 1 );
@@ -195,7 +195,7 @@ template<typename Field>
 void InnerProducts
 ( const Matrix<Field>& X, const Matrix<Field>& Y, Matrix<Field>& innerProds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numShifts = X.Width();
     const Int m = X.Height();
     innerProds.Resize( numShifts, 1 );
@@ -214,7 +214,7 @@ void InnerProducts
   const Matrix<Real>& YReal, const Matrix<Real>& YImag,
         Matrix<Complex<Real>>& innerProds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numShifts = XReal.Width();
     const Int m = XReal.Height();
     innerProds.Resize( numShifts, 1 );
@@ -244,8 +244,8 @@ void InnerProducts
   const DistMatrix<Field>& Y,
         Matrix<Base<Field>>& innerProds )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
@@ -260,8 +260,8 @@ void InnerProducts
   const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
   Matrix<Real>& innerProds )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( XReal.ColAlign() != YReal.ColAlign() ||
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
@@ -280,8 +280,8 @@ void InnerProducts
   const DistMatrix<Field>& Y,
         Matrix<Field>& innerProds )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.ColAlign() != Y.ColAlign() || X.RowAlign() != Y.RowAlign() )
           LogicError("X and Y should have been aligned");
     )
@@ -296,8 +296,8 @@ void InnerProducts
   const DistMatrix<Real>& YReal, const DistMatrix<Real>& YImag,
         Matrix<Complex<Real>>& innerProds )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( XReal.ColAlign() != YReal.ColAlign() ||
           XReal.RowAlign() != YReal.RowAlign() )
           LogicError("X and Y should have been aligned");
@@ -313,7 +313,7 @@ void InnerProducts
 template<typename Field>
 void FixColumns( Matrix<Field>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Matrix<Real> norms;
     ColumnTwoNorms( X, norms );
@@ -334,7 +334,7 @@ void FixColumns( Matrix<Field>& X )
 template<typename Field,Dist U,Dist V>
 void FixColumns( DistMatrix<Field,U,V>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     DistMatrix<Real,V,STAR> norms( X.Grid() );
     ColumnTwoNorms( X, norms );
@@ -357,7 +357,7 @@ void FixColumns( DistMatrix<Field,U,V>& X )
 template<typename Real>
 void CapEstimates( Matrix<Real>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int n = activeEsts.Height();
     for( Int j=0; j<n; ++j )
@@ -372,7 +372,7 @@ void CapEstimates( Matrix<Real>& activeEsts )
 template<typename Real>
 void CapEstimates( DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     CapEstimates( activeEsts.Matrix() );
 }
 
@@ -384,7 +384,7 @@ FindConverged
         Matrix<Int >& activeItCounts,
         Real maxDiff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
 
     const Int numActiveShifts=activeEsts.Height();
@@ -417,8 +417,8 @@ FindConverged
         DistMatrix<Int, VR,STAR>& activeItCounts,
         Real maxDiff )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( activeItCounts.ColAlign()%activeEsts.ColStride() !=
           activeEsts.ColAlign() )
           LogicError("Invalid column alignment");

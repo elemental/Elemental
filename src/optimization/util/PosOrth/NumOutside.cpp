@@ -15,7 +15,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside( const Matrix<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
 
@@ -31,7 +31,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside( const SparseMatrix<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numEntries = A.NumEntries();
     const Real* valBuf = A.LockedValueBuffer();
 
@@ -46,7 +46,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside( const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numNonPos = 0;
     if( A.Participating() )
     {
@@ -61,7 +61,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside( const DistSparseMatrix<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numLocalEntries = A.NumLocalEntries();
     const Real* valBuf = A.LockedValueBuffer();
 
@@ -77,7 +77,7 @@ template<typename Real,
          typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside( const DistMultiVec<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
     const Real* ABuf = A.LockedMatrix().LockedBuffer();

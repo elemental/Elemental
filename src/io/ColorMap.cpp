@@ -13,7 +13,7 @@ namespace El {
 #ifdef EL_HAVE_QT5
 QRgb SampleColorMap( double value, double minVal, double maxVal )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const ColorMap colorMap = GetColorMap();
     const int numChunks = NumDiscreteColors();
 

@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> Coherence( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> B( A );
     Matrix<Base<Field>> norms;
     ColumnTwoNorms( B, norms );
@@ -29,7 +29,7 @@ Base<Field> Coherence( const Matrix<Field>& A )
 template<typename Field>
 Base<Field> Coherence( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> B( A );
     DistMatrix<Base<Field>,MR,STAR> norms(B.Grid());
     ColumnTwoNorms( B, norms );

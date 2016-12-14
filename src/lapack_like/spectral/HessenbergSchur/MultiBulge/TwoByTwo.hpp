@@ -63,7 +63,7 @@ void TwoByTwo
         Int offset,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
 
     // Compute the 2x2 Schur decomposition HSub = ZSub TSub ZSub',
@@ -115,7 +115,7 @@ void TwoByTwo
         Int offset,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     auto& wLoc = w.Matrix();
 

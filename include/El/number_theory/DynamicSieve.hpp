@@ -343,7 +343,7 @@ T DynamicSieve<T,TSmall>::NextPrime()
     {
         oddPrimes.push_back( currentPrime );
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( currentPrime < lowerBound_ )
           Output
           ("Current prime, ",currentPrime,

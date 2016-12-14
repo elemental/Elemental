@@ -2,12 +2,11 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
 
 // This driver is an adaptation of the solver described at
 //    http://www.stanford.edu/~boyd/papers/admm/covsel/covsel.html
@@ -18,119 +17,123 @@ using namespace El;
 //     "First-order methods for sparse covariance selection"
 
 typedef double Real;
-typedef Real F;
+typedef Real Field;
 
 int main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
 
     try
     {
-        const Int n = Input("--n","problem size",200);
-        const Int N = Input("--N","number of samples",2000);
-        const Real probNnz = Input("--probNnz","probability of nonzero",0.01);
-        const Real sigma = Input("--sigma","scaling of noise matrix",0.0);
-        const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real lambda = Input("--lambda","vector l1 penalty",0.01);
-        const Real rho = Input("--rho","augmented Lagrangian param.",1.);
-        const Real alpha = Input("--alpha","over-relaxation",1.2);
-        const Real absTol = Input("--absTol","absolute tolerance",1e-5);
-        const Real relTol = Input("--relTol","relative tolerance",1e-3);
-        const Real shift = Input("--shift","shift for noisy B",1e-8);
-        const Real shiftScale = Input("--shiftScale","scaling for shift",1.1);
-        const bool progress = Input("--progress","print progress?",true);
-        const bool display = Input("--display","display matrices?",false);
-        const bool print = Input("--print","print matrices",false);
-        ProcessInput();
-        PrintInputReport();
+        const El::Int n = El::Input("--n","problem size",200);
+        const El::Int N = El::Input("--N","number of samples",2000);
+        const Real probNnz =
+          El::Input("--probNnz","probability of nonzero",0.01);
+        const Real sigma = El::Input("--sigma","scaling of noise matrix",0.0);
+        const El::Int maxIter =
+          El::Input("--maxIter","maximum # of iter's",500);
+        const Real lambda = El::Input("--lambda","vector l1 penalty",0.01);
+        const Real rho = El::Input("--rho","augmented Lagrangian param.",1.);
+        const Real alpha = El::Input("--alpha","over-relaxation",1.2);
+        const Real absTol = El::Input("--absTol","absolute tolerance",1e-5);
+        const Real relTol = El::Input("--relTol","relative tolerance",1e-3);
+        const Real shift = El::Input("--shift","shift for noisy B",1e-8);
+        const Real shiftScale =
+          El::Input("--shiftScale","scaling for shift",1.1);
+        const bool progress = El::Input("--progress","print progress?",true);
+        const bool display = El::Input("--display","display matrices?",false);
+        const bool print = El::Input("--print","print matrices",false);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        DistMatrix<F> SInv;
-        Zeros( SInv, n, n );
-        for( Int jLoc=0; jLoc<SInv.LocalWidth(); ++jLoc )
+        El::DistMatrix<Field> SInv;
+        El::Zeros( SInv, n, n );
+        for( El::Int jLoc=0; jLoc<SInv.LocalWidth(); ++jLoc )
         {
-            const Int j = SInv.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<SInv.LocalHeight(); ++iLoc )
+            const El::Int j = SInv.GlobalCol(jLoc);
+            for( El::Int iLoc=0; iLoc<SInv.LocalHeight(); ++iLoc )
             {
-                const Int i = SInv.GlobalRow(iLoc);
+                const El::Int i = SInv.GlobalRow(iLoc);
                 if( i == j )
                 {
-                    SInv.SetLocal( iLoc, jLoc, F(1) );
+                    SInv.SetLocal( iLoc, jLoc, Field(1) );
                 }
                 else
                 {
-                    if( SampleUniform<Real>() <= probNnz )
+                    if( El::SampleUniform<Real>() <= probNnz )
                     {
-                        if( SampleUniform<Real>() <= 0.5 )
-                            SInv.SetLocal( iLoc, jLoc, F(1) );
+                        if( El::SampleUniform<Real>() <= 0.5 )
+                            SInv.SetLocal( iLoc, jLoc, Field(1) );
                         else
-                            SInv.SetLocal( iLoc, jLoc, F(-1) );
+                            SInv.SetLocal( iLoc, jLoc, Field(-1) );
                     }
                 }
             }
         }
-        MakeHermitian( LOWER, SInv );
+        El::MakeHermitian( El::LOWER, SInv );
         // Shift SInv so that it is sufficiently SPD
-        DistMatrix<F> G( SInv );
-        DistMatrix<Real,VR,STAR> w;
-        HermitianEig( LOWER, G, w );
-        Real minEig = MinLoc(w).value;
+        El::DistMatrix<Field> G( SInv );
+        El::DistMatrix<Real,El::VR,El::STAR> w;
+        El::HermitianEig( El::LOWER, G, w );
+        Real minEig = El::MinLoc(w).value;
         if( minEig <= Real(0) )
-            ShiftDiagonal( SInv, shift-shiftScale*minEig );
+            El::ShiftDiagonal( SInv, shift-shiftScale*minEig );
 
         // Inverse SInv
-        DistMatrix<F> S( SInv );
-        HermitianInverse( LOWER, S );
-        MakeHermitian( LOWER, S );
-       
+        El::DistMatrix<Field> S( SInv );
+        El::HermitianInverse( El::LOWER, S );
+        El::MakeHermitian( El::LOWER, S );
+
         // Add noise and force said matrix to stay SPD
-        DistMatrix<F> V;
-        Uniform( V, n, n );
-        MakeHermitian( LOWER, V );
-        DistMatrix<F> SNoisy( S );
-        Axpy( sigma, V, SNoisy );
+        El::DistMatrix<Field> V;
+        El::Uniform( V, n, n );
+        El::MakeHermitian( El::LOWER, V );
+        El::DistMatrix<Field> SNoisy( S );
+        El::Axpy( sigma, V, SNoisy );
         G = SNoisy;
-        HermitianEig( LOWER, G, w );
-        minEig = MinLoc(w).value;
+        El::HermitianEig( El::LOWER, G, w );
+        minEig = El::MinLoc(w).value;
         if( minEig <= Real(0) )
-            ShiftDiagonal( SNoisy, shift-shiftScale*minEig );
+            El::ShiftDiagonal( SNoisy, shift-shiftScale*minEig );
 
         // Sample from the noisy covariance matrix
-        DistMatrix<F> D;
-        Gaussian( D, N, n );
-        Covariance( D, G );
-        ShiftDiagonal( G, F(-1) );
-        const Real unitCovErrNorm = FrobeniusNorm( G );
+        El::DistMatrix<Field> D;
+        El::Gaussian( D, N, n );
+        El::Covariance( D, G );
+        El::ShiftDiagonal( G, Field(-1) );
+        const Real unitCovErrNorm = El::FrobeniusNorm( G );
         G = SNoisy;
-        Cholesky( LOWER, G );
-        Trmm( RIGHT, LOWER, TRANSPOSE, NON_UNIT, F(1), G, D );
-        Covariance( D, G );
+        El::Cholesky( El::LOWER, G );
+        El::Trmm
+        ( El::RIGHT, El::LOWER, El::TRANSPOSE, El::NON_UNIT, Field(1), G, D );
+        El::Covariance( D, G );
         G -= SNoisy;
-        const Real SNorm = FrobeniusNorm( S );
-        const Real SNoisyNorm = FrobeniusNorm( SNoisy );
-        const Real covErrNorm = FrobeniusNorm( G );
+        const Real SNorm = El::FrobeniusNorm( S );
+        const Real SNoisyNorm = El::FrobeniusNorm( SNoisy );
+        const Real covErrNorm = El::FrobeniusNorm( G );
 
         if( print )
         {
-            Print( SInv, "SInv" );
-            Print( S, "S" );
-            Print( SNoisy, "SNoisy" );
-            Print( D, "D" );
+            El::Print( SInv, "SInv" );
+            El::Print( S, "S" );
+            El::Print( SNoisy, "SNoisy" );
+            El::Print( D, "D" );
         }
         if( display )
         {
-            Display( SInv, "SInv" );
-            Display( S, "S" );
-            Display( SNoisy, "SNoisy" );
-            Display( D, "D" );
+            El::Display( SInv, "SInv" );
+            El::Display( S, "S" );
+            El::Display( SNoisy, "SNoisy" );
+            El::Display( D, "D" );
         }
-        if( mpi::Rank() == 0 )
-            Output
+        if( El::mpi::Rank() == 0 )
+            El::Output
             ("|| S       ||_F      = ",SNorm,"\n",
              "|| SNoisy  ||_F      = ",SNoisyNorm,"\n",
              "|| cov(Omega)-I ||_F = ",unitCovErrNorm,"\n",
              "|| cov(D)-SNoisy ||_F / || S ||_F = ",covErrNorm/SNorm,"\n");
 
-        SparseInvCovCtrl<Base<F>> ctrl;
+        El::SparseInvCovCtrl<El::Base<Field>> ctrl;
         ctrl.rho = rho;
         ctrl.alpha = alpha;
         ctrl.maxIter = maxIter;
@@ -138,29 +141,29 @@ int main( int argc, char* argv[] )
         ctrl.relTol = relTol;
         ctrl.progress = progress;
 
-        Timer timer;
-        DistMatrix<F> Z;
-        if( mpi::Rank() == 0 )
+        El::Timer timer;
+        El::DistMatrix<Field> Z;
+        if( El::mpi::Rank() == 0 )
             timer.Start();
-        SparseInvCov( D, lambda, Z, ctrl );
-        if( mpi::Rank() == 0 )
+        El::SparseInvCov( D, lambda, Z, ctrl );
+        if( El::mpi::Rank() == 0 )
             timer.Stop();
 
-        const Real SInvNorm = FrobeniusNorm( SInv );
+        const Real SInvNorm = El::FrobeniusNorm( SInv );
         G = Z;
         G -= SInv;
-        const Real ZErrNorm = FrobeniusNorm( G );
+        const Real ZErrNorm = El::FrobeniusNorm( G );
         if( print )
-            Print( Z, "Z" );
-        if( mpi::Rank() == 0 )
+            El::Print( Z, "Z" );
+        if( El::mpi::Rank() == 0 )
         {
-            Output("SparseInvCov time: ",timer.Total()," secs");
-            Output
+            El::Output("SparseInvCov time: ",timer.Total()," secs");
+            El::Output
             ("|| SInv     ||_F = ",SInvNorm,"\n",
              "|| Z - SInv ||_F = ",ZErrNorm/SInvNorm,"\n");
         }
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

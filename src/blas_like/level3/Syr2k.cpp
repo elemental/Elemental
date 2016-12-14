@@ -24,8 +24,8 @@ void Syr2k
   T beta,        Matrix<T>& C,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( orientation == NORMAL )
       {
           if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -67,7 +67,7 @@ void Syr2k
                  Matrix<T>& C,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     C.Resize( n, n );
     Zero( C );
@@ -80,7 +80,7 @@ void Syr2k
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ScaleTrapezoid( beta, uplo, C );
     if( uplo == LOWER && orientation == NORMAL )
         syr2k::LN( alpha, A, B, C, conjugate );
@@ -98,7 +98,7 @@ void Syr2k
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
                  AbstractDistMatrix<T>& C, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     C.Resize( n, n );
     Zero( C );

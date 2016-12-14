@@ -16,7 +16,7 @@ InertiaType Inertia
   Matrix<Field>& A,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
     Permutation p;
@@ -31,7 +31,7 @@ InertiaType Inertia
   AbstractDistMatrix<Field>& APre,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == UPPER )
         LogicError("This option not yet supported");
 

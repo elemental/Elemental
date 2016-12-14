@@ -16,7 +16,7 @@ void ImageAndKernel
         Matrix<Field>& M,
         Matrix<Field>& K )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -57,7 +57,7 @@ void ImageAndKernel
         AbstractDistMatrix<Field>& M,
         AbstractDistMatrix<Field>& K )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -99,7 +99,7 @@ void Image
 ( const Matrix<Field>& B,
         Matrix<Field>& M )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -121,7 +121,7 @@ void Image
 ( const AbstractDistMatrix<Field>& B,
         AbstractDistMatrix<Field>& M )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -144,7 +144,7 @@ void Kernel
 ( const Matrix<Field>& B,
         Matrix<Field>& K )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
@@ -183,7 +183,7 @@ void Kernel
 ( const AbstractDistMatrix<Field>& B,
         AbstractDistMatrix<Field>& K )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();

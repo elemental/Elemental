@@ -79,7 +79,7 @@ void Initialize
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -202,7 +202,7 @@ void Initialize
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -330,7 +330,7 @@ void Initialize
   bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = b.Height();
     const Int n = c.Width();
     const Int k = h.Height();
@@ -475,7 +475,7 @@ void Initialize
   bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = b.Height();
     const Int n = c.Height();
     const Int k = h.Height();

@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> Condition( const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {
@@ -41,7 +41,7 @@ Base<Field> Condition( const Matrix<Field>& A, NormType type )
 template<typename Field>
 Base<Field> Condition( const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Base<Field> norm = 0;
     switch( type )
     {

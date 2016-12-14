@@ -16,7 +16,7 @@ void Lanczos
         Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -38,7 +38,7 @@ Base<Field> LanczosDecomp
         Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -58,7 +58,7 @@ void Lanczos
         AbstractDistMatrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
@@ -80,7 +80,7 @@ Base<Field> LanczosDecomp
         DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");

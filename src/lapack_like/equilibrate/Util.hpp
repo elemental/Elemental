@@ -11,11 +11,11 @@
 namespace El {
 
 // TODO(poulson): Move these into BLAS1?
-template<typename F>
-Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
+template<typename Field>
+Base<Field> MinAbsNonzero( const Matrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     Real minAbs = upperBound;
@@ -31,11 +31,12 @@ Base<F> MinAbsNonzero( const Matrix<F>& A, Base<F> upperBound )
     return minAbs;
 }
 
-template<typename F>
-Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
+template<typename Field>
+Base<Field>
+MinAbsNonzero( const SparseMatrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int numEntries = A.NumEntries();
     Real minAbs = upperBound;
     for( Int e=0; e<numEntries; ++e )
@@ -47,12 +48,12 @@ Base<F> MinAbsNonzero( const SparseMatrix<F>& A, Base<F> upperBound )
     return minAbs;
 }
 
-template<typename F>
-Base<F> MinAbsNonzero
-( const ElementalMatrix<F>& A, Base<F> upperBound )
+template<typename Field>
+Base<Field> MinAbsNonzero
+( const AbstractDistMatrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real minAbs;
     if( A.Participating() )
     {
@@ -63,11 +64,12 @@ Base<F> MinAbsNonzero
     return minAbs;
 }
 
-template<typename F>
-Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
+template<typename Field>
+Base<Field>
+MinAbsNonzero( const DistSparseMatrix<Field>& A, Base<Field> upperBound )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int numEntries = A.NumLocalEntries();
     Real minLocAbs = upperBound;
     for( Int e=0; e<numEntries; ++e )
@@ -79,13 +81,13 @@ Base<F> MinAbsNonzero( const DistSparseMatrix<F>& A, Base<F> upperBound )
     return mpi::AllReduce( minLocAbs, mpi::MIN, A.Comm() );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Field,Dist U,Dist V>
 void GeometricColumnScaling
-( const DistMatrix<F,      U,V   >& A,
-        DistMatrix<Base<F>,V,STAR>& geomScaling )
+( const DistMatrix<Field,      U,V   >& A,
+        DistMatrix<Base<Field>,V,STAR>& geomScaling )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     DistMatrix<Real,V,STAR> maxScaling(A.Grid());
     ColumnMaxNorms( A, maxScaling );
     ColumnMinAbsNonzero( A, maxScaling, geomScaling );
@@ -100,14 +102,14 @@ void GeometricColumnScaling
     }
 }
 
-template<typename F>
+template<typename Field>
 void StackedGeometricColumnScaling
-( const Matrix<F>& A,
-  const Matrix<F>& B,
-        Matrix<Base<F>>& geomScaling )
+( const Matrix<Field>& A,
+  const Matrix<Field>& B,
+        Matrix<Base<Field>>& geomScaling )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     Matrix<Real> maxScalingA, maxScalingB;
     ColumnMaxNorms( A, maxScalingA );
@@ -145,16 +147,16 @@ void StackedGeometricColumnScaling
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Field,Dist U,Dist V>
 void StackedGeometricColumnScaling
-( const DistMatrix<F,      U,V   >& A,
-  const DistMatrix<F,      U,V   >& B,
-        DistMatrix<Base<F>,V,STAR>& geomScaling )
+( const DistMatrix<Field,      U,V   >& A,
+  const DistMatrix<Field,      U,V   >& B,
+        DistMatrix<Base<Field>,V,STAR>& geomScaling )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: Assuming A.ColComm() == B.ColComm() and that the row alignments
     //       are equal
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     DistMatrix<Real,V,STAR> maxScalingA(A.Grid()),
                             maxScalingB(A.Grid());
@@ -200,13 +202,13 @@ void StackedGeometricColumnScaling
     }
 }
 
-template<typename F>
+template<typename Field>
 void GeometricRowScaling
-( const Matrix<F>& A,
-        Matrix<Base<F>>& geomScaling )
+( const Matrix<Field>& A,
+        Matrix<Base<Field>>& geomScaling )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Matrix<Real> maxScaling;
     RowMaxNorms( A, maxScaling );
     RowMinAbsNonzero( A, maxScaling, geomScaling );
@@ -219,13 +221,13 @@ void GeometricRowScaling
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Field,Dist U,Dist V>
 void GeometricRowScaling
-( const DistMatrix<F,      U,V   >& A,
-        DistMatrix<Base<F>,U,STAR>& geomScaling )
+( const DistMatrix<Field,      U,V   >& A,
+        DistMatrix<Base<Field>,U,STAR>& geomScaling )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     DistMatrix<Real,U,STAR> maxScaling(A.Grid());
     RowMaxNorms( A, maxScaling );
     RowMinAbsNonzero( A, maxScaling, geomScaling );

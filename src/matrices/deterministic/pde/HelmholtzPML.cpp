@@ -18,8 +18,8 @@ template<typename Real>
 Complex<Real> 
 Profile( Real x, Real w, Real pmlExp, Real sigma, Real k )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x < 0 || x > w )
           LogicError("Evaluation point not in PML interval");
     )
@@ -52,7 +52,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -91,7 +91,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -133,7 +133,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -175,7 +175,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int n, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     Zeros( H, n, n );
@@ -221,7 +221,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -279,7 +279,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -340,7 +340,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -401,7 +401,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int nx, Int ny, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny;
@@ -466,7 +466,7 @@ void HelmholtzPML
 ( Matrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -542,7 +542,7 @@ void HelmholtzPML
 ( AbstractDistMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -621,7 +621,7 @@ void HelmholtzPML
 ( SparseMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;
@@ -700,7 +700,7 @@ void HelmholtzPML
 ( DistSparseMatrix<Complex<Real>>& H, Int nx, Int ny, Int nz, 
   Complex<Real> omega, Int numPmlPoints, Real sigma, Real pmlExp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pml;
     typedef Complex<Real> C;
     const Int n = nx*ny*nz;

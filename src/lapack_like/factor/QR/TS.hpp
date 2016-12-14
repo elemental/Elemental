@@ -16,8 +16,8 @@ namespace ts {
 template<typename F>
 void Reduce( const AbstractDistMatrix<F>& A, TreeData<F>& treeData )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.RowDist() != STAR )
           LogicError("Invalid row distribution for TSQR");
     )
@@ -187,8 +187,8 @@ RootSignature( const AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 template<typename F>
 void Scatter( AbstractDistMatrix<F>& A, const TreeData<F>& treeData )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.RowDist() != STAR )
           LogicError("Invalid row distribution for TSQR");
     )

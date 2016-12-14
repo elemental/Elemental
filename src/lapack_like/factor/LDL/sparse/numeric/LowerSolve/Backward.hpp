@@ -31,7 +31,7 @@ inline void LowerBackwardSolve
   const Front<F>& front,
         MatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     auto* dupMV = X.duplicateMV;
     auto* dupMat = X.duplicateMat;
@@ -88,7 +88,7 @@ inline void LowerBackwardSolve
 ( const DistNodeInfo& info,
   const DistFront<F>& front, DistMultiVecNode<F>& X, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardSolve
@@ -110,7 +110,7 @@ inline void LowerBackwardSolve
     // Set up a workspace for our child
     const bool frontIs1D = FrontIs1D( front.type );
     const auto& childFront = *front.child;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
           LogicError("Incompatible front type mixture");
     )
@@ -136,7 +136,7 @@ inline void LowerBackwardSolve
         sendSizes[q] = X.commMeta.childRecvInds[q].size()*numRHS;
         recvSizes[q] = X.commMeta.numChildSendInds[q]*numRHS;
     }
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+    EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );
@@ -192,7 +192,7 @@ inline void LowerBackwardSolve
   const DistFront<F>& front,
         DistMatrixNode<F>& X, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( front.duplicate != nullptr )
     {
         LowerBackwardSolve
@@ -213,7 +213,7 @@ inline void LowerBackwardSolve
 
     // Set up a workspace for our child
     const auto& childFront = *front.child;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( FrontIs1D(front.type) != FrontIs1D(childFront.type) )
           LogicError("Incompatible front type mixture");
     )
@@ -238,7 +238,7 @@ inline void LowerBackwardSolve
         sendSizes[q] = X.commMeta.childRecvInds[q].size()/2;
         recvSizes[q] = X.commMeta.numChildSendInds[q];
     }
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+    EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     vector<int> sendOffs, recvOffs;
     const int sendBufSize = Scan( sendSizes, sendOffs );
     const int recvBufSize = Scan( recvSizes, recvOffs );

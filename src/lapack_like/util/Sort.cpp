@@ -15,10 +15,10 @@ namespace El {
 // Sort each column of the real matrix X
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void Sort( Matrix<Real>& X, SortType sort, bool stable )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( sort == UNSORTED )
         return;
     const Int m = X.Height();
@@ -44,10 +44,10 @@ void Sort( Matrix<Real>& X, SortType sort, bool stable )
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( sort == UNSORTED )
         return;
 
@@ -74,11 +74,11 @@ void Sort( AbstractDistMatrix<Real>& X, SortType sort, bool stable )
 // Tagged sort
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 vector<ValueInt<Real>>
 TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
     if( m != 1 && n != 1 )
@@ -116,11 +116,11 @@ TaggedSort( const Matrix<Real>& x, SortType sort, bool stable )
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 vector<ValueInt<Real>>
 TaggedSort( const AbstractDistMatrix<Real>& x, SortType sort, bool stable )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( x.ColDist()==STAR && x.RowDist()==STAR )
     {
         return TaggedSort( x.LockedMatrix(), sort, stable );
@@ -137,7 +137,7 @@ void ApplyTaggedSortToEachRow
 ( const vector<ValueInt<Real>>& sortPairs,
         Matrix<Field>& Z )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
     Matrix<Field> ZPerm( m, n );
@@ -154,7 +154,7 @@ void ApplyTaggedSortToEachColumn
 ( const vector<ValueInt<Real>>& sortPairs,
         Matrix<Field>& Z )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
     Matrix<Field> ZPerm( m, n );
@@ -172,7 +172,7 @@ void ApplyTaggedSortToEachRow
 ( const vector<ValueInt<Real>>& sortPairs,
         AbstractDistMatrix<Field>& Z )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
     DistMatrix<Field,VC,STAR> Z_VC_STAR( Z );
@@ -196,7 +196,7 @@ void ApplyTaggedSortToEachColumn
 ( const vector<ValueInt<Real>>& sortPairs,
         AbstractDistMatrix<Field>& Z )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = Z.Height();
     const Int n = Z.Width();
     DistMatrix<Field,STAR,VR> Z_STAR_VR( Z );
@@ -215,11 +215,11 @@ void ApplyTaggedSortToEachColumn
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void SortingPermutation
 ( const Matrix<Real>& x, Permutation& sortPerm, SortType sort, bool stable )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto sortPairs = TaggedSort( x, sort, stable );
     const Int n = ( x.Width()==1 ? x.Height() : x.Width() );
     sortPerm.MakeIdentity( n );
@@ -228,11 +228,11 @@ void SortingPermutation
 }
 
 template<typename Real,
-         typename/*=EnableIf<IsReal<Real>>*/>
+         typename/*=DisableIf<IsComplex<Real>>*/>
 void MergeSortingPermutation
 ( Int n0, Int n1, const Matrix<Real>& x, Permutation& sortPerm, SortType sort )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = x.Height();
     const Int n = x.Width();
     if( m != 1 && n != 1 )

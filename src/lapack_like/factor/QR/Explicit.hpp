@@ -15,7 +15,7 @@ namespace qr {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     if( ctrl.colPiv )
@@ -33,7 +33,7 @@ void ExplicitTriang( Matrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& A, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,MD,STAR> householderScalars(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
     if( ctrl.colPiv )
@@ -52,7 +52,7 @@ template<typename F>
 void ExplicitUnitary
 ( Matrix<F>& A, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     if( ctrl.colPiv )
@@ -83,7 +83,7 @@ template<typename F>
 void ExplicitUnitary
 ( AbstractDistMatrix<F>& APre, bool thinQR, const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -122,7 +122,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     if( ctrl.colPiv )
@@ -164,7 +164,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -212,7 +212,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     Permutation Omega;
@@ -252,7 +252,7 @@ void Explicit
   bool thinQR,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();

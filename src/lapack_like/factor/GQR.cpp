@@ -19,7 +19,7 @@ void GQR
   Matrix<F>& householderScalarsB,
   Matrix<Base<F>>& signatureB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QR( A, householderScalarsA, signatureA );
     qr::ApplyQ( LEFT, ADJOINT, A, householderScalarsA, signatureA, B );
     RQ( B, householderScalarsB, signatureB );
@@ -34,7 +34,7 @@ void GQR
   AbstractDistMatrix<F>& householderScalarsB,
   AbstractDistMatrix<Base<F>>& signatureB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
@@ -50,7 +50,7 @@ namespace gqr {
 template<typename F>
 void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> householderScalarsA;
     Matrix<Base<F>> signatureA;
     QR( A, householderScalarsA, signatureA );
@@ -62,7 +62,7 @@ void ExplicitTriang( Matrix<F>& A, Matrix<F>& B )
 template<typename F>
 void ExplicitTriang( AbstractDistMatrix<F>& APre, AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();

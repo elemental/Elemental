@@ -16,7 +16,7 @@ namespace El {
 template<typename Field>
 void HPDInverse( UpperOrLower uplo, Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         hpd_inv::CholeskyLVar2( A );
     else
@@ -26,7 +26,7 @@ void HPDInverse( UpperOrLower uplo, Matrix<Field>& A )
 template<typename Field>
 void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         hpd_inv::CholeskyLVar2( A );
     else
@@ -36,7 +36,7 @@ void HPDInverse( UpperOrLower uplo, AbstractDistMatrix<Field>& A )
 template<typename Field>
 void LocalHPDInverse( UpperOrLower uplo, DistMatrix<Field,STAR,STAR>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HPDInverse( uplo, A.Matrix() );
 }
 

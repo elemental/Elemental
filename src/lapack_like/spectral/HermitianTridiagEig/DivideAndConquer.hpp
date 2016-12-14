@@ -47,7 +47,7 @@ Merge
   Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n0 = w0.Height();
     const Int n1 = w1.Height();
     const Int n = n0 + n1;
@@ -321,7 +321,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<n; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -589,7 +589,7 @@ Merge
   DistMatrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = w0.Grid();
     const bool amRoot = ( g.Rank() == 0 );
     const Int n0 = w0.Height();
@@ -879,7 +879,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<n; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -1123,7 +1123,7 @@ DivideAndConquer
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     const auto& dcCtrl = ctrl.dcCtrl;
 
@@ -1229,7 +1229,7 @@ DivideAndConquer
   const HermitianTridiagEigCtrl<Real>& ctrl,
   bool topLevel=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = Q.Grid();
     const Int n = mainDiag.Height();
     const auto& dcCtrl = ctrl.dcCtrl;

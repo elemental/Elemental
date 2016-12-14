@@ -20,7 +20,7 @@ void PrepareShifts
   Complex<Real>& shift0,
   Complex<Real>& shift1 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Real scale = Abs(eta00) + Abs(eta01) + Abs(eta10) + Abs(eta11);
     if( scale == zero )
@@ -62,7 +62,7 @@ Int ChooseStart
   const Complex<Real>& shift1,
         vector<Real>& v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real ulp = limits::Precision<Real>();
     const Int n = H.Height();
 
@@ -114,7 +114,7 @@ void Sweep
   Matrix<Real>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1);
     const Int n = H.Height();
     const Int nZ = Z.Height();
@@ -230,7 +230,7 @@ void SweepOpt
   Matrix<Real>& Z,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1);
     const Int n = H.Height();
     const Int nZ = Z.Height();

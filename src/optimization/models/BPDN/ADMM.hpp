@@ -39,7 +39,7 @@ Int ADMM
         Matrix<Field>& z,
   const ADMMCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -166,7 +166,7 @@ Int ADMM
         AbstractDistMatrix<Field>& zPre,
   const ADMMCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Field,Field,MC,MR>
       AProx( APre ),

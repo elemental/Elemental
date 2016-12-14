@@ -22,7 +22,7 @@ void ApplyQuadratic
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // detRy := det(x) R y
     Matrix<Real> d;
@@ -54,7 +54,7 @@ void ApplyQuadratic
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -105,7 +105,7 @@ void ApplyQuadratic
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // detRy := det(x) R y
     DistMultiVec<Real> d(x.Comm());
@@ -135,7 +135,7 @@ void ApplyQuadratic
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
     Matrix<Real> z;
     soc::ApplyQuadratic( x, y, z, orders, firstInds );
@@ -151,7 +151,7 @@ void ApplyQuadratic
   const AbstractDistMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
     DistMatrix<Real,VC,STAR> z(x.Grid());
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
@@ -167,7 +167,7 @@ void ApplyQuadratic
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
     DistMultiVec<Real> z(x.Comm());
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );

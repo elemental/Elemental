@@ -29,7 +29,7 @@ AEDInfo SpikeDeflation
         Int numUnconverged,
         vector<Real>& work )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int n = T.Height();
     const Real zero(0);
@@ -134,7 +134,7 @@ AEDInfo SpikeDeflation
         Int numUnconverged,
         vector<Complex<Real>>& work )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = T.Height();
     const Real ulp = limits::Precision<Real>();
     const Real safeMin = limits::SafeMin<Real>();

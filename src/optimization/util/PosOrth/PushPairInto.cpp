@@ -19,7 +19,7 @@ void PushPairInto
   const Matrix<Real>& w,
   Real wMaxNormLimit )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = s.Height();
     const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
     for( Int i=0; i<height; ++i )
@@ -40,7 +40,7 @@ void PushPairInto
   const AbstractDistMatrix<Real>& wPre,
   Real wMaxNormLimit )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( sPre, zPre, wPre );
     const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
 
@@ -78,7 +78,7 @@ void PushPairInto
   const DistMultiVec<Real>& w,
   Real wMaxNormLimit )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
     const int localHeight = s.LocalHeight();
     const Real* wBuf = w.LockedMatrix().LockedBuffer();

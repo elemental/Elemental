@@ -36,7 +36,7 @@ DistMultiVecNode<T>::DistMultiVecNode
   const DistMultiVec<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Pull( invMap, info, X );
 }
 
@@ -44,7 +44,7 @@ template<typename T>
 DistMultiVecNode<T>::DistMultiVecNode( const DistMatrixNode<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     *this = X;
 }
 
@@ -59,7 +59,7 @@ template<typename T>
 const DistMultiVecNode<T>&
 DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     if( X.child == nullptr )
     {
@@ -89,7 +89,7 @@ void DistMultiVecNode<T>::Pull
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVecNodeMeta meta;
     Pull( invMap, info, X, meta );
 }
@@ -100,7 +100,7 @@ static void PullLocalInit
         MatrixNode<T>& XNode,
   Int width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numChildren = node.children.size();
     if( XNode.children.size() != node.children.size() )
     {
@@ -123,10 +123,10 @@ static void PullInit
         DistMultiVecNode<T>& XNode,
   Int width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( node.child == nullptr )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( XNode.child != nullptr )
               LogicError("Child should have been a nullptr");
         )
@@ -138,7 +138,7 @@ static void PullInit
         return;
     }
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( XNode.duplicate != nullptr )
           LogicError("Duplicate should have been a nullptr");
     )
@@ -164,7 +164,7 @@ static void PullLocalUnpack
         MatrixNode<T>& XNode,
   Int& off, std::vector<int>& offs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
         PullLocalUnpack
@@ -188,7 +188,7 @@ static void PullLocalUnpackMulti
   Int& off, std::vector<int>& offs,
   Int width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
         PullLocalUnpackMulti
@@ -265,7 +265,7 @@ void DistMultiVecNode<T>::Pull
   const DistMultiVec<T>& X,
         DistMultiVecNodeMeta& meta )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int width = X.Width();
     const Matrix<T>& XLoc = X.LockedMatrix();
     const Int firstLocalRow = X.FirstLocalRow();
@@ -331,7 +331,7 @@ void DistMultiVecNode<T>::Pull
             meta.recvOffs[q] /= width;
         }
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( off != numRecvInds )
           LogicError("Unpacked wrong number of indices");
     )
@@ -345,7 +345,7 @@ static void PushLocalPack
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numChildren = node.children.size();
     for( Int c=0; c<numChildren; ++c )
         PushLocalPack
@@ -368,7 +368,7 @@ static void PushLocalPackMulti
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numChildren = node.children.size();
     for( Int c=0; c<numChildren; ++c )
         PushLocalPackMulti
@@ -393,7 +393,7 @@ static void PushPack
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( node.child == nullptr )
     {
         PushLocalPack
@@ -420,7 +420,7 @@ static void PushPackMulti
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( node.child == nullptr )
     {
         PushLocalPackMulti
@@ -449,7 +449,7 @@ void DistMultiVecNode<T>::Push
   const DistNodeInfo& info,
         DistMultiVec<T>& X ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVecNodeMeta meta;
     Push( invMap, info, X, meta );
 }
@@ -461,7 +461,7 @@ void DistMultiVecNodeMeta::Initialize
   const DistMap& invMap,
   const DistMultiVec<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( sendInds.size()     != 0 &&
         recvInds.size()     != 0 &&
         mappedOwners.size() != 0 &&
@@ -568,7 +568,7 @@ void DistMultiVecNodeMeta::Initialize
     recvSizes.resize( commSize );
     mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
     const int numRecvInds = Scan( recvSizes, recvOffs );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( numRecvInds != X.LocalHeight() )
           LogicError("numRecvInds was not equal to local height");
     )
@@ -587,7 +587,7 @@ void DistMultiVecNode<T>::Push
         DistMultiVec<T>& X,
         DistMultiVecNodeMeta& meta ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = info.size + info.off;
     const Int width = matrix.Width();
     Timer timer;
@@ -679,7 +679,7 @@ void DistMultiVecNode<T>::Push
 template<typename T>
 Int DistMultiVecNode<T>::LocalHeight() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int localHeight = 0;
     function<void(const DistMultiVecNode<T>&)> count = 
       [&]( const DistMultiVecNode<T>& node )
@@ -699,7 +699,7 @@ Int DistMultiVecNode<T>::LocalHeight() const
 template<typename T>
 void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( commMeta.numChildSendInds.size() != 0 )
         return;
 

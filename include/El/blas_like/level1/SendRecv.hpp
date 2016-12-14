@@ -15,7 +15,7 @@ template<typename T>
 void SendRecv
 ( const Matrix<T>& A, Matrix<T>& B, mpi::Comm comm, int sendRank, int recvRank )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int heightA = A.Height();
     const Int heightB = B.Height();
     const Int widthA = A.Width();

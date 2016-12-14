@@ -31,8 +31,8 @@ CubicSecular
         Real& root,
   const CubicSecularCtrl& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( z.Height() != 3 || z.Width() != 1 )
           LogicError("z should be a column vector of length 3");
       if( d.Height() != 3 || d.Width() != 1 )

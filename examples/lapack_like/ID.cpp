@@ -2,45 +2,47 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
-
-typedef double Real;
-typedef Complex<Real> F;
 
 int main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
 
-    try 
+    try
     {
-        const Int m = Input("--height","height of matrix",20);
-        const Int n = Input("--width","width of matrix",100);
-        const Int r = Input("--rank","rank of matrix",5);
-        const Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
-        const Real tol = Input("--tol","tolerance for ID",Real(-1));
-        const bool print = Input("--print","print matrices?",false);
+        typedef double Real;
+        typedef El::Complex<Real> Scalar;
+
+        const El::Int m = El::Input("--height","height of matrix",20);
+        const El::Int n = El::Input("--width","width of matrix",100);
+        const El::Int r = El::Input("--rank","rank of matrix",5);
+        const El::Int maxSteps =
+          El::Input("--maxSteps","max # of steps of QR",10);
+        const Real tol = El::Input("--tol","tolerance for ID",Real(-1));
+        const bool print = El::Input("--print","print matrices?",false);
         const bool smallestFirst =
-          Input("--smallestFirst","smallest norm first?",false);
-        ProcessInput();
-        PrintInputReport();
+          El::Input("--smallestFirst","smallest norm first?",false);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        const Grid& g = Grid::Default();
-        DistMatrix<F> U(g), V(g), A(g);
-        Uniform( U, m, r );
-        Uniform( V, n, r );
-        Gemm( NORMAL, ADJOINT, F(1), U, V, A );
-        const Real frobA = FrobeniusNorm( A );
+        El::mpi::Comm comm = El::mpi::COMM_WORLD;
+
+        const El::Grid& grid = El::Grid::Default();
+        El::DistMatrix<Scalar> U(grid), V(grid), A(grid);
+        El::Uniform( U, m, r );
+        El::Uniform( V, n, r );
+        El::Gemm( El::NORMAL, El::ADJOINT, Scalar(1), U, V, A );
+        const Real frobA = El::FrobeniusNorm( A );
         if( print )
-            Print( A, "A" );
+            El::Print( A, "A" );
 
-        DistPermutation Omega(g);
-        DistMatrix<F,STAR,VR> Z(g);
-        QRCtrl<Real> ctrl;
+        El::DistPermutation Omega(grid);
+        El::DistMatrix<Scalar,El::STAR,El::VR> Z(grid);
+        El::QRCtrl<Real> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = maxSteps;
         if( tol != -1. )
@@ -49,23 +51,23 @@ int main( int argc, char* argv[] )
             ctrl.tol = tol;
         }
         ctrl.smallestFirst = smallestFirst;
-        Timer timer;
-        if( mpi::Rank() == 0 )
+        El::Timer timer;
+        if( El::mpi::Rank(comm) == 0 )
             timer.Start();
-        ID( A, Omega, Z, ctrl );
-        if( mpi::Rank() == 0 )
+        El::ID( A, Omega, Z, ctrl );
+        if( El::mpi::Rank(comm) == 0 )
             timer.Stop();
-        const Int rank = Z.Height();
+        const El::Int rank = Z.Height();
         if( print )
         {
-            DistMatrix<Int> OmegaFull(g);
+            El::DistMatrix<El::Int> OmegaFull(grid);
             Omega.ExplicitMatrix( OmegaFull );
-            Print( OmegaFull, "Omega" );
-            Print( Z, "Z" );
+            El::Print( OmegaFull, "Omega" );
+            El::Print( Z, "Z" );
         }
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
-        Timer permTimer( "permTimer" );
+        El::Timer permTimer("permTimer");
         permTimer.Start();
         Omega.PermuteCols( A );
         permTimer.Stop();
@@ -74,38 +76,39 @@ int main( int argc, char* argv[] )
         hatA.Resize( m, rank );
         if( print )
         {
-            Print( A, "A Omega^T" );
-            Print( hatA, "\\hat{A}" );
+            El::Print( A, "A Omega^T" );
+            El::Print( hatA, "\\hat{A}" );
         }
 
         // Check || A Omega^T - \hat{A} [I, Z] ||_F / || A ||_F
-        DistMatrix<F> AL(g), AR(g);
-        PartitionRight( A, AL, AR, rank );
-        Zero( AL );
+        El::DistMatrix<Scalar> AL(grid), AR(grid);
+        El::PartitionRight( A, AL, AR, rank );
+        El::Zero( AL );
         {
-            DistMatrix<F,MC,STAR> hatA_MC_STAR(g);
-            DistMatrix<F,STAR,MR> Z_STAR_MR(g);
+            El::DistMatrix<Scalar,El::MC,El::STAR> hatA_MC_STAR(grid);
+            El::DistMatrix<Scalar,El::STAR,El::MR> Z_STAR_MR(grid);
             hatA_MC_STAR.AlignWith( AR );
             Z_STAR_MR.AlignWith( AR );
             hatA_MC_STAR = hatA;
             Z_STAR_MR = Z;
-            LocalGemm
-            ( NORMAL, NORMAL, F(-1), hatA_MC_STAR, Z_STAR_MR, F(1), AR );
+            El::LocalGemm
+            ( El::NORMAL, El::NORMAL,
+              Scalar(-1), hatA_MC_STAR, Z_STAR_MR, Scalar(1), AR );
         }
-        const Real frobError = FrobeniusNorm( A );
+        const Real frobError = El::FrobeniusNorm( A );
         if( print )
-            Print( A, "A Omega^T - \\hat{A} [I, Z]" );
+            El::Print( A, "A Omega^T - \\hat{A} [I, Z]" );
 
-        if( mpi::Rank() == 0 )
+        if( El::mpi::Rank(comm) == 0 )
         {
-            Output("  ID time: ",timer.Total()," secs");
-            Output
+            El::Output("  ID time: ",timer.Total()," secs");
+            El::Output
             ("|| A ||_F = ",frobA,"\n",
              "|| A Omega^T - \\hat{A} [I, Z] ||_F / || A ||_F = ",
              frobError/frobA);
         }
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

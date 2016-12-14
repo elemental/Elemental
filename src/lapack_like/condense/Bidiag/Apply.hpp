@@ -19,7 +19,7 @@ void ApplyQ
   const Matrix<F>& householderScalars,
         Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -37,7 +37,7 @@ void ApplyP
   const Matrix<F>& householderScalars,
         Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -55,7 +55,7 @@ void ApplyQ
   const AbstractDistMatrix<F>& householderScalars, 
         AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
@@ -73,7 +73,7 @@ void ApplyP
   const AbstractDistMatrix<F>& householderScalars, 
         AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );

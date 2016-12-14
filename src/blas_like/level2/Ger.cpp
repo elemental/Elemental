@@ -18,8 +18,8 @@ void Ger
   const Matrix<T>& y,
         Matrix<T>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ( x.Height() != 1 && x.Width() != 1 ) ||
           ( y.Height() != 1 && y.Width() != 1 ) )
           LogicError("x and y must be vectors");
@@ -46,8 +46,8 @@ void Ger
   const AbstractDistMatrix<T>& y,
         AbstractDistMatrix<T>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, x, y );
       if( ( x.Width() != 1 && x.Height() != 1 ) ||
           ( y.Width() != 1 && y.Height() != 1 )   )
@@ -134,7 +134,7 @@ void LocalGer
   const AbstractDistMatrix<T>& y,
         AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Add error checking here
     Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
 }

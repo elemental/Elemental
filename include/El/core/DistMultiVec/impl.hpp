@@ -51,13 +51,13 @@ DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
 template<typename T>
 DistMultiVec<T>::DistMultiVec( const DistMultiVec<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     height_ = 0;
     width_ = 0;
     comm_ = mpi::COMM_WORLD;
     if( &A != this )
         *this = A;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Tried to construct DistMultiVec via itself");
     )
@@ -139,7 +139,7 @@ void DistMultiVec<T>::SetComm( mpi::Comm comm )
 template<typename T>
 const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( A, *this );
     return *this;
 }
@@ -148,7 +148,7 @@ template<typename T>
 const DistMultiVec<T>&
 DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( A, *this );
     return *this;
 }
@@ -159,7 +159,7 @@ template<typename T>
 DistMultiVec<T>
 DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -169,7 +169,7 @@ template<typename T>
 DistMultiVec<T>
 DistMultiVec<T>::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -179,7 +179,7 @@ template<typename T>
 DistMultiVec<T>
 DistMultiVec<T>::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -189,7 +189,7 @@ template<typename T>
 DistMultiVec<T>
 DistMultiVec<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVec<T> ASub(this->Comm());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -200,7 +200,7 @@ DistMultiVec<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
 template<typename T>
 const DistMultiVec<T>& DistMultiVec<T>::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -210,7 +210,7 @@ const DistMultiVec<T>& DistMultiVec<T>::operator*=( T alpha )
 template<typename T>
 const DistMultiVec<T>& DistMultiVec<T>::operator+=( const DistMultiVec<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -218,7 +218,7 @@ const DistMultiVec<T>& DistMultiVec<T>::operator+=( const DistMultiVec<T>& A )
 template<typename T>
 const DistMultiVec<T>& DistMultiVec<T>::operator-=( const DistMultiVec<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -277,9 +277,9 @@ bool DistMultiVec<T>::IsLocal( Int i, Int j ) const EL_NO_EXCEPT
 template<typename T>
 Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( iLoc == END ) iLoc = LocalHeight() - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( iLoc < 0 || iLoc >= LocalHeight() )
           LogicError("Invalid local row index");
     )
@@ -289,9 +289,9 @@ Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
 template<typename T>
 Int DistMultiVec<T>::LocalRow( Int i ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = Height() - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( i < 0 || i >= Height() )
           LogicError("Invalid global row index");
     )
@@ -303,7 +303,7 @@ Int DistMultiVec<T>::LocalRow( Int i ) const
 template<typename T>
 T DistMultiVec<T>::Get( Int i, Int j ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = height_ - 1;
     const int rowOwner = RowOwner(i);
     T value;
@@ -316,7 +316,7 @@ T DistMultiVec<T>::Get( Int i, Int j ) const
 template<typename T>
 void DistMultiVec<T>::Set( Int i, Int j, T value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = height_ - 1;
     const Int firstLocalRow = FirstLocalRow();
     if( i >= firstLocalRow && i < firstLocalRow+LocalHeight() )
@@ -330,7 +330,7 @@ void DistMultiVec<T>::Set( const Entry<T>& entry )
 template<typename T>
 void DistMultiVec<T>::Update( Int i, Int j, T value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = height_ - 1;
     const Int firstLocalRow = FirstLocalRow();
     if( i >= firstLocalRow && i < firstLocalRow+LocalHeight() )
@@ -344,14 +344,14 @@ void DistMultiVec<T>::Update( const Entry<T>& entry )
 template<typename T>
 T DistMultiVec<T>::GetLocal( Int iLoc, Int j ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return multiVec_.Get(iLoc,j);
 }
 
 template<typename T>
 void DistMultiVec<T>::SetLocal( Int iLoc, Int j, T value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     multiVec_.Set(iLoc,j,value);
 }
 
@@ -362,7 +362,7 @@ void DistMultiVec<T>::SetLocal( const Entry<T>& localEntry )
 template<typename T>
 void DistMultiVec<T>::UpdateLocal( Int iLoc, Int j, T value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     multiVec_.Update(iLoc,j,value);
 }
 
@@ -375,7 +375,7 @@ void DistMultiVec<T>::UpdateLocal( const Entry<T>& localEntry )
 template<typename T>
 void DistMultiVec<T>::Reserve( Int numRemoteEntries )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int currSize = remoteUpdates_.size();
     remoteUpdates_.reserve( currSize+numRemoteEntries );
 }
@@ -383,7 +383,7 @@ void DistMultiVec<T>::Reserve( Int numRemoteEntries )
 template<typename T>
 void DistMultiVec<T>::QueueUpdate( const Entry<T>& entry )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     remoteUpdates_.push_back( entry );
 }
 
@@ -394,7 +394,7 @@ void DistMultiVec<T>::QueueUpdate( Int i, Int j, T value )
 template<typename T>
 void DistMultiVec<T>::ProcessQueues()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Compute the send counts
     // -----------------------
     vector<int> sendCounts(commSize_);

@@ -26,7 +26,7 @@ Int SparseInvCov
         Matrix<Field>& Z,
   const SparseInvCovCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = D.Width();
 
@@ -53,7 +53,7 @@ Int SparseInvCov
         auto eigMap =
           [ctrl](Real gamma)
           { return (gamma+Sqrt(gamma*gamma+4*ctrl.rho))/(2*ctrl.rho); };
-        HermitianFunction( LOWER, X, function<Real(Real)>(eigMap) );
+        HermitianFunction( LOWER, X, MakeFunction(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
         // Hermitian.
@@ -114,7 +114,7 @@ Int SparseInvCov
         AbstractDistMatrix<Field>& ZPre,
   const SparseInvCovCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Field,Field,MC,MR> ZProx( ZPre );
     auto& Z = ZProx.Get();
@@ -146,7 +146,7 @@ Int SparseInvCov
         auto eigMap =
           [ctrl](Real gamma)
           { return (gamma+Sqrt(gamma*gamma+4*ctrl.rho))/(2*ctrl.rho); };
-        HermitianFunction( LOWER, X, function<Real(Real)>(eigMap) );
+        HermitianFunction( LOWER, X, MakeFunction(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
         // yet available. This should result in Z and U remaining explicitly
         // Hermitian.

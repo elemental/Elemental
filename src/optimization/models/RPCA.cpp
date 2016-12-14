@@ -21,17 +21,17 @@ namespace rpca {
 template<typename Field>
 void NormalizeEntries( Matrix<Field>& A )
 {
-    auto unitMap = []( Field alpha )
-                   { return alpha==Field(0) ? Field(1) : alpha/Abs(alpha); };
-    EntrywiseMap( A, function<Field(Field)>(unitMap) );
+    auto unitMap = []( const Field& alpha )
+      { return alpha==Field(0) ? Field(1) : alpha/Abs(alpha); };
+    EntrywiseMap( A, MakeFunction(unitMap) );
 }
 
 template<typename Field>
 void NormalizeEntries( AbstractDistMatrix<Field>& A )
 {
-    auto unitMap = []( Field alpha )
-                   { return alpha==Field(0) ? Field(1) : alpha/Abs(alpha); };
-    EntrywiseMap( A, function<Field(Field)>(unitMap) );
+    auto unitMap = []( const Field& alpha )
+      { return alpha==Field(0) ? Field(1) : alpha/Abs(alpha); };
+    EntrywiseMap( A, MakeFunction(unitMap) );
 }
 
 // NOTE: If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))
@@ -43,7 +43,7 @@ void ADMM
         Matrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
@@ -139,7 +139,7 @@ void ADMM
         AbstractDistMatrix<Field>& SPre,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrixReadProxy<Field,Field,MC,MR>
       MProx( MPre );
     DistMatrixWriteProxy<Field,Field,MC,MR>
@@ -247,7 +247,7 @@ void ALM
         Matrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
@@ -359,21 +359,19 @@ void ALM
         }
         else if( numIts >= ctrl.maxIts )
         {
-            // Need to resume converting to Output HERE
             if( ctrl.progress )
-                cout << "Aborting after " << numIts << " iterations and "
-                     << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                ("Aborting after ",numIts," iterations and ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else
         {
             if( ctrl.progress )
-                cout << numPrimalIts << ": || E ||_F / || M ||_F = "
-                     << frobE/frobM << ", rank=" << rank
-                     << ", numNonzeros=" << numNonzeros << ", "
-                     << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                (numPrimalIts,": || E ||_F / || M ||_F = ",frobE/frobM,
+                 ", rank=",rank,", numNonzeros=",numNonzeros,", ",
+                 mpi::Time()-startTime," total secs");
         }
 
         // Y := Y + beta E
@@ -427,8 +425,10 @@ void ALM
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress && commRank == 0 )
-        cout << "|| M ||_F = " << frobM << "\n"
-             << "|| M ||_max = " << maxM << endl;
+    {
+        Output("|| M ||_F = ",frobM);
+        Output("|| M ||_max = ",maxM);
+    }
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -471,23 +471,22 @@ void ALM
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
                 if( ctrl.progress && commRank == 0 )
-                    cout << "Primal loop converged: "
-                         << mpi::Time()-startTime << " total secs" << endl;
+                    Output
+                    ("Primal loop converged: ",mpi::Time()-startTime,
+                     " total secs");
                 break;
             }
             else
             {
                 if( ctrl.progress && commRank == 0 )
-                    cout << "  " << numPrimalIts
-                         << ": \n"
-                         << "   || Delta L ||_F / || M ||_F = "
-                         << frobLDiff/frobM << "\n"
-                         << "   || Delta S ||_F / || M ||_F = "
-                         << frobSDiff/frobM << "\n"
-                         << "   rank=" << rank
-                         << ", numNonzeros=" << numNonzeros
-                         << ", " << mpi::Time()-startTime << " total secs"
-                         << endl;
+                {
+                    Output("  ",numPrimalIts,":");
+                    Output("   || Delta L ||_F / || M ||_F = ",frobLDiff/frobM);
+                    Output("   || Delta S ||_F / || M ||_F = ",frobSDiff/frobM);
+                    Output
+                    ("   rank=",rank,", numNonzeros=",numNonzeros,
+                     ", ",mpi::Time()-startTime," total secs");
+                }
             }
         }
 
@@ -500,29 +499,28 @@ void ALM
         if( frobE/frobM <= tol )
         {
             if( ctrl.progress && commRank == 0 )
-                cout << "Converged after " << numIts << " iterations and "
-                     << numPrimalIts << " primal iterations with rank="
-                     << rank << ", numNonzeros=" << numNonzeros << " and "
-                     << "|| E ||_F / || M ||_F = " << frobE/frobM
-                     << ", " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                ("Converged after ",numIts," iterations and ",numPrimalIts,
+                 " primal iterations with rank=",rank,", numNonzeros=",
+                 numNonzeros," and || E ||_F / || M ||_F = ",frobE/frobM,
+                 ", ",mpi::Time()-startTime," total secs");
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress && commRank == 0 )
-                cout << "Aborting after " << numIts << " iterations and "
-                     << mpi::Time()-startTime << " total secs" << endl;
+                Output
+                ("Aborting after ",numIts," iterations and ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else
         {
             if( ctrl.progress && commRank == 0 )
-                cout << numPrimalIts << ": || E ||_F / || M ||_F = "
-                     << frobE/frobM << ", rank=" << rank
-                     << ", numNonzeros=" << numNonzeros << ", "
-                     << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                (numPrimalIts,": || E ||_F / || M ||_F = ",frobE/frobM,
+                 ", rank=",rank,", numNonzeros=",numNonzeros,", ",
+                 mpi::Time()-startTime," total secs");
         }
 
         // Y := Y + beta E
@@ -540,7 +538,7 @@ void RPCA
         Matrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl );
     else
@@ -554,7 +552,7 @@ void RPCA
         AbstractDistMatrix<Field>& S,
   const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.useALM )
         rpca::ALM( M, L, S, ctrl );
     else

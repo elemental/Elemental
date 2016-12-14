@@ -198,7 +198,7 @@ void Initialize( int& argc, char**& argv )
 
 void Finalize()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ::numElemInits <= 0 )
     {
         cerr << "Finalized Elemental more times than initialized" << endl;
@@ -234,7 +234,7 @@ void Finalize()
         FinalizeRandom();
     }
 
-    DEBUG_ONLY( CloseLog() )
+    EL_DEBUG_ONLY( CloseLog() )
 #ifdef EL_HAVE_MPC
     if( EL_RUNNING_ON_VALGRIND )
         mpfr_free_cache();
@@ -286,7 +286,7 @@ void ReportException( const exception& e, ostream& os )
         const ArgException& argExcept = dynamic_cast<const ArgException&>(e);
         if( string(argExcept.what()) != "" )
             os << argExcept.what() << endl;
-        DEBUG_ONLY(DumpCallStack(os))
+        EL_DEBUG_ONLY(DumpCallStack(os))
     }
     catch( UnrecoverableException& recovExcept )
     {
@@ -296,7 +296,7 @@ void ReportException( const exception& e, ostream& os )
                << " caught an unrecoverable exception with message:\n"
                << e.what() << endl;
         }
-        DEBUG_ONLY(DumpCallStack(os))
+        EL_DEBUG_ONLY(DumpCallStack(os))
         mpi::Abort( mpi::COMM_WORLD, 1 );
     }
     catch( exception& castExcept )
@@ -306,13 +306,13 @@ void ReportException( const exception& e, ostream& os )
             os << "Process " << mpi::Rank() << " caught error message:\n"
                << e.what() << endl;
         }
-        DEBUG_ONLY(DumpCallStack(os))
+        EL_DEBUG_ONLY(DumpCallStack(os))
     }
 }
 
 void ComplainIfDebug()
 {
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         if( mpi::Rank() == 0 )
         {
             Output("=======================================================");
@@ -376,7 +376,7 @@ void RelativeIndices
     {
         const Int index = sub[i];
         it = std::lower_bound( it, full.cend(), index );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( it == full.cend() )
               LogicError("Index was not found");
         )
@@ -393,9 +393,9 @@ vector<Int> RelativeIndices( const vector<Int>& sub, const vector<Int>& full )
 
 Int Find( const vector<Int>& sortedInds, Int index )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto it = std::lower_bound( sortedInds.cbegin(), sortedInds.cend(), index );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( it == sortedInds.cend() )
           LogicError("All indices were smaller");
       if( *it != index )

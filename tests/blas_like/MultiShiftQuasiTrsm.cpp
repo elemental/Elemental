@@ -12,7 +12,7 @@ using namespace El;
 template<typename F>
 void MakeQuasiTriangular( UpperOrLower uplo, DistMatrix<F>& A )
 {
-    DEBUG_ONLY(CallStackEntry cse("MakeQuasiTriangular"))
+    EL_DEBUG_ONLY(CallStackEntry cse("MakeQuasiTriangular"))
     const Int n = A.Height();
     if( n < 3 )
         return;

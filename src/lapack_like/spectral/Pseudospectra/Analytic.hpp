@@ -21,7 +21,7 @@ void Analytic
         Matrix<Real         >& invNorms,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = w.Height();
@@ -59,7 +59,7 @@ void Analytic
         AbstractDistMatrix<Real>& invNormsPre,
         SnapshotCtrl& snapCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

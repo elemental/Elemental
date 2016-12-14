@@ -21,7 +21,7 @@ void AMDOrder
         double* control,
         double* info )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = subOffsets.size()-1;
     // TODO: Simplify this after templating ElSuiteSparse's AMD
 #ifdef EL_USE_64BIT_INTS
@@ -57,7 +57,7 @@ void AMDOrder
 
 inline bool IsSymmetric( const Graph& graph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: We only check within the numSources x numSources upper-left
     const Int numSources = graph.NumSources();
     const Int numEdges = graph.NumEdges();
@@ -84,7 +84,7 @@ NestedDissectionRecursion
         Int off, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
@@ -162,7 +162,7 @@ NestedDissectionRecursion
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( !IsSymmetric(graph) )
           {
               Print( graph, "graph" );
@@ -178,7 +178,7 @@ NestedDissectionRecursion
         for( Int s=0; s<numSources; ++s )
             invMap[map[s]] = s;
 
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( !IsSymmetric(leftChild) )
           {
               Print( graph, "graph" );
@@ -186,7 +186,7 @@ NestedDissectionRecursion
               LogicError("Left child was not symmetric");
           }
         )
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( !IsSymmetric(rightChild) )
           {
               Print( graph, "graph" );
@@ -262,7 +262,7 @@ NestedDissectionRecursion
         Int off, 
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = graph.Comm();
     const int commSize = mpi::Size(comm);
 
@@ -388,7 +388,7 @@ void NestedDissection
         NodeInfo& node,
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
@@ -400,7 +400,7 @@ void NestedDissection
 
     // Construct the distributed reordering    
     BuildMap( sep, map );
-    DEBUG_ONLY(EnsurePermutation(map))
+    EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
     Analysis( node );
@@ -413,7 +413,7 @@ void NestedDissection
         DistNodeInfo& node,
   const BisectCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
     DistMap perm( graph.NumSources(), graph.Comm() );
@@ -426,7 +426,7 @@ void NestedDissection
 
     // Construct the distributed reordering    
     BuildMap( sep, map );
-    DEBUG_ONLY(EnsurePermutation(map))
+    EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
     Analysis( node, ctrl.storeFactRecvInds );
@@ -434,7 +434,7 @@ void NestedDissection
 
 void BuildMap( const Separator& rootSep, vector<Int>& map )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = rootSep.off + rootSep.inds.size();
     map.resize( numSources );
 
@@ -451,7 +451,7 @@ void BuildMap( const Separator& rootSep, vector<Int>& map )
 
 void BuildMap( const DistSeparator& rootSep, DistMap& map )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int numSources = rootSep.off + rootSep.inds.size();
     mpi::Comm comm = rootSep.comm;
@@ -551,7 +551,7 @@ void BuildMap( const DistSeparator& rootSep, DistMap& map )
     // Perform an AllToAll to exchange the reordered indices
     vector<int> recvOffs;
     const int numRecvs = Scan( recvSizes, recvOffs );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int numLocalSources = map.NumLocalSources();
       if( numRecvs != numLocalSources )
           LogicError("incorrect number of recv indices");

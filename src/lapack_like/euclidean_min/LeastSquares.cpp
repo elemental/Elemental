@@ -19,7 +19,7 @@ void Overwrite
   const Matrix<F>& B,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<F> phase;
     Matrix<Base<F>> signature;
@@ -45,7 +45,7 @@ void Overwrite
   const AbstractDistMatrix<F>& B,
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -76,7 +76,7 @@ void LeastSquares
   const Matrix<F>& B,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> ACopy( A );
     ls::Overwrite( orientation, ACopy, B, X );
 }
@@ -88,7 +88,7 @@ void LeastSquares
   const AbstractDistMatrix<F>& B,
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> ACopy( A );
     ls::Overwrite( orientation, ACopy, B, X );
 }
@@ -158,8 +158,8 @@ void Equilibrated
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -246,7 +246,7 @@ void LeastSquares
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     SparseMatrix<F> ABar;
@@ -265,19 +265,19 @@ void LeastSquares
     Matrix<Real> dR, dC;
     if( ctrl.equilibrate )
     {
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
         if( m >= n )
         {
             ColumnTwoNorms( ABar, dC );
-            EntrywiseMap( dC, function<Real(Real)>(normMap) );
+            EntrywiseMap( dC, MakeFunction(normMap) );
             DiagonalSolve( RIGHT, NORMAL, dC, ABar );
             Ones( dR, m, 1 );
         }
         else
         {
             RowTwoNorms( ABar, dR );
-            EntrywiseMap( dR, function<Real(Real)>(normMap) );
+            EntrywiseMap( dR, MakeFunction(normMap) );
             DiagonalSolve( LEFT, NORMAL, dR, ABar );
             Ones( dC, n, 1 );
         }
@@ -319,8 +319,8 @@ void Equilibrated
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
@@ -422,7 +422,7 @@ void LeastSquares
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     mpi::Comm comm = A.Comm();
     const int commRank = mpi::Rank(comm);
@@ -443,19 +443,19 @@ void LeastSquares
     DistMultiVec<Real> dR(comm), dC(comm);
     if( ctrl.equilibrate )
     {
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
         if( m >= n )
         {
             ColumnTwoNorms( ABar, dC );
-            EntrywiseMap( dC, function<Real(Real)>(normMap) );
+            EntrywiseMap( dC, MakeFunction(normMap) );
             DiagonalSolve( RIGHT, NORMAL, dC, ABar );
             Ones( dR, m, 1 );
         }
         else
         {
             RowTwoNorms( ABar, dR );
-            EntrywiseMap( dR, function<Real(Real)>(normMap) );
+            EntrywiseMap( dR, MakeFunction(normMap) );
             DiagonalSolve( LEFT, NORMAL, dR, ABar );
             Ones( dC, n, 1 );
         }

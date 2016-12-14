@@ -23,7 +23,7 @@ void HermitianSVD
   Matrix<Field>& V,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         auto ACopy( A );
@@ -73,7 +73,7 @@ void HermitianSVD
         Matrix<Base<Field>>& s,
         Matrix<Field>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -88,7 +88,7 @@ void HermitianSVD
   AbstractDistMatrix<Field>& V,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( !overwrite )
     {
@@ -102,12 +102,12 @@ void HermitianSVD
 
     typedef Base<Field> Real;
     DistMatrix<Real,STAR,STAR> sSgn( s );
-    auto sgnLambda = []( Real sigma ) { return Sgn(sigma,false); };
-    EntrywiseMap( sSgn, function<Real(Real)>(sgnLambda) );
+    auto sgnLambda = []( const Real& sigma ) { return Sgn(sigma,false); };
+    EntrywiseMap( sSgn, MakeFunction(sgnLambda) );
 
     // Set the singular values to the absolute value of the eigenvalues
-    auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, function<Real(Real)>(absLambda) );
+    auto absLambda = []( const Real& sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, MakeFunction(absLambda) );
 
     auto pairs = TaggedSort( s, DESCENDING );
     DistMatrix<Field,VC,STAR> V_VC_STAR( V );
@@ -137,7 +137,7 @@ void HermitianSVD
         AbstractDistMatrix<Base<Field>>& s,
         AbstractDistMatrix<Field>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
     HermitianSVD( uplo, ACopy, U, s, V, true );
 }
@@ -153,7 +153,7 @@ void HermitianSVD
   Matrix<Base<Field>>& s,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         Matrix<Field> ACopy( A );
@@ -167,8 +167,8 @@ void HermitianSVD
     HermitianEig( uplo, A, s );
 
     // Set the singular values to the absolute value of the eigenvalues
-    auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, function<Real(Real)>(absLambda) );
+    auto absLambda = []( const Real& sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, MakeFunction(absLambda) );
 
     Sort( s, DESCENDING );
 }
@@ -177,7 +177,7 @@ template<typename Field>
 void HermitianSVD
 ( UpperOrLower uplo, const Matrix<Field>& A, Matrix<Base<Field>>& s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }
@@ -189,7 +189,7 @@ void HermitianSVD
   AbstractDistMatrix<Base<Field>>& s,
   bool overwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !overwrite )
     {
         DistMatrix<Field> ACopy( A );
@@ -202,8 +202,8 @@ void HermitianSVD
 
     // Set the singular values to the absolute value of the eigenvalues
     typedef Base<Field> Real;
-    auto absLambda = []( Real sigma ) { return Abs(sigma); };
-    EntrywiseMap( s, function<Real(Real)>(absLambda) );
+    auto absLambda = []( const Real& sigma ) { return Abs(sigma); };
+    EntrywiseMap( s, MakeFunction(absLambda) );
 
     Sort( s, DESCENDING );
 }
@@ -214,7 +214,7 @@ void HermitianSVD
   const AbstractDistMatrix<Field>& A,
         AbstractDistMatrix<Base<Field>>& s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
     HermitianSVD( uplo, ACopy, s, true );
 }

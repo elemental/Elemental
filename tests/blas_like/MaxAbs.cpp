@@ -13,7 +13,7 @@ using namespace El;
 template<typename Real, typename TestMatrix>
 void TestMaxAbs( Int m )
 {
-    DEBUG_ONLY(CallStackEntry cse("TestMaxAbs"))
+    EL_DEBUG_ONLY(CallStackEntry cse("TestMaxAbs"))
     TestMatrix A;
     Zeros( A, m, m);
     assert( MaxAbs( A ) == Real(0) );
@@ -32,7 +32,7 @@ void TestMaxAbs( Int m )
 template<typename F, typename TestMatrix>
 void TestComplexMaxAbs( Int m )
 {
-    DEBUG_ONLY(CallStackEntry cse("TestComplexMaxAbs"))
+    EL_DEBUG_ONLY(CallStackEntry cse("TestComplexMaxAbs"))
     TestMatrix A;
     Ones( A, m, m );
     assert( ( MaxAbs( A ) - Base<F>( 2.828427125 ) ) < Base<F>(1e-8) );
@@ -43,7 +43,7 @@ void TestComplexMaxAbs( Int m )
 template<typename Real, typename TestMatrix>
 void TestSymmetricMaxAbs( Int m )
 {
-    DEBUG_ONLY(CallStackEntry cse("TestSymmetricMaxAbs"))
+    EL_DEBUG_ONLY(CallStackEntry cse("TestSymmetricMaxAbs"))
     TestMatrix A;
     Zeros( A, m, m);
     assert( SymmetricMaxAbs( UpperOrLower::LOWER, A ) == Real(0) );

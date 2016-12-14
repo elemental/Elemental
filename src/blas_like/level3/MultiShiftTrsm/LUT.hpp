@@ -17,7 +17,7 @@ void LUT
   const Matrix<F>& shifts,
         Matrix<F>& X ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int m = X.Height();
     const Int bsize = Blocksize();
@@ -47,7 +47,7 @@ void LUT
   const AbstractDistMatrix<F>& shiftsPre,
         AbstractDistMatrix<F>& XPre ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );

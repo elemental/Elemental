@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> SchattenNorm( const Matrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int minDim = Min(A.Height(),A.Width());
     return KyFanSchattenNorm( A, minDim, p );
 }
@@ -22,7 +22,7 @@ template<typename Field>
 Base<Field> HermitianSchattenNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int minDim = A.Height();
     return HermitianKyFanSchattenNorm( uplo, A, minDim, p );
 }
@@ -31,7 +31,7 @@ template<typename Field>
 Base<Field> SymmetricSchattenNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int minDim = A.Height();
     return SymmetricKyFanSchattenNorm( uplo, A, minDim, p );
 }
@@ -39,7 +39,7 @@ Base<Field> SymmetricSchattenNorm
 template<typename Field>
 Base<Field> SchattenNorm( const AbstractDistMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int minDim = Min(A.Height(),A.Width());
     return KyFanSchattenNorm( A, minDim, p );
 }
@@ -48,7 +48,7 @@ template<typename Field>
 Base<Field> HermitianSchattenNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int minDim = A.Height();
     return HermitianKyFanSchattenNorm( uplo, A, minDim, p );
 }
@@ -57,7 +57,7 @@ template<typename Field>
 Base<Field> SymmetricSchattenNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int minDim = A.Height();
     return HermitianKyFanSchattenNorm( uplo, A, minDim, p );
 }

@@ -12,7 +12,7 @@ namespace El {
 
 template<typename Real,
          typename=EnableIf<IsReal<Real>>>
-Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -34,7 +34,7 @@ void RuizEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -57,7 +57,7 @@ void RuizEquil
         ColumnMaxNorms( B, colScaleB );
         for( Int j=0; j<n; ++j )
             colScale(j) = Max(colScale(j),colScaleB(j));
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -65,13 +65,13 @@ void RuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         RowMaxNorms( B, rowScale );
         cone::AllReduce( rowScale, orders, firstInds, mpi::MAX );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScale, B );
     }
@@ -90,7 +90,7 @@ void RuizEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
@@ -138,7 +138,7 @@ void RuizEquil
         ColumnMaxNorms( B, colScaleB );
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             colScaleLoc(jLoc) = Max(colScaleLoc(jLoc),colScaleBLoc(jLoc));
-        EntrywiseMap( colScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( colScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, colScale, dCol );
         DiagonalSolve( RIGHT, NORMAL, colScale, A );
         DiagonalSolve( RIGHT, NORMAL, colScale, B );
@@ -146,13 +146,13 @@ void RuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, rowScale );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScale, A );
 
         RowMaxNorms( B, rowScale );
         cone::AllReduce( rowScale, orders, firstInds, mpi::MAX, cutoff );
-        EntrywiseMap( rowScale, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( rowScale, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, rowScale, dRowB );
         DiagonalSolve( LEFT, NORMAL, rowScale, B );
     }
@@ -170,7 +170,7 @@ void RuizEquil
   const Matrix<Int>& firstInds,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -193,7 +193,7 @@ void RuizEquil
         ColumnMaxNorms( B, maxAbsValsB );
         for( Int j=0; j<n; ++j )
             scales(j) = Max(scales(j),maxAbsValsB(j));
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
@@ -201,13 +201,13 @@ void RuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         RowMaxNorms( B, scales );
         cone::AllReduce( scales, orders, firstInds, mpi::MAX );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
     }
@@ -226,7 +226,7 @@ void RuizEquil
   Int cutoff,
   bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int mA = A.Height();
     const Int mB = B.Height();
@@ -258,7 +258,7 @@ void RuizEquil
         for( Int jLoc=0; jLoc<nLoc; ++jLoc )
             scaleBuf[jLoc] = Max(scaleBuf[jLoc],maxAbsValBuf[jLoc]);
 
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dCol );
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( RIGHT, NORMAL, scales, B );
@@ -266,13 +266,13 @@ void RuizEquil
         // Rescale the rows
         // ----------------
         RowMaxNorms( A, scales );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowA );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
         RowMaxNorms( B, scales );
         cone::AllReduce( scales, orders, firstInds, mpi::MAX, cutoff );
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, dRowB );
         DiagonalSolve( LEFT, NORMAL, scales, B );
     }

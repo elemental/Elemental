@@ -28,7 +28,7 @@ void MultiplyCSR
   T beta,
         T*   y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -68,7 +68,7 @@ void MultiplyCSR
   T beta,
         T*   y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -121,7 +121,7 @@ void MultiplyCSR
   T beta,
         T*   y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #if defined(EL_HAVE_MKL) && !defined(EL_DISABLE_MKL_CSRMV)
     char matDescrA[6];
     matDescrA[0] = 'G';
@@ -183,7 +183,7 @@ void MultiplyCSR
   T beta,
         T*   Y, Int ldY )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
@@ -255,7 +255,7 @@ void MultiplyCSR
   T beta,
         T*   Y, Int ldY )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
@@ -314,7 +314,7 @@ void MultiplyCSRInterX
   T beta,
         T*   Y, Int ldY )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
@@ -387,7 +387,7 @@ void MultiplyCSRInterY
   T beta,
         T*   Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
@@ -460,7 +460,7 @@ void MultiplyCSRInter
   T beta,
         T*   Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
@@ -529,8 +529,8 @@ void Multiply
   T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
   T beta,                                  Matrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
     )
@@ -549,8 +549,8 @@ void Multiply
   T alpha, const Graph& A, const Matrix<T>& X,
   T beta,                        Matrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
     )
@@ -572,8 +572,8 @@ void Multiply
         T beta,
         DistMultiVec<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
       if( !mpi::Congruent( A.Comm(), X.Comm() ) || 

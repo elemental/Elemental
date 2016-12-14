@@ -104,7 +104,7 @@ void LocalChase
   const HessenbergSchurCtrl& ctrl,
         vector<Matrix<Field>>& UList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = H.Grid();
 
     Matrix<Field> W;
@@ -234,7 +234,7 @@ void ApplyAccumulatedReflections
   const HessenbergSchurCtrl& ctrl,
   const vector<Matrix<Field>>& UList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = H.Grid();
 
     // We will immediately apply the accumulated Householder transformations
@@ -374,7 +374,7 @@ void IntraBlockChase
   const DistChaseState& state,
   const HessenbergSchurCtrl& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Form the list of accumulated Householder transformations, which should be
     // applied as

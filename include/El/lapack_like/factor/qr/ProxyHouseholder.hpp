@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_PROXY_HOUSEHOLDER_HPP
@@ -13,7 +13,7 @@ namespace El {
 namespace qr {
 
 // The following implementation is based upon the algorithm in Fig. 3 from
-// 
+//
 //   P.G. Martinsson,
 //   "Blocked rank-revealing QR factorizations: How randomized sampling can
 //    be used to avoid single-vector pivoting",
@@ -22,7 +22,7 @@ namespace qr {
 // It is worth noting that multiple research groups have been actively working
 // on nearly identical algorithms, with the relevant timeline being:
 //
-// 1) May, 2014; 
+// 1) May, 2014;
 //    Jed Duersch's final presentation for Math 273 at UC Berkeley
 //    introduced the fundamental algorithm and its ideas.
 //
@@ -43,7 +43,7 @@ namespace qr {
 //    Available from http://arxiv.org/abs/1512.02671
 //
 
-template<typename F>
+template<typename Field>
 class StandardProxy
 {
 private:
@@ -55,43 +55,43 @@ public:
     { }
 
     void operator()
-    ( const Matrix<F>& A,
+    ( const Matrix<Field>& A,
             Permutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
     {
         const Int m = A.Height();
 
-        // Generate a Gaussian random matrix 
-        Matrix<F> G; 
+        // Generate a Gaussian random matrix
+        Matrix<Field> G;
         Gaussian( G, numPivots+numOversample_, m );
-        // TODO: Force the row norms to be one?
+        // TODO(poulson): Force the row norms to be one?
         /*
-        Matrix<Base<F>> rowNorms;
+        Matrix<Base<Field>> rowNorms;
         RowTwoNorms( G, rowNorms );
         DiagonalSolve( LEFT, NORMAL, rowNorms, G );
         */
 
-        // Form  G A (A^H A)^q 
-        Matrix<F> Y, Z; 
-        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
+        // Form  G A (A^H A)^q
+        Matrix<Field> Y, Z;
+        Gemm( NORMAL, NORMAL, Field(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
-            Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
-            Gemm( NORMAL, NORMAL, F(1), Z, A, Y );
+            Gemm( NORMAL, ADJOINT, Field(1), Y, A, Z );
+            Gemm( NORMAL, NORMAL, Field(1), Z, A, Y );
         }
 
-        QRCtrl<Base<F>> ctrl;
+        QRCtrl<Base<Field>> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
-        Matrix<F> phase;
-        Matrix<Base<F>> signature;
+        Matrix<Field> phase;
+        Matrix<Base<Field>> signature;
         QR( Y, phase, signature, Omega, ctrl );
     }
 
     void operator()
-    ( const ElementalMatrix<F>& APre,
+    ( const AbstractDistMatrix<Field>& APre,
             DistPermutation& Omega,
             Int numPivots,
             bool smallestFirst=false ) const
@@ -99,50 +99,50 @@ public:
         const Int m = APre.Height();
         const Grid& g = APre.Grid();
 
-        DistMatrixReadProxy<F,F,MC,MR> AProxy( APre ); 
+        DistMatrixReadProxy<Field,Field,MC,MR> AProxy( APre );
         auto& A = AProxy.GetLocked();
 
         // Generate a Gaussian random matrix
-        DistMatrix<F> G(g);
+        DistMatrix<Field> G(g);
         Gaussian( G, numPivots+numOversample_, m );
-        // TODO: Force the row norms to be one?
+        // TODO(poulson): Force the row norms to be one?
         /*
-        DistMatrix<Base<F>,MC,STAR> rowNorms(g);
+        DistMatrix<Base<Field>,MC,STAR> rowNorms(g);
         RowTwoNorms( G, rowNorms );
         DiagonalSolve( LEFT, NORMAL, rowNorms, G );
         */
 
-        // Form  G A (A^H A)^q 
-        DistMatrix<F> Y(g), Z(g);
-        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
+        // Form  G A (A^H A)^q
+        DistMatrix<Field> Y(g), Z(g);
+        Gemm( NORMAL, NORMAL, Field(1), G, A, Y );
         for( Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
-            Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
-            Gemm( NORMAL, NORMAL, F(1), Z, A, Y );
+            Gemm( NORMAL, ADJOINT, Field(1), Y, A, Z );
+            Gemm( NORMAL, NORMAL, Field(1), Z, A, Y );
         }
 
-        QRCtrl<Base<F>> ctrl;
+        QRCtrl<Base<Field>> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
-        DistMatrix<F,MD,STAR> phase(g);
-        DistMatrix<Base<F>,MD,STAR> signature(g);
+        DistMatrix<Field,MD,STAR> phase(g);
+        DistMatrix<Base<Field>,MD,STAR> signature(g);
         QR( Y, phase, signature, Omega, ctrl );
     }
 };
 
-template<typename F,class ProxyType> 
+template<typename Field,class ProxyType>
 void
 ProxyHouseholder
-( Matrix<F>& A,
-  Matrix<F>& phase,
-  Matrix<Base<F>>& signature,
+( Matrix<Field>& A,
+  Matrix<Field>& phase,
+  Matrix<Base<Field>>& signature,
   Permutation& Omega,
   const ProxyType& proxy,
   bool usePanelPerm=false,
   bool smallestFirst=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -157,7 +157,7 @@ ProxyHouseholder
 
     Permutation proxyPerm, panelPerm;
 
-    QRCtrl<Base<F>> ctrl;
+    QRCtrl<Base<Field>> ctrl;
     ctrl.smallestFirst = smallestFirst;
 
     const Int bsize = Blocksize();
@@ -172,7 +172,7 @@ ProxyHouseholder
 
         // Decide this set of pivots using a proxy
         auto ABR = A(indB,indR);
-        proxy( ABR, proxyPerm, nb, smallestFirst ); 
+        proxy( ABR, proxyPerm, nb, smallestFirst );
 
         auto AR = A(ALL,indR);
         proxyPerm.PermuteCols( AR );
@@ -198,27 +198,28 @@ ProxyHouseholder
     }
 }
 
-template<typename F,class ProxyType> 
+template<typename Field,class ProxyType>
 void
 ProxyHouseholder
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& phasePre, 
-  ElementalMatrix<Base<F>>& signaturePre,
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& phasePre,
+  AbstractDistMatrix<Base<Field>>& signaturePre,
   DistPermutation& Omega,
   const ProxyType& proxy,
   bool usePanelPerm=false,
   bool smallestFirst=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, phasePre, signaturePre ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( APre, phasePre, signaturePre ))
     const Int m = APre.Height();
     const Int n = APre.Width();
     const Int minDim = Min(m,n);
     const Grid& g = APre.Grid();
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MD,STAR> phaseProx( phasePre );
-    DistMatrixWriteProxy<Base<F>,Base<F>,MD,STAR> signatureProx( signaturePre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MD,STAR> phaseProx( phasePre );
+    DistMatrixWriteProxy<Base<Field>,Base<Field>,MD,STAR>
+      signatureProx( signaturePre );
     auto& A = AProx.Get();
     auto& phase = phaseProx.Get();
     auto& signature = signatureProx.Get();
@@ -234,7 +235,7 @@ ProxyHouseholder
 
     DistPermutation proxyPerm(g), panelPerm(g);
 
-    QRCtrl<Base<F>> ctrl;
+    QRCtrl<Base<Field>> ctrl;
     ctrl.smallestFirst = smallestFirst;
 
     const Int bsize = Blocksize();
@@ -249,7 +250,7 @@ ProxyHouseholder
 
         // Decide this set of pivots using a proxy
         auto ABR = A(indB,indR);
-        proxy( ABR, proxyPerm, nb, smallestFirst ); 
+        proxy( ABR, proxyPerm, nb, smallestFirst );
 
         auto AR = A(ALL,indR);
         proxyPerm.PermuteCols( AR );

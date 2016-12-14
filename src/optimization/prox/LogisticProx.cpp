@@ -16,11 +16,11 @@
 namespace El {
 
 template<typename Real>
-void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
+void LogisticProx( Matrix<Real>& A, const Real& tau, Int numIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto logisticProx =
-      [=]( Real alpha ) -> Real
+      [=]( const Real& alpha ) -> Real
       {
         // Use an initial guess based upon the rough normal vector to
         // the logistic curve
@@ -39,7 +39,7 @@ void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
         //    f'(x) = exp(x)/(exp(x)+1)^2 + tau
         for( Int j=0; j<numIts; ++j )
         {
-            // TODO: Use a faster and/or more stable algorithm
+            // TODO(poulson): Use a faster and/or more stable algorithm
             const Real gamma = Exp(beta);
             const Real gammaP1 = gamma+1;
             const Real gammaP1Sq = gammaP1*gammaP1;
@@ -48,15 +48,15 @@ void LogisticProx( Matrix<Real>& A, Real tau, Int numIts )
         }
         return beta;
       };
-    EntrywiseMap( A, function<Real(Real)>(logisticProx) );
+    EntrywiseMap( A, MakeFunction(logisticProx) );
 }
 
 template<typename Real>
-void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
+void LogisticProx( AbstractDistMatrix<Real>& A, const Real& tau, Int numIts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto logisticProx =
-      [=]( Real alpha ) -> Real
+      [=]( const Real& alpha ) -> Real
       {
         // Use an initial guess based upon the rough normal vector to
         // the logistic curve
@@ -75,7 +75,7 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
         //    f'(x) = exp(x)/(exp(x)+1)^2 + tau
         for( Int j=0; j<numIts; ++j )
         {
-            // TODO: Use a faster and/or more stable algorithm
+            // TODO(poulson): Use a faster and/or more stable algorithm
             const Real gamma = Exp(beta);
             const Real gammaP1 = gamma+1;
             const Real gammaP1Sq = gammaP1*gammaP1;
@@ -84,14 +84,14 @@ void LogisticProx( AbstractDistMatrix<Real>& A, Real tau, Int numIts )
         }
         return beta;
       };
-    EntrywiseMap( A, function<Real(Real)>(logisticProx) );
+    EntrywiseMap( A, MakeFunction(logisticProx) );
 }
 
 #define PROTO(Real) \
   template void LogisticProx \
-  ( Matrix<Real>& A, Real tau, Int numIts ); \
+  ( Matrix<Real>& A, const Real& tau, Int numIts ); \
   template void LogisticProx \
-  ( AbstractDistMatrix<Real>& A, Real tau, Int numIts );
+  ( AbstractDistMatrix<Real>& A, const Real& tau, Int numIts );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

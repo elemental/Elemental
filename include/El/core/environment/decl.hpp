@@ -238,7 +238,7 @@ public:
     : std::runtime_error( msg ) { }
 };
 
-DEBUG_ONLY(
+EL_DEBUG_ONLY(
     void EnableTracing();
     void DisableTracing();
 
@@ -293,9 +293,79 @@ template<typename T>
 void EnsureConsistent( T alpha, mpi::Comm comm, string name="" );
 
 // This will be guaranteed by C++14 via std::make_unique
-template<typename T, typename ...ArgPack>
+template<typename T,typename ...ArgPack>
 unique_ptr<T> MakeUnique( ArgPack&& ...args )
 { return unique_ptr<T>( new T( std::forward<ArgPack>(args)... ) ); }
+
+// MakeFunction allows for the automatic conversion of a lambda to an
+// std::function and is similar to http://stackoverflow.com/a/24068396/1119818.
+
+/*
+namespace make_function {
+
+template<typename T>
+struct Helper { using type = void; };
+template<typename Ret,typename Class,typename... Args>
+struct Helper<Ret(Class::*)(Args...) const>
+{ using type = std::function<Ret(Args...)>; };
+
+} // namespace make_function
+
+template<typename Function>
+typename make_function::Helper<decltype(&Function::operator())>::type
+MakeFunction(Function const& func) { return func; }
+*/
+
+// Handles generic types that are functors, delegate to its 'operator()'
+template<typename T>
+struct function_traits : public function_traits<decltype(&T::operator())>
+{};
+
+// Handles pointers to member functions
+template<typename ClassType,typename ReturnType,typename... Args>
+struct function_traits<ReturnType(ClassType::*)(Args...) const>
+{
+    enum { arity = sizeof...(Args) };
+    typedef function<ReturnType (Args...)> f_type;
+};
+
+// Handles pointers to member functions
+template<typename ClassType,typename ReturnType,typename... Args>
+struct function_traits<ReturnType(ClassType::*)(Args...)>
+{
+    enum { arity = sizeof...(Args) };
+    typedef function<ReturnType (Args...)> f_type;
+};
+
+// Handles function pointers
+template<typename ReturnType,typename... Args>
+struct function_traits<ReturnType (*)(Args...)>
+{
+    enum { arity = sizeof...(Args) };
+    typedef function<ReturnType (Args...)> f_type;
+};
+
+template<typename L>
+static typename function_traits<L>::f_type MakeFunction(L l)
+{ return (typename function_traits<L>::f_type)(l); }
+
+// Handles std::bind & multiple function call operator()'s
+template<typename ReturnType,typename... Args,class T>
+auto MakeFunction(T&& t)
+  -> std::function<decltype(ReturnType(t(std::declval<Args>()...)))(Args...)>
+{ return {std::forward<T>(t)}; }
+
+// For explicit overloads
+template<typename ReturnType,typename... Args>
+auto MakeFunction(ReturnType(*p)(Args...))
+    -> std::function<ReturnType(Args...)>
+{ return {p}; }
+
+// For explicit overloads
+template<typename ReturnType,typename... Args,typename ClassType>
+auto MakeFunction(ReturnType(ClassType::*p)(Args...))
+    -> std::function<ReturnType(Args...)>
+{ return {p}; }
 
 template<typename T>
 T Scan( const vector<T>& counts, vector<T>& offsets );
@@ -325,11 +395,11 @@ Int Find( const vector<Int>& sortedInds, Int index );
 # define EL_FUNCTION __func__
 #endif
 
-#define LOGIC_ERROR(...) \
- LogicError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
-#define RUNTIME_ERROR(...) \
- RuntimeError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
-#define DEBUG_CSE DEBUG_ONLY(CSE cse(EL_FUNCTION))
+#define EL_LOGIC_ERROR(...) \
+ El::LogicError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
+#define EL_RUNTIME_ERROR(...) \
+ El::RuntimeError(EL_FUNCTION," in ",__FILE__,"@",__LINE__,": ",__VA_ARGS__);
+#define EL_DEBUG_CSE EL_DEBUG_ONLY(El::CSE cse(EL_FUNCTION))
 
 } // namespace El
 

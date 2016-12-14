@@ -20,10 +20,10 @@ void ImplicitQQuadraticSeed
   const Complex<Real>& shift1,
         Real* v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = H.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n != 2 && n != 3 )
           LogicError("Expected n to be 2 or 3");
       const bool bothReal = ( shift0.imag() == zero && shift1.imag() == zero );
@@ -97,11 +97,11 @@ void ImplicitQQuadraticSeed
   const Field& shift1,
         Field* v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Real zero(0);
     const Int n = H.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n != 2 && n != 3 )
           LogicError("Expected n to be 2 or 3");
     )
@@ -166,7 +166,7 @@ void IntroduceBulge
   const Complex<Base<Field>>& shift1,
         Field* v )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = H.Height();
     ImplicitQQuadraticSeed( H, shift0, shift1, v );
     Field beta = v[0];

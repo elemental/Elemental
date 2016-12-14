@@ -20,7 +20,7 @@ void PartialColScatter
   const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("A and B must be the same size");
@@ -84,7 +84,7 @@ void PartialRowScatter
   const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrix sizes did not match");
@@ -135,7 +135,7 @@ void ColScatter
   const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("A and B must be the same size");
@@ -242,7 +242,7 @@ void RowScatter
   const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrix sizes did not match");
@@ -389,7 +389,7 @@ void Scatter
   const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Sizes of A and B must match");
@@ -439,7 +439,7 @@ void AxpyContract
   const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == U && A.RowDist() == V )
@@ -464,7 +464,7 @@ void AxpyContract
   const BlockMatrix<T>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     LogicError("This routine is not yet written");
 }

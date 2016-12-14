@@ -29,7 +29,7 @@ Int ADMM
         Matrix<Real>& z,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Cache a custom partially-pivoted LU factorization of
     //    |  rho*I   A^H | = | B11  B12 |
@@ -182,7 +182,7 @@ Int ADMM
         AbstractDistMatrix<Real>& zPre,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),

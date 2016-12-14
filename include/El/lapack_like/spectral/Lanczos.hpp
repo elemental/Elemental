@@ -37,7 +37,7 @@ void Lanczos
         Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Real eps = limits::Epsilon<Real>();
 
@@ -107,7 +107,7 @@ Base<Field> LanczosDecomp
         Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Real eps = limits::Epsilon<Real>();
 
@@ -182,7 +182,7 @@ void Lanczos
         AbstractDistMatrix<Base<Field>>& TPre,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
@@ -263,7 +263,7 @@ Base<Field> LanczosDecomp
         DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );

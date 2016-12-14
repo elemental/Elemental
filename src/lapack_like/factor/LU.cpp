@@ -21,7 +21,7 @@ namespace El {
 template<typename F>
 void LU( Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -46,7 +46,7 @@ void LU( Matrix<F>& A )
 template<typename F>
 void LU( AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -104,7 +104,7 @@ void LU( DistMatrix<F,STAR,STAR>& A )
 template<typename F>
 void LU( Matrix<F>& A, Permutation& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -147,14 +147,14 @@ void LU
   Permutation& P,
   Permutation& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     lu::Full( A, P, Q );
 }
 
 template<typename F>
 void LU( AbstractDistMatrix<F>& APre, DistPermutation& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
@@ -226,7 +226,7 @@ void LU
   DistPermutation& P,
   DistPermutation& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     lu::Full( A, P, Q );
 }
 

@@ -17,8 +17,8 @@ namespace hyp_reflector {
 template<typename F> 
 F Col( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
       if( x.RowRank() != x.RowAlign() )
@@ -58,8 +58,8 @@ F Col( F& chi, AbstractDistMatrix<F>& x )
 template<typename F> 
 F Col( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( chi.RowRank() != chi.RowAlign() || x.RowRank() != x.RowAlign() )
           LogicError("Reflecting from incorrect process");
     )

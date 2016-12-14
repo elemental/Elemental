@@ -24,7 +24,7 @@ void EmbeddingMaps
         Matrix<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = orders.Height();
 
     // Form the metadata for the original index domain
@@ -93,7 +93,7 @@ void EmbeddingMaps
         DistMultiVec<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = orders.Height();
     mpi::Comm comm = orders.Comm();
     const int commSize = mpi::Size( comm );

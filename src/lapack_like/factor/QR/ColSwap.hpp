@@ -30,7 +30,7 @@ void NeighborColSwap
         Matrix<F>& R,
   Int j )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = Q.Height();
 
@@ -77,7 +77,7 @@ void DisjointNeighborColSwaps
         Matrix<F>& R,
   const Matrix<Int>& swapInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSwaps = swapInds.Width();
     for( Int swap=0; swap<numSwaps; ++swap )
         NeighborColSwap( Q, R, swapInds.Get(swap,0) );

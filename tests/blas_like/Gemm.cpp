@@ -18,7 +18,7 @@ void TestAssociativity
            const DistMatrix<T>& CFinal, 
   bool print )
 {
-    DEBUG_ONLY(CallStackEntry cse("TestAssociativity"))
+    EL_DEBUG_ONLY(CallStackEntry cse("TestAssociativity"))
 
     // Test (alpha op(A) op(B) + beta C) X = alpha op(A) (op(B) X) + beta C X
     const Int numRHS = 100;

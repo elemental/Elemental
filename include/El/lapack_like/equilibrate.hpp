@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_EQUILIBRATE_HPP
@@ -13,173 +13,198 @@ namespace El {
 
 // Ruiz scaling
 // ============
-template<typename F>
+template<typename Field>
 void RuizEquil
-( Matrix<F>& A,
-  Matrix<Base<F>>& dRow,
-  Matrix<Base<F>>& dCol,
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& dRow,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& dRow,
-  ElementalMatrix<Base<F>>& dCol,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& dRow,
+  AbstractDistMatrix<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( SparseMatrix<F>& A,
-  Matrix<Base<F>>& dRow,
-  Matrix<Base<F>>& dCol,
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& dRow,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-( DistSparseMatrix<F>& A,
-  DistMultiVec<Base<F>>& dRow,
-  DistMultiVec<Base<F>>& dCol,
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& dRow,
+  DistMultiVec<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( Matrix<F>& A,
-  Matrix<F>& B,
-  Matrix<Base<F>>& dRowA,
-  Matrix<Base<F>>& dRowB,
-  Matrix<Base<F>>& dCol,
+( Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Base<Field>>& dRowA,
+  Matrix<Base<Field>>& dRowB,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& B,
-  ElementalMatrix<Base<F>>& dRowA,
-  ElementalMatrix<Base<F>>& dRowB,
-  ElementalMatrix<Base<F>>& dCol,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B,
+  AbstractDistMatrix<Base<Field>>& dRowA,
+  AbstractDistMatrix<Base<Field>>& dRowB,
+  AbstractDistMatrix<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( SparseMatrix<F>& A,
-  SparseMatrix<F>& B,
-  Matrix<Base<F>>& dRowA,
-  Matrix<Base<F>>& dRowB,
-  Matrix<Base<F>>& dCol,
+( SparseMatrix<Field>& A,
+  SparseMatrix<Field>& B,
+  Matrix<Base<Field>>& dRowA,
+  Matrix<Base<Field>>& dRowB,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void StackedRuizEquil
-( DistSparseMatrix<F>& A,
-  DistSparseMatrix<F>& B,
-  DistMultiVec<Base<F>>& dRowA,
-  DistMultiVec<Base<F>>& dRowB,
-  DistMultiVec<Base<F>>& dCol,
+( DistSparseMatrix<Field>& A,
+  DistSparseMatrix<Field>& B,
+  DistMultiVec<Base<Field>>& dRowA,
+  DistMultiVec<Base<Field>>& dRowB,
+  DistMultiVec<Base<Field>>& dCol,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( Matrix<F>& A,
-  Matrix<Base<F>>& d,
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& d,
   Int maxiter=3, bool progress=false );
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( ElementalMatrix<F>& A,
-  ElementalMatrix<Base<F>>& d,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& d,
   Int maxiter=3, bool progress=false );
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( SparseMatrix<F>& A,
-  Matrix<Base<F>>& d,
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& d,
   Int maxiter=3, bool progress=false );
 
-template<typename F>
+template<typename Field>
 void SymmetricRuizEquil
-( DistSparseMatrix<F>& A,
-  DistMultiVec<Base<F>>& d,
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& d,
   Int maxiter=3, bool progress=false );
 
 // Geometric rescaling (ala Fourer, which led to Saunders's gmscale.m)
 // ===================================================================
-template<typename F>
+template<typename Field>
 void GeomEquil
-( Matrix<F>& A, 
-  Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol,
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& dRow,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void GeomEquil
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<Base<F>>& dRow, ElementalMatrix<Base<F>>& dCol,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& dRow,
+  AbstractDistMatrix<Base<Field>>& dCol,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void GeomEquil
-( SparseMatrix<F>& A, 
-  Matrix<Base<F>>& dRow, Matrix<Base<F>>& dCol,
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& dRow,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void GeomEquil
-( DistSparseMatrix<F>& A, 
-  DistMultiVec<Base<F>>& dRow, DistMultiVec<Base<F>>& dCol,
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& dRow,
+  DistMultiVec<Base<Field>>& dCol,
   bool progress=false );
 
 // NOTE: It is assumed that the matrix is explicitly symmetric/Hermitian
 //       (either will be equivalent for this routine)
-template<typename F>
+template<typename Field>
 void SymmetricGeomEquil
-( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
-template<typename F>
-void SymmetricGeomEquil
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, 
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& d,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void SymmetricGeomEquil
-( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
-template<typename F>
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& d,
+  bool progress=false );
+template<typename Field>
 void SymmetricGeomEquil
-( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, bool progress=false );
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& d,
+  bool progress=false );
+template<typename Field>
+void SymmetricGeomEquil
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& d,
+  bool progress=false );
 
-template<typename F>
+template<typename Field>
 void StackedGeomEquil
-( Matrix<F>& A, Matrix<F>& B,
-  Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, Matrix<Base<F>>& dCol,
+( Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Base<Field>>& dRowA,
+  Matrix<Base<Field>>& dRowB,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void StackedGeomEquil
-( ElementalMatrix<F>& A, ElementalMatrix<F>& B,
-  ElementalMatrix<Base<F>>& dRowA, 
-  ElementalMatrix<Base<F>>& dRowB, 
-  ElementalMatrix<Base<F>>& dCol,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B,
+  AbstractDistMatrix<Base<Field>>& dRowA,
+  AbstractDistMatrix<Base<Field>>& dRowB,
+  AbstractDistMatrix<Base<Field>>& dCol,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void StackedGeomEquil
-( SparseMatrix<F>& A, SparseMatrix<F>& B,
-  Matrix<Base<F>>& dRowA, Matrix<Base<F>>& dRowB, 
-  Matrix<Base<F>>& dCol,
+( SparseMatrix<Field>& A,
+  SparseMatrix<Field>& B,
+  Matrix<Base<Field>>& dRowA,
+  Matrix<Base<Field>>& dRowB,
+  Matrix<Base<Field>>& dCol,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void StackedGeomEquil
-( DistSparseMatrix<F>& A, DistSparseMatrix<F>& B,
-  DistMultiVec<Base<F>>& dRowA, DistMultiVec<Base<F>>& dRowB, 
-  DistMultiVec<Base<F>>& dCol,
+( DistSparseMatrix<Field>& A,
+  DistSparseMatrix<Field>& B,
+  DistMultiVec<Base<Field>>& dRowA,
+  DistMultiVec<Base<Field>>& dRowB,
+  DistMultiVec<Base<Field>>& dCol,
   bool progress=false );
 
 // Diagonal equilibration
 // ======================
-template<typename F>
+template<typename Field>
 void SymmetricDiagonalEquil
-( Matrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
-template<typename F>
-void SymmetricDiagonalEquil
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, 
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& d,
   bool progress=false );
-template<typename F>
+template<typename Field>
 void SymmetricDiagonalEquil
-( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress=false );
-template<typename F>
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& d,
+  bool progress=false );
+template<typename Field>
 void SymmetricDiagonalEquil
-( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& d,
+  bool progress=false );
+template<typename Field>
+void SymmetricDiagonalEquil
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& d,
   bool progress=false, bool time=false );
 
 } // namespace El

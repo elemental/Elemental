@@ -234,7 +234,7 @@ void Hemm
             }
         }
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Unsuported Hemm option");
     )
@@ -542,7 +542,7 @@ void Symm
             }
         }
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Unsuported Symm option");
     )

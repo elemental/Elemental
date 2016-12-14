@@ -21,7 +21,7 @@ void ComputeNewEstimates
         Matrix<Real>& activeEsts,
         Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
@@ -60,7 +60,7 @@ void ComputeNewEstimates
         DistMatrix<Real,MR,STAR>& activeEsts,
         Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ComputeNewEstimates
     ( HList, activeConverged.LockedMatrix(), activeEsts.Matrix(), n );
 }
@@ -71,7 +71,7 @@ void Restart
   const Matrix<Int>& activeConverged,
         vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
@@ -124,7 +124,7 @@ void Restart
         vector<Matrix<Real>>& VRealList,
         vector<Matrix<Real>>& VImagList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = VRealList[0].Height();
     const Int numShifts = VRealList[0].Width();
     if( numShifts == 0 )
@@ -185,7 +185,7 @@ void Restart
   const DistMatrix<Int,MR,STAR>& activeConverged,
         vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int basisSize = HList[0].Width();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -200,7 +200,7 @@ void Restart
         vector<DistMatrix<Real>>& VRealList,
         vector<DistMatrix<Real>>& VImagList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int basisSize = HList[0].Width();
     vector<Matrix<Real>> VRealLocList(basisSize+1),
                          VImagLocList(basisSize+1);
@@ -220,7 +220,7 @@ Matrix<Int> IRA
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -447,7 +447,7 @@ IRA
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -662,7 +662,7 @@ IRA
         AbstractDistMatrix<Real>& invNormsPre,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -940,7 +940,7 @@ IRA
         AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 

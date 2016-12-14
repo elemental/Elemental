@@ -2,60 +2,61 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
-
-// Typedef our real and complex types to 'Real' and 'C' for convenience
-typedef double Real;
-typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
 
-    try 
+    try
     {
-        const Int n = Input("--size","size of Hermitian matrix",100);
-        const bool print = Input("--print","print matrices?",false);
-        ProcessInput();
-        PrintInputReport();
+        typedef double Real;
+        typedef El::Complex<Real> Scalar;
 
-        DistMatrix<C> H( n, n );
+        const El::Int n = El::Input("--size","size of Hermitian matrix",100);
+        const bool print = El::Input("--print","print matrices?",false);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        // We will fill entry (i,j) with the complex value (i+j,i-j) so that 
-        // the global matrix is Hermitian. However, only one triangle of the 
+        const El::Grid grid( comm );
+        El::DistMatrix<Scalar> H( grid );
+
+        // We will fill entry (i,j) with the complex value (i+j,i-j) so that
+        // the global matrix is Hermitian. However, only one triangle of the
         // matrix actually needs to be filled, the symmetry can be implicit.
-        const Int localHeight = H.LocalHeight();
-        const Int localWidth = H.LocalWidth();
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        H.Resize( n, n );
+        const El::Int localHeight = H.LocalHeight();
+        const El::Int localWidth = H.LocalWidth();
+        for( El::Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             // Our process owns the rows colShift:colStride:n,
             //           and the columns rowShift:rowStride:n
-            const Int j = H.GlobalCol(jLoc);
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            const El::Int j = H.GlobalCol(jLoc);
+            for( El::Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                const Int i = H.GlobalRow(iLoc);
-                H.SetLocal( iLoc, jLoc, C(i+j,i-j) );
+                const El::Int i = H.GlobalRow(iLoc);
+                H.SetLocal( iLoc, jLoc, Scalar(i+j,i-j) );
             }
         }
         if( print )
-            Print( H, "H" );
+            El::Print( H, "H" );
 
         // Reform H with the exponentials of the original eigenvalues
-        auto expFunc = []( Real alpha ) { return Exp(alpha); };
-        HermitianFunction( LOWER, H, function<Real(Real)>(expFunc) );
+        auto expFunc = []( Real alpha ) { return El::Exp(alpha); };
+        El::HermitianFunction( El::LOWER, H, El::MakeFunction(expFunc) );
         if( print )
         {
-            MakeHermitian( LOWER, H );
-            Print( H, "exp(H)" );
+            El::MakeHermitian( El::LOWER, H );
+            El::Print( H, "exp(H)" );
         }
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

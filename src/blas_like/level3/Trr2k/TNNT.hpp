@@ -22,7 +22,7 @@ void Trr2kTNNT
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
                  AbstractDistMatrix<T>& E )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Trr2kNTTN( uplo, orientD, orientA, beta, C, D, alpha, A, B, E );
 }
 

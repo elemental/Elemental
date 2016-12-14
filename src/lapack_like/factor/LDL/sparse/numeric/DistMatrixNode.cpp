@@ -36,7 +36,7 @@ DistMatrixNode<T>::DistMatrixNode
   const DistMultiVec<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Pull( invMap, info, X );
 }
 
@@ -44,7 +44,7 @@ template<typename T>
 DistMatrixNode<T>::DistMatrixNode( const DistMultiVecNode<T>& X )
 : parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     *this = X;
 }
 
@@ -59,7 +59,7 @@ template<typename T>
 const DistMatrixNode<T>&
 DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     if( X.child == nullptr )
     {
@@ -89,7 +89,7 @@ void DistMatrixNode<T>::Pull
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVecNode<T> XMultiVec( invMap, info, X );
     *this = XMultiVec;
 }
@@ -100,7 +100,7 @@ void DistMatrixNode<T>::Push
   const DistNodeInfo& info,
         DistMultiVec<T>& X ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMultiVecNode<T> XMultiVec( *this );
     XMultiVec.Push( invMap, info, X );
 }
@@ -109,7 +109,7 @@ void DistMatrixNode<T>::Push
 template<typename T>
 void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( commMeta.numChildSendInds.size() != 0 )
         return;
     if( child == nullptr )
@@ -122,7 +122,7 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     
     auto childWT = child->work( IR(0,childSize),        IR(0,numRHS) );
     auto childWB = child->work( IR(childSize,workSize), IR(0,numRHS) );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( matrix.ColAlign() != 0 || matrix.RowAlign() != 0 )
           LogicError
           ("matrix was not zero aligned: ",
@@ -173,7 +173,7 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     teamSizes[1] = teamSize - teamSizes[0];
     teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
     teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( teamSizes[0] != gridHeights[0]*gridWidths[0] )
           RuntimeError("Computed left grid incorrectly");
       if( teamSizes[1] != gridHeights[1]*gridWidths[1] )

@@ -19,7 +19,7 @@ void FormQ
   const Matrix<F>& householderScalars,
         Matrix<F>& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this smarter
     const Int n = A.Height();
     Identity( Q, n, n );
@@ -33,7 +33,7 @@ void FormQ
   const AbstractDistMatrix<F>& householderScalars,
         AbstractDistMatrix<F>& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Make this smarter
     const Int n = A.Height();
     Identity( Q, n, n );

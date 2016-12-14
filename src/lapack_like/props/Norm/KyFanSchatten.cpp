@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> KyFanSchattenNorm( const Matrix<Field>& A, Int k, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -31,7 +31,7 @@ template<typename Field>
 Base<Field> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, Int k, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -49,7 +49,7 @@ template<typename Field>
 Base<Field> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const Matrix<Field>& A, Int k, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -71,7 +71,7 @@ template<typename Field>
 Base<Field>
 KyFanSchattenNorm( const AbstractDistMatrix<Field>& A, Int k, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -96,7 +96,7 @@ template<typename Field>
 Base<Field> HermitianKyFanSchattenNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 
@@ -118,7 +118,7 @@ template<typename Field>
 Base<Field> SymmetricKyFanSchattenNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k, Base<Field> p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFanSchatten norm");
 

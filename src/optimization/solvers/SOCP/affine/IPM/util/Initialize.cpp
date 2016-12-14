@@ -80,7 +80,7 @@ void Initialize
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -203,7 +203,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -326,7 +326,7 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Expose as control parameters
     const Real eps = limits::Epsilon<Real>();
@@ -484,7 +484,7 @@ void Initialize
   Int cutoffPar,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Expose as control parameters
     const Real eps = limits::Epsilon<Real>();

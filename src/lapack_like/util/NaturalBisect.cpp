@@ -35,7 +35,7 @@ Int NaturalBisect
         Graph& rightChild,
         vector<Int>& perm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = graph.NumSources();
     if( numSources == 0 )
         LogicError("There is no reason to bisect an empty sequential graph");
@@ -144,7 +144,7 @@ Int NaturalBisect
             for( Int x=0; x<nx; ++x )
                 perm[x+y*nx+nzLeft*nx*ny] = off++;
     }
-    DEBUG_ONLY(EnsurePermutation( perm ))
+    EL_DEBUG_ONLY(EnsurePermutation( perm ))
     BuildChildrenFromPerm
     ( graph, perm, leftChildSize, leftChild, rightChildSize, rightChild );
     return sepSize;
@@ -162,7 +162,7 @@ Int NaturalBisect
         DistMap& perm,
         bool& onLeft )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     const Int numLocalSources = graph.NumLocalSources();
@@ -313,7 +313,7 @@ Int NaturalBisect
         nyRight = ny;
         nzRight = nz;
     }
-    DEBUG_ONLY(EnsurePermutation( perm ))
+    EL_DEBUG_ONLY(EnsurePermutation( perm ))
 
     BuildChildFromPerm
     ( graph, perm, leftChildSize, rightChildSize, onLeft, child );

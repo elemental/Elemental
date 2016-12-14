@@ -21,8 +21,8 @@ namespace ldl {
 template<typename F>
 void Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -38,7 +38,7 @@ void Var3Unb( Matrix<F>& A, bool conjugate=false )
 
             const Real alpha11 = RealPart(A(j,j));
 
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( alpha11 == Real(0) )
                   throw ZeroPivotException();
             )
@@ -57,7 +57,7 @@ void Var3Unb( Matrix<F>& A, bool conjugate=false )
             const Int a21Height = n - (j+1);
 
             const F alpha11 = A(j,j);
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( alpha11 == F(0) )
                   throw ZeroPivotException();
             )
@@ -75,8 +75,8 @@ void Var3Unb( Matrix<F>& A, bool conjugate=false )
 template<typename F>
 void Var3( Matrix<F>& A, bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -108,8 +108,8 @@ void Var3( Matrix<F>& A, bool conjugate=false )
 template<typename F>
 void Var3( AbstractDistMatrix<F>& APre, bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
     )

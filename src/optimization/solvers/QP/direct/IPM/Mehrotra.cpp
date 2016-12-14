@@ -43,7 +43,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const bool stepLengthSigma = true;
     const bool standardShift = true;
@@ -390,7 +390,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const bool stepLengthSigma = true;
     const bool standardShift = true;
@@ -776,7 +776,7 @@ void Mehrotra
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -1214,7 +1214,7 @@ void Mehrotra
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;

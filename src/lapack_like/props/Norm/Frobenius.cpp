@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> FrobeniusNorm( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
@@ -28,7 +28,7 @@ Base<Field> FrobeniusNorm( const Matrix<Field>& A )
 template<typename Field>
 Base<Field> FrobeniusNorm( const SparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
@@ -42,7 +42,7 @@ Base<Field> FrobeniusNorm( const SparseMatrix<Field>& A )
 template<typename Field>
 Base<Field> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -82,7 +82,7 @@ template<typename Field>
 Base<Field>
 HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
@@ -108,7 +108,7 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<Field>& A )
 template<typename Field>
 Base<Field> SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
@@ -116,7 +116,7 @@ template<typename Field>
 Base<Field>
 SymmetricFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
@@ -144,7 +144,7 @@ Real NormFromScaledSquare
 template<typename Field>
 Base<Field> FrobeniusNorm( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real norm;
     if( A.Participating() )
@@ -168,7 +168,7 @@ Base<Field> FrobeniusNorm( const AbstractDistMatrix<Field>& A )
 template<typename Field>
 Base<Field> FrobeniusNorm( const DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real localScale=0, localScaledSquare=1;
     const Int numLocalEntries = A.NumLocalEntries();
@@ -183,7 +183,7 @@ template<typename Field>
 Base<Field> HermitianFrobeniusNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
@@ -242,7 +242,7 @@ template<typename Field>
 Base<Field> HermitianFrobeniusNorm
 ( UpperOrLower uplo, const DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
     Real localScale=0, localScaledSquare=1;
@@ -271,7 +271,7 @@ template<typename Field>
 Base<Field> SymmetricFrobeniusNorm
 ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
@@ -279,14 +279,14 @@ template<typename Field>
 Base<Field> SymmetricFrobeniusNorm
 ( UpperOrLower uplo, const DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
 template<typename Field>
 Base<Field> FrobeniusNorm( const DistMultiVec<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
     Real localScale=0, localScaledSquare=1;
     const Int localHeight = A.LocalHeight();

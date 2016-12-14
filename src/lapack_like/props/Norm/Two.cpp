@@ -13,7 +13,7 @@ namespace El {
 template<typename Field>
 Base<Field> TwoNorm( const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Base<Field>> s;
     SVD( A, s );
     return InfinityNorm( s );
@@ -22,7 +22,7 @@ Base<Field> TwoNorm( const Matrix<Field>& A )
 template<typename Field>
 Base<Field> HermitianTwoNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Base<Field>> s;
     HermitianSVD( uplo, A, s );
     return InfinityNorm( s );
@@ -31,7 +31,7 @@ Base<Field> HermitianTwoNorm( UpperOrLower uplo, const Matrix<Field>& A )
 template<typename Field>
 Base<Field> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Field> B( A );
     Matrix<Base<Field>> s;
     MakeSymmetric( uplo, B );
@@ -44,7 +44,7 @@ Base<Field> SymmetricTwoNorm( UpperOrLower uplo, const Matrix<Field>& A )
 template<typename Field>
 Base<Field> TwoNorm( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Base<Field>,VR,STAR> s( A.Grid() );
     SVD( A, s );
     return InfinityNorm( s );
@@ -54,7 +54,7 @@ template<typename Field>
 Base<Field>
 HermitianTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Base<Field>,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, A, s );
     return InfinityNorm( s );
@@ -64,7 +64,7 @@ template<typename Field>
 Base<Field>
 SymmetricTwoNorm( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Field> B( A );
     DistMatrix<Base<Field>,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

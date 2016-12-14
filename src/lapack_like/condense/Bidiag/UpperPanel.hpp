@@ -21,9 +21,9 @@ UpperPanel
   Matrix<F>& X,
   Matrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nX = X.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( householderScalarsP.Height() != nX ||
           householderScalarsP.Width() != 1 )
           LogicError("householderScalarsP was not the right size");
@@ -171,9 +171,9 @@ UpperPanel
   DistMatrix<F,MC,  STAR>& AL_MC_STAR,
   DistMatrix<F,MR,  STAR>& BL_MR_STAR )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nX = X.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( A, householderScalarsP, householderScalarsQ, X, Y, AL_MC_STAR,
         BL_MR_STAR );

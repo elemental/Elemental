@@ -15,8 +15,8 @@ namespace trtrmm {
 template<typename T>
 void LUnblocked( Matrix<T>& L, bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() != L.Width() )
           LogicError("L must be square");
     )
@@ -66,8 +66,8 @@ void LUnblocked( Matrix<T>& L, bool conjugate=false )
 template<typename T>
 void UUnblocked( Matrix<T>& U, bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("U must be square");
     )

@@ -1,171 +1,186 @@
+/*
+   Copyright (c) 2009-2016, Jack Poulson
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
+   http://opensource.org/licenses/BSD-2-Clause
+*/
 #include <El.hpp>
-using namespace El;
 
 // NOTE: This definition is nearly identical to StandardProxy but is
 //       meant to demonstrate how to manually build and use a pivot proxy
-template<typename F>
+template<typename Field>
 class Proxy
 {
 private:
-    Int numPower_, numOversample_;
+    El::Int numPower_, numOversample_;
 
 public:
-    Proxy( Int numPower=1, Int numOversample=10 )
+    Proxy( El::Int numPower=1, El::Int numOversample=10 )
     : numPower_(numPower), numOversample_(numOversample)
     { }
 
     void operator()
-    ( const Matrix<F>& A,
-            Permutation& Omega,
-            Int numPivots,
+    ( const El::Matrix<Field>& A,
+            El::Permutation& Omega,
+            El::Int numPivots,
             bool smallestFirst=false ) const
     {
-        const Int m = A.Height();
+        const El::Int m = A.Height();
 
         // Generate a Gaussian random matrix
-        Matrix<F> G;
-        Gaussian( G, numPivots+numOversample_, m );
+        El::Matrix<Field> G;
+        El::Gaussian( G, numPivots+numOversample_, m );
 
         // Form G (A A^H)^q A = G A (A^H A)^2
-        Matrix<F> Y, Z;
-        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
-        for( Int powerIter=0; powerIter<numPower_; ++powerIter )
+        El::Matrix<Field> Y, Z;
+        El::Gemm( El::NORMAL, El::NORMAL, Field(1), G, A, Y );
+        for( El::Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
-            Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
-            Gemm( NORMAL, NORMAL, F(1), Z, A, Y );
+            El::Gemm( El::NORMAL, El::ADJOINT, Field(1), Y, A, Z );
+            El::Gemm( El::NORMAL, El::NORMAL, Field(1), Z, A, Y );
         }
 
-        QRCtrl<Base<F>> ctrl;
+        El::QRCtrl<El::Base<Field>> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
-        Matrix<F> t, d;
-        QR( Y, t, d, Omega, ctrl );
+        El::Matrix<Field> householderScalars;
+        El::Matrix<El::Base<Field>> signature;
+        El::QR( Y, householderScalars, signature, Omega, ctrl );
     }
 
     void operator()
-    ( const ElementalMatrix<F>& APre,
-            DistPermutation& Omega,
-            Int numPivots,
+    ( const El::AbstractDistMatrix<Field>& APre,
+            El::DistPermutation& Omega,
+            El::Int numPivots,
             bool smallestFirst=false ) const
     {
-        const Int m = APre.Height();
-        const Grid& g = APre.Grid();
+        const El::Int m = APre.Height();
+        const El::Grid& grid = APre.Grid();
 
-        DistMatrixReadProxy<F,F,MC,MR> AProxy( APre );
+        El::DistMatrixReadProxy<Field,Field,El::MC,El::MR> AProxy( APre );
         auto& A = AProxy.GetLocked();
 
         // Generate a Gaussian random matrix
-        DistMatrix<F> G(g);
-        Gaussian( G, numPivots+numOversample_, m );
+        El::DistMatrix<Field> G(grid);
+        El::Gaussian( G, numPivots+numOversample_, m );
 
         // Form G (A A^H)^q A = G A (A^H A)^2
-        DistMatrix<F> Y(g), Z(g);
-        Gemm( NORMAL, NORMAL, F(1), G, A, Y );
+        El::DistMatrix<Field> Y(grid), Z(grid);
+        El::Gemm( El::NORMAL, El::NORMAL, Field(1), G, A, Y );
 
-        for( Int powerIter=0; powerIter<numPower_; ++powerIter )
+        for( El::Int powerIter=0; powerIter<numPower_; ++powerIter )
         {
-            Gemm( NORMAL, ADJOINT, F(1), Y, A, Z );
-            Gemm( NORMAL, NORMAL, F(1), Z, A, Y );
+            El::Gemm( El::NORMAL, El::ADJOINT, Field(1), Y, A, Z );
+            El::Gemm( El::NORMAL, El::NORMAL, Field(1), Z, A, Y );
         }
 
-        QRCtrl<Base<F>> ctrl;
+        El::QRCtrl<El::Base<Field>> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = numPivots;
         ctrl.smallestFirst = smallestFirst;
-        DistMatrix<F,MD,STAR> t(g), d(g);
-        QR( Y, t, d, Omega, ctrl );
+        El::DistMatrix<Field,El::MD,El::STAR> householderScalars(grid);
+        El::DistMatrix<El::Base<Field>,El::MD,El::STAR> signature(grid);
+        El::QR( Y, householderScalars, signature, Omega, ctrl );
     }
 };
 
 int main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
-    const int commRank = mpi::Rank(mpi::COMM_WORLD);
+    El::Environment env( argc, argv );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
+    const int commRank = El::mpi::Rank(comm);
 
     try
     {
-        const Int n = Input("--n","matrix size",1000);
-        const Int nb = Input("--nb","blocksize",64);
-        //const double phi = Input("--phi","Kahan parameter",0.5);
-        const bool panelPiv = Input("--panelPiv","panel pivoting?",false);
-        const Int oversample = Input("--oversample","oversample factor",10);
-        const Int numPower = Input("--numPower","# of power iterations",1);
+        const El::Int n = El::Input("--n","matrix size",1000);
+        const El::Int nb = El::Input("--nb","blocksize",64);
+        //const double phi = El::Input("--phi","Kahan parameter",0.5);
+        const bool panelPiv = El::Input("--panelPiv","panel pivoting?",false);
+        const El::Int oversample =
+          El::Input("--oversample","oversample factor",10);
+        const El::Int numPower =
+          El::Input("--numPower","# of power iterations",1);
         const bool smallestFirst =
-          Input("--smallestFirst","smallest norms first?",false);
-        const bool print = Input("--print","print matrices?",false);
-        ProcessInput();
-        PrintInputReport();
+          El::Input("--smallestFirst","smallest norms first?",false);
+        const bool print = El::Input("--print","print matrices?",false);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        SetBlocksize( nb );
+        El::SetBlocksize( nb );
 
-        DistMatrix<double> A;
-        //Kahan( A, n, phi );
-        Uniform( A, n, n );
+        const El::Grid grid(comm);
+        El::DistMatrix<double> A(grid);
+        //El::Kahan( A, n, phi );
+        El::Uniform( A, n, n );
         auto ACopy = A;
         if( print )
-            Print( A, "A" );
-        Timer timer;
+            El::Print( A, "A" );
+        El::Timer timer;
 
         if( commRank == 0 )
             timer.Start();
-        DistMatrix<double> t, d;
-        DistPermutation Omega;
+        El::DistMatrix<double> householderScalars(grid), signature(grid);
+        El::DistPermutation Omega(grid);
         Proxy<double> prox(numPower,oversample);
-        qr::ProxyHouseholder( A, t, d, Omega, prox, panelPiv, smallestFirst ); 
-        if( commRank == 0 ) 
-            Output("Proxy QR time: ",timer.Stop()," seconds");
+        El::qr::ProxyHouseholder
+        ( A, householderScalars, signature, Omega, prox, panelPiv,
+          smallestFirst );
+        if( commRank == 0 )
+            El::Output("Proxy QR time: ",timer.Stop()," seconds");
         if( print )
         {
-            Print( A, "QR" );
-            Print( t, "t" );
-            Print( d, "d" );
+            El::Print( A, "QR" );
+            El::Print( householderScalars, "householderScalars" );
+            El::Print( signature, "signature" );
 
-            DistMatrix<Int> OmegaFull;
+            El::DistMatrix<El::Int> OmegaFull(grid);
             Omega.ExplicitMatrix( OmegaFull );
-            Print( OmegaFull, "Omega" );
+            El::Print( OmegaFull, "Omega" );
         }
-        DistMatrix<double,MD,STAR> diagR;
-        GetDiagonal( A, diagR );
-        Print( diagR, "diag(R)" );
+        El::DistMatrix<double> diagR(grid);
+        El::GetDiagonal( A, diagR );
+        El::Print( diagR, "diag(R)" );
 
         A = ACopy;
         if( commRank == 0 )
             timer.Start();
-        QRCtrl<double> ctrl;
+        El::QRCtrl<double> ctrl;
         ctrl.smallestFirst = smallestFirst;
-        QR( A, t, d, Omega, ctrl ); 
-        if( commRank == 0 ) 
-            Output("Businger-Golub time: ",timer.Stop()," seconds");
+        El::QR( A, householderScalars, signature, Omega, ctrl );
+        if( commRank == 0 )
+            El::Output("Businger-Golub time: ",timer.Stop()," seconds");
         if( print )
         {
-            Print( A, "QR" );
-            Print( t, "t" );
-            Print( d, "d" );
+            El::Print( A, "QR" );
+            El::Print( householderScalars, "householderScalars" );
+            El::Print( signature, "signature" );
 
-            DistMatrix<Int> OmegaFull;
+            El::DistMatrix<El::Int> OmegaFull;
             Omega.ExplicitMatrix( OmegaFull );
-            Print( OmegaFull, "Omega" );
+            El::Print( OmegaFull, "Omega" );
         }
-        GetDiagonal( A, diagR );
-        Print( diagR, "diag(R)" );
+        El::GetDiagonal( A, diagR );
+        El::Print( diagR, "diag(R)" );
 
         A = ACopy;
         if( commRank == 0 )
             timer.Start();
-        QR( A, t, d ); 
-        if( commRank == 0 ) 
-            Output("Standard QR time: ",timer.Stop()," seconds");
+        El::QR( A, householderScalars, signature );
+        if( commRank == 0 )
+            El::Output("Standard QR time: ",timer.Stop()," seconds");
         if( print )
         {
-            Print( A, "QR" );
-            Print( t, "t" );
-            Print( d, "d" );
+            El::Print( A, "QR" );
+            El::Print( householderScalars, "householderScalars" );
+            El::Print( signature, "signature" );
         }
-        GetDiagonal( A, diagR );
-        Print( diagR, "diag(R)" );
+        El::GetDiagonal( A, diagR );
+        El::Print( diagR, "diag(R)" );
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

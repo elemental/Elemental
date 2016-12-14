@@ -14,7 +14,7 @@ namespace El {
 template<typename T,typename S>
 void Scale( S alphaS, Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const T alpha = T(alphaS);
 
     T* ABuf = A.Buffer();
@@ -48,7 +48,7 @@ void Scale( S alphaS, Matrix<T>& A )
 template<typename Real,typename S,typename>
 void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Int m = AReal.Height();
     const Int n = AReal.Width();
@@ -90,7 +90,7 @@ void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
 template<typename T,typename S>
 void Scale( S alpha, AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, A.Matrix() );
 }
 
@@ -98,14 +98,14 @@ template<typename Real,typename S,typename>
 void Scale( S alpha, AbstractDistMatrix<Real>& AReal, 
                      AbstractDistMatrix<Real>& AImag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, AReal.Matrix(), AImag.Matrix() );
 }
 
 template<typename T,typename S>
 void Scale( S alpha, SparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( alpha == S(0) )
     {
         const Int m = A.Height();
@@ -126,7 +126,7 @@ void Scale( S alpha, SparseMatrix<T>& A )
 template<typename T,typename S>
 void Scale( S alpha, DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( alpha == S(0) )
     {
         const Int m = A.Height();
@@ -147,7 +147,7 @@ void Scale( S alpha, DistSparseMatrix<T>& A )
 template<typename T,typename S>
 void Scale( S alpha, DistMultiVec<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, A.Matrix() );
 }
 

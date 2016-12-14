@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 void Lotkin( Matrix<F>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Hilbert( A, n );
     // Set first row to all ones
     for( Int j=0; j<n; ++j )
@@ -24,7 +24,7 @@ void Lotkin( Matrix<F>& A, Int n )
 template<typename F>
 void Lotkin( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Hilbert( A, n );
     // Set first row to all ones
     if( A.ColShift() == 0 )

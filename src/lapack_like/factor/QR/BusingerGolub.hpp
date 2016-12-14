@@ -15,7 +15,7 @@ namespace qr {
 template<typename F>
 Base<F> ColNorms( const Matrix<F>& A, vector<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -35,7 +35,7 @@ ValueInt<Real> FindPivot
         Int col,
         Compare compare=std::less<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( norms.size()-col <= 0 )
     {
         ValueInt<Real> pivot;
@@ -59,7 +59,7 @@ void BusingerGolub
         Permutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0), one(1);
     const F zeroF(0), oneF(1);
@@ -164,7 +164,7 @@ void BusingerGolub
     auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,signature);
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 
     // Ensure that t is the correct length
@@ -183,7 +183,7 @@ FindColPivot
         Int col,
         bool smallestFirst=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int localColsBefore = A.LocalColOffset(col);
     ValueInt<Real> localPivot;
@@ -206,7 +206,7 @@ FindColPivot
 template<typename F>
 Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -263,7 +263,7 @@ void ReplaceColNorms
         vector<Base<F>>& norms,
         vector<Base<F>>& origNorms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int numInaccurate = inaccurateNorms.size();
@@ -319,8 +319,8 @@ void BusingerGolub
   DistPermutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, householderScalars, signature ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( APre, householderScalars, signature ))
     typedef Base<F> Real;
     const Real zero(0), one(1);
 
@@ -482,7 +482,7 @@ void BusingerGolub
     auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,signature);
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 }
 

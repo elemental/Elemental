@@ -30,9 +30,9 @@ void MultiShiftDiagonalBlockSolve
         Matrix<Field>& X,
         Matrix<Field>& scales )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -225,9 +225,9 @@ void MultiShiftDiagonalBlockSolve
         DistMatrix<Field,STAR,VR>& X,
         DistMatrix<Field,VR,STAR>& scales )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -432,10 +432,10 @@ void MultiShiftSolve
         Matrix<Field>& X,
         Matrix<Field>& scales )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -456,7 +456,7 @@ void MultiShiftSolve
     const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
     const Real bigNum = Real(1)/smallNum;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( MaxNorm(U) >= bigNum )
           LogicError("Entries in matrix are too large");
     )
@@ -576,10 +576,10 @@ void MultiShiftSolve
         AbstractDistMatrix<Field>& XPre,
         AbstractDistMatrix<Field>& scalesPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<Field> Real;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( UPre.Height() != UPre.Width() )
           LogicError("Triangular matrix must be square");
       if( UPre.Width() != XPre.Height() )

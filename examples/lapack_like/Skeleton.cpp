@@ -2,47 +2,48 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
-
-typedef double Real;
-typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
 
-    try 
+    try
     {
-        const Int m = Input("--height","height of matrix",20);
-        const Int n = Input("--width","width of matrix",100);
-        Int targetRank = Input("--rank","rank of matrix",5);
-        Int maxSteps = Input("--maxSteps","max # of steps of QR",10);
-        const Real tol = Input("--tol","tolerance for ID",Real(-1));
-        const bool print = Input("--print","print matrices?",false);
-        ProcessInput();
-        PrintInputReport();
+        typedef double Real;
+        typedef El::Complex<Real> Scalar;
 
-        const Int minDim = Min( m, n );
-        targetRank = Min( targetRank, minDim );
-        maxSteps = Min( maxSteps, targetRank );
+        const El::Int m = El::Input("--height","height of matrix",20);
+        const El::Int n = El::Input("--width","width of matrix",100);
+        El::Int targetRank = El::Input("--rank","rank of matrix",5);
+        El::Int maxSteps = El::Input("--maxSteps","max # of steps of QR",10);
+        const Real tol = El::Input("--tol","tolerance for ID",Real(-1));
+        const bool print = El::Input("--print","print matrices?",false);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        DistMatrix<C> U, V;
-        Uniform( U, m, targetRank );
-        Uniform( V, n, targetRank );
-        DistMatrix<C> A;
-        Gemm( NORMAL, ADJOINT, C(1), U, V, A );
-        const Real frobA = FrobeniusNorm( A );
+        const El::Grid grid( comm );
+
+        const El::Int minDim = El::Min( m, n );
+        targetRank = El::Min( targetRank, minDim );
+        maxSteps = El::Min( maxSteps, targetRank );
+
+        El::DistMatrix<Scalar> U(grid), V(grid);
+        El::Uniform( U, m, targetRank );
+        El::Uniform( V, n, targetRank );
+        El::DistMatrix<Scalar> A(grid);
+        El::Gemm( El::NORMAL, El::ADJOINT, Scalar(1), U, V, A );
+        const Real frobA = El::FrobeniusNorm( A );
         if( print )
-            Print( A, "A" );
+            El::Print( A, "A" );
 
-        const Grid& g = A.Grid();
-        QRCtrl<Real> ctrl;
+        El::QRCtrl<Real> ctrl;
         ctrl.boundRank = true;
         ctrl.maxRank = maxSteps;
         if( tol != Real(-1) )
@@ -50,55 +51,55 @@ main( int argc, char* argv[] )
             ctrl.adaptive = true;
             ctrl.tol = tol;
         }
-        DistPermutation PR(g), PC(g);
-        DistMatrix<C> Z(g);
-        Timer timer;
-        if( mpi::Rank() == 0 )
+        El::DistPermutation PR(grid), PC(grid);
+        El::DistMatrix<Scalar> Z(grid);
+        El::Timer timer;
+        if( El::mpi::Rank(comm) == 0 )
             timer.Start();
-        Skeleton( A, PR, PC, Z, ctrl );
-        if( mpi::Rank() == 0 )
+        El::Skeleton( A, PR, PC, Z, ctrl );
+        if( El::mpi::Rank(comm) == 0 )
             timer.Stop();
-        const Int rank = Z.Height();
+        const El::Int rank = Z.Height();
         if( print )
         {
-            DistMatrix<Int> PFull(g);
+            El::DistMatrix<El::Int> PFull(grid);
             PR.ExplicitMatrix( PFull );
-            Print( PFull, "PR" );
+            El::Print( PFull, "PR" );
             PC.ExplicitMatrix( PFull );
-            Print( PFull, "PC" );
-            Print( Z, "Z" );
+            El::Print( PFull, "PC" );
+            El::Print( Z, "Z" );
         }
 
         // Form the matrices of A's (hopefully) dominant rows and columns
-        DistMatrix<C> AR( A );
+        El::DistMatrix<Scalar> AR( A );
         PR.PermuteRows( AR );
         AR.Resize( rank, A.Width() );
-        DistMatrix<C> AC( A );
+        El::DistMatrix<Scalar> AC( A );
         PC.PermuteCols( AC );
         AC.Resize( A.Height(), rank );
         if( print )
         {
-            Print( AC, "A_C" );
-            Print( AR, "A_R" );
+            El::Print( AC, "A_C" );
+            El::Print( AR, "A_R" );
         }
 
         // Check || A - AC Z AR ||_F / || A ||_F
-        DistMatrix<C> B(g);
-        Gemm( NORMAL, NORMAL, C(1), Z, AR, B );
-        Gemm( NORMAL, NORMAL, C(-1), AC, B, C(1), A );
-        const Real frobError = FrobeniusNorm( A );
+        El::DistMatrix<Scalar> B(grid);
+        El::Gemm( El::NORMAL, El::NORMAL, Scalar(1), Z, AR, B );
+        El::Gemm( El::NORMAL, El::NORMAL, Scalar(-1), AC, B, Scalar(1), A );
+        const Real frobError = El::FrobeniusNorm( A );
         if( print )
-            Print( A, "A - A_C Z A_R" );
+            El::Print( A, "A - A_C Z A_R" );
 
-        if( mpi::Rank() == 0 )
+        if( El::mpi::Rank(comm) == 0 )
         {
-            Output("Skeleton time: ",timer.Total()," secs");
-            Output
+            El::Output("Skeleton time: ",timer.Total()," secs");
+            El::Output
             ("|| A ||_F = ",frobA,"\n",
              "|| A - A_C Z A_R ||_F / || A ||_F = ",frobError/frobA);
         }
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

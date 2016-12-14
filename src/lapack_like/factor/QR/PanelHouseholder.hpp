@@ -18,7 +18,7 @@ void PanelHouseholder
   Matrix<F>& householderScalars,
   Matrix<Base<F>>& signature )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -63,7 +63,7 @@ void PanelHouseholder
     GetRealPartOfDiagonal(R,signature);
     auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 }
 
@@ -73,8 +73,8 @@ void PanelHouseholder
   AbstractDistMatrix<F>& householderScalars,
   AbstractDistMatrix<Base<F>>& signature )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, householderScalars, signature ))
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     DistMatrix<F,MC,STAR> aB1_MC_STAR(g);
@@ -138,7 +138,7 @@ void PanelHouseholder
     GetRealPartOfDiagonal(R,signature);
     auto sgn = []( const Real& delta )
                { return delta >= Real(0) ? Real(1) : Real(-1); };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 }
 

@@ -18,7 +18,7 @@ namespace multibulge {
 template<typename Real>
 void PairShifts( Matrix<Complex<Real>>& shifts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numShifts = shifts.Height();
 
     Complex<Real> tmp;
@@ -33,7 +33,7 @@ void PairShifts( Matrix<Complex<Real>>& shifts )
         }
     }
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       for( Int i=numShifts-1; i>=2; i-=2 )
       {
           if( shifts(i).imag() != -shifts(i-1).imag() )

@@ -39,7 +39,7 @@ void Trr2k
   T beta,  const AbstractDistMatrix<T>& C, const AbstractDistMatrix<T>& D,
   T gamma,       AbstractDistMatrix<T>& E )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normalA = orientA == NORMAL;
     const bool normalB = orientB == NORMAL;
     const bool normalC = orientC == NORMAL;

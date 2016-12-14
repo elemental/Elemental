@@ -16,7 +16,7 @@ void TestGraded
   const herm_tridiag_eig::QRCtrl& qrCtrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = 5;
     Output("Testing small graded matrix with ",TypeName<Real>());
 
@@ -91,7 +91,7 @@ void TestRandom
   const herm_tridiag_eig::QRCtrl& qrCtrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing random tridiagonal matrix with ",TypeName<Real>());
 
     HermitianTridiagEigCtrl<Real> ctrl;

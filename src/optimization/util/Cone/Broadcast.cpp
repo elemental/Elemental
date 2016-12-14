@@ -17,7 +17,7 @@ void Broadcast
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
     if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
@@ -28,7 +28,7 @@ void Broadcast
     {
         const Int order = orders(i);
         const Int firstInd = firstInds(i);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
@@ -48,7 +48,7 @@ void Broadcast
   const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -159,7 +159,7 @@ void Broadcast
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // TODO(poulson): Check that the communicators are congruent
     mpi::Comm comm = x.Comm();
