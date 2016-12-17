@@ -251,15 +251,15 @@ void LU
   template void LUMod \
   (       Matrix<F>& A, \
           Permutation& P, \
-    const Matrix<F>& u, \
-    const Matrix<F>& v, \
+    const Matrix<F>& U, \
+    const Matrix<F>& V, \
     bool conjugate, \
     Base<F> tau ); \
   template void LUMod \
   (       AbstractDistMatrix<F>& A, \
           DistPermutation& P, \
-    const AbstractDistMatrix<F>& u, \
-    const AbstractDistMatrix<F>& v, \
+    const AbstractDistMatrix<F>& U, \
+    const AbstractDistMatrix<F>& V, \
     bool conjugate, \
     Base<F> tau ); \
   template void lu::Panel \

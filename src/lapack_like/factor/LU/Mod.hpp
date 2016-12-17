@@ -36,8 +36,10 @@ namespace El {
 //       LUMod( A, P, u, v, conjugate, tau );
 //
 
+namespace lu {
+
 template<typename F>
-void LUMod
+void RankOneMod
 ( Matrix<F>& A,
         Permutation& P,
   const Matrix<F>& u,
@@ -284,7 +286,7 @@ void LUMod
 }
 
 template<typename F>
-void LUMod
+void RankOneMod
 (       AbstractDistMatrix<F>& APre,
         DistPermutation& P,
   const AbstractDistMatrix<F>& u,
@@ -539,6 +541,50 @@ void LUMod
             Axpy( -gamma, uiR, uip1R );
         }
     }
+}
+
+} // namespace lu
+
+template<typename Field>
+void LUMod
+( Matrix<Field>& A,
+        Permutation& P,
+  const Matrix<Field>& U,
+  const Matrix<Field>& V,
+  bool conjugate,
+  Base<Field> tau )
+{
+    EL_DEBUG_CSE
+    // TODO(poulson): Add a higher-rank implementation.
+    const Int updateRank = U.Width();
+    for( Int j=0; j<updateRank; ++j)
+        lu::RankOneMod( A, P, U(ALL,IR(j)), V(ALL,IR(j)), conjugate, tau );
+}
+
+template<typename Field>
+void LUMod
+(       AbstractDistMatrix<Field>& APre,
+        DistPermutation& P,
+  const AbstractDistMatrix<Field>& UPre,
+  const AbstractDistMatrix<Field>& VPre,
+  bool conjugate,
+  Base<Field> tau )
+{
+    EL_DEBUG_CSE
+
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
+    DistMatrixReadProxy<Field,Field,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
+
+    DistMatrixReadProxy<Field,Field,MC,MR> VProx( VPre );
+    auto& V = VProx.GetLocked();
+
+    // TODO(poulson): Add a higher-rank implementation.
+    const Int updateRank = U.Width();
+    for( Int j=0; j<updateRank; ++j)
+        lu::RankOneMod( A, P, U(ALL,IR(j)), V(ALL,IR(j)), conjugate, tau );
 }
 
 } // namespace El

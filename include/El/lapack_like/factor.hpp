@@ -503,22 +503,25 @@ void LU
   DistPermutation& P,
   DistPermutation& Q );
 
-// Rank-one modification of a partially-pivoted LU factorization
+// Low-rank modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
+// NOTE: This routine currently performs a sequence of rank-one updates
+// and will eventually be generalized to a (much faster) single-pass
+// algorithm.
 template<typename Field>
 void LUMod
 (       Matrix<Field>& A,
         Permutation& P,
-  const Matrix<Field>& u,
-  const Matrix<Field>& v,
+  const Matrix<Field>& U,
+  const Matrix<Field>& V,
   bool conjugate=true,
   Base<Field> tau=Base<Field>(1)/Base<Field>(10) );
 template<typename Field>
 void LUMod
 (       AbstractDistMatrix<Field>& A,
         DistPermutation& P,
-  const AbstractDistMatrix<Field>& u,
-  const AbstractDistMatrix<Field>& v,
+  const AbstractDistMatrix<Field>& U,
+  const AbstractDistMatrix<Field>& V,
   bool conjugate=true,
   Base<Field> tau=Base<Field>(1)/Base<Field>(10) );
 
