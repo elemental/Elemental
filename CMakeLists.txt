@@ -23,7 +23,7 @@ endif()
 
 project(Elemental C CXX)
 set(EL_VERSION_MAJOR 0)
-set(EL_VERSION_MINOR 87-dev)
+set(EL_VERSION_MINOR 88-dev)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
@@ -395,7 +395,7 @@ include(detect/Fortran)
 # Detect C++11
 # ------------
 include(detect/CXX)
-set(CXX_FLAGS "${CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+set(CXX_FLAGS "${CXX_FLAGS} ${CXX14_COMPILER_FLAGS}")
 
 # Detect MPI
 # ----------
@@ -509,7 +509,8 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
 # Define the main library for Elemental
 # -------------------------------------
 add_library(El ${EL_C_CPP_FILES})
-set_target_properties(El PROPERTIES VERSION ${EL_VERSION_MINOR} SOVERSION ${EL_VERSION_MAJOR})
+set_target_properties(El PROPERTIES VERSION ${EL_VERSION_MINOR}
+  SOVERSION ${EL_VERSION_MAJOR})
 add_dependencies(El El_config)
 if(EL_BUILT_SCALAPACK)
   add_dependencies(El project_scalapack)
@@ -625,8 +626,10 @@ include(CTest)
 
 # Sandbox test
 # ------------
-install(FILES "${PROJECT_SOURCE_DIR}/sandbox/Makefile" DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
-install(FILES "${PROJECT_SOURCE_DIR}/sandbox/test.cpp" DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
+install(FILES "${PROJECT_SOURCE_DIR}/sandbox/Makefile"
+  DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
+install(FILES "${PROJECT_SOURCE_DIR}/sandbox/test.cpp"
+  DESTINATION ${CMAKE_INSTALL_DOCDIR}/sandbox)
 add_executable(sandbox-test "${PROJECT_SOURCE_DIR}/sandbox/test.cpp")
 set_source_files_properties("${PROJECT_SOURCE_DIR}/sandbox/test.cpp"
   PROPERTIES OBJECT_DEPENDS "${PREPARED_HEADERS}")
