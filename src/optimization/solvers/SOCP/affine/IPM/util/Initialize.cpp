@@ -189,17 +189,17 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& b,
+  const DistMatrix<Real>& c,
+  const DistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& x,
+        DistMatrix<Real>& y,
+        DistMatrix<Real>& z,
+        DistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
@@ -644,17 +644,17 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-    const ElementalMatrix<Real>& h, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& s, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& G, \
+    const DistMatrix<Real>& b, \
+    const DistMatrix<Real>& c, \
+    const DistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          DistMatrix<Real>& x, \
+          DistMatrix<Real>& y, \
+          DistMatrix<Real>& z, \
+          DistMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \

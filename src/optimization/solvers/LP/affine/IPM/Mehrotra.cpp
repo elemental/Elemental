@@ -10,6 +10,17 @@
 #include "./util.hpp"
 
 namespace El {
+
+template<typename Real>
+void CopyOrViewHelper( const DistMatrix<Real>& A, DistMatrix<Real>& B )
+{
+    EL_DEBUG_CSE
+    if( A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
+        LockedView( B, A );
+    else
+        B = A;
+}
+
 namespace lp {
 namespace affine {
 
@@ -34,19 +45,285 @@ namespace affine {
 //
 
 template<typename Real>
-void Mehrotra
-( const Matrix<Real>& APre,
-  const Matrix<Real>& GPre,
-  const Matrix<Real>& bPre,
-  const Matrix<Real>& cPre,
-  const Matrix<Real>& hPre,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        Matrix<Real>& s,
+struct DenseAffineLPEquilibration
+{
+    Matrix<Real> rowScaleA;
+    Matrix<Real> rowScaleG;
+    Matrix<Real> colScale;
+};
+template<typename Real>
+struct DistDenseAffineLPEquilibration
+{
+    DistMatrix<Real,MC,STAR> rowScaleA;
+    DistMatrix<Real,MC,STAR> rowScaleG;
+    DistMatrix<Real,MR,STAR> colScale;
+};
+template<typename Real>
+struct SparseAffineLPEquilibration
+{
+    Matrix<Real> rowScaleA;
+    Matrix<Real> rowScaleG;
+    Matrix<Real> colScale;
+};
+template<typename Real>
+struct DistSparseAffineLPEquilibration
+{
+    DistMultiVec<Real> rowScaleA;
+    DistMultiVec<Real> rowScaleG;
+    DistMultiVec<Real> colScale;
+};
+
+template<typename Real>
+void Equilibrate
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  const AffineLPSolution<Matrix<Real>>& solution,
+        AffineLPProblem<Matrix<Real>,Matrix<Real>>& equilibratedProblem,
+        AffineLPSolution<Matrix<Real>>& equilibratedSolution,
+        DenseAffineLPEquilibration<Real>& equilibration,
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+
+    equilibratedProblem = problem;
+    equilibratedSolution = solution;
+
+    // Equilibrate the LP by diagonally scaling [A;G]
+    StackedRuizEquil
+    ( equilibratedProblem.A,
+      equilibratedProblem.G,
+      equilibration.rowScaleA,
+      equilibration.rowScaleG,
+      equilibration.colScale,
+      ctrl.print );
+
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedProblem.b );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedProblem.h );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.colScale, equilibratedProblem.c );
+    if( ctrl.primalInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.colScale, equilibratedSolution.x );
+        DiagonalSolve
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.s );
+    }
+    if( ctrl.dualInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedSolution.y );
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
+    }
+}
+
+template<typename Real>
+void Equilibrate
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+  const AffineLPSolution<DistMatrix<Real>>& solution,
+        AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& equilibratedProblem,
+        AffineLPSolution<DistMatrix<Real>>& equilibratedSolution,
+        DistDenseAffineLPEquilibration<Real>& equilibration,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+
+    equilibratedProblem = problem;
+    equilibratedSolution = solution;
+
+    // Equilibrate the LP by diagonally scaling [A;G]
+    StackedRuizEquil
+    ( equilibratedProblem.A,
+      equilibratedProblem.G,
+      equilibration.rowScaleA,
+      equilibration.rowScaleG,
+      equilibration.colScale,
+      ctrl.print );
+
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedProblem.b );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedProblem.h );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.colScale, equilibratedProblem.c );
+    if( ctrl.primalInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.colScale, equilibratedSolution.x );
+        DiagonalSolve
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.s );
+    }
+    if( ctrl.dualInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedSolution.y );
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
+    }
+}
+
+template<typename Real>
+void Equilibrate
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  const AffineLPSolution<Matrix<Real>>& solution,
+        AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& equilibratedProblem,
+        AffineLPSolution<Matrix<Real>>& equilibratedSolution,
+        SparseAffineLPEquilibration<Real>& equilibration,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+
+    equilibratedProblem = problem;
+    equilibratedSolution = solution;
+
+    // Equilibrate the LP by diagonally scaling [A;G]
+    StackedRuizEquil
+    ( equilibratedProblem.A,
+      equilibratedProblem.G,
+      equilibration.rowScaleA,
+      equilibration.rowScaleG,
+      equilibration.colScale,
+      ctrl.print );
+
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedProblem.b );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedProblem.h );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.colScale, equilibratedProblem.c );
+    if( ctrl.primalInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.colScale, equilibratedSolution.x );
+        DiagonalSolve
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.s );
+    }
+    if( ctrl.dualInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedSolution.y );
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
+    }
+}
+
+template<typename Real>
+void Equilibrate
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+  const AffineLPSolution<DistMultiVec<Real>>& solution,
+        AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>&
+          equilibratedProblem,
+        AffineLPSolution<DistMultiVec<Real>>& equilibratedSolution,
+        DistSparseAffineLPEquilibration<Real>& equilibration,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+
+    ForceSimpleAlignments( equilibratedProblem, problem.A.Comm() );
+    ForceSimpleAlignments( equilibratedSolution, problem.A.Comm() );
+
+    equilibratedProblem = problem;
+    equilibratedSolution = solution;
+
+    // Equilibrate the LP by diagonally scaling [A;G]
+    StackedRuizEquil
+    ( equilibratedProblem.A,
+      equilibratedProblem.G,
+      equilibration.rowScaleA,
+      equilibration.rowScaleG,
+      equilibration.colScale,
+      ctrl.print );
+
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedProblem.b );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedProblem.h );
+    DiagonalSolve
+    ( LEFT, NORMAL, equilibration.colScale, equilibratedProblem.c );
+    if( ctrl.primalInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.colScale, equilibratedSolution.x );
+        DiagonalSolve
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.s );
+    }
+    if( ctrl.dualInit )
+    {
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedSolution.y );
+        DiagonalScale
+        ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
+    }
+}
+
+template<typename Real>
+void UndoEquilibration
+( const AffineLPSolution<Matrix<Real>>& equilibratedSolution,
+  const DenseAffineLPEquilibration<Real>& equilibration,
+        AffineLPSolution<Matrix<Real>>& solution )
+{
+    EL_DEBUG_CSE
+    solution = equilibratedSolution;
+    DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
+    DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, solution.s );
+}
+
+template<typename Real>
+void UndoEquilibration
+( const AffineLPSolution<DistMatrix<Real>>& equilibratedSolution,
+  const DistDenseAffineLPEquilibration<Real>& equilibration,
+        AffineLPSolution<DistMatrix<Real>>& solution )
+{
+    EL_DEBUG_CSE
+    solution = equilibratedSolution;
+    DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
+    DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, solution.s );
+}
+
+template<typename Real>
+void UndoEquilibration
+( const AffineLPSolution<Matrix<Real>>& equilibratedSolution,
+  const SparseAffineLPEquilibration<Real>& equilibration,
+        AffineLPSolution<Matrix<Real>>& solution )
+{
+    EL_DEBUG_CSE
+    solution = equilibratedSolution;
+    DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
+    DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, solution.s );
+}
+
+template<typename Real>
+void UndoEquilibration
+( const AffineLPSolution<DistMultiVec<Real>>& equilibratedSolution,
+  const DistSparseAffineLPEquilibration<Real>& equilibration,
+        AffineLPSolution<DistMultiVec<Real>>& solution )
+{
+    EL_DEBUG_CSE
+    solution = equilibratedSolution;
+    DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
+    DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
+    DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, solution.s );
+}
+
+template<typename Real>
+void EquilibratedMehrotra
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Int k = problem.G.Height();
+    const Int degree = k;
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -57,49 +334,13 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
 
-    // Equilibrate the LP by diagonally scaling [A;G]
-    auto A = APre;
-    auto G = GPre;
-    auto b = bPre;
-    auto c = cPre;
-    auto h = hPre;
-    const Int m = A.Height();
-    const Int k = G.Height();
-    const Int n = A.Width();
-    const Int degree = k;
-    Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.outerEquil )
-    {
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
-
-    const Real bNrm2 = Nrm2( b );
-    const Real cNrm2 = Nrm2( c );
-    const Real hNrm2 = Nrm2( h );
+    const Real bNrm2 = Nrm2( problem.b );
+    const Real cNrm2 = Nrm2( problem.c );
+    const Real hNrm2 = Nrm2( problem.h );
     if( ctrl.print )
     {
-        const Real ANrm1 = OneNorm( A );
-        const Real GNrm1 = OneNorm( G );
+        const Real ANrm1 = OneNorm( problem.A );
+        const Real GNrm1 = OneNorm( problem.G );
         Output("|| A ||_1 = ",ANrm1);
         Output("|| G ||_1 = ",GNrm1);
         Output("|| b ||_2 = ",bNrm2);
@@ -108,24 +349,46 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift );
+    ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
-    Matrix<Real> J, d,
-                 rmu,   rc,    rb,    rh,
-                 dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
+    Matrix<Real> J, d;
     Matrix<Real> dSub;
     Permutation p;
-    Matrix<Real> dxError, dyError, dzError;
+    auto attemptToFactor = [&]()
+      {
+        try { LDL( J, dSub, p, false ); }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+    auto attemptToSolve = [&]( Matrix<Real>& rhs )
+      {
+        try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+
+    AffineLPSolution<Matrix<Real>> affineCorrection, correction;
+    AffineLPResidual<Matrix<Real>> residual, error;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
+        const Int sNumNonPos = pos_orth::NumOutside( solution.s );
+        const Int zNumNonPos = pos_orth::NumOutside( solution.z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -133,46 +396,55 @@ void Mehrotra
 
         // Compute the duality measure
         // ===========================
-        const Real mu = Dot(s,z) / k;
+        const Real mu = Dot(solution.s,solution.z) / k;
 
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        const Real primObj = Dot(problem.c,solution.x);
+        const Real dualObj = -Dot(problem.b,solution.y) -
+          Dot(problem.h,solution.z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        rb *= -1;
-        Gemv( NORMAL, Real(1), A, x, Real(1), rb );
-        const Real rbNrm2 = Nrm2( rb );
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Gemv
+        ( NORMAL, Real(1), problem.A, solution.x,
+          Real(1), residual.primalEquality );
+        const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        rc = c;
-        Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        const Real rcNrm2 = Nrm2( rc );
+        residual.dualEquality = problem.c;
+        Gemv
+        ( TRANSPOSE, Real(1), problem.A, solution.y,
+          Real(1), residual.dualEquality );
+        Gemv
+        ( TRANSPOSE, Real(1), problem.G, solution.z,
+          Real(1), residual.dualEquality );
+        const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        rh *= -1;
-        Gemv( NORMAL, Real(1), G, x, Real(1), rh );
-        rh += s;
-        const Real rhNrm2 = Nrm2( rh );
+        residual.primalConic = problem.h;
+        residual.primalConic *= -1;
+        Gemv
+        ( NORMAL, Real(1), problem.G, solution.x,
+          Real(1), residual.primalConic );
+        residual.primalConic += solution.s;
+        const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( x );
-            const Real yNrm2 = Nrm2( y );
-            const Real zNrm2 = Nrm2( z );
-            const Real sNrm2 = Nrm2( s );
+            const Real xNrm2 = Nrm2( solution.x );
+            const Real yNrm2 = Nrm2( solution.y );
+            const Real zNrm2 = Nrm2( solution.z );
+            const Real sNrm2 = Nrm2( solution.s );
             Output
             ("iter ",numIts,":\n",Indent(),
              "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
@@ -201,46 +473,56 @@ void Mehrotra
 
         // r_mu := s o z
         // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        residual.dualConic = solution.z;
+        DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
 
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, J );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKT( problem.A, problem.G, solution.s, solution.z, J );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z,
+          d );
 
         // Solve for the direction
         // -----------------------
-        try
-        {
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, d, false );
-        }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Unable to achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        if( !attemptToFactor() )
+            break;
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          affineCorrection.x,
+          affineCorrection.y,
+          affineCorrection.z,
+          affineCorrection.s );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
-            dxError = rb;
-            Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            const Real dxErrorNrm2 = Nrm2( dxError );
+            error.primalEquality = residual.primalEquality;
+            Gemv
+            ( NORMAL, Real(1), problem.A, affineCorrection.x,
+              Real(1), error.primalEquality );
+            const Real dxErrorNrm2 = Nrm2( error.primalEquality );
 
-            dyError = rc;
-            Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
-            const Real dyErrorNrm2 = Nrm2( dyError );
+            error.dualEquality = residual.dualEquality;
+            Gemv
+            ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
+              Real(1), error.dualEquality );
+            Gemv
+            ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
+              Real(1), error.dualEquality );
+            const Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
-            dzError = rh;
-            Gemv( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-            dzError += dsAff;
-            const Real dzErrorNrm2 = Nrm2( dzError );
+            error.primalConic = residual.primalConic;
+            Gemv
+            ( NORMAL, Real(1), problem.G, affineCorrection.x,
+              Real(1), error.primalConic );
+            error.primalConic += affineCorrection.s;
+            const Real dzErrorNrm2 = Nrm2( error.primalConic );
 
             // TODO(poulson): dmuError
 
@@ -255,19 +537,21 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri =
+          pos_orth::MaxStep( solution.s, affineCorrection.s, Real(1) );
+        Real alphaAffDual =
+          pos_orth::MaxStep( solution.z, affineCorrection.z, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / degree;
+        correction.s = solution.s;
+        correction.z = solution.z;
+        Axpy( alphaAffPri,  affineCorrection.s, correction.s );
+        Axpy( alphaAffDual, affineCorrection.z, correction.z );
+        const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
         const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
@@ -276,51 +560,53 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
-        Shift( rmu, -sigma*mu );
+        residual.primalEquality *= 1-sigma;
+        residual.primalConic *= 1-sigma;
+        residual.dualEquality *= 1-sigma;
+        Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
             // r_mu += dsAff o dzAff
             // ---------------------
-            // NOTE: Using dz as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            // NOTE: Using correction.z as a temporary
+            correction.z = affineCorrection.z;
+            DiagonalScale( LEFT, NORMAL, affineCorrection.s, correction.z );
+            residual.dualConic += correction.z;
         }
 
         // Construct the new KKT RHS
         // -------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
         // Solve for the direction
         // -----------------------
-        try { ldl::SolveAfter( J, dSub, p, d, false ); }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          correction.x, correction.y, correction.z, correction.s );
         // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          pos_orth::MaxStep( solution.s, correction.s, 1/ctrl.maxStepRatio );
+        Real alphaDual =
+          pos_orth::MaxStep( solution.z, correction.z, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+        Axpy( alphaPri,  correction.x, solution.x );
+        Axpy( alphaPri,  correction.s, solution.s );
+        Axpy( alphaDual, correction.y, solution.y );
+        Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -331,30 +617,66 @@ void Mehrotra
         }
     }
     SetIndent( indent );
-
-    if( ctrl.outerEquil )
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
-    }
 }
 
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& APre,
-  const AbstractDistMatrix<Real>& GPre,
-  const AbstractDistMatrix<Real>& bPre,
-  const AbstractDistMatrix<Real>& cPre,
-  const AbstractDistMatrix<Real>& hPre,
-        AbstractDistMatrix<Real>& xPre,
-        AbstractDistMatrix<Real>& yPre,
-        AbstractDistMatrix<Real>& zPre,
-        AbstractDistMatrix<Real>& sPre,
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    if( ctrl.outerEquil )
+    {
+        AffineLPProblem<Matrix<Real>,Matrix<Real>> equilibratedProblem;
+        AffineLPSolution<Matrix<Real>> equilibratedSolution;
+        DenseAffineLPEquilibration<Real> equilibration;
+        Equilibrate
+        ( problem, solution,
+          equilibratedProblem, equilibratedSolution,
+          equilibration, ctrl );
+        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        UndoEquilibration( equilibratedSolution, equilibration, solution );
+    }
+    else
+    {
+        EquilibratedMehrotra( problem, solution, ctrl );
+    }
+}
+
+template<typename Real>
+void EquilibratedMehrotra
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        AffineLPSolution<DistMatrix<Real>>& solution,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+
+    // Ensure that the problem is aligned.
+    EL_DEBUG_ONLY(
+      if( c.ColAlign() != 0 || c.RowAlign() != 0 )
+          LogicError("c should have zero alignments");
+      if( A.ColAlign() != 0 || A.RowAlign() != 0 )
+          LogicError("A should have zero alignments");
+      if( b.ColAlign() != 0 || b.RowAlign() != 0 )
+          LogicError("b should have zero alignments");
+      if( G.ColAlign() != 0 || G.RowAlign() != 0 )
+          LogicError("G should have zero alignments");
+      if( h.ColAlign() != 0 || h.RowAlign() != 0 )
+          LogicError("h should have zero alignments");
+    )
+
+    // Ensure that the solution vectors are aligned.
+    EL_DEBUG_ONLY(
+      if( x.ColAlign() != 0 || x.RowAlign() != 0 )
+          LogicError("x should have zero alignments");
+      if( s.ColAlign() != 0 || s.RowAlign() != 0 )
+          LogicError("s should have zero alignments");
+      if( y.ColAlign() != 0 || y.RowAlign() != 0 )
+          LogicError("y should have zero alignments");
+      if( z.ColAlign() != 0 || z.RowAlign() != 0 )
+          LogicError("z should have zero alignments");
+    )
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -365,79 +687,20 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
 
-    const Grid& grid = APre.Grid();
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Int k = problem.G.Height();
+    const Int degree = k;
+    const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
 
-    // Ensure that the inputs have the appropriate read/write properties
-    DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
-    A.Align(0,0);
-    G.Align(0,0);
-    b.Align(0,0);
-    c.Align(0,0);
-    A = APre;
-    G = GPre;
-    b = bPre;
-    c = cPre;
-    h = hPre;
-
-    ElementalProxyCtrl control;
-    control.colConstrain = true;
-    control.rowConstrain = true;
-    control.colAlign = 0;
-    control.rowAlign = 0;
-
-    DistMatrixReadWriteProxy<Real,Real,MC,MR>
-    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
-      xProx( xPre, control ),
-      sProx( sPre, control ),
-    // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
-      yProx( yPre, control ),
-      zProx( zPre, control );
-    auto& x = xProx.Get();
-    auto& s = sProx.Get();
-    auto& y = yProx.Get();
-    auto& z = zProx.Get();
-
-    // Equilibrate the LP by diagonally scaling [A;G]
-    const Int m = A.Height();
-    const Int k = G.Height();
-    const Int n = A.Width();
-    const Int degree = k;
-    DistMatrix<Real,MC,STAR> dRowA(grid),
-                             dRowG(grid);
-    DistMatrix<Real,MR,STAR> dCol(grid);
-    if( ctrl.outerEquil )
-    {
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
-
-    const Real bNrm2 = Nrm2( b );
-    const Real cNrm2 = Nrm2( c );
-    const Real hNrm2 = Nrm2( h );
+    const Real bNrm2 = Nrm2( problem.b );
+    const Real cNrm2 = Nrm2( problem.c );
+    const Real hNrm2 = Nrm2( problem.h );
     if( ctrl.print )
     {
-        const Real ANrm1 = OneNorm( A );
-        const Real GNrm1 = OneNorm( G );
+        const Real ANrm1 = OneNorm( problem.A );
+        const Real GNrm1 = OneNorm( problem.G );
         if( commRank == 0 )
         {
             Output("|| A ||_1 = ",ANrm1);
@@ -449,30 +712,51 @@ void Mehrotra
     }
 
     Initialize
-    ( A, G, b, c, h, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift );
+    ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
 
     Real relError = 1;
-    DistMatrix<Real> J(grid),     d(grid),
-                     rc(grid),    rb(grid),    rh(grid),    rmu(grid),
-                     dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
-                     dx(grid),    dy(grid),    dz(grid),    ds(grid);
-    dsAff.AlignWith( s );
-    dzAff.AlignWith( s );
-    ds.AlignWith( s );
-    dz.AlignWith( s );
-    rmu.AlignWith( s );
+    DistMatrix<Real> J(grid), d(grid);
     DistMatrix<Real> dSub(grid);
     DistPermutation p(grid);
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
-    dzError.AlignWith( s );
+    auto attemptToFactor = [&]()
+      {
+        try { LDL( J, dSub, p, false ); }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+    auto attemptToSolve = [&]( DistMatrix<Real>& rhs )
+      {
+        try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+
+    AffineLPResidual<DistMatrix<Real>> residual, error;
+    AffineLPSolution<DistMatrix<Real>> affineCorrection, correction;
+    ForceSimpleAlignments( residual, grid );
+    ForceSimpleAlignments( error, grid );
+    ForceSimpleAlignments( affineCorrection, grid );
+    ForceSimpleAlignments( correction, grid );
+
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
+        const Int sNumNonPos = pos_orth::NumOutside( solution.s );
+        const Int zNumNonPos = pos_orth::NumOutside( solution.z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -480,46 +764,55 @@ void Mehrotra
 
         // Compute the duality measure
         // ===========================
-        const Real mu = Dot(s,z) / k;
+        const Real mu = Dot(solution.s,solution.z) / k;
 
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        const Real primObj = Dot(problem.c,solution.x);
+        const Real dualObj = -Dot(problem.b,solution.y) -
+          Dot(problem.h,solution.z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        rb *= -1;
-        Gemv( NORMAL, Real(1), A, x, Real(1), rb );
-        const Real rbNrm2 = Nrm2( rb );
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Gemv
+        ( NORMAL, Real(1), problem.A, solution.x,
+          Real(1), residual.primalEquality );
+        const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        rc = c;
-        Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        const Real rcNrm2 = Nrm2( rc );
+        residual.dualEquality = problem.c;
+        Gemv
+        ( TRANSPOSE, Real(1), problem.A, solution.y,
+          Real(1), residual.dualEquality );
+        Gemv
+        ( TRANSPOSE, Real(1), problem.G, solution.z,
+          Real(1), residual.dualEquality );
+        const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        rh *= -1;
-        Gemv( NORMAL, Real(1), G, x, Real(1), rh );
-        rh += s;
-        const Real rhNrm2 = Nrm2( rh );
+        residual.primalConic = problem.h;
+        residual.primalConic *= -1;
+        Gemv
+        ( NORMAL, Real(1), problem.G, solution.x,
+          Real(1), residual.primalConic );
+        residual.primalConic += solution.s;
+        const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( x );
-            const Real yNrm2 = Nrm2( y );
-            const Real zNrm2 = Nrm2( z );
-            const Real sNrm2 = Nrm2( s );
+            const Real xNrm2 = Nrm2( solution.x );
+            const Real yNrm2 = Nrm2( solution.y );
+            const Real zNrm2 = Nrm2( solution.z );
+            const Real sNrm2 = Nrm2( solution.s );
             if( commRank == 0 )
                 Output
                 ("iter ",numIts,":\n",Indent(),
@@ -548,46 +841,55 @@ void Mehrotra
         // ===================================
         // r_mu := s o z
         // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        residual.dualConic = solution.z;
+        DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
         // Construct the KKT system
         // ------------------------
-        KKT( A, G, s, z, J );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKT( problem.A, problem.G, solution.s, solution.z, J );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
         // Solve for the proposed step
         // ---------------------------
-        try
-        {
-            LDL( J, dSub, p, false );
-            ldl::SolveAfter( J, dSub, p, d, false );
-        }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        if( !attemptToFactor() )
+            break;
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          affineCorrection.x,
+          affineCorrection.y,
+          affineCorrection.z,
+          affineCorrection.s );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
-            dxError = rb;
-            Gemv( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            const Real dxErrorNrm2 = Nrm2( dxError );
+            error.primalEquality = residual.primalEquality;
+            Gemv
+            ( NORMAL, Real(1), problem.A, affineCorrection.x,
+              Real(1), error.primalEquality );
+            const Real dxErrorNrm2 = Nrm2( error.primalEquality );
 
-            dyError = rc;
-            Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
-            const Real dyErrorNrm2 = Nrm2( dyError );
+            error.dualEquality = residual.dualEquality;
+            Gemv
+            ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
+              Real(1), error.dualEquality );
+            Gemv
+            ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
+              Real(1), error.dualEquality );
+            const Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
-            dzError = rh;
-            Gemv( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-            dzError += dsAff;
-            const Real dzErrorNrm2 = Nrm2( dzError );
+            error.primalConic = residual.primalConic;
+            Gemv
+            ( NORMAL, Real(1), problem.G, affineCorrection.x,
+              Real(1), error.primalConic );
+            error.primalConic += affineCorrection.s;
+            const Real dzErrorNrm2 = Nrm2( error.primalConic );
 
-            // TODO(poulson): dmuError
+            // TODO(poulson): error.dualConic
 
             if( commRank == 0 )
                 Output
@@ -601,19 +903,21 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri =
+          pos_orth::MaxStep( solution.s, affineCorrection.s, Real(1) );
+        Real alphaAffDual =
+          pos_orth::MaxStep( solution.z, affineCorrection.z, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / degree;
+        correction.s = solution.s;
+        correction.z = solution.z;
+        Axpy( alphaAffPri,  affineCorrection.s, solution.s );
+        Axpy( alphaAffDual, affineCorrection.z, solution.z );
+        const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
         const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
@@ -622,51 +926,53 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
-        Shift( rmu, -sigma*mu );
+        residual.primalEquality *= 1-sigma;
+        residual.primalConic *= 1-sigma;
+        residual.dualEquality *= 1-sigma;
+        Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
             // r_mu += dsAff o dzAff
             // ---------------------
             // NOTE: dz is used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            correction.z = affineCorrection.z;
+            DiagonalScale( LEFT, NORMAL, affineCorrection.s, correction.z );
+            residual.dualConic += correction.z;
         }
 
         // Construct the new KKT RHS
         // -------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
         // Solve for the direction
         // -----------------------
-        try { ldl::SolveAfter( J, dSub, p, d, false ); }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          correction.x, correction.y, correction.z, correction.s );
         // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          pos_orth::MaxStep( solution.s, correction.s, 1/ctrl.maxStepRatio );
+        Real alphaDual =
+          pos_orth::MaxStep( solution.z, correction.z, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+        Axpy( alphaPri,  correction.x, solution.x );
+        Axpy( alphaPri,  correction.s, solution.s );
+        Axpy( alphaDual, correction.y, solution.y );
+        Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -677,30 +983,85 @@ void Mehrotra
         }
     }
     SetIndent( indent );
-
-    if( ctrl.outerEquil )
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
-    }
 }
 
 template<typename Real>
 void Mehrotra
-( const SparseMatrix<Real>& APre,
-  const SparseMatrix<Real>& GPre,
-  const Matrix<Real>& bPre,
-  const Matrix<Real>& cPre,
-  const Matrix<Real>& hPre,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        Matrix<Real>& s,
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        AffineLPSolution<DistMatrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Grid& grid = problem.A.Grid();
+    if( ctrl.outerEquil )
+    {
+        AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>> equilibratedProblem;
+        AffineLPSolution<DistMatrix<Real>> equilibratedSolution;
+        DistDenseAffineLPEquilibration<Real> equilibration;
+        ForceSimpleAlignments( equilibratedProblem, grid );
+        ForceSimpleAlignments( equilibratedSolution, grid );
+        Equilibrate
+        ( problem, solution,
+          equilibratedProblem, equilibratedSolution,
+          equilibration, ctrl );
+        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        UndoEquilibration( equilibratedSolution, equilibration, solution );
+    }
+    else
+    {
+        // Avoid creating unnecessary copies where we can.
+        if( SimpleAlignments(problem) && SimpleAlignments(solution) )
+        {
+            EquilibratedMehrotra( problem, solution, ctrl );
+        }
+        else if( SimpleAlignments(problem) )
+        {
+            AffineLPSolution<DistMatrix<Real>> alignedSolution;
+            ForceSimpleAlignments( alignedSolution, grid );
+            alignedSolution = solution;
+            EquilibratedMehrotra( problem, alignedSolution, ctrl );
+            solution = alignedSolution;
+        }
+        else if( SimpleAlignments(solution) )
+        {
+            AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>> alignedProblem;
+            ForceSimpleAlignments( alignedProblem, grid );
+            CopyOrViewHelper( problem.c, alignedProblem.c );
+            CopyOrViewHelper( problem.A, alignedProblem.A );
+            CopyOrViewHelper( problem.b, alignedProblem.b );
+            CopyOrViewHelper( problem.G, alignedProblem.G );
+            CopyOrViewHelper( problem.h, alignedProblem.h );
+            EquilibratedMehrotra( alignedProblem, solution, ctrl );
+        }
+        else
+        {
+            AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>> alignedProblem;
+            ForceSimpleAlignments( alignedProblem, grid );
+            CopyOrViewHelper( problem.c, alignedProblem.c );
+            CopyOrViewHelper( problem.A, alignedProblem.A );
+            CopyOrViewHelper( problem.b, alignedProblem.b );
+            CopyOrViewHelper( problem.G, alignedProblem.G );
+            CopyOrViewHelper( problem.h, alignedProblem.h );
+            AffineLPSolution<DistMatrix<Real>> alignedSolution;
+            ForceSimpleAlignments( alignedSolution, grid );
+            alignedSolution = solution;
+            EquilibratedMehrotra( alignedProblem, alignedSolution, ctrl );
+            solution = alignedSolution;
+        }
+    }
+}
+
+template<typename Real>
+void EquilibratedMehrotra
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Int k = problem.G.Height();
+    const Int degree = k;
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -711,47 +1072,11 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
 
-    // Equilibrate the LP by diagonally scaling [A;G]
-    auto A = APre;
-    auto G = GPre;
-    auto b = bPre;
-    auto c = cPre;
-    auto h = hPre;
-    const Int m = A.Height();
-    const Int k = G.Height();
-    const Int n = A.Width();
-    const Int degree = k;
-    Matrix<Real> dRowA, dRowG, dCol;
-    if( ctrl.outerEquil )
-    {
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
-
-    const Real bNrm2 = Nrm2( b );
-    const Real cNrm2 = Nrm2( c );
-    const Real hNrm2 = Nrm2( h );
-    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
-    const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
+    const Real bNrm2 = Nrm2( problem.b );
+    const Real cNrm2 = Nrm2( problem.c );
+    const Real hNrm2 = Nrm2( problem.h );
+    const Real twoNormEstA = TwoNormEstimate( problem.A, ctrl.basisSize );
+    const Real twoNormEstG = TwoNormEstimate( problem.G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
     {
@@ -776,7 +1101,8 @@ void Mehrotra
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
+    ( problem.A, problem.G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
+      JStatic, false );
     JStatic.FreezeSparsity();
     vector<Int> map, invMap;
     ldl::NodeInfo info;
@@ -785,27 +1111,75 @@ void Mehrotra
     InvertMap( map, invMap );
 
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
+    ( problem, solution, JStatic, regTmp, map, invMap, rootSep, info,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
-
-    SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
-    Matrix<Real> d,
-                 w,
-                 rc,    rb,    rh,    rmu,
-                 dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
 
     Real relError = 1;
     Matrix<Real> dInner;
-    Matrix<Real> dxError, dyError, dzError;
+    SparseMatrix<Real> J, JOrig;
+    ldl::Front<Real> JFront;
+    Matrix<Real> d, w;
+    auto attemptToFactor = [&]( const Real& wMaxNorm )
+      {
+        try
+        {
+            J = JOrig;
+            J.FreezeSparsity();
+            UpdateDiagonal( J, Real(1), regTmp );
+
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+
+            JFront.Pull( J, map, info );
+            LDL( info, JFront, LDL_2D );
+        }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+    auto attemptToSolve = [&]( Matrix<Real>& rhs )
+      {
+        try
+        {
+            if( ctrl.resolveReg )
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs,
+                  ctrl.solveCtrl );
+            else
+                reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs,
+                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+        }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+
+    AffineLPResidual<Matrix<Real>> residual, error;
+    AffineLPSolution<Matrix<Real>> affineCorrection, correction;
+
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
+        const Int sNumNonPos = pos_orth::NumOutside( solution.s );
+        const Int zNumNonPos = pos_orth::NumOutside( solution.z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -813,55 +1187,65 @@ void Mehrotra
 
         // Compute the duality measure and scaling point
         // =============================================
-        const Real mu = Dot(s,z) / k;
-        pos_orth::NesterovTodd( s, z, w );
+        const Real mu = Dot(solution.s,solution.z) / k;
+        pos_orth::NesterovTodd( solution.s, solution.z, w );
         const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        const Real primObj = Dot(problem.c,solution.x);
+        const Real dualObj = -Dot(problem.b,solution.y) -
+          Dot(problem.h,solution.z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        rb *= -1;
-        Multiply( NORMAL, Real(1), A, x, Real(1), rb );
-        const Real rbNrm2 = Nrm2( rb );
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Multiply
+        ( NORMAL, Real(1), problem.A, solution.x,
+          Real(1), residual.primalEquality );
+        const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // TODO(poulson): Document this living *after* the norm computations
-        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
+        Axpy
+        ( -ctrl.reg1Perm*ctrl.reg1Perm, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        rc = c;
-        Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        const Real rcNrm2 = Nrm2( rc );
+        residual.dualEquality = problem.c;
+        Multiply
+        ( TRANSPOSE, Real(1), problem.A, solution.y,
+          Real(1), residual.dualEquality );
+        Multiply
+        ( TRANSPOSE, Real(1), problem.G, solution.z,
+          Real(1), residual.dualEquality );
+        const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // TODO(poulson): Document this living *after* the norm computations
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
+        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, solution.x, residual.dualEquality );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        rh *= -1;
-        Multiply( NORMAL, Real(1), G, x, Real(1), rh );
-        rh += s;
-        const Real rhNrm2 = Nrm2( rh );
+        residual.primalConic = problem.h;
+        residual.primalConic *= -1;
+        Multiply
+        ( NORMAL, Real(1), problem.G, solution.x,
+          Real(1), residual.primalConic );
+        residual.primalConic += solution.s;
+        const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // TODO(poulson): Document this living *after* the norm computations
-        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, z, rh );
+        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, solution.z, residual.primalConic );
 
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( x );
-            const Real yNrm2 = Nrm2( y );
-            const Real zNrm2 = Nrm2( z );
-            const Real sNrm2 = Nrm2( s );
+            const Real xNrm2 = Nrm2( solution.x );
+            const Real yNrm2 = Nrm2( solution.y );
+            const Real zNrm2 = Nrm2( solution.z );
+            const Real sNrm2 = Nrm2( solution.s );
             Output
             ("iter ",numIts,":\n",Indent(),
              "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
@@ -890,73 +1274,61 @@ void Mehrotra
 
         // r_mu := s o z
         // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        residual.dualConic = solution.z;
+        DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
 
         // Construct the KKT system
         // ------------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        FinishKKT( m, n, s, z, JOrig );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        FinishKKT( m, n, solution.s, solution.z, JOrig );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
 
         // Solve for the direction
         // -----------------------
-        try
-        {
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
-
-            if( wMaxNorm >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, J.Height(), 1 );
-
-            JFront.Pull( J, map, info );
-
-            LDL( info, JFront, LDL_2D );
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-        }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        if( !attemptToFactor(wMaxNorm) )
+            break;
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          affineCorrection.x,
+          affineCorrection.y,
+          affineCorrection.z,
+          affineCorrection.s );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
-            dxError = rb;
-            Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            const Real dxErrorNrm2 = Nrm2( dxError );
+            error.primalEquality = residual.primalEquality;
+            Multiply
+            ( NORMAL, Real(1), problem.A, affineCorrection.x,
+              Real(1), error.primalEquality );
+            const Real dxErrorNrm2 = Nrm2( error.primalEquality );
 
-            dyError = rc;
-            Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Multiply( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
-            const Real dyErrorNrm2 = Nrm2( dyError );
+            error.dualEquality = residual.dualEquality;
+            Multiply
+            ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
+              Real(1), error.dualEquality );
+            Multiply
+            ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
+              Real(1), error.dualEquality );
+            const Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
-            dzError = rh;
-            Multiply( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-            dzError += dsAff;
-            const Real dzErrorNrm2 = Nrm2( dzError );
+            error.primalConic = residual.primalConic;
+            Multiply
+            ( NORMAL, Real(1), problem.G, affineCorrection.x,
+              Real(1), error.primalConic );
+            error.primalConic += affineCorrection.s;
+            const Real dzErrorNrm2 = Nrm2( error.primalConic );
 
-            // TODO(poulson): dmuError
+            // TODO(poulson): error.dualConic
             // TODO(poulson): Also compute and print the residuals with
-            // regularization
+            // regularization.
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
@@ -969,19 +1341,21 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri =
+          pos_orth::MaxStep( solution.s, affineCorrection.s, Real(1) );
+        Real alphaAffDual =
+          pos_orth::MaxStep( solution.z, affineCorrection.z, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / degree;
+        correction.s = solution.s;
+        correction.z = solution.z;
+        Axpy( alphaAffPri,  affineCorrection.s, correction.s );
+        Axpy( alphaAffDual, affineCorrection.z, correction.z );
+        const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
         const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
@@ -990,61 +1364,52 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
-        Shift( rmu, -sigma*mu );
+        residual.primalEquality *= 1-sigma;
+        residual.primalConic *= 1-sigma;
+        residual.dualEquality *= 1-sigma;
+        Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
             // r_mu := dsAff o dzAff
             // ---------------------
             // NOTE: dz is used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            correction.z = affineCorrection.z;
+            DiagonalScale( LEFT, NORMAL, affineCorrection.s, correction.z );
+            residual.dualConic += correction.z;
         }
 
         // Construct the new KKT RHS
         // -------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
         // Solve for the proposed step
         // ---------------------------
-        try
-        {
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-        }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          correction.x, correction.y, correction.z, correction.s );
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          pos_orth::MaxStep( solution.s, correction.s, 1/ctrl.maxStepRatio );
+        Real alphaDual =
+          pos_orth::MaxStep( solution.z, correction.z, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+        Axpy( alphaPri,  correction.x, solution.x );
+        Axpy( alphaPri,  correction.s, solution.s );
+        Axpy( alphaDual, correction.y, solution.y );
+        Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -1055,27 +1420,37 @@ void Mehrotra
         }
     }
     SetIndent( indent );
-
-    if( ctrl.outerEquil )
-    {
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
-    }
 }
 
 template<typename Real>
 void Mehrotra
-( const DistSparseMatrix<Real>& APre,
-  const DistSparseMatrix<Real>& GPre,
-  const DistMultiVec<Real>& bPre,
-  const DistMultiVec<Real>& cPre,
-  const DistMultiVec<Real>& hPre,
-        DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,
-        DistMultiVec<Real>& s,
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    if( ctrl.outerEquil )
+    {
+        AffineLPProblem<SparseMatrix<Real>,Matrix<Real>> equilibratedProblem;
+        AffineLPSolution<Matrix<Real>> equilibratedSolution;
+        SparseAffineLPEquilibration<Real> equilibration;
+        Equilibrate
+        ( problem, solution,
+          equilibratedProblem, equilibratedSolution,
+          equilibration, ctrl );
+        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        UndoEquilibration( equilibratedSolution, equilibration, solution );
+    }
+    else
+    {
+        EquilibratedMehrotra( problem, solution, ctrl );
+    }
+}
+
+template<typename Real>
+void EquilibratedMehrotra
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        AffineLPSolution<DistMultiVec<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1089,60 +1464,24 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
 
-    mpi::Comm comm = APre.Comm();
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Int k = problem.G.Height();
+    const Int degree = k;
+    mpi::Comm comm = problem.A.Comm();
     const int commRank = mpi::Rank(comm);
     Timer timer;
 
-    // Equilibrate the LP by diagonally scaling [A;G]
-    auto A = APre;
-    auto G = GPre;
-    auto b = bPre;
-    auto h = hPre;
-    auto c = cPre;
-    const Int m = A.Height();
-    const Int k = G.Height();
-    const Int n = A.Width();
-    const Int degree = k;
-    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
-    if( ctrl.outerEquil )
-    {
-        if( commRank == 0 && ctrl.time )
-            timer.Start();
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-        if( commRank == 0 && ctrl.time )
-            Output("RuizEquil: ",timer.Stop()," secs");
-
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
-
-    const Real bNrm2 = Nrm2( b );
-    const Real cNrm2 = Nrm2( c );
-    const Real hNrm2 = Nrm2( h );
-    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
-    const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
+    const Real bNrm2 = Nrm2( problem.b );
+    const Real cNrm2 = Nrm2( problem.c );
+    const Real hNrm2 = Nrm2( problem.h );
+    const Real twoNormEstA = TwoNormEstimate( problem.A, ctrl.basisSize );
+    const Real twoNormEstG = TwoNormEstimate( problem.G, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
     {
-        const double imbalanceA = A.Imbalance();
-        const double imbalanceG = G.Imbalance();
+        const double imbalanceA = problem.A.Imbalance();
+        const double imbalanceG = problem.G.Imbalance();
         if( commRank == 0 )
         {
             Output("|| A ||_2 estimate: ",twoNormEstA);
@@ -1173,7 +1512,8 @@ void Mehrotra
     // ===========================================
     DistSparseMatrix<Real> JStatic(comm);
     StaticKKT
-    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
+    ( problem.A, problem.G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
+      JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
     if( ctrl.print )
@@ -1200,31 +1540,97 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s,
+    ( problem, solution, JStatic, regTmp,
       map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
+    Real relError = 1;
     DistSparseMatrix<Real> J(comm), JOrig(comm);
     ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       w(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
-
-    Real relError = 1;
-    DistMultiVec<Real> dInner(comm);
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+    DistMultiVec<Real> d(comm), w(comm), dInner(comm);
     ldl::DistMultiVecNodeMeta dmvMeta;
+    auto attemptToFactor = [&]( const Real& wMaxNorm )
+      {
+        try
+        {
+            J = JOrig;
+            J.FreezeSparsity();
+            J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
+            UpdateDiagonal( J, Real(1), regTmp );
+
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+            if( commRank == 0 && ctrl.time )
+                Output("Equilibration: ",timer.Stop()," secs");
+
+            JFront.Pull
+            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
+
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            LDL( info, JFront, LDL_2D );
+            if( commRank == 0 && ctrl.time )
+                Output("LDL: ",timer.Stop()," secs");
+        }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+    auto attemptToSolve = [&]( DistMultiVec<Real>& rhs )
+      {
+        try
+        {
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            if( ctrl.resolveReg )
+                reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs, dmvMeta,
+                  ctrl.solveCtrl );
+            else
+                reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs, dmvMeta,
+                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+            if( commRank == 0 && ctrl.time )
+                Output("Affine: ",timer.Stop()," secs");
+        }
+        catch(...)
+        {
+            if( relError > ctrl.minTol )
+                RuntimeError
+                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            return false;
+        }
+        return true;
+      };
+
+    AffineLPResidual<DistMultiVec<Real>> residual, error;
+    AffineLPSolution<DistMultiVec<Real>> affineCorrection, correction;
+    ForceSimpleAlignments( residual, comm );
+    ForceSimpleAlignments( error, comm );
+    ForceSimpleAlignments( affineCorrection, comm );
+    ForceSimpleAlignments( correction, comm );
+
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
+        const Int sNumNonPos = pos_orth::NumOutside( solution.s );
+        const Int zNumNonPos = pos_orth::NumOutside( solution.z );
         if( sNumNonPos > 0 || zNumNonPos > 0 )
             LogicError
             (sNumNonPos," entries of s were nonpositive and ",
@@ -1232,55 +1638,65 @@ void Mehrotra
 
         // Compute the duality measure and scaling point
         // =============================================
-        const Real mu = Dot(s,z) / k;
-        pos_orth::NesterovTodd( s, z, w );
+        const Real mu = Dot(solution.s,solution.z) / k;
+        pos_orth::NesterovTodd( solution.s, solution.z, w );
         const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(c,x);
-        const Real dualObj = -Dot(b,y) - Dot(h,z);
+        const Real primObj = Dot(problem.c,solution.x);
+        const Real dualObj = -Dot(problem.b,solution.y) -
+          Dot(problem.h,solution.z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b;
-        rb *= -1;
-        Multiply( NORMAL, Real(1), A, x, Real(1), rb );
-        const Real rbNrm2 = Nrm2( rb );
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Multiply
+        ( NORMAL, Real(1), problem.A, solution.x,
+          Real(1), residual.primalEquality );
+        const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // TODO(poulson): Document this living *after* the norm computations
-        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
+        Axpy
+        ( -ctrl.reg1Perm*ctrl.reg1Perm, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
-        rc = c;
-        Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
-        Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        const Real rcNrm2 = Nrm2( rc );
+        residual.dualEquality = problem.c;
+        Multiply
+        ( TRANSPOSE, Real(1), problem.A, solution.y,
+          Real(1), residual.dualEquality );
+        Multiply
+        ( TRANSPOSE, Real(1), problem.G, solution.z,
+          Real(1), residual.dualEquality );
+        const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // TODO(poulson): Document this living *after* the norm computations
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
+        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, solution.x, residual.dualEquality );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h;
-        rh *= -1;
-        Multiply( NORMAL, Real(1), G, x, Real(1), rh );
-        rh += s;
-        const Real rhNrm2 = Nrm2( rh );
+        residual.primalConic = problem.h;
+        residual.primalConic *= -1;
+        Multiply
+        ( NORMAL, Real(1), problem.G, solution.x,
+          Real(1), residual.primalConic );
+        residual.primalConic += solution.s;
+        const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // TODO(poulson): Document this living *after* the norm computations
-        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, z, rh );
+        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, solution.z, residual.primalConic );
 
         // Now check the pieces
         // --------------------
         relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( x );
-            const Real yNrm2 = Nrm2( y );
-            const Real zNrm2 = Nrm2( z );
-            const Real sNrm2 = Nrm2( s );
+            const Real xNrm2 = Nrm2( solution.x );
+            const Real yNrm2 = Nrm2( solution.y );
+            const Real zNrm2 = Nrm2( solution.z );
+            const Real sNrm2 = Nrm2( solution.s );
             if( commRank == 0 )
                 Output
                 ("iter ",numIts,":\n",Indent(),
@@ -1310,87 +1726,60 @@ void Mehrotra
 
         // r_mu := s o z
         // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        residual.dualConic = solution.z;
+        DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
 
         // Construct the KKT system
         // ------------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
         JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-        FinishKKT( m, n, s, z, JOrig );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        FinishKKT( m, n, solution.s, solution.z, JOrig );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
 
         // Solve for the direction
         // -----------------------
-        try
-        {
-            J = JOrig;
-            J.FreezeSparsity();
-            J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-            UpdateDiagonal( J, Real(1), regTmp );
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( wMaxNorm >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, J.Height(), 1 );
-            if( commRank == 0 && ctrl.time )
-                Output("Equilibration: ",timer.Stop()," secs");
-
-            JFront.Pull
-            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            LDL( info, JFront, LDL_2D );
-            if( commRank == 0 && ctrl.time )
-                Output("LDL: ",timer.Stop()," secs");
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Affine: ",timer.Stop()," secs");
-        }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        if( !attemptToFactor(wMaxNorm) )
+            break;
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          affineCorrection.x,
+          affineCorrection.y,
+          affineCorrection.z,
+          affineCorrection.s );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
-            dxError = rb;
-            Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
-            const Real dxErrorNrm2 = Nrm2( dxError );
+            error.primalEquality = residual.primalEquality;
+            Multiply
+            ( NORMAL, Real(1), problem.A, affineCorrection.x,
+              Real(1), error.primalEquality );
+            const Real dxErrorNrm2 = Nrm2( error.primalEquality );
 
-            dyError = rc;
-            Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
-            Multiply( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
-            const Real dyErrorNrm2 = Nrm2( dyError );
+            error.dualEquality = residual.dualEquality;
+            Multiply
+            ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
+              Real(1), error.dualEquality );
+            Multiply
+            ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
+              Real(1), error.dualEquality );
+            const Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
-            dzError = rh;
-            Multiply( NORMAL, Real(1), G, dxAff, Real(1), dzError );
-            dzError += dsAff;
-            const Real dzErrorNrm2 = Nrm2( dzError );
+            error.primalConic = residual.primalConic;
+            Multiply
+            ( NORMAL, Real(1), problem.G, affineCorrection.x,
+              Real(1), error.primalConic );
+            error.primalConic += affineCorrection.s;
+            const Real dzErrorNrm2 = Nrm2( error.primalConic );
 
-            // TODO(poulson): dmuError
+            // TODO(poulson): error.dualConic
             // TODO(poulson): Also compute and print the residuals with
             // regularization
 
@@ -1406,19 +1795,21 @@ void Mehrotra
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri =
+          pos_orth::MaxStep( solution.s, affineCorrection.s, Real(1) );
+        Real alphaAffDual =
+          pos_orth::MaxStep( solution.z, affineCorrection.z, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
-        // NOTE: dz and ds are used as temporaries
-        ds = s;
-        dz = z;
-        Axpy( alphaAffPri,  dsAff, ds );
-        Axpy( alphaAffDual, dzAff, dz );
-        const Real muAff = Dot(ds,dz) / degree;
+        // NOTE: correction.z and correction.s are used as temporaries
+        correction.s = solution.s;
+        correction.z = solution.z;
+        Axpy( alphaAffPri,  affineCorrection.s, correction.s );
+        Axpy( alphaAffDual, affineCorrection.z, correction.z );
+        const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
         const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
@@ -1427,65 +1818,52 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
-        Shift( rmu, -sigma*mu );
+        residual.primalEquality *= 1-sigma;
+        residual.primalConic *= 1-sigma;
+        residual.dualEquality *= 1-sigma;
+        Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
             // r_mu += dsAff o dzAff
             // ---------------------
-            // NOTE: dz is used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            // NOTE: correction.z is used as a temporary
+            correction.z = affineCorrection.z;
+            DiagonalScale( LEFT, NORMAL, affineCorrection.s, correction.z );
+            residual.dualConic += correction.z;
         }
 
         // Construct the new KKT RHS
         // -------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKTRHS
+        ( residual.dualEquality,
+          residual.primalEquality,
+          residual.primalConic,
+          residual.dualConic,
+          solution.z, d );
         // Solve for the direction
         // -----------------------
-        try
-        {
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Corrector: ",timer.Stop()," secs");
-        }
-        catch(...)
-        {
-            if( relError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        if( !attemptToSolve(d) )
+            break;
+        ExpandSolution
+        ( m, n, d, residual.dualConic, solution.s, solution.z,
+          correction.x, correction.y, correction.z, correction.s );
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          pos_orth::MaxStep( solution.s, correction.s, 1/ctrl.maxStepRatio );
+        Real alphaDual =
+          pos_orth::MaxStep( solution.z, correction.z, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
         if( ctrl.print && commRank == 0 )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
-        Axpy( alphaPri,  dx, x );
-        Axpy( alphaPri,  ds, s );
-        Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z );
+        Axpy( alphaPri,  correction.x, solution.x );
+        Axpy( alphaPri,  correction.s, solution.s );
+        Axpy( alphaDual, correction.y, solution.y );
+        Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -1496,60 +1874,53 @@ void Mehrotra
         }
     }
     SetIndent( indent );
+}
 
+template<typename Real>
+void Mehrotra
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        AffineLPSolution<DistMultiVec<Real>>& solution,
+  const MehrotraCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
     if( ctrl.outerEquil )
     {
-        DiagonalSolve( LEFT, NORMAL, dCol,  x );
-        DiagonalSolve( LEFT, NORMAL, dRowA, y );
-        DiagonalSolve( LEFT, NORMAL, dRowG, z );
-        DiagonalScale( LEFT, NORMAL, dRowG, s );
+        mpi::Comm comm = problem.A.Comm();
+        AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>
+          equilibratedProblem;
+        AffineLPSolution<DistMultiVec<Real>> equilibratedSolution;
+        DistSparseAffineLPEquilibration<Real> equilibration;
+        ForceSimpleAlignments( equilibratedSolution, comm );
+        ForceSimpleAlignments( equilibratedProblem, comm );
+        Equilibrate
+        ( problem, solution,
+          equilibratedProblem, equilibratedSolution,
+          equilibration, ctrl );
+        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        UndoEquilibration( equilibratedSolution, equilibration, solution );
+    }
+    else
+    {
+        EquilibratedMehrotra( problem, solution, ctrl );
     }
 }
 
 #define PROTO(Real) \
   template void Mehrotra \
-  ( const Matrix<Real>& A, \
-    const Matrix<Real>& G, \
-    const Matrix<Real>& b, \
-    const Matrix<Real>& c, \
-    const Matrix<Real>& h, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
-          Matrix<Real>& s, \
+  ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+          AffineLPSolution<Matrix<Real>>& solution, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& A, \
-    const AbstractDistMatrix<Real>& G, \
-    const AbstractDistMatrix<Real>& b, \
-    const AbstractDistMatrix<Real>& c, \
-    const AbstractDistMatrix<Real>& h, \
-          AbstractDistMatrix<Real>& x, \
-          AbstractDistMatrix<Real>& y, \
-          AbstractDistMatrix<Real>& z, \
-          AbstractDistMatrix<Real>& s, \
+  ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+          AffineLPSolution<DistMatrix<Real>>& solution, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const SparseMatrix<Real>& A, \
-    const SparseMatrix<Real>& G, \
-    const Matrix<Real>& b, \
-    const Matrix<Real>& c, \
-    const Matrix<Real>& h, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
-          Matrix<Real>& s, \
+  ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+          AffineLPSolution<Matrix<Real>>& solution, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const DistSparseMatrix<Real>& A, \
-    const DistSparseMatrix<Real>& G, \
-    const DistMultiVec<Real>& b, \
-    const DistMultiVec<Real>& c, \
-    const DistMultiVec<Real>& h, \
-          DistMultiVec<Real>& x, \
-          DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z, \
-          DistMultiVec<Real>& s, \
+  ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+          AffineLPSolution<DistMultiVec<Real>>& solution, \
     const MehrotraCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

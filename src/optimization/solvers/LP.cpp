@@ -14,6 +14,23 @@ namespace El {
 
 template<typename Real>
 void LP
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    if( ctrl.approach == LP_ADMM )
+        lp::direct::ADMM
+        ( problem.A, problem.b, problem.c, solution.x, ctrl.admmCtrl );
+    else if( ctrl.approach == LP_MEHROTRA )
+        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    else
+        LogicError("Unsupported solver");
+}
+
+// This interface is now deprecated.
+template<typename Real>
+void LP
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -23,14 +40,34 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_ADMM )
-        lp::direct::ADMM( A, b, c, x, ctrl.admmCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+    DirectLPProblem<Matrix<Real>,Matrix<Real>> problem;
+    DirectLPSolution<Matrix<Real>> solution;
+    LockedView( problem.c, c );
+    LockedView( problem.A, A );
+    LockedView( problem.b, b );
+    solution.x = x;
+    solution.y = y;
+    solution.z = z;
+    LP( problem, solution, ctrl );
+    x = solution.x;
+    y = solution.y;
+    z = solution.z;
+}
+
+template<typename Real>
+void LP
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    if( ctrl.approach == LP_MEHROTRA )
+        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const Matrix<Real>& A,
@@ -45,12 +82,41 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+    AffineLPProblem<Matrix<Real>,Matrix<Real>> problem;
+    LockedView( problem.c, c );
+    LockedView( problem.A, A );
+    LockedView( problem.b, b );
+    LockedView( problem.G, G );
+    LockedView( problem.h, h );
+    AffineLPSolution<Matrix<Real>> solution;
+    solution.x = x;
+    solution.s = s;
+    solution.y = y;
+    solution.z = z;
+    LP( problem, solution, ctrl );
+    x = solution.x;
+    s = solution.s;
+    y = solution.y;
+    z = solution.z;
+}
+
+template<typename Real>
+void LP
+( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        DirectLPSolution<DistMatrix<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    if( ctrl.approach == LP_ADMM )
+        lp::direct::ADMM
+        ( problem.A, problem.b, problem.c, solution.x, ctrl.admmCtrl );
+    else if( ctrl.approach == LP_MEHROTRA )
+        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A,
@@ -62,14 +128,36 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_ADMM )
-        lp::direct::ADMM( A, b, c, x, ctrl.admmCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+    DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>> problem;
+    DirectLPSolution<DistMatrix<Real>> solution;
+    ForceSimpleAlignments( problem, A.Grid() );
+    ForceSimpleAlignments( solution, A.Grid() );
+    Copy( c, problem.c );
+    Copy( A, problem.A );
+    Copy( b, problem.b );
+    Copy( x, solution.x );
+    Copy( y, solution.y );
+    Copy( z, solution.z );
+    LP( problem, solution, ctrl );
+    Copy( solution.x, x );
+    Copy( solution.y, y );
+    Copy( solution.z, z );
+}
+
+template<typename Real>
+void LP
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        AffineLPSolution<DistMatrix<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    if( ctrl.approach == LP_MEHROTRA )
+        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const AbstractDistMatrix<Real>& A,
@@ -84,12 +172,40 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>> problem;
+    AffineLPSolution<DistMatrix<Real>> solution;
+    ForceSimpleAlignments( problem, A.Grid() );
+    ForceSimpleAlignments( solution, A.Grid() );
+    Copy( c, problem.c );
+    Copy( A, problem.A );
+    Copy( b, problem.b );
+    Copy( G, problem.G );
+    Copy( h, problem.h );
+    Copy( x, solution.x );
+    Copy( y, solution.y );
+    Copy( z, solution.z );
+    Copy( s, solution.s );
+    LP( problem, solution, ctrl );
+    Copy( solution.x, x );
+    Copy( solution.y, y );
+    Copy( solution.z, z );
+    Copy( solution.s, s );
+}
+
+template<typename Real>
+void LP
+( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
     if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A,
@@ -101,12 +217,34 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    DirectLPProblem<SparseMatrix<Real>,Matrix<Real>> problem;
+    DirectLPSolution<Matrix<Real>> solution;
+    problem.c = c;
+    problem.A = A;
+    problem.b = b;
+    solution.x = x; 
+    solution.y = y;
+    solution.z = z;
+    LP( problem, solution, ctrl );
+    x = solution.x;
+    y = solution.y;
+    z = solution.z;
+}
+
+template<typename Real>
+void LP
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
     if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const SparseMatrix<Real>& A,
@@ -121,12 +259,38 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    AffineLPProblem<SparseMatrix<Real>,Matrix<Real>> problem;
+    AffineLPSolution<Matrix<Real>> solution;
+    problem.c = c;
+    problem.A = A;
+    problem.b = b;
+    problem.G = G;
+    problem.h = h;
+    solution.x = x; 
+    solution.y = y;
+    solution.z = z;
+    solution.s = s;
+    LP( problem, solution, ctrl );
+    x = solution.x;
+    y = solution.y;
+    z = solution.z;
+    s = solution.s;
+}
+
+template<typename Real>
+void LP
+( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        DirectLPSolution<DistMultiVec<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
     if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A,
@@ -138,12 +302,36 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
+    DirectLPSolution<DistMultiVec<Real>> solution;
+    ForceSimpleAlignments( problem, A.Comm() );
+    ForceSimpleAlignments( solution, A.Comm() );
+    problem.c = c;
+    problem.A = A;
+    problem.b = b;
+    solution.x = x; 
+    solution.y = y;
+    solution.z = z;
+    LP( problem, solution, ctrl );
+    x = solution.x;
+    y = solution.y;
+    z = solution.z;
+}
+
+template<typename Real>
+void LP
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        AffineLPSolution<DistMultiVec<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
     if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( A, b, c, x, y, z, ctrl.mehrotraCtrl );
+        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
     else
         LogicError("Unsupported solver");
 }
 
+// This interface is now deprecated.
 template<typename Real>
 void LP
 ( const DistSparseMatrix<Real>& A,
@@ -158,13 +346,31 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
-    else
-        LogicError("Unsupported solver");
+    AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
+    AffineLPSolution<DistMultiVec<Real>> solution;
+    ForceSimpleAlignments( problem, A.Comm() );
+    ForceSimpleAlignments( solution, A.Comm() );
+    problem.c = c;
+    problem.A = A;
+    problem.b = b;
+    problem.G = G;
+    problem.h = h;
+    solution.x = x; 
+    solution.y = y;
+    solution.z = z;
+    solution.s = s;
+    LP( problem, solution, ctrl );
+    x = solution.x;
+    y = solution.y;
+    z = solution.z;
+    s = solution.s;
 }
 
 #define PROTO(Real) \
+  template void LP \
+  ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+          DirectLPSolution<Matrix<Real>>& solution, \
+    const lp::direct::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b, \
@@ -173,6 +379,10 @@ void LP
           Matrix<Real>& y, \
           Matrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
+  ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+          AffineLPSolution<Matrix<Real>>& solution, \
+    const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& G, \
@@ -185,6 +395,10 @@ void LP
           Matrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
+  ( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+          DirectLPSolution<DistMatrix<Real>>& solution, \
+    const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
@@ -192,6 +406,10 @@ void LP
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
+  ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+          AffineLPSolution<DistMatrix<Real>>& solution, \
+    const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
@@ -204,6 +422,10 @@ void LP
           AbstractDistMatrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
+  ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+          DirectLPSolution<Matrix<Real>>& solution, \
+    const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
@@ -211,6 +433,10 @@ void LP
           Matrix<Real>& y, \
           Matrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
+  ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+          AffineLPSolution<Matrix<Real>>& solution, \
+    const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
@@ -223,6 +449,10 @@ void LP
           Matrix<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
+  ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+          DirectLPSolution<DistMultiVec<Real>>& solution, \
+    const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
@@ -230,6 +460,10 @@ void LP
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
+  template void LP \
+  ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+          AffineLPSolution<DistMultiVec<Real>>& solution, \
+    const lp::affine::Ctrl<Real>& ctrl ); \
   template void LP \
   ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \

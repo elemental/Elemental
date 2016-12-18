@@ -17,39 +17,20 @@ namespace affine {
 // ==========
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A,
-  const Matrix<Real>& G,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        Matrix<Real>& s,
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        AffineLPSolution<DistMatrix<Real>>& solution,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& JStatic,
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const SparseMatrix<Real>& JStatic,
   const Matrix<Real>& regTmp,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        Matrix<Real>& s,
   const vector<Int>& map,
   const vector<Int>& invMap,
   const ldl::Separator& rootSep,
@@ -58,15 +39,10 @@ void Initialize
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& JStatic,
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        AffineLPSolution<DistMultiVec<Real>>& solution,
+  const DistSparseMatrix<Real>& JStatic,
   const DistMultiVec<Real>& regTmp,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,
-        DistMultiVec<Real>& s,
   const DistMap& map,
   const DistMap& invMap,
   const ldl::DistSeparator& rootSep,
@@ -79,6 +55,8 @@ void Initialize
 
 // Full system
 // ===========
+// We explicitly accept s and z rather than AffineLPSolution because it is
+// common to initialize IPM's by solving the KKT system with s = z = ones(k,1).
 template<typename Real>
 void KKT
 ( const Matrix<Real>& A,
@@ -89,11 +67,11 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& s,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& J,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& s,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT

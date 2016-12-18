@@ -233,12 +233,12 @@ void KKT
 
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& w,
-  const ElementalMatrix<Int>& ordersPre,
-  const ElementalMatrix<Int>& firstIndsPre,
-        ElementalMatrix<Real>& JPre,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
+        DistMatrix<Real>& J,
   bool onlyLower, Int cutoffPar )
 {
     EL_DEBUG_CSE
@@ -256,9 +256,6 @@ void KKT
       firstIndsProx( firstIndsPre, ctrl );
     auto& orders = ordersProx.GetLocked();
     auto& firstInds = firstIndsProx.GetLocked();
-
-    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
-    auto& J = JProx.Get();
 
     DistMatrix<Real,VC,STAR> wDets(g);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
@@ -2103,14 +2100,14 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb,
-  const ElementalMatrix<Real>& rh,
-  const ElementalMatrix<Real>& rmu,
-  const ElementalMatrix<Real>& wRoot,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& dPre,
+( const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rb,
+  const DistMatrix<Real>& rh,
+  const DistMatrix<Real>& rmu,
+  const DistMatrix<Real>& wRoot,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        AbstractDistMatrix<Real>& dPre,
   Int cutoff )
 {
     EL_DEBUG_CSE
@@ -2417,12 +2414,12 @@ void ExpandSolution
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& w, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& J, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& G, \
+    const DistMatrix<Real>& w, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          DistMatrix<Real>& J, \
     bool onlyLower, Int cutoff ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
@@ -2502,14 +2499,14 @@ void ExpandSolution
     const Matrix<Int>& firstInds, \
           Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const ElementalMatrix<Real>& rc, \
-    const ElementalMatrix<Real>& rb, \
-    const ElementalMatrix<Real>& rh, \
-    const ElementalMatrix<Real>& rmu, \
-    const ElementalMatrix<Real>& wRoot, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& d, \
+  ( const DistMatrix<Real>& rc, \
+    const DistMatrix<Real>& rb, \
+    const DistMatrix<Real>& rh, \
+    const DistMatrix<Real>& rmu, \
+    const DistMatrix<Real>& wRoot, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          AbstractDistMatrix<Real>& d, \
     Int cutoff ); \
   template void KKTRHS \
   ( const Matrix<Real>& rc, \

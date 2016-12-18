@@ -228,7 +228,153 @@ struct Ctrl
 
 // Direct conic form
 // -----------------
+template<typename MatrixType,typename VectorType>
+struct DirectLPProblem
+{
+    // The objective is 'c^T x'.
+    VectorType c;
+
+    // The primal equality constraint is 'A x = b; x >= 0'.
+    MatrixType A;
+    VectorType b;
+};
+
 template<typename Real>
+void ForceSimpleAlignments
+( DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+  const Grid& grid )
+{
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.c.Align(0,0);
+    problem.A.Align(0,0);
+    problem.b.Align(0,0);
+}
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+  mpi::Comm comm )
+{
+    problem.c.SetComm( comm );
+    problem.A.SetComm( comm );
+    problem.b.SetComm( comm );
+}
+
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem )
+{
+    return problem.c.ColAlign() == 0 && problem.c.RowAlign() == 0 &&
+           problem.A.ColAlign() == 0 && problem.A.RowAlign() == 0 &&
+           problem.b.ColAlign() == 0 && problem.b.RowAlign() == 0;
+}
+
+template<typename VectorType>
+struct DirectLPSolution
+{
+    // The primal solution is 'x', where 'A x = b, x >= 0'.
+    VectorType x;
+
+    // The dual solution is '(y,z)', where 'A^T y - z + c = 0, z >= 0'.
+    VectorType y;
+    VectorType z;
+};
+
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPSolution<DistMatrix<Real>>& solution, const Grid& grid )
+{
+    solution.x.SetGrid( grid );
+    solution.y.SetGrid( grid );
+    solution.z.SetGrid( grid );
+    solution.x.Align(0,0);
+    solution.y.Align(0,0);
+    solution.z.Align(0,0);
+}
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPSolution<DistMultiVec<Real>>& solution, mpi::Comm comm )
+{
+    solution.x.SetComm( comm );
+    solution.y.SetComm( comm );
+    solution.z.SetComm( comm );
+}
+
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPSolution<DistMatrix<Real>>& solution )
+{
+    return solution.x.ColAlign() == 0 && solution.x.RowAlign() == 0 &&
+           solution.y.ColAlign() == 0 && solution.y.RowAlign() == 0 &&
+           solution.z.ColAlign() == 0 && solution.z.RowAlign() == 0;
+}
+
+template<typename VectorType>
+struct DirectLPResidual
+{
+    VectorType primalEquality; // This residual is 'A x - b'.
+
+    VectorType dualEquality; // This residual is 'A^T y - z + c'.
+    VectorType dualConic; // This residual is 'x o z'.
+};
+
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPResidual<DistMatrix<Real>>& residual, const Grid& grid )
+{
+    residual.primalEquality.SetGrid( grid );
+    residual.dualEquality.SetGrid( grid );
+    residual.dualConic.SetGrid( grid );
+    residual.primalEquality.Align(0,0);
+    residual.dualEquality.Align(0,0);
+    residual.dualConic.Align(0,0);
+}
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPResidual<DistMultiVec<Real>>& residual, mpi::Comm comm )
+{
+    residual.primalEquality.SetComm( comm );
+    residual.dualEquality.SetComm( comm );
+    residual.dualConic.SetComm( comm );
+}
+
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPResidual<DistMatrix<Real>>& residual )
+{
+    return residual.primalEquality.ColAlign() == 0 &&
+           residual.primalEquality.RowAlign() == 0 &&
+           residual.dualEquality.ColAlign() == 0 &&
+           residual.dualEquality.RowAlign() == 0 &&
+           residual.dualConic.ColAlign() == 0 &&
+           residual.dualConic.RowAlign() == 0;
+}
+
+template<typename Real>
+void LP
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
+template<typename Real>
+void LP
+( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        DirectLPSolution<DistMatrix<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
+template<typename Real>
+void LP
+( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
+template<typename Real>
+void LP
+( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        DirectLPSolution<DistMultiVec<Real>>& solution,
+  const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
+
+// These interfaces are now deprecated in favor of the above.
+template<typename Real>
+[[deprecated]]
 void LP
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,
@@ -238,6 +384,7 @@ void LP
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
+[[deprecated]]
 void LP
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b,
@@ -247,6 +394,7 @@ void LP
         AbstractDistMatrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(false) );
 template<typename Real>
+[[deprecated]]
 void LP
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
@@ -256,6 +404,7 @@ void LP
         Matrix<Real>& z,
   const lp::direct::Ctrl<Real>& ctrl=lp::direct::Ctrl<Real>(true) );
 template<typename Real>
+[[deprecated]]
 void LP
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
@@ -267,7 +416,174 @@ void LP
 
 // Affine conic form
 // -----------------
+template<typename MatrixType,typename VectorType>
+struct AffineLPProblem
+{
+    // The objective is 'c^T x'.
+    VectorType c;
+
+    // The primal equality constraint is 'A x = b'.
+    MatrixType A;
+    VectorType b;
+
+    // The primal cone constraint is 'G x + s = h, s >= 0'.
+    MatrixType G;
+    VectorType h;
+};
+
 template<typename Real>
+void ForceSimpleAlignments
+( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+  const Grid& grid )
+{
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.G.SetGrid( grid );
+    problem.h.SetGrid( grid );
+    problem.c.Align(0,0);
+    problem.A.Align(0,0);
+    problem.b.Align(0,0);
+    problem.G.Align(0,0);
+    problem.h.Align(0,0);
+}
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+  mpi::Comm comm )
+{
+    problem.c.SetComm( comm );
+    problem.A.SetComm( comm );
+    problem.b.SetComm( comm );
+    problem.G.SetComm( comm );
+    problem.h.SetComm( comm );
+}
+
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem )
+{
+    return problem.c.ColAlign() == 0 && problem.c.RowAlign() == 0 &&
+           problem.A.ColAlign() == 0 && problem.A.RowAlign() == 0 &&
+           problem.b.ColAlign() == 0 && problem.b.RowAlign() == 0 &&
+           problem.G.ColAlign() == 0 && problem.G.RowAlign() == 0 &&
+           problem.h.ColAlign() == 0 && problem.h.RowAlign() == 0;
+}
+
+template<typename VectorType>
+struct AffineLPSolution
+{
+    // The primal solution is '(x,s)', where 'A x = b, G x + s = h, s >= 0'.
+    VectorType x;
+    VectorType s;
+
+    // The dual solution is '(y,z)', where 'A^T y + G^T z + c = 0, z >= 0'.
+    VectorType y;
+    VectorType z;
+};
+
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPSolution<DistMatrix<Real>>& solution, const Grid& grid )
+{
+    solution.x.SetGrid( grid );
+    solution.s.SetGrid( grid );
+    solution.y.SetGrid( grid );
+    solution.z.SetGrid( grid );
+    solution.x.Align(0,0);
+    solution.s.Align(0,0);
+    solution.y.Align(0,0);
+    solution.z.Align(0,0);
+}
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPSolution<DistMultiVec<Real>>& solution, mpi::Comm comm )
+{
+    solution.x.SetComm( comm );
+    solution.s.SetComm( comm );
+    solution.y.SetComm( comm );
+    solution.z.SetComm( comm );
+}
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPSolution<DistMatrix<Real>>& solution )
+{
+    return solution.x.ColAlign() == 0 && solution.x.RowAlign() == 0 &&
+           solution.y.ColAlign() == 0 && solution.y.RowAlign() == 0 &&
+           solution.z.ColAlign() == 0 && solution.z.RowAlign() == 0 &&
+           solution.s.ColAlign() == 0 && solution.s.RowAlign() == 0;
+}
+
+template<typename VectorType>
+struct AffineLPResidual
+{
+    VectorType primalEquality; // This residual is 'A x - b'.
+    VectorType primalConic; // This residual is 'G x + s - h'.
+
+    VectorType dualEquality; // This residual is 'A^T y + G^T z + c'.
+    VectorType dualConic; // This residual is 's o z'.
+};
+
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPResidual<DistMatrix<Real>>& residual, const Grid& grid )
+{
+    residual.primalEquality.SetGrid( grid );
+    residual.primalConic.SetGrid( grid );
+    residual.dualEquality.SetGrid( grid );
+    residual.dualConic.SetGrid( grid );
+    residual.primalEquality.Align(0,0);
+    residual.primalConic.Align(0,0);
+    residual.dualEquality.Align(0,0);
+    residual.dualConic.Align(0,0);
+}
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPResidual<DistMultiVec<Real>>& residual, mpi::Comm comm )
+{
+    residual.primalEquality.SetComm( comm );
+    residual.primalConic.SetComm( comm );
+    residual.dualEquality.SetComm( comm );
+    residual.dualConic.SetComm( comm );
+}
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPResidual<DistMatrix<Real>>& residual )
+{
+    return residual.primalEquality.ColAlign() == 0 &&
+           residual.primalEquality.RowAlign() == 0 &&
+           residual.primalConic.ColAlign() == 0 &&
+           residual.primalConic.RowAlign() == 0 &&
+           residual.dualEquality.ColAlign() == 0 &&
+           residual.dualEquality.RowAlign() == 0 &&
+           residual.dualConic.ColAlign() == 0 &&
+           residual.dualConic.RowAlign() == 0;
+}
+
+template<typename Real>
+void LP
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void LP
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        AffineLPSolution<DistMatrix<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void LP
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+template<typename Real>
+void LP
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        AffineLPSolution<DistMultiVec<Real>>& solution,
+  const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
+
+// These interfaces are now deprecated in favor of the above.
+template<typename Real>
+[[deprecated]]
 void LP
 ( const Matrix<Real>& A,
   const Matrix<Real>& G,
@@ -280,6 +596,7 @@ void LP
         Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
+[[deprecated]]
 void LP
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
@@ -292,6 +609,7 @@ void LP
         AbstractDistMatrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
+[[deprecated]]
 void LP
 ( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
@@ -304,6 +622,7 @@ void LP
         Matrix<Real>& s,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
+[[deprecated]]
 void LP
 ( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,

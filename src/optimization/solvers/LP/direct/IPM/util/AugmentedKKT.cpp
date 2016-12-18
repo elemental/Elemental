@@ -55,10 +55,10 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& x,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& JPre,
   bool onlyLower )
 {
     EL_DEBUG_CSE
@@ -122,10 +122,10 @@ void AugmentedKKT
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& J, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& x, \
+    const DistMatrix<Real>& z, \
+          DistMatrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \

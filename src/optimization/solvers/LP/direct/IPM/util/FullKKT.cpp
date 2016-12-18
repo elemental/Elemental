@@ -80,10 +80,10 @@ void KKT
 
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre, bool onlyLower )
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& x,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& JPre, bool onlyLower )
 {
     EL_DEBUG_CSE
     const Int m = A.Height();
@@ -168,10 +168,10 @@ void KKT
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& J, bool onlyLower ); \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& x, \
+    const DistMatrix<Real>& z, \
+          DistMatrix<Real>& J, bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \
