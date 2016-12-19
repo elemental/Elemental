@@ -401,6 +401,7 @@ void DenseDirectState<Real>::Initialize
     bNorm = FrobeniusNorm( problem.b );
     cNorm = FrobeniusNorm( problem.c );
     barrierOld = 0.1;
+    dimacsError = 1;
     if( ctrl.print )
     {
         const Real ANrm1 = OneNorm( problem.A );
@@ -546,13 +547,97 @@ void DenseDirectState<Real>::PrintResiduals
 }
 
 template<typename Real>
+struct DenseDirectFactorization
+{
+    Matrix<Real> kktSystem;
+    Matrix<Real> dSub;
+    Permutation perm;
+
+    mutable Matrix<Real> temp;
+
+    void Factor()
+    { LDL( kktSystem, dSub, perm, false ); }
+
+    void Solve( Matrix<Real>& rhs ) const
+    { ldl::SolveAfter( kktSystem, dSub, perm, rhs, false ); }
+
+    void InitializeSystem
+    ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+      const DirectRegularization<Real>& permReg,
+      const DirectLPSolution<Matrix<Real>>& solution,
+      KKTSystem system )
+    {
+        if( system == FULL_KKT )
+        {
+            KKT( problem.A, solution.x, solution.z, kktSystem );
+        }
+        else if( system == AUGMENTED_KKT )
+        {
+            AugmentedKKT( problem.A, solution.x, solution.z, kktSystem );
+        }
+        else if( system == NORMAL_KKT )
+        {
+            NormalKKT
+            ( problem.A, Sqrt(permReg.dualEquality),
+              Sqrt(permReg.primalEquality), solution.x, solution.z, kktSystem );
+        }
+        Factor();
+    }
+
+    void SolveSystem
+    ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+      const DirectRegularization<Real>& permReg,
+      const DirectLPResidual<Matrix<Real>>& residual,
+      const DirectLPSolution<Matrix<Real>>& solution,
+            DirectLPSolution<Matrix<Real>>& correction,
+            KKTSystem system ) const
+    {
+        const Int m = solution.y.Height();
+        const Int n = solution.x.Height();
+        if( system == FULL_KKT )
+        {
+            KKTRHS
+            ( residual.dualEquality,
+              residual.primalEquality,
+              residual.dualConic,
+              solution.z, temp );
+            Solve(temp);
+            ExpandSolution
+            ( m, n, temp, correction.x, correction.y, correction.z );
+        }
+        else if( system == AUGMENTED_KKT )
+        {
+            AugmentedKKTRHS
+            ( solution.x, residual.dualEquality,
+              residual.primalEquality, residual.dualConic, temp );
+            Solve(temp);
+            ExpandAugmentedSolution
+            ( solution.x, solution.z, residual.dualConic, temp,
+              correction.x, correction.y, correction.z );
+        }
+        else if( system == NORMAL_KKT )
+        {
+            NormalKKTRHS
+            ( problem.A, Sqrt(permReg.dualEquality), solution.x, solution.z,
+              residual.dualEquality,
+              residual.primalEquality,
+              residual.dualConic,
+              correction.y );
+            Solve(correction.y);
+            ExpandNormalSolution
+            ( problem, Sqrt(permReg.dualEquality), solution, residual,
+              correction );
+        }
+    }
+};
+
+template<typename Real>
 void EquilibratedMehrotra
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         DirectLPSolution<Matrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int degree = n;
     const Real eps = limits::Epsilon<Real>();
@@ -575,39 +660,12 @@ void EquilibratedMehrotra
     DenseDirectState<Real> state;
     state.Initialize( problem, ctrl );
 
+    const Int indent = PushIndent();
+    try {
     Initialize
     ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
-
-    Matrix<Real> J, d;
-    Matrix<Real> dSub;
-    Permutation p;
-    auto attemptToFactor = [&]()
-      {
-        try { LDL( J, dSub, p, false ); }
-        catch(...)
-        {
-            if( state.dimacsError > ctrl.minTol )
-                RuntimeError
-                ("Unable to achieve minimum tolerance ",ctrl.minTol);
-            return false;
-        }
-        return true;
-      };
-    auto attemptToSolve = [&]( Matrix<Real>& rhs )
-      {
-        try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
-        catch(...)
-        {
-            if( state.dimacsError > ctrl.minTol )
-                RuntimeError
-                ("Unable to achieve minimum tolerance ",ctrl.minTol);
-            return false;
-        }
-        return true;
-      };
-
+    DenseDirectFactorization<Real> factor;
     DirectLPSolution<Matrix<Real>> affineCorrection, correction;
-    const Int indent = PushIndent();
     for( state.numIts=0; state.numIts<=ctrl.maxIts; ++state.numIts )
     {
         // Ensure that x and z are in the cone
@@ -630,79 +688,15 @@ void EquilibratedMehrotra
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
 
+        // Set up and factor the KKT matrix
+        // ================================
+        factor.InitializeSystem( problem, permReg, solution, ctrl.system );
+
         // Compute the affine search direction
         // ===================================
-        if( ctrl.system == FULL_KKT )
-        {
-            // Construct the KKT system
-            // ------------------------
-            KKT( problem.A, solution.x, solution.z, J );
-            KKTRHS
-            ( state.residual.dualEquality,
-              state.residual.primalEquality,
-              state.residual.dualConic,
-              solution.z, d );
-
-            // Solve for the direction
-            // -----------------------
-            if( !attemptToFactor() )
-                break;
-            if( !attemptToSolve(d) )
-                break;
-            ExpandSolution
-            ( m, n, d,
-              affineCorrection.x, affineCorrection.y, affineCorrection.z );
-        }
-        else if( ctrl.system == AUGMENTED_KKT )
-        {
-            // Construct the KKT system
-            // ------------------------
-            AugmentedKKT( problem.A, solution.x, solution.z, J );
-            AugmentedKKTRHS
-            ( solution.x,
-              state.residual.dualEquality,
-              state.residual.primalEquality,
-              state.residual.dualConic,
-              d );
-
-            // Solve for the step
-            // ------------------
-            if( !attemptToFactor() )
-                break;
-            if( !attemptToSolve(d) )
-                break;
-            ExpandAugmentedSolution
-            ( solution.x, solution.z, state.residual.dualConic, d,
-              affineCorrection.x, affineCorrection.y, affineCorrection.z );
-        }
-        else if( ctrl.system == NORMAL_KKT )
-        {
-            // Construct the KKT system
-            // ------------------------
-            NormalKKT
-            ( problem.A, Sqrt(permReg.dualEquality),
-              Sqrt(permReg.primalEquality), solution.x, solution.z, J );
-            NormalKKTRHS
-            ( problem.A, Sqrt(permReg.dualEquality), solution.x, solution.z,
-              state.residual.dualEquality,
-              state.residual.primalEquality,
-              state.residual.dualConic,
-              affineCorrection.y );
-
-            // Solve for the step
-            // ------------------
-            if( !attemptToFactor() )
-                break;
-            if( !attemptToSolve(affineCorrection.y) )
-                break;
-            ExpandNormalSolution
-            ( problem.A, Sqrt(permReg.dualEquality), solution.x, solution.z,
-              state.residual.dualEquality,
-              state.residual.dualConic,
-              affineCorrection.x,
-              affineCorrection.y,
-              affineCorrection.z );
-        }
+        factor.SolveSystem
+        ( problem, permReg, state.residual, solution, affineCorrection,
+          ctrl.system );
         if( ctrl.checkResiduals && ctrl.print )
         {
             state.PrintResiduals
@@ -749,60 +743,13 @@ void EquilibratedMehrotra
             DiagonalScale( LEFT, NORMAL, affineCorrection.x, correction.z );
             state.residual.dualConic += correction.z;
         }
-
-        if( ctrl.system == FULL_KKT )
+        factor.SolveSystem
+        ( problem, permReg, state.residual, solution, correction,
+          ctrl.system );
+        if( ctrl.checkResiduals && ctrl.print )
         {
-            // Construct the new KKT RHS
-            // -------------------------
-            KKTRHS
-            ( state.residual.dualEquality,
-              state.residual.primalEquality,
-              state.residual.dualConic,
-              solution.z, d );
-
-            // Solve for the direction
-            // -----------------------
-            if( !attemptToSolve(d) )
-                break;
-            ExpandSolution( m, n, d, correction.x, correction.y, correction.z );
+            state.PrintResiduals( problem, solution, correction, permReg );
         }
-        else if( ctrl.system == AUGMENTED_KKT )
-        {
-            // Construct the new KKT RHS
-            // -------------------------
-            AugmentedKKTRHS
-            ( solution.x, state.residual.dualEquality,
-              state.residual.primalEquality, state.residual.dualConic, d );
-
-            // Solve for the direction
-            // -----------------------
-            if( !attemptToSolve(d) )
-                break;
-            ExpandAugmentedSolution
-            ( solution.x, solution.z, state.residual.dualConic, d,
-              correction.x, correction.y, correction.z );
-        }
-        else if( ctrl.system == NORMAL_KKT )
-        {
-            // Construct the new KKT RHS
-            // -------------------------
-            NormalKKTRHS
-            ( problem.A, Sqrt(permReg.dualEquality), solution.x, solution.z,
-              state.residual.dualEquality,
-              state.residual.primalEquality,
-              state.residual.dualConic,
-              correction.y );
-
-            // Solve for the direction
-            // -----------------------
-            if( !attemptToSolve(correction.y) )
-                break;
-            ExpandNormalSolution
-            ( problem.A, Sqrt(permReg.dualEquality), solution.x, solution.z,
-              state.residual.dualEquality, state.residual.dualConic,
-              correction.x, correction.y, correction.z );
-        }
-        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -828,6 +775,12 @@ void EquilibratedMehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    } catch(...) {
+        if( state.dimacsError > ctrl.minTol )
+            RuntimeError
+            ("Unable to achieve minimum tolerance ",ctrl.minTol);
+    }
+
     SetIndent( indent );
 }
 
