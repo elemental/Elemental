@@ -654,28 +654,14 @@ void EquilibratedMehrotra
 
     // Ensure that the problem is aligned.
     EL_DEBUG_ONLY(
-      if( c.ColAlign() != 0 || c.RowAlign() != 0 )
-          LogicError("c should have zero alignments");
-      if( A.ColAlign() != 0 || A.RowAlign() != 0 )
-          LogicError("A should have zero alignments");
-      if( b.ColAlign() != 0 || b.RowAlign() != 0 )
-          LogicError("b should have zero alignments");
-      if( G.ColAlign() != 0 || G.RowAlign() != 0 )
-          LogicError("G should have zero alignments");
-      if( h.ColAlign() != 0 || h.RowAlign() != 0 )
-          LogicError("h should have zero alignments");
+      if( !SimpleAlignments(problem) )
+          LogicError("Problem specification matrices were not simply aligned");
     )
 
     // Ensure that the solution vectors are aligned.
     EL_DEBUG_ONLY(
-      if( x.ColAlign() != 0 || x.RowAlign() != 0 )
-          LogicError("x should have zero alignments");
-      if( s.ColAlign() != 0 || s.RowAlign() != 0 )
-          LogicError("s should have zero alignments");
-      if( y.ColAlign() != 0 || y.RowAlign() != 0 )
-          LogicError("y should have zero alignments");
-      if( z.ColAlign() != 0 || z.RowAlign() != 0 )
-          LogicError("z should have zero alignments");
+      if( !SimpleAlignments(solution) )
+          LogicError("Solution matrices were not simply aligned");
     )
 
     // TODO(poulson): Move these into the control structure

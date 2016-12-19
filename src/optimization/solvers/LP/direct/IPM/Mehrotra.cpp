@@ -527,7 +527,6 @@ void DenseDirectState<Real>::PrintResiduals
     error.dualEquality -= correction.z;
     Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
-    Real rmuNrm2 = Nrm2( residual.dualConic );
     error.dualConic = residual.dualConic;
     prod = correction.z;
     DiagonalScale( LEFT, NORMAL, solution.x, prod );
@@ -1275,6 +1274,7 @@ void EquilibratedMehrotra
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
         }
     }
+    SetIndent( indent );
 }
 
 template<typename Real>
