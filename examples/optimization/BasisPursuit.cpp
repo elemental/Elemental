@@ -36,7 +36,8 @@ main( int argc, char* argv[] )
         El::ProcessInput();
         El::PrintInputReport();
 
-        El::DistMatrix<Real> A, b, xTrue;
+        //El::DistMatrix<Real> A, b, xTrue;
+        El::Matrix<Real> A, b, xTrue;
         El::Uniform( A, m, n );
         El::Uniform( b, m, 1 );
         if( print )
@@ -58,8 +59,10 @@ main( int argc, char* argv[] )
         ctrl.admmCtrl.usePinv = usePinv;
         ctrl.admmCtrl.pinvTol = pinvTol;
         ctrl.admmCtrl.progress = progress;
+        ctrl.lpIPMCtrl.mehrotraCtrl.print = true;
 
-        El::DistMatrix<Real> x;
+        //El::DistMatrix<Real> x;
+        El::Matrix<Real> x;
         El::Timer timer;
         if( El::mpi::Rank() == 0 )
             timer.Start();
@@ -73,6 +76,14 @@ main( int argc, char* argv[] )
         {
             El::Output("Basis Pursuit time: ",timer.Total()," secs");
             El::Output("|| x ||_0 = ",xZeroNorm);
+        }
+        SoftThreshold( x, El::Sqrt(El::limits::Epsilon<Real>()) );
+        if( print )
+            El::Print( x, "xThresh" );
+        const El::Int xZeroNormThresh = El::ZeroNorm( x );
+        if( El::mpi::Rank() == 0 )
+        {
+            El::Output("|| xThresh ||_0 = ",xZeroNormThresh);
         }
     }
     catch( std::exception& e ) { El::ReportException(e); }
