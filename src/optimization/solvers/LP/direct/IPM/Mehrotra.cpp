@@ -349,8 +349,11 @@ struct DirectRegularization
     Real dualEquality;
 };
 
+template<typename Real,typename MatrixType,typename VectorType>
+struct DirectState;
+
 template<typename Real>
-struct DenseDirectState
+struct DirectState<Real,Matrix<Real>,Matrix<Real>>
 {
     Real cNorm;
     Real bNorm;
@@ -393,7 +396,7 @@ struct DenseDirectState
 };
 
 template<typename Real>
-void DenseDirectState<Real>::Initialize
+void DirectState<Real,Matrix<Real>,Matrix<Real>>::Initialize
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -412,7 +415,7 @@ void DenseDirectState<Real>::Initialize
 }
 
 template<typename Real>
-void DenseDirectState<Real>::Update
+void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const DirectLPSolution<Matrix<Real>>& solution,
   const DirectRegularization<Real>& permReg,
@@ -502,7 +505,7 @@ void DenseDirectState<Real>::Update
 }
 
 template<typename Real>
-void DenseDirectState<Real>::PrintResiduals
+void DirectState<Real,Matrix<Real>,Matrix<Real>>::PrintResiduals
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const DirectLPSolution<Matrix<Real>>& solution,
   const DirectLPSolution<Matrix<Real>>& correction,
@@ -546,8 +549,11 @@ void DenseDirectState<Real>::PrintResiduals
      dzErrorNrm2/(1+dualConicNorm));
 }
 
+template<typename Real,class MatrixType,class VectorType>
+struct DirectKKTSolver;
+
 template<typename Real>
-struct DenseDirectFactorization
+struct DirectKKTSolver<Real,Matrix<Real>,Matrix<Real>>
 {
     Matrix<Real> kktSystem;
     Matrix<Real> dSub;
@@ -635,7 +641,8 @@ template<typename Real>
 void EquilibratedMehrotra
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         DirectLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const MehrotraCtrl<Real>& ctrl,
+  bool outputRoot )
 {
     EL_DEBUG_CSE
     const Int n = problem.A.Width();
@@ -657,16 +664,16 @@ void EquilibratedMehrotra
     permReg.primalEquality = 0;
     permReg.dualEquality = 0;
 
-    DenseDirectState<Real> state;
+    DirectState<Real,Matrix<Real>,Matrix<Real>> state;
     state.Initialize( problem, ctrl );
 
     const Int indent = PushIndent();
     try {
     Initialize
     ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
-    DenseDirectFactorization<Real> factor;
+    DirectKKTSolver<Real,Matrix<Real>,Matrix<Real>> solver;
     DirectLPSolution<Matrix<Real>> affineCorrection, correction;
-    for( state.numIts=0; state.numIts<=ctrl.maxIts; ++state.numIts )
+    for( state.numIts=0; state.numIts<ctrl.maxIts; ++state.numIts )
     {
         // Ensure that x and z are in the cone
         // ===================================
@@ -683,18 +690,14 @@ void EquilibratedMehrotra
         // =====================
         if( state.dimacsError <= ctrl.targetTol )
             break;
-        if( state.numIts == ctrl.maxIts && state.dimacsError > ctrl.minTol )
-            RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
 
         // Set up and factor the KKT matrix
         // ================================
-        factor.InitializeSystem( problem, permReg, solution, ctrl.system );
+        solver.InitializeSystem( problem, permReg, solution, ctrl.system );
 
         // Compute the affine search direction
         // ===================================
-        factor.SolveSystem
+        solver.SolveSystem
         ( problem, permReg, state.residual, solution, affineCorrection,
           ctrl.system );
         if( ctrl.checkResiduals && ctrl.print )
@@ -711,7 +714,7 @@ void EquilibratedMehrotra
           pos_orth::MaxStep( solution.z, affineCorrection.z, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
-        if( ctrl.print )
+        if( ctrl.print && outputRoot )
             Output
             ("alphaAffPri = ",alphaAffPri,", alphaAffDual = ",alphaAffDual);
         // NOTE: correction.z and correction.x are used as temporaries
@@ -720,13 +723,13 @@ void EquilibratedMehrotra
         Axpy( alphaAffPri,  affineCorrection.x, correction.x );
         Axpy( alphaAffDual, affineCorrection.z, correction.z );
         state.barrierAffine = Dot(correction.x,correction.z) / degree;
-        if( ctrl.print )
+        if( ctrl.print && outputRoot )
             Output
             ("barrierAffine = ",state.barrierAffine,", barrier=",state.barrier);
         state.sigma =
           centralityRule
           (state.barrier,state.barrierAffine,alphaAffPri,alphaAffDual);
-        if( ctrl.print )
+        if( ctrl.print && outputRoot )
             Output("sigma=",state.sigma);
 
         // Solve for the combined direction
@@ -743,7 +746,7 @@ void EquilibratedMehrotra
             DiagonalScale( LEFT, NORMAL, affineCorrection.x, correction.z );
             state.residual.dualConic += correction.z;
         }
-        factor.SolveSystem
+        solver.SolveSystem
         ( problem, permReg, state.residual, solution, correction,
           ctrl.system );
         if( ctrl.checkResiduals && ctrl.print )
@@ -761,25 +764,18 @@ void EquilibratedMehrotra
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
             alphaPri = alphaDual = Min(alphaPri,alphaDual);
-        if( ctrl.print )
+        if( ctrl.print && outputRoot )
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  correction.x, solution.x );
         Axpy( alphaDual, correction.y, solution.y );
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
-        {
-            if( state.dimacsError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
-        }
+            RuntimeError("Zero step size");
     }
-    } catch(...) {
-        if( state.dimacsError > ctrl.minTol )
-            RuntimeError
-            ("Unable to achieve minimum tolerance ",ctrl.minTol);
-    }
+    } catch(...) { }
+    if( state.dimacsError > ctrl.minTol )
+        RuntimeError
+        ("Unable to achieve minimum tolerance ",ctrl.minTol);
 
     SetIndent( indent );
 }
@@ -791,6 +787,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const bool outputRoot = true;
     if( ctrl.outerEquil )
     {
         DirectLPProblem<Matrix<Real>,Matrix<Real>> equilibratedProblem;    
@@ -799,14 +796,15 @@ void Mehrotra
         Equilibrate
         ( problem, solution,
           equilibratedProblem, equilibratedSolution, equilibration, ctrl );
-        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        EquilibratedMehrotra
+        ( equilibratedProblem, equilibratedSolution, ctrl, outputRoot );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
     {
-        EquilibratedMehrotra( problem, solution, ctrl );
+        EquilibratedMehrotra( problem, solution, ctrl, outputRoot );
     }
-    if( ctrl.print )
+    if( ctrl.print && outputRoot )
     {   
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
@@ -878,8 +876,8 @@ void EquilibratedMehrotra
     const Real gammaPerm = 0;
     const Real deltaPerm = 0;
 
-    const Real bNrm2 = Nrm2( problem.b );
-    const Real cNrm2 = Nrm2( problem.c );
+    const Real bNrm2 = FrobeniusNorm( problem.b );
+    const Real cNrm2 = FrobeniusNorm( problem.c );
     if( ctrl.print )
     {
         const Real ANrm1 = OneNorm( problem.A );
