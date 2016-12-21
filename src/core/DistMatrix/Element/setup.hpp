@@ -29,8 +29,8 @@ template<typename T>
 DM::DistMatrix( const El::Grid& grid, int root )
 : EM(grid,root)
 {
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
 }
 
@@ -38,8 +38,8 @@ template<typename T>
 DM::DistMatrix( Int height, Int width, const El::Grid& grid, int root )
 : EM(grid,root)
 {
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     this->Resize(height,width);
 }
@@ -49,8 +49,8 @@ DM::DistMatrix( const DM& A )
 : EM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -64,8 +64,8 @@ DM::DistMatrix( const DistMatrix<T,U,V>& A )
 : EM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( COLDIST != U || ROWDIST != V ||
         reinterpret_cast<const DM*>(&A) != this )
@@ -79,8 +79,8 @@ DM::DistMatrix( const AbstractDistMatrix<T>& A )
 : EM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     #define GUARD(CDIST,RDIST,WRAP) \
       A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
@@ -99,8 +99,8 @@ DM::DistMatrix( const ElementalMatrix<T>& A )
 : EM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     #define GUARD(CDIST,RDIST,WRAP) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
@@ -121,8 +121,8 @@ DM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 : EM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     *this = A;
 }

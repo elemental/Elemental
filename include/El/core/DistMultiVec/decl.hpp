@@ -24,7 +24,7 @@ namespace El {
 // Use a simple 1d distribution where each process owns a fixed number of rows,
 //     if last process,  height - (commSize-1)*floor(height/commSize)
 //     otherwise,        floor(height/commSize)
-template<typename T>
+template<typename Ring>
 class DistMultiVec
 {
 public:
@@ -32,8 +32,16 @@ public:
     // ============================
     DistMultiVec( mpi::Comm comm=mpi::COMM_WORLD );
     DistMultiVec( Int height, Int width, mpi::Comm comm=mpi::COMM_WORLD );
-    DistMultiVec( const DistMultiVec<T>& A );
+    DistMultiVec( const DistMultiVec<Ring>& A );
     ~DistMultiVec();
+
+    // Advanced
+    // --------
+    // The following are provided to aid duck-typing over Matrix, DistMatrix,
+    // DistMultiVec, etc. and are functionally equivalent to the mpi::Comm
+    // equivalents.
+    explicit DistMultiVec( const Grid& grid );
+    explicit DistMultiVec( Int height, Int width, const Grid& grid ); 
 
     // Assignment  and reconfiguration
     // ===============================
@@ -52,28 +60,28 @@ public:
 
     // Make a copy of a submatrix
     // --------------------------
-    DistMultiVec<T> operator()
+    DistMultiVec<Ring> operator()
     ( Range<Int> I, Range<Int> J ) const;
-    DistMultiVec<T> operator()
+    DistMultiVec<Ring> operator()
     ( Range<Int> I, const vector<Int>& J ) const;
-    DistMultiVec<T> operator()
+    DistMultiVec<Ring> operator()
     ( const vector<Int>& I, Range<Int> J ) const;
-    DistMultiVec<T> operator()
+    DistMultiVec<Ring> operator()
     ( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Assignment
     // ----------
-    const DistMultiVec<T>& operator=( const DistMultiVec<T>& X );
-    const DistMultiVec<T>& operator=( const AbstractDistMatrix<T>& X );
+    const DistMultiVec<Ring>& operator=( const DistMultiVec<Ring>& X );
+    const DistMultiVec<Ring>& operator=( const AbstractDistMatrix<Ring>& X );
 
     // Rescaling
     // ---------
-    const DistMultiVec<T>& operator*=( T alpha );
+    const DistMultiVec<Ring>& operator*=( const Ring& alpha );
 
     // Addition/subtraction
     // --------------------
-    const DistMultiVec<T>& operator+=( const DistMultiVec<T>& A );
-    const DistMultiVec<T>& operator-=( const DistMultiVec<T>& A );
+    const DistMultiVec<Ring>& operator+=( const DistMultiVec<Ring>& A );
+    const DistMultiVec<Ring>& operator-=( const DistMultiVec<Ring>& A );
 
     // Queries
     // =======
@@ -84,8 +92,8 @@ public:
     Int Width() const EL_NO_EXCEPT;
     Int FirstLocalRow() const EL_NO_EXCEPT;
     Int LocalHeight() const EL_NO_EXCEPT;
-          El::Matrix<T>& Matrix() EL_NO_EXCEPT;
-    const El::Matrix<T>& LockedMatrix() const EL_NO_EXCEPT;
+          El::Matrix<Ring>& Matrix() EL_NO_EXCEPT;
+    const El::Matrix<Ring>& LockedMatrix() const EL_NO_EXCEPT;
 
     // Distribution information
     // ------------------------
@@ -100,26 +108,26 @@ public:
 
     // Entrywise manipulation
     // ======================
-    T Get( Int i, Int j ) const;
-    T GetLocal( Int iLoc, Int j ) const;
-    void Set( Int i, Int j, T value );
-    void Set( const Entry<T>& entry );
-    void SetLocal( Int iLoc, Int j, T value );
-    void SetLocal( const Entry<T>& localEntry );
-    void Update( Int i, Int j, T value );
-    void Update( const Entry<T>& entry );
-    void UpdateLocal( Int iLoc, Int j, T value );
-    void UpdateLocal( const Entry<T>& entry );
+    Ring Get( Int i, Int j ) const;
+    Ring GetLocal( Int iLoc, Int j ) const;
+    void Set( Int i, Int j, const Ring& value );
+    void Set( const Entry<Ring>& entry );
+    void SetLocal( Int iLoc, Int j, const Ring& value );
+    void SetLocal( const Entry<Ring>& localEntry );
+    void Update( Int i, Int j, const Ring& value );
+    void Update( const Entry<Ring>& entry );
+    void UpdateLocal( Int iLoc, Int j, const Ring& value );
+    void UpdateLocal( const Entry<Ring>& entry );
 
     // Batch updating of remote entries
     // --------------------------------
     void Reserve( Int numRemoteEntries );
-    void QueueUpdate( const Entry<T>& entry );
-    void QueueUpdate( Int i, Int j, T value );
+    void QueueUpdate( const Entry<Ring>& entry );
+    void QueueUpdate( Int i, Int j, const Ring& value );
     void ProcessQueues();
 
 private:
-    Int height_, width_;
+    Int height_=0, width_=0;
 
     mpi::Comm comm_;
     // Calling MPI_Comm_size within an inner loop is apparently a bad idea
@@ -127,11 +135,11 @@ private:
     int commRank_;
     Int blocksize_;
 
-    El::Matrix<T> multiVec_;
+    El::Matrix<Ring> multiVec_;
 
     // Remote updates
     // --------------
-    vector<Entry<T>> remoteUpdates_;
+    vector<Entry<Ring>> remoteUpdates_;
 
     void InitializeLocalData();
 };
