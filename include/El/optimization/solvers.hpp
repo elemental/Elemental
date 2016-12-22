@@ -239,6 +239,12 @@ struct DirectLPProblem
     VectorType b;
 };
 
+// Quack...
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  const Grid& grid )
+{ }
 template<typename Real>
 void ForceSimpleAlignments
 ( DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
@@ -253,14 +259,23 @@ void ForceSimpleAlignments
 }
 template<typename Real>
 void ForceSimpleAlignments
+( DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  const Grid& grid )
+{ }
+template<typename Real>
+void ForceSimpleAlignments
 ( DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
-  mpi::Comm comm )
+  const Grid& grid )
 {
-    problem.c.SetComm( comm );
-    problem.A.SetComm( comm );
-    problem.b.SetComm( comm );
+    problem.c.SetComm( grid.Comm() );
+    problem.A.SetComm( grid.Comm() );
+    problem.b.SetComm( grid.Comm() );
 }
 
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem )
+{ return true; }
 template<typename Real>
 bool SimpleAlignments
 ( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem )
@@ -269,6 +284,14 @@ bool SimpleAlignments
            problem.A.ColAlign() == 0 && problem.A.RowAlign() == 0 &&
            problem.b.ColAlign() == 0 && problem.b.RowAlign() == 0;
 }
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem )
+{ return true; }
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem )
+{ return true; }
 
 template<typename VectorType>
 struct DirectLPSolution
@@ -281,6 +304,11 @@ struct DirectLPSolution
     VectorType z;
 };
 
+// Quack...
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPSolution<Matrix<Real>>& solution, const Grid& grid )
+{ }
 template<typename Real>
 void ForceSimpleAlignments
 ( DirectLPSolution<DistMatrix<Real>>& solution, const Grid& grid )
@@ -294,13 +322,18 @@ void ForceSimpleAlignments
 }
 template<typename Real>
 void ForceSimpleAlignments
-( DirectLPSolution<DistMultiVec<Real>>& solution, mpi::Comm comm )
+( DirectLPSolution<DistMultiVec<Real>>& solution, const Grid& grid )
 {
-    solution.x.SetComm( comm );
-    solution.y.SetComm( comm );
-    solution.z.SetComm( comm );
+    solution.x.SetComm( grid.Comm() );
+    solution.y.SetComm( grid.Comm() );
+    solution.z.SetComm( grid.Comm() );
 }
 
+// Quack...
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPSolution<Matrix<Real>>& solution )
+{ return true; }
 template<typename Real>
 bool SimpleAlignments
 ( const DirectLPSolution<DistMatrix<Real>>& solution )
@@ -309,6 +342,10 @@ bool SimpleAlignments
            solution.y.ColAlign() == 0 && solution.y.RowAlign() == 0 &&
            solution.z.ColAlign() == 0 && solution.z.RowAlign() == 0;
 }
+template<typename Real>
+bool SimpleAlignments
+( const DirectLPSolution<DistSparseMatrix<Real>>& solution )
+{ return true; }
 
 template<typename VectorType>
 struct DirectLPResidual
@@ -319,6 +356,11 @@ struct DirectLPResidual
     VectorType dualConic; // This residual is 'x o z'.
 };
 
+// Quack...
+template<typename Real>
+void ForceSimpleAlignments
+( DirectLPResidual<Matrix<Real>>& residual, const Grid& grid )
+{ }
 template<typename Real>
 void ForceSimpleAlignments
 ( DirectLPResidual<DistMatrix<Real>>& residual, const Grid& grid )
@@ -332,11 +374,11 @@ void ForceSimpleAlignments
 }
 template<typename Real>
 void ForceSimpleAlignments
-( DirectLPResidual<DistMultiVec<Real>>& residual, mpi::Comm comm )
+( DirectLPResidual<DistMultiVec<Real>>& residual, const Grid& grid )
 {
-    residual.primalEquality.SetComm( comm );
-    residual.dualEquality.SetComm( comm );
-    residual.dualConic.SetComm( comm );
+    residual.primalEquality.SetComm( grid.Comm() );
+    residual.dualEquality.SetComm( grid.Comm() );
+    residual.dualConic.SetComm( grid.Comm() );
 }
 
 template<typename Real>
@@ -431,6 +473,12 @@ struct AffineLPProblem
     VectorType h;
 };
 
+// Quack...
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  const Grid& grid )
+{ }
 template<typename Real>
 void ForceSimpleAlignments
 ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
@@ -449,16 +497,26 @@ void ForceSimpleAlignments
 }
 template<typename Real>
 void ForceSimpleAlignments
+( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  const Grid& grid )
+{ }
+template<typename Real>
+void ForceSimpleAlignments
 ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
-  mpi::Comm comm )
+  const Grid& grid )
 {
-    problem.c.SetComm( comm );
-    problem.A.SetComm( comm );
-    problem.b.SetComm( comm );
-    problem.G.SetComm( comm );
-    problem.h.SetComm( comm );
+    problem.c.SetComm( grid.Comm() );
+    problem.A.SetComm( grid.Comm() );
+    problem.b.SetComm( grid.Comm() );
+    problem.G.SetComm( grid.Comm() );
+    problem.h.SetComm( grid.Comm() );
 }
 
+// Quack...
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem )
+{ }
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem )
@@ -469,6 +527,14 @@ bool SimpleAlignments
            problem.G.ColAlign() == 0 && problem.G.RowAlign() == 0 &&
            problem.h.ColAlign() == 0 && problem.h.RowAlign() == 0;
 }
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem )
+{ }
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem )
+{ }
 
 template<typename VectorType>
 struct AffineLPSolution
@@ -482,6 +548,11 @@ struct AffineLPSolution
     VectorType z;
 };
 
+// Quack...
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPSolution<Matrix<Real>>& solution, const Grid& grid )
+{ }
 template<typename Real>
 void ForceSimpleAlignments
 ( AffineLPSolution<DistMatrix<Real>>& solution, const Grid& grid )
@@ -497,13 +568,19 @@ void ForceSimpleAlignments
 }
 template<typename Real>
 void ForceSimpleAlignments
-( AffineLPSolution<DistMultiVec<Real>>& solution, mpi::Comm comm )
+( AffineLPSolution<DistMultiVec<Real>>& solution, const Grid& grid )
 {
-    solution.x.SetComm( comm );
-    solution.s.SetComm( comm );
-    solution.y.SetComm( comm );
-    solution.z.SetComm( comm );
+    solution.x.SetComm( grid.Comm() );
+    solution.s.SetComm( grid.Comm() );
+    solution.y.SetComm( grid.Comm() );
+    solution.z.SetComm( grid.Comm() );
 }
+
+// Quack...
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPSolution<Matrix<Real>>& solution )
+{ return true; }
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPSolution<DistMatrix<Real>>& solution )
@@ -513,6 +590,10 @@ bool SimpleAlignments
            solution.z.ColAlign() == 0 && solution.z.RowAlign() == 0 &&
            solution.s.ColAlign() == 0 && solution.s.RowAlign() == 0;
 }
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPSolution<DistMultiVec<Real>>& solution )
+{ return true; }
 
 template<typename VectorType>
 struct AffineLPResidual
@@ -524,6 +605,11 @@ struct AffineLPResidual
     VectorType dualConic; // This residual is 's o z'.
 };
 
+// Quack...
+template<typename Real>
+void ForceSimpleAlignments
+( AffineLPResidual<Matrix<Real>>& residual, const Grid& grid )
+{ }
 template<typename Real>
 void ForceSimpleAlignments
 ( AffineLPResidual<DistMatrix<Real>>& residual, const Grid& grid )
@@ -539,13 +625,19 @@ void ForceSimpleAlignments
 }
 template<typename Real>
 void ForceSimpleAlignments
-( AffineLPResidual<DistMultiVec<Real>>& residual, mpi::Comm comm )
+( AffineLPResidual<DistMultiVec<Real>>& residual, const Grid& grid )
 {
-    residual.primalEquality.SetComm( comm );
-    residual.primalConic.SetComm( comm );
-    residual.dualEquality.SetComm( comm );
-    residual.dualConic.SetComm( comm );
+    residual.primalEquality.SetComm( grid.Comm() );
+    residual.primalConic.SetComm( grid.Comm() );
+    residual.dualEquality.SetComm( grid.Comm() );
+    residual.dualConic.SetComm( grid.Comm() );
 }
+
+// Quack...
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPResidual<Matrix<Real>>& residual )
+{ return true; }
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPResidual<DistMatrix<Real>>& residual )
@@ -559,6 +651,10 @@ bool SimpleAlignments
            residual.dualConic.ColAlign() == 0 &&
            residual.dualConic.RowAlign() == 0;
 }
+template<typename Real>
+bool SimpleAlignments
+( const AffineLPResidual<DistMultiVec<Real>>& residual )
+{ return true; }
 
 template<typename Real>
 void LP

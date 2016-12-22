@@ -220,8 +220,10 @@ void Equilibrate
 {
     EL_DEBUG_CSE
 
-    ForceSimpleAlignments( equilibratedProblem, problem.A.Comm() );
-    ForceSimpleAlignments( equilibratedSolution, problem.A.Comm() );
+    // Quack...
+    const Grid grid( problem.A.Comm() );
+    ForceSimpleAlignments( equilibratedProblem, grid );
+    ForceSimpleAlignments( equilibratedSolution, grid );
 
     equilibratedProblem = problem;
     equilibratedSolution = solution;
@@ -1619,10 +1621,13 @@ void EquilibratedMehrotra
 
     AffineLPResidual<DistMultiVec<Real>> residual, error;
     AffineLPSolution<DistMultiVec<Real>> affineCorrection, correction;
-    ForceSimpleAlignments( residual, comm );
-    ForceSimpleAlignments( error, comm );
-    ForceSimpleAlignments( affineCorrection, comm );
-    ForceSimpleAlignments( correction, comm );
+
+    // Quack...
+    const Grid grid( comm );
+    ForceSimpleAlignments( residual, grid );
+    ForceSimpleAlignments( error, grid );
+    ForceSimpleAlignments( affineCorrection, grid );
+    ForceSimpleAlignments( correction, grid );
 
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
@@ -1890,8 +1895,12 @@ void Mehrotra
           equilibratedProblem;
         AffineLPSolution<DistMultiVec<Real>> equilibratedSolution;
         DistSparseAffineLPEquilibration<Real> equilibration;
-        ForceSimpleAlignments( equilibratedSolution, comm );
-        ForceSimpleAlignments( equilibratedProblem, comm );
+
+        // Quack...
+        const Grid grid( comm );
+        ForceSimpleAlignments( equilibratedSolution, grid );
+        ForceSimpleAlignments( equilibratedProblem, grid );
+
         Equilibrate
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,

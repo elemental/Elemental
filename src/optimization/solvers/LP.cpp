@@ -304,8 +304,12 @@ void LP
     EL_DEBUG_CSE
     DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
     DirectLPSolution<DistMultiVec<Real>> solution;
-    ForceSimpleAlignments( problem, A.Comm() );
-    ForceSimpleAlignments( solution, A.Comm() );
+
+    // Quack...
+    const Grid grid( A.Comm() );
+    ForceSimpleAlignments( problem, grid );
+    ForceSimpleAlignments( solution, grid );
+
     problem.c = c;
     problem.A = A;
     problem.b = b;
@@ -348,8 +352,12 @@ void LP
     EL_DEBUG_CSE
     AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
     AffineLPSolution<DistMultiVec<Real>> solution;
-    ForceSimpleAlignments( problem, A.Comm() );
-    ForceSimpleAlignments( solution, A.Comm() );
+
+    // Quack...
+    const Grid grid( A.Comm() );
+    ForceSimpleAlignments( problem, grid );
+    ForceSimpleAlignments( solution, grid );
+
     problem.c = c;
     problem.A = A;
     problem.b = b;

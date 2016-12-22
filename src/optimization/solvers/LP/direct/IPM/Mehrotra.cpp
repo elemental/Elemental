@@ -43,6 +43,9 @@ namespace direct {
 // using a Mehrotra Predictor-Corrector scheme.
 //
 
+// TODO(poulson): Experiment with using the lagged factorization as a
+// preconditioner.
+
 template<typename Real>
 struct DenseDirectLPEquilibration
 {
@@ -236,8 +239,11 @@ void Equilibrate
 {
     EL_DEBUG_CSE
     mpi::Comm comm = problem.A.Comm();
-    ForceSimpleAlignments( equilibratedProblem, comm );
-    ForceSimpleAlignments( equilibratedSolution, comm );
+    // For now, turn the 'mpi::Comm' into a 'Grid' (Quack)
+    Grid grid( comm );
+
+    ForceSimpleAlignments( equilibratedProblem, grid );
+    ForceSimpleAlignments( equilibratedSolution, grid );
 
     equilibratedProblem = problem;
     equilibratedSolution = solution;
@@ -1982,6 +1988,9 @@ void EquilibratedMehrotra
     const int commRank = mpi::Rank(comm);
     Timer timer;
 
+    // For now, build a Grid out of the mpi::Comm (Quack!)
+    const Grid grid( comm );
+
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
     function<Real(Real,Real,Real,Real)> centralityRule;
@@ -2093,10 +2102,10 @@ void EquilibratedMehrotra
 
     DirectLPSolution<DistMultiVec<Real>> affineCorrection, correction;
     DirectLPResidual<DistMultiVec<Real>> residual, error;
-    ForceSimpleAlignments( affineCorrection, comm );
-    ForceSimpleAlignments( correction, comm );
-    ForceSimpleAlignments( residual, comm );
-    ForceSimpleAlignments( error, comm );
+    ForceSimpleAlignments( affineCorrection, grid );
+    ForceSimpleAlignments( correction, grid );
+    ForceSimpleAlignments( residual, grid );
+    ForceSimpleAlignments( error, grid );
 
     DistMultiVec<Real> prod(comm);
     const Int indent = PushIndent();
@@ -2629,10 +2638,13 @@ void Mehrotra
 {
     EL_DEBUG_CSE
     mpi::Comm comm = A.Comm();
+    // For now, build a Grid out of the mpi::Comm (Quack!)
+    const Grid grid( comm );
+
     DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
     DirectLPSolution<DistMultiVec<Real>> solution;
-    ForceSimpleAlignments( problem, comm );
-    ForceSimpleAlignments( solution, comm );
+    ForceSimpleAlignments( problem, grid );
+    ForceSimpleAlignments( solution, grid );
 
     problem.c = c;
     problem.A = A;
