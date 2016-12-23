@@ -416,46 +416,42 @@ void NormalKKTRHS
 
 template<typename Real>
 void ExpandNormalSolution
-( const Matrix<Real>& A,
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         Real gamma,
-  const Matrix<Real>& x,
-  const Matrix<Real>& z,
-  const Matrix<Real>& rc,
-  const Matrix<Real>& rmu,
-        Matrix<Real>& dx,
-  const Matrix<Real>& dy,
-        Matrix<Real>& dz )
+  const DirectLPSolution<Matrix<Real>>& solution,
+  const DirectLPResidual<Matrix<Real>>& residual,
+        DirectLPSolution<Matrix<Real>>& correction )
 {
     EL_DEBUG_CSE
-    const Int n = A.Width();
+    const Int n = problem.A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
+        dInv(i) = Sqrt(solution.z(i)/solution.x(i) + gamma*gamma);
 
-    // Use dz as a temporary for storing A^T dy
-    // ========================================
-    Zeros( dz, n, 1 );
-    Gemv( TRANSPOSE, Real(1), A, dy, Real(0), dz );
+    // Use correction.z as a temporary for storing A^T correction.y
+    // ============================================================
+    Zeros( correction.z, n, 1 );
+    Gemv( TRANSPOSE, Real(1), problem.A, correction.y, Real(0), correction.z );
 
-    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3)
-    //    = D^2 (-A^T dy - r_c - inv(X) r_mu)
-    // ======================================
-    dx = rmu;
-    DiagonalSolve( LEFT, NORMAL, x, dx );
-    dx += rc;
-    dx += dz;
-    dx *= -1;
-    DiagonalSolve( LEFT, NORMAL, dInv, dx );
-    DiagonalSolve( LEFT, NORMAL, dInv, dx );
+    // correction.x = D^2 (-A^T correction.y + r_1 + inv(X) r_3)
+    //              = D^2 (-A^T correction.y - r_c - inv(X) r_mu)
+    // ==========================================================
+    correction.x = residual.dualConic;
+    DiagonalSolve( LEFT, NORMAL, solution.x, correction.x );
+    correction.x += residual.dualEquality;
+    correction.x += correction.z;
+    correction.x *= -1;
+    DiagonalSolve( LEFT, NORMAL, dInv, correction.x );
+    DiagonalSolve( LEFT, NORMAL, dInv, correction.x );
 
-    // dz := r_c + gamma^2 dx + A^T dy
-    // ===============================
-    Axpy( gamma*gamma, dx, dz );
-    dz += rc;
+    // correction.z := r_c + gamma^2 correction.x + A^T correction.y
+    // =============================================================
+    Axpy( gamma*gamma, correction.x, correction.z );
+    correction.z += residual.dualEquality;
 }
 
 template<typename Real>
@@ -670,15 +666,11 @@ void ExpandNormalSolution
     const DistMultiVec<Real>& rmu, \
           DistMultiVec<Real>& d ); \
   template void ExpandNormalSolution \
-  ( const Matrix<Real>& A, \
+  ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
           Real gamma, \
-    const Matrix<Real>& x, \
-    const Matrix<Real>& z, \
-    const Matrix<Real>& rc, \
-    const Matrix<Real>& rmu, \
-          Matrix<Real>& dx, \
-    const Matrix<Real>& dy, \
-          Matrix<Real>& dz ); \
+    const DirectLPSolution<Matrix<Real>>& solution, \
+    const DirectLPResidual<Matrix<Real>>& residual, \
+          DirectLPSolution<Matrix<Real>>& correction ); \
   template void ExpandNormalSolution \
   ( const DistMatrix<Real>& A, \
           Real gamma, \

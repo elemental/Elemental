@@ -209,15 +209,11 @@ void NormalKKTRHS
 
 template<typename Real>
 void ExpandNormalSolution
-( const Matrix<Real>& A,
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         Real gamma,
-  const Matrix<Real>& x,
-  const Matrix<Real>& z,
-  const Matrix<Real>& rc,
-  const Matrix<Real>& rmu,
-        Matrix<Real>& dx,
-  const Matrix<Real>& dy,
-        Matrix<Real>& dz );
+  const DirectLPSolution<Matrix<Real>>& solution,
+  const DirectLPResidual<Matrix<Real>>& residual,
+        DirectLPSolution<Matrix<Real>>& correction );
 template<typename Real>
 void ExpandNormalSolution
 ( const DistMatrix<Real>& A,
