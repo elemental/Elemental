@@ -166,7 +166,7 @@ void Apply
 {
     EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
-    DistMultiVec<Real> z(x.Comm());
+    DistMultiVec<Real> z(x.Grid());
     soc::Apply( x, y, z, orders, firstInds, cutoff );
     y = z;
 }

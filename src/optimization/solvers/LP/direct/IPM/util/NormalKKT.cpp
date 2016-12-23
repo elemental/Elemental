@@ -196,10 +196,10 @@ void NormalKKT
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    if( !mpi::Congruent( comm, x.Comm() ) )
+    const Grid& grid = A.Grid();
+    if( !mpi::Congruent( grid.Comm(), x.Grid().Comm() ) )
         LogicError("Communicators of A and x must match");
-    if( !mpi::Congruent( comm, z.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), z.Grid().Comm() ) )
         LogicError("Communicators of A and z must match");
 
     // TODO: Expose this value as a parameter
@@ -210,7 +210,7 @@ void NormalKKT
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
-    DistMultiVec<Real> dInv(comm);
+    DistMultiVec<Real> dInv(grid);
     dInv.Resize( n, 1 );
     auto& dInvLoc = dInv.Matrix();
     const Int dInvLocalHeight = dInv.LocalHeight();
@@ -219,7 +219,7 @@ void NormalKKT
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
-    DistSparseMatrix<Real> G(comm);
+    DistSparseMatrix<Real> G(grid);
     // TODO: Avoid forming this within an inner loop...
     Transpose( A, G );
     DiagonalSolve( LEFT, NORMAL, dInv, G );
@@ -377,22 +377,22 @@ void NormalKKTRHS
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    if( !mpi::Congruent( comm, rmu.Comm() ) )
+    const Grid& grid = A.Grid();
+    if( !mpi::Congruent( grid.Comm(), rmu.Grid().Comm() ) )
         LogicError("Communicators of A and r_mu must match");
-    if( !mpi::Congruent( comm, rc.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), rc.Grid().Comm() ) )
         LogicError("Communicators of A and r_c must match");
-    if( !mpi::Congruent( comm, rb.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), rb.Grid().Comm() ) )
         LogicError("Communicators of A and r_b must match");
-    if( !mpi::Congruent( comm, x.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), x.Grid().Comm() ) )
         LogicError("Communicators of A and x must match");
-    if( !mpi::Congruent( comm, z.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), z.Grid().Comm() ) )
         LogicError("Communicators of A and z must match");
 
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    DistMultiVec<Real> dInv(comm);
+    DistMultiVec<Real> dInv(grid);
     dInv.Resize( n, 1 );
     auto& dInvLoc = dInv.Matrix();
     const Int nLocal = dInv.LocalHeight();
@@ -575,7 +575,7 @@ void ExpandNormalSolution
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    DistMultiVec<Real> dInv(A.Comm());
+    DistMultiVec<Real> dInv(A.Grid());
     dInv.Resize( n, 1 );
     auto& dInvLoc = dInv.Matrix();
     const Int nLocal = dInv.LocalHeight();

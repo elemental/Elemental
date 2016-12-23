@@ -115,10 +115,12 @@ void SquareRoot
   Int cutoff )
 {
     EL_DEBUG_CSE
+    const Grid& grid = x.Grid();
+
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
-    DistMultiVec<Real> d(x.Comm());
+    DistMultiVec<Real> d(grid);
     soc::Dets( x, d, orders, firstInds );
     cone::Broadcast( d, orders, firstInds );
     const Real* dBuf = d.LockedMatrix().LockedBuffer();
@@ -128,7 +130,7 @@ void SquareRoot
     const Real* rootBuf = roots.LockedMatrix().LockedBuffer();
 
     const Int localHeight = x.LocalHeight();
-    xRoot.SetComm( x.Comm() );
+    xRoot.SetGrid( grid );
     Zeros( xRoot, x.Height(), 1 );
     Real* xRootBuf = xRoot.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )

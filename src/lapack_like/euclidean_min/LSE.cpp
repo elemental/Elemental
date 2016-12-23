@@ -399,13 +399,13 @@ void LSE
     const Int n = A.Width();
     const Int k = B.Height();
     const Int numRHS = C.Width();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
 
     // Rescale W = [ A; B ]
     // ====================
-    DistMultiVec<Real> dC(comm);
-    DistSparseMatrix<F> W(comm);
+    DistMultiVec<Real> dC(grid);
+    DistSparseMatrix<F> W(grid);
     VCat( A, B, W );
     if( ctrl.equilibrate )
     {
@@ -432,7 +432,7 @@ void LSE
     // Form the augmented RHS
     // ======================
     //   G = [ 0; C; D ]
-    DistMultiVec<F> G(comm);
+    DistMultiVec<F> G(grid);
     Zeros( G, n+m+k, numRHS );
     {
         const Int CLocalHeight = C.LocalHeight();
@@ -462,7 +462,7 @@ void LSE
     //         | B      0      0  |
     //
     const Int numEntriesW = W.NumLocalEntries();
-    DistSparseMatrix<F> J(comm);
+    DistSparseMatrix<F> J(grid);
     Zeros( J, n+m+k, n+m+k );
     {
         const Int JLocalHeight = J.LocalHeight();

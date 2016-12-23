@@ -9,30 +9,30 @@
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
+template<typename Field>
 void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
 {
     EL_DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = 3;
     const Real eps = limits::Epsilon<Real>();
-    Output("Testing Ahues/Tisseur with ",TypeName<F>());
+    Output("Testing Ahues/Tisseur with ",TypeName<Field>());
 
-    Matrix<F> H;
+    Matrix<Field> H;
     Zeros( H, n, n );
-    H(0,0) = F(1.);
-    H(0,1) = F(1.1e5);
-    H(0,2) = F(0.);
-    H(1,0) = F(1.1e-8);
-    H(1,1) = F(1.+1.e-2);
-    H(1,2) = F(1.1e5);
-    H(2,0) = F(0.);
-    H(2,1) = F(1.1e-8);
-    H(2,2) = F(1.+2.*1.e-2);
+    H(0,0) = Field(1);
+    H(0,1) = Field(1.1e5);
+    H(0,2) = Field(0);
+    H(1,0) = Field(1.1e-8);
+    H(1,1) = Field(1.+1.e-2);
+    H(1,2) = Field(1.1e5);
+    H(2,0) = Field(0);
+    H(2,1) = Field(1.1e-8);
+    H(2,2) = Field(1.+2.*1.e-2);
     if( print )
         Print( H, "H" );
 
-    Matrix<F> T, Z;
+    Matrix<Field> T, Z;
     Matrix<Complex<Real>> w;
     T = H;
     Timer timer;
@@ -47,9 +47,9 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
         Print( T, "T" );
     }
 
-    Matrix<F> R;
-    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
-    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    Matrix<Field> R;
+    Gemm( NORMAL, NORMAL, Field(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, Field(1), H, Z, Field(-1), R );
     const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (eps*n*HFrob);
@@ -65,17 +65,18 @@ void TestAhuesTisseur( const HessenbergSchurCtrl& ctrl, bool print )
     Output("");
 }
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 void TestLAPACKHelper
-( const Matrix<F>& H,
+( const Matrix<Field>& H,
   const HessenbergSchurCtrl& ctrl,
   bool print )
 {
     EL_DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = H.Height();
-    Matrix<F> T, Z;
-    Matrix<Complex<Base<F>>> w;
+    Matrix<Field> T, Z;
+    Matrix<Complex<Base<Field>>> w;
 
     T = H;
     Timer timer;
@@ -89,9 +90,9 @@ void TestLAPACKHelper
       ctrl.fullTriangle, multiplyZ, useAED );
     Output("LAPACK HessenbergSchur: ",timer.Stop()," seconds");
 
-    Matrix<F> R;
-    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
-    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    Matrix<Field> R;
+    Gemm( NORMAL, NORMAL, Field(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, Field(1), H, Z, Field(-1), R );
     const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (limits::Epsilon<Real>()*n*HFrob);
@@ -105,19 +106,19 @@ void TestLAPACKHelper
     Output("Passed test");
 }
 
-template<typename F>
+template<typename Field>
 void TestRandomHelper
-( const Matrix<F>& H,
+( const Matrix<Field>& H,
   const HessenbergSchurCtrl& ctrl,
   bool testSweep,
   bool print )
 {
     EL_DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = H.Height();
     const Real eps = limits::Epsilon<Real>();
 
-    Matrix<F> T, Z;
+    Matrix<Field> T, Z;
     Matrix<Complex<Real>> w;
     Timer timer;
 
@@ -168,9 +169,9 @@ void TestRandomHelper
         ("Convergence achieved after ",infoFinish.numIterations," iterations");
     }
 
-    Matrix<F> R;
-    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
-    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    Matrix<Field> R;
+    Gemm( NORMAL, NORMAL, Field(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, Field(1), H, Z, Field(-1), R );
     const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (eps*n*HFrob);
@@ -185,19 +186,19 @@ void TestRandomHelper
     Output("");
 }
 
-template<typename F>
+template<typename Field>
 void TestRandomHelper
-( const DistMatrix<F,MC,MR,BLOCK>& H,
+( const DistMatrix<Field,MC,MR,BLOCK>& H,
   const HessenbergSchurCtrl& ctrl,
   bool print )
 {
     EL_DEBUG_CSE
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = H.Height();
     const Real eps = limits::Epsilon<Real>();
     const Grid& grid = H.Grid();
 
-    DistMatrix<F,MC,MR,BLOCK> T(grid), Z(grid);
+    DistMatrix<Field,MC,MR,BLOCK> T(grid), Z(grid);
     DistMatrix<Complex<Real>,STAR,STAR> w(grid);
     Timer timer;
 
@@ -216,9 +217,9 @@ void TestRandomHelper
         Print( T, "T" );
     }
 
-    DistMatrix<F,MC,MR,BLOCK> R(grid);
-    Gemm( NORMAL, NORMAL, F(1), Z, T, R );
-    Gemm( NORMAL, NORMAL, F(1), H, Z, F(-1), R );
+    DistMatrix<Field,MC,MR,BLOCK> R(grid);
+    Gemm( NORMAL, NORMAL, Field(1), Z, T, R );
+    Gemm( NORMAL, NORMAL, Field(1), H, Z, Field(-1), R );
     const Real errFrob = FrobeniusNorm( R );
     const Real HFrob = FrobeniusNorm( H );
     const Real relErr = errFrob / (eps*n*HFrob);
@@ -239,14 +240,15 @@ void TestRandomHelper
     }
 }
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 void TestRandom
 ( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
     EL_DEBUG_CSE
-    Output("Testing uniform Hessenberg with ",TypeName<F>());
+    Output("Testing uniform Hessenberg with ",TypeName<Field>());
 
-    Matrix<F> H;
+    Matrix<Field> H;
     Uniform( H, n, n );
     MakeTrapezoidal( UPPER, H, -1 );
     if( print )
@@ -256,14 +258,16 @@ void TestRandom
     TestRandomHelper( H, ctrl, testSweep, print );
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 void TestRandom
 ( Int n, const HessenbergSchurCtrl& ctrl, bool testSweep, bool print )
 {
     EL_DEBUG_CSE
-    Output("Testing uniform Hessenberg with ",TypeName<F>());
+    Output("Testing uniform Hessenberg with ",TypeName<Field>());
 
-    Matrix<F> H;
+    Matrix<Field> H;
     Uniform( H, n, n );
     MakeTrapezoidal( UPPER, H, -1 );
     if( print )
@@ -272,15 +276,15 @@ void TestRandom
     TestRandomHelper( H, ctrl, testSweep, print );
 }
 
-template<typename F>
+template<typename Field>
 void TestRandom
 ( Int n, const Grid& grid, const HessenbergSchurCtrl& ctrl, bool print )
 {
     EL_DEBUG_CSE
     if( grid.Rank() == 0 )
-        Output("Testing uniform Hessenberg with ",TypeName<F>());
+        Output("Testing uniform Hessenberg with ",TypeName<Field>());
 
-    DistMatrix<F,MC,MR,BLOCK> H(grid);
+    DistMatrix<Field,MC,MR,BLOCK> H(grid);
     Uniform( H, n, n );
     MakeTrapezoidal( UPPER, H, -1 );
     if( print )

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_KRONECKER_HPP
@@ -11,7 +11,7 @@
 
 namespace El {
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const Matrix<T>& A,
   const Matrix<T>& B,
@@ -35,7 +35,7 @@ void Kronecker
     }
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const Matrix<T>& A,
   const Matrix<T>& B,
@@ -70,7 +70,7 @@ void Kronecker
     }
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A,
   const SparseMatrix<T>& B,
@@ -96,7 +96,7 @@ void Kronecker
             const Int iB = B.Row(eB);
             const Int jB = B.Col(eB);
             const T valB = B.Value(eB);
-            
+
             const Int i = iA*mB + iB;
             const Int j = jA*nB + jB;
             C.QueueUpdate( i, j, valA*valB );
@@ -105,7 +105,7 @@ void Kronecker
     C.ProcessQueues();
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const Matrix<T>& B, SparseMatrix<T>& C )
 {
@@ -138,7 +138,7 @@ void Kronecker
     C.ProcessQueues();
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const Matrix<T>& A, const SparseMatrix<T>& B, SparseMatrix<T>& C )
 {
@@ -161,7 +161,7 @@ void Kronecker
                 const Int iB = B.Row(eB);
                 const Int jB = B.Col(eB);
                 const T valB = B.Value(eB);
-            
+
                 const Int i = iA*mB + iB;
                 const Int j = jA*nB + jB;
                 C.QueueUpdate( i, j, valA*valB );
@@ -171,7 +171,7 @@ void Kronecker
     C.ProcessQueues();
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const SparseMatrix<T>& B, DistSparseMatrix<T>& C )
 {
@@ -226,7 +226,7 @@ void Kronecker
     C.ProcessLocalQueues();
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const SparseMatrix<T>& A, const Matrix<T>& B, DistSparseMatrix<T>& C )
 {
@@ -234,7 +234,7 @@ void Kronecker
     LogicError("This routine is not yet written");
 }
 
-template<typename T> 
+template<typename T>
 void Kronecker
 ( const Matrix<T>& A, const SparseMatrix<T>& B, DistSparseMatrix<T>& C )
 {

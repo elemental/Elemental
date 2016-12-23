@@ -331,7 +331,7 @@ void KKT
     auto& sLoc = s.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, n+m+k, n+m+k );
 
     // Compute the number of entries to send
@@ -409,7 +409,7 @@ void StaticKKT
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();
 
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, n+m+k, n+m+k );
     const Int localHeightJ = J.LocalHeight();
 
@@ -578,7 +578,7 @@ void KKTRHS
     auto& rmuLoc = rmu.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    d.SetComm( rc.Comm() );
+    d.SetGrid( rc.Grid() );
     Zeros( d, n+m+k, 1 );
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
@@ -653,10 +653,10 @@ void ExpandCoreSolution
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
-    mpi::Comm comm = d.Comm();
-    dx.SetComm( comm );
-    dy.SetComm( comm );
-    dz.SetComm( comm );
+    const Grid& grid = d.Grid();
+    dx.SetGrid( grid );
+    dy.SetGrid( grid );
+    dz.SetGrid( grid );
     Zeros( dx, n, 1 );
     Zeros( dy, m, 1 );
     Zeros( dz, k, 1 );

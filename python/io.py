@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
@@ -200,7 +200,7 @@ def DisplayPyPlot(A,title=''):
   return fig
 
 def DisplayNetworkX(A,title=''):
-  numEdges = A.NumEdges() 
+  numEdges = A.NumEdges()
   G = nx.DiGraph()
   for edge in xrange(numEdges):
     source = A.Source(edge)
@@ -271,7 +271,7 @@ def DisplayCxx(A,title=''):
   return None
 
 def Display(A,title='',tryPython=True):
-  if tryPython: 
+  if tryPython:
     if type(A) is Matrix:
       if havePyPlot:
         return DisplayPyPlot(A,title)
@@ -282,7 +282,7 @@ def Display(A,title='',tryPython=True):
         return Display(A_CIRC_CIRC.Matrix(),title,True)
       return None
     elif type(A) is DistMultiVec:
-      if mpi.Rank(A.Comm()) == 0:
+      if A.Grid().Rank() == 0:
         ASeq = Matrix(A.tag)
         CopyFromRoot(A,ASeq)
         return Display(ASeq,title,True)
@@ -293,7 +293,7 @@ def Display(A,title='',tryPython=True):
       if haveNetworkX:
         return DisplayNetworkX(A,title)
     elif type(A) is DistGraph:
-      if mpi.Rank(A.Comm()) == 0:
+      if A.Grid().Rank() == 0:
         ASeq = Graph()
         CopyFromRoot(A,ASeq)
         return Display(ASeq,title,True)
@@ -305,8 +305,7 @@ def Display(A,title='',tryPython=True):
       Copy(A,ADense)
       return Display(ADense,title,True)
     elif type(A) is DistSparseMatrix:
-      grid = Grid(A.Comm())
-      ADense = DistMatrix(A.tag,MC,MR,grid)
+      ADense = DistMatrix(A.tag,MC,MR,A.Grid())
       Copy(A,ADense)
       return Display(ADense,title,True)
     elif type(A) is Permutation:

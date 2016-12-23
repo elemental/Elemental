@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_FILL_HPP
@@ -46,7 +46,7 @@ void Fill( SparseMatrix<T>& A, T alpha )
     Zero( A );
     if( alpha != T(0) )
     {
-        A.Reserve( m*n ); 
+        A.Reserve( m*n );
         for( Int i=0; i<m; ++i )
             for( Int j=0; j<n; ++j )
                 A.QueueUpdate( i, j, alpha );
@@ -62,12 +62,12 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
     const Int n = A.Width();
     A.Resize( m, n );
     Zero( A );
-    if( alpha != T(0) ) 
+    if( alpha != T(0) )
     {
         const Int localHeight = A.LocalHeight();
         A.Reserve( localHeight*n );
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            for( Int j=0; j<n; ++j ) 
+            for( Int j=0; j<n; ++j )
                 A.QueueLocalUpdate( iLoc, j, alpha );
         A.ProcessLocalQueues();
     }

@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
@@ -390,7 +390,7 @@ def HermitianSVD(uplo,A,vectors=True):
       elif A.tag == cTag: lib.ElHermitianSVD_c(*args)
       elif A.tag == zTag: lib.ElHermitianSVD_z(*args)
       else: DataExcept()
-      return U, s, V 
+      return U, s, V
     else:
       args = [uplo,A.obj,s.obj]
       if   A.tag == sTag: lib.ElHermitianSingularValues_s(*args)
@@ -410,7 +410,7 @@ def HermitianSVD(uplo,A,vectors=True):
       elif A.tag == cTag: lib.ElHermitianSVDDist_c(*args)
       elif A.tag == zTag: lib.ElHermitianSVDDist_z(*args)
       else: DataExcept()
-      return U, s, V 
+      return U, s, V
     else:
       args = [uplo,A.obj,s.obj]
       if   A.tag == sTag: lib.ElHermitianSingularValuesDist_s(*args)
@@ -966,13 +966,13 @@ def SVD(A,ctrl=None):
     if   A.tag == sTag:
       if ctrl==None: lib.ElSVDDist_s(*args)
       else:          lib.ElSVDXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl==None: lib.ElSVDDist_d(*args)
       else:          lib.ElSVDXDist_d(*argsCtrl)
     elif A.tag == cTag:
       if ctrl==None: lib.ElSVDDist_c(*args)
       else:          lib.ElSVDXDist_c(*argsCtrl)
-    elif A.tag == zTag: 
+    elif A.tag == zTag:
       if ctrl==None: lib.ElSVDDist_z(*args)
       else:          lib.ElSVDXDist_z(*argsCtrl)
     else: DataExcept()
@@ -1020,8 +1020,7 @@ def ProductLanczos(A,basisSize=20):
     elif A.tag == zTag: lib.ElProductLanczosSparse_z(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
-    grid = Grid(A.Comm())
-    T = DistMatrix(Base(A.tag),STAR,STAR,grid)
+    T = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     args = [A.obj,T.obj,basisSize]
     if   A.tag == sTag: lib.ElProductLanczosDistSparse_s(*args)
     elif A.tag == dTag: lib.ElProductLanczosDistSparse_d(*args)
@@ -1056,10 +1055,9 @@ def ProductLanczosDecomp(A,basisSize=20):
     else: DataExcept()
     return V, T, v, beta.value
   elif type(A) is DistSparseMatrix:
-    grid = Grid(A.Comm())
-    T = DistMatrix(Base(A.tag),STAR,STAR,grid)
-    V = DistMultiVec(A.tag,A.Comm())
-    v = DistMultiVec(A.tag,A.Comm())
+    T = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    V = DistMultiVec(A.tag,A.Grid())
+    v = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,V.obj,T.obj,v.obj,pointer(beta),basisSize]
     if   A.tag == sTag: lib.ElProductLanczosDecompDistSparse_s(*args)
     elif A.tag == dTag: lib.ElProductLanczosDecompDistSparse_d(*args)
@@ -1189,7 +1187,7 @@ def DisplayPortrait(portrait,box,title='',tryPython=True,eigvals=None):
   if tryPython and havePyPlot:
     if type(portrait) is Matrix:
       portraitLog10 = Matrix(portrait.tag)
-      Copy(portrait,portraitLog10) 
+      Copy(portrait,portraitLog10)
       EntrywiseMap(portraitLog10,math.log10)
       isVec = min(portrait.Height(),portrait.Width()) == 1
       fig = plt.figure()
@@ -1198,12 +1196,12 @@ def DisplayPortrait(portrait,box,title='',tryPython=True,eigvals=None):
         axis.plot(io.np.squeeze(portraitLog10.ToNumPy()),'bo-')
       else:
         lBound = box.center.real - box.realWidth/2
-        rBound = box.center.real + box.realWidth/2 
+        rBound = box.center.real + box.realWidth/2
         bBound = box.center.imag - box.imagWidth/2
         tBound = box.center.imag + box.imagWidth/2
         im = axis.imshow(portraitLog10.ToNumPy(),
                          extent=[lBound,rBound,bBound,tBound])
-        fig.colorbar(im,ax=axis) 
+        fig.colorbar(im,ax=axis)
         if type(eigvals) is Matrix:
           eigvalsReal = Matrix(portrait.tag)
           eigvalsImag = Matrix(portrait.tag)
@@ -1227,7 +1225,7 @@ def DisplayPortrait(portrait,box,title='',tryPython=True,eigvals=None):
         if eigvals is None:
           return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
                                  tryPython=True)
-        elif type(eigvals) is Matrix: 
+        elif type(eigvals) is Matrix:
           return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
                                  tryPython=True,eigvals=eigvals)
         elif type(eigvals) is DistMatrix:
@@ -1259,7 +1257,7 @@ def DisplayPortrait(portrait,box,title='',tryPython=True,eigvals=None):
 # (Pseudo-)Spectral portrait
 # --------------------------
 # The choice is based upon a few different norms of the Schur factor, as simply
-# using the spectral radius would be insufficient for highly non-normal 
+# using the spectral radius would be insufficient for highly non-normal
 # matrices, e.g., a Jordan block with eigenvalue zero
 
 # General

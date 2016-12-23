@@ -5,8 +5,8 @@
    Copyright (c) 2011-2013, Jack Poulson and Lexing Ying.
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -18,7 +18,7 @@ namespace ldl {
 template<typename F>
 void SolveAfter
 ( const vector<Int>& invMap,
-  const NodeInfo& info, 
+  const NodeInfo& info,
   const Front<F>& front,
         Matrix<F>& X )
 {
@@ -59,7 +59,7 @@ void SolveAfter
 template<typename F>
 void SolveAfter
 ( const DistMap& invMap,
-  const DistNodeInfo& info, 
+  const DistNodeInfo& info,
   const DistFront<F>& front,
         DistMultiVec<F>& X )
 {
@@ -81,13 +81,13 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const DistNodeInfo& info, 
+( const DistNodeInfo& info,
   const DistFront<F>& front,
         DistMultiVecNode<F>& X )
 {
     EL_DEBUG_CSE
 
-    // TODO: Only perform the switch if there are a sufficient 
+    // TODO: Only perform the switch if there are a sufficient
     //       number of right-hand sides?
     /*
     if( !FrontIs1D(front.type) )
@@ -121,7 +121,7 @@ void SolveAfter
 
 template<typename F>
 void SolveAfter
-( const DistNodeInfo& info, 
+( const DistNodeInfo& info,
   const DistFront<F>& front,
         DistMatrixNode<F>& X )
 {
@@ -153,9 +153,9 @@ void SolveAfter
         // Solve against the (conjugate-)transpose of the unit diagonal L
         LowerSolve( orientation, info, front, X );
     }
-} 
+}
 
-// TODO: Improve these implementations 
+// TODO: Improve these implementations
 //       (e.g., limit maxRefineIts to 3 by default)
 template<typename F>
 Int SolveWithIterativeRefinement
@@ -179,7 +179,7 @@ Int SolveWithIterativeRefinement
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        Matrix<F> dx, xCand; 
+        Matrix<F> dx, xCand;
         Multiply( NORMAL, F(-1), A, x, F(1), y );
         Base<F> errorNorm = Nrm2( y );
         for( ; refineIt<maxRefineIts; ++refineIt )
@@ -228,16 +228,16 @@ Int SolveWithIterativeRefinement
   Base<F> minReductionFactor, Int maxRefineIts )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = y.Comm();
+    const Grid& grid = y.Grid();
 
-    DistMultiVec<F> yOrig(comm);
+    DistMultiVec<F> yOrig(grid);
     yOrig = y;
 
     ldl::DistMultiVecNodeMeta meta;
 
     // Compute the initial guess
     // =========================
-    DistMultiVec<F> x(comm);
+    DistMultiVec<F> x(grid);
     DistMultiVecNode<F> xNodal;
     xNodal.Pull( invMap, info, y, meta );
     SolveAfter( info, front, xNodal );
@@ -246,7 +246,7 @@ Int SolveWithIterativeRefinement
     Int refineIt = 0;
     if( maxRefineIts > 0 )
     {
-        DistMultiVec<F> dx(comm), xCand(comm); 
+        DistMultiVec<F> dx(grid), xCand(grid);
         Multiply( NORMAL, F(-1), A, x, F(1), y );
         Base<F> errorNorm = Nrm2( y );
         for( ; refineIt<maxRefineIts; ++refineIt )
@@ -322,7 +322,7 @@ Int SolveWithIterativeRefinement
     const DistFront<F>& front, \
           DistMultiVec<F>& y, \
     Base<F> minReductionFactor, Int maxRefineIts );
- 
+
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

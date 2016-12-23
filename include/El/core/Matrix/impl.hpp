@@ -83,11 +83,6 @@ Matrix<Ring>::Matrix( Matrix<Ring>&& A ) EL_NO_EXCEPT
 template<typename Ring>
 Matrix<Ring>::~Matrix() { }
 
-// Advanced
-// --------
-template<typename Ring>
-Matrix<Ring>::Matrix( const Grid& grid ) { }
-
 // Assignment and reconfiguration
 // ==============================
 
@@ -736,6 +731,50 @@ void Matrix<Ring>::Resize_( Int height, Int width, Int leadingDimension )
         data_ = memory_.Buffer();
     }
 }
+
+// For supporting duck typing
+// ==========================
+template<typename Ring>
+Matrix<Ring>::Matrix( const El::Grid& grid )
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( grid != El::Grid::Trivial() )
+          LogicError("Tried to construct a Matrix with a nontrivial Grid");
+    )
+}
+
+template<typename Ring>
+void Matrix<Ring>::SetGrid( const El::Grid& grid )
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( grid != El::Grid::Trivial() )
+          LogicError("Tried to assign nontrivial Grid to Matrix");
+    )
+}
+
+template<typename Ring>
+const El::Grid& Matrix<Ring>::Grid() const
+{
+    EL_DEBUG_CSE
+    return El::Grid::Trivial();
+}
+
+template<typename Ring>
+void Matrix<Ring>::Align( Int colAlign, Int rowAlign, bool constrain )
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( colAlign != 0 || rowAlign != 0 )
+          LogicError("Attempted to impose nontrivial alignment on Matrix");
+    )
+}
+
+template<typename Ring>
+int Matrix<Ring>::ColAlign() const EL_NO_EXCEPT { return 0; }
+template<typename Ring>
+int Matrix<Ring>::RowAlign() const EL_NO_EXCEPT { return 0; }
 
 #ifdef EL_INSTANTIATE_CORE
 # define EL_EXTERN

@@ -267,9 +267,9 @@ void ForceSimpleAlignments
 ( DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
   const Grid& grid )
 {
-    problem.c.SetComm( grid.Comm() );
-    problem.A.SetComm( grid.Comm() );
-    problem.b.SetComm( grid.Comm() );
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
 }
 
 template<typename Real>
@@ -324,9 +324,9 @@ template<typename Real>
 void ForceSimpleAlignments
 ( DirectLPSolution<DistMultiVec<Real>>& solution, const Grid& grid )
 {
-    solution.x.SetComm( grid.Comm() );
-    solution.y.SetComm( grid.Comm() );
-    solution.z.SetComm( grid.Comm() );
+    solution.x.SetGrid( grid );
+    solution.y.SetGrid( grid );
+    solution.z.SetGrid( grid );
 }
 
 // Quack...
@@ -376,9 +376,9 @@ template<typename Real>
 void ForceSimpleAlignments
 ( DirectLPResidual<DistMultiVec<Real>>& residual, const Grid& grid )
 {
-    residual.primalEquality.SetComm( grid.Comm() );
-    residual.dualEquality.SetComm( grid.Comm() );
-    residual.dualConic.SetComm( grid.Comm() );
+    residual.primalEquality.SetGrid( grid );
+    residual.dualEquality.SetGrid( grid );
+    residual.dualConic.SetGrid( grid );
 }
 
 template<typename Real>
@@ -505,11 +505,11 @@ void ForceSimpleAlignments
 ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
   const Grid& grid )
 {
-    problem.c.SetComm( grid.Comm() );
-    problem.A.SetComm( grid.Comm() );
-    problem.b.SetComm( grid.Comm() );
-    problem.G.SetComm( grid.Comm() );
-    problem.h.SetComm( grid.Comm() );
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.G.SetGrid( grid );
+    problem.h.SetGrid( grid );
 }
 
 // Quack...
@@ -570,10 +570,10 @@ template<typename Real>
 void ForceSimpleAlignments
 ( AffineLPSolution<DistMultiVec<Real>>& solution, const Grid& grid )
 {
-    solution.x.SetComm( grid.Comm() );
-    solution.s.SetComm( grid.Comm() );
-    solution.y.SetComm( grid.Comm() );
-    solution.z.SetComm( grid.Comm() );
+    solution.x.SetGrid( grid );
+    solution.s.SetGrid( grid );
+    solution.y.SetGrid( grid );
+    solution.z.SetGrid( grid );
 }
 
 // Quack...
@@ -627,10 +627,10 @@ template<typename Real>
 void ForceSimpleAlignments
 ( AffineLPResidual<DistMultiVec<Real>>& residual, const Grid& grid )
 {
-    residual.primalEquality.SetComm( grid.Comm() );
-    residual.primalConic.SetComm( grid.Comm() );
-    residual.dualEquality.SetComm( grid.Comm() );
-    residual.dualConic.SetComm( grid.Comm() );
+    residual.primalEquality.SetGrid( grid );
+    residual.primalConic.SetGrid( grid );
+    residual.dualEquality.SetGrid( grid );
+    residual.dualConic.SetGrid( grid );
 }
 
 // Quack...

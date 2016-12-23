@@ -30,18 +30,11 @@ class DistMultiVec
 public:
     // Constructors and destructors
     // ============================
-    DistMultiVec( mpi::Comm comm=mpi::COMM_WORLD );
-    DistMultiVec( Int height, Int width, mpi::Comm comm=mpi::COMM_WORLD );
+    DistMultiVec( const El::Grid& grid=El::Grid::Default() );
+    DistMultiVec
+    ( Int height, Int width, const El::Grid& grid=El::Grid::Default() );
     DistMultiVec( const DistMultiVec<Ring>& A );
     ~DistMultiVec();
-
-    // Advanced
-    // --------
-    // The following are provided to aid duck-typing over Matrix, DistMatrix,
-    // DistMultiVec, etc. and are functionally equivalent to the mpi::Comm
-    // equivalents.
-    explicit DistMultiVec( const Grid& grid );
-    explicit DistMultiVec( Int height, Int width, const Grid& grid ); 
 
     // Assignment  and reconfiguration
     // ===============================
@@ -53,7 +46,7 @@ public:
 
     // Change the distribution
     // -----------------------
-    void SetComm( mpi::Comm comm );
+    void SetGrid( const El::Grid& grid );
 
     // Operator overloading
     // ====================
@@ -97,7 +90,7 @@ public:
 
     // Distribution information
     // ------------------------
-    mpi::Comm Comm() const EL_NO_EXCEPT;
+    const El::Grid& Grid() const EL_NO_EXCEPT;
     Int Blocksize() const EL_NO_EXCEPT;
     int RowOwner( Int i ) const EL_NO_EXCEPT;
     int Owner( Int i, Int j ) const EL_NO_EXCEPT;
@@ -126,13 +119,16 @@ public:
     void QueueUpdate( Int i, Int j, const Ring& value );
     void ProcessQueues();
 
+    // To support duck typing
+    // ======================
+
+    // TODO(poulson): Description
+    void Align( Int colAlign, Int rowAlign, bool constrain=true );
+
 private:
     Int height_=0, width_=0;
 
-    mpi::Comm comm_;
-    // Calling MPI_Comm_size within an inner loop is apparently a bad idea
-    int commSize_;
-    int commRank_;
+    const El::Grid* grid_;
     Int blocksize_;
 
     El::Matrix<Ring> multiVec_;

@@ -21,9 +21,9 @@ typedef const struct ElDistGraph_Dummy* ElConstDistGraph;
 /* Constructors and destructors
    ============================ */
 
-/* DistGraph::DistGraph( mpi::Comm comm )
-   -------------------------------------- */
-EL_EXPORT ElError ElDistGraphCreate( ElDistGraph* graph, MPI_Comm comm );
+/* DistGraph::DistGraph( const Grid& grid )
+   ---------------------------------------- */
+EL_EXPORT ElError ElDistGraphCreate( ElDistGraph* graph, ElConstGrid grid );
 
 /* DistGraph::~DistGraph()
    ----------------------- */
@@ -41,9 +41,9 @@ EL_EXPORT ElError ElDistGraphEmpty( ElDistGraph graph );
 EL_EXPORT ElError ElDistGraphResize
 ( ElDistGraph graph, ElInt numSources, ElInt numTargets );
 
-/* void DistGraph::SetComm( mpi::Comm comm )
-   ----------------------------------------- */
-EL_EXPORT ElError ElDistGraphSetComm( ElDistGraph graph, MPI_Comm comm );
+/* void DistGraph::SetGrid( const Grid& grid )
+   ------------------------------------------- */
+EL_EXPORT ElError ElDistGraphSetGrid( ElDistGraph graph, ElConstGrid grid );
 
 /* void DistGraph::Reserve( Int numLocalEdges, Int numRemoteEdges )
    ---------------------------------------------------------------- */
@@ -136,9 +136,9 @@ EL_EXPORT ElError ElDistGraphCapacity
 EL_EXPORT ElError ElDistGraphConsistent
 ( ElConstDistGraph graph, bool* consistent );
 
-/* mpi::Comm DistGraph::Comm() const
-   --------------------------------- */
-EL_EXPORT ElError ElDistGraphComm( ElConstDistGraph graph, MPI_Comm* comm );
+/* const Grid& DistGraph::Grid() const
+   ----------------------------------- */
+EL_EXPORT ElError ElDistGraphGrid( ElConstDistGraph graph, ElConstGrid* grid );
 
 /* Int DistGraph::Blocksize() const
    -------------------------------- */

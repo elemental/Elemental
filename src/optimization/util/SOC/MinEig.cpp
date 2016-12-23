@@ -164,7 +164,9 @@ Real MinEig
   Int cutoff )
 {
     EL_DEBUG_CSE
-    DistMultiVec<Real> minEigs(x.Comm());
+    const Grid& grid = x.Grid();
+
+    DistMultiVec<Real> minEigs(grid);
     soc::MinEig( x, minEigs, orders, firstInds, cutoff );
 
     const Real* minEigBuf = minEigs.LockedMatrix().LockedBuffer();
@@ -175,7 +177,7 @@ Real MinEig
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( minEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
             minEigLocal = Min(minEigLocal,minEigBuf[iLoc]);
-    return mpi::AllReduce( minEigLocal, mpi::MIN, x.Comm() );
+    return mpi::AllReduce( minEigLocal, mpi::MIN, grid.Comm() );
 }
 
 #define PROTO(Real) \

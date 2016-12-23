@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -11,7 +11,8 @@
 
 namespace El {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
 {
     EL_DEBUG_CSE
@@ -51,7 +52,8 @@ ValueInt<Real> VectorMaxLoc( const Matrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
 {
     EL_DEBUG_CSE
@@ -106,7 +108,8 @@ ValueInt<Real> VectorMaxLoc( const AbstractDistMatrix<Real>& x )
     return pivot;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
 {
     EL_DEBUG_CSE
@@ -127,11 +130,12 @@ ValueInt<Real> VectorMaxLoc( const DistMultiVec<Real>& x )
             pivot.index = x.GlobalRow(iLoc);
         }
     }
-    pivot = mpi::AllReduce( pivot, mpi::MaxLocOp<Real>(), x.Comm() );
+    pivot = mpi::AllReduce( pivot, mpi::MaxLocOp<Real>(), x.Grid().Comm() );
     return pivot;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Entry<Real> MaxLoc( const Matrix<Real>& A )
 {
     EL_DEBUG_CSE
@@ -160,7 +164,8 @@ Entry<Real> MaxLoc( const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
 {
     EL_DEBUG_CSE
@@ -203,7 +208,8 @@ Entry<Real> MaxLoc( const AbstractDistMatrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
 {
     EL_DEBUG_CSE
@@ -237,8 +243,8 @@ Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
     }
     else
     {
-        for( Int j=0; j<n; ++j ) 
-        { 
+        for( Int j=0; j<n; ++j )
+        {
             for( Int i=0; i<=j; ++i )
             {
                 const Real value = ABuf[i+j*ALDim];
@@ -254,7 +260,8 @@ Entry<Real> SymmetricMaxLoc( UpperOrLower uplo, const Matrix<Real>& A )
     return pivot;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Entry<Real>
 SymmetricMaxLoc( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {

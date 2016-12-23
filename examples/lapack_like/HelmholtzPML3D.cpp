@@ -52,7 +52,8 @@ int main( int argc, char* argv[] )
         El::ProcessInput();
 
         const El::Int N = n1*n2*n3;
-        El::DistSparseMatrix<Scalar> A( N, N, comm );
+        const El::Grid grid( comm );
+        El::DistSparseMatrix<Scalar> A( N, N, grid );
         El::HelmholtzPML( A, n1, n2, n3, Scalar(omega), b, sigma, p );
         if( display )
             El::Display( A, "A" );
@@ -61,7 +62,7 @@ int main( int argc, char* argv[] )
 
         if( commRank == 0 )
             El::Output("Generating point-source for y...");
-        El::DistMultiVec<Scalar> y( N, 1, comm ), z( N, 1, comm );
+        El::DistMultiVec<Scalar> y( N, 1, grid ), z( N, 1, grid );
         El::Zero( z );
         const El::Int xSource = n1/2;
         const El::Int ySource = n2/2;

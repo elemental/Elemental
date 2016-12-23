@@ -219,9 +219,7 @@ void Equilibrate
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-
-    // Quack...
-    const Grid grid( problem.A.Comm() );
+    const Grid& grid = problem.A.Grid();
     ForceSimpleAlignments( equilibratedProblem, grid );
     ForceSimpleAlignments( equilibratedSolution, grid );
 
@@ -1470,8 +1468,9 @@ void EquilibratedMehrotra
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
     const Int degree = k;
-    mpi::Comm comm = problem.A.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = problem.A.Grid();
+    mpi::Comm comm = grid.Comm();
+    const int commRank = grid.Rank();
     Timer timer;
 
     const Real bNrm2 = Nrm2( problem.b );
@@ -1496,7 +1495,7 @@ void EquilibratedMehrotra
         }
     }
 
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     regTmp.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
@@ -1512,7 +1511,7 @@ void EquilibratedMehrotra
 
     // Construct the static part of the KKT system
     // ===========================================
-    DistSparseMatrix<Real> JStatic(comm);
+    DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( problem.A, problem.G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
       JStatic, false );
@@ -1549,9 +1548,9 @@ void EquilibratedMehrotra
         Output("Init: ",timer.Stop()," secs");
 
     Real relError = 1;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
     ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm), w(comm), dInner(comm);
+    DistMultiVec<Real> d(grid), w(grid), dInner(grid);
     ldl::DistMultiVecNodeMeta dmvMeta;
     auto attemptToFactor = [&]( const Real& wMaxNorm )
       {
@@ -1622,8 +1621,6 @@ void EquilibratedMehrotra
     AffineLPResidual<DistMultiVec<Real>> residual, error;
     AffineLPSolution<DistMultiVec<Real>> affineCorrection, correction;
 
-    // Quack...
-    const Grid grid( comm );
     ForceSimpleAlignments( residual, grid );
     ForceSimpleAlignments( error, grid );
     ForceSimpleAlignments( affineCorrection, grid );
@@ -1890,14 +1887,12 @@ void Mehrotra
     EL_DEBUG_CSE
     if( ctrl.outerEquil )
     {
-        mpi::Comm comm = problem.A.Comm();
+        const Grid& grid = problem.A.Grid();
         AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>
           equilibratedProblem;
         AffineLPSolution<DistMultiVec<Real>> equilibratedSolution;
         DistSparseAffineLPEquilibration<Real> equilibration;
 
-        // Quack...
-        const Grid grid( comm );
         ForceSimpleAlignments( equilibratedSolution, grid );
         ForceSimpleAlignments( equilibratedProblem, grid );
 

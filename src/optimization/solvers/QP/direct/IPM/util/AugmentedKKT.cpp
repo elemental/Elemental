@@ -164,7 +164,7 @@ void AugmentedKKT
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, m+n, m+n );
     const Int JLocalHeight = J.LocalHeight();
 
@@ -316,7 +316,7 @@ void AugmentedKKTRHS
     auto& rbLoc = rb.LockedMatrix();
     auto& rmuLoc = rmu.LockedMatrix();
 
-    d.SetComm( x.Comm() );
+    d.SetGrid( x.Grid() );
     Zeros( d, m+n, 1 );
 
     d.Reserve( rc.LocalHeight()+rb.LocalHeight() );
@@ -408,10 +408,10 @@ void ExpandAugmentedSolution
     EL_DEBUG_CSE
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
-    mpi::Comm comm = z.Comm();
-    dx.SetComm( comm );
-    dy.SetComm( comm );
-    dz.SetComm( comm );
+    const Grid& grid = z.Grid();
+    dx.SetGrid( grid );
+    dy.SetGrid( grid );
+    dz.SetGrid( grid );
 
     auto& dLoc = d.LockedMatrix();
 

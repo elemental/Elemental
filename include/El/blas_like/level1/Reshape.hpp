@@ -151,7 +151,7 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    B.SetComm( A.Comm() );
+    B.SetGrid( A.Grid() );
     B.Resize( mNew, nNew );
     Zero( B );
 
@@ -170,7 +170,7 @@ void Reshape
 template<typename T>
 DistSparseMatrix<T> Reshape( Int mNew, Int nNew, const DistSparseMatrix<T>& A )
 {
-    DistSparseMatrix<T> B(A.Comm());
+    DistSparseMatrix<T> B(A.Grid());
     Reshape( mNew, nNew, A, B );
     return B;
 }

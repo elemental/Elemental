@@ -251,11 +251,11 @@ void Tikhonov
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
     // Explicitly form W := op(A)
     // ==========================
-    DistSparseMatrix<F> W(comm);
+    DistSparseMatrix<F> W(grid);
     if( orientation == NORMAL )
         W = A;
     else if( orientation == TRANSPOSE )
@@ -269,13 +269,13 @@ void Tikhonov
 
     // Embed into a higher-dimensional problem via appending regularization
     // ====================================================================
-    DistSparseMatrix<F> WEmb(comm);
+    DistSparseMatrix<F> WEmb(grid);
     if( m >= n )
         VCat( W, G, WEmb );
     else
         HCat( W, G, WEmb );
 
-    DistMultiVec<F> BEmb(comm);
+    DistMultiVec<F> BEmb(grid);
     Zeros( BEmb, WEmb.Height(), numRHS );
     if( m >= n )
     {
@@ -296,7 +296,7 @@ void Tikhonov
 
     // Solve the higher-dimensional problem
     // ====================================
-    DistMultiVec<F> XEmb(comm);
+    DistMultiVec<F> XEmb(grid);
     LeastSquares( NORMAL, WEmb, BEmb, XEmb, ctrl );
 
     // Extract the solution

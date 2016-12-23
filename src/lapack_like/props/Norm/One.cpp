@@ -245,7 +245,7 @@ template<typename Ring>
 Base<Ring> OneNorm( const DistSparseMatrix<Ring>& A )
 {
     EL_DEBUG_CSE
-    DistSparseMatrix<Ring> ATrans(A.Comm());
+    DistSparseMatrix<Ring> ATrans(A.Grid());
     Transpose( A, ATrans );
     return InfinityNorm( ATrans );
 }

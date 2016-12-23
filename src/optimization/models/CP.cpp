@@ -212,9 +212,9 @@ void CP
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), bHat(comm), h(comm);
+    const Grid& grid = A.Grid();
+    DistSparseMatrix<Real> AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), bHat(grid), h(grid);
 
     // c := [zeros(n,1);1]
     // ===================
@@ -258,7 +258,7 @@ void CP
 
     // Solve the affine LP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // Extract x from [x;t]

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_GETSUBMATRIX_HPP
@@ -17,7 +17,7 @@ template<typename T>
 void GetSubmatrix
 ( const Matrix<T>& A,
         Range<Int> I,
-        Range<Int> J, 
+        Range<Int> J,
         Matrix<T>& ASub )
 {
     EL_DEBUG_CSE
@@ -29,11 +29,11 @@ template<typename T>
 void GetSubmatrix
 ( const ElementalMatrix<T>& A,
         Range<Int> I,
-        Range<Int> J, 
+        Range<Int> J,
         ElementalMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    unique_ptr<ElementalMatrix<T>> 
+    unique_ptr<ElementalMatrix<T>>
       ASubView( A.Construct(A.Grid(),A.Root()) );
     LockedView( *ASubView, A, I, J );
     Copy( *ASubView, ASub );
@@ -74,7 +74,7 @@ void GetSubmatrix
     ASub.Reserve( numNonzerosSub );
 
     // Insert the nonzeros
-    for( Int i=I.beg; i<I.end; ++i ) 
+    for( Int i=I.beg; i<I.end; ++i )
     {
         const Int rowOff = offsetBuf[i];
         const Int numConn = offsetBuf[i+1] - offsetBuf[i];
@@ -96,7 +96,7 @@ void GetSubmatrix
         SparseMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -108,7 +108,7 @@ void GetSubmatrix
         SparseMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -120,11 +120,11 @@ void GetSubmatrix
         SparseMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
-// TODO: Use lower-level access
+// TODO(poulson): Use lower-level access
 template<typename T>
 void GetSubmatrix
 ( const DistSparseMatrix<T>& A,
@@ -136,7 +136,7 @@ void GetSubmatrix
     if( I.end == END ) I.end = A.Height();
     if( J.end == END ) J.end = A.Width();
 
-    ASub.SetComm( A.Comm() );
+    ASub.SetGrid( A.Grid() );
     ASub.Resize( I.end-I.beg, J.end-J.beg );
     Zero( ASub );
 
@@ -176,7 +176,7 @@ void GetSubmatrix
         DistSparseMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -188,7 +188,7 @@ void GetSubmatrix
         DistSparseMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -200,7 +200,7 @@ void GetSubmatrix
         DistSparseMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -218,10 +218,10 @@ void GetSubmatrix
     const Int nSub = J.end-J.beg;
     const Int localHeight = A.LocalHeight();
 
-    ASub.SetComm( A.Comm() );
+    ASub.SetGrid( A.Grid() );
     ASub.Resize( mSub, nSub );
     Zero( ASub );
-    
+
     const T* ABuf = A.LockedMatrix().LockedBuffer();
     const Int ALDim = A.LockedMatrix().LDim();
 
@@ -265,9 +265,9 @@ void GetSubmatrix
 // ==============
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, 
+( const Matrix<T>& A,
   const Range<Int> I,
-  const vector<Int>& J, 
+  const vector<Int>& J,
         Matrix<T>& ASub )
 {
     EL_DEBUG_CSE
@@ -289,9 +289,9 @@ void GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, 
+( const Matrix<T>& A,
   const vector<Int>& I,
-  const Range<Int> J, 
+  const Range<Int> J,
         Matrix<T>& ASub )
 {
     EL_DEBUG_CSE
@@ -317,9 +317,9 @@ void GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const Matrix<T>& A, 
+( const Matrix<T>& A,
   const vector<Int>& I,
-  const vector<Int>& J, 
+  const vector<Int>& J,
         Matrix<T>& ASub )
 {
     EL_DEBUG_CSE
@@ -345,20 +345,20 @@ void GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
+( const AbstractDistMatrix<T>& A,
         Range<Int> I,
-  const vector<Int>& J, 
+  const vector<Int>& J,
         AbstractDistMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
     const Int mSub = I.end-I.beg;
     const Int nSub = J.size();
     const Grid& g = A.Grid();
-    ASub.SetGrid( g ); 
+    ASub.SetGrid( g );
     ASub.Resize( mSub, nSub );
     Zero( ASub );
 
-    // TODO: Intelligently pick the redundant rank to pack from?
+    // TODO(poulson): Intelligently pick the redundant rank to pack from?
 
     const T* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
@@ -401,20 +401,20 @@ void GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
+( const AbstractDistMatrix<T>& A,
   const vector<Int>& I,
-        Range<Int> J, 
+        Range<Int> J,
         AbstractDistMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.end-J.beg;
     const Grid& g = A.Grid();
-    ASub.SetGrid( g ); 
+    ASub.SetGrid( g );
     ASub.Resize( mSub, nSub );
     Zero( ASub );
 
-    // TODO: Intelligently pick the redundant rank to pack from?
+    // TODO(poulson): Intelligently pick the redundant rank to pack from?
 
     const T* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
@@ -457,20 +457,20 @@ void GetSubmatrix
 
 template<typename T>
 void GetSubmatrix
-( const AbstractDistMatrix<T>& A, 
+( const AbstractDistMatrix<T>& A,
   const vector<Int>& I,
-  const vector<Int>& J, 
+  const vector<Int>& J,
         AbstractDistMatrix<T>& ASub )
 {
     EL_DEBUG_CSE
     const Int mSub = I.size();
     const Int nSub = J.size();
     const Grid& g = A.Grid();
-    ASub.SetGrid( g ); 
+    ASub.SetGrid( g );
     ASub.Resize( mSub, nSub );
     Zero( ASub );
 
-    // TODO: Intelligently pick the redundant rank to pack from?
+    // TODO(poulson): Intelligently pick the redundant rank to pack from?
 
     const T* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
@@ -519,7 +519,7 @@ void GetSubmatrix
         DistMultiVec<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -531,7 +531,7 @@ void GetSubmatrix
         DistMultiVec<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -543,7 +543,7 @@ void GetSubmatrix
         DistMultiVec<T>& ASub )
 {
     EL_DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 

@@ -3,9 +3,9 @@
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace ldl {
 
 void AMDOrder
 ( const vector<Int>& subOffsets,
-  const vector<Int>& subTargets, 
+  const vector<Int>& subTargets,
         vector<Int>& amdPerm,
         double* control,
         double* info )
@@ -33,7 +33,7 @@ void AMDOrder
         subOffsets_int[j] = int(subOffsets[j]);
     for( Int j=0; j<numEdges; ++j )
         subTargets_int[j] = int(subTargets[j]);
-    const int amdStatus = 
+    const int amdStatus =
       El_amd_order
       ( int(numSources),
         subOffsets_int.data(), subTargets_int.data(),
@@ -46,7 +46,7 @@ void AMDOrder
         amdPerm[j] = Int(amdPerm_int[j]);
 #else
     amdPerm.resize( numSources );
-    const int amdStatus = 
+    const int amdStatus =
       El_amd_order
       ( numSources, subOffsets.data(), subTargets.data(), amdPerm.data(),
         control, info );
@@ -77,11 +77,11 @@ inline bool IsSymmetric( const Graph& graph )
 
 inline void
 NestedDissectionRecursion
-( const Graph& graph, 
+( const Graph& graph,
   const vector<Int>& perm,
-        Separator& sep, 
+        Separator& sep,
         NodeInfo& node,
-        Int off, 
+        Int off,
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
@@ -103,7 +103,7 @@ NestedDissectionRecursion
         Int prevSource = -1;
         for( Int e=0; e<numEdges; ++e )
         {
-            const Int source = sourceBuf[e]; 
+            const Int source = sourceBuf[e];
             const Int target = targetBuf[e];
             while( source != prevSource )
             {
@@ -117,7 +117,7 @@ NestedDissectionRecursion
         { subOffsets[sourceOff++] = validCounter; }
 
         // Technically, SuiteSparse expects column-major storage, but since
-        // the matrix is structurally symmetric, it's okay to pass in the 
+        // the matrix is structurally symmetric, it's okay to pass in the
         // row-major representation
         vector<Int> amdPerm;
         AMDOrder( subOffsets, subTargets, amdPerm );
@@ -126,10 +126,10 @@ NestedDissectionRecursion
         // reordering just computed
         node.LOffsets.resize( numSources+1 );
         node.LParents.resize( numSources );
-        vector<Int> LNnz( numSources ), Flag( numSources ), 
+        vector<Int> LNnz( numSources ), Flag( numSources ),
                     amdPermInv( numSources );
-        suite_sparse::ldl::Symbolic 
-        ( numSources, subOffsets.data(), subTargets.data(), 
+        suite_sparse::ldl::Symbolic
+        ( numSources, subOffsets.data(), subTargets.data(),
           node.LOffsets.data(), node.LParents.data(), LNnz.data(),
           Flag.data(), amdPerm.data(), amdPermInv.data() );
 
@@ -204,7 +204,7 @@ NestedDissectionRecursion
             const Int mappedSource = s + (numSources-sepSize);
             sep.inds[s] = invMap[mappedSource];
         }
-    
+
         // Fill in this node in the local elimination tree
         node.size = sepSize;
         node.off = sep.off;
@@ -245,27 +245,27 @@ NestedDissectionRecursion
         node.children[0] = new NodeInfo(&node);
         node.children[1] = new NodeInfo(&node);
         NestedDissectionRecursion
-        ( leftChild, leftPerm, *sep.children[0], *node.children[0], 
+        ( leftChild, leftPerm, *sep.children[0], *node.children[0],
           off, ctrl );
         NestedDissectionRecursion
-        ( rightChild, rightPerm, *sep.children[1], *node.children[1], 
+        ( rightChild, rightPerm, *sep.children[1], *node.children[1],
           off+leftChildSize, ctrl );
     }
 }
 
 inline void
 NestedDissectionRecursion
-( const DistGraph& graph, 
+( const DistGraph& graph,
   const DistMap& perm,
-        DistSeparator& sep, 
+        DistSeparator& sep,
         DistNodeInfo& node,
-        Int off, 
+        Int off,
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size(comm);
-
+    const Grid& grid = graph.Grid();
+    mpi::Comm comm = grid.Comm();
+    const int commSize = grid.Size();
     mpi::Dup( comm, sep.comm );
     mpi::Dup( comm, node.comm );
 
@@ -283,7 +283,7 @@ NestedDissectionRecursion
         const Int sepSize = Bisect( graph, child, map, childIsOnLeft, ctrl );
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
-        const Int leftChildSize = 
+        const Int leftChildSize =
             ( childIsOnLeft ? childSize : numSources-sepSize-childSize );
 
         DistMap invMap;
@@ -305,7 +305,7 @@ NestedDissectionRecursion
         for( Int s=0; s<sepSize; ++s )
         {
             const Int source = sep.inds[s];
-            if( source >= firstLocalSource && 
+            if( source >= firstLocalSource &&
                 source < firstLocalSource+numLocalSources )
             {
                 const Int localSource = source - firstLocalSource;
@@ -326,12 +326,12 @@ NestedDissectionRecursion
         vector<Int> localConnectedVec;
         CopySTL( localLowerStruct, localConnectedVec );
         vector<int> localConnectedOffs;
-        const int sumOfLocalConnectedSizes = 
+        const int sumOfLocalConnectedSizes =
             Scan( localConnectedSizes, localConnectedOffs );
         vector<Int> localConnections( sumOfLocalConnectedSizes );
         mpi::AllGather
         ( localConnectedVec.data(), numLocalConnected,
-          localConnections.data(), 
+          localConnections.data(),
           localConnectedSizes.data(), localConnectedOffs.data(), comm );
         set<Int> lowerStruct
         ( localConnections.begin(), localConnections.end() );
@@ -341,7 +341,7 @@ NestedDissectionRecursion
         perm.Translate( sep.inds );
 
         // Construct map from child indices to the original ordering
-        DistMap newPerm( child.NumSources(), child.Comm() );
+        DistMap newPerm( child.NumSources(), child.Grid() );
         const Int localChildSize = child.NumLocalSources();
         const Int firstLocalChildSource = child.FirstLocalSource();
         auto& newPermLoc = newPerm.Map();
@@ -382,9 +382,9 @@ NestedDissectionRecursion
 }
 
 void NestedDissection
-( const Graph& graph, 
+( const Graph& graph,
         vector<Int>& map,
-        Separator& sep, 
+        Separator& sep,
         NodeInfo& node,
   const BisectCtrl& ctrl )
 {
@@ -398,7 +398,7 @@ void NestedDissection
 
     NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
 
-    // Construct the distributed reordering    
+    // Construct the distributed reordering
     BuildMap( sep, map );
     EL_DEBUG_ONLY(EnsurePermutation(map))
 
@@ -407,16 +407,16 @@ void NestedDissection
 }
 
 void NestedDissection
-( const DistGraph& graph, 
+( const DistGraph& graph,
         DistMap& map,
-        DistSeparator& sep, 
+        DistSeparator& sep,
         DistNodeInfo& node,
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
     // NOTE: There is a potential memory leak here if sep or info is reused
 
-    DistMap perm( graph.NumSources(), graph.Comm() );
+    DistMap perm( graph.NumSources(), graph.Grid() );
     const Int firstLocalSource = perm.FirstLocalSource();
     const Int numLocalSources = perm.NumLocalSources();
     for( Int s=0; s<numLocalSources; ++s )
@@ -424,8 +424,8 @@ void NestedDissection
 
     NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
 
-    // Construct the distributed reordering    
-    BuildMap( sep, map );
+    // Construct the distributed reordering
+    BuildMap( graph.Grid(), sep, map );
     EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
@@ -438,10 +438,10 @@ void BuildMap( const Separator& rootSep, vector<Int>& map )
     const Int numSources = rootSep.off + rootSep.inds.size();
     map.resize( numSources );
 
-    function<void(const Separator&)> buildMap = 
+    function<void(const Separator&)> buildMap =
       [&]( const Separator& sep )
       {
-        for( auto* child : sep.children )  
+        for( auto* child : sep.children )
             buildMap( *child );
         for( size_t t=0; t<sep.inds.size(); ++t )
             map[sep.inds[t]] = sep.off + t;
@@ -449,16 +449,15 @@ void BuildMap( const Separator& rootSep, vector<Int>& map )
     buildMap( rootSep );
 }
 
-void BuildMap( const DistSeparator& rootSep, DistMap& map )
+void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map )
 {
     EL_DEBUG_CSE
-
     const Int numSources = rootSep.off + rootSep.inds.size();
-    mpi::Comm comm = rootSep.comm;
-    map.SetComm( comm );
+    const int commSize = grid.Size();
+
+    map.SetGrid( grid );
     map.Resize( numSources );
 
-    const int commSize = mpi::Size( comm );
     vector<int> sendSizes( commSize, 0 );
     function<void(const Separator&)> sendSizeLocalAccumulate =
       [&]( const Separator& sep )
@@ -468,7 +467,7 @@ void BuildMap( const DistSeparator& rootSep, DistMap& map )
         for( Int i : sep.inds )
             ++sendSizes[ map.RowOwner(i) ];
       };
-    function<void(const DistSeparator&)> sendSizeAccumulate = 
+    function<void(const DistSeparator&)> sendSizeAccumulate =
       [&]( const DistSeparator& sep )
       {
           if( sep.child == nullptr )
@@ -492,10 +491,10 @@ void BuildMap( const DistSeparator& rootSep, DistMap& map )
       };
     sendSizeAccumulate( rootSep );
 
-    // Use a single-entry AllToAll to coordinate how many indices will be 
+    // Use a single-entry AllToAll to coordinate how many indices will be
     // exchanges
     vector<int> recvSizes( commSize );
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, grid.Comm() );
 
     // Pack the reordered indices
     vector<int> sendOffs;
@@ -505,21 +504,21 @@ void BuildMap( const DistSeparator& rootSep, DistMap& map )
     function<void(const Separator&)> packRowsLocal =
       [&]( const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )    
+          for( const Separator* childSep : sep.children )
               packRowsLocal( *childSep );
 
-          const Int numInds = sep.inds.size(); 
+          const Int numInds = sep.inds.size();
           for( Int t=0; t<numInds; ++t )
           {
               const Int i = sep.inds[t];
-              const Int iMap = sep.off + t;              
+              const Int iMap = sep.off + t;
               const int q = map.RowOwner(i);
               sendOrigInds[offs[q]] = i;
               sendInds[offs[q]] = iMap;
               ++offs[q];
           }
       };
-    function<void(const DistSeparator&)> packRows = 
+    function<void(const DistSeparator&)> packRows =
       [&]( const DistSeparator& sep )
       {
           if( sep.child == nullptr )
@@ -559,13 +558,13 @@ void BuildMap( const DistSeparator& rootSep, DistMap& map )
     vector<Int> recvInds( numRecvs );
     mpi::AllToAll
     ( sendInds.data(), sendSizes.data(), sendOffs.data(),
-      recvInds.data(), recvSizes.data(), recvOffs.data(), comm );
+      recvInds.data(), recvSizes.data(), recvOffs.data(), grid.Comm() );
 
     // Perform an AllToAll to exchange the original indices
     vector<Int> recvOrigInds( numRecvs );
     mpi::AllToAll
     ( sendOrigInds.data(), sendSizes.data(), sendOffs.data(),
-      recvOrigInds.data(), recvSizes.data(), recvOffs.data(), comm );
+      recvOrigInds.data(), recvSizes.data(), recvOffs.data(), grid.Comm() );
 
     // Unpack the indices
     const Int firstLocalSource = map.FirstLocalSource();

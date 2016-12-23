@@ -679,7 +679,7 @@ def SOCPAffine(A,G,b,c,h,orders,firstInds,x,y,z,s,ctrl=None):
      type(b) is not type(y) or type(b) is not type(z) or \
      type(b) is not type(s) or type(b) is not type(orders) or \
      type(b) is not type(firstInds):
-    raise Exception('vectors must be of the same type')
+    raise Exception('Vectors must be of the same type')
   args = [A.obj,G.obj,b.obj,c.obj,h.obj,orders.obj,firstInds.obj,
           x.obj,y.obj,z.obj,s.obj]
   argsCtrl = [A.obj,G.obj,b.obj,c.obj,h.obj,orders.obj,firstInds.obj,

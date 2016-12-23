@@ -2,14 +2,14 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F> 
+template<typename F>
 void TestCorrectness
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
@@ -30,8 +30,8 @@ void TestCorrectness
 
     if( uplo == LOWER )
     {
-        // Test correctness by comparing the application of A against a 
-        // random set of k vectors to the application of 
+        // Test correctness by comparing the application of A against a
+        // random set of k vectors to the application of
         // tril(B)^-1 AOrig tril(B)^-H
         Trsm( LEFT, LOWER, ADJOINT, diag, F(1), B, Y );
         Hemm( LEFT, LOWER, F(1), AOrig, Y, F(0), Z );
@@ -56,8 +56,8 @@ void TestCorrectness
     }
     else
     {
-        // Test correctness by comparing the application of A against a 
-        // random set of k vectors to the application of 
+        // Test correctness by comparing the application of A against a
+        // random set of k vectors to the application of
         // triu(B)^-H AOrig triu(B)^-1
         Trsm( LEFT, UPPER, NORMAL, diag, F(1), B, Y );
         Hemm( LEFT, UPPER, F(1), AOrig, Y, F(0), Z );
@@ -82,7 +82,8 @@ void TestCorrectness
     }
 }
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>> 
+template<typename F,
+         typename=EnableIf<IsBlasScalar<F>>>
 void TestTwoSidedTrsm
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
@@ -113,7 +114,7 @@ void TestTwoSidedTrsm
         OutputFromRoot(g.Comm(),"Starting ScaLAPACK TwoSidedTrsm");
         mpi::Barrier( g.Comm() );
         timer.Start();
-        DistMatrix<F,MC,MR,BLOCK> ABlock( A ), BBlock( B ); 
+        DistMatrix<F,MC,MR,BLOCK> ABlock( A ), BBlock( B );
         TwoSidedTrsm( uplo, diag, ABlock, BBlock );
         double runTime = timer.Stop();
         double gFlops = Pow(double(m),3.)/(runTime*1.e9);
@@ -140,7 +141,7 @@ void TestTwoSidedTrsm
     PopIndent();
 }
 
-template<typename F> 
+template<typename F>
 void TestTwoSidedTrsm
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
@@ -183,7 +184,7 @@ void TestTwoSidedTrsm
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -214,7 +215,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );

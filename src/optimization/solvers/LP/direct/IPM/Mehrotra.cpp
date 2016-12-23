@@ -21,6 +21,34 @@ void CopyOrViewHelper( const DistMatrix<Real>& A, DistMatrix<Real>& B )
         B = A;
 }
 
+// TODO(poulson): Move this into a higher-level namespace
+
+template<typename Ring>
+void Gemv
+( Orientation orientation,
+  const Ring& alpha,
+  const SparseMatrix<Ring>& A,
+  const Matrix<Ring>& x,
+  const Ring& beta,
+        Matrix<Ring>& y )
+{
+    EL_DEBUG_CSE
+    Multiply( orientation, alpha, A, x, beta, y );
+}
+
+template<typename Ring>
+void Gemv
+( Orientation orientation,
+  const Ring& alpha,
+  const DistSparseMatrix<Ring>& A,
+  const DistMultiVec<Ring>& x,
+  const Ring& beta,
+        DistMultiVec<Ring>& y )
+{
+    EL_DEBUG_CSE
+    Multiply( orientation, alpha, A, x, beta, y );
+}
+
 namespace lp {
 namespace direct {
 
@@ -142,8 +170,6 @@ void Equilibrate
     ForceSimpleAlignments( equilibratedSolution, grid );
     equilibratedProblem = problem;
     equilibratedSolution = solution;
-    equilibration.rowScale.SetGrid( grid );
-    equilibration.colScale.SetGrid( grid );
     RuizEquil
     ( equilibratedProblem.A,
       equilibration.rowScale, equilibration.colScale, ctrl.print );
@@ -238,17 +264,14 @@ void Equilibrate
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = problem.A.Comm();
-    // For now, turn the 'mpi::Comm' into a 'Grid' (Quack)
-    Grid grid( comm );
-
+    const Grid& grid = problem.A.Grid();
     ForceSimpleAlignments( equilibratedProblem, grid );
     ForceSimpleAlignments( equilibratedSolution, grid );
 
     equilibratedProblem = problem;
     equilibratedSolution = solution;
-    equilibration.rowScale.SetComm( comm );
-    equilibration.colScale.SetComm( comm );
+    equilibration.rowScale.SetGrid( grid );
+    equilibration.colScale.SetGrid( grid );
     RuizEquil
     ( equilibratedProblem.A,
       equilibration.rowScale, equilibration.colScale, ctrl.print );
@@ -484,9 +507,9 @@ void DenseDirectState<Real>::Update
       Max(Max(relativePrimalEqualityNorm,relativeDualEqualityNorm),relativeGap);
     if( ctrl.print )
     {
-        const Real xNrm2 = Nrm2( solution.x );
-        const Real yNrm2 = Nrm2( solution.y );
-        const Real zNrm2 = Nrm2( solution.z );
+        const Real xNrm2 = FrobeniusNorm( solution.x );
+        const Real yNrm2 = FrobeniusNorm( solution.y );
+        const Real zNrm2 = FrobeniusNorm( solution.z );
         Output
         ("iter ",numIts,":\n",Indent(),
          "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
@@ -523,7 +546,7 @@ void DenseDirectState<Real>::PrintResiduals
       Real(1), error.primalEquality );
     Axpy
     ( -permReg.primalEquality, correction.y, error.primalEquality );
-    Real dxErrorNrm2 = Nrm2( error.primalEquality );
+    Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
     error.dualEquality = residual.dualEquality;
     Gemv
@@ -531,9 +554,9 @@ void DenseDirectState<Real>::PrintResiduals
       Real(1), error.dualEquality );
     Axpy( permReg.dualEquality, correction.x, error.dualEquality );
     error.dualEquality -= correction.z;
-    Real dyErrorNrm2 = Nrm2( error.dualEquality );
+    Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
-    Real rmuNrm2 = Nrm2( residual.dualConic );
+    Real rmuNrm2 = FrobeniusNorm( residual.dualConic );
     error.dualConic = residual.dualConic;
     prod = correction.z;
     DiagonalScale( LEFT, NORMAL, solution.x, prod );
@@ -541,7 +564,7 @@ void DenseDirectState<Real>::PrintResiduals
     prod = correction.x;
     DiagonalScale( LEFT, NORMAL, solution.z, prod );
     error.dualConic += prod;
-    Real dzErrorNrm2 = Nrm2( error.dualConic );
+    Real dzErrorNrm2 = FrobeniusNorm( error.dualConic );
 
     Output
     ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
@@ -865,9 +888,9 @@ void Mehrotra
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        const Real xNrm2 = Nrm2( solution.x );
-        const Real yNrm2 = Nrm2( solution.y );
-        const Real zNrm2 = Nrm2( solution.z );
+        const Real xNrm2 = FrobeniusNorm( solution.x );
+        const Real yNrm2 = FrobeniusNorm( solution.y );
+        const Real zNrm2 = FrobeniusNorm( solution.z );
         Output
         ("Exiting with:\n",Indent(),
          "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
@@ -932,8 +955,8 @@ void EquilibratedMehrotra
     const Real gammaPerm = 0;
     const Real deltaPerm = 0;
 
-    const Real bNrm2 = Nrm2( problem.b );
-    const Real cNrm2 = Nrm2( problem.c );
+    const Real bNrm2 = FrobeniusNorm( problem.b );
+    const Real cNrm2 = FrobeniusNorm( problem.c );
     if( ctrl.print )
     {
         const Real ANrm1 = OneNorm( problem.A );
@@ -1020,7 +1043,7 @@ void EquilibratedMehrotra
         Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(-1), residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
+        const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         Axpy( -deltaPerm*deltaPerm, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
@@ -1030,7 +1053,7 @@ void EquilibratedMehrotra
         ( TRANSPOSE, Real(1), problem.A, solution.y,
           Real(1), residual.dualEquality );
         residual.dualEquality -= solution.z;
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
+        const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         Axpy( gammaPerm*gammaPerm, solution.x, residual.dualEquality );
         // Now check the pieces
@@ -1038,9 +1061,9 @@ void EquilibratedMehrotra
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( solution.x );
-            const Real yNrm2 = Nrm2( solution.y );
-            const Real zNrm2 = Nrm2( solution.z );
+            const Real xNrm2 = FrobeniusNorm( solution.x );
+            const Real yNrm2 = FrobeniusNorm( solution.y );
+            const Real zNrm2 = FrobeniusNorm( solution.z );
             if( commRank == 0 )
                 Output
                 ("iter ",numIts,":\n",Indent(),
@@ -1139,7 +1162,7 @@ void EquilibratedMehrotra
               Real(1), error.primalEquality );
             Axpy
             ( -deltaPerm*deltaPerm, affineCorrection.y, error.primalEquality );
-            Real dxErrorNrm2 = Nrm2( error.primalEquality );
+            Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
@@ -1147,9 +1170,9 @@ void EquilibratedMehrotra
               Real(1), error.dualEquality );
             Axpy( gammaPerm*gammaPerm, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
-            Real dyErrorNrm2 = Nrm2( error.dualEquality );
+            Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
-            Real rmuNrm2 = Nrm2( residual.dualConic );
+            Real rmuNrm2 = FrobeniusNorm( residual.dualConic );
             error.dualConic = residual.dualConic;
             prod = affineCorrection.z;
             DiagonalScale( LEFT, NORMAL, solution.x, prod );
@@ -1157,7 +1180,7 @@ void EquilibratedMehrotra
             prod = affineCorrection.x;
             DiagonalScale( LEFT, NORMAL, solution.z, prod );
             error.dualConic += prod;
-            Real dzErrorNrm2 = Nrm2( error.dualConic );
+            Real dzErrorNrm2 = FrobeniusNorm( error.dualConic );
 
             if( commRank == 0 )
                 Output
@@ -1348,9 +1371,9 @@ void Mehrotra
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        const Real xNrm2 = Nrm2( solution.x );
-        const Real yNrm2 = Nrm2( solution.y );
-        const Real zNrm2 = Nrm2( solution.z );
+        const Real xNrm2 = FrobeniusNorm( solution.x );
+        const Real yNrm2 = FrobeniusNorm( solution.y );
+        const Real zNrm2 = FrobeniusNorm( solution.z );
         OutputFromRoot
         (grid.Comm(),
          "Exiting with:\n",Indent(),
@@ -1429,8 +1452,8 @@ void EquilibratedMehrotra
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
 
-    const Real bNrm2 = Nrm2( problem.b );
-    const Real cNrm2 = Nrm2( problem.c );
+    const Real bNrm2 = FrobeniusNorm( problem.b );
+    const Real cNrm2 = FrobeniusNorm( problem.c );
     const Real twoNormEstA = TwoNormEstimate( problem.A, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + 1;
     if( ctrl.print )
@@ -1522,20 +1545,20 @@ void EquilibratedMehrotra
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         residual.primalEquality = problem.b;
-        Multiply
+        Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(-1), residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
+        const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         Axpy( -deltaPerm*deltaPerm, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
-        Multiply
+        Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
           Real(1), residual.dualEquality );
         residual.dualEquality -= solution.z;
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
+        const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         Axpy( gammaPerm*gammaPerm, solution.x, residual.dualEquality );
         // Now check the pieces
@@ -1557,9 +1580,9 @@ void EquilibratedMehrotra
 
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( solution.x );
-            const Real yNrm2 = Nrm2( solution.y );
-            const Real zNrm2 = Nrm2( solution.z );
+            const Real xNrm2 = FrobeniusNorm( solution.x );
+            const Real yNrm2 = FrobeniusNorm( solution.y );
+            const Real zNrm2 = FrobeniusNorm( solution.z );
             Output
             ("iter ",numIts,":\n",Indent(),
              "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
@@ -1720,22 +1743,22 @@ void EquilibratedMehrotra
         if( ctrl.checkResiduals && ctrl.print )
         {
             error.primalEquality = residual.primalEquality;
-            Multiply
+            Gemv
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
             Axpy
             ( -deltaPerm*deltaPerm, affineCorrection.y, error.primalEquality );
-            Real dxErrorNrm2 = Nrm2( error.primalEquality );
+            Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
-            Multiply
+            Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
             Axpy( gammaPerm*gammaPerm, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
-            Real dyErrorNrm2 = Nrm2( error.dualEquality );
+            Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
-            Real rmuNrm2 = Nrm2( residual.dualConic );
+            Real rmuNrm2 = FrobeniusNorm( residual.dualConic );
             error.dualConic = residual.dualConic;
             prod = affineCorrection.z;
             DiagonalScale( LEFT, NORMAL, solution.x, prod );
@@ -1743,7 +1766,7 @@ void EquilibratedMehrotra
             prod = affineCorrection.x;
             DiagonalScale( LEFT, NORMAL, solution.z, prod );
             error.dualConic += prod;
-            Real dzErrorNrm2 = Nrm2( error.dualConic );
+            Real dzErrorNrm2 = FrobeniusNorm( error.dualConic );
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
@@ -1932,9 +1955,9 @@ void Mehrotra
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        const Real xNrm2 = Nrm2( solution.x );
-        const Real yNrm2 = Nrm2( solution.y );
-        const Real zNrm2 = Nrm2( solution.z );
+        const Real xNrm2 = FrobeniusNorm( solution.x );
+        const Real yNrm2 = FrobeniusNorm( solution.y );
+        const Real zNrm2 = FrobeniusNorm( solution.z );
         Output
         ("Exiting with:\n",Indent(),
          "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
@@ -1984,12 +2007,9 @@ void EquilibratedMehrotra
     const Int n = problem.A.Width();
     const Int degree = n;
     const Real eps = limits::Epsilon<Real>();
-    mpi::Comm comm = problem.A.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = problem.A.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
-
-    // For now, build a Grid out of the mpi::Comm (Quack!)
-    const Grid grid( comm );
 
     // TODO(poulson): Move these into the control structure
     const bool stepLengthSigma = true;
@@ -2015,8 +2035,8 @@ void EquilibratedMehrotra
     }
     const Real balanceTol = Pow(eps,Real(-0.19));
 
-    const Real bNrm2 = Nrm2( problem.b );
-    const Real cNrm2 = Nrm2( problem.c );
+    const Real bNrm2 = FrobeniusNorm( problem.b );
+    const Real cNrm2 = FrobeniusNorm( problem.c );
     const Real twoNormEstA = TwoNormEstimate( problem.A, ctrl.basisSize );
     const Real origTwoNormEst = twoNormEstA + 1;
     if( ctrl.print )
@@ -2061,7 +2081,7 @@ void EquilibratedMehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     if( ctrl.system == FULL_KKT )
     {
         regTmp.Resize( m+2*n, 1 );
@@ -2094,11 +2114,11 @@ void EquilibratedMehrotra
     Real relError = 1;
 
     DistGraphMultMeta metaOrig, meta;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
     ldl::DistFront<Real> JFront;
     ldl::DistMultiVecNodeMeta dmvMeta;
-    DistMultiVec<Real> d(comm), w(comm);
-    DistMultiVec<Real> dInner(comm);
+    DistMultiVec<Real> d(grid), w(grid);
+    DistMultiVec<Real> dInner(grid);
 
     DirectLPSolution<DistMultiVec<Real>> affineCorrection, correction;
     DirectLPResidual<DistMultiVec<Real>> residual, error;
@@ -2107,7 +2127,7 @@ void EquilibratedMehrotra
     ForceSimpleAlignments( residual, grid );
     ForceSimpleAlignments( error, grid );
 
-    DistMultiVec<Real> prod(comm);
+    DistMultiVec<Real> prod(grid);
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -2141,20 +2161,20 @@ void EquilibratedMehrotra
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         residual.primalEquality = problem.b;
-        Multiply
+        Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(-1), residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
+        const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         Axpy( -deltaPerm*deltaPerm, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
-        Multiply
+        Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
           Real(1), residual.dualEquality );
         residual.dualEquality -= solution.z;
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
+        const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         Axpy( gammaPerm*gammaPerm, solution.x, residual.dualEquality );
         // Now check the pieces
@@ -2162,9 +2182,9 @@ void EquilibratedMehrotra
         relError = Max(Max(objConv,rbConv),rcConv);
         if( ctrl.print )
         {
-            const Real xNrm2 = Nrm2( solution.x );
-            const Real yNrm2 = Nrm2( solution.y );
-            const Real zNrm2 = Nrm2( solution.z );
+            const Real xNrm2 = FrobeniusNorm( solution.x );
+            const Real yNrm2 = FrobeniusNorm( solution.y );
+            const Real zNrm2 = FrobeniusNorm( solution.z );
             if( commRank == 0 )
                 Output
                 ("iter ",numIts,":\n",Indent(),
@@ -2386,22 +2406,22 @@ void EquilibratedMehrotra
         if( ctrl.checkResiduals && ctrl.print )
         {
             error.primalEquality = residual.primalEquality;
-            Multiply
+            Gemv
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
             Axpy
             ( -deltaPerm*deltaPerm, affineCorrection.y, error.primalEquality );
-            Real dxErrorNrm2 = Nrm2( error.primalEquality );
+            Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
-            Multiply
+            Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
             Axpy( gammaPerm*gammaPerm, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
-            Real dyErrorNrm2 = Nrm2( error.dualEquality );
+            Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
-            Real rmuNrm2 = Nrm2( residual.dualConic );
+            Real rmuNrm2 = FrobeniusNorm( residual.dualConic );
             error.dualConic = residual.dualConic;
             prod = affineCorrection.z;
             DiagonalScale( LEFT, NORMAL, solution.x, prod );
@@ -2409,7 +2429,7 @@ void EquilibratedMehrotra
             prod = affineCorrection.x;
             DiagonalScale( LEFT, NORMAL, solution.z, prod );
             error.dualConic += prod;
-            Real dzErrorNrm2 = Nrm2( error.dualConic );
+            Real dzErrorNrm2 = FrobeniusNorm( error.dualConic );
 
             if( commRank == 0 )
                 Output
@@ -2610,11 +2630,11 @@ void Mehrotra
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        const Real xNrm2 = Nrm2( solution.x );
-        const Real yNrm2 = Nrm2( solution.y );
-        const Real zNrm2 = Nrm2( solution.z );
+        const Real xNrm2 = FrobeniusNorm( solution.x );
+        const Real yNrm2 = FrobeniusNorm( solution.y );
+        const Real zNrm2 = FrobeniusNorm( solution.z );
         OutputFromRoot
-        (problem.A.Comm(),
+        (problem.A.Grid().Comm(),
          "Exiting with:\n",Indent(),
          "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
          "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
@@ -2637,9 +2657,7 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = A.Comm();
-    // For now, build a Grid out of the mpi::Comm (Quack!)
-    const Grid grid( comm );
+    const Grid& grid = A.Grid();
 
     DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
     DirectLPSolution<DistMultiVec<Real>> solution;

@@ -12,7 +12,8 @@ n = 4000
 numLambdas = 3
 startLambda = 1.
 endLambda = 20.
-display = True
+#display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 

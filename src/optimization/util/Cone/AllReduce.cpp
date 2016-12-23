@@ -110,7 +110,7 @@ void AllReduce
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    const int commSize = mpi::Size(comm);
+    const int commSize = x.DistSize();
 
           Field* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
@@ -149,8 +149,7 @@ void AllReduce
             }
         }
         vector<int> recvCounts(commSize);
-        mpi::AllToAll
-        ( sendCounts.data(), 1, recvCounts.data(), 1, x.DistComm() );
+        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
 
         // Pack the data
         // ^^^^^^^^^^^^^
@@ -181,7 +180,7 @@ void AllReduce
         vector<Field> recvBuf(totalRecv);
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), x.DistComm() );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
 
         // Locally reduce on the roots
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -287,7 +286,7 @@ void AllReduce
             localConeRes = reduce(localConeRes,xConeBuf[iLoc]);
 
         // Compute the maximum for this cone
-        const Field coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
+        const Field coneRes = mpi::AllReduce( localConeRes, op, comm );
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
             xConeBuf[iLoc] = coneRes;
     }
@@ -301,10 +300,9 @@ void AllReduce
   mpi::Op op, Int cutoff )
 {
     EL_DEBUG_CSE
-
     // TODO(poulson): Check that the communicators are congruent
-    mpi::Comm comm = x.Comm();
-    const int commSize = mpi::Size(comm);
+    const Grid& grid = x.Grid();
+    const int commSize = grid.Size();
     const int localHeight = x.LocalHeight();
 
     const Int height = x.Height();
@@ -350,7 +348,8 @@ void AllReduce
             }
         }
         vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, x.Comm() );
+        mpi::AllToAll
+        ( sendCounts.data(), 1, recvCounts.data(), 1, grid.Comm() );
 
         // Pack the data
         // ^^^^^^^^^^^^^
@@ -381,7 +380,7 @@ void AllReduce
         vector<Field> recvBuf(totalRecv);
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), x.Comm() );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), grid.Comm() );
 
         // Compute the maxima on the roots
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -466,13 +465,13 @@ void AllReduce
     }
     const int numSendInts = sendData.size();
     vector<int> numRecvInts(commSize);
-    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, comm );
+    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, grid.Comm() );
     vector<int> recvOffs;
     const int totalRecv = Scan( numRecvInts, recvOffs );
     vector<Int> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendInts,
-      recvData.data(), numRecvInts.data(), recvOffs.data(), comm );
+      recvData.data(), numRecvInts.data(), recvOffs.data(), grid.Comm() );
     for( Int largeCone=0; largeCone<totalRecv/2; ++largeCone )
     {
         const Int i = recvData[2*largeCone+0];
@@ -486,7 +485,7 @@ void AllReduce
             localConeRes = reduce(localConeRes,xBuf[j-iFirst]);
 
         // Compute the maximum for this cone
-        const Field coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
+        const Field coneRes = mpi::AllReduce( localConeRes, op, grid.Comm() );
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
             xBuf[j-iFirst] = coneRes;
     }

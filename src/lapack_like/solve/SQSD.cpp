@@ -154,8 +154,8 @@ void SQSDSolve
     }
 
     const Int n = A.Height();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
 
     if( ctrl.scaleTwoNorm )
@@ -174,7 +174,7 @@ void SQSDSolve
     const Real scaledReg0Perm =  ctrl.reg0Perm*ctrl.reg0Perm;
     const Real scaledReg1Perm = -ctrl.reg1Perm*ctrl.reg1Perm;
 
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    DistMultiVec<Real> regTmp(grid), regPerm(grid);
     regTmp.Resize( n, 1 );
     regPerm.Resize( n, 1 );
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )

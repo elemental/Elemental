@@ -235,7 +235,7 @@ void Ridge
     )
 
     const Int n = A.Width();
-    DistSparseMatrix<Field> G(A.Comm());
+    DistSparseMatrix<Field> G(A.Grid());
     Zeros( G, n, n );
     ShiftDiagonal( G, gamma );
 

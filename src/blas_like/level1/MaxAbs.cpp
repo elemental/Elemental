@@ -11,37 +11,37 @@
 
 namespace El {
 
-template<typename F>
-Base<F> MaxAbs( const Matrix<F>& A )
+template<typename Ring>
+Base<Ring> MaxAbs( const Matrix<Ring>& A )
 {
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const F* ABuf = A.LockedBuffer();
+    const Ring* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
 
-    Base<F> value = 0;
+    Base<Ring> value = 0;
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             value = Max(value,Abs(ABuf[i+j*ALDim]));
     return value;
 }
 
-template<typename F>
-Base<F> MaxAbs( const AbstractDistMatrix<F>& A )
+template<typename Ring>
+Base<Ring> MaxAbs( const AbstractDistMatrix<Ring>& A )
 {
     EL_DEBUG_CSE
     EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    Base<F> value = 0;
+    Base<Ring> value = 0;
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
         const Int mLocal = A.LocalHeight();
         const Int nLocal = A.LocalWidth();
-        const F* ABuf = A.LockedBuffer();
+        const Ring* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
         for( Int jLoc=0; jLoc<nLocal; ++jLoc )
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
@@ -53,8 +53,8 @@ Base<F> MaxAbs( const AbstractDistMatrix<F>& A )
     return value;
 }
 
-template<typename F>
-Base<F> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Ring>
+Base<Ring> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<Ring>& A )
 {
     EL_DEBUG_CSE
     EL_DEBUG_ONLY(
@@ -62,10 +62,10 @@ Base<F> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
           LogicError("A must be square");
     )
     const Int n = A.Width();
-    const F* ABuf = A.LockedBuffer();
+    const Ring* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
 
-    Base<F> value = 0;
+    Base<Ring> value = 0;
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
@@ -81,8 +81,9 @@ Base<F> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& A )
     return value;
 }
 
-template<typename F>
-Base<F> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename Ring>
+Base<Ring> SymmetricMaxAbs
+( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
     EL_DEBUG_CSE
     EL_DEBUG_ONLY(
@@ -92,12 +93,12 @@ Base<F> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
           LogicError("Viewing processes are not allowed");
     )
 
-    Base<F> value = 0;
+    Base<Ring> value = 0;
     if( A.Participating() )
     {
         const Int mLocal = A.LocalHeight();
         const Int nLocal = A.LocalWidth();
-        const F* ABuf = A.LockedBuffer();
+        const Ring* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
         if( uplo == LOWER )
         {
@@ -125,11 +126,13 @@ Base<F> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return value;
 }
 
-#define PROTO(F) \
-  template Base<F> MaxAbs( const Matrix<F>& x ); \
-  template Base<F> MaxAbs( const AbstractDistMatrix<F>& x ); \
-  template Base<F> SymmetricMaxAbs( UpperOrLower uplo, const Matrix<F>& x ); \
-  template Base<F> SymmetricMaxAbs( UpperOrLower uplo, const AbstractDistMatrix<F>& x );
+#define PROTO(Ring) \
+  template Base<Ring> MaxAbs( const Matrix<Ring>& x ); \
+  template Base<Ring> MaxAbs( const AbstractDistMatrix<Ring>& x ); \
+  template Base<Ring> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const Matrix<Ring>& x ); \
+  template Base<Ring> SymmetricMaxAbs \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Ring>& x );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

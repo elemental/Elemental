@@ -755,10 +755,10 @@ void GeomEquil
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    dRow.SetComm( comm );
-    dCol.SetComm( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
+    dRow.SetGrid(grid);
+    dCol.SetGrid(grid);
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
@@ -779,7 +779,7 @@ void GeomEquil
         Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
-    DistMultiVec<Real> maxAbsVals(comm), minAbsVals(comm), scales(comm);
+    DistMultiVec<Real> maxAbsVals(grid), minAbsVals(grid), scales(grid);
     auto& scalesLoc = scales.Matrix();
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
@@ -881,11 +881,11 @@ void StackedGeomEquil
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    dRowA.SetComm( comm );
-    dRowB.SetComm( comm );
-    dCol.SetComm( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
+    dRowA.SetGrid( grid );
+    dRowB.SetGrid( grid );
+    dCol.SetGrid( grid );
     Ones( dRowA, mA, 1 );
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
@@ -910,8 +910,8 @@ void StackedGeomEquil
         Output("Original ratio is ",maxAbsVal,"/",minAbsVal,"=",ratio);
 
     const Real sqrtDamp = Sqrt(damp);
-    DistMultiVec<Real> maxAbsValsA(comm), maxAbsValsB(comm),
-                       minAbsValsA(comm), minAbsValsB(comm), scales(comm);
+    DistMultiVec<Real> maxAbsValsA(grid), maxAbsValsB(grid),
+                       minAbsValsA(grid), minAbsValsB(grid), scales(grid);
     auto& maxAbsValsALoc = maxAbsValsA.Matrix();
     auto& maxAbsValsBLoc = maxAbsValsB.Matrix();
     auto& minAbsValsALoc = minAbsValsA.Matrix();

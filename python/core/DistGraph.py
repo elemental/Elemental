@@ -2,21 +2,23 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
 from imports     import mpi
 
+import Grid
+
 class DistGraph(object):
   # Constructors and destructors
   # ============================
-  lib.ElDistGraphCreate.argtypes = [POINTER(c_void_p),mpi.Comm]
-  def __init__(self,comm=mpi.COMM_WORLD(),create=True):
+  lib.ElDistGraphCreate.argtypes = [POINTER(c_void_p),c_void_p]
+  def __init__(self,grid=Grid.Grid.Default(),create=True):
     self.obj = c_void_p()
     if create:
-      lib.ElDistGraphCreate(pointer(self.obj),comm)
+      lib.ElDistGraphCreate(pointer(self.obj),grid.obj)
 
   lib.ElDistGraphDestroy.argtypes = [c_void_p]
   def Destroy(self):
@@ -30,13 +32,13 @@ class DistGraph(object):
 
   lib.ElDistGraphResize.argtypes = [c_void_p,iType,iType]
   def Resize(self,numSources,numTargets=None):
-    if numTargets == None: 
+    if numTargets == None:
       numTargets = numSources
     lib.ElDistGraphResize(self.obj,numSources,numTargets)
 
-  lib.ElDistGraphSetComm.argtypes = [c_void_p,mpi.Comm]
-  def SetComm(self,comm):
-    lib.ElDistGraphSetComm(self,comm)
+  lib.ElDistGraphSetGrid.argtypes = [c_void_p,c_void_p]
+  def SetGrid(self,grid):
+    lib.ElDistGraphSetGrid(self,grid.obj)
 
   lib.ElDistGraphReserve.argtypes = [c_void_p,iType,iType]
   def Reserve(self,numLocalEdges,numRemoteEdges=0):
@@ -126,11 +128,11 @@ class DistGraph(object):
     lib.ElDistGraphLocallyConsistent(self.obj,pointer(consistent))
     return consistent.value
 
-  lib.ElDistGraphComm.argtypes = [c_void_p,POINTER(mpi.Comm)]
-  def Comm(self):
-    comm = mpi.Comm()
-    lib.ElDistGraphComm(self.obj,pointer(comm))
-    return comm
+  lib.ElDistGraphGrid.argtypes = [c_void_p,POINTER(c_void_p)]
+  def Grid(self):
+    grid = Grid.Grid(create=False)
+    lib.ElDistGraphGrid(self.obj,pointer(grid.obj))
+    return grid
 
   lib.ElDistGraphBlocksize.argtypes = [c_void_p,POINTER(iType)]
   def Blocksize(self):

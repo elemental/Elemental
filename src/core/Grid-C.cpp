@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -13,7 +13,10 @@ using namespace El;
 extern "C" {
 
 ElError ElDefaultGrid( ElConstGrid* grid )
-{ EL_TRY( *grid = CReflect(&Grid::Default()) ) } 
+{ EL_TRY( *grid = CReflect(&Grid::Default()) ) }
+
+ElError ElTrivialGrid( ElConstGrid* grid )
+{ EL_TRY( *grid = CReflect(&Grid::Trivial()) ) }
 
 // Grid::Grid( MPI_Comm comm, GridOrder order )
 // --------------------------------------------
@@ -219,9 +222,9 @@ ElError ElGridDiag( ElConstGrid grid, int vcRank, int* diag )
 ElError ElGridDiagRank( ElConstGrid grid, int vcRank, int* diagRank )
 { EL_TRY( *diagRank = CReflect(grid)->DiagRank(vcRank) ) }
 
-// static int Grid::FindFactor( int p )
-// ------------------------------------
-ElError ElGridFindFactor( int p, int* factor )
-{ EL_TRY( *factor = Grid::FindFactor(p) ) } 
+// static int Grid::DefaultHeight( int gridSize )
+// ----------------------------------------------
+ElError ElGridDefaultHeight( int gridSize, int* gridHeight )
+{ EL_TRY( *gridHeight = Grid::DefaultHeight(gridSize) ) }
 
 } // extern "C"

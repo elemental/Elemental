@@ -109,7 +109,7 @@ void AugmentedKKT
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    DistSparseMatrix<Real> Q(A.Comm());
+    DistSparseMatrix<Real> Q(A.Grid());
     Zeros( Q, n, n );
     qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }

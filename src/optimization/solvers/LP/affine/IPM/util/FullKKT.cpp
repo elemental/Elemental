@@ -171,8 +171,7 @@ void KKT
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
+    DistSparseMatrix<Real> Q(A.Grid());
     Q.Resize( n, n );
     qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
 }
@@ -189,8 +188,7 @@ void StaticKKT
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
+    DistSparseMatrix<Real> Q(A.Grid());
     Q.Resize( n, n );
     qp::affine::StaticKKT( Q, A, G, gamma, delta, beta, J, onlyLower );
 }

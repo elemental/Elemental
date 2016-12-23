@@ -760,8 +760,8 @@ Int Single
         applyAInv( b );
         return 0;
     }
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
 
     auto bOrig = b;
     const Base<Field> bNorm = MaxNorm( b );
@@ -771,7 +771,7 @@ Int Single
     auto x = b;
     applyAInv( x );
 
-    DistMultiVec<Field> dx(comm), xCand(comm), y(comm);
+    DistMultiVec<Field> dx(grid), xCand(grid), y(grid);
     Zeros( y, x.Height(), 1 );
     applyA( x, y );
     b -= y;
@@ -835,7 +835,7 @@ Int Batch
         applyAInv( B );
         return 0;
     }
-    mpi::Comm comm = B.Comm();
+    const Grid& grid = B.Grid();
 
     auto BOrig = B;
 
@@ -844,7 +844,7 @@ Int Batch
     auto X = B;
     applyAInv( X );
 
-    DistMultiVec<Field> dX(comm), Y(comm);
+    DistMultiVec<Field> dX(grid), Y(grid);
     Zeros( Y, X.Height(), X.Width() );
     applyA( X, Y );
     B -= Y;
@@ -918,10 +918,10 @@ Int PromotedSingle
         return 0;
     }
     typedef Promote<Field> PField;
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
 
-    DistMultiVec<PField> bProm(comm), bOrigProm(comm);
+    DistMultiVec<PField> bProm(grid), bOrigProm(grid);
     Copy( b, bProm );
     Copy( b, bOrigProm );
     const auto bNorm = MaxNorm( bProm );
@@ -929,10 +929,10 @@ Int PromotedSingle
     // Compute the initial guess
     // =========================
     applyAInv( b );
-    DistMultiVec<PField> xProm(comm);
+    DistMultiVec<PField> xProm(grid);
     Copy( b, xProm );
 
-    DistMultiVec<PField> dxProm(comm), xCandProm(comm), yProm(comm);
+    DistMultiVec<PField> dxProm(grid), xCandProm(grid), yProm(grid);
     Zeros( yProm, xProm.Height(), 1 );
     applyA( xProm, yProm );
     bProm -= yProm;
@@ -998,19 +998,19 @@ Int PromotedBatch
         return 0;
     }
     typedef Promote<Field> PField;
-    mpi::Comm comm = B.Comm();
+    const Grid& grid = B.Grid();
 
-    DistMultiVec<PField> BProm(comm), BOrigProm(comm);
+    DistMultiVec<PField> BProm(grid), BOrigProm(grid);
     Copy( B, BProm );
     Copy( B, BOrigProm );
 
     // Compute the initial guess
     // =========================
     applyAInv( B );
-    DistMultiVec<PField> XProm(comm);
+    DistMultiVec<PField> XProm(grid);
     Copy( B, XProm );
 
-    DistMultiVec<PField> dXProm(comm), YProm(comm);
+    DistMultiVec<PField> dXProm(grid), YProm(grid);
     Zeros( YProm, XProm.Height(), XProm.Width() );
     applyA( XProm, YProm );
     BProm -= YProm;

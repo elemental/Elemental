@@ -165,9 +165,9 @@ void LPIPM
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm);
-    DistMultiVec<Real> c(comm);
+    const Grid& grid = A.Grid();
+    DistSparseMatrix<Real> AHat(grid);
+    DistMultiVec<Real> c(grid);
 
     // c := ones(2*n,1)
     // ================
@@ -189,7 +189,7 @@ void LPIPM
 
     // Solve the direct LP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
     LP( AHat, b, c, xHat, y, z, ctrl );
 
     // x := u - v
@@ -383,9 +383,9 @@ void SOCPIPM
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm);
+    DistMultiVec<Int> orders(grid), firstInds(grid);
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
     auto& ordersLoc = orders.Matrix();
@@ -397,14 +397,14 @@ void SOCPIPM
         firstIndsLoc(iLoc) = i-(i%2);
     }
 
-    DistMultiVec<Real> c(comm);
+    DistMultiVec<Real> c(grid);
     soc::Identity( c, orders, firstInds );
 
     // \hat A := A E
     // =============
     // NOTE: Since A and \hat A are the same height and each distributed within
     //       columns, it is possible to form \hat A from A without communication
-    DistSparseMatrix<Real> AHat(comm);
+    DistSparseMatrix<Real> AHat(grid);
     Zeros( AHat, m, 2*n );
     const Int numLocalEntriesA = A.NumLocalEntries();
     AHat.Reserve( numLocalEntriesA );
@@ -414,7 +414,7 @@ void SOCPIPM
 
     // Solve the direct SOCP
     // =====================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
     SOCP( AHat, b, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E xHat
@@ -689,9 +689,9 @@ void SOCPIPM
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm);
+    DistMultiVec<Int> orders(grid), firstInds(grid);
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
     auto& ordersLoc = orders.Matrix();
@@ -703,13 +703,13 @@ void SOCPIPM
         firstIndsLoc(iLoc) = i-(i%3);
     }
 
-    DistMultiVec<Real> c(comm);
+    DistMultiVec<Real> c(grid);
     soc::Identity( c, orders, firstInds );
 
     // \hat A := |  Real(A) E_R - Imag(A) E_I |
     //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
-    DistSparseMatrix<Real> AHat(comm);
+    DistSparseMatrix<Real> AHat(grid);
     const Int numLocalEntriesA = A.NumLocalEntries();
     Zeros( AHat, 2*m, 3*n );
     AHat.Reserve( 4*numLocalEntriesA, 4*numLocalEntriesA );
@@ -729,7 +729,7 @@ void SOCPIPM
     // \hat b := | Real(b) |
     //           | Imag(b) |
     // =====================
-    DistMultiVec<Real> bHat(comm);
+    DistMultiVec<Real> bHat(grid);
     Zeros( bHat, 2*m, 1 );
     bHat.Reserve( 2*b.LocalHeight() );
     auto& bLoc = b.LockedMatrix();
@@ -743,7 +743,7 @@ void SOCPIPM
 
     // Solve the direct SOCP
     // =====================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
     SOCP( AHat, bHat, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E_R xHat + i E_I xHat

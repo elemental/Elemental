@@ -60,7 +60,7 @@ void Hadamard
     EL_DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Hadamard product requires equal dimensions");
-    C.SetComm( A.Comm() );
+    C.SetGrid( A.Grid() );
     C.Resize( A.Height(), A.Width() );
     Hadamard( A.LockedMatrix(), B.LockedMatrix(), C.Matrix() );
 }

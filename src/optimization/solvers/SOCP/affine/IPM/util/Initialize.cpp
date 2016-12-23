@@ -498,7 +498,7 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -521,8 +521,8 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
-    DistMultiVec<Real> ones(comm);
+    DistSparseMatrix<Real> JOrig(grid);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, k, 1 );
     const bool onlyLower = false;
     lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
@@ -532,7 +532,7 @@ void Initialize
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> reg(comm);
+    DistMultiVec<Real> reg(grid);
     reg.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
@@ -543,7 +543,7 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    DistMap map(comm), invMap(comm);
+    DistMap map(grid), invMap(grid);
     ldl::DistSeparator rootSep;
     ldl::DistNodeInfo info;
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
@@ -553,8 +553,8 @@ void Initialize
     JFront.Pull( J, map, rootSep, info );
     LDL( info, JFront, LDL_2D );
 
-    DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
-                       d(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
+                       d(grid);
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {

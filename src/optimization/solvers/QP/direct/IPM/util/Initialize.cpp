@@ -97,7 +97,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -205,7 +205,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -324,7 +324,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -453,6 +453,7 @@ void Initialize
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
+    const Grid& grid = A.Grid();
 
     const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
@@ -460,7 +461,6 @@ void Initialize
     const Real gammaTmp = 0;
     const Real deltaTmp = 0;
 
-    mpi::Comm comm = A.Comm();
     if( primalInit )
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -473,21 +473,21 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    DistMultiVec<Real> ones(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, n, 1 );
     AugmentedKKT( Q, A, gamma, delta, ones, ones, JOrig, false );
     J = JOrig;
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> reg(comm);
+    DistMultiVec<Real> reg(grid);
     reg.Resize( n+m, 1 );
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
@@ -508,7 +508,7 @@ void Initialize
 
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
-    DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rmu(grid), d(grid), u(grid), v(grid);
     Zeros( rmu, n, 1 );
     if( !primalInit )
     {

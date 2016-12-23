@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS3_HPP
@@ -93,7 +93,7 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const AbstractDistMatrix<T>& A, 
+  Base<T> alpha, const AbstractDistMatrix<T>& A,
   Base<T> beta,        AbstractDistMatrix<T>& C );
 template<typename T>
 void Herk
@@ -103,12 +103,12 @@ void Herk
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const SparseMatrix<T>& A, 
+  Base<T> alpha, const SparseMatrix<T>& A,
   Base<T> beta,        SparseMatrix<T>& C );
 template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
-  Base<T> alpha, const SparseMatrix<T>& A, 
+  Base<T> alpha, const SparseMatrix<T>& A,
                        SparseMatrix<T>& C );
 
 template<typename T>
@@ -116,7 +116,7 @@ void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const DistSparseMatrix<T>& A,
   Base<T> beta,        DistSparseMatrix<T>& C );
-template<typename T> 
+template<typename T>
 void Herk
 ( UpperOrLower uplo, Orientation orientation,
   Base<T> alpha, const DistSparseMatrix<T>& A,
@@ -127,7 +127,7 @@ void Herk
 template<typename T>
 void Her2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha,       const Matrix<T>& A, const Matrix<T>& B, 
+  T alpha,       const Matrix<T>& A, const Matrix<T>& B,
   Base<T> beta,        Matrix<T>& C );
 
 template<typename T>
@@ -247,7 +247,7 @@ void SafeMultiShiftTrsm
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
   F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts,
   AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& scales );
-  
+
 // QuasiTrsm
 // =========
 template<typename F>
@@ -336,7 +336,7 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
+  T alpha, const AbstractDistMatrix<T>& A,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate=false );
 template<typename T>
 void Syrk
@@ -347,23 +347,23 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
+  T alpha, const SparseMatrix<T>& A,
   T beta,        SparseMatrix<T>& C, bool conjugate=false );
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
+  T alpha, const SparseMatrix<T>& A,
                  SparseMatrix<T>& C, bool conjugate=false );
 
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
+  T alpha, const DistSparseMatrix<T>& A,
   T beta,        DistSparseMatrix<T>& C, bool conjugate=false );
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
+  T alpha, const DistSparseMatrix<T>& A,
                  DistSparseMatrix<T>& C, bool conjugate=false );
 
 // Syr2k
@@ -400,7 +400,7 @@ template<typename F>
 void Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate=false );
 template<typename F>
 void Trdtrmm
-( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, 
+( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff,
   bool conjugate=false );
 
 template<typename F>
@@ -409,7 +409,7 @@ void Trdtrmm
 template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo,
-  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
+  AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff,
   bool conjugate=false );
 
 template<typename F>
@@ -512,11 +512,11 @@ void Trtrmm
 // ============
 template<typename T>
 void TwoSidedTrmm
-( UpperOrLower uplo, UnitOrNonUnit diag, 
+( UpperOrLower uplo, UnitOrNonUnit diag,
   Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
 void TwoSidedTrmm
-( UpperOrLower uplo, UnitOrNonUnit diag, 
+( UpperOrLower uplo, UnitOrNonUnit diag,
   AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 template<typename T>
 void TwoSidedTrmm
@@ -531,7 +531,7 @@ void LocalTwoSidedTrmm
 // ============
 template<typename F>
 void TwoSidedTrsm
-( UpperOrLower uplo, UnitOrNonUnit diag, 
+( UpperOrLower uplo, UnitOrNonUnit diag,
   Matrix<F>& A, const Matrix<F>& B );
 template<typename F>
 void TwoSidedTrsm
@@ -550,13 +550,13 @@ void TwoSidedTrsm
 // ====
 template<typename T>
 void Trrk
-( UpperOrLower uplo, 
+( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C );
 template<typename T>
 void Trrk
-( UpperOrLower uplo, 
+( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   T alpha, const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B,
   T beta,        AbstractDistMatrix<T>& C );
@@ -593,7 +593,7 @@ void LocalTrrk
 /*
 template<typename T>
 void Trr2k
-( UpperOrLower uplo, 
+( UpperOrLower uplo,
   Orientation orientA, Orientation orientB,
   Orientation orientC, Orientation orientD,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,

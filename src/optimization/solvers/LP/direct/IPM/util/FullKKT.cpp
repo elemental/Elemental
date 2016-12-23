@@ -156,7 +156,7 @@ void KKT
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    DistSparseMatrix<Real> Q(A.Comm());
+    DistSparseMatrix<Real> Q(A.Grid());
     Q.Resize( n, n );
     qp::direct::KKT( Q, A, gamma, delta, beta, x, z, J, onlyLower );
 }

@@ -208,9 +208,10 @@ void LAV
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), h(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), h(grid);
 
     // c := [0;1;1]
     // ============
@@ -250,7 +251,7 @@ void LAV
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     LP( AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // Extract x

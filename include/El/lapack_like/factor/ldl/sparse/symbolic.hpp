@@ -71,7 +71,7 @@ void NaturalNestedDissection
         bool storeFactRecvInds=false );
 
 void BuildMap( const Separator& rootSep, vector<Int>& map );
-void BuildMap( const DistSeparator& rootSep, DistMap& map );
+void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map );
 
 } // namespace ldl
 } // namespace El

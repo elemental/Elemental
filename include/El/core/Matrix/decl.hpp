@@ -51,13 +51,6 @@ public:
     // Destructor
     ~Matrix();
 
-    // Advanced
-    // --------
-    // This constructor is provided in order to aid duck-typing over
-    // Matrix, DistMatrix, etc. and is equivalent to the trivial constructor
-    // in functionality.
-    explicit Matrix( const Grid& grid );
-
     // Assignment and reconfiguration
     // ==============================
 
@@ -217,6 +210,30 @@ private:
     template<typename S> friend class AbstractDistMatrix;
     template<typename S> friend class ElementalMatrix;
     template<typename S> friend class BlockMatrix;
+
+    // For supporting duck typing
+    // ==========================
+    // The following are provided in order to aid duck-typing over
+    // {Matrix, DistMatrix, DistMultiVec, etc.}.
+
+    // This is equivalent to the trivial constructor in functionality
+    // (though an error is thrown if 'grid' is not equal to 'Grid::Trivial()').
+    explicit Matrix( const El::Grid& grid );
+
+    // This is a no-op
+    // (though an error is thrown if 'grid' is not equal to 'Grid::Trivial()').
+    void SetGrid( const El::Grid& grid );
+
+    // This always returns 'Grid::Trivial()'.
+    const El::Grid& Grid() const;
+
+    // This is a no-op
+    // (though an error is thrown if 'colAlign' or 'rowAlign' is not zero).
+    void Align( Int colAlign, Int rowAlign, bool constrain=true );
+
+    // These always return 0.
+    int ColAlign() const EL_NO_EXCEPT;
+    int RowAlign() const EL_NO_EXCEPT;
 };
 
 } // namespace El

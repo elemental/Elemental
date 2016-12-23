@@ -2,12 +2,14 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
 from imports     import mpi
+
+import Grid
 
 import DistGraph as DG
 
@@ -19,13 +21,13 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixCreate_d.argtypes = \
   lib.ElDistSparseMatrixCreate_c.argtypes = \
   lib.ElDistSparseMatrixCreate_z.argtypes = \
-    [POINTER(c_void_p),mpi.Comm]
-  def __init__(self,tag=dTag,comm=mpi.COMM_WORLD(),create=True):
+    [POINTER(c_void_p),c_void_p]
+  def __init__(self,tag=dTag,grid=Grid.Grid.Default(),create=True):
     self.obj = c_void_p()
     self.tag = tag
     CheckTag(tag)
     if create:
-      args = [pointer(self.obj),comm]
+      args = [pointer(self.obj),grid.obj]
       if   tag == iTag: lib.ElDistSparseMatrixCreate_i(*args)
       elif tag == sTag: lib.ElDistSparseMatrixCreate_s(*args)
       elif tag == dTag: lib.ElDistSparseMatrixCreate_d(*args)
@@ -80,19 +82,19 @@ class DistSparseMatrix(object):
     elif self.tag == zTag: lib.ElDistSparseMatrixResize_z(*args)
     else: DataExcept()
 
-  lib.ElDistSparseMatrixSetComm_i.argtypes = \
-  lib.ElDistSparseMatrixSetComm_s.argtypes = \
-  lib.ElDistSparseMatrixSetComm_d.argtypes = \
-  lib.ElDistSparseMatrixSetComm_c.argtypes = \
-  lib.ElDistSparseMatrixSetComm_z.argtypes = \
-    [c_void_p,mpi.Comm]
-  def SetComm(self,comm):
-    args = [self.obj,comm]
-    if   self.tag == iTag: lib.ElDistSparseMatrixSetComm_i(*args)
-    elif self.tag == sTag: lib.ElDistSparseMatrixSetComm_s(*args)
-    elif self.tag == dTag: lib.ElDistSparseMatrixSetComm_d(*args)
-    elif self.tag == cTag: lib.ElDistSparseMatrixSetComm_c(*args)
-    elif self.tag == zTag: lib.ElDistSparseMatrixSetComm_z(*args)
+  lib.ElDistSparseMatrixSetGrid_i.argtypes = \
+  lib.ElDistSparseMatrixSetGrid_s.argtypes = \
+  lib.ElDistSparseMatrixSetGrid_d.argtypes = \
+  lib.ElDistSparseMatrixSetGrid_c.argtypes = \
+  lib.ElDistSparseMatrixSetGrid_z.argtypes = \
+    [c_void_p,c_void_p]
+  def SetGrid(self,grid):
+    args = [self.obj,grid.obj]
+    if   self.tag == iTag: lib.ElDistSparseMatrixSetGrid_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixSetGrid_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixSetGrid_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixSetGrid_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixSetGrid_z(*args)
     else: DataExcept()
 
   lib.ElDistSparseMatrixReserve_i.argtypes = \
@@ -317,14 +319,14 @@ class DistSparseMatrix(object):
     graph = DG.DistGraph(mpi.COMM_WORLD(),False)
     args = [self.obj,pointer(graph.obj)]
     if locked:
-      if   self.tag == iTag: lib.ElDistSparseMatrixLockedDistGraph_i(*args)  
+      if   self.tag == iTag: lib.ElDistSparseMatrixLockedDistGraph_i(*args)
       elif self.tag == sTag: lib.ElDistSparseMatrixLockedDistGraph_s(*args)
       elif self.tag == dTag: lib.ElDistSparseMatrixLockedDistGraph_d(*args)
       elif self.tag == cTag: lib.ElDistSparseMatrixLockedDistGraph_c(*args)
       elif self.tag == zTag: lib.ElDistSparseMatrixLockedDistGraph_z(*args)
       else: DataExcept()
     else:
-      if   self.tag == iTag: lib.ElDistSparseMatrixDistGraph_i(*args)  
+      if   self.tag == iTag: lib.ElDistSparseMatrixDistGraph_i(*args)
       elif self.tag == sTag: lib.ElDistSparseMatrixDistGraph_s(*args)
       elif self.tag == dTag: lib.ElDistSparseMatrixDistGraph_d(*args)
       elif self.tag == cTag: lib.ElDistSparseMatrixDistGraph_c(*args)
@@ -417,22 +419,22 @@ class DistSparseMatrix(object):
     else: DataExcept()
     return consistent.value
 
-  lib.ElDistSparseMatrixComm_i.argtypes = \
-  lib.ElDistSparseMatrixComm_s.argtypes = \
-  lib.ElDistSparseMatrixComm_d.argtypes = \
-  lib.ElDistSparseMatrixComm_c.argtypes = \
-  lib.ElDistSparseMatrixComm_z.argtypes = \
-    [c_void_p,POINTER(mpi.Comm)]
-  def Comm(self):
-    comm = mpi.Comm()
-    args = [self.obj,pointer(comm)]
-    if   self.tag == iTag: lib.ElDistSparseMatrixComm_i(*args)
-    elif self.tag == sTag: lib.ElDistSparseMatrixComm_s(*args)
-    elif self.tag == dTag: lib.ElDistSparseMatrixComm_d(*args)
-    elif self.tag == cTag: lib.ElDistSparseMatrixComm_c(*args)
-    elif self.tag == zTag: lib.ElDistSparseMatrixComm_z(*args)
+  lib.ElDistSparseMatrixGrid_i.argtypes = \
+  lib.ElDistSparseMatrixGrid_s.argtypes = \
+  lib.ElDistSparseMatrixGrid_d.argtypes = \
+  lib.ElDistSparseMatrixGrid_c.argtypes = \
+  lib.ElDistSparseMatrixGrid_z.argtypes = \
+    [c_void_p,POINTER(c_void_p)]
+  def Grid(self):
+    grid = Grid.Grid(create=False)
+    args = [self.obj,pointer(grid.obj)]
+    if   self.tag == iTag: lib.ElDistSparseMatrixGrid_i(*args)
+    elif self.tag == sTag: lib.ElDistSparseMatrixGrid_s(*args)
+    elif self.tag == dTag: lib.ElDistSparseMatrixGrid_d(*args)
+    elif self.tag == cTag: lib.ElDistSparseMatrixGrid_c(*args)
+    elif self.tag == zTag: lib.ElDistSparseMatrixGrid_z(*args)
     else: DataExcept()
-    return comm
+    return grid
 
   lib.ElDistSparseMatrixBlocksize_i.argtypes = \
   lib.ElDistSparseMatrixBlocksize_s.argtypes = \
@@ -492,7 +494,7 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixRow_z.argtypes = \
     [c_void_p,iType,POINTER(iType)]
   def Row(self,localInd):
-    row = iType() 
+    row = iType()
     args = [self.obj,localInd,pointer(row)]
     if   self.tag == iTag: lib.ElDistSparseMatrixRow_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixRow_s(*args)
@@ -509,7 +511,7 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixCol_z.argtypes = \
     [c_void_p,iType,POINTER(iType)]
   def Col(self,localInd):
-    col = iType() 
+    col = iType()
     args = [self.obj,localInd,pointer(col)]
     if   self.tag == iTag: lib.ElDistSparseMatrixCol_i(*args)
     elif self.tag == sTag: lib.ElDistSparseMatrixCol_s(*args)
@@ -591,7 +593,7 @@ class DistSparseMatrix(object):
   lib.ElDistSparseMatrixImbalance_d.argtypes = \
   lib.ElDistSparseMatrixImbalance_c.argtypes = \
   lib.ElDistSparseMatrixImbalance_z.argtypes = \
-    [c_void_p,POINTER(dType)] 
+    [c_void_p,POINTER(dType)]
   def Imbalance(self):
     imbalance = dType()
     args = [self.obj,pointer(imbalance)]
@@ -616,7 +618,7 @@ class DistSparseMatrix(object):
     [c_void_p,POINTER(POINTER(iType))]
   def SourceBuffer(self,locked=False):
     sourceBuf = POINTER(iType)()
-    args = [self.obj,pointer(sourceBuf)]    
+    args = [self.obj,pointer(sourceBuf)]
     if locked:
       if   self.tag == iTag: lib.ElDistSparseMatrixLockedSourceBuffer_i(*args)
       elif self.tag == sTag: lib.ElDistSparseMatrixLockedSourceBuffer_s(*args)
@@ -646,7 +648,7 @@ class DistSparseMatrix(object):
     [c_void_p,POINTER(POINTER(iType))]
   def TargetBuffer(self,locked=False):
     targetBuf = POINTER(iType)()
-    args = [self.obj,pointer(targetBuf)]    
+    args = [self.obj,pointer(targetBuf)]
     if locked:
       if   self.tag == iTag: lib.ElDistSparseMatrixLockedTargetBuffer_i(*args)
       elif self.tag == sTag: lib.ElDistSparseMatrixLockedTargetBuffer_s(*args)
@@ -716,8 +718,8 @@ class DistSparseMatrix(object):
       if jInd.stop == None:
         jInd = slice(jInd.start,self.Width(),jInd.step)
     iRan = IndexRange(iInd)
-    jRan = IndexRange(jInd) 
-    ASub = DistSparseMatrix(self.tag,self.Comm())
+    jRan = IndexRange(jInd)
+    ASub = DistSparseMatrix(self.tag,self.Grid())
     args = [self.obj,iRan,jRan,ASub.obj]
     if   self.tag == iTag: lib.ElGetContigSubmatrixDistSparse_i(*args)
     elif self.tag == sTag: lib.ElGetContigSubmatrixDistSparse_s(*args)

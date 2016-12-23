@@ -1224,8 +1224,8 @@ void Mehrotra
         centralityRule = MehrotraCentrality<Real>;
     const bool standardShift = true;
 
-    mpi::Comm comm = APre.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
 
     // Equilibrate the QP by diagonally scaling A
@@ -1236,7 +1236,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Int degree = n;
-    DistMultiVec<Real> dRow(comm), dCol(comm);
+    DistMultiVec<Real> dRow(grid), dCol(grid);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
@@ -1317,7 +1317,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     if( ctrl.system == FULL_KKT )
     {
         regTmp.Resize( m+2*n, 1 );
@@ -1345,17 +1345,16 @@ void Mehrotra
     regTmp *= origTwoNormEst;
 
     DistGraphMultMeta metaOrig, meta;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
     ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       w(comm),
-                       rc(comm),    rb(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm),
-                       dx(comm),    dy(comm),    dz(comm);
+    DistMultiVec<Real> d(grid), w(grid),
+                       rc(grid),    rb(grid),    rmu(grid),
+                       dxAff(grid), dyAff(grid), dzAff(grid),
+                       dx(grid),    dy(grid),    dz(grid);
 
     Real relError = 1;
-    DistMultiVec<Real> dInner(comm);
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
+    DistMultiVec<Real> dInner(grid);
+    DistMultiVec<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     ldl::DistMultiVecNodeMeta dmvMeta;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )

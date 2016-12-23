@@ -2,14 +2,14 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename T> 
+template<typename T>
 void TestSymm
 ( bool conjugate,
   LeftOrRight side,
@@ -42,7 +42,7 @@ void TestSymm
 
     const Int numRHS = 100;
     DistMatrix<T> X(g), Y(g);
-    Uniform( X, m, numRHS ); 
+    Uniform( X, m, numRHS );
     if( print )
         Print( X, "X" );
     if( side == LEFT )
@@ -50,7 +50,7 @@ void TestSymm
         // Y := alpha Symm(A) (B X) + beta C X
         DistMatrix<T> Z(g);
         Gemm( NORMAL, NORMAL, T(1), B, X, Z );
-        Gemm( NORMAL, NORMAL, alpha, A, Z, Y ); 
+        Gemm( NORMAL, NORMAL, alpha, A, Z, Y );
         Gemm( NORMAL, NORMAL, beta, C, X, T(1), Y );
         if( print )
             Print( Y, "Y := alpha Symm(A) (B X) + beta C X" );
@@ -77,7 +77,7 @@ void TestSymm
     const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
-    const double realGFlops = 
+    const double realGFlops =
       ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
     const double gFlops = ( IsComplex<T>::value ? 4*realGFlops : realGFlops );
     OutputFromRoot
@@ -101,7 +101,7 @@ void TestSymm
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -122,7 +122,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
         const LeftOrRight side = CharToLeftOrRight( sideChar );

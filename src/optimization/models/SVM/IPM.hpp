@@ -230,10 +230,10 @@ void IPM
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistSparseMatrix<Real> Q(comm), AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), b(comm), h(comm);
+    DistSparseMatrix<Real> Q(grid), AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), b(grid), h(grid);
 
     auto& dLoc = d.LockedMatrix();
     auto& cLoc = c.Matrix();
@@ -316,7 +316,7 @@ void IPM
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> y(comm), z(comm), s(comm);
+    DistMultiVec<Real> y(grid), z(grid), s(grid);
     QP( Q, AHat, G, b, c, h, x, y, z, s, ctrl );
 }
 

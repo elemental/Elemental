@@ -21,96 +21,100 @@ namespace El {
 
 // Adjoint
 // =======
-template<typename T>
-void Adjoint( const Matrix<T>& A, Matrix<T>& B );
-template<typename T>
-void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
-template<typename T>
-void Adjoint( const BlockMatrix<T>& A, BlockMatrix<T>& B );
-template<typename T>
-void Adjoint( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
-template<typename T>
-void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B );
-template<typename T>
-void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
+template<typename Ring>
+void Adjoint( const Matrix<Ring>& A, Matrix<Ring>& B );
+template<typename Ring>
+void Adjoint( const ElementalMatrix<Ring>& A, ElementalMatrix<Ring>& B );
+template<typename Ring>
+void Adjoint( const BlockMatrix<Ring>& A, BlockMatrix<Ring>& B );
+template<typename Ring>
+void Adjoint( const AbstractDistMatrix<Ring>& A, AbstractDistMatrix<Ring>& B );
+template<typename Ring>
+void Adjoint( const SparseMatrix<Ring>& A, SparseMatrix<Ring>& B );
+template<typename Ring>
+void Adjoint( const DistSparseMatrix<Ring>& A, DistSparseMatrix<Ring>& B );
 
 // AdjointContract
 // ===============
-template<typename T>
+template<typename Ring>
 void AdjointContract
-( const ElementalMatrix<T>& A,
-        ElementalMatrix<T>& B );
-template<typename T>
+( const ElementalMatrix<Ring>& A,
+        ElementalMatrix<Ring>& B );
+template<typename Ring>
 void AdjointContract
-( const BlockMatrix<T>& A,
-        BlockMatrix<T>& B );
+( const BlockMatrix<Ring>& A,
+        BlockMatrix<Ring>& B );
 
 // AdjointAxpy
 // ===========
-template<typename T,typename S>
+template<typename Ring1,typename Ring2>
 void AdjointAxpy
-( S alpha, const Matrix<T>& X, Matrix<T>& Y );
-template<typename T,typename S>
+( Ring2 alpha, const Matrix<Ring1>& X, Matrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
 void AdjointAxpy
-( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
-template<typename T,typename S>
+( Ring2 alpha, const SparseMatrix<Ring1>& X, SparseMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
 void AdjointAxpy
-( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
-template<typename T,typename S>
+( Ring2 alpha, const ElementalMatrix<Ring1>& X, ElementalMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
 void AdjointAxpy
-( S alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y );
-template<typename T,typename S>
+( Ring2 alpha, const BlockMatrix<Ring1>& X, BlockMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
 void AdjointAxpy
-( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
+( Ring2 alpha, const DistSparseMatrix<Ring1>& X, DistSparseMatrix<Ring1>& Y );
 
 // AdjointAxpyContract
 // ===================
-template<typename T>
+template<typename Ring>
 void AdjointAxpyContract
-( T alpha, const ElementalMatrix<T>& A,
-                 ElementalMatrix<T>& B );
-template<typename T>
+( Ring alpha, const ElementalMatrix<Ring>& A,
+                    ElementalMatrix<Ring>& B );
+template<typename Ring>
 void AdjointAxpyContract
-( T alpha, const BlockMatrix<T>& A,
-                 BlockMatrix<T>& B );
+( Ring alpha, const BlockMatrix<Ring>& A,
+                    BlockMatrix<Ring>& B );
 
 // AllReduce
 // =========
 template<typename T>
-void AllReduce
-( Matrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
+void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
 template<typename T>
-void AllReduce
-( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
+void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op=mpi::SUM );
 
 // Axpy
 // ====
-template<typename T,typename S>
-void Axpy( S alpha, const Matrix<T>& X, Matrix<T>& Y );
-template<typename T,typename S>
-void Axpy( S alpha, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y );
-template<typename T,typename S>
-void Axpy( S alpha, const BlockMatrix<T>& X, BlockMatrix<T>& Y );
-template<typename T,typename S>
-void Axpy( S alpha, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y );
-template<typename T,typename S>
-void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y );
-template<typename T,typename S>
-void Axpy( S alpha, const SparseMatrix<T>& X, SparseMatrix<T>& Y );
-template<typename T,typename S>
-void Axpy( S alpha, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy( Ring2 alpha, const Matrix<Ring1>& X, Matrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy
+( Ring2 alpha, const ElementalMatrix<Ring1>& X, ElementalMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy( Ring2 alpha, const BlockMatrix<Ring1>& X, BlockMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy
+( Ring2 alpha, const AbstractDistMatrix<Ring1>& X,
+                     AbstractDistMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy
+( Ring2 alpha, const DistMultiVec<Ring1>& X, DistMultiVec<Ring1>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy
+( Ring2 alpha, const SparseMatrix<Ring1>& X, SparseMatrix<Ring1>& Y );
+template<typename Ring1,typename Ring2>
+void Axpy
+( Ring2 alpha, const DistSparseMatrix<Ring1>& X, DistSparseMatrix<Ring1>& Y );
 
 namespace axpy {
 namespace util {
 
-template<typename T>
+template<typename Ring>
 void InterleaveMatrixUpdate
-( T alpha, Int localHeight, Int localWidth,
-  const T* A, Int colStrideA, Int rowStrideA,
-        T* B, Int colStrideB, Int rowStrideB );
-template<typename T>
+( Ring alpha, Int localHeight, Int localWidth,
+  const Ring* A, Int colStrideA, Int rowStrideA,
+        Ring* B, Int colStrideB, Int rowStrideB );
+template<typename Ring>
 void UpdateWithLocalData
-( T alpha, const ElementalMatrix<T>& A, DistMatrix<T,STAR,STAR>& B );
+( Ring alpha, const ElementalMatrix<Ring>& A, DistMatrix<Ring,STAR,STAR>& B );
 
 } // namespace util
 } // namespace axpy
@@ -118,40 +122,41 @@ void UpdateWithLocalData
 // AxpyContract
 // ============
 
-template<typename T>
+template<typename Ring>
 void AxpyContract
-( T alpha, const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
-template<typename T>
+( Ring alpha, const ElementalMatrix<Ring>& A, ElementalMatrix<Ring>& B );
+template<typename Ring>
 void AxpyContract
-( T alpha, const BlockMatrix<T>& A, BlockMatrix<T>& B );
+( Ring alpha, const BlockMatrix<Ring>& A, BlockMatrix<Ring>& B );
 
 // AxpyTrapezoid
 // =============
-template<typename T,typename S>
+template<typename Ring1,typename Ring2>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alpha, const Matrix<T>& X, Matrix<T>& Y, Int offset=0 );
-template<typename T,typename S>
+( UpperOrLower uplo, Ring2 alpha,
+  const Matrix<Ring1>& X, Matrix<Ring1>& Y, Int offset=0 );
+template<typename Ring1,typename Ring2>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alpha,
-  const ElementalMatrix<T>& X, ElementalMatrix<T>& Y, Int offset=0 );
-template<typename T,typename S>
+( UpperOrLower uplo, Ring2 alpha,
+  const ElementalMatrix<Ring1>& X, ElementalMatrix<Ring1>& Y, Int offset=0 );
+template<typename Ring1,typename Ring2>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alpha,
-  const BlockMatrix<T>& X, BlockMatrix<T>& Y, Int offset=0 );
-template<typename T,typename S>
+( UpperOrLower uplo, Ring2 alpha,
+  const BlockMatrix<Ring1>& X, BlockMatrix<Ring1>& Y, Int offset=0 );
+template<typename Ring1,typename Ring2>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alpha,
-  const SparseMatrix<T>& X, SparseMatrix<T>& Y, Int offset=0 );
-template<typename T,typename S>
+( UpperOrLower uplo, Ring2 alpha,
+  const SparseMatrix<Ring1>& X, SparseMatrix<Ring1>& Y, Int offset=0 );
+template<typename Ring1,typename Ring2>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alpha,
-  const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y, Int offset=0 );
+( UpperOrLower uplo, Ring2 alpha,
+  const DistSparseMatrix<Ring1>& X, DistSparseMatrix<Ring1>& Y, Int offset=0 );
 
-template<typename T>
+template<typename Ring>
 void LocalAxpyTrapezoid
-( UpperOrLower uplo, T alpha,
-  const AbstractDistMatrix<T>& X,
-        AbstractDistMatrix<T>& Y, Int offset=0 );
+( UpperOrLower uplo, Ring alpha,
+  const AbstractDistMatrix<Ring>& X,
+        AbstractDistMatrix<Ring>& Y, Int offset=0 );
 
 // Broadcast
 // =========
@@ -439,8 +444,8 @@ void VCat
 
 // Conjugate
 // =========
-template<typename Real>
-void Conjugate( Matrix<Real>& A );
+template<typename RealRing>
+void Conjugate( Matrix<RealRing>& A );
 template<typename Real>
 void Conjugate( Matrix<Complex<Real>>& A );
 

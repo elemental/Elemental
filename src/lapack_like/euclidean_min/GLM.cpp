@@ -320,13 +320,13 @@ void GLM
     const Int n = A.Width();
     const Int k = B.Width();
     const Int numRHS = D.Width();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
 
     // Rescale the rows of W := [ A, B ]
     // ===============================
-    DistMultiVec<Real> dR(comm);
-    DistSparseMatrix<F> W(comm);
+    DistMultiVec<Real> dR(grid);
+    DistSparseMatrix<F> W(grid);
     HCat( A, B, W );
     if( ctrl.equilibrate )
     {
@@ -353,7 +353,7 @@ void GLM
     // Form the augmented RHS
     // ======================
     //   G = [ D/alpha; 0; 0 ]
-    DistMultiVec<F> G(comm);
+    DistMultiVec<F> G(grid);
     Zeros( G, m+n+k, numRHS );
     X = D;
     X *= F(1)/ctrl.alpha;
@@ -379,7 +379,7 @@ void GLM
     //         | B^H  0  -alpha*I |
     //
     const Int numEntriesW = W.NumLocalEntries();
-    DistSparseMatrix<F> J(comm);
+    DistSparseMatrix<F> J(grid);
     Zeros( J, m+n+k, m+n+k );
     {
         const Int JLocalHeight = J.LocalHeight();

@@ -169,7 +169,7 @@ void GetMappedDiagonal
     if( offset != 0 )
         LogicError("DistSparseMatrix GetMappedDiagonal assumes offset=0");
 
-    d.SetComm( A.Comm() );
+    d.SetGrid( A.Grid() );
     d.Resize( El::DiagonalLength(m,n,offset), 1 );
     Fill( d, S(1) );
 

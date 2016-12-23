@@ -6,9 +6,9 @@
 
    Copyright (c) 2016, Jack Poulson.
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -44,12 +44,12 @@ void TestSparseDirect
   bool print,
   bool display,
   const BisectCtrl& ctrl,
-  mpi::Comm& comm )
+  const El::Grid& grid )
 {
-    OutputFromRoot(comm,"Testing with ",TypeName<F>());
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<F>());
 
     const int N = n1*n2*n3;
-    DistSparseMatrix<F> A(comm);
+    DistSparseMatrix<F> A(grid);
     Laplacian( A, n1, n2, n3 );
     A *= -1;
     if( display )
@@ -65,7 +65,7 @@ void TestSparseDirect
 
     Timer timer;
 
-    OutputFromRoot(comm,"Running nested dissection...");
+    OutputFromRoot(grid.Comm(),"Running nested dissection...");
     timer.Start();
     const DistGraph& graph = A.DistGraph();
     ldl::DistNodeInfo info;
@@ -73,47 +73,47 @@ void TestSparseDirect
     DistMap map, invMap;
     ldl::NestedDissection( graph, map, sep, info, ctrl );
     InvertMap( map, invMap );
-    mpi::Barrier( comm );
+    mpi::Barrier( grid.Comm() );
     timer.Stop();
-    OutputFromRoot(comm,timer.Partial()," seconds");
+    OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
     const Int rootSepSize = info.size;
-    OutputFromRoot(comm,rootSepSize," vertices in root separator\n");
+    OutputFromRoot(grid.Comm(),rootSepSize," vertices in root separator\n");
 
-    OutputFromRoot(comm,"Building ldl::DistFront tree...");
-    mpi::Barrier( comm );
+    OutputFromRoot(grid.Comm(),"Building ldl::DistFront tree...");
+    mpi::Barrier( grid.Comm() );
     timer.Start();
     ldl::DistFront<F> front( A, map, sep, info, false );
-    mpi::Barrier( comm );
+    mpi::Barrier( grid.Comm() );
     timer.Stop();
-    OutputFromRoot(comm,timer.Partial()," seconds");
+    OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
     for( Int repeat=0; repeat<numRepeats; ++repeat )
     {
         if( repeat != 0 )
             MakeFrontsUniform( front );
 
-        OutputFromRoot(comm,"Running LDL^T and redistribution...");
-        mpi::Barrier( comm );
+        OutputFromRoot(grid.Comm(),"Running LDL^T and redistribution...");
+        mpi::Barrier( grid.Comm() );
         timer.Start();
         if( intraPiv )
             LDL( info, front, LDL_INTRAPIV_1D );
         else
             LDL( info, front, LDL_1D );
-        mpi::Barrier( comm );
+        mpi::Barrier( grid.Comm() );
         timer.Stop();
-        OutputFromRoot(comm,timer.Partial()," seconds");
+        OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
-        OutputFromRoot(comm,"Solving against random right-hand side...");
+        OutputFromRoot(grid.Comm(),"Solving against random right-hand side...");
         timer.Start();
-        DistMultiVec<F> y( N, 1, comm );
+        DistMultiVec<F> y( N, 1, grid );
         MakeUniform( y );
         ldl::SolveAfter( invMap, info, front, y );
-        mpi::Barrier( comm );
+        mpi::Barrier( grid.Comm() );
         timer.Stop();
-        OutputFromRoot(comm,"Time = ",timer.Partial()," seconds");
+        OutputFromRoot(grid.Comm(),"Time = ",timer.Partial()," seconds");
 
-        // TODO: Check residual error
+        // TODO(poulson): Check residual error
     }
 }
 
@@ -149,10 +149,12 @@ int main( int argc, char* argv[] )
         ctrl.numDistSeps = numDistSeps;
         ctrl.cutoff = cutoff;
 
+        const El::Grid grid( comm );
+
         TestSparseDirect<float>
-        ( n1, n2, n3, numRepeats, intraPiv, print, display, ctrl, comm );
+        ( n1, n2, n3, numRepeats, intraPiv, print, display, ctrl, grid );
         TestSparseDirect<double>
-        ( n1, n2, n3, numRepeats, intraPiv, print, display, ctrl, comm );
+        ( n1, n2, n3, numRepeats, intraPiv, print, display, ctrl, grid );
 
         // TODO(poulson): Test more datatypes? It makes the runtime much longer
     }

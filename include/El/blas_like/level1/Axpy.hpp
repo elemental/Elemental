@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_AXPY_HPP
@@ -69,7 +69,7 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
     const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
         Y.Reserve( numEntries );
-    for( Int k=0; k<numEntries; ++k ) 
+    for( Int k=0; k<numEntries; ++k )
         Y.QueueUpdate( XRowBuf[k], XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessQueues();
 }
@@ -90,8 +90,9 @@ void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
     }
     else
     {
-        // TODO: Consider what happens if one is a row vector and the other
-        //       is a column vector...
+        // TODO(poulson):
+        // Consider what happens if one is a row vector and the other
+        // is a column vector...
         unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
@@ -170,7 +171,7 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     EL_DEBUG_CSE
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
-    if( X.Comm() != Y.Comm() )
+    if( X.Grid().Comm() != Y.Grid().Comm() )
         LogicError("X and Y must have the same communicator");
     const T alpha = T(alphaS);
     const Int numLocalEntries = X.NumLocalEntries();
@@ -180,7 +181,7 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
         Y.Reserve( numLocalEntries );
-    for( Int k=0; k<numLocalEntries; ++k ) 
+    for( Int k=0; k<numLocalEntries; ++k )
         Y.QueueLocalUpdate
         ( XRowBuf[k]-firstLocalRow, XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessLocalQueues();
@@ -191,7 +192,7 @@ void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 {
     EL_DEBUG_CSE
     EL_DEBUG_ONLY(
-      if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
+      if( !mpi::Congruent( X.Grid().Comm(), Y.Grid().Comm() ) )
           LogicError("X and Y must have congruent communicators");
       if( X.Height() != Y.Height() )
           LogicError("X and Y must be the same height");

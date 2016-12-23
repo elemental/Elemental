@@ -134,7 +134,7 @@ main( int argc, char* argv[] )
 
         El::mpi::Comm comm = El::mpi::COMM_WORLD;
         if( gridHeight == 0 )
-            gridHeight = El::Grid::FindFactor( El::mpi::Size(comm) );
+            gridHeight = El::Grid::DefaultHeight( El::mpi::Size(comm) );
         const El::GridOrder order = colMajor ? El::COLUMN_MAJOR : El::ROW_MAJOR;
         const El::Grid grid( comm, gridHeight, order );
         El::SetBlocksize( nbAlg );

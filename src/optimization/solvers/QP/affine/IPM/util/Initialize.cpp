@@ -479,7 +479,7 @@ void Initialize
     const Int m = b.Height();
     const Int n = c.Height();
     const Int k = h.Height();
-    mpi::Comm comm = JStatic.Comm();
+    const Grid& grid = JStatic.Grid();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -502,11 +502,11 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
+    DistSparseMatrix<Real> JOrig(grid);
     JOrig = JStatic;
     JOrig.FreezeSparsity();
     JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-    DistMultiVec<Real> ones(comm);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, k, 1 );
     FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
@@ -523,8 +523,8 @@ void Initialize
     // TODO(poulson): Consider selective inversion
     LDL( info, JFront, LDL_2D );
 
-    DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
-                       d(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
+                       d(grid);
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {

@@ -222,7 +222,7 @@ void LP
     problem.c = c;
     problem.A = A;
     problem.b = b;
-    solution.x = x; 
+    solution.x = x;
     solution.y = y;
     solution.z = z;
     LP( problem, solution, ctrl );
@@ -266,7 +266,7 @@ void LP
     problem.b = b;
     problem.G = G;
     problem.h = h;
-    solution.x = x; 
+    solution.x = x;
     solution.y = y;
     solution.z = z;
     solution.s = s;
@@ -302,18 +302,17 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Grid& grid = A.Grid();
+
     DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
     DirectLPSolution<DistMultiVec<Real>> solution;
-
-    // Quack...
-    const Grid grid( A.Comm() );
     ForceSimpleAlignments( problem, grid );
     ForceSimpleAlignments( solution, grid );
 
     problem.c = c;
     problem.A = A;
     problem.b = b;
-    solution.x = x; 
+    solution.x = x;
     solution.y = y;
     solution.z = z;
     LP( problem, solution, ctrl );
@@ -350,11 +349,10 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Grid& grid = A.Grid();
+
     AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
     AffineLPSolution<DistMultiVec<Real>> solution;
-
-    // Quack...
-    const Grid grid( A.Comm() );
     ForceSimpleAlignments( problem, grid );
     ForceSimpleAlignments( solution, grid );
 
@@ -363,7 +361,7 @@ void LP
     problem.b = b;
     problem.G = G;
     problem.h = h;
-    solution.x = x; 
+    solution.x = x;
     solution.y = y;
     solution.z = z;
     solution.s = s;

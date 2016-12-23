@@ -81,7 +81,7 @@ main( int argc, char* argv[] )
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid
         if( gridHeight == 0 )
-            gridHeight = El::Grid::FindFactor( commSize );
+            gridHeight = El::Grid::DefaultHeight( commSize );
         El::Grid grid( comm, gridHeight );
 
         // Split the group for MPI_COMM_WORLD into the lower and upper halves
@@ -107,9 +107,9 @@ main( int argc, char* argv[] )
         // Form the lower and upper grids
         // ==============================
         if( lowerGridHeight == 0 )
-            lowerGridHeight = El::Grid::FindFactor( lowerGroupSize );
+            lowerGridHeight = El::Grid::DefaultHeight( lowerGroupSize );
         if( upperGridHeight == 0 )
-            upperGridHeight = El::Grid::FindFactor( upperGroupSize );
+            upperGridHeight = El::Grid::DefaultHeight( upperGroupSize );
         El::Grid lowerGrid( comm, lowerGroup, lowerGridHeight );
         El::Grid upperGrid( comm, upperGroup, upperGridHeight );
 

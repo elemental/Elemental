@@ -2,7 +2,7 @@
    Copyright 2009-2011, Jack Poulson.
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright 2011-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
@@ -14,9 +14,9 @@
 
    Copyright 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -63,7 +63,7 @@ DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
 
     if( X.child == nullptr )
     {
-        delete duplicate; 
+        delete duplicate;
         duplicate = new MatrixNode<T>(this);
         *duplicate = *X.duplicate;
 
@@ -214,7 +214,7 @@ static void PullUnpack
     if( info.child == nullptr )
     {
         PullLocalUnpack
-        ( *info.duplicate, recvVals, mappedOwners, 
+        ( *info.duplicate, recvVals, mappedOwners,
           *XNode.duplicate, off, offs );
         return;
     }
@@ -241,7 +241,7 @@ static void PullUnpackMulti
     if( info.child == nullptr )
     {
         PullLocalUnpackMulti
-        ( *info.duplicate, recvVals, mappedOwners, 
+        ( *info.duplicate, recvVals, mappedOwners,
           *XNode.duplicate, off, offs, width );
         return;
     }
@@ -269,8 +269,8 @@ void DistMultiVecNode<T>::Pull
     const Int width = X.Width();
     const Matrix<T>& XLoc = X.LockedMatrix();
     const Int firstLocalRow = X.FirstLocalRow();
-    mpi::Comm comm = X.Comm();
-    const int commSize = mpi::Size( comm );
+    const Grid& grid = X.Grid();
+    const int commSize = grid.Size();
 
     PullInit( info, *this, width );
 
@@ -308,7 +308,8 @@ void DistMultiVecNode<T>::Pull
     }
     mpi::AllToAll
     ( sendVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
-      recvVals.data(), meta.sendSizes.data(), meta.sendOffs.data(), comm );
+      recvVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
+      grid.Comm() );
     SwapClear( sendVals );
 
     // Unpack the values
@@ -341,7 +342,7 @@ template<typename T>
 static void PushLocalPack
 ( const NodeInfo& node,
   const MatrixNode<T>& XNode,
-  const vector<int>& mappedOwners, 
+  const vector<int>& mappedOwners,
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
@@ -364,7 +365,7 @@ template<typename T>
 static void PushLocalPackMulti
 ( const NodeInfo& node,
   const MatrixNode<T>& XNode,
-  const vector<int>& mappedOwners, 
+  const vector<int>& mappedOwners,
         vector<T>& sendVals,
   Int& off, vector<int>& offs )
 {
@@ -381,7 +382,7 @@ static void PushLocalPackMulti
         const int q = mappedOwners[off++];
         for( Int j=0; j<width; ++j )
             sendVals[offs[q]*width+j] = XNode.matrix(t,j);
-        offs[q]++; 
+        offs[q]++;
     }
 }
 
@@ -402,7 +403,7 @@ static void PushPack
         return;
     }
     PushPack( *node.child, *XNode.child, mappedOwners, sendVals, off, offs );
-            
+
     const Int localHeight = XNode.matrix.LocalHeight();
     const T* XNodeBuf = XNode.matrix.LockedBuffer();
     for( Int tLoc=0; tLoc<localHeight; ++tLoc )
@@ -430,10 +431,10 @@ static void PushPackMulti
     }
     PushPackMulti
     ( *node.child, *XNode.child, mappedOwners, sendVals, off, offs );
-    
+
     const Int localHeight = XNode.matrix.LocalHeight();
     const Int width = XNode.matrix.Width();
-    const Matrix<T>& XNodeLoc = XNode.matrix.LockedMatrix(); 
+    const Matrix<T>& XNodeLoc = XNode.matrix.LockedMatrix();
     for( Int tLoc=0; tLoc<localHeight; ++tLoc )
     {
         const int q = mappedOwners[off++];
@@ -474,12 +475,12 @@ void DistMultiVecNodeMeta::Initialize
     }
 
     const Int numSendInds = XNode.LocalHeight();
-    mpi::Comm comm = info.comm;
-    const int commSize = mpi::Size( comm );
+    const Grid& grid = *info.grid;
+    const int commSize = grid.Size();
 
     std::vector<Int> mappedInds( numSendInds );
     Int off=0;
-    function<void(const NodeInfo&,MatrixNode<T>&)> localPack = 
+    function<void(const NodeInfo&,MatrixNode<T>&)> localPack =
       [&]( const NodeInfo& node, MatrixNode<T>& XNode )
       {
         const Int numChildren = node.children.size();
@@ -489,8 +490,8 @@ void DistMultiVecNodeMeta::Initialize
         for( Int t=0; t<node.size; ++t )
             mappedInds[off++] = node.off+t;
       };
-    function<void(const DistNodeInfo&,const DistMultiVecNode<T>&)> 
-      pack = 
+    function<void(const DistNodeInfo&,const DistMultiVecNode<T>&)>
+      pack =
       [&]( const DistNodeInfo& node, const DistMultiVecNode<T>& XNode )
       {
         if( node.child == nullptr )
@@ -543,7 +544,7 @@ void DistMultiVecNodeMeta::Initialize
             sendInds[offs[q]++] = i;
         }
       };
-    function<void(const DistNodeInfo&,const DistMultiVecNode<T>&)> 
+    function<void(const DistNodeInfo&,const DistMultiVecNode<T>&)>
       packInds =
       [&]( const DistNodeInfo& node, const DistMultiVecNode<T>& XNode )
       {
@@ -553,7 +554,7 @@ void DistMultiVecNodeMeta::Initialize
             return;
         }
         packInds( *node.child, *XNode.child );
-    
+
         const Int localHeight = XNode.matrix.LocalHeight();
         for( Int tLoc=0; tLoc<localHeight; ++tLoc )
         {
@@ -566,7 +567,7 @@ void DistMultiVecNodeMeta::Initialize
 
     // Coordinate for the coming AllToAll to exchange the indices of x
     recvSizes.resize( commSize );
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, comm );
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, grid.Comm() );
     const int numRecvInds = Scan( recvSizes, recvOffs );
     EL_DEBUG_ONLY(
       if( numRecvInds != X.LocalHeight() )
@@ -577,7 +578,7 @@ void DistMultiVecNodeMeta::Initialize
     recvInds.resize( numRecvInds );
     mpi::AllToAll
     ( sendInds.data(), sendSizes.data(), sendOffs.data(),
-      recvInds.data(), recvSizes.data(), recvOffs.data(), comm );
+      recvInds.data(), recvSizes.data(), recvOffs.data(), grid.Comm() );
 }
 
 template<typename T>
@@ -592,11 +593,10 @@ void DistMultiVecNode<T>::Push
     const Int width = matrix.Width();
     Timer timer;
     bool time = false;
-
-    mpi::Comm comm = info.comm;
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
-    X.SetComm( comm );
+    const Grid& grid = *info.grid;
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
+    X.SetGrid( grid );
     X.Resize( height, width );
     const Int firstLocalRow = X.FirstLocalRow();
     Matrix<T>& XLoc = X.Matrix();
@@ -638,7 +638,8 @@ void DistMultiVecNode<T>::Push
     }
     mpi::AllToAll
     ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), comm );
+      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+      grid.Comm() );
     SwapClear( sendVals );
     if( time && commRank == 0 )
         Output("  send time: ",timer.Stop()," secs");
@@ -681,7 +682,7 @@ Int DistMultiVecNode<T>::LocalHeight() const
 {
     EL_DEBUG_CSE
     Int localHeight = 0;
-    function<void(const DistMultiVecNode<T>&)> count = 
+    function<void(const DistMultiVecNode<T>&)> count =
       [&]( const DistMultiVecNode<T>& node )
       {
         if( node.child == nullptr )
@@ -715,27 +716,29 @@ void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     const Int numChildren = 2;
     vector<int> teamSizes(numChildren), teamOffs(numChildren);
 
-    const int teamSize = mpi::Size( info.comm );
-    const int teamRank = mpi::Rank( info.comm );
+    const Grid& grid = *info.grid;
+    const int teamSize = grid.Size();
+    const int teamRank = grid.Rank();
+
     const auto& childNode = *info.child;
     const int childTeamSize = mpi::Size( childNode.comm );
     const int childTeamRank = mpi::Rank( childNode.comm );
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( childNode.onLeft==inFirstTeam );
     teamSizes[0] =
-        ( childNode.onLeft ? childTeamSize : teamSize-childTeamSize );
+      childNode.onLeft ? childTeamSize : teamSize-childTeamSize;
     teamSizes[1] = teamSize - teamSizes[0];
-    teamOffs[0] = ( leftIsFirst ? 0 : teamSizes[1] );
-    teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0 );
+    teamOffs[0] = leftIsFirst ? 0 : teamSizes[1];
+    teamOffs[1] = leftIsFirst ? teamSizes[0] : 0;
 
     const auto& myRelInds =
-        ( childNode.onLeft ? info.childRelInds[0] : info.childRelInds[1] );
+      childNode.onLeft ? info.childRelInds[0] : info.childRelInds[1];
 
     // Fill numChildSendInds
     commMeta.numChildSendInds.resize( teamSize );
     El::MemZero( commMeta.numChildSendInds.data(), teamSize );
     const Int updateSize = childNode.lowerStruct.size();
-    // TODO: Use 'matrix' or 'work' instead?
+    // TODO(poulson): Use 'matrix' or 'work' instead?
     {
         const Int align = childNode.size % childTeamSize;
         const Int shift = Shift( childTeamRank, align, childTeamSize );

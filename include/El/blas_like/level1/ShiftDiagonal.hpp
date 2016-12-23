@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_SHIFTDIAGONAL_HPP
@@ -66,7 +66,7 @@ void ShiftDiagonal
         {
             const Int e = A.Offset( i, i+offset );
             valBuf[e] += alpha;
-        } 
+        }
     }
     else
     {
@@ -86,7 +86,7 @@ void ShiftDiagonal
     const Int mLocal = A.LocalHeight();
     const Int n = A.Width();
     const T alpha = T(alphaPre);
-    if( existingDiag ) 
+    if( existingDiag )
     {
         T* valBuf = A.ValueBuffer();
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
@@ -94,7 +94,7 @@ void ShiftDiagonal
             const Int i = A.GlobalRow(iLoc);
             const Int e = A.Offset( iLoc, i+offset );
             valBuf[e] += alpha;
-        } 
+        }
     }
     else
     {

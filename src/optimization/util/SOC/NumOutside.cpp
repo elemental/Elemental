@@ -91,8 +91,9 @@ Int NumOutside
   Int cutoff )
 {
     EL_DEBUG_CSE
+    const Grid& grid = x.Grid();
 
-    DistMultiVec<Real> d(x.Comm());
+    DistMultiVec<Real> d(grid);
     soc::Dets( x, d, orders, firstInds, cutoff );
 
     Int numLocalNonSOC = 0;
@@ -105,7 +106,7 @@ Int NumOutside
         if( i == firstIndsLoc(iLoc) && dLoc(iLoc) < Real(0) )
             ++numLocalNonSOC;
     }
-    return mpi::AllReduce( numLocalNonSOC, x.Comm() );
+    return mpi::AllReduce( numLocalNonSOC, grid.Comm() );
 }
 
 #define PROTO(Real) \

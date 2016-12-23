@@ -190,10 +190,10 @@ void Lanczos
     auto& TLoc = T.Matrix();
 
     const Real eps = limits::Epsilon<Real>();
-    mpi::Comm comm = T.Grid().Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = T.Grid();
+    const int commRank = grid.Rank();
 
-    DistMultiVec<Field> v_km1(comm), v_k(comm), v(comm);
+    DistMultiVec<Field> v_km1(grid), v_k(grid), v(grid);
     basisSize = Min(n,basisSize);
     Zeros( v_km1, n, 1 );
     Zeros( v_k,   n, 1 );
@@ -205,7 +205,7 @@ void Lanczos
         Field shift;
         if( commRank == 0 )
             shift = SampleUniform<Field>();
-        mpi::Broadcast( shift, 0, comm );
+        mpi::Broadcast( shift, 0, grid.Comm() );
         Uniform( v, n, 1 );
         Shift( v, shift );
         const Real beta = FrobeniusNorm( v );
@@ -270,10 +270,10 @@ Base<Field> LanczosDecomp
     auto& T = TProx.Get();
 
     const Real eps = limits::Epsilon<Real>();
-    mpi::Comm comm = T.Grid().Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = T.Grid();
+    const int commRank = grid.Rank();
 
-    DistMultiVec<Field> v_km1(comm), v_k(comm);
+    DistMultiVec<Field> v_km1(grid), v_k(grid);
     basisSize = Min(n,basisSize);
     Zeros( V, n, basisSize );
     Zeros( T, basisSize, basisSize );
@@ -286,7 +286,7 @@ Base<Field> LanczosDecomp
         Field shift;
         if( commRank == 0 )
             shift = SampleUniform<Field>();
-        mpi::Broadcast( shift, 0, comm );
+        mpi::Broadcast( shift, 0, grid.Comm() );
         Uniform( v, n, 1 );
         Shift( v, shift );
         const Real beta = FrobeniusNorm( v );

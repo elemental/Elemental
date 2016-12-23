@@ -163,9 +163,9 @@ void RuizEquil
     typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    dRow.SetComm( comm );
-    dCol.SetComm( comm );
+    const Grid& grid = A.Grid();
+    dRow.SetGrid( grid );
+    dCol.SetGrid( grid );
     Ones( dRow, m, 1 );
     Ones( dCol, n, 1 );
 
@@ -173,7 +173,7 @@ void RuizEquil
     // For, simply hard-code a small number of iterations
     const Int maxIter = 4;
 
-    DistMultiVec<Real> scales(comm);
+    DistMultiVec<Real> scales(grid);
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {
@@ -387,10 +387,10 @@ void StackedRuizEquil
     const Int mA = A.Height();
     const Int mB = B.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    dRowA.SetComm( comm );
-    dRowB.SetComm( comm );
-    dCol.SetComm( comm );
+    const Grid& grid = A.Grid();
+    dRowA.SetGrid( grid );
+    dRowB.SetGrid( grid );
+    dCol.SetGrid( grid );
     Ones( dRowA, mA, 1 );
     Ones( dRowB, mB, 1 );
     Ones( dCol, n, 1 );
@@ -399,7 +399,7 @@ void StackedRuizEquil
     // For, simply hard-code a small number of iterations
     const Int maxIter = 4;
 
-    DistMultiVec<Real> scales(comm), maxAbsValsB(comm);
+    DistMultiVec<Real> scales(grid), maxAbsValsB(grid);
     auto& scalesLoc = scales.Matrix();
     auto& maxAbsValsBLoc = maxAbsValsB.Matrix();
     const Int localHeight = scalesLoc.Height();

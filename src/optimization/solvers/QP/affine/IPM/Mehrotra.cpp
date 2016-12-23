@@ -1141,8 +1141,8 @@ void Mehrotra
     //const Real selInvTol = Pow(eps,Real(-0.25));
     const Real selInvTol = 0;
 
-    mpi::Comm comm = APre.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
     Timer timer, iterTimer;
 
     // Equilibrate the QP by diagonally scaling [A;G]
@@ -1156,7 +1156,7 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     const Int degree = k;
-    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
+    DistMultiVec<Real> dRowA(grid), dRowG(grid), dCol(grid);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
@@ -1217,7 +1217,7 @@ void Mehrotra
         }
     }
 
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     regTmp.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
     {
@@ -1233,7 +1233,7 @@ void Mehrotra
 
     // Compute the static portion of the KKT system
     // ============================================
-    DistSparseMatrix<Real> JStatic(comm);
+    DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( Q, A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
     JStatic.InitializeMultMeta();
@@ -1267,17 +1267,16 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
     ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       w(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm);
+    DistMultiVec<Real> d(grid), w(grid),
+                       rc(grid),    rb(grid),    rh(grid),    rmu(grid),
+                       dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
+                       dx(grid),    dy(grid),    dz(grid),    ds(grid);
 
     Real relError = 1;
-    DistMultiVec<Real> dInner(comm);
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm);
+    DistMultiVec<Real> dInner(grid);
+    DistMultiVec<Real> dxError(grid), dyError(grid), dzError(grid);
     ldl::DistMultiVecNodeMeta dmvMeta;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
@@ -1567,6 +1566,8 @@ void Mehrotra
     }
     SetIndent( indent );
 
+    Print( x, "xBefore" );
+
     if( ctrl.outerEquil )
     {
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -1574,6 +1575,8 @@ void Mehrotra
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
         DiagonalScale( LEFT, NORMAL, dRowG, s );
     }
+
+    Print( x, "xAfter" );
 }
 
 #define PROTO(Real) \

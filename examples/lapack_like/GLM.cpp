@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid
         if( gridHeight == 0 )
-            gridHeight = El::Grid::FindFactor( commSize );
+            gridHeight = El::Grid::DefaultHeight( commSize );
         El::Grid grid( comm, gridHeight );
 
         El::DistMatrix<El::Complex<double>>

@@ -1070,13 +1070,13 @@ void KKT
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = w.Comm();
-    const int commSize = mpi::Size(comm);
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = w.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
-    DistMultiVec<Real> wDets(comm), wLowers(comm);
+    DistMultiVec<Real> wDets(grid), wLowers(grid);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
     soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     cone::Broadcast( wDets, orders, firstInds, cutoffPar );
@@ -1160,15 +1160,16 @@ void KKT
         // Receive the entries from each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+        mpi::AllToAll
+        ( sendCounts.data(), 1, recvCounts.data(), 1, grid.Comm() );
         const int totalRecv = Scan( recvCounts, recvOffs );
         recvBuf.resize( totalRecv );
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), grid.Comm() );
     }
 
-    J.SetComm( comm );
+    J.SetGrid( grid );
     Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
     {
@@ -1471,8 +1472,8 @@ void StaticKKT
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();
 
-    mpi::Comm comm = A.Comm();
-    J.SetComm( comm );
+    const Grid& grid = A.Grid();
+    J.SetGrid( grid );
     Zeros( J, n+m+kSparse, n+m+kSparse );
     const Int JLocalHeight = J.LocalHeight();
 
@@ -1719,13 +1720,13 @@ void FinishKKT
   bool onlyLower, Int cutoffPar )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = w.Comm();
-    const int commSize = mpi::Size(comm);
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = w.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
-    DistMultiVec<Real> wDets(comm), wLowers(comm);
+    DistMultiVec<Real> wDets(grid), wLowers(grid);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
     soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     cone::Broadcast( wDets, orders, firstInds, cutoffPar );
@@ -1809,12 +1810,13 @@ void FinishKKT
         // Receive the entries from each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+        mpi::AllToAll
+        ( sendCounts.data(), 1, recvCounts.data(), 1, grid.Comm() );
         const int totalRecv = Scan( recvCounts, recvOffs );
         recvBuf.resize( totalRecv );
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), grid.Comm() );
     }
 
     if( onlyLower )
@@ -2190,10 +2192,12 @@ void KKTRHS
     EL_DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
-    d.SetComm( rc.Comm() );
+    const Grid& grid = rc.Grid();
+
+    d.SetGrid( grid );
     Zeros( d, n+m+kSparse, 1 );
 
-    DistMultiVec<Real> W_rmu( rc.Comm() );
+    DistMultiVec<Real> W_rmu( grid );
     soc::ApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoffPar );
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();

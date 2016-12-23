@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_LEVEL2_CREFLECT_C_HPP
@@ -12,9 +12,8 @@
 namespace El {
 
 template<typename T>
-inline ElSymvCtrl
-CReflect( const SymvCtrl<T>& ctrl )
-{ 
+ElSymvCtrl CReflect( const SymvCtrl<T>& ctrl )
+{
     ElSymvCtrl ctrlC;
     ctrlC.bsize = ctrl.bsize;
     ctrlC.avoidTrmvBasedLocalSymv = ctrl.avoidTrmvBasedLocalSymv;
@@ -22,9 +21,8 @@ CReflect( const SymvCtrl<T>& ctrl )
 }
 
 template<typename T>
-inline SymvCtrl<T>
-CReflect( const ElSymvCtrl& ctrlC )
-{ 
+SymvCtrl<T> CReflect( const ElSymvCtrl& ctrlC )
+{
     SymvCtrl<T> ctrl;
     ctrl.bsize = ctrlC.bsize;
     ctrl.avoidTrmvBasedLocalSymv = ctrlC.avoidTrmvBasedLocalSymv;

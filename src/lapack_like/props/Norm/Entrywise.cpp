@@ -14,7 +14,7 @@ template<typename Field>
 Base<Field> EntrywiseNorm( const Matrix<Field>& A, Base<Field> p )
 {
     EL_DEBUG_CSE
-    // TODO: Make this more numerically stable
+    // TODO(poulson): Make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
     const Int width = A.Width();
@@ -29,7 +29,7 @@ template<typename Field>
 Base<Field> EntrywiseNorm( const SparseMatrix<Field>& A, Base<Field> p )
 {
     EL_DEBUG_CSE
-    // TODO: Make this more numerically stable
+    // TODO(poulson): Make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
     const Int numEntries = A.NumEntries();
@@ -46,7 +46,7 @@ Base<Field> HermitianEntrywiseNorm
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    // TODO: make this more numerically stable
+    // TODO(poulson): make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
     const Int height = A.Height();
@@ -87,7 +87,7 @@ Base<Field> HermitianEntrywiseNorm
 ( UpperOrLower uplo, const SparseMatrix<Field>& A, Base<Field> p )
 {
     EL_DEBUG_CSE
-    // TODO: Make this more numerically stable
+    // TODO(poulson): Make this more numerically stable
     typedef Base<Field> Real;
     Real sum = 0;
     const Int numEntries = A.NumEntries();
@@ -152,7 +152,7 @@ Base<Field> EntrywiseNorm( const DistSparseMatrix<Field>& A, Base<Field> p )
     for( Int k=0; k<numLocalEntries; ++k )
         localSum += Pow( Abs(A.Value(k)), p );
 
-    const Real sum = mpi::AllReduce( localSum, A.Comm() );
+    const Real sum = mpi::AllReduce( localSum, A.Grid().Comm() );
     return Pow( sum, Real(1)/p );
 }
 
@@ -168,7 +168,7 @@ Base<Field> EntrywiseNorm( const DistMultiVec<Field>& A, Base<Field> p )
         for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
             localSum += Pow( Abs(ALoc(iLoc,j)), p );
 
-    const Real sum = mpi::AllReduce( localSum, A.Comm() );
+    const Real sum = mpi::AllReduce( localSum, A.Grid().Comm() );
     return Pow( sum, Real(1)/p );
 }
 
@@ -247,7 +247,7 @@ Base<Field> HermitianEntrywiseNorm
             localSum += Pow( Abs(A.Value(k)), p );
     }
 
-    const Real sum = mpi::AllReduce( localSum, A.Comm() );
+    const Real sum = mpi::AllReduce( localSum, A.Grid().Comm() );
     return Pow( sum, Real(1)/p );
 }
 

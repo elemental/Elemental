@@ -396,9 +396,9 @@ RegularizedSolveAfterPromote
 
     // TODO(poulson): Perform these conversions less frequently at a higher
     // level
-    DistSparseMatrix<PField> AProm(A.Comm());
+    DistSparseMatrix<PField> AProm(A.Grid());
     Copy( A, AProm );
-    DistMultiVec<PReal> regProm(reg.Comm());
+    DistMultiVec<PReal> regProm(reg.Grid());
     Copy( reg, regProm );
 
     // TODO(poulson): Use time in these lambdas
@@ -487,9 +487,9 @@ RegularizedSolveAfterPromote
 
     // TODO(poulson): Perform these conversions less frequently at a higher
     // level
-    DistSparseMatrix<PField> AProm(A.Comm());
+    DistSparseMatrix<PField> AProm(A.Grid());
     Copy( A, AProm );
-    DistMultiVec<PReal> regProm(reg.Comm());
+    DistMultiVec<PReal> regProm(reg.Grid());
     Copy( reg, regProm );
 
     // TODO(poulson): Use time in these lambdas

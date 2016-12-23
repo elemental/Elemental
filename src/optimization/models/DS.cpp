@@ -454,9 +454,10 @@ void Var2
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numLocalEntriesA = A.NumLocalEntries();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), bHat(comm), h(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), bHat(grid), h(grid);
 
     auto& bLoc = b.LockedMatrix();
 
@@ -530,7 +531,7 @@ void Var2
 
     // Solve the affine LP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v

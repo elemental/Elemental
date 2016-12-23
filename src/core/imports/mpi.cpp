@@ -1419,8 +1419,10 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
-      ( (UCP)const_cast<Real*>(sbuf), sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
-        (UCP)rbuf,                    sizeof(Real)*rc, MPI_UNSIGNED_CHAR,
+      ( reinterpret_cast<UCP>(const_cast<Real*>(sbuf)),
+        sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
+        reinterpret_cast<UCP>(rbuf),
+        sizeof(Real)*rc, MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
     SafeMpi
@@ -1441,9 +1443,9 @@ EL_NO_RELEASE_EXCEPT
 #ifdef EL_USE_BYTE_ALLGATHERS
     SafeMpi
     ( MPI_Allgather
-      ( (UCP)const_cast<Complex<Real>*>(sbuf),
+      ( reinterpret_cast<UCP>(const_cast<Complex<Real>*>(sbuf)),
         2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
-        (UCP)rbuf,
+        reinterpret_cast<UCP>(rbuf),
         2*sizeof(Real)*rc, MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
@@ -1504,8 +1506,10 @@ EL_NO_RELEASE_EXCEPT
     }
     SafeMpi
     ( MPI_Allgatherv
-      ( (UCP)const_cast<Real*>(sbuf), sizeof(Real)*sc,   MPI_UNSIGNED_CHAR,
-        (UCP)rbuf, byteRcs.data(), byteRds.data(), MPI_UNSIGNED_CHAR,
+      ( reinterpret_cast<UCP>(const_cast<Real*>(sbuf)),
+        sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
+        reinterpret_cast<UCP>(rbuf),
+        byteRcs.data(), byteRds.data(), MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
     SafeMpi
@@ -1539,10 +1543,10 @@ EL_NO_RELEASE_EXCEPT
     }
     SafeMpi
     ( MPI_Allgatherv
-      ( (UCP)const_cast<Complex<Real>*>(sbuf),
+      ( reinterpret_cast<UCP>(const_cast<Complex<Real>*>(sbuf)),
         2*sizeof(Real)*sc, MPI_UNSIGNED_CHAR,
-        (UCP)rbuf, byteRcs.data(), byteRds.data(),
-        MPI_UNSIGNED_CHAR,
+        reinterpret_cast<UCP>(rbuf),
+        byteRcs.data(), byteRds.data(), MPI_UNSIGNED_CHAR,
         comm.comm ) );
 #else
  #ifdef EL_AVOID_COMPLEX_MPI

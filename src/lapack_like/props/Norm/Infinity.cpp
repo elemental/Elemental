@@ -158,7 +158,7 @@ Base<Ring> InfinityNorm( const DistSparseMatrix<Ring>& A )
             maxLocRowSum = rowSum;
     }
 
-    return mpi::AllReduce( maxLocRowSum, mpi::MAX, A.Comm() );
+    return mpi::AllReduce( maxLocRowSum, mpi::MAX, A.Grid().Comm() );
 }
 
 template<typename Ring>

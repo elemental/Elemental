@@ -47,7 +47,7 @@ void LongOnlyPortfolio
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
-    mpi::Comm comm = c.Comm();
+    const Grid& grid = Sigma.Grid();
 
     // Rather than making a copy of Sigma to form gamma*Sigma, scale c
     // ===============================================================
@@ -56,12 +56,12 @@ void LongOnlyPortfolio
 
     // Enforce 1^T x = 1
     // =================
-    DistSparseMatrix<Real> A(comm);
+    DistSparseMatrix<Real> A(grid);
     Ones( A, 1, n );
-    DistMultiVec<Real> b(comm);
+    DistMultiVec<Real> b(grid);
     Ones( b, 1, 1 );
 
-    DistMultiVec<Real> y(comm), z(comm);
+    DistMultiVec<Real> y(grid), z(grid);
     QP( Sigma, A, b, cScaled, x, y, z, ctrl );
 }
 
@@ -217,8 +217,8 @@ void LongOnlyPortfolio
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
-    mpi::Comm comm = c.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = c.Grid();
+    const int commRank = grid.Rank(); 
 
     // TODO(poulson): Expose this as a control parameter
     const bool useSOCP = true;
@@ -232,7 +232,7 @@ void LongOnlyPortfolio
 
         // Form cHat = [-c^T, gamma, gamma, 0, 0]
         // ======================================
-        DistMultiVec<Real> cHat(comm);
+        DistMultiVec<Real> cHat(grid);
         {
             Zeros( cHat, n+4, 1 );
             const Int localHeight = c.LocalHeight();
@@ -255,7 +255,7 @@ void LongOnlyPortfolio
 
         // Form A = [1^T, 0, 0, 0, 0]
         // ==========================
-        DistSparseMatrix<Real> A(comm);
+        DistSparseMatrix<Real> A(grid);
         {
             Zeros( A, 1, n+4 );
             const Int localHeight = A.LocalHeight();
@@ -270,7 +270,7 @@ void LongOnlyPortfolio
 
         // Form b = 1
         // ==========
-        DistMultiVec<Real> b(comm);
+        DistMultiVec<Real> b(grid);
         Ones( b, 1, 1 );
 
         // Form G
@@ -286,7 +286,7 @@ void LongOnlyPortfolio
         //     |    0      0 -1  0  0 |
         //     |    0      0  1  0  0 |
         //     |    0      0  0  0 -2 |
-        DistSparseMatrix<Real> G(comm);
+        DistSparseMatrix<Real> G(grid);
         {
             Zeros( G, 2*n+r+8, n+4 );
 
@@ -357,7 +357,7 @@ void LongOnlyPortfolio
 
         // Form h = [0; 0; 0; 0; 0; 1; 1; 0; 1; 1; 0]
         // ==========================================
-        DistMultiVec<Real> h(comm);
+        DistMultiVec<Real> h(grid);
         auto& hLoc = h.Matrix();
         {
             Zeros( h, 2*n+r+8, 1 );
@@ -373,7 +373,7 @@ void LongOnlyPortfolio
 
         // Form orders and firstInds
         // =========================
-        DistMultiVec<Int> orders(comm), firstInds(comm);
+        DistMultiVec<Int> orders(grid), firstInds(grid);
         auto& ordersLoc = orders.Matrix();
         auto& firstIndsLoc = firstInds.Matrix();
         {
@@ -413,7 +413,7 @@ void LongOnlyPortfolio
 
         // Solve the Second-Order Cone problem
         // ===================================
-        DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+        DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
         SOCP( A, G, b, cHat, h, orders, firstInds, xHat, y, z, s, ctrl );
 
         // Extract x from [x; t; s; u; v]
@@ -422,7 +422,7 @@ void LongOnlyPortfolio
     }
     else
     {
-        DistSparseMatrix<Real> Sigma(comm);
+        DistSparseMatrix<Real> Sigma(grid);
         Diagonal( Sigma, d );
         Syrk( LOWER, NORMAL, Real(1), F, Real(1), Sigma );
         MakeSymmetric( LOWER, Sigma );

@@ -336,8 +336,7 @@ void Initialize
 {
     EL_DEBUG_CSE
     const Int n = problem.A.Width();
-    mpi::Comm comm = problem.A.Comm();
-    DistSparseMatrix<Real> Q(comm);
+    DistSparseMatrix<Real> Q(problem.A.Grid());
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, problem.A, problem.b, problem.c, solution.x, solution.y, solution.z,

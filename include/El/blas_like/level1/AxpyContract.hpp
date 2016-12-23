@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_AXPYCONTRACT_HPP
@@ -177,13 +177,13 @@ void ColScatter
         const Int sendSize = colStride*recvSize;
         vector<T> buffer(sendSize, T(0));
 
-        // Pack 
+        // Pack
         copy::util::ColStridedPack
         ( height, localWidth,
           colAlign, colStride,
           A.LockedBuffer(), A.LDim(),
           buffer.data(),    recvSize );
-    
+
         // Communicate
         mpi::ReduceScatter( buffer.data(), recvSize, B.ColComm() );
 
@@ -285,7 +285,7 @@ void RowScatter
             const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
             const Int sendSize = rowStride*portionSize;
 
-            // Pack 
+            // Pack
             vector<T> buffer(sendSize, T(0));
             copy::util::RowStridedPack
             ( localHeight, width,
@@ -358,7 +358,7 @@ void RowScatter
             T* firstBuf = &buffer[0];
             T* secondBuf = &buffer[recvSize_RS];
 
-            // Pack 
+            // Pack
             copy::util::RowStridedPack
             ( localHeightA, width,
               rowAlign, rowStride,
@@ -413,7 +413,7 @@ void Scatter
 
     vector<T> buffer(sendSize, T(0));
 
-    // Pack 
+    // Pack
     copy::util::StridedPack
     ( height, width,
       colAlign, colStride,
@@ -444,7 +444,7 @@ void AxpyContract
     const Dist V = B.RowDist();
     if( A.ColDist() == U && A.RowDist() == V )
         Axpy( alpha, A, B );
-    else if( A.ColDist() == Partial(U) && A.RowDist() == V ) 
+    else if( A.ColDist() == Partial(U) && A.RowDist() == V )
         axpy_contract::PartialColScatter( alpha, A, B );
     else if( A.ColDist() == U && A.RowDist() == Partial(V) )
         axpy_contract::PartialRowScatter( alpha, A, B );

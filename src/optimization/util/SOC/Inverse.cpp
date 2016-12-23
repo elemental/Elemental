@@ -86,7 +86,7 @@ void Inverse
 {
     EL_DEBUG_CSE
 
-    DistMultiVec<Real> dInv(x.Comm());
+    DistMultiVec<Real> dInv(x.Grid());
     soc::Dets( x, dInv, orders, firstInds, cutoff );
     cone::Broadcast( dInv, orders, firstInds );
     auto entryInv = []( const Real& alpha ) { return Real(1)/alpha; };

@@ -315,9 +315,9 @@ void RNNLS
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm);
+    DistMultiVec<Int> orders(grid), firstInds(grid);
     Zeros( orders, m+2*n+3, 1 );
     Zeros( firstInds, m+2*n+3, 1 );
     {
@@ -349,7 +349,7 @@ void RNNLS
     //      |  0  0 -I |
     //      |  0  0  0 |
     //      |  0  0 -I |
-    DistSparseMatrix<Real> G(comm);
+    DistSparseMatrix<Real> G(grid);
     {
         Zeros( G, m+2*n+3, n+2 );
 
@@ -395,7 +395,7 @@ void RNNLS
     //      | 0 |
     //      | 1 |
     //      | 0 |
-    DistMultiVec<Real> h(comm);
+    DistMultiVec<Real> h(grid);
     Zeros( h, m+2*n+3, 1 );
     auto& bLoc = b.LockedMatrix();
     {
@@ -408,17 +408,17 @@ void RNNLS
     h.Set( m+n+2, 0, 1 );
 
     // c := [1; rho; 0]
-    DistMultiVec<Real> c(comm);
+    DistMultiVec<Real> c(grid);
     Zeros( c, n+2, 1 );
     c.Set( 0, 0, 1 );
     c.Set( 1, 0, rho );
 
-    DistSparseMatrix<Real> AHat(comm);
+    DistSparseMatrix<Real> AHat(grid);
     Zeros( AHat, 0, n+2 );
-    DistMultiVec<Real> bHat(comm);
+    DistMultiVec<Real> bHat(grid);
     Zeros( bHat, 0, 1 );
 
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     SOCP( AHat, G, bHat, c, h, orders, firstInds, xHat, y, z, s, ctrl );
     x = xHat( IR(2,END), ALL );
 }

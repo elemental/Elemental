@@ -1260,11 +1260,11 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     const Int degree = soc::Degree( firstInds );
-    mpi::Comm comm = APre.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
     Timer timer, iterTimer;
 
-    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
+    DistMultiVec<Real> dRowA(grid), dRowG(grid), dCol(grid);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
@@ -1329,9 +1329,9 @@ void Mehrotra
     // Form the offsets for the sparse embedding of the barrier's Hessian
     // ==================================================================
     DistMultiVec<Int>
-      origToSparseOrders(comm),    sparseToOrigOrders(comm),
-      origToSparseFirstInds(comm), sparseToOrigFirstInds(comm),
-      sparseOrders(comm), sparseFirstInds(comm);
+      origToSparseOrders(grid),    sparseToOrigOrders(grid),
+      origToSparseFirstInds(grid), sparseToOrigFirstInds(grid),
+      sparseOrders(grid), sparseFirstInds(grid);
     soc::EmbeddingMaps
     ( orders, firstInds,
       sparseOrders, sparseFirstInds,
@@ -1345,19 +1345,19 @@ void Mehrotra
     auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
 
     DistGraphMultMeta metaOrig;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
     ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       w(comm),     wRoot(comm), wRootInv(comm),
-                       l(comm),     lInv(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm),
-                       dzAffScaled(comm), dsAffScaled(comm);
+    DistMultiVec<Real> d(grid),
+                       w(grid),     wRoot(grid), wRootInv(grid),
+                       l(grid),     lInv(grid),
+                       rc(grid),    rb(grid),    rh(grid),    rmu(grid),
+                       dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
+                       dx(grid),    dy(grid),    dz(grid),    ds(grid),
+                       dzAffScaled(grid), dsAffScaled(grid);
 
     // Form the regularization vectors
     // ===============================
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     Zeros( regTmp, n+m+kSparse, 1 );
     // Set the analytical part
     // -----------------------
@@ -1393,7 +1393,7 @@ void Mehrotra
 
     // Form the static portion of the KKT system
     // =========================================
-    DistSparseMatrix<Real> JStatic(comm);
+    DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
@@ -1421,9 +1421,9 @@ void Mehrotra
     JStatic.MappedTargets( map, mappedTargets, colOffs );
 
     Real relError = 1;
-    DistMultiVec<Real> dInner(comm);
-    DistMultiVec<Real> dxError(comm), dyError(comm),
-                       dzError(comm), dmuError(comm);
+    DistMultiVec<Real> dInner(grid);
+    DistMultiVec<Real> dxError(grid), dyError(grid),
+                       dzError(grid), dmuError(grid);
     ldl::DistMultiVecNodeMeta dmvMeta;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )

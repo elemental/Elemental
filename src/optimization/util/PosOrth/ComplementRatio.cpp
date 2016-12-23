@@ -77,6 +77,7 @@ Real ComplementRatio
   const DistMultiVec<Real>& z )
 {
     EL_DEBUG_CSE
+    const Grid& grid = s.Grid();
     const Int localHeight = s.LocalHeight();
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
     const Real* zBuf = z.LockedMatrix().LockedBuffer();
@@ -84,12 +85,12 @@ Real ComplementRatio
     Real maxLocProd = 0;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         maxLocProd = Max( sBuf[iLoc]*zBuf[iLoc], maxLocProd );
-    const Real maxProd = mpi::AllReduce( maxLocProd, mpi::MAX, s.Comm() );
+    const Real maxProd = mpi::AllReduce( maxLocProd, mpi::MAX, grid.Comm() );
 
     Real minLocProd = maxProd;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         minLocProd = Min( sBuf[iLoc]*zBuf[iLoc], minLocProd );
-    const Real minProd = mpi::AllReduce( minLocProd, mpi::MIN, s.Comm() );
+    const Real minProd = mpi::AllReduce( minLocProd, mpi::MIN, grid.Comm() );
 
     return maxProd/minProd;
 }

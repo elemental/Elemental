@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_SCALE_HPP
@@ -22,7 +22,7 @@ void Scale( S alphaS, Matrix<T>& A )
     const Int height = A.Height();
     const Int width = A.Width();
 
-    // TODO: Use imatcopy if MKL or OpenBLAS is detected
+    // TODO(poulson): Use imatcopy if MKL or OpenBLAS is detected
 
     if( alpha == T(0) )
     {
@@ -75,12 +75,12 @@ void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
 
                 blas::Scal( m, alphaReal, &ARealBuf[j*ARealLDim], 1 );
                 blas::Axpy
-                ( m, -alphaImag, &AImagBuf[j*AImagLDim], 1, 
+                ( m, -alphaImag, &AImagBuf[j*AImagLDim], 1,
                                  &ARealBuf[j*ARealLDim], 1 );
 
                 blas::Scal( m, alphaReal, &AImagBuf[j*AImagLDim], 1 );
                 blas::Axpy
-                ( m,  alphaImag, aRealCopy.data(),       1, 
+                ( m,  alphaImag, aRealCopy.data(),       1,
                                  &AImagBuf[j*AImagLDim], 1 );
             }
         }
@@ -95,7 +95,7 @@ void Scale( S alpha, AbstractDistMatrix<T>& A )
 }
 
 template<typename Real,typename S,typename>
-void Scale( S alpha, AbstractDistMatrix<Real>& AReal, 
+void Scale( S alpha, AbstractDistMatrix<Real>& AReal,
                      AbstractDistMatrix<Real>& AImag )
 {
     EL_DEBUG_CSE
@@ -115,7 +115,7 @@ void Scale( S alpha, SparseMatrix<T>& A )
     }
     else if( alpha != S(1) )
     {
-        T alphaT = alpha; 
+        T alphaT = alpha;
         T* valueBuf = A.ValueBuffer();
         const Int numEntries = A.NumEntries();
         for( Int k=0; k<numEntries; ++k )

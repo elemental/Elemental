@@ -95,8 +95,8 @@ void EmbeddingMaps
 {
     EL_DEBUG_CSE
     const Int k = orders.Height();
-    mpi::Comm comm = orders.Comm();
-    const int commSize = mpi::Size( comm );
+    const Grid& grid = orders.Grid();
+    const int commSize = grid.Size();
 
     const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
@@ -119,7 +119,7 @@ void EmbeddingMaps
     }
     const int numSendRoots = sendRoots.size();
     vector<int> numRecvRoots(commSize);
-    mpi::AllGather( &numSendRoots, 1, numRecvRoots.data(), 1, comm );
+    mpi::AllGather( &numSendRoots, 1, numRecvRoots.data(), 1, grid.Comm() );
     vector<int> recvOffs;
     const int numRoots = Scan( numRecvRoots, recvOffs );
     // Receive the roots
@@ -127,14 +127,14 @@ void EmbeddingMaps
     vector<Int> recvRoots(numRoots);
     mpi::AllGather
     ( sendRoots.data(), numSendRoots,
-      recvRoots.data(), numRecvRoots.data(), recvOffs.data(), comm );
+      recvRoots.data(), numRecvRoots.data(), recvOffs.data(), grid.Comm() );
     SwapClear( sendRoots );
     // Receive the orders
     // ^^^^^^^^^^^^^^^^^^
     vector<Int> recvOrders(numRoots);
     mpi::AllGather
     ( sendOrders.data(), numSendRoots,
-      recvOrders.data(), numRecvRoots.data(), recvOffs.data(), comm );
+      recvOrders.data(), numRecvRoots.data(), recvOffs.data(), grid.Comm() );
     SwapClear( sendOrders );
 
     // TODO(poulson): Sort based upon the roots. The current distribution

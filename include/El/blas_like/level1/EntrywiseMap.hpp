@@ -141,7 +141,7 @@ void EntrywiseMap
         function<T(const S&)> func )
 {
     EL_DEBUG_CSE
-    B.SetComm( A.Comm() );
+    B.SetGrid( A.Grid() );
     B.Resize( A.Height(), A.Width() );
     EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
 }

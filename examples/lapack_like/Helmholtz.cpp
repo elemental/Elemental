@@ -44,7 +44,8 @@ main( int argc, char* argv[] )
         const bool display = El::Input("--display","display matrix?",false);
         El::ProcessInput();
 
-        El::DistSparseMatrix<Scalar> A(comm);
+        const El::Grid grid(comm);
+        El::DistSparseMatrix<Scalar> A(grid);
         Scalar dampedOmega( omega, damping );
         El::Helmholtz( A, n1, n2, n3, dampedOmega*dampedOmega );
         const El::Int N = A.Height();
@@ -56,11 +57,11 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             El::Output("Generating random vector x and forming y := A x");
         const double multiplyStart = El::mpi::Time();
-        El::DistMultiVec<Scalar> x( N, 1, comm ), y( N, 1, comm );
+        El::DistMultiVec<Scalar> x( N, 1, grid ), y( N, 1, grid );
         El::MakeUniform( x );
         El::Zero( y );
         El::Multiply( El::NORMAL, Scalar(1), A, x, Scalar(0), y );
-        const Real yOrigNorm = El::Nrm2( y );
+        const Real yOrigNorm = El::FrobeniusNorm( y );
         El::mpi::Barrier(comm);
         if( commRank == 0 )
             El::Output(El::mpi::Time()-multiplyStart," seconds");
@@ -206,10 +207,10 @@ main( int argc, char* argv[] )
 
         if( commRank == 0 )
             El::Output("Checking error in computed solution...");
-        const Real xNorm = El::Nrm2( x );
-        const Real yNorm = El::Nrm2( y );
+        const Real xNorm = El::FrobeniusNorm( x );
+        const Real yNorm = El::FrobeniusNorm( y );
         y -= x;
-        const Real errorNorm = El::Nrm2( y );
+        const Real errorNorm = El::FrobeniusNorm( y );
         if( commRank == 0 )
             El::Output
             ("|| x     ||_2 = ",xNorm,"\n",

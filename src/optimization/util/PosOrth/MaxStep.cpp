@@ -90,7 +90,7 @@ Real MaxStep
         if( dsi < Real(0) )
             alpha = Min(alpha,-si/dsi);
     }
-    return mpi::AllReduce( alpha, mpi::MIN, s.Comm() );
+    return mpi::AllReduce( alpha, mpi::MIN, s.Grid().Comm() );
 }
 
 #define PROTO(Real) \
