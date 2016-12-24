@@ -23,7 +23,7 @@ void AMDOrder
 {
     EL_DEBUG_CSE
     const Int numSources = subOffsets.size()-1;
-    // TODO: Simplify this after templating ElSuiteSparse's AMD
+    // TODO(poulson): Simplify this after templating ElSuiteSparse's AMD
 #ifdef EL_USE_64BIT_INTS
     const Int numEdges = subTargets.size();
     vector<int> subOffsets_int( numSources+1 ),
@@ -266,8 +266,9 @@ NestedDissectionRecursion
     const Grid& grid = graph.Grid();
     mpi::Comm comm = grid.Comm();
     const int commSize = grid.Size();
+
+    // TODO(poulson): Decide if this copy is necessary.
     mpi::Dup( comm, sep.comm );
-    mpi::Dup( comm, node.comm );
 
     if( commSize > 1 )
     {
@@ -279,14 +280,17 @@ NestedDissectionRecursion
         // Partition the graph and construct the inverse map
         DistGraph child;
         bool childIsOnLeft;
-        DistMap map;
-        const Int sepSize = Bisect( graph, child, map, childIsOnLeft, ctrl );
+        DistMap map(grid);
+        node.child = new DistNodeInfo(&node);
+        const Int sepSize =
+          Bisect( graph, node.child->grid, child, map, childIsOnLeft, ctrl );
+        node.child->onLeft = childIsOnLeft;
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
         const Int leftChildSize =
-            ( childIsOnLeft ? childSize : numSources-sepSize-childSize );
+          childIsOnLeft ? childSize : numSources-sepSize-childSize;
 
-        DistMap invMap;
+        DistMap invMap(grid);
         InvertMap( map, invMap );
 
         // Mostly fill this node of the DistSeparatorTree
@@ -355,10 +359,8 @@ NestedDissectionRecursion
         perm.Extend( newPerm );
 
         // Recurse
-        const Int childOff = ( childIsOnLeft ? off : off+leftChildSize );
+        const Int childOff = childIsOnLeft ? off : off+leftChildSize;
         sep.child = new DistSeparator(&sep);
-        node.child = new DistNodeInfo(&node);
-        node.child->onLeft = childIsOnLeft;
         NestedDissectionRecursion
         ( child, newPerm, *sep.child, *node.child, childOff, ctrl );
     }
@@ -422,6 +424,7 @@ void NestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
+    node.grid = &graph.Grid();
     NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
 
     // Construct the distributed reordering

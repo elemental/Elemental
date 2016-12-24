@@ -187,9 +187,9 @@ NaturalNestedDissectionRecursion
     const Grid& grid = graph.Grid();
     mpi::Comm comm = grid.Comm();
     const int commSize = grid.Size();
-    // TODO(poulson): Copy a pointer to the Grid instead?
+
+    // TODO(poulson): Avoid a way to copy this?
     mpi::Dup( comm, sep.comm );
-    mpi::Dup( comm, node.comm );
 
     if( commSize > 1 )
     {
@@ -203,10 +203,11 @@ NaturalNestedDissectionRecursion
         DistGraph child;
         bool childIsOnLeft;
         DistMap map;
+        node.child = new DistNodeInfo(&node);
         const Int sepSize =
             NaturalBisect
-            ( nx, ny, nz, graph, nxChild, nyChild, nzChild, child,
-              map, childIsOnLeft );
+            ( nx, ny, nz, graph, nxChild, nyChild, nzChild,
+              node.child->grid, child, map, childIsOnLeft );
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
         const Int leftChildSize =
@@ -280,7 +281,6 @@ NaturalNestedDissectionRecursion
         // Recurse
         const Int newOff = childIsOnLeft ? off : off+leftChildSize;
         sep.child = new DistSeparator(&sep);
-        node.child = new DistNodeInfo(&node);
         node.child->onLeft = childIsOnLeft;
         NaturalNestedDissectionRecursion
         ( nxChild, nyChild, nzChild, child, newPerm,

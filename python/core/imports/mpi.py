@@ -9,7 +9,7 @@
 from ..environment import *
 
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
-# TODO: Complain if not same size as c_int or c_void_p
+# TODO(poulson): Complain if not same size as c_int or c_void_p
 commSameSizeAsInteger = bType()
 lib.ElMPICommSameSizeAsInteger(pointer(commSameSizeAsInteger))
 if commSameSizeAsInteger:
@@ -18,7 +18,7 @@ else:
   Comm = c_void_p
 
 # Query Elemental to determine whether MPI_Group is an 'int' or a void pointer
-# TODO: Complain if not same size as c_int or c_void_p
+# TODO(poulson): Complain if not same size as c_int or c_void_p
 groupSameSizeAsInteger = bType()
 lib.ElMPIGroupSameSizeAsInteger(pointer(groupSameSizeAsInteger))
 if groupSameSizeAsInteger:

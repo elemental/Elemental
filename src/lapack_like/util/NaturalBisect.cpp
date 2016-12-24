@@ -158,6 +158,7 @@ Int NaturalBisect
         Int& nxChild,
         Int& nyChild,
         Int& nzChild,
+  const Grid*& childGrid,
         DistGraph& child,
         DistMap& perm,
         bool& onLeft )
@@ -316,7 +317,7 @@ Int NaturalBisect
     EL_DEBUG_ONLY(EnsurePermutation( perm ))
 
     BuildChildFromPerm
-    ( graph, perm, leftChildSize, rightChildSize, onLeft, child );
+    ( graph, perm, leftChildSize, rightChildSize, onLeft, childGrid, child );
 
     if( onLeft )
     {

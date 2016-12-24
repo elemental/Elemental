@@ -1244,7 +1244,7 @@ void Mehrotra
             Output("Imbalance factor of J: ",imbalanceJ);
     }
 
-    DistMap map, invMap;
+    DistMap map(grid), invMap(grid);
     ldl::DistNodeInfo info;
     ldl::DistSeparator rootSep;
     if( commRank == 0 && ctrl.time )
@@ -1566,8 +1566,6 @@ void Mehrotra
     }
     SetIndent( indent );
 
-    Print( x, "xBefore" );
-
     if( ctrl.outerEquil )
     {
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -1575,8 +1573,6 @@ void Mehrotra
         DiagonalSolve( LEFT, NORMAL, dRowG, z );
         DiagonalScale( LEFT, NORMAL, dRowG, s );
     }
-
-    Print( x, "xAfter" );
 }
 
 #define PROTO(Real) \

@@ -201,9 +201,7 @@ void TV
 
     // Extract x from [x;t]
     // ====================
-    Print( xHat, "xHat" );
     x = xHat( IR(0,n), ALL );
-    Print( x, "x" );
 }
 
 #define PROTO(Real) \

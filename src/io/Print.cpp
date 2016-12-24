@@ -64,6 +64,7 @@ template<typename T>
 void Print( const DistMultiVec<T>& X, string title, ostream& os )
 {
     EL_DEBUG_CSE
+    Output("Entered DistMultiVec Print with title=",title);
     if( X.Grid().Rank() == 0 )
     {
         Matrix<T> XLoc;

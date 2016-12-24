@@ -429,6 +429,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
         return;
 
     const Grid& grid = XDist.Grid();
+    Output("grid.Size()=",grid.Size());
     const int commSize = grid.Size();
     const int commRank = grid.Rank();
 

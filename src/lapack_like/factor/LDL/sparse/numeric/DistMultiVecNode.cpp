@@ -721,8 +721,8 @@ void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     const int teamRank = grid.Rank();
 
     const auto& childNode = *info.child;
-    const int childTeamSize = mpi::Size( childNode.comm );
-    const int childTeamRank = mpi::Rank( childNode.comm );
+    const int childTeamSize = childNode.grid->Size();
+    const int childTeamRank = childNode.grid->Rank();
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( childNode.onLeft==inFirstTeam );
     teamSizes[0] =

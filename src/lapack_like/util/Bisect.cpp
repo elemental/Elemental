@@ -97,6 +97,7 @@ Int Bisect
 
 Int Bisect
 ( const DistGraph& graph, 
+  const Grid*& childGrid,
         DistGraph& child, 
         DistMap& perm,
         bool& onLeft, 
@@ -318,7 +319,8 @@ Int Bisect
 #endif
     }
     EL_DEBUG_ONLY(EnsurePermutation( perm ))
-    BuildChildFromPerm( graph, perm, sizes[0], sizes[1], onLeft, child );
+    BuildChildFromPerm
+    ( graph, perm, sizes[0], sizes[1], onLeft, childGrid, child );
     return sizes[2];
 #else
     LogicError("METIS was not available");
@@ -442,6 +444,7 @@ void BuildChildFromPerm
         Int leftChildSize,
         Int rightChildSize,
         bool& onLeft,
+  const Grid*& childGrid,
         DistGraph& child )
 {
     EL_DEBUG_CSE
@@ -467,11 +470,11 @@ void BuildChildFromPerm
     const int rightTeamOff = ( smallOnLeft ? smallTeamSize : 0 );
     onLeft = ( inSmallTeam == smallOnLeft );
 
-    // TODO: Generalize to 2D distributions?
+    // TODO(poulson): Generalize to 2D distributions?
     Int leftTeamBlocksize = leftChildSize / leftTeamSize;
     if( leftTeamBlocksize*leftTeamSize < leftChildSize )
         ++leftTeamBlocksize;
-    // TODO: Generalize to 2D distributions?
+    // TODO(poulson): Generalize to 2D distributions?
     Int rightTeamBlocksize = rightChildSize / rightTeamSize;
     if( rightTeamBlocksize*rightTeamSize < rightChildSize )
         ++rightTeamBlocksize;
@@ -614,8 +617,9 @@ void BuildChildFromPerm
       onLeft ? commRank-leftTeamOff : commRank-rightTeamOff;
     mpi::Comm childComm;
     mpi::Split( grid.Comm(), onLeft, childTeamRank, childComm );
-    const Grid childGrid( childComm );
-    child.SetGrid( childGrid );
+    // TODO(poulson): Decide on the grid dimensions.
+    childGrid = new Grid(childComm);
+    child.SetGrid( *childGrid );
     mpi::Free( childComm );
     if( onLeft )
         child.Resize( leftChildSize, numTargets );

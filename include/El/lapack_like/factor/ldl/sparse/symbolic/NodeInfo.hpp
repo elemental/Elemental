@@ -76,15 +76,15 @@ struct DistNodeInfo
     Int size, off;
     vector<Int> origLowerStruct;
     bool onLeft;
-    mpi::Comm comm;
 
     DistNodeInfo* parent;
     DistNodeInfo* child;
     NodeInfo* duplicate;
 
+    const Grid* grid;
+
     // Known after analysis
     // --------------------
-    Grid* grid;
     Int myOff;
     vector<Int> lowerStruct;
     vector<Int> origLowerRelInds;
@@ -97,8 +97,7 @@ struct DistNodeInfo
     vector<vector<Int>> childRelInds;
 
     DistNodeInfo( DistNodeInfo* parentNode=nullptr )
-    : comm(mpi::COMM_WORLD),
-      parent(parentNode), child(nullptr), duplicate(nullptr),
+    : parent(parentNode), child(nullptr), duplicate(nullptr),
       grid(nullptr)
     { }
 
@@ -114,9 +113,8 @@ struct DistNodeInfo
         delete child;
         delete duplicate;
 
-        delete grid;
-        if( comm != mpi::COMM_WORLD )
-            mpi::Free( comm );
+        if( parent != nullptr )
+            delete grid;
     }
 };
 
