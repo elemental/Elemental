@@ -55,7 +55,6 @@ struct Separator
 
 struct DistSeparator
 {
-    mpi::Comm comm;
     Int off;
     vector<Int> inds;
 
@@ -64,8 +63,7 @@ struct DistSeparator
     Separator* duplicate;
 
     DistSeparator( DistSeparator* parentNode=nullptr )
-    : comm(mpi::COMM_WORLD),
-      parent(parentNode), child(nullptr), duplicate(nullptr)
+    : parent(parentNode), child(nullptr), duplicate(nullptr)
     { }
 
     ~DistSeparator()
@@ -79,9 +77,6 @@ struct DistSeparator
 
         delete child;
         delete duplicate;
-
-        if( comm != mpi::COMM_WORLD )
-            mpi::Free( comm );
     }
 };
 

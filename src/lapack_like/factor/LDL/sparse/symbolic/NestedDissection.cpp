@@ -80,7 +80,7 @@ NestedDissectionRecursion
 ( const Graph& graph,
   const vector<Int>& perm,
         Separator& sep,
-        NodeInfo& node,
+        NodeInfo& info,
         Int off,
   const BisectCtrl& ctrl )
 {
@@ -124,13 +124,13 @@ NestedDissectionRecursion
 
         // Compute the symbolic factorization of this leaf node using the
         // reordering just computed
-        node.LOffsets.resize( numSources+1 );
-        node.LParents.resize( numSources );
+        info.LOffsets.resize( numSources+1 );
+        info.LParents.resize( numSources );
         vector<Int> LNnz( numSources ), Flag( numSources ),
                     amdPermInv( numSources );
         suite_sparse::ldl::Symbolic
         ( numSources, subOffsets.data(), subTargets.data(),
-          node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+          info.LOffsets.data(), info.LParents.data(), LNnz.data(),
           Flag.data(), amdPerm.data(), amdPermInv.data() );
 
         // Fill in this node of the local separator tree
@@ -138,16 +138,16 @@ NestedDissectionRecursion
         sep.inds.resize( numSources );
         for( Int i=0; i<numSources; ++i )
             sep.inds[i] = perm[amdPerm[i]];
-        // TODO: Replace with better deletion mechanism
+        // TODO(poulson): Replace with better deletion mechanism
         SwapClear( sep.children );
 
         // Fill in this node of the local elimination tree
-        node.size = numSources;
-        node.off = off;
-        // TODO: Replace with better deletion mechanism
-        SwapClear( node.children );
+        info.size = numSources;
+        info.off = off;
+        // TODO(poulson): Replace with better deletion mechanism
+        SwapClear( info.children );
         set<Int> lowerStruct;
-        for( Int s=0; s<node.size; ++s )
+        for( Int s=0; s<info.size; ++s )
         {
             const Int edgeOff = offsetBuf[s];
             const Int numConn = offsetBuf[s+1] - edgeOff;
@@ -158,7 +158,7 @@ NestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.origLowerStruct );
+        CopySTL( lowerStruct, info.origLowerStruct );
     }
     else
     {
@@ -206,8 +206,8 @@ NestedDissectionRecursion
         }
 
         // Fill in this node in the local elimination tree
-        node.size = sepSize;
-        node.off = sep.off;
+        info.size = sepSize;
+        info.off = sep.off;
         set<Int> lowerStruct;
         for( Int s=0; s<sepSize; ++s )
         {
@@ -221,7 +221,7 @@ NestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.origLowerStruct );
+        CopySTL( lowerStruct, info.origLowerStruct );
 
         // Finish computing the separator indices
         for( Int s=0; s<sepSize; ++s )
@@ -239,16 +239,16 @@ NestedDissectionRecursion
             rightPerm[s] = perm[invMap[s+leftChildSize]];
 
         sep.children.resize( 2 );
-        node.children.resize( 2 );
+        info.children.resize( 2 );
         sep.children[0] = new Separator(&sep);
         sep.children[1] = new Separator(&sep);
-        node.children[0] = new NodeInfo(&node);
-        node.children[1] = new NodeInfo(&node);
+        info.children[0] = new NodeInfo(&info);
+        info.children[1] = new NodeInfo(&info);
         NestedDissectionRecursion
-        ( leftChild, leftPerm, *sep.children[0], *node.children[0],
+        ( leftChild, leftPerm, *sep.children[0], *info.children[0],
           off, ctrl );
         NestedDissectionRecursion
-        ( rightChild, rightPerm, *sep.children[1], *node.children[1],
+        ( rightChild, rightPerm, *sep.children[1], *info.children[1],
           off+leftChildSize, ctrl );
     }
 }
@@ -258,7 +258,7 @@ NestedDissectionRecursion
 ( const DistGraph& graph,
   const DistMap& perm,
         DistSeparator& sep,
-        DistNodeInfo& node,
+        DistNodeInfo& info,
         Int off,
   const BisectCtrl& ctrl )
 {
@@ -266,9 +266,6 @@ NestedDissectionRecursion
     const Grid& grid = graph.Grid();
     mpi::Comm comm = grid.Comm();
     const int commSize = grid.Size();
-
-    // TODO(poulson): Decide if this copy is necessary.
-    mpi::Dup( comm, sep.comm );
 
     if( commSize > 1 )
     {
@@ -281,10 +278,10 @@ NestedDissectionRecursion
         DistGraph child;
         bool childIsOnLeft;
         DistMap map(grid);
-        node.child = new DistNodeInfo(&node);
+        info.child = new DistNodeInfo(&info);
         const Int sepSize =
-          Bisect( graph, node.child->grid, child, map, childIsOnLeft, ctrl );
-        node.child->onLeft = childIsOnLeft;
+          Bisect( graph, info.child->grid, child, map, childIsOnLeft, ctrl );
+        info.child->onLeft = childIsOnLeft;
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
         const Int leftChildSize =
@@ -302,8 +299,8 @@ NestedDissectionRecursion
         invMap.Translate( sep.inds );
 
         // Fill in this node of the DistNode
-        node.size = sepSize;
-        node.off = sep.off;
+        info.size = sepSize;
+        info.off = sep.off;
 
         set<Int> localLowerStruct;
         for( Int s=0; s<sepSize; ++s )
@@ -339,7 +336,7 @@ NestedDissectionRecursion
           localConnectedSizes.data(), localConnectedOffs.data(), comm );
         set<Int> lowerStruct
         ( localConnections.begin(), localConnections.end() );
-        CopySTL( lowerStruct, node.origLowerStruct );
+        CopySTL( lowerStruct, info.origLowerStruct );
 
         // Finish computing the separator indices
         perm.Translate( sep.inds );
@@ -362,24 +359,24 @@ NestedDissectionRecursion
         const Int childOff = childIsOnLeft ? off : off+leftChildSize;
         sep.child = new DistSeparator(&sep);
         NestedDissectionRecursion
-        ( child, newPerm, *sep.child, *node.child, childOff, ctrl );
+        ( child, newPerm, *sep.child, *info.child, childOff, ctrl );
     }
     else
     {
         Graph seqGraph( graph );
 
         sep.duplicate = new Separator(&sep);
-        node.duplicate = new NodeInfo(&node);
+        info.duplicate = new NodeInfo(&info);
 
         NestedDissectionRecursion
-        ( seqGraph, perm.Map(), *sep.duplicate, *node.duplicate, off, ctrl );
+        ( seqGraph, perm.Map(), *sep.duplicate, *info.duplicate, off, ctrl );
 
         // Pull information up from the duplicates
         sep.off = sep.duplicate->off;
         sep.inds = sep.duplicate->inds;
-        node.size = node.duplicate->size;
-        node.off = node.duplicate->off;
-        node.origLowerStruct = node.duplicate->origLowerStruct;
+        info.size = info.duplicate->size;
+        info.off = info.duplicate->off;
+        info.origLowerStruct = info.duplicate->origLowerStruct;
     }
 }
 
@@ -387,7 +384,7 @@ void NestedDissection
 ( const Graph& graph,
         vector<Int>& map,
         Separator& sep,
-        NodeInfo& node,
+        NodeInfo& info,
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
@@ -398,21 +395,21 @@ void NestedDissection
     for( Int s=0; s<numSources; ++s )
         perm[s] = s;
 
-    NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
+    NestedDissectionRecursion( graph, perm, sep, info, 0, ctrl );
 
     // Construct the distributed reordering
     BuildMap( sep, map );
     EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    Analysis( node );
+    Analysis( info );
 }
 
 void NestedDissection
 ( const DistGraph& graph,
         DistMap& map,
         DistSeparator& sep,
-        DistNodeInfo& node,
+        DistNodeInfo& info,
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
@@ -424,15 +421,15 @@ void NestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
-    node.grid = &graph.Grid();
-    NestedDissectionRecursion( graph, perm, sep, node, 0, ctrl );
+    info.grid = &graph.Grid();
+    NestedDissectionRecursion( graph, perm, sep, info, 0, ctrl );
 
     // Construct the distributed reordering
-    BuildMap( graph.Grid(), sep, map );
+    BuildMap( info, sep, map );
     EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    Analysis( node, ctrl.storeFactRecvInds );
+    Analysis( info, ctrl.storeFactRecvInds );
 }
 
 void BuildMap( const Separator& rootSep, vector<Int>& map )
@@ -452,39 +449,46 @@ void BuildMap( const Separator& rootSep, vector<Int>& map )
     buildMap( rootSep );
 }
 
-void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map )
+void BuildMap
+( const DistNodeInfo& rootInfo, const DistSeparator& rootSep, DistMap& map )
 {
     EL_DEBUG_CSE
     const Int numSources = rootSep.off + rootSep.inds.size();
-    const int commSize = grid.Size();
+    const int commSize = rootInfo.grid->Size();
 
-    map.SetGrid( grid );
+    map.SetGrid( *rootInfo.grid );
     map.Resize( numSources );
 
     vector<int> sendSizes( commSize, 0 );
-    function<void(const Separator&)> sendSizeLocalAccumulate =
-      [&]( const Separator& sep )
+    function<void(const NodeInfo&,const Separator&)> sendSizeLocalAccumulate =
+      [&]( const NodeInfo& info, const Separator& sep )
       {
-        for( const Separator* childSep : sep.children )
-            sendSizeLocalAccumulate( *childSep );
+        const int numChildren = info.children.size();
+        for( Int index=0; index<numChildren; ++index )
+            sendSizeLocalAccumulate
+            ( *info.children[index], *sep.children[index] );
         for( Int i : sep.inds )
             ++sendSizes[ map.RowOwner(i) ];
       };
-    function<void(const DistSeparator&)> sendSizeAccumulate =
-      [&]( const DistSeparator& sep )
+    function<void(const DistNodeInfo&,const DistSeparator&)>
+      sendSizeAccumulate =
+      [&]( const DistNodeInfo& info, const DistSeparator& sep )
       {
           if( sep.child == nullptr )
           {
-              const Separator& dup = *sep.duplicate;
-              for( const Separator* childSep : dup.children )
-                  sendSizeLocalAccumulate( *childSep );
+              const NodeInfo& infoDup = *info.duplicate;
+              const Separator& sepDup = *sep.duplicate;
+              const int numChildren = sepDup.children.size();
+              for( Int index=0; index<numChildren; ++index )
+                  sendSizeLocalAccumulate
+                  ( *infoDup.children[index], *sepDup.children[index] );
           }
           else
-              sendSizeAccumulate( *sep.child );
+              sendSizeAccumulate( *info.child, *sep.child );
 
           const Int numInds = sep.inds.size();
-          const int teamSize = mpi::Size( sep.comm );
-          const int teamRank = mpi::Rank( sep.comm );
+          const int teamSize = info.grid->Size();
+          const int teamRank = info.grid->Rank();
           const Int numLocalInds = Length( numInds, teamRank, teamSize );
           for( Int tLocal=0; tLocal<numLocalInds; ++tLocal )
           {
@@ -492,23 +496,25 @@ void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map )
               ++sendSizes[ map.RowOwner(sep.inds[t]) ];
           }
       };
-    sendSizeAccumulate( rootSep );
+    sendSizeAccumulate( rootInfo, rootSep );
 
     // Use a single-entry AllToAll to coordinate how many indices will be
     // exchanges
     vector<int> recvSizes( commSize );
-    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, grid.Comm() );
+    mpi::AllToAll
+    ( sendSizes.data(), 1, recvSizes.data(), 1, rootInfo.grid->Comm() );
 
     // Pack the reordered indices
     vector<int> sendOffs;
     const int numSends = Scan( sendSizes, sendOffs );
     vector<Int> sendInds(numSends), sendOrigInds(numSends);
     auto offs = sendOffs;
-    function<void(const Separator&)> packRowsLocal =
-      [&]( const Separator& sep )
+    function<void(const NodeInfo&,const Separator&)> packRowsLocal =
+      [&]( const NodeInfo& info, const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )
-              packRowsLocal( *childSep );
+          const int numChildren = info.children.size();
+          for( int index=0; index<numChildren; ++index )
+              packRowsLocal( *info.children[index], *sep.children[index] );
 
           const Int numInds = sep.inds.size();
           for( Int t=0; t<numInds; ++t )
@@ -521,21 +527,24 @@ void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map )
               ++offs[q];
           }
       };
-    function<void(const DistSeparator&)> packRows =
-      [&]( const DistSeparator& sep )
+    function<void(const DistNodeInfo&,const DistSeparator&)> packRows =
+      [&]( const DistNodeInfo& info, const DistSeparator& sep )
       {
           if( sep.child == nullptr )
           {
-              const Separator& dup = *sep.duplicate;
-              for( const Separator* childSep : dup.children )
-                  packRowsLocal( *childSep );
+              const NodeInfo& infoDup = *info.duplicate;
+              const Separator& sepDup = *sep.duplicate;
+              const int numChildren = infoDup.children.size();
+              for( int index=0; index<numChildren; ++index )
+                  packRowsLocal
+                  ( *infoDup.children[index], *sepDup.children[index] );
           }
           else
-              packRows( *sep.child );
+              packRows( *info.child, *sep.child );
 
           const Int numInds = sep.inds.size();
-          const int teamSize = mpi::Size( sep.comm );
-          const int teamRank = mpi::Rank( sep.comm );
+          const int teamSize = info.grid->Size();
+          const int teamRank = info.grid->Rank();
           const Int numLocalInds = Length( numInds, teamRank, teamSize );
           for( Int tLocal=0; tLocal<numLocalInds; ++tLocal )
           {
@@ -548,7 +557,7 @@ void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map )
               ++offs[q];
           }
       };
-    packRows( rootSep );
+    packRows( rootInfo, rootSep );
 
     // Perform an AllToAll to exchange the reordered indices
     vector<int> recvOffs;
@@ -561,13 +570,15 @@ void BuildMap( const Grid& grid, const DistSeparator& rootSep, DistMap& map )
     vector<Int> recvInds( numRecvs );
     mpi::AllToAll
     ( sendInds.data(), sendSizes.data(), sendOffs.data(),
-      recvInds.data(), recvSizes.data(), recvOffs.data(), grid.Comm() );
+      recvInds.data(), recvSizes.data(), recvOffs.data(),
+      rootInfo.grid->Comm() );
 
     // Perform an AllToAll to exchange the original indices
     vector<Int> recvOrigInds( numRecvs );
     mpi::AllToAll
     ( sendOrigInds.data(), sendSizes.data(), sendOffs.data(),
-      recvOrigInds.data(), recvSizes.data(), recvOffs.data(), grid.Comm() );
+      recvOrigInds.data(), recvSizes.data(), recvOffs.data(),
+      rootInfo.grid->Comm() );
 
     // Unpack the indices
     const Int firstLocalSource = map.FirstLocalSource();

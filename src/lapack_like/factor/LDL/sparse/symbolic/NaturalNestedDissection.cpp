@@ -22,7 +22,7 @@ NaturalNestedDissectionRecursion
   const Graph& graph,
   const vector<Int>& perm,
         Separator& sep,
-        NodeInfo& node,
+        NodeInfo& info,
         Int off,
         Int cutoff )
 {
@@ -66,13 +66,13 @@ NaturalNestedDissectionRecursion
 
         // Compute the symbolic factorization of this leaf node using the
         // reordering just computed
-        node.LOffsets.resize( numSources+1 );
-        node.LParents.resize( numSources );
+        info.LOffsets.resize( numSources+1 );
+        info.LParents.resize( numSources );
         vector<Int> LNnz( numSources ), Flag( numSources ),
                     amdPermInv( numSources );
         suite_sparse::ldl::Symbolic
         ( numSources, subOffsets.data(), subTargets.data(),
-          node.LOffsets.data(), node.LParents.data(), LNnz.data(),
+          info.LOffsets.data(), info.LParents.data(), LNnz.data(),
           Flag.data(), amdPerm.data(), amdPermInv.data() );
 
         // Fill in this node of the local separator tree
@@ -82,10 +82,10 @@ NaturalNestedDissectionRecursion
             sep.inds[i] = perm[amdPerm[i]];
 
         // Fill in this node of the local elimination tree
-        node.size = numSources;
-        node.off = off;
+        info.size = numSources;
+        info.off = off;
         set<Int> lowerStruct;
-        for( Int s=0; s<node.size; ++s )
+        for( Int s=0; s<info.size; ++s )
         {
             const Int edgeOff = offsetBuf[s];
             const Int numConn = offsetBuf[s+1] - edgeOff;
@@ -96,7 +96,7 @@ NaturalNestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.origLowerStruct );
+        CopySTL( lowerStruct, info.origLowerStruct );
     }
     else
     {
@@ -124,8 +124,8 @@ NaturalNestedDissectionRecursion
         }
 
         // Fill in this node in the local elimination tree
-        node.size = sepSize;
-        node.off = sep.off;
+        info.size = sepSize;
+        info.off = sep.off;
         set<Int> lowerStruct;
         for( Int s=0; s<sepSize; ++s )
         {
@@ -139,7 +139,7 @@ NaturalNestedDissectionRecursion
                     lowerStruct.insert( off+target );
             }
         }
-        CopySTL( lowerStruct, node.origLowerStruct );
+        CopySTL( lowerStruct, info.origLowerStruct );
 
         // Finish computing the separator indices
         for( Int s=0; s<sepSize; ++s )
@@ -157,17 +157,17 @@ NaturalNestedDissectionRecursion
             rightPerm[s] = perm[invMap[s+leftChildSize]];
 
         sep.children.resize( 2 );
-        node.children.resize( 2 );
+        info.children.resize( 2 );
         sep.children[0] = new Separator(&sep);
         sep.children[1] = new Separator(&sep);
-        node.children[0] = new NodeInfo(&node);
-        node.children[1] = new NodeInfo(&node);
+        info.children[0] = new NodeInfo(&info);
+        info.children[1] = new NodeInfo(&info);
         NaturalNestedDissectionRecursion
         ( nxLeft, nyLeft, nzLeft, leftChild, leftPerm,
-          *sep.children[0], *node.children[0], off, cutoff );
+          *sep.children[0], *info.children[0], off, cutoff );
         NaturalNestedDissectionRecursion
         ( nxRight, nyRight, nzRight, rightChild, rightPerm,
-          *sep.children[1], *node.children[1], off+leftChildSize, cutoff );
+          *sep.children[1], *info.children[1], off+leftChildSize, cutoff );
     }
 }
 
@@ -179,7 +179,7 @@ NaturalNestedDissectionRecursion
   const DistGraph& graph,
   const DistMap& perm,
         DistSeparator& sep,
-        DistNodeInfo& node,
+        DistNodeInfo& info,
         Int off,
         Int cutoff )
 {
@@ -187,9 +187,6 @@ NaturalNestedDissectionRecursion
     const Grid& grid = graph.Grid();
     mpi::Comm comm = grid.Comm();
     const int commSize = grid.Size();
-
-    // TODO(poulson): Avoid a way to copy this?
-    mpi::Dup( comm, sep.comm );
 
     if( commSize > 1 )
     {
@@ -203,11 +200,11 @@ NaturalNestedDissectionRecursion
         DistGraph child;
         bool childIsOnLeft;
         DistMap map;
-        node.child = new DistNodeInfo(&node);
+        info.child = new DistNodeInfo(&info);
         const Int sepSize =
             NaturalBisect
             ( nx, ny, nz, graph, nxChild, nyChild, nzChild,
-              node.child->grid, child, map, childIsOnLeft );
+              info.child->grid, child, map, childIsOnLeft );
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
         const Int leftChildSize =
@@ -225,8 +222,8 @@ NaturalNestedDissectionRecursion
         invMap.Translate( sep.inds );
 
         // Fill in this node of the DistNode
-        node.size = sepSize;
-        node.off = sep.off;
+        info.size = sepSize;
+        info.off = sep.off;
 
         set<Int> localStructSet;
         for( Int s=0; s<sepSize; ++s )
@@ -259,7 +256,7 @@ NaturalNestedDissectionRecursion
           nonUniqueStruct.data(),
           localStructSizes.data(), localStructOffs.data(), comm );
         set<Int> structSet( nonUniqueStruct.begin(), nonUniqueStruct.end() );
-        CopySTL( structSet, node.origLowerStruct );
+        CopySTL( structSet, info.origLowerStruct );
 
         // Finish computing the separator indices
         perm.Translate( sep.inds );
@@ -281,28 +278,28 @@ NaturalNestedDissectionRecursion
         // Recurse
         const Int newOff = childIsOnLeft ? off : off+leftChildSize;
         sep.child = new DistSeparator(&sep);
-        node.child->onLeft = childIsOnLeft;
+        info.child->onLeft = childIsOnLeft;
         NaturalNestedDissectionRecursion
         ( nxChild, nyChild, nzChild, child, newPerm,
-          *sep.child, *node.child, newOff, cutoff );
+          *sep.child, *info.child, newOff, cutoff );
     }
     else
     {
         Graph seqGraph( graph );
 
         sep.duplicate = new Separator(&sep);
-        node.duplicate = new NodeInfo(&node);
+        info.duplicate = new NodeInfo(&info);
 
         NaturalNestedDissectionRecursion
         ( nx, ny, nz, seqGraph, perm.Map(),
-          *sep.duplicate, *node.duplicate, off, cutoff );
+          *sep.duplicate, *info.duplicate, off, cutoff );
 
         // Pull information up from the duplicates
         sep.off = sep.duplicate->off;
         sep.inds = sep.duplicate->inds;
-        node.size = node.duplicate->size;
-        node.off = node.duplicate->off;
-        node.origLowerStruct = node.duplicate->origLowerStruct;
+        info.size = info.duplicate->size;
+        info.off = info.duplicate->off;
+        info.origLowerStruct = info.duplicate->origLowerStruct;
     }
 }
 
@@ -313,7 +310,7 @@ void NaturalNestedDissection
   const Graph& graph,
         vector<Int>& map,
         Separator& sep,
-        NodeInfo& node,
+        NodeInfo& info,
         Int cutoff )
 {
     EL_DEBUG_CSE
@@ -325,14 +322,14 @@ void NaturalNestedDissection
         perm[s] = s;
 
     NaturalNestedDissectionRecursion
-    ( nx, ny, nz, graph, perm, sep, node, 0, cutoff );
+    ( nx, ny, nz, graph, perm, sep, info, 0, cutoff );
 
     // Construct the distributed reordering
     BuildMap( sep, map );
     EL_DEBUG_ONLY(EnsurePermutation( map ))
 
     // Run the symbolic analysis
-    Analysis( node );
+    Analysis( info );
 }
 
 void NaturalNestedDissection
@@ -342,7 +339,7 @@ void NaturalNestedDissection
   const DistGraph& graph,
         DistMap& map,
         DistSeparator& sep,
-        DistNodeInfo& node,
+        DistNodeInfo& info,
         Int cutoff,
         bool storeFactRecvInds )
 {
@@ -356,14 +353,14 @@ void NaturalNestedDissection
         perm.SetLocal( s, s+firstLocalSource );
 
     NaturalNestedDissectionRecursion
-    ( nx, ny, nz, graph, perm, sep, node, 0, cutoff );
+    ( nx, ny, nz, graph, perm, sep, info, 0, cutoff );
 
     // Construct the distributed reordering
-    BuildMap( graph.Grid(), sep, map );
+    BuildMap( info, sep, map );
     EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis
-    Analysis( node, storeFactRecvInds );
+    Analysis( info, storeFactRecvInds );
 }
 
 } // namespace ldl
