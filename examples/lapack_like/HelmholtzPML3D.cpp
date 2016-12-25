@@ -78,7 +78,7 @@ int main( int argc, char* argv[] )
             El::Output("Running nested dissection...");
         const double nestedStart = El::mpi::Time();
         const auto& graph = A.DistGraph();
-        El::ldl::DistNodeInfo info;
+        El::ldl::DistNodeInfo info(grid);
         El::ldl::DistSeparator sep;
         El::DistMap map, invMap;
         if( natural )

@@ -73,12 +73,12 @@ main( int argc, char* argv[] )
         if( print )
             Print( graph );
 
-        const Grid* childGrid = nullptr;
         if( mpi::Size(comm) > 1 )
         {
             DistGraph child;
             DistMap map;
             bool haveLeftChild;
+            std::unique_ptr<Grid> childGrid;
             const Int sepSize =
                 Bisect( graph, childGrid, child, map, haveLeftChild, ctrl );
 
@@ -118,7 +118,6 @@ main( int argc, char* argv[] )
             ("Partition sizes were: ",leftChildSize,",",rightChildSize,",",
              sepSize);
         }
-        delete childGrid;
     }
     catch( std::exception& e ) { ReportException(e); }
 

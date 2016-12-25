@@ -144,7 +144,7 @@ void SymmetricSolve
     EL_DEBUG_CSE
     if( tryLDL )
     {
-        ldl::DistNodeInfo info;
+        ldl::DistNodeInfo info(A.Grid());
         ldl::DistSeparator rootSep;
         DistMap map, invMap;
         ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );

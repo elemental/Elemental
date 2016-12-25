@@ -29,7 +29,7 @@ namespace ldl {
 
 template<typename Field>
 DistFront<Field>::DistFront( DistFront<Field>* parentNode )
-: parent(parentNode), child(nullptr), duplicate(nullptr)
+: parent(parentNode)
 {
     if( parentNode != nullptr )
     {
@@ -45,7 +45,6 @@ DistFront<Field>::DistFront
   const DistSeparator& sep,
   const DistNodeInfo& info,
   bool conjugate )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     Pull( A, reordering, sep, info, conjugate );
@@ -209,7 +208,7 @@ void UnpackEntries
         vector<int>& entryOffs )
 {
     EL_DEBUG_CSE
-    const Grid& grid = *node.grid;
+    const Grid& grid = node.Grid();
 
     if( sep.child == nullptr )
     {
@@ -336,7 +335,7 @@ void DistFront<Field>::Pull
           }
           rRowAccumulate( *sep.child, *node.child );
 
-          const Grid& grid = *node.grid;
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -371,7 +370,7 @@ void DistFront<Field>::Pull
           }
           rRowsPack( *sep.child, *node.child );
 
-          const Grid& grid = *node.grid;
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -566,7 +565,7 @@ void DistFront<Field>::PullUpdate
           }
           rRowAccumulate( *sep.child, *node.child );
 
-          const Grid& grid = *node.grid;
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -601,7 +600,7 @@ void DistFront<Field>::PullUpdate
           }
           rRowsPack( *sep.child, *node.child );
 
-          const Grid& grid = *node.grid;
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -857,7 +856,7 @@ void DistFront<Field>::Unpack
   const DistNodeInfo& rootInfo ) const
 {
     EL_DEBUG_CSE
-    A.SetGrid( *rootInfo.grid );
+    A.SetGrid( rootInfo.Grid() );
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
 
@@ -1255,11 +1254,14 @@ void DistFront<Field>::ComputeRecvInds( const DistNodeInfo& info ) const
     vector<int> gridHeights, gridWidths;
     info.GetChildGridDims( gridHeights, gridWidths );
 
-    const int teamSize = info.grid->Size();
-    const int teamRank = info.grid->Rank();
+    const Grid& grid = info.Grid();
+    const Grid& childGrid = info.child->Grid();
+
+    const int teamSize = grid.Size();
+    const int teamRank = grid.Rank();
     const bool onLeft = info.child->onLeft;
-    const int childTeamSize = info.child->grid->Size();
-    const int childTeamRank = info.child->grid->Rank();
+    const int childTeamSize = childGrid.Size();
+    const int childTeamRank = childGrid.Rank();
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( onLeft==inFirstTeam );
     vector<int> teamSizes(2), teamOffs(2);

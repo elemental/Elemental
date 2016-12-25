@@ -1511,7 +1511,7 @@ void EquilibratedMehrotra
     }
 
     DistMap map, invMap;
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(grid);
     ldl::DistSeparator rootSep;
     if( commRank == 0 && ctrl.time )
         timer.Start();

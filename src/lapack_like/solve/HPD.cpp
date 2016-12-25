@@ -102,7 +102,7 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(A.Grid());
     ldl::DistSeparator rootSep;
     DistMap map, invMap;
     ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );

@@ -545,7 +545,7 @@ void Initialize
 
     DistMap map(grid), invMap(grid);
     ldl::DistSeparator rootSep;
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(grid);
     NestedDissection( J.LockedDistGraph(), map, rootSep, info );
     InvertMap( map, invMap );
 

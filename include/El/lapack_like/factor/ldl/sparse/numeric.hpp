@@ -22,6 +22,8 @@
 #define EL_SUITESPARSE_NO_SCALAR_FUNCS
 #include <ElSuiteSparse/ldl.hpp>
 
+#include <El/lapack_like/factor/ldl/sparse/symbolic.hpp>
+
 namespace El {
 
 enum LDLFrontType
@@ -59,10 +61,10 @@ struct MatrixNode
     Matrix<T> matrix;
     Matrix<T> work;
 
-    MatrixNode<T>* parent;
+    MatrixNode<T>* parent=nullptr;
     vector<MatrixNode<T>*> children;
-    DistMatrixNode<T>* duplicateMat;
-    DistMultiVecNode<T>* duplicateMV;
+    DistMatrixNode<T>* duplicateMat=nullptr;
+    DistMultiVecNode<T>* duplicateMV=nullptr;
 
     MatrixNode( MatrixNode<T>* parentNode=nullptr );
     MatrixNode( DistMatrixNode<T>* dupNode );
@@ -128,9 +130,9 @@ struct DistMultiVecNode
     DistMatrix<T,VC,STAR> matrix;
     DistMatrix<T,VC,STAR> work;
 
-    DistMultiVecNode<T>* parent;
-    DistMultiVecNode<T>* child;
-    MatrixNode<T>* duplicate;
+    DistMultiVecNode<T>* parent=nullptr;
+    DistMultiVecNode<T>* child=nullptr;
+    MatrixNode<T>* duplicate=nullptr;
 
     mutable MultiVecCommMeta commMeta;
 
@@ -190,9 +192,9 @@ struct DistMatrixNode
     DistMatrix<T> matrix;
     DistMatrix<T> work;
 
-    DistMatrixNode<T>* parent;
-    DistMatrixNode<T>* child;
-    MatrixNode<T>* duplicate;
+    DistMatrixNode<T>* parent=nullptr;
+    DistMatrixNode<T>* child=nullptr;
+    MatrixNode<T>* duplicate=nullptr;
 
     mutable MatrixCommMeta commMeta;
 
@@ -229,7 +231,7 @@ template<typename Field>
 struct Front
 {
     bool isHermitian;
-    bool sparseLeaf;
+    bool sparseLeaf=false;
     LDLFrontType type;
 
     Matrix<Field> LDense;
@@ -242,9 +244,9 @@ struct Front
     Matrix<Field> workDense;
     SparseMatrix<Field> workSparse;
 
-    Front<Field>* parent;
+    Front<Field>* parent=nullptr;
     vector<Front<Field>*> children;
-    DistFront<Field>* duplicate;
+    DistFront<Field>* duplicate=nullptr;
 
     Front( Front<Field>* parentNode=nullptr );
     Front( DistFront<Field>* dupNode );
@@ -323,9 +325,9 @@ struct DistFront
     DistMatrix<Field> work;
     mutable FactorCommMeta commMeta;
 
-    DistFront<Field>* parent;
-    DistFront<Field>* child;
-    Front<Field>* duplicate;
+    DistFront<Field>* parent=nullptr;
+    DistFront<Field>* child=nullptr;
+    Front<Field>* duplicate=nullptr;
 
     DistFront( DistFront<Field>* parentNode=nullptr );
 
@@ -398,6 +400,21 @@ void ChangeFrontType
 template<typename Field>
 void ChangeFrontType
 ( DistFront<Field>& front, LDLFrontType type, bool recurse=true );
+
+// TODO(poulson): Revisit the following after introducing unique_ptr elsewhere
+template<typename Field>
+class SparseSymmFact
+{
+private:
+    std::unique_ptr<Front<Field>> front_;
+};
+
+template<typename Field>
+class DistSparseSymmFact
+{
+private:
+    std::unique_ptr<DistFront<Field>> front_;
+};
 
 template<typename Field>
 void DiagonalScale

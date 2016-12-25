@@ -134,7 +134,7 @@ static void PullInit
             XNode.duplicate = new MatrixNode<T>(&XNode);
         PullLocalInit( *node.duplicate, *XNode.duplicate, width );
 
-        XNode.matrix.Attach( *node.grid, XNode.duplicate->matrix );
+        XNode.matrix.Attach( node.Grid(), XNode.duplicate->matrix );
         return;
     }
 
@@ -146,12 +146,12 @@ static void PullInit
         XNode.child = new DistMultiVecNode<T>(&XNode);
     PullInit( *node.child, *XNode.child, width );
 
-    if( XNode.matrix.Grid() != *node.grid ||
+    if( XNode.matrix.Grid() != node.Grid() ||
         XNode.matrix.Height() != node.size ||
         XNode.matrix.Width() != width )
     {
         XNode.commMeta.Empty();
-        XNode.matrix.SetGrid( *node.grid );
+        XNode.matrix.SetGrid( node.Grid() );
         XNode.matrix.Resize( node.size, width );
     }
 }
@@ -475,7 +475,7 @@ void DistMultiVecNodeMeta::Initialize
     }
 
     const Int numSendInds = XNode.LocalHeight();
-    const Grid& grid = *info.grid;
+    const Grid& grid = info.Grid();
     const int commSize = grid.Size();
 
     std::vector<Int> mappedInds( numSendInds );
@@ -593,7 +593,7 @@ void DistMultiVecNode<T>::Push
     const Int width = matrix.Width();
     Timer timer;
     bool time = false;
-    const Grid& grid = *info.grid;
+    const Grid& grid = info.Grid();
     const int commSize = grid.Size();
     const int commRank = grid.Rank();
     X.SetGrid( grid );
@@ -716,13 +716,14 @@ void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     const Int numChildren = 2;
     vector<int> teamSizes(numChildren), teamOffs(numChildren);
 
-    const Grid& grid = *info.grid;
+    const Grid& grid = info.Grid();
     const int teamSize = grid.Size();
     const int teamRank = grid.Rank();
 
     const auto& childNode = *info.child;
-    const int childTeamSize = childNode.grid->Size();
-    const int childTeamRank = childNode.grid->Rank();
+    const Grid& childGrid = childNode.Grid();
+    const int childTeamSize = childGrid.Size();
+    const int childTeamRank = childGrid.Rank();
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( childNode.onLeft==inFirstTeam );
     teamSizes[0] =

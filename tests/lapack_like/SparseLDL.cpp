@@ -89,7 +89,7 @@ void TestSparseDirect
     OutputFromRoot(grid.Comm(),"Running nested dissection...");
     timer.Start();
     const auto& graph = A.DistGraph();
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(grid);
     ldl::DistSeparator sep;
     DistMap map, invMap;
     if( natural )

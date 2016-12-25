@@ -1287,7 +1287,7 @@ void Mehrotra
     }
 
     DistMap map, invMap;
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(grid);
     ldl::DistSeparator rootSep;
     vector<Int> mappedSources, mappedTargets, colOffs;
     // The initialization involves an augmented KKT system, and so we can
@@ -1306,7 +1306,7 @@ void Mehrotra
     else
     {
         DistMap augMap, augInvMap;
-        ldl::DistNodeInfo augInfo;
+        ldl::DistNodeInfo augInfo(grid);
         ldl::DistSeparator augRootSep;
         vector<Int> augMappedSources, augMappedTargets, augColOffs;
         Initialize

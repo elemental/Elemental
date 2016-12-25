@@ -97,7 +97,7 @@ Int Bisect
 
 Int Bisect
 ( const DistGraph& graph, 
-  const Grid*& childGrid,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child, 
         DistMap& perm,
         bool& onLeft, 
@@ -444,7 +444,7 @@ void BuildChildFromPerm
         Int leftChildSize,
         Int rightChildSize,
         bool& onLeft,
-  const Grid*& childGrid,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child )
 {
     EL_DEBUG_CSE
@@ -618,7 +618,7 @@ void BuildChildFromPerm
     mpi::Comm childComm;
     mpi::Split( grid.Comm(), onLeft, childTeamRank, childComm );
     // TODO(poulson): Decide on the grid dimensions.
-    childGrid = new Grid(childComm);
+    childGrid.reset( new Grid(childComm) );
     child.SetGrid( *childGrid );
     mpi::Free( childComm );
     if( onLeft )

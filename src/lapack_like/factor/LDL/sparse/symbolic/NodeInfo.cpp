@@ -45,36 +45,48 @@ NodeInfo::NodeInfo( DistNodeInfo* duplicateNode )
     origLowerRelInds = duplicate->origLowerRelInds;
 }
 
-NodeInfo::~NodeInfo()
-{
-    EL_DEBUG_CSE
-    if( uncaught_exception() )
-    {
-        cerr << "Uncaught exception" << endl;
-        EL_DEBUG_ONLY(DumpCallStack())
-        return;
-    }
-    for( const NodeInfo* child : children )
-        delete child;
-}
+NodeInfo::~NodeInfo() { }
+
+DistNodeInfo::DistNodeInfo( const El::Grid& grid )
+: rootGrid_(&grid)
+{ }
 
 DistNodeInfo::DistNodeInfo( DistNodeInfo* parentNode )
 : parent(parentNode)
 { }
 
-DistNodeInfo::~DistNodeInfo()
+DistNodeInfo::~DistNodeInfo() { }
+
+void DistNodeInfo::SetRootGrid( const El::Grid& grid )
 {
     EL_DEBUG_CSE
-    if( uncaught_exception() )
+    EL_DEBUG_ONLY(
+      if( parent != nullptr )
+          LogicError("This is not a root node");
+    )
+    rootGrid_ = &grid;
+}
+
+void DistNodeInfo::AssignGrid( unique_ptr<El::Grid>& grid )
+{
+    EL_DEBUG_CSE
+    grid_ = std::move(grid);
+}
+
+const El::Grid& DistNodeInfo::Grid() const
+{
+    EL_DEBUG_CSE
+    if( parent == nullptr )
     {
-        cerr << "Uncaught exception" << endl;
-        EL_DEBUG_ONLY(DumpCallStack())
-        return;
+        return *rootGrid_;
     }
-    delete child;
-    delete duplicate;
-    if( parent != nullptr )
-        delete grid;
+    else
+    {
+        const El::Grid* gridPtr = grid_.get();
+        if( gridPtr == nullptr )
+            LogicError("Tried to return pointer to non-existent Grid");
+        return *gridPtr;
+    }
 }
 
 void DistNodeInfo::GetChildGridDims
@@ -86,21 +98,21 @@ void DistNodeInfo::GetChildGridDims
     vector<int> gridDims(4,0);
     if( child->onLeft )
     {
-        if( child->grid->Rank() == 0 )
+        if( child->Grid().Rank() == 0 )
         {
-            gridDims[0] = child->grid->Height();
-            gridDims[1] = child->grid->Width();
+            gridDims[0] = child->Grid().Height();
+            gridDims[1] = child->Grid().Width();
         }
     }
     else
     {
-        if( child->grid->Rank() == 0 )
+        if( child->Grid().Rank() == 0 )
         {
-            gridDims[2] = child->grid->Height();
-            gridDims[3] = child->grid->Width();
+            gridDims[2] = child->Grid().Height();
+            gridDims[3] = child->Grid().Width();
         }
     }
-    mpi::AllReduce( gridDims.data(), 4, grid->Comm() );
+    mpi::AllReduce( gridDims.data(), 4, Grid().Comm() );
 
     gridHeights.resize( 2 );
     gridWidths.resize( 2 );

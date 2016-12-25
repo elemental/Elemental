@@ -240,19 +240,21 @@ NestedDissectionRecursion
         for( Int s=0; s<rightChildSize; ++s )
             rightPerm[s] = perm[invMap[s+leftChildSize]];
 
-        sep.children.resize( 2 );
-        info.children.resize( 2 );
+        sep.children.reserve( 2 );
+        info.children.reserve( 2 );
 
-        sep.children[0] = new Separator(&sep);
-        info.children[0] = new NodeInfo(&info);
+        sep.children.emplace_back( new Separator(&sep) );
+        info.children.emplace_back( new NodeInfo(&info) );
         NestedDissectionRecursion
-        ( leftChild, leftPerm, *sep.children[0], *info.children[0],
+        ( leftChild, leftPerm,
+          *sep.children.back(), *info.children.back(),
           off, ctrl );
 
-        sep.children[1] = new Separator(&sep);
-        info.children[1] = new NodeInfo(&info);
+        sep.children.emplace_back( new Separator(&sep) );
+        info.children.emplace_back( new NodeInfo(&info) );
         NestedDissectionRecursion
-        ( rightChild, rightPerm, *sep.children[1], *info.children[1],
+        ( rightChild, rightPerm,
+          *sep.children.back(), *info.children.back(),
           off+leftChildSize, ctrl );
     }
 }
@@ -282,9 +284,11 @@ NestedDissectionRecursion
         DistGraph child;
         bool childIsOnLeft;
         DistMap map(grid);
-        info.child = new DistNodeInfo(&info);
+        info.child.reset( new DistNodeInfo(&info) );
+        unique_ptr<Grid> childGrid;
         const Int sepSize =
-          Bisect( graph, info.child->grid, child, map, childIsOnLeft, ctrl );
+          Bisect( graph, childGrid, child, map, childIsOnLeft, ctrl );
+        info.child->AssignGrid( childGrid );
         info.child->onLeft = childIsOnLeft;
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
@@ -361,6 +365,7 @@ NestedDissectionRecursion
 
         // Recurse
         const Int childOff = childIsOnLeft ? off : off+leftChildSize;
+        // TODO(poulson): Replace with unique_ptr.reset
         sep.child = new DistSeparator(&sep);
         NestedDissectionRecursion
         ( child, newPerm, *sep.child, *info.child, childOff, ctrl );
@@ -370,8 +375,7 @@ NestedDissectionRecursion
         Graph seqGraph( graph );
 
         sep.duplicate = new Separator(&sep);
-        info.duplicate = new NodeInfo(&info);
-
+        info.duplicate.reset( new NodeInfo(&info) );
         NestedDissectionRecursion
         ( seqGraph, perm.Map(), *sep.duplicate, *info.duplicate, off, ctrl );
 
@@ -423,7 +427,7 @@ void NestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
-    info.grid = &graph.Grid();
+    info.SetRootGrid( graph.Grid() );
     NestedDissectionRecursion( graph, perm, sep, info, 0, ctrl );
 
     // Construct the distributed reordering

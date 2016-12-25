@@ -1245,7 +1245,7 @@ void Mehrotra
     }
 
     DistMap map(grid), invMap(grid);
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(grid);
     ldl::DistSeparator rootSep;
     if( commRank == 0 && ctrl.time )
         timer.Start();

@@ -1409,7 +1409,7 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         timer.Start();
     DistMap map, invMap;
-    ldl::DistNodeInfo info;
+    ldl::DistNodeInfo info(grid);
     ldl::DistSeparator rootSep;
     NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
     if( commRank == 0 && ctrl.time )

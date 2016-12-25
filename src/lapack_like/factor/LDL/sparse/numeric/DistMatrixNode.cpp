@@ -144,7 +144,9 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 
     // Fill numChildSendInds
     // =====================
-    const int teamSize = info.grid->Size();
+    const Grid& grid = info.Grid();
+    const int teamSize = grid.Size();
+    const int teamRank = grid.Rank();
     commMeta.numChildSendInds.resize( teamSize );
     MemZero( commMeta.numChildSendInds.data(), teamSize );
     const Int myChild = info.child->onLeft ? 0 : 1;
@@ -166,11 +168,10 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     // ==============================
     vector<int> gridHeights, gridWidths;
     info.GetChildGridDims( gridHeights, gridWidths );
-
-    const int teamRank = info.grid->Rank();
     const bool onLeft = info.child->onLeft;
-    const int childTeamSize = info.child->grid->Size();
-    const int childTeamRank = info.child->grid->Rank();
+    const Grid& childGrid = info.child->Grid();
+    const int childTeamSize = childGrid.Size();
+    const int childTeamRank = childGrid.Rank();
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( onLeft==inFirstTeam );
     vector<int> teamSizes(2), teamOffs(2);

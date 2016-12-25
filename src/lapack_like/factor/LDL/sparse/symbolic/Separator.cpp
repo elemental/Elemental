@@ -85,9 +85,10 @@ void DistSeparator::BuildMap
 {
     EL_DEBUG_CSE
     const Int numSources = off + inds.size();
-    const int commSize = rootInfo.grid->Size();
+    const Grid& rootGrid = rootInfo.Grid();
+    const int commSize = rootGrid.Size();
 
-    map.SetGrid( *rootInfo.grid );
+    map.SetGrid( rootGrid );
     map.Resize( numSources );
 
     vector<int> sendSizes( commSize, 0 );
@@ -118,8 +119,9 @@ void DistSeparator::BuildMap
               sendSizeAccumulate( *info.child, *sep.child );
 
           const Int numInds = sep.inds.size();
-          const int teamSize = info.grid->Size();
-          const int teamRank = info.grid->Rank();
+          const Grid& grid = info.Grid();
+          const int teamSize = grid.Size();
+          const int teamRank = grid.Rank();
           const Int numLocalInds = Length( numInds, teamRank, teamSize );
           for( Int tLocal=0; tLocal<numLocalInds; ++tLocal )
           {
@@ -132,8 +134,7 @@ void DistSeparator::BuildMap
     // Use a single-entry AllToAll to coordinate how many indices will be
     // exchanges
     vector<int> recvSizes( commSize );
-    mpi::AllToAll
-    ( sendSizes.data(), 1, recvSizes.data(), 1, rootInfo.grid->Comm() );
+    mpi::AllToAll( sendSizes.data(), 1, recvSizes.data(), 1, rootGrid.Comm() );
 
     // Pack the reordered indices
     vector<int> sendOffs;
@@ -174,8 +175,9 @@ void DistSeparator::BuildMap
               packRows( *info.child, *sep.child );
 
           const Int numInds = sep.inds.size();
-          const int teamSize = info.grid->Size();
-          const int teamRank = info.grid->Rank();
+          const Grid& grid = info.Grid();
+          const int teamSize = grid.Size();
+          const int teamRank = grid.Rank();
           const Int numLocalInds = Length( numInds, teamRank, teamSize );
           for( Int tLocal=0; tLocal<numLocalInds; ++tLocal )
           {
@@ -201,15 +203,13 @@ void DistSeparator::BuildMap
     vector<Int> recvInds( numRecvs );
     mpi::AllToAll
     ( sendInds.data(), sendSizes.data(), sendOffs.data(),
-      recvInds.data(), recvSizes.data(), recvOffs.data(),
-      rootInfo.grid->Comm() );
+      recvInds.data(), recvSizes.data(), recvOffs.data(), rootGrid.Comm() );
 
     // Perform an AllToAll to exchange the original indices
     vector<Int> recvOrigInds( numRecvs );
     mpi::AllToAll
     ( sendOrigInds.data(), sendSizes.data(), sendOffs.data(),
-      recvOrigInds.data(), recvSizes.data(), recvOffs.data(),
-      rootInfo.grid->Comm() );
+      recvOrigInds.data(), recvSizes.data(), recvOffs.data(), rootGrid.Comm() );
 
     // Unpack the indices
     const Int firstLocalSource = map.FirstLocalSource();

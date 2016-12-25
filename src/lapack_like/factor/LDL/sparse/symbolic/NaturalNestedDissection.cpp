@@ -156,18 +156,21 @@ NaturalNestedDissectionRecursion
         for( Int s=0; s<rightChildSize; ++s )
             rightPerm[s] = perm[invMap[s+leftChildSize]];
 
-        sep.children.resize( 2 );
-        info.children.resize( 2 );
-        sep.children[0] = new Separator(&sep);
-        sep.children[1] = new Separator(&sep);
-        info.children[0] = new NodeInfo(&info);
-        info.children[1] = new NodeInfo(&info);
+        sep.children.reserve( 2 );
+        info.children.reserve( 2 );
+
+        sep.children.emplace_back( new Separator(&sep) );
+        info.children.emplace_back( new NodeInfo(&info) );
         NaturalNestedDissectionRecursion
         ( nxLeft, nyLeft, nzLeft, leftChild, leftPerm,
-          *sep.children[0], *info.children[0], off, cutoff );
+          *sep.children.back(), *info.children.back(), off, cutoff );
+
+        sep.children.emplace_back( new Separator(&sep) );
+        info.children.emplace_back( new NodeInfo(&info) );
         NaturalNestedDissectionRecursion
         ( nxRight, nyRight, nzRight, rightChild, rightPerm,
-          *sep.children[1], *info.children[1], off+leftChildSize, cutoff );
+          *sep.children.back(), *info.children.back(),
+          off+leftChildSize, cutoff );
     }
 }
 
@@ -200,11 +203,13 @@ NaturalNestedDissectionRecursion
         DistGraph child;
         bool childIsOnLeft;
         DistMap map;
-        info.child = new DistNodeInfo(&info);
+        info.child.reset( new DistNodeInfo(&info) );
+        unique_ptr<Grid> childGrid;
         const Int sepSize =
             NaturalBisect
             ( nx, ny, nz, graph, nxChild, nyChild, nzChild,
-              info.child->grid, child, map, childIsOnLeft );
+              childGrid, child, map, childIsOnLeft );
+        info.child->AssignGrid( childGrid );
         const Int numSources = graph.NumSources();
         const Int childSize = child.NumSources();
         const Int leftChildSize =
@@ -288,8 +293,7 @@ NaturalNestedDissectionRecursion
         Graph seqGraph( graph );
 
         sep.duplicate = new Separator(&sep);
-        info.duplicate = new NodeInfo(&info);
-
+        info.duplicate.reset( new NodeInfo(&info) );
         NaturalNestedDissectionRecursion
         ( nx, ny, nz, seqGraph, perm.Map(),
           *sep.duplicate, *info.duplicate, off, cutoff );
@@ -350,7 +354,7 @@ void NaturalNestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
-    info.grid = &graph.Grid();
+    info.SetRootGrid( graph.Grid() );
     NaturalNestedDissectionRecursion
     ( nx, ny, nz, graph, perm, sep, info, 0, cutoff );
 

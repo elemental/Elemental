@@ -37,7 +37,7 @@ Int Bisect
 // NOTE: for two or more processes
 Int Bisect
 ( const DistGraph& graph,
-  const Grid*& childGrid,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child,
         DistMap& perm,
         bool& onLeft,
@@ -67,7 +67,7 @@ Int NaturalBisect
   Int& nxChild,
   Int& nyChild,
   Int& nzChild,
-  const Grid*& childGrid,
+  unique_ptr<Grid>& childGrid,
   DistGraph& child,
   DistMap& perm,
   bool& onLeft );
@@ -82,7 +82,7 @@ void BuildChildrenFromPerm
 void BuildChildFromPerm
 ( const DistGraph& graph, const DistMap& perm,
   Int leftChildSize, Int rightChildSize,
-  bool& onLeft, const Grid*& childGrid, DistGraph& child );
+  bool& onLeft, unique_ptr<Grid>& childGrid, DistGraph& child );
 
 // Median
 // ======

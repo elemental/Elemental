@@ -158,7 +158,7 @@ Int NaturalBisect
         Int& nxChild,
         Int& nyChild,
         Int& nzChild,
-  const Grid*& childGrid,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child,
         DistMap& perm,
         bool& onLeft )

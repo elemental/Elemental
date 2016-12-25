@@ -77,7 +77,7 @@ int main( int argc, char* argv[] )
             Print( graph );
 
         OutputFromRoot(comm,"Running nested dissection");
-        ldl::DistNodeInfo info;
+        ldl::DistNodeInfo info(grid);
         ldl::DistSeparator sep;
         DistMap map;
         ldl::NestedDissection( graph, map, sep, info, ctrl );

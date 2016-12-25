@@ -31,8 +31,15 @@ struct NodeInfo
     Int size, off;
     vector<Int> origLowerStruct;
 
+    // This observing pointer is to the parent node (should one exist).
     NodeInfo* parent=nullptr;
-    vector<NodeInfo*> children;
+
+    // Unique pointers to any children of this node.
+    vector<unique_ptr<NodeInfo>> children;
+
+    // This observing pointer is to the equivalent distributed node and is only
+    // used for the highest node in the sequential subtree. The duplicate will
+    // always be 'distributed' over a single process.
     DistNodeInfo* duplicate=nullptr;
 
     // Known after analysis
@@ -62,11 +69,16 @@ struct DistNodeInfo
     vector<Int> origLowerStruct;
     bool onLeft;
 
+    // This observing pointer is to the parent node (should one exist).
     DistNodeInfo* parent=nullptr;
-    DistNodeInfo* child=nullptr;
-    NodeInfo* duplicate=nullptr;
 
-    const Grid* grid=nullptr;
+    // A unique pointer to the distributed child (should one exist).
+    unique_ptr<DistNodeInfo> child;
+
+    // A unique pointer to the sequential equivalent node (should one exist).
+    // Such a pointer should exist when this node is distributed over a single
+    // process.
+    unique_ptr<NodeInfo> duplicate;
 
     // Known after analysis
     // --------------------
@@ -81,11 +93,30 @@ struct DistNodeInfo
     // submatrices of the child updates.
     vector<vector<Int>> childRelInds;
 
-    DistNodeInfo( DistNodeInfo* parentNode=nullptr );
+    // For constructing the root of the tree.
+    explicit DistNodeInfo( const El::Grid& grid );
+
+    // For constructing descendents in the tree.
+    DistNodeInfo( DistNodeInfo* parentNode );
+
     ~DistNodeInfo();
+
+    void SetRootGrid( const El::Grid& grid );
+    void AssignGrid( unique_ptr<El::Grid>& grid );
+    const El::Grid& Grid() const;
 
     void GetChildGridDims
     ( vector<int>& gridHeights, vector<int>& gridWidths ) const;
+
+private:
+    // If we are the root node, there is no need to construct a grid, so we
+    // make use of an observing pointer.
+    const El::Grid* rootGrid_=nullptr;
+
+    // If we are not the root node, the following will point to a constructed
+    // grid.
+    // TODO(poulson): Accept a function for determining the grid dimensions.
+    unique_ptr<El::Grid> grid_;
 };
 
 } // namespace ldl
