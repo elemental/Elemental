@@ -388,7 +388,6 @@ void NestedDissection
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
     vector<Int> perm(numSources);
@@ -413,7 +412,6 @@ void NestedDissection
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    // NOTE: There is a potential memory leak here if sep or info is reused
 
     DistMap perm( graph.NumSources(), graph.Grid() );
     const Int firstLocalSource = perm.FirstLocalSource();

@@ -314,7 +314,6 @@ void NaturalNestedDissection
         Int cutoff )
 {
     EL_DEBUG_CSE
-    // NOTE: There is a potential memory leak here if sep or info is reused
 
     const Int numSources = graph.NumSources();
     vector<Int> perm( numSources );
@@ -344,7 +343,6 @@ void NaturalNestedDissection
         bool storeFactRecvInds )
 {
     EL_DEBUG_CSE
-    // NOTE: There is a potential memory leak here if sep or info is reused
 
     DistMap perm( graph.NumSources(), graph.Grid() );
     const Int firstLocalSource = perm.FirstLocalSource();
@@ -352,6 +350,7 @@ void NaturalNestedDissection
     for( Int s=0; s<numLocalSources; ++s )
         perm.SetLocal( s, s+firstLocalSource );
 
+    info.grid = &graph.Grid();
     NaturalNestedDissectionRecursion
     ( nx, ny, nz, graph, perm, sep, info, 0, cutoff );
 

@@ -16,8 +16,8 @@
    which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_UTIL_SEPARATOR_HPP
-#define EL_UTIL_SEPARATOR_HPP
+#ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_SEPARATOR_HPP
+#define EL_FACTOR_LDL_SPARSE_SYMBOLIC_SEPARATOR_HPP
 
 namespace El {
 namespace ldl {
@@ -29,28 +29,13 @@ struct Separator
     Int off;
     vector<Int> inds;
 
-    Separator* parent;
+    Separator* parent=nullptr;
     vector<Separator*> children;
-    DistSeparator* duplicate;
+    DistSeparator* duplicate=nullptr;
 
-    Separator( Separator* parentNode=nullptr )
-    : parent(parentNode), duplicate(nullptr)
-    { }
-
+    Separator( Separator* parentNode=nullptr );
     Separator( DistSeparator* dupNode );
-
-    ~Separator()
-    {
-        if( uncaught_exception() )
-        {
-            cerr << "Uncaught exception" << endl;
-            EL_DEBUG_ONLY(DumpCallStack())
-            return;
-        }
-
-        for( const Separator* child : children )
-            delete child;
-    }
+    ~Separator();
 };
 
 struct DistSeparator
@@ -58,36 +43,15 @@ struct DistSeparator
     Int off;
     vector<Int> inds;
 
-    DistSeparator* parent;
-    DistSeparator* child;
-    Separator* duplicate;
+    DistSeparator* parent=nullptr;
+    DistSeparator* child=nullptr;
+    Separator* duplicate=nullptr;
 
-    DistSeparator( DistSeparator* parentNode=nullptr )
-    : parent(parentNode), child(nullptr), duplicate(nullptr)
-    { }
-
-    ~DistSeparator()
-    {
-        if( uncaught_exception() )
-        {
-            cerr << "Uncaught exception" << endl;
-            EL_DEBUG_ONLY(DumpCallStack())
-            return;
-        }
-
-        delete child;
-        delete duplicate;
-    }
+    DistSeparator( DistSeparator* parentNode=nullptr );
+    ~DistSeparator();
 };
-
-inline Separator::Separator( DistSeparator* dupNode )
-: parent(nullptr), duplicate(dupNode)
-{
-    off = duplicate->off;
-    inds = duplicate->inds;
-}
 
 } // namespace ldl
 } // namespace El
 
-#endif // ifndef EL_UTIL_SEPARATOR_HPP
+#endif // ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_SEPARATOR_HPP

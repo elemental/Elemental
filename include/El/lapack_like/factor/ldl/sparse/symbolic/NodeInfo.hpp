@@ -31,9 +31,9 @@ struct NodeInfo
     Int size, off;
     vector<Int> origLowerStruct;
 
-    NodeInfo* parent;
+    NodeInfo* parent=nullptr;
     vector<NodeInfo*> children;
-    DistNodeInfo* duplicate;
+    DistNodeInfo* duplicate=nullptr;
 
     // Known after analysis
     // --------------------
@@ -49,24 +49,9 @@ struct NodeInfo
     vector<Int> LOffsets;
     vector<Int> LParents;
 
-    NodeInfo( NodeInfo* parentNode=nullptr )
-    : parent(parentNode), duplicate(nullptr)
-    { }
-
+    NodeInfo( NodeInfo* parentNode=nullptr );
     NodeInfo( DistNodeInfo* duplicateNode );
-
-    ~NodeInfo()
-    {
-        if( uncaught_exception() )
-        {
-            cerr << "Uncaught exception" << endl;
-            EL_DEBUG_ONLY(DumpCallStack())
-            return;
-        }
-
-        for( const NodeInfo* child : children )
-            delete child;
-    }
+    ~NodeInfo();
 };
 
 struct DistNodeInfo
@@ -77,11 +62,11 @@ struct DistNodeInfo
     vector<Int> origLowerStruct;
     bool onLeft;
 
-    DistNodeInfo* parent;
-    DistNodeInfo* child;
-    NodeInfo* duplicate;
+    DistNodeInfo* parent=nullptr;
+    DistNodeInfo* child=nullptr;
+    NodeInfo* duplicate=nullptr;
 
-    const Grid* grid;
+    const Grid* grid=nullptr;
 
     // Known after analysis
     // --------------------
@@ -96,39 +81,12 @@ struct DistNodeInfo
     // submatrices of the child updates.
     vector<vector<Int>> childRelInds;
 
-    DistNodeInfo( DistNodeInfo* parentNode=nullptr )
-    : parent(parentNode), child(nullptr), duplicate(nullptr),
-      grid(nullptr)
-    { }
+    DistNodeInfo( DistNodeInfo* parentNode=nullptr );
+    ~DistNodeInfo();
 
-    ~DistNodeInfo()
-    {
-        if( uncaught_exception() )
-        {
-            cerr << "Uncaught exception" << endl;
-            EL_DEBUG_ONLY(DumpCallStack())
-            return;
-        }
-
-        delete child;
-        delete duplicate;
-
-        if( parent != nullptr )
-            delete grid;
-    }
+    void GetChildGridDims
+    ( vector<int>& gridHeights, vector<int>& gridWidths ) const;
 };
-
-inline NodeInfo::NodeInfo( DistNodeInfo* duplicateNode )
-: parent(nullptr), duplicate(duplicateNode)
-{
-    size = duplicate->size;
-    off = duplicate->off;
-    origLowerStruct = duplicate->origLowerStruct;
-
-    myOff = duplicate->myOff;
-    lowerStruct = duplicate->lowerStruct;
-    origLowerRelInds = duplicate->origLowerRelInds;
-}
 
 } // namespace ldl
 } // namespace El

@@ -15,6 +15,9 @@
    Copyright 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
 
+   Copyright 2016, Jack Poulson.
+   All rights reserved.
+
    This file is part of Elemental and is under the BSD 2-Clause License,
    which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
@@ -24,8 +27,8 @@
 namespace El {
 namespace ldl {
 
-template<typename F>
-DistFront<F>::DistFront( DistFront<F>* parentNode )
+template<typename Field>
+DistFront<Field>::DistFront( DistFront<Field>* parentNode )
 : parent(parentNode), child(nullptr), duplicate(nullptr)
 {
     if( parentNode != nullptr )
@@ -35,9 +38,9 @@ DistFront<F>::DistFront( DistFront<F>* parentNode )
     }
 }
 
-template<typename F>
-DistFront<F>::DistFront
-( const DistSparseMatrix<F>& A,
+template<typename Field>
+DistFront<Field>::DistFront
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
   const DistSeparator& sep,
   const DistNodeInfo& info,
@@ -48,21 +51,21 @@ DistFront<F>::DistFront
     Pull( A, reordering, sep, info, conjugate );
 }
 
-template<typename F>
-DistFront<F>::~DistFront()
+template<typename Field>
+DistFront<Field>::~DistFront()
 {
     delete child;
     delete duplicate;
 }
 
-template<typename F>
+template<typename Field>
 void UnpackEntriesLocal
 ( const Separator& sep,
   const NodeInfo& node,
-        Front<F>& front,
-  const DistSparseMatrix<F>& A,
+        Front<Field>& front,
+  const DistSparseMatrix<Field>& A,
   const vector<Int>& rRowLengths,
-  const vector<F>& rEntries,
+  const vector<Field>& rEntries,
   const vector<Int>& rTargets,
         vector<int>& offs,
         vector<int>& entryOffs )
@@ -77,7 +80,7 @@ void UnpackEntriesLocal
     front.children.resize( numChildren );
     for( Int c=0; c<numChildren; ++c )
     {
-        front.children[c] = new Front<F>(&front);
+        front.children[c] = new Front<Field>(&front);
         UnpackEntriesLocal
         ( *sep.children[c], *node.children[c], *front.children[c],
           A, rRowLengths, rEntries, rTargets, offs, entryOffs );
@@ -130,7 +133,7 @@ void UnpackEntriesLocal
 
             for( Int k=0; k<numEntries; ++k )
             {
-                const F value = rEntries[entryOff];
+                const Field value = rEntries[entryOff];
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
@@ -140,8 +143,8 @@ void UnpackEntriesLocal
                 )
                 if( target < off+size )
                 {
-                    const F transVal =
-                      ( front.isHermitian ? Conj(value) : value );
+                    const Field transVal =
+                      front.isHermitian ? Conj(value) : value;
                     front.workSparse.QueueUpdate( target-off, t, transVal );
                 }
                 else
@@ -169,7 +172,7 @@ void UnpackEntriesLocal
 
             for( Int k=0; k<numEntries; ++k )
             {
-                const F value = rEntries[entryOff];
+                const Field value = rEntries[entryOff];
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
@@ -193,14 +196,14 @@ void UnpackEntriesLocal
     }
 }
 
-template<typename F>
+template<typename Field>
 void UnpackEntries
 ( const DistSeparator& sep,
   const DistNodeInfo& node,
-        DistFront<F>& front,
-  const DistSparseMatrix<F>& A,
+        DistFront<Field>& front,
+  const DistSparseMatrix<Field>& A,
   const vector<Int>& rRowLengths,
-  const vector<F>& rEntries,
+  const vector<Field>& rEntries,
   const vector<Int>& rTargets,
         vector<int>& offs,
         vector<int>& entryOffs )
@@ -211,7 +214,7 @@ void UnpackEntries
     if( sep.child == nullptr )
     {
         delete front.duplicate;
-        front.duplicate = new Front<F>(&front);
+        front.duplicate = new Front<Field>(&front);
         UnpackEntriesLocal
         ( *sep.duplicate, *node.duplicate, *front.duplicate,
           A, rRowLengths, rEntries, rTargets, offs, entryOffs );
@@ -221,7 +224,7 @@ void UnpackEntries
         return;
     }
     delete front.child;
-    front.child = new DistFront<F>(&front);
+    front.child = new DistFront<Field>(&front);
     UnpackEntries
     ( *sep.child, *node.child, *front.child,
       A, rRowLengths, rEntries, rTargets, offs, entryOffs );
@@ -244,7 +247,7 @@ void UnpackEntries
 
         for( Int k=0; k<numEntries; ++k )
         {
-            const F value = rEntries[entryOff];
+            const Field value = rEntries[entryOff];
             const Int target = rTargets[entryOff];
             ++entryOff;
 
@@ -269,9 +272,9 @@ void UnpackEntries
 
 // NOTE:
 // The current implementation (conjugate-)transposes A into the frontal tree
-template<typename F>
-void DistFront<F>::Pull
-( const DistSparseMatrix<F>& A,
+template<typename Field>
+void DistFront<Field>::Pull
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
   const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo,
@@ -285,9 +288,9 @@ void DistFront<F>::Pull
       conjugate );
 }
 
-template<typename F>
-void DistFront<F>::Pull
-( const DistSparseMatrix<F>& A,
+template<typename Field>
+void DistFront<Field>::Pull
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
   const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo,
@@ -427,7 +430,7 @@ void DistFront<F>::Pull
     }
     vector<int> sEntriesOffs;
     const int numSendEntries = Scan( sEntriesSizes, sEntriesOffs );
-    vector<F> sEntries( numSendEntries );
+    vector<Field> sEntries( numSendEntries );
     vector<Int> sTargets( numSendEntries );
     for( Int q=0; q<commSize; ++q )
     {
@@ -446,7 +449,7 @@ void DistFront<F>::Pull
                 const Int iReord = mappedTargets[colOffs[rowOff+e]];
                 if( iReord >= jReord )
                 {
-                    const F value = A.Value( rowOff+e );
+                    const Field value = A.Value( rowOff+e );
                     sEntries[index] = (conjugate ? Conj(value) : value);
                     sTargets[index] = iReord;
                     ++index;
@@ -478,7 +481,7 @@ void DistFront<F>::Pull
     }
     vector<int> rEntriesOffs;
     const int numRecvEntries = Scan( rEntriesSizes, rEntriesOffs );
-    vector<F> rEntries( numRecvEntries );
+    vector<Field> rEntries( numRecvEntries );
     vector<Int> rTargets( numRecvEntries );
     mpi::AllToAll
     ( sEntries.data(), sEntriesSizes.data(), sEntriesOffs.data(),
@@ -502,9 +505,9 @@ void DistFront<F>::Pull
         Output("Unpack: ",timer.Stop()," secs");
 }
 
-template<typename F>
-void DistFront<F>::PullUpdate
-( const DistSparseMatrix<F>& A,
+template<typename Field>
+void DistFront<Field>::PullUpdate
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
   const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo )
@@ -516,9 +519,9 @@ void DistFront<F>::PullUpdate
 }
 
 // TODO(poulson): Begin removing lambdas in a similar manner as for Pull
-template<typename F>
-void DistFront<F>::PullUpdate
-( const DistSparseMatrix<F>& A,
+template<typename Field>
+void DistFront<Field>::PullUpdate
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
   const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo,
@@ -657,7 +660,7 @@ void DistFront<F>::PullUpdate
     }
     vector<int> sEntriesOffs;
     const int numSendEntries = Scan( sEntriesSizes, sEntriesOffs );
-    vector<F> sEntries( numSendEntries );
+    vector<Field> sEntries( numSendEntries );
     vector<Int> sTargets( numSendEntries );
     for( Int q=0; q<commSize; ++q )
     {
@@ -676,7 +679,7 @@ void DistFront<F>::PullUpdate
                 const Int iReord = mappedTargets[colOffs[rowOff+e]];
                 if( iReord >= jReord )
                 {
-                    const F value = A.Value( rowOff+e );
+                    const Field value = A.Value( rowOff+e );
                     sEntries[index] = (isHermitian ? Conj(value) : value);
                     sTargets[index] = iReord;
                     ++index;
@@ -708,7 +711,7 @@ void DistFront<F>::PullUpdate
     }
     vector<int> rEntriesOffs;
     const int numRecvEntries = Scan( rEntriesSizes, rEntriesOffs );
-    vector<F> rEntries( numRecvEntries );
+    vector<Field> rEntries( numRecvEntries );
     vector<Int> rTargets( numRecvEntries );
     mpi::AllToAll
     ( sEntries.data(), sEntriesSizes.data(), sEntriesOffs.data(),
@@ -724,9 +727,9 @@ void DistFront<F>::PullUpdate
         timer.Start();
     offs = rRowOffs;
     auto entryOffs = rEntriesOffs;
-    function<void(const Separator&,const NodeInfo&,Front<F>&)>
+    function<void(const Separator&,const NodeInfo&,Front<Field>&)>
       unpackEntriesLocal =
-      [&]( const Separator& sep, const NodeInfo& node, Front<F>& front )
+      [&]( const Separator& sep, const NodeInfo& node, Front<Field>& front )
       {
         const Int numChildren = sep.children.size();
         for( Int c=0; c<numChildren; ++c )
@@ -752,7 +755,7 @@ void DistFront<F>::PullUpdate
 
                 for( Int k=0; k<numEntries; ++k )
                 {
-                    const F value = rEntries[entryOff];
+                    const Field value = rEntries[entryOff];
                     const Int target = rTargets[entryOff];
                     ++entryOff;
 
@@ -777,9 +780,9 @@ void DistFront<F>::PullUpdate
       };
     function<void(const DistSeparator&,
                   const DistNodeInfo&,
-                        DistFront<F>&)> unpackEntries =
+                        DistFront<Field>&)> unpackEntries =
       [&]( const DistSeparator& sep, const DistNodeInfo& node,
-                 DistFront<F>& front )
+                 DistFront<Field>& front )
       {
         if( sep.child == nullptr )
         {
@@ -803,7 +806,7 @@ void DistFront<F>::PullUpdate
 
             for( Int k=0; k<numEntries; ++k )
             {
-                const F value = rEntries[entryOff];
+                const Field value = rEntries[entryOff];
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
@@ -836,9 +839,9 @@ void DistFront<F>::PullUpdate
 }
 
 
-template<typename F>
-void DistFront<F>::Push
-( DistSparseMatrix<F>& A,
+template<typename Field>
+void DistFront<Field>::Push
+( DistSparseMatrix<Field>& A,
   const DistMap& reordering,
   const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo ) const
@@ -847,9 +850,9 @@ void DistFront<F>::Push
     LogicError("This routine needs to be written");
 }
 
-template<typename F>
-void DistFront<F>::Unpack
-( DistSparseMatrix<F>& A,
+template<typename Field>
+void DistFront<Field>::Unpack
+( DistSparseMatrix<Field>& A,
   const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo ) const
 {
@@ -865,9 +868,9 @@ void DistFront<F>::Unpack
     // =================
     function<void(const Separator&,
                   const NodeInfo&,
-                  const Front<F>&)> localPack =
+                  const Front<Field>&)> localPack =
       [&]( const Separator& sep, const NodeInfo& node,
-           const Front<F>& front )
+           const Front<Field>& front )
       {
         const Int numChildren = sep.children.size();
         for( Int c=0; c<numChildren; ++c )
@@ -886,8 +889,8 @@ void DistFront<F>::Unpack
                 const Int numWorkEntries = front.workSparse.NumEntries();
                 for( Int e=0; e<numWorkEntries; ++e )
                 {
-                    const F value = front.workSparse.Value(e);
-                    if( value != F(0) )
+                    const Field value = front.workSparse.Value(e);
+                    if( value != Field(0) )
                         A.QueueUpdate
                         ( front.workSparse.Row(e)+node.off,
                           front.workSparse.Col(e)+node.off,
@@ -899,8 +902,8 @@ void DistFront<F>::Unpack
                 // The matrix has already been factored
                 for( Int e=0; e<numEntries; ++e )
                 {
-                    const F value = front.LSparse.Value(e);
-                    if( value != F(0) )
+                    const Field value = front.LSparse.Value(e);
+                    if( value != Field(0) )
                         A.QueueUpdate
                         ( front.LSparse.Row(e)+node.off,
                           front.LSparse.Col(e)+node.off,
@@ -914,8 +917,8 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
                 {
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -927,8 +930,8 @@ void DistFront<F>::Unpack
                 const Int i = node.off + s;
                 for( Int t=0; t<=s; ++t )
                 {
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -938,8 +941,8 @@ void DistFront<F>::Unpack
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
                 {
-                    const F value = front.LDense(node.size+s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(node.size+s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -947,9 +950,9 @@ void DistFront<F>::Unpack
       };
     function<void(const DistSeparator&,
                   const DistNodeInfo&,
-                  const DistFront<F>&)> pack =
+                  const DistFront<Field>&)> pack =
       [&]( const DistSeparator& sep, const DistNodeInfo& node,
-           const DistFront<F>& front )
+           const DistFront<Field>& front )
       {
         if( sep.duplicate != nullptr )
         {
@@ -977,8 +980,8 @@ void DistFront<F>::Unpack
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
                     {
-                        const F value = FTL.GetLocal(sLoc,tLoc);
-                        if( value != F(0) )
+                        const Field value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != Field(0) )
                             A.QueueUpdate( i, t+node.off, value );
                     }
                 }
@@ -991,8 +994,8 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     const Int t = FBL.GlobalCol(tLoc);
-                    const F value = FBL.GetLocal(sLoc,tLoc);
-                    if( value != F(0) )
+                    const Field value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -1016,8 +1019,8 @@ void DistFront<F>::Unpack
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
                     {
-                        const F value = FTL.GetLocal(sLoc,tLoc);
-                        if( value != F(0) )
+                        const Field value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != Field(0) )
                             A.QueueUpdate( i, t+node.off, value );
                     }
                 }
@@ -1030,8 +1033,8 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     const Int t = FBL.GlobalCol(tLoc);
-                    const F value = FBL.GetLocal(sLoc,tLoc);
-                    if( value != F(0) )
+                    const Field value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -1042,9 +1045,9 @@ void DistFront<F>::Unpack
     A.ProcessQueues();
 }
 
-template<typename F>
-const DistFront<F>&
-DistFront<F>::operator=( const DistFront<F>& front )
+template<typename Field>
+const DistFront<Field>&
+DistFront<Field>::operator=( const DistFront<Field>& front )
 {
     EL_DEBUG_CSE
     isHermitian = front.isHermitian;
@@ -1053,7 +1056,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
     {
         child = nullptr;
         delete duplicate;
-        duplicate = new Front<F>(this);
+        duplicate = new Front<Field>(this);
         *duplicate = *front.duplicate;
         const Grid& grid = front.L2D.Grid();
         L2D.Attach( grid, front.duplicate->LDense );
@@ -1066,7 +1069,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
     {
         duplicate = nullptr;
         delete child;
-        child = new DistFront<F>(this);
+        child = new DistFront<Field>(this);
         *child = *front.child;
         L1D = front.L1D;
         L2D = front.L2D;
@@ -1078,13 +1081,13 @@ DistFront<F>::operator=( const DistFront<F>& front )
     return *this;
 }
 
-template<typename F>
-Int DistFront<F>::NumLocalEntries() const
+template<typename Field>
+Int DistFront<Field>::NumLocalEntries() const
 {
     EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1104,13 +1107,13 @@ Int DistFront<F>::NumLocalEntries() const
     return numEntries;
 }
 
-template<typename F>
-Int DistFront<F>::NumTopLeftLocalEntries() const
+template<typename Field>
+Int DistFront<Field>::NumTopLeftLocalEntries() const
 {
     EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1136,13 +1139,13 @@ Int DistFront<F>::NumTopLeftLocalEntries() const
     return numEntries;
 }
 
-template<typename F>
-Int DistFront<F>::NumBottomLeftLocalEntries() const
+template<typename Field>
+Int DistFront<Field>::NumBottomLeftLocalEntries() const
 {
     EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1170,13 +1173,13 @@ Int DistFront<F>::NumBottomLeftLocalEntries() const
     return numEntries;
 }
 
-template<typename F>
-double DistFront<F>::LocalFactorGFlops( bool selInv ) const
+template<typename Field>
+double DistFront<Field>::LocalFactorGFlops( bool selInv ) const
 {
     EL_DEBUG_CSE
     double gflops = 0.;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1201,20 +1204,20 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
         double realFrontFlops =
           ( selInv ? (2*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n
                    : (1*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n ) / p;
-        gflops += (IsComplex<F>::value ? 4*realFrontFlops
-                                       : realFrontFlops)/1.e9;
+        gflops += (IsComplex<Field>::value ? 4*realFrontFlops
+                                           : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
 }
 
-template<typename F>
-double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
+template<typename Field>
+double DistFront<Field>::LocalSolveGFlops( Int numRHS ) const
 {
     EL_DEBUG_CSE
     double gflops = 0.;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1237,20 +1240,20 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
             p = front.L2D.DistSize();
         }
         double realFrontFlops = (m*n*numRHS) / p;
-        gflops += (IsComplex<F>::value ? 4*realFrontFlops
-                                       : realFrontFlops)/1.e9;
+        gflops += (IsComplex<Field>::value ? 4*realFrontFlops
+                                           : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
 }
 
-template<typename F>
-void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
+template<typename Field>
+void DistFront<Field>::ComputeRecvInds( const DistNodeInfo& info ) const
 {
     EL_DEBUG_CSE
 
     vector<int> gridHeights, gridWidths;
-    GetChildGridDims( info, gridHeights, gridWidths );
+    info.GetChildGridDims( gridHeights, gridWidths );
 
     const int teamSize = info.grid->Size();
     const int teamRank = info.grid->Rank();
@@ -1322,8 +1325,8 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
     }
 }
 
-template<typename F>
-void DistFront<F>::ComputeCommMeta
+template<typename Field>
+void DistFront<Field>::ComputeCommMeta
 ( const DistNodeInfo& info, bool computeRecvInds ) const
 {
     EL_DEBUG_CSE
@@ -1364,7 +1367,7 @@ void DistFront<F>::ComputeCommMeta
         ComputeRecvInds( info );
 }
 
-#define PROTO(F) template struct DistFront<F>;
+#define PROTO(Field) template struct DistFront<Field>;
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
