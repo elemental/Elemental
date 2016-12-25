@@ -319,7 +319,7 @@ void DistFront<Field>::Pull
     function<void(const Separator&)> rRowLocalAccumulate =
       [&]( const Separator& sep )
       {
-          for( const Separator* child : sep.children )
+          for( const auto& child : sep.children )
              rRowLocalAccumulate( *child );
           for( const Int& i : sep.inds )
               ++rRowSizes[ A.RowOwner(i) ];
@@ -355,7 +355,7 @@ void DistFront<Field>::Pull
     function<void(const Separator&)> rRowsLocalPack =
       [&]( const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )
+          for( const auto& childSep : sep.children )
               rRowsLocalPack( *childSep );
           for( Int i : sep.inds )
               rRows[offs[A.RowOwner(i)]++] = i;
@@ -549,7 +549,7 @@ void DistFront<Field>::PullUpdate
     function<void(const Separator&)> rRowLocalAccumulate =
       [&]( const Separator& sep )
       {
-          for( const Separator* child : sep.children )
+          for( const auto& child : sep.children )
              rRowLocalAccumulate( *child );
           for( const Int& i : sep.inds )
               ++rRowSizes[ A.RowOwner(i) ];
@@ -585,7 +585,7 @@ void DistFront<Field>::PullUpdate
     function<void(const Separator&)> rRowsLocalPack =
       [&]( const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )
+          for( const auto& childSep : sep.children )
               rRowsLocalPack( *childSep );
           for( Int i : sep.inds )
               rRows[offs[A.RowOwner(i)]++] = i;

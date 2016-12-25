@@ -282,7 +282,7 @@ NaturalNestedDissectionRecursion
 
         // Recurse
         const Int newOff = childIsOnLeft ? off : off+leftChildSize;
-        sep.child = new DistSeparator(&sep);
+        sep.child.reset( new DistSeparator(&sep) );
         info.child->onLeft = childIsOnLeft;
         NaturalNestedDissectionRecursion
         ( nxChild, nyChild, nzChild, child, newPerm,
@@ -292,7 +292,7 @@ NaturalNestedDissectionRecursion
     {
         Graph seqGraph( graph );
 
-        sep.duplicate = new Separator(&sep);
+        sep.duplicate.reset( new Separator(&sep) );
         info.duplicate.reset( new NodeInfo(&info) );
         NaturalNestedDissectionRecursion
         ( nx, ny, nz, seqGraph, perm.Map(),

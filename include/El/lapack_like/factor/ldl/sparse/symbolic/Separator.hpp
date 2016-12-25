@@ -29,9 +29,14 @@ struct Separator
     Int off;
     vector<Int> inds;
 
+    // An observing pointer to the parent (should it exist).
     Separator* parent=nullptr;
-    vector<Separator*> children;
+
+    // An observing pointer to the distributed duplicate (should it exist).
     DistSeparator* duplicate=nullptr;
+
+    // Unique pointers to the childen (should they exist).
+    vector<unique_ptr<Separator>> children;
 
     Separator( Separator* parentNode=nullptr );
     Separator( DistSeparator* dupNode );
@@ -47,9 +52,14 @@ struct DistSeparator
     Int off;
     vector<Int> inds;
 
+    // An observing pointer to the parent (should it exist).
     DistSeparator* parent=nullptr;
-    DistSeparator* child=nullptr;
-    Separator* duplicate=nullptr;
+
+    // A unique pointer to the distributed child node (should it exist).
+    unique_ptr<DistSeparator> child;
+
+    // A unique pointer to the sequential duplicate node (should it exist).
+    unique_ptr<Separator> duplicate;
 
     DistSeparator( DistSeparator* parentNode=nullptr );
     ~DistSeparator();

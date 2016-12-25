@@ -34,13 +34,13 @@ struct NodeInfo
     // This observing pointer is to the parent node (should one exist).
     NodeInfo* parent=nullptr;
 
-    // Unique pointers to any children of this node.
-    vector<unique_ptr<NodeInfo>> children;
-
     // This observing pointer is to the equivalent distributed node and is only
     // used for the highest node in the sequential subtree. The duplicate will
     // always be 'distributed' over a single process.
     DistNodeInfo* duplicate=nullptr;
+
+    // Unique pointers to any children of this node.
+    vector<unique_ptr<NodeInfo>> children;
 
     // Known after analysis
     // --------------------
@@ -72,13 +72,13 @@ struct DistNodeInfo
     // This observing pointer is to the parent node (should one exist).
     DistNodeInfo* parent=nullptr;
 
-    // A unique pointer to the distributed child (should one exist).
-    unique_ptr<DistNodeInfo> child;
-
     // A unique pointer to the sequential equivalent node (should one exist).
     // Such a pointer should exist when this node is distributed over a single
     // process.
     unique_ptr<NodeInfo> duplicate;
+
+    // A unique pointer to the distributed child (should one exist).
+    unique_ptr<DistNodeInfo> child;
 
     // Known after analysis
     // --------------------

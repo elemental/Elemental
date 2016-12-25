@@ -365,8 +365,7 @@ NestedDissectionRecursion
 
         // Recurse
         const Int childOff = childIsOnLeft ? off : off+leftChildSize;
-        // TODO(poulson): Replace with unique_ptr.reset
-        sep.child = new DistSeparator(&sep);
+        sep.child.reset( new DistSeparator(&sep) );
         NestedDissectionRecursion
         ( child, newPerm, *sep.child, *info.child, childOff, ctrl );
     }
@@ -374,7 +373,7 @@ NestedDissectionRecursion
     {
         Graph seqGraph( graph );
 
-        sep.duplicate = new Separator(&sep);
+        sep.duplicate.reset( new Separator(&sep) );
         info.duplicate.reset( new NodeInfo(&info) );
         NestedDissectionRecursion
         ( seqGraph, perm.Map(), *sep.duplicate, *info.duplicate, off, ctrl );

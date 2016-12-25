@@ -33,18 +33,7 @@ Separator::Separator( DistSeparator* dupNode )
     inds = duplicate->inds;
 }
 
-Separator::~Separator()
-{
-    EL_DEBUG_CSE
-    if( uncaught_exception() )
-    {
-        cerr << "Uncaught exception" << endl;
-        EL_DEBUG_ONLY(DumpCallStack())
-        return;
-    }
-    for( const Separator* child : children )
-        delete child;
-}
+Separator::~Separator() { }
 
 void Separator::BuildMap( vector<Int>& map ) const
 {
@@ -55,7 +44,7 @@ void Separator::BuildMap( vector<Int>& map ) const
     function<void(const Separator&)> buildMap =
       [&]( const Separator& sep )
       {
-        for( auto* child : sep.children )
+        for( const auto& child : sep.children )
             buildMap( *child );
         for( size_t t=0; t<sep.inds.size(); ++t )
             map[sep.inds[t]] = sep.off + t;
@@ -67,18 +56,7 @@ DistSeparator::DistSeparator( DistSeparator* parentNode )
 : parent(parentNode)
 { }
 
-DistSeparator::~DistSeparator()
-{
-    EL_DEBUG_CSE
-    if( uncaught_exception() )
-    {
-        cerr << "Uncaught exception" << endl;
-        EL_DEBUG_ONLY(DumpCallStack())
-        return;
-    }
-    delete child;
-    delete duplicate;
-}
+DistSeparator::~DistSeparator() { }
 
 void DistSeparator::BuildMap
 ( const DistNodeInfo& rootInfo, DistMap& map ) const
