@@ -66,10 +66,6 @@ void NaturalNestedDissection
         Int cutoff,
         bool storeFactRecvInds=false );
 
-void BuildMap( const Separator& rootSep, vector<Int>& map );
-void BuildMap
-( const DistNodeInfo& info, const DistSeparator& rootSep, DistMap& map );
-
 } // namespace ldl
 } // namespace El
 

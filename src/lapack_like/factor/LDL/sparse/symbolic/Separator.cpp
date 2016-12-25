@@ -46,6 +46,23 @@ Separator::~Separator()
         delete child;
 }
 
+void Separator::BuildMap( vector<Int>& map ) const
+{
+    EL_DEBUG_CSE
+    const Int numSources = off + inds.size();
+    map.resize( numSources );
+
+    function<void(const Separator&)> buildMap =
+      [&]( const Separator& sep )
+      {
+        for( auto* child : sep.children )
+            buildMap( *child );
+        for( size_t t=0; t<sep.inds.size(); ++t )
+            map[sep.inds[t]] = sep.off + t;
+      };
+    buildMap( *this );
+}
+
 DistSeparator::DistSeparator( DistSeparator* parentNode )
 : parent(parentNode)
 { }
@@ -61,6 +78,144 @@ DistSeparator::~DistSeparator()
     }
     delete child;
     delete duplicate;
+}
+
+void DistSeparator::BuildMap
+( const DistNodeInfo& rootInfo, DistMap& map ) const
+{
+    EL_DEBUG_CSE
+    const Int numSources = off + inds.size();
+    const int commSize = rootInfo.grid->Size();
+
+    map.SetGrid( *rootInfo.grid );
+    map.Resize( numSources );
+
+    vector<int> sendSizes( commSize, 0 );
+    function<void(const NodeInfo&,const Separator&)> sendSizeLocalAccumulate =
+      [&]( const NodeInfo& info, const Separator& sep )
+      {
+        const int numChildren = info.children.size();
+        for( Int index=0; index<numChildren; ++index )
+            sendSizeLocalAccumulate
+            ( *info.children[index], *sep.children[index] );
+        for( Int i : sep.inds )
+            ++sendSizes[ map.RowOwner(i) ];
+      };
+    function<void(const DistNodeInfo&,const DistSeparator&)>
+      sendSizeAccumulate =
+      [&]( const DistNodeInfo& info, const DistSeparator& sep )
+      {
+          if( sep.child == nullptr )
+          {
+              const NodeInfo& infoDup = *info.duplicate;
+              const Separator& sepDup = *sep.duplicate;
+              const int numChildren = sepDup.children.size();
+              for( Int index=0; index<numChildren; ++index )
+                  sendSizeLocalAccumulate
+                  ( *infoDup.children[index], *sepDup.children[index] );
+          }
+          else
+              sendSizeAccumulate( *info.child, *sep.child );
+
+          const Int numInds = sep.inds.size();
+          const int teamSize = info.grid->Size();
+          const int teamRank = info.grid->Rank();
+          const Int numLocalInds = Length( numInds, teamRank, teamSize );
+          for( Int tLocal=0; tLocal<numLocalInds; ++tLocal )
+          {
+              const Int t = teamRank + tLocal*teamSize;
+              ++sendSizes[ map.RowOwner(sep.inds[t]) ];
+          }
+      };
+    sendSizeAccumulate( rootInfo, *this );
+
+    // Use a single-entry AllToAll to coordinate how many indices will be
+    // exchanges
+    vector<int> recvSizes( commSize );
+    mpi::AllToAll
+    ( sendSizes.data(), 1, recvSizes.data(), 1, rootInfo.grid->Comm() );
+
+    // Pack the reordered indices
+    vector<int> sendOffs;
+    const int numSends = Scan( sendSizes, sendOffs );
+    vector<Int> sendInds(numSends), sendOrigInds(numSends);
+    auto offs = sendOffs;
+    function<void(const NodeInfo&,const Separator&)> packRowsLocal =
+      [&]( const NodeInfo& info, const Separator& sep )
+      {
+          const int numChildren = info.children.size();
+          for( int index=0; index<numChildren; ++index )
+              packRowsLocal( *info.children[index], *sep.children[index] );
+
+          const Int numInds = sep.inds.size();
+          for( Int t=0; t<numInds; ++t )
+          {
+              const Int i = sep.inds[t];
+              const Int iMap = sep.off + t;
+              const int q = map.RowOwner(i);
+              sendOrigInds[offs[q]] = i;
+              sendInds[offs[q]] = iMap;
+              ++offs[q];
+          }
+      };
+    function<void(const DistNodeInfo&,const DistSeparator&)> packRows =
+      [&]( const DistNodeInfo& info, const DistSeparator& sep )
+      {
+          if( sep.child == nullptr )
+          {
+              const NodeInfo& infoDup = *info.duplicate;
+              const Separator& sepDup = *sep.duplicate;
+              const int numChildren = infoDup.children.size();
+              for( int index=0; index<numChildren; ++index )
+                  packRowsLocal
+                  ( *infoDup.children[index], *sepDup.children[index] );
+          }
+          else
+              packRows( *info.child, *sep.child );
+
+          const Int numInds = sep.inds.size();
+          const int teamSize = info.grid->Size();
+          const int teamRank = info.grid->Rank();
+          const Int numLocalInds = Length( numInds, teamRank, teamSize );
+          for( Int tLocal=0; tLocal<numLocalInds; ++tLocal )
+          {
+              const Int t = teamRank + tLocal*teamSize;
+              const Int i = sep.inds[t];
+              const Int iMap = sep.off + t;
+              const int q = map.RowOwner(i);
+              sendOrigInds[offs[q]] = i;
+              sendInds[offs[q]] = iMap;
+              ++offs[q];
+          }
+      };
+    packRows( rootInfo, *this );
+
+    // Perform an AllToAll to exchange the reordered indices
+    vector<int> recvOffs;
+    const int numRecvs = Scan( recvSizes, recvOffs );
+    EL_DEBUG_ONLY(
+      const Int numLocalSources = map.NumLocalSources();
+      if( numRecvs != numLocalSources )
+          LogicError("incorrect number of recv indices");
+    )
+    vector<Int> recvInds( numRecvs );
+    mpi::AllToAll
+    ( sendInds.data(), sendSizes.data(), sendOffs.data(),
+      recvInds.data(), recvSizes.data(), recvOffs.data(),
+      rootInfo.grid->Comm() );
+
+    // Perform an AllToAll to exchange the original indices
+    vector<Int> recvOrigInds( numRecvs );
+    mpi::AllToAll
+    ( sendOrigInds.data(), sendSizes.data(), sendOffs.data(),
+      recvOrigInds.data(), recvSizes.data(), recvOffs.data(),
+      rootInfo.grid->Comm() );
+
+    // Unpack the indices
+    const Int firstLocalSource = map.FirstLocalSource();
+    auto& mapLoc = map.Map();
+    for( Int s=0; s<numRecvs; ++s )
+        mapLoc[recvOrigInds[s]-firstLocalSource] = recvInds[s];
 }
 
 } // namespace ldl

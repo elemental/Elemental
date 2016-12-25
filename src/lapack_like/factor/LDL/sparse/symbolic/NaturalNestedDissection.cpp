@@ -324,7 +324,7 @@ void NaturalNestedDissection
     ( nx, ny, nz, graph, perm, sep, info, 0, cutoff );
 
     // Construct the distributed reordering
-    BuildMap( sep, map );
+    sep.BuildMap( map );
     EL_DEBUG_ONLY(EnsurePermutation( map ))
 
     // Run the symbolic analysis
@@ -355,7 +355,7 @@ void NaturalNestedDissection
     ( nx, ny, nz, graph, perm, sep, info, 0, cutoff );
 
     // Construct the distributed reordering
-    BuildMap( info, sep, map );
+    sep.BuildMap( info, map );
     EL_DEBUG_ONLY(EnsurePermutation(map))
 
     // Run the symbolic analysis

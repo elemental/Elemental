@@ -36,7 +36,11 @@ struct Separator
     Separator( Separator* parentNode=nullptr );
     Separator( DistSeparator* dupNode );
     ~Separator();
+
+    void BuildMap( vector<Int>& map ) const;
 };
+
+struct DistNodeInfo;
 
 struct DistSeparator
 {
@@ -49,6 +53,8 @@ struct DistSeparator
 
     DistSeparator( DistSeparator* parentNode=nullptr );
     ~DistSeparator();
+
+    void BuildMap( const DistNodeInfo& info, DistMap& map ) const;
 };
 
 } // namespace ldl
