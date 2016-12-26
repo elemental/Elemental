@@ -18,7 +18,7 @@ void Overwrite
   Orientation orientation,
   Matrix<Field>& A,
   Matrix<Field>& B,
-  bool conjugate,
+  bool hermitian,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
@@ -26,12 +26,12 @@ void Overwrite
         LogicError("Upper Bunch-Kaufman is not yet supported");
     Permutation p;
     Matrix<Field> dSub;
-    LDL( A, dSub, p, conjugate, ctrl );
-    const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
-                            (orientation == TRANSPOSE && conjugate == true) );
+    LDL( A, dSub, p, hermitian, ctrl );
+    const bool conjFlip = (orientation == ADJOINT && !hermitian) ||
+                          (orientation == TRANSPOSE && hermitian);
     if( conjFlip )
         Conjugate( B );
-    ldl::SolveAfter( A, dSub, p, B, conjugate );
+    ldl::SolveAfter( A, dSub, p, B, hermitian );
     if( conjFlip )
         Conjugate( B );
 }
@@ -42,7 +42,7 @@ void Overwrite
   Orientation orientation,
   AbstractDistMatrix<Field>& APre,
   AbstractDistMatrix<Field>& BPre,
-  bool conjugate,
+  bool hermitian,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
@@ -56,12 +56,12 @@ void Overwrite
 
     DistPermutation p(A.Grid());
     DistMatrix<Field,MD,STAR> dSub(A.Grid());
-    LDL( A, dSub, p, conjugate, ctrl );
-    const bool conjFlip = ( (orientation == ADJOINT && conjugate == false) ||
-                            (orientation == TRANSPOSE && conjugate == true) );
+    LDL( A, dSub, p, hermitian, ctrl );
+    const bool conjFlip = (orientation == ADJOINT && !hermitian) ||
+                          (orientation == TRANSPOSE && hermitian);
     if( conjFlip )
         Conjugate( B );
-    ldl::SolveAfter( A, dSub, p, B, conjugate );
+    ldl::SolveAfter( A, dSub, p, B, hermitian );
     if( conjFlip )
         Conjugate( B );
 }
@@ -74,12 +74,12 @@ void SymmetricSolve
   Orientation orientation,
   const Matrix<Field>& A,
         Matrix<Field>& B,
-  bool conjugate,
+  bool hermitian,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
     Matrix<Field> ACopy( A );
-    symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
+    symm_solve::Overwrite( uplo, orientation, ACopy, B, hermitian, ctrl );
 }
 
 template<typename Field>
@@ -88,12 +88,12 @@ void SymmetricSolve
   Orientation orientation,
   const AbstractDistMatrix<Field>& A,
         AbstractDistMatrix<Field>& B,
-  bool conjugate,
+  bool hermitian,
   const LDLPivotCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
     DistMatrix<Field> ACopy( A );
-    symm_solve::Overwrite( uplo, orientation, ACopy, B, conjugate, ctrl );
+    symm_solve::Overwrite( uplo, orientation, ACopy, B, hermitian, ctrl );
 }
 
 // TODO(poulson): Add iterative refinement parameter
@@ -101,7 +101,7 @@ template<typename Field>
 void SymmetricSolve
 ( const SparseMatrix<Field>& A,
         Matrix<Field>& B,
-  bool conjugate,
+  bool hermitian,
   bool tryLDL,
   const BisectCtrl& ctrl )
 {
@@ -109,22 +109,21 @@ void SymmetricSolve
 
     if( tryLDL )
     {
-        ldl::NodeInfo info;
-        ldl::Separator rootSep;
-        vector<Int> map, invMap;
-        ldl::NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
-        InvertMap( map, invMap );
+        const BisectCtrl ctrl;
+        SparseLDLFactorization<Field> sparseLDLFact( A, hermitian, ctrl );
 
-        ldl::Front<Field> front( A, map, info, conjugate );
-        LDL( info, front );
+        sparseLDLFact.Factor();
 
         // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
         // multiple right-hand sides
         /*
         ldl::SolveWithIterativeRefinement
-        ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
+        ( A, sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(), B, minReductionFactor, maxRefineIts );
         */
-        ldl::SolveAfter( invMap, info, front, B );
+        ldl::SolveAfter
+        ( sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(), B );
     }
     else
     {
@@ -137,29 +136,30 @@ template<typename Field>
 void SymmetricSolve
 ( const DistSparseMatrix<Field>& A,
         DistMultiVec<Field>& B,
-  bool conjugate,
+  bool hermitian,
   bool tryLDL,
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
     if( tryLDL )
     {
-        ldl::DistNodeInfo info(A.Grid());
-        ldl::DistSeparator rootSep;
-        DistMap map, invMap;
-        ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
-        InvertMap( map, invMap );
+        const BisectCtrl ctrl;
+        DistSparseLDLFactorization<Field>
+          sparseLDLFact( A, hermitian, ctrl );
 
-        ldl::DistFront<Field> front( A, map, rootSep, info, conjugate );
-        LDL( info, front, LDL_INTRAPIV_1D );
+        sparseLDLFact.Factor( LDL_INTRAPIV_1D );
 
+        // TODO(poulson): A better interface for the following.
         // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
         // multiple right-hand sides
         /*
         ldl::SolveWithIterativeRefinement
-        ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
+        ( A, sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(), B, minReductionFactor, maxRefineIts );
         */
-        ldl::SolveAfter( invMap, info, front, B );
+        ldl::SolveAfter
+        ( sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(), B );
     }
     else
     {
@@ -173,39 +173,39 @@ void SymmetricSolve
     Orientation orientation, \
     Matrix<Field>& A, \
     Matrix<Field>& B, \
-    bool conjugate, \
+    bool hermitian, \
     const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void symm_solve::Overwrite \
   ( UpperOrLower uplo, \
     Orientation orientation, \
     AbstractDistMatrix<Field>& A, \
     AbstractDistMatrix<Field>& B, \
-    bool conjugate, \
+    bool hermitian, \
     const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void SymmetricSolve \
   ( UpperOrLower uplo, \
     Orientation orientation, \
     const Matrix<Field>& A, \
           Matrix<Field>& B, \
-    bool conjugate, \
+    bool hermitian, \
     const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void SymmetricSolve \
   ( UpperOrLower uplo, \
     Orientation orientation, \
     const AbstractDistMatrix<Field>& A, \
           AbstractDistMatrix<Field>& B, \
-    bool conjugate, \
+    bool hermitian, \
     const LDLPivotCtrl<Base<Field>>& ctrl ); \
   template void SymmetricSolve \
   ( const SparseMatrix<Field>& A, \
           Matrix<Field>& B, \
-    bool conjugate, \
+    bool hermitian, \
     bool tryLDL, \
     const BisectCtrl& ctrl ); \
   template void SymmetricSolve \
   ( const DistSparseMatrix<Field>& A, \
           DistMultiVec<Field>& B, \
-    bool conjugate, \
+    bool hermitian, \
     bool tryLDL, \
     const BisectCtrl& ctrl );
 

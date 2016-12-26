@@ -285,7 +285,7 @@ struct Front
     ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo,
-      bool conjugate=true );
+      bool hermitian=true );
 
     ~Front();
 
@@ -293,7 +293,7 @@ struct Front
     ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo,
-      bool conjugate=true );
+      bool hermitian=true );
     void PullUpdate
     ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
@@ -373,7 +373,7 @@ struct DistFront
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
-      bool conjugate=false );
+      bool hermitian=false );
 
     ~DistFront();
 
@@ -382,7 +382,7 @@ struct DistFront
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
-      bool conjugate=false );
+      bool hermitian=false );
     // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
     void Pull
     ( const DistSparseMatrix<Field>& A,
@@ -392,7 +392,7 @@ struct DistFront
             vector<Int>& mappedSources,
             vector<Int>& mappedTargets,
             vector<Int>& colOffs,
-      bool conjugate=false );
+      bool hermitian=false );
 
     void PullUpdate
     ( const DistSparseMatrix<Field>& A,
@@ -437,21 +437,6 @@ void ChangeFrontType
 template<typename Field>
 void ChangeFrontType
 ( DistFront<Field>& front, LDLFrontType type, bool recurse=true );
-
-// TODO(poulson): Revisit the following after introducing unique_ptr elsewhere
-template<typename Field>
-class SparseSymmFact
-{
-private:
-    std::unique_ptr<Front<Field>> front_;
-};
-
-template<typename Field>
-class DistSparseSymmFact
-{
-private:
-    std::unique_ptr<DistFront<Field>> front_;
-};
 
 template<typename Field>
 void DiagonalScale
@@ -510,6 +495,94 @@ void LowerMultiply
   const DistFront<Field>& L, DistMatrixNode<Field>& X );
 
 } // namespace ldl
+
+template<typename Field>
+class SparseLDLFactorization
+{
+public:
+    SparseLDLFactorization
+    ( const SparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    void Factor();
+
+    void ChangeNonzeroValues( const SparseMatrix<Field>& ANew );
+
+    // Overwrite 'B' with the solution to 'A X = B'.
+    void Solve( Matrix<Field>& B ) const;
+
+    ldl::Front<Field>& Front();
+    const ldl::Front<Field>& Front() const;
+
+    ldl::NodeInfo& NodeInfo();
+    const ldl::NodeInfo& NodeInfo() const;
+
+    ldl::Separator& Separator();
+    const ldl::Separator& Separator() const;
+
+    vector<Int>& Map();
+    const vector<Int>& Map() const;
+
+    vector<Int>& InverseMap();
+    const vector<Int>& InverseMap() const;
+    
+private:
+    unique_ptr<ldl::Front<Field>> front_;
+    unique_ptr<ldl::NodeInfo> info_;
+    unique_ptr<ldl::Separator> separator_;
+
+    vector<Int> map_, inverseMap_;
+};
+
+template<typename Field>
+class DistSparseLDLFactorization
+{
+public:
+    DistSparseLDLFactorization
+    ( const DistSparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    void Factor( LDLFrontType frontType=LDL_2D );
+
+    void ChangeNonzeroValues( const DistSparseMatrix<Field>& ANew );
+
+    // Overwrite 'B' with the solution to 'A X = B'.
+    void Solve( DistMultiVec<Field>& B ) const;
+
+    ldl::DistFront<Field>& Front();
+    const ldl::DistFront<Field>& Front() const;
+
+    ldl::DistNodeInfo& NodeInfo();
+    const ldl::DistNodeInfo& NodeInfo() const;
+
+    ldl::DistSeparator& Separator();
+    const ldl::DistSeparator& Separator() const;
+
+    DistMap& Map();
+    const DistMap& Map() const;
+
+    DistMap& InverseMap();
+    const DistMap& InverseMap() const;
+
+    ldl::DistMultiVecNodeMeta& DistMultiVecNodeMeta() const;
+
+private:
+    unique_ptr<ldl::DistFront<Field>> front_;
+    unique_ptr<ldl::DistNodeInfo> info_;
+    unique_ptr<ldl::DistSeparator> separator_;
+
+    DistMap map_, inverseMap_;
+
+    // Metadata for repeated calls to DistFront<Field>::Pull
+    mutable bool formedPullMetadata_=false;
+    mutable vector<Int> mappedSources_, mappedTargets_, columnOffsets_;
+
+    // Metadata for future use.
+    mutable ldl::DistMultiVecNodeMeta dmvMeta_;
+};
+
 } // namespace El
 
 #endif // ifndef EL_FACTOR_LDL_SPARSE_NUMERIC_HPP
