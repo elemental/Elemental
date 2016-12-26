@@ -77,7 +77,8 @@ struct DistNodeInfo
     // process.
     unique_ptr<NodeInfo> duplicate;
 
-    // A unique pointer to the distributed child (should one exist).
+    // A unique pointer to the distributed child shared by this process
+    // (should one exist).
     unique_ptr<DistNodeInfo> child;
 
     // Known after analysis

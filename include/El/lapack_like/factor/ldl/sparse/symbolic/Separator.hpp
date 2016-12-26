@@ -55,7 +55,8 @@ struct DistSeparator
     // An observing pointer to the parent (should it exist).
     DistSeparator* parent=nullptr;
 
-    // A unique pointer to the distributed child node (should it exist).
+    // A unique pointer to the distributed child node shared by this process
+    // (should it exist).
     unique_ptr<DistSeparator> child;
 
     // A unique pointer to the sequential duplicate node (should it exist).

@@ -31,7 +31,7 @@ namespace ldl {
 
 template<typename T>
 DistMatrixNode<T>::DistMatrixNode( DistMatrixNode<T>* parentNode )
-: parent(parentNode), child(nullptr), duplicate(nullptr)
+: parent(parentNode)
 { }
 
 template<typename T>
@@ -39,7 +39,6 @@ DistMatrixNode<T>::DistMatrixNode
 ( const DistMap& invMap,
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     Pull( invMap, info, X );
@@ -47,18 +46,13 @@ DistMatrixNode<T>::DistMatrixNode
 
 template<typename T>
 DistMatrixNode<T>::DistMatrixNode( const DistMultiVecNode<T>& X )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     *this = X;
 }
 
 template<typename T>
-DistMatrixNode<T>::~DistMatrixNode()
-{
-    delete child;
-    delete duplicate;
-}
+DistMatrixNode<T>::~DistMatrixNode() { }
 
 template<typename T>
 const DistMatrixNode<T>&
@@ -66,10 +60,9 @@ DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
 {
     EL_DEBUG_CSE
 
-    if( X.child == nullptr )
+    if( X.child.get() == nullptr )
     {
-        delete duplicate;
-        duplicate = new MatrixNode<T>(this);
+        duplicate.reset( new MatrixNode<T>(this) );
         *duplicate = *X.duplicate;
 
         matrix.Attach( X.matrix.Grid(), duplicate->matrix );
@@ -81,8 +74,7 @@ DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
     matrix.SetGrid( X.matrix.Grid() );
     matrix = X.matrix;
 
-    delete child;
-    child = new DistMatrixNode<T>(this);
+    child.reset( new DistMatrixNode<T>(this) );
     *child = *X.child;
 
     return *this;
@@ -117,7 +109,7 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     EL_DEBUG_CSE
     if( commMeta.numChildSendInds.size() != 0 )
         return;
-    if( child == nullptr )
+    if( child.get() == nullptr )
         return;
 
     const Int numRHS = matrix.Width();

@@ -61,13 +61,24 @@ struct MatrixNode
     Matrix<T> matrix;
     Matrix<T> work;
 
+    // An observing pointer to the parent (should it exist).
     MatrixNode<T>* parent=nullptr;
-    vector<MatrixNode<T>*> children;
+
+    // An observing pointer to the equivalent (trivially) 2D distributed node
+    // (should it exist).
     DistMatrixNode<T>* duplicateMat=nullptr;
+
+    // An observing pointer to the equivalent (trivially) 1D distributed node
+    // (should it exist).
     DistMultiVecNode<T>* duplicateMV=nullptr;
 
+    // Unique pointers to the children.
+    vector<unique_ptr<MatrixNode<T>>> children;
+
     MatrixNode( MatrixNode<T>* parentNode=nullptr );
+
     MatrixNode( DistMatrixNode<T>* dupNode );
+
     MatrixNode( DistMultiVecNode<T>* dupNode );
 
     MatrixNode
@@ -130,9 +141,15 @@ struct DistMultiVecNode
     DistMatrix<T,VC,STAR> matrix;
     DistMatrix<T,VC,STAR> work;
 
+    // An observing pointer to the parent (should it exist).
     DistMultiVecNode<T>* parent=nullptr;
-    DistMultiVecNode<T>* child=nullptr;
-    MatrixNode<T>* duplicate=nullptr;
+
+    // A unique pointer to the equivalent sequential node (should it exist).
+    unique_ptr<MatrixNode<T>> duplicate;
+
+    // A unique pointer to the child node shared by this process
+    // (should it exist).
+    unique_ptr<DistMultiVecNode<T>> child;
 
     mutable MultiVecCommMeta commMeta;
 
@@ -192,9 +209,15 @@ struct DistMatrixNode
     DistMatrix<T> matrix;
     DistMatrix<T> work;
 
+    // An observing pointer to the parent node (should it exist).
     DistMatrixNode<T>* parent=nullptr;
-    DistMatrixNode<T>* child=nullptr;
-    MatrixNode<T>* duplicate=nullptr;
+
+    // A unique pointer to the equivalent sequential node (should it exist).
+    unique_ptr<MatrixNode<T>> duplicate;
+
+    // A unique pointer to the child node shared by this process
+    // (should it exist).
+    unique_ptr<DistMatrixNode<T>> child;
 
     mutable MatrixCommMeta commMeta;
 
@@ -339,7 +362,8 @@ struct DistFront
     // A unique pointer to the sequential duplicate front (should it exist).
     unique_ptr<Front<Field>> duplicate;
 
-    // A unique pointer to the distributed child front (should it exist).
+    // A unique pointer to the distributed child front shared by this process
+    // (should it exist).
     unique_ptr<DistFront<Field>> child;
 
     DistFront( DistFront<Field>* parentNode=nullptr );

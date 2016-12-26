@@ -15,6 +15,9 @@
    Copyright 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
 
+   Copyright 2016, Jack Poulson.
+   All rights reserved.
+
    This file is part of Elemental and is under the BSD 2-Clause License,
    which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
@@ -26,7 +29,7 @@ namespace ldl {
 
 template<typename T>
 DistMultiVecNode<T>::DistMultiVecNode( DistMultiVecNode<T>* parentNode )
-: parent(parentNode), child(nullptr), duplicate(nullptr)
+: parent(parentNode)
 { }
 
 template<typename T>
@@ -34,7 +37,6 @@ DistMultiVecNode<T>::DistMultiVecNode
 ( const DistMap& invMap,
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     Pull( invMap, info, X );
@@ -42,18 +44,13 @@ DistMultiVecNode<T>::DistMultiVecNode
 
 template<typename T>
 DistMultiVecNode<T>::DistMultiVecNode( const DistMatrixNode<T>& X )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     *this = X;
 }
 
 template<typename T>
-DistMultiVecNode<T>::~DistMultiVecNode()
-{
-    delete child;
-    delete duplicate;
-}
+DistMultiVecNode<T>::~DistMultiVecNode() { }
 
 template<typename T>
 const DistMultiVecNode<T>&
@@ -61,10 +58,9 @@ DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
 {
     EL_DEBUG_CSE
 
-    if( X.child == nullptr )
+    if( X.child.get() == nullptr )
     {
-        delete duplicate;
-        duplicate = new MatrixNode<T>(this);
+        duplicate.reset( new MatrixNode<T>(this) );
         *duplicate = *X.duplicate;
 
         matrix.Attach( X.matrix.Grid(), duplicate->matrix );
@@ -75,14 +71,13 @@ DistMultiVecNode<T>::operator=( const DistMatrixNode<T>& X )
     matrix.SetGrid( X.matrix.Grid() );
     matrix = X.matrix;
 
-    delete child;
-    child = new DistMultiVecNode<T>(this);
+    child.reset( new DistMultiVecNode<T>(this) );
     *child = *X.child;
 
     return *this;
 }
 
-// TODO: Consider passing in a pre-built origOwners
+// TODO(poulson): Consider passing in a pre-built origOwners
 template<typename T>
 void DistMultiVecNode<T>::Pull
 ( const DistMap& invMap,
@@ -104,11 +99,10 @@ static void PullLocalInit
     const Int numChildren = node.children.size();
     if( XNode.children.size() != node.children.size() )
     {
-        for( auto* childNode : XNode.children )
-            delete childNode;
+        SwapClear( XNode.children );
         XNode.children.resize(numChildren);
         for( Int c=0; c<numChildren; ++c )
-            XNode.children[c] = new MatrixNode<T>(&XNode);
+            XNode.children[c].reset( new MatrixNode<T>(&XNode) );
     }
 
     for( Int c=0; c<numChildren; ++c )
@@ -124,14 +118,14 @@ static void PullInit
   Int width )
 {
     EL_DEBUG_CSE
-    if( node.child == nullptr )
+    if( node.child.get() == nullptr )
     {
         EL_DEBUG_ONLY(
-          if( XNode.child != nullptr )
+          if( XNode.child.get() != nullptr )
               LogicError("Child should have been a nullptr");
         )
-        if( XNode.duplicate == nullptr )
-            XNode.duplicate = new MatrixNode<T>(&XNode);
+        if( XNode.duplicate.get() == nullptr )
+            XNode.duplicate.reset( new MatrixNode<T>(&XNode) );
         PullLocalInit( *node.duplicate, *XNode.duplicate, width );
 
         XNode.matrix.Attach( node.Grid(), XNode.duplicate->matrix );
@@ -139,11 +133,11 @@ static void PullInit
     }
 
     EL_DEBUG_ONLY(
-      if( XNode.duplicate != nullptr )
+      if( XNode.duplicate.get() != nullptr )
           LogicError("Duplicate should have been a nullptr");
     )
-    if( XNode.child == nullptr )
-        XNode.child = new DistMultiVecNode<T>(&XNode);
+    if( XNode.child.get() == nullptr )
+        XNode.child.reset( new DistMultiVecNode<T>(&XNode) );
     PullInit( *node.child, *XNode.child, width );
 
     if( XNode.matrix.Grid() != node.Grid() ||
@@ -211,7 +205,7 @@ static void PullUnpack
         DistMultiVecNode<T>& XNode,
   Int& off, std::vector<int>& offs )
 {
-    if( info.child == nullptr )
+    if( info.child.get() == nullptr )
     {
         PullLocalUnpack
         ( *info.duplicate, recvVals, mappedOwners,
@@ -238,7 +232,7 @@ static void PullUnpackMulti
   Int& off, std::vector<int>& offs,
   Int width )
 {
-    if( info.child == nullptr )
+    if( info.child.get() == nullptr )
     {
         PullLocalUnpackMulti
         ( *info.duplicate, recvVals, mappedOwners,
@@ -395,7 +389,7 @@ static void PushPack
   Int& off, vector<int>& offs )
 {
     EL_DEBUG_CSE
-    if( node.child == nullptr )
+    if( node.child.get() == nullptr )
     {
         PushLocalPack
         ( *node.duplicate, *XNode.duplicate,
@@ -422,7 +416,7 @@ static void PushPackMulti
   Int& off, vector<int>& offs )
 {
     EL_DEBUG_CSE
-    if( node.child == nullptr )
+    if( node.child.get() == nullptr )
     {
         PushLocalPackMulti
         ( *node.duplicate, *XNode.duplicate,
@@ -494,7 +488,7 @@ void DistMultiVecNodeMeta::Initialize
       pack =
       [&]( const DistNodeInfo& node, const DistMultiVecNode<T>& XNode )
       {
-        if( node.child == nullptr )
+        if( node.child.get() == nullptr )
         {
             localPack( *node.duplicate, *XNode.duplicate );
             return;
@@ -510,7 +504,7 @@ void DistMultiVecNodeMeta::Initialize
     pack( info, XNode );
 
     // Convert the indices to the original ordering
-    // TODO: Consider passing in a pre-built origOwners
+    // TODO(poulson): Consider passing in a pre-built origOwners
     invMap.Translate( mappedInds );
 
     mappedOwners.resize( numSendInds );
@@ -548,7 +542,7 @@ void DistMultiVecNodeMeta::Initialize
       packInds =
       [&]( const DistNodeInfo& node, const DistMultiVecNode<T>& XNode )
       {
-        if( node.child == nullptr )
+        if( node.child.get() == nullptr )
         {
             localPackInds( *node.duplicate, *XNode.duplicate );
             return;
@@ -685,7 +679,7 @@ Int DistMultiVecNode<T>::LocalHeight() const
     function<void(const DistMultiVecNode<T>&)> count =
       [&]( const DistMultiVecNode<T>& node )
       {
-        if( node.child == nullptr )
+        if( node.child.get() == nullptr )
         {
             localHeight += node.duplicate->Height();
             return;
@@ -705,7 +699,7 @@ void DistMultiVecNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
         return;
 
     commMeta.Empty();
-    if( child == nullptr )
+    if( child.get() == nullptr )
     {
         commMeta.localOff = info.duplicate->myOff;
         commMeta.localSize = info.duplicate->size;
