@@ -153,7 +153,7 @@ void Process
     EL_DEBUG_CSE
 
     // Switch to a sequential algorithm if possible
-    if( front.duplicate != nullptr )
+    if( front.duplicate.get() != nullptr )
     {
         const Grid& grid = info.Grid();
         auto& frontDup = *front.duplicate;
@@ -232,7 +232,7 @@ void Process
     )
     SwapClear( offs );
     childFront.work.Empty();
-    if( childFront.duplicate != nullptr )
+    if( childFront.duplicate.get() != nullptr )
         childFront.duplicate->workDense.Empty();
 
     // AllToAll to send and receive the child updates

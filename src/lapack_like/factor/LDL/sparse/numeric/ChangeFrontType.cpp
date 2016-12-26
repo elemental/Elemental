@@ -1,20 +1,23 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
+   Copyright (c) 2013-2014, Jack Poulson and
    The Georgia Institute of Technology.
    All rights reserved.
 
    Copyright (c) 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2016, Jack Poulson.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -27,7 +30,7 @@ void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 {
     EL_DEBUG_CSE
 
-    if( type == SYMM_1D || type == SYMM_2D || 
+    if( type == SYMM_1D || type == SYMM_2D ||
         type == ConvertTo1D(front.type) || type == ConvertTo2D(front.type) )
     {
         // No-op
@@ -37,7 +40,7 @@ void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 
     front.type = type;
     if( recurse )
-        for( auto* child : front.children )
+        for( auto& child : front.children )
             ChangeFrontType( *child, type, recurse );
 }
 
@@ -52,7 +55,7 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
         {
             if( front.duplicate != nullptr )
             {
-                front.L1D.Attach( front.L2D.Grid(), front.duplicate->LDense ); 
+                front.L1D.Attach( front.L2D.Grid(), front.duplicate->LDense );
             }
             else
             {
@@ -62,11 +65,11 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
             front.L2D.Empty();
         }
     }
-    else if( type == SYMM_2D || type == ConvertTo2D(front.type) ) 
+    else if( type == SYMM_2D || type == ConvertTo2D(front.type) )
     {
         if( FrontIs1D(front.type) )
         {
-            if( front.duplicate != nullptr ) 
+            if( front.duplicate != nullptr )
             {
                 front.L2D.Attach( front.L1D.Grid(), front.duplicate->LDense );
             }
@@ -78,7 +81,7 @@ void ChangeFrontType( DistFront<F>& front, LDLFrontType type, bool recurse )
             front.L1D.Empty();
         }
     }
-    else if( SelInvFactorization(type) && 
+    else if( SelInvFactorization(type) &&
              ConvertTo2D(type) == ConvertTo2D(AppendSelInv(front.type)) )
     {
         // Switch to 2D as soon as possible

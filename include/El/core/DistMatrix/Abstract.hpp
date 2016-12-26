@@ -320,7 +320,9 @@ protected:
         colShift_=0,
         rowShift_=0;
     int root_=0;
-    const El::Grid* grid_;
+
+    // An observing pointer to a pre-existing grid.
+    const El::Grid* grid_=nullptr;
 
     El::Matrix<Ring> matrix_=El::Matrix<Ring>();
 

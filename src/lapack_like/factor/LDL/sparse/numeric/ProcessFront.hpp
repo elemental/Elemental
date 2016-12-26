@@ -1,20 +1,23 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
+   Copyright (c) 2013-2014, Jack Poulson and
    The Georgia Institute of Technology.
    All rights reserved.
 
    Copyright (c) 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2016, Jack Poulson.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_PROCESSFRONT_HPP
@@ -174,7 +177,7 @@ void ProcessFront( Front<F>& front, LDLFrontType factorType )
         ( front.LDense,
           front.subdiag,
           front.p,
-          front.workDense, 
+          front.workDense,
           front.isHermitian );
         GetDiagonal( front.LDense, front.diag );
     }
@@ -188,7 +191,7 @@ void ProcessFront( Front<F>& front, LDLFrontType factorType )
     }
 }
 
-template<typename F> 
+template<typename F>
 void ProcessFrontVanilla
 ( DistMatrix<F>& AL,
   DistMatrix<F>& ABR,
@@ -205,7 +208,7 @@ void ProcessFrontVanilla
       if( ABR.ColAlign() !=
           (AL.ColAlign()+AL.Width()) % AL.Grid().Height() )
           LogicError("AL and ABR must have compatible col alignments");
-      if( ABR.RowAlign() != 
+      if( ABR.RowAlign() !=
           (AL.RowAlign()+AL.Width()) % AL.Grid().Width() )
           LogicError("AL and ABR must have compatible row alignments");
     )
@@ -233,7 +236,7 @@ void ProcessFrontVanilla
         auto AL21 = AL( ind2, ind1 );
         auto AL22 = AL( ind2, ind2 );
 
-        AL11_STAR_STAR = AL11; 
+        AL11_STAR_STAR = AL11;
         LDL( AL11_STAR_STAR, conjugate );
         GetDiagonal( AL11_STAR_STAR, d1_STAR_STAR );
         AL11 = AL11_STAR_STAR;
@@ -270,7 +273,7 @@ void ProcessFrontVanilla
 template<typename F>
 void ProcessFrontIntraPiv
 ( DistMatrix<F>& AL,
-  DistMatrix<F,MD,STAR>& subdiag, 
+  DistMatrix<F,MD,STAR>& subdiag,
   DistPermutation& P,
   DistMatrix<F>& ABR,
   bool conjugate )
@@ -279,7 +282,7 @@ void ProcessFrontIntraPiv
     const Grid& g = AL.Grid();
     const Int n = AL.Width();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-    
+
     auto ATL = AL( IR(0,n  ), ALL );
     auto ABL = AL( IR(n,END), ALL );
 
@@ -379,7 +382,7 @@ void ProcessFront( DistFront<F>& front, LDLFrontType factorType )
 
         auto diag = GetDiagonal( front.L2D );
         front.diag.SetGrid( grid );
-        front.subdiag.SetGrid( grid ); 
+        front.subdiag.SetGrid( grid );
         front.diag = diag;
         front.subdiag = subdiag;
     }

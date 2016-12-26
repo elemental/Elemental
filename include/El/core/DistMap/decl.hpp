@@ -73,7 +73,9 @@ public:
 private:
     Int numSources_;
 
-    const El::Grid* grid_;
+    // An observing pointer to a pre-existing Grid.
+    const El::Grid* grid_=nullptr;
+
     Int blocksize_;
 
     vector<Int> map_;

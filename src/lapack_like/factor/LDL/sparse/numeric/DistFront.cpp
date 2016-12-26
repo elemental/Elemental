@@ -51,11 +51,7 @@ DistFront<Field>::DistFront
 }
 
 template<typename Field>
-DistFront<Field>::~DistFront()
-{
-    delete child;
-    delete duplicate;
-}
+DistFront<Field>::~DistFront() { }
 
 template<typename Field>
 void UnpackEntriesLocal
@@ -72,14 +68,13 @@ void UnpackEntriesLocal
     EL_DEBUG_CSE
 
     // Delete any existing children
-    for( auto* childFront : front.children )
-        delete childFront;
+    SwapClear( front.children );
 
     const Int numChildren = sep.children.size();
     front.children.resize( numChildren );
     for( Int c=0; c<numChildren; ++c )
     {
-        front.children[c] = new Front<Field>(&front);
+        front.children[c].reset( new Front<Field>(&front) );
         UnpackEntriesLocal
         ( *sep.children[c], *node.children[c], *front.children[c],
           A, rRowLengths, rEntries, rTargets, offs, entryOffs );
@@ -212,8 +207,7 @@ void UnpackEntries
 
     if( sep.child == nullptr )
     {
-        delete front.duplicate;
-        front.duplicate = new Front<Field>(&front);
+        front.duplicate.reset( new Front<Field>(&front) );
         UnpackEntriesLocal
         ( *sep.duplicate, *node.duplicate, *front.duplicate,
           A, rRowLengths, rEntries, rTargets, offs, entryOffs );
@@ -222,8 +216,7 @@ void UnpackEntries
 
         return;
     }
-    delete front.child;
-    front.child = new DistFront<Field>(&front);
+    front.child.reset( new DistFront<Field>(&front) );
     UnpackEntries
     ( *sep.child, *node.child, *front.child,
       A, rRowLengths, rEntries, rTargets, offs, entryOffs );
@@ -1054,8 +1047,7 @@ DistFront<Field>::operator=( const DistFront<Field>& front )
     if( front.child == nullptr )
     {
         child = nullptr;
-        delete duplicate;
-        duplicate = new Front<Field>(this);
+        duplicate.reset( new Front<Field>(this) );
         *duplicate = *front.duplicate;
         const Grid& grid = front.L2D.Grid();
         L2D.Attach( grid, front.duplicate->LDense );
@@ -1067,8 +1059,7 @@ DistFront<Field>::operator=( const DistFront<Field>& front )
     else
     {
         duplicate = nullptr;
-        delete child;
-        child = new DistFront<Field>(this);
+        child.reset( new DistFront<Field>(this) );
         *child = *front.child;
         L1D = front.L1D;
         L2D = front.L2D;

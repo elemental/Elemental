@@ -14,27 +14,27 @@
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
-void MakeFrontsUniform( ldl::Front<F>& front )
+template<typename Field>
+void MakeFrontsUniform( ldl::Front<Field>& front )
 {
     ldl::ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.LDense );
-    for( ldl::Front<F>* child : front.children )
+    for( const auto& child : front.children )
         MakeFrontsUniform( *child );
 }
 
-template<typename F>
-void MakeFrontsUniform( ldl::DistFront<F>& front )
+template<typename Field>
+void MakeFrontsUniform( ldl::DistFront<Field>& front )
 {
     ldl::ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.L2D );
-    if( front.child != nullptr )
+    if( front.child.get() != nullptr )
         MakeFrontsUniform( *front.child );
     else
         MakeFrontsUniform( *front.duplicate );
 }
 
-template<typename F>
+template<typename Field>
 void TestSparseDirect
 ( Int n1,
   Int n2,
@@ -46,10 +46,10 @@ void TestSparseDirect
   const BisectCtrl& ctrl,
   const El::Grid& grid )
 {
-    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<F>());
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
 
     const int N = n1*n2*n3;
-    DistSparseMatrix<F> A(grid);
+    DistSparseMatrix<Field> A(grid);
     Laplacian( A, n1, n2, n3 );
     A *= -1;
     if( display )
@@ -83,7 +83,7 @@ void TestSparseDirect
     OutputFromRoot(grid.Comm(),"Building ldl::DistFront tree...");
     mpi::Barrier( grid.Comm() );
     timer.Start();
-    ldl::DistFront<F> front( A, map, sep, info, false );
+    ldl::DistFront<Field> front( A, map, sep, info, false );
     mpi::Barrier( grid.Comm() );
     timer.Stop();
     OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
@@ -106,7 +106,7 @@ void TestSparseDirect
 
         OutputFromRoot(grid.Comm(),"Solving against random right-hand side...");
         timer.Start();
-        DistMultiVec<F> y( N, 1, grid );
+        DistMultiVec<Field> y( N, 1, grid );
         MakeUniform( y );
         ldl::SolveAfter( invMap, info, front, y );
         mpi::Barrier( grid.Comm() );

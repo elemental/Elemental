@@ -244,12 +244,20 @@ struct Front
     Matrix<Field> workDense;
     SparseMatrix<Field> workSparse;
 
+    // An observing pointer for the parent front (should it exist).
     Front<Field>* parent=nullptr;
-    vector<Front<Field>*> children;
+
+    // An observing pointer for the duplicate distributed front
+    // (should it exist).
     DistFront<Field>* duplicate=nullptr;
 
+    // Unique pointers to the child fronts (should they exist).
+    vector<unique_ptr<Front<Field>>> children;
+
     Front( Front<Field>* parentNode=nullptr );
+
     Front( DistFront<Field>* dupNode );
+
     Front
     ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
@@ -325,9 +333,14 @@ struct DistFront
     DistMatrix<Field> work;
     mutable FactorCommMeta commMeta;
 
+    // An observing pointer to the parent node (should it exist).
     DistFront<Field>* parent=nullptr;
-    DistFront<Field>* child=nullptr;
-    Front<Field>* duplicate=nullptr;
+
+    // A unique pointer to the sequential duplicate front (should it exist).
+    unique_ptr<Front<Field>> duplicate;
+
+    // A unique pointer to the distributed child front (should it exist).
+    unique_ptr<DistFront<Field>> child;
 
     DistFront( DistFront<Field>* parentNode=nullptr );
 

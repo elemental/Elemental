@@ -56,11 +56,7 @@ Front<Field>::Front
 }
 
 template<typename Field>
-Front<Field>::~Front()
-{
-    for( auto* child : children )
-        delete child;
-}
+Front<Field>::~Front() { }
 
 template<typename Field>
 void Front<Field>::Pull
@@ -91,14 +87,13 @@ void Front<Field>::Pull
       [&]( const NodeInfo& node, Front<Field>& front )
       {
         // Delete any existing children
-        for( auto* child : front.children )
-            delete child;
+        SwapClear( front.children );
 
         const Int numChildren = node.children.size();
         front.children.resize( numChildren );
         for( Int c=0; c<numChildren; ++c )
         {
-            front.children[c] = new Front<Field>(&front);
+            front.children[c].reset( new Front<Field>(&front) );
             pull( *node.children[c], *front.children[c] );
         }
         // Mark this node as a sparse leaf if it does not have any children
@@ -309,7 +304,7 @@ void Front<Field>::Push
     function<void(const Front<Field>&)> countLower =
       [&]( const Front<Field>& front )
       {
-          for( const Front<Field>* child : front.children )
+          for( const auto& child : front.children )
               countLower( *child );
           const Int nodeSize = front.LDense.Width();
           const Int structSize = front.Height() - nodeSize;
@@ -423,7 +418,7 @@ void Front<Field>::Unpack
     function<void(const Front<Field>&)> countLower =
       [&]( const Front<Field>& front )
       {
-          for( const Front<Field>* child : front.children )
+          for( const auto& child : front.children )
               countLower( *child );
           const Int nodeSize = front.LDense.Width();
           const Int structSize = front.Height() - nodeSize;
@@ -539,14 +534,15 @@ const Front<Field>& Front<Field>::operator=( const Front<Field>& front )
     workDense = front.workDense;
     workSparse = front.workSparse;
     // Do not copy parent...
+
     // Delete any existing children
-    for( auto* child : children )
-        delete child;
+    SwapClear( children );
+
     const int numChildren = front.children.size();
     children.resize( numChildren );
     for( int c=0; c<numChildren; ++c )
     {
-        children[c] = new Front<Field>(this);
+        children[c].reset( new Front<Field>(this) );
         *children[c] = *front.children[c];
     }
     return *this;
@@ -564,7 +560,7 @@ Int Front<Field>::NumEntries() const
     function<void(const Front<Field>&)> count =
       [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
 
         if( front.sparseLeaf )
@@ -605,7 +601,7 @@ Int Front<Field>::NumTopLeftEntries() const
     function<void(const Front<Field>&)> count =
       [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         if( front.sparseLeaf )
         {
@@ -640,7 +636,7 @@ Int Front<Field>::NumBottomLeftEntries() const
     function<void(const Front<Field>&)> count =
       [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         const Int m = front.LDense.Height();
         const Int n = front.LDense.Width();
@@ -665,7 +661,7 @@ double Front<Field>::FactorGFlops() const
     function<void(const Front<Field>&)> count =
       [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         const double m = front.LDense.Height();
         const double n = front.LDense.Width();
@@ -706,7 +702,7 @@ double Front<Field>::SolveGFlops( Int numRHS ) const
     function<void(const Front<Field>&)> count =
       [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         const double m = front.LDense.Height();
         const double n = front.LDense.Width();
