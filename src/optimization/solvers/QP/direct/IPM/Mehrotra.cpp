@@ -833,6 +833,7 @@ void Mehrotra
         Output("|| c ||_2 = ",cNrm2);
     }
 
+    // TODO(poulson): Switch to SparseLDLFactorization.
     vector<Int> map, invMap;
     ldl::NodeInfo info;
     ldl::Separator rootSep;

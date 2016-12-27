@@ -862,7 +862,6 @@ void Mehrotra
     const Int kSparse = sparseOrders.Height();
 
     SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
     Matrix<Real> d,
                  w,     wRoot, wRootInv,
                  l,     lInv,
@@ -910,11 +909,12 @@ void Mehrotra
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
+    // Analyze the nonzero pattern of the KKT systems
+    // ---------------------------------------------- 
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    SparseLDLFactorization<Real>
+      sparseLDLFact( JStatic, hermitian, bisectCtrl );
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -1042,15 +1042,24 @@ void Mehrotra
             else
                 Ones( dInner, n+m+kSparse, 1 );
 
-            JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.ChangeNonzeroValues( J );
+            sparseLDLFact.Factor();
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
                   ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
@@ -1158,14 +1167,24 @@ void Mehrotra
           orders, firstInds, origToSparseFirstInds, kSparse, d );
         try
         {
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
         catch(...)
@@ -1346,7 +1365,6 @@ void Mehrotra
 
     DistGraphMultMeta metaOrig;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
-    ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(grid),
                        w(grid),     wRoot(grid), wRootInv(grid),
                        l(grid),     lInv(grid),
@@ -1408,17 +1426,12 @@ void Mehrotra
     auto meta = JStatic.InitializeMultMeta();
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    DistMap map, invMap;
-    ldl::DistNodeInfo info(grid);
-    ldl::DistSeparator rootSep;
-    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    DistSparseLDLFactorization<Real>
+      sparseLDLFact( JStatic, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
-        Output("ND: ",timer.Stop()," secs");
-    InvertMap( map, invMap );
-
-    vector<Int> mappedSources, mappedTargets, colOffs;
-    JStatic.MappedSources( map, mappedSources );
-    JStatic.MappedTargets( map, mappedTargets, colOffs );
+        Output("Analysis: ",timer.Stop()," secs");
 
     Real relError = 1;
     DistMultiVec<Real> dInner(grid);
@@ -1584,27 +1597,38 @@ void Mehrotra
             J.LockedDistGraph().multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
-            JFront.Pull
-            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
+            sparseLDLFact.ChangeNonzeroValues( J );
             if( ctrl.time && commRank == 0 )
                 Output("Front pull: ",timer.Stop()," secs");
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.Factor( LDL_2D );
             if( commRank == 0 && ctrl.time )
                 Output("LDL: ",timer.Stop()," secs");
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
@@ -1736,14 +1760,26 @@ void Mehrotra
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Corrector solver: ",timer.Stop()," secs");
