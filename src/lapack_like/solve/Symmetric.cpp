@@ -110,7 +110,8 @@ void SymmetricSolve
     if( tryLDL )
     {
         const BisectCtrl ctrl;
-        SparseLDLFactorization<Field> sparseLDLFact( A, hermitian, ctrl );
+        SparseLDLFactorization<Field> sparseLDLFact;
+        sparseLDLFact.Initialize( A, hermitian, ctrl );
 
         sparseLDLFact.Factor();
 
@@ -122,8 +123,10 @@ void SymmetricSolve
           sparseLDLFact.Front(), B, minReductionFactor, maxRefineIts );
         */
         ldl::SolveAfter
-        ( sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(), B );
+        ( sparseLDLFact.InverseMap(),
+          sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(),
+          B );
     }
     else
     {
@@ -144,8 +147,8 @@ void SymmetricSolve
     if( tryLDL )
     {
         const BisectCtrl ctrl;
-        DistSparseLDLFactorization<Field>
-          sparseLDLFact( A, hermitian, ctrl );
+        DistSparseLDLFactorization<Field> sparseLDLFact;
+        sparseLDLFact.Initialize( A, hermitian, ctrl );
 
         sparseLDLFact.Factor( LDL_INTRAPIV_1D );
 
@@ -158,8 +161,10 @@ void SymmetricSolve
           sparseLDLFact.Front(), B, minReductionFactor, maxRefineIts );
         */
         ldl::SolveAfter
-        ( sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(), B );
+        ( sparseLDLFact.InverseMap(),
+          sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(),
+          B );
     }
     else
     {

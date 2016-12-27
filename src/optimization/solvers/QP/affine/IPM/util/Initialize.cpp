@@ -321,10 +321,7 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const vector<Int>& map,
-  const vector<Int>& invMap,
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -365,11 +362,15 @@ void Initialize
     J.FreezeSparsity();
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
+    // Analyze the sparsity pattern of the KKT system
+    // ==============================================
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+
     // (Approximately) factor the KKT matrix
     // =====================================
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront, LDL_2D );
+    sparseLDLFact.Factor();
 
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
@@ -392,7 +393,11 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
+        ( JOrig, regTmp,
+          sparseLDLFact.InverseMap(),
+          sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(),
+          d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
@@ -413,7 +418,11 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
+        ( JOrig, regTmp,
+          sparseLDLFact.InverseMap(),
+          sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(),
+          d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
@@ -638,10 +647,7 @@ void Initialize
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const vector<Int>& map, \
-    const vector<Int>& invMap, \
-    const ldl::Separator& rootSep, \
-    const ldl::NodeInfo& info, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \

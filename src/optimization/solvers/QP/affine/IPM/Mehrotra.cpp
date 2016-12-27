@@ -827,18 +827,15 @@ void Mehrotra
     SparseMatrix<Real> JStatic;
     StaticKKT
     ( Q, A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
+
+    SparseLDLFactorization<Real> sparseLDLFact;
 
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s, map, invMap, rootSep, info,
+    ( JStatic, regTmp, b, c, h, x, y, z, s,
+      sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
 
     SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
     Matrix<Real> d,
                  w,
                  rc,    rb,    rh,    rmu,
@@ -963,17 +960,25 @@ void Mehrotra
             else
                 Ones( dInner, n+m+k, 1 );
 
-            JFront.Pull( J, map, info );
-
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.ChangeNonzeroValues( J );
+            sparseLDLFact.Factor();
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
         catch(...)
@@ -1062,12 +1067,21 @@ void Mehrotra
         {
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
         catch(...)

@@ -11,7 +11,11 @@
 namespace El {
 
 template<typename Field>
-SparseLDLFactorization<Field>::SparseLDLFactorization
+SparseLDLFactorization<Field>::SparseLDLFactorization()
+{ }
+
+template<typename Field>
+void SparseLDLFactorization<Field>::Initialize
 ( const SparseMatrix<Field>& A,
         bool hermitian,
   const BisectCtrl& bisectCtrl )
@@ -23,6 +27,49 @@ SparseLDLFactorization<Field>::SparseLDLFactorization
 
     ldl::NestedDissection
     ( A.LockedGraph(), map_, *separator_, *info_, bisectCtrl );
+    InvertMap( map_, inverseMap_ );
+
+    front_.reset( new ldl::Front<Field>(A,map_,*info_,hermitian) );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::Initialize2DGridGraph
+( Int gridDim0,
+  Int gridDim1,
+  const SparseMatrix<Field>& A,
+        bool hermitian,
+  const BisectCtrl& bisectCtrl )
+{
+    EL_DEBUG_CSE
+
+    info_.reset( new ldl::NodeInfo );
+    separator_.reset( new ldl::Separator );
+
+    ldl::NaturalNestedDissection
+    ( gridDim0, gridDim1, 1, A.LockedGraph(),
+      map_, *separator_, *info_, bisectCtrl.cutoff );
+    InvertMap( map_, inverseMap_ );
+
+    front_.reset( new ldl::Front<Field>(A,map_,*info_,hermitian) );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::Initialize3DGridGraph
+( Int gridDim0,
+  Int gridDim1,
+  Int gridDim2,
+  const SparseMatrix<Field>& A,
+        bool hermitian,
+  const BisectCtrl& bisectCtrl )
+{
+    EL_DEBUG_CSE
+
+    info_.reset( new ldl::NodeInfo );
+    separator_.reset( new ldl::Separator );
+
+    ldl::NaturalNestedDissection
+    ( gridDim0, gridDim1, gridDim2, A.LockedGraph(),
+      map_, *separator_, *info_, bisectCtrl.cutoff );
     InvertMap( map_, inverseMap_ );
 
     front_.reset( new ldl::Front<Field>(A,map_,*info_,hermitian) );

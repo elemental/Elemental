@@ -500,8 +500,25 @@ template<typename Field>
 class SparseLDLFactorization
 {
 public:
-    SparseLDLFactorization
+    SparseLDLFactorization();
+
+    void Initialize
     ( const SparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    // TODO(poulson): Combine these two interfaces
+    void Initialize2DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      const SparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+    void Initialize3DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      Int gridDim2,
+      const SparseMatrix<Field>& A,
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 
@@ -539,8 +556,25 @@ template<typename Field>
 class DistSparseLDLFactorization
 {
 public:
-    DistSparseLDLFactorization
+    DistSparseLDLFactorization();
+
+    void Initialize
     ( const DistSparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    // TODO(poulson): Combine these two interfaces
+    void Initialize2DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      const DistSparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+    void Initialize3DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      Int gridDim2,
+      const DistSparseMatrix<Field>& A,
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 

@@ -913,8 +913,8 @@ void Mehrotra
     // ---------------------------------------------- 
     const bool hermitian = true;
     const BisectCtrl bisectCtrl;
-    SparseLDLFactorization<Real>
-      sparseLDLFact( JStatic, hermitian, bisectCtrl );
+    SparseLDLFactorization<Real> sparseLDLFact;
+    sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -1428,8 +1428,8 @@ void Mehrotra
         timer.Start();
     const bool hermitian = true;
     const BisectCtrl bisectCtrl;
-    DistSparseLDLFactorization<Real>
-      sparseLDLFact( JStatic, hermitian, bisectCtrl );
+    DistSparseLDLFactorization<Real> sparseLDLFact;
+    sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Analysis: ",timer.Stop()," secs");
 

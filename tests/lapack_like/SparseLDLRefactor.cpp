@@ -68,47 +68,41 @@ void TestSparseDirect
     OutputFromRoot(grid.Comm(),"Running nested dissection...");
     timer.Start();
     const DistGraph& graph = A.DistGraph();
-    ldl::DistNodeInfo info(grid);
-    ldl::DistSeparator sep;
-    DistMap map, invMap;
-    ldl::NestedDissection( graph, map, sep, info, ctrl );
-    InvertMap( map, invMap );
+
+    const bool hermitian = false;
+    DistSparseLDLFactorization<Field> sparseLDLFact;
     mpi::Barrier( grid.Comm() );
-    timer.Stop();
-    OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
-
-    const Int rootSepSize = info.size;
-    OutputFromRoot(grid.Comm(),rootSepSize," vertices in root separator\n");
-
     OutputFromRoot(grid.Comm(),"Building ldl::DistFront tree...");
-    mpi::Barrier( grid.Comm() );
     timer.Start();
-    ldl::DistFront<Field> front( A, map, sep, info, false );
+    sparseLDLFact.Initialize( A, hermitian, ctrl );
     mpi::Barrier( grid.Comm() );
     timer.Stop();
     OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
+
+    const Int rootSepSize = sparseLDLFact.NodeInfo().size;
+    OutputFromRoot(grid.Comm(),rootSepSize," vertices in root separator\n");
 
     for( Int repeat=0; repeat<numRepeats; ++repeat )
     {
         if( repeat != 0 )
-            MakeFrontsUniform( front );
+            MakeFrontsUniform( sparseLDLFact.Front() );
 
         OutputFromRoot(grid.Comm(),"Running LDL^T and redistribution...");
         mpi::Barrier( grid.Comm() );
         timer.Start();
         if( intraPiv )
-            LDL( info, front, LDL_INTRAPIV_1D );
+            sparseLDLFact.Factor( LDL_INTRAPIV_1D );
         else
-            LDL( info, front, LDL_1D );
+            sparseLDLFact.Factor( LDL_1D );
         mpi::Barrier( grid.Comm() );
         timer.Stop();
         OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
         OutputFromRoot(grid.Comm(),"Solving against random right-hand side...");
-        timer.Start();
         DistMultiVec<Field> y( N, 1, grid );
         MakeUniform( y );
-        ldl::SolveAfter( invMap, info, front, y );
+        timer.Start();
+        sparseLDLFact.Solve( y );
         mpi::Barrier( grid.Comm() );
         timer.Stop();
         OutputFromRoot(grid.Comm(),"Time = ",timer.Partial()," seconds");

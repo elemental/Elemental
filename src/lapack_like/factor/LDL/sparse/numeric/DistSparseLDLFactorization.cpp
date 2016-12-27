@@ -11,7 +11,11 @@
 namespace El {
 
 template<typename Field>
-DistSparseLDLFactorization<Field>::DistSparseLDLFactorization
+DistSparseLDLFactorization<Field>::DistSparseLDLFactorization()
+{ }
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::Initialize
 ( const DistSparseMatrix<Field>& A,
         bool hermitian,
   const BisectCtrl& bisectCtrl )
@@ -23,6 +27,51 @@ DistSparseLDLFactorization<Field>::DistSparseLDLFactorization
 
     ldl::NestedDissection
     ( A.LockedDistGraph(), map_, *separator_, *info_, bisectCtrl );
+    InvertMap( map_, inverseMap_ );
+
+    front_.reset
+    ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::Initialize2DGridGraph
+( Int gridDim0,
+  Int gridDim1,
+  const DistSparseMatrix<Field>& A,
+        bool hermitian,
+  const BisectCtrl& bisectCtrl )
+{
+    EL_DEBUG_CSE
+
+    info_.reset( new ldl::DistNodeInfo(A.Grid()) );
+    separator_.reset( new ldl::DistSeparator );
+
+    ldl::NaturalNestedDissection
+    ( gridDim0, gridDim1, 1, A.LockedDistGraph(),
+      map_, *separator_, *info_, bisectCtrl.cutoff );
+    InvertMap( map_, inverseMap_ );
+
+    front_.reset
+    ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::Initialize3DGridGraph
+( Int gridDim0,
+  Int gridDim1,
+  Int gridDim2,
+  const DistSparseMatrix<Field>& A,
+        bool hermitian,
+  const BisectCtrl& bisectCtrl )
+{
+    EL_DEBUG_CSE
+
+    info_.reset( new ldl::DistNodeInfo(A.Grid()) );
+    separator_.reset( new ldl::DistSeparator );
+
+    ldl::NaturalNestedDissection
+    ( gridDim0, gridDim1, gridDim2, A.LockedDistGraph(),
+      map_, *separator_, *info_, bisectCtrl.cutoff );
     InvertMap( map_, inverseMap_ );
 
     front_.reset

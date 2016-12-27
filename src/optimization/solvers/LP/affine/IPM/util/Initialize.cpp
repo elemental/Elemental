@@ -326,10 +326,7 @@ void Initialize
         AffineLPSolution<Matrix<Real>>& solution,
   const SparseMatrix<Real>& JStatic,
   const Matrix<Real>& regTmp,
-  const vector<Int>& map,
-  const vector<Int>& invMap,
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -340,7 +337,7 @@ void Initialize
     ( JStatic, regTmp,
       problem.b, problem.c, problem.h,
       solution.x, solution.y, solution.z, solution.s,
-      map, invMap, rootSep, info,
+      sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
@@ -389,10 +386,7 @@ void Initialize
           AffineLPSolution<Matrix<Real>>& solution, \
     const SparseMatrix<Real>& JStatic, \
     const Matrix<Real>& regTmp, \
-    const vector<Int>& map, \
-    const vector<Int>& invMap, \
-    const ldl::Separator& rootSep, \
-    const ldl::NodeInfo& info, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift, \

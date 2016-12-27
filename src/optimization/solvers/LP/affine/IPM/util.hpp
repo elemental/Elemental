@@ -31,10 +31,7 @@ void Initialize
         AffineLPSolution<Matrix<Real>>& solution,
   const SparseMatrix<Real>& JStatic,
   const Matrix<Real>& regTmp,
-  const vector<Int>& map,
-  const vector<Int>& invMap,
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>

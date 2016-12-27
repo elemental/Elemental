@@ -101,7 +101,8 @@ void SQSDSolve
         timer.Start();
     const bool hermitian = true;
     const BisectCtrl bisectCtrl;
-    SparseLDLFactorization<Field> sparseLDLFact( AMod, hermitian, bisectCtrl );
+    SparseLDLFactorization<Field> sparseLDLFact;
+    sparseLDLFact.Initialize( AMod, hermitian, bisectCtrl );
     if( ctrl.time )
         Output("  Analysis: ",timer.Stop()," secs");
 
@@ -197,8 +198,8 @@ void SQSDSolve
         timer.Start();
     const bool hermitian = true;
     const BisectCtrl bisectCtrl;
-    DistSparseLDLFactorization<Field>
-      sparseLDLFact( AMod, hermitian, bisectCtrl );
+    DistSparseLDLFactorization<Field> sparseLDLFact;
+    sparseLDLFact.Initialize( AMod, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
         Output("  Analysis: ",timer.Stop()," secs");
 

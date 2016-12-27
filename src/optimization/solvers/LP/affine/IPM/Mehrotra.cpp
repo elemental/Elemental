@@ -1090,20 +1090,16 @@ void EquilibratedMehrotra
     ( problem.A, problem.G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
       JStatic, false );
     JStatic.FreezeSparsity();
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
 
+    SparseLDLFactorization<Real> sparseLDLFact;
     Initialize
-    ( problem, solution, JStatic, regTmp, map, invMap, rootSep, info,
+    ( problem, solution, JStatic, regTmp,
+      sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
 
     Real relError = 1;
     Matrix<Real> dInner;
     SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
     Matrix<Real> d, w;
     auto attemptToFactor = [&]( const Real& wMaxNorm )
       {
@@ -1120,8 +1116,8 @@ void EquilibratedMehrotra
             else
                 Ones( dInner, J.Height(), 1 );
 
-            JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.ChangeNonzeroValues( J );
+            sparseLDLFact.Factor();
         }
         catch(...)
         {
@@ -1138,11 +1134,19 @@ void EquilibratedMehrotra
         {
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  rhs,
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  rhs,
                   ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
