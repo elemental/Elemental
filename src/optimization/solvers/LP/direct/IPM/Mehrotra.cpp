@@ -1783,7 +1783,7 @@ void EquilibratedMehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparesLDLFact, d, ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
                     ( JOrig, regTmp, dInner, sparseLDLFact, d,
