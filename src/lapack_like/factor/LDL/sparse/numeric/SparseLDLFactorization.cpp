@@ -8,7 +8,28 @@
 */
 #include <El.hpp>
 
+#include "./LowerSolve/Forward.hpp"
+#include "./LowerSolve/Backward.hpp"
+#include "./LowerMultiply/Forward.hpp"
+#include "./LowerMultiply/Backward.hpp"
+
 namespace El {
+
+// Prototypes
+namespace ldl {
+
+template<typename Field>
+void DiagonalSolve
+( const NodeInfo& info,
+  const Front<Field>& front,
+        MatrixNode<Field>& B );
+template<typename Field>
+void DiagonalScale
+( const NodeInfo& info,
+  const Front<Field>& front,
+        MatrixNode<Field>& B );
+
+} // namespace ldl
 
 template<typename Field>
 SparseLDLFactorization<Field>::SparseLDLFactorization()
@@ -30,6 +51,7 @@ void SparseLDLFactorization<Field>::Initialize
     InvertMap( map_, inverseMap_ );
 
     front_.reset( new ldl::Front<Field>(A,map_,*info_,hermitian) );
+    factored_ = false;
 }
 
 template<typename Field>
@@ -51,6 +73,7 @@ void SparseLDLFactorization<Field>::Initialize2DGridGraph
     InvertMap( map_, inverseMap_ );
 
     front_.reset( new ldl::Front<Field>(A,map_,*info_,hermitian) );
+    factored_ = false;
 }
 
 template<typename Field>
@@ -73,6 +96,7 @@ void SparseLDLFactorization<Field>::Initialize3DGridGraph
     InvertMap( map_, inverseMap_ );
 
     front_.reset( new ldl::Front<Field>(A,map_,*info_,hermitian) );
+    factored_ = false;
 }
 
 template<typename Field>
@@ -80,6 +104,7 @@ void SparseLDLFactorization<Field>::Factor( LDLFrontType frontType )
 {
     EL_DEBUG_CSE
     LDL( *info_, *front_, frontType );
+    factored_ = true;
 }
 
 template<typename Field>
@@ -88,13 +113,44 @@ void SparseLDLFactorization<Field>::ChangeNonzeroValues
 {
     EL_DEBUG_CSE
     front_->Pull( ANew, map_, *info_ );
+    factored_ = false;
 }
 
 template<typename Field>
 void SparseLDLFactorization<Field>::Solve( Matrix<Field>& B ) const
 {
     EL_DEBUG_CSE
-    ldl::SolveAfter( inverseMap_, *info_, *front_, B );
+    if( !factored_ )
+        LogicError("Must call Factor() before Solve()");
+    // TODO(poulson): Reuse a single MatrixNode data structure?
+    ldl::MatrixNode<Field> BNodal( inverseMap_, *info_, B );
+    Solve( BNodal );
+    BNodal.Push( inverseMap_, *info_, B );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::Solve( ldl::MatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before Solve()");
+    const Orientation orientation = front_->isHermitian ? ADJOINT : TRANSPOSE;
+    if( BlockFactorization(front_->type) )
+    {   
+        // Solve against block diagonal factor, L D
+        SolveAgainstL( NORMAL, B );
+        // Solve against the (conjugate-)transpose of the block unit diagonal L
+        SolveAgainstL( orientation, B );
+    }
+    else
+    {   
+        // Solve against unit diagonal L 
+        SolveAgainstL( NORMAL, B );
+        // Solve against diagonal
+        SolveAgainstD( NORMAL, B );
+        // Solve against the (conjugate-)transpose of the unit diagonal L
+        SolveAgainstL( orientation, B );
+    }
 }
 
 template<typename Field>
@@ -105,6 +161,8 @@ void SparseLDLFactorization<Field>::SolveWithIterativeRefinement
         Int maxRefineIts ) const
 {
     EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveWithIterativeRefinement()");
     // TODO(poulson): Generalize this implementation
     if( B.Width() > 1 )
         LogicError("Iterative Refinement currently only supported for one RHS");
@@ -154,6 +212,118 @@ void SparseLDLFactorization<Field>::SolveWithIterativeRefinement
     // ======================
     B = X;
 }
+
+template<typename Field>
+void SparseLDLFactorization<Field>::SolveAgainstL
+( Orientation orientation, Matrix<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstL()");
+    ldl::MatrixNode<Field> BNodal( inverseMap_, *info_, B );
+    SolveAgainstL( orientation, BNodal );
+    BNodal.Push( inverseMap_, *info_, B );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::SolveAgainstL
+( Orientation orientation, ldl::MatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstL()");
+    if( orientation == NORMAL )
+        ldl::LowerForwardSolve( *info_, *front_, B );
+    else
+        ldl::LowerBackwardSolve( *info_, *front_, B, orientation==ADJOINT );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::MultiplyWithL
+( Orientation orientation, Matrix<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithL()");
+    ldl::MatrixNode<Field> BNodal( inverseMap_, *info_, B );
+    MultiplyWithL( orientation, BNodal );
+    BNodal.Push( inverseMap_, *info_, B );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::MultiplyWithL
+( Orientation orientation, ldl::MatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithL()");
+    if( orientation == NORMAL )
+        ldl::LowerForwardMultiply( *info_, *front_, B );
+    else
+        ldl::LowerBackwardMultiply( *info_, *front_, B, orientation==ADJOINT );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::SolveAgainstD
+( Orientation orientation, Matrix<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstD()");
+    ldl::MatrixNode<Field> BNodal( inverseMap_, *info_, B );
+    SolveAgainstD( orientation, BNodal );
+    BNodal.Push( inverseMap_, *info_, B );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::SolveAgainstD
+( Orientation orientation, ldl::MatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstD()");
+    if( orientation == NORMAL )
+    {
+        ldl::DiagonalSolve( *info_, *front_, B );
+    }
+    else
+    {
+        LogicError("Conjugated solve with D not yet supported");
+    }
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::MultiplyWithD
+( Orientation orientation, Matrix<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithD()");
+    ldl::MatrixNode<Field> BNodal( inverseMap_, *info_, B );
+    MultiplyWithD( orientation, BNodal );
+    BNodal.Push( inverseMap_, *info_, B );
+}
+
+template<typename Field>
+void SparseLDLFactorization<Field>::MultiplyWithD
+( Orientation orientation, ldl::MatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithD()");
+    if( orientation == NORMAL )
+    {
+        ldl::DiagonalScale( *info_, *front_, B );
+    }
+    else
+    {
+        LogicError("Conjugated multiplication with D not yet supported");
+    }
+}
+
+template<typename Field>
+bool SparseLDLFactorization<Field>::Factored() const
+{ return factored_; }
 
 template<typename Field>
 ldl::Front<Field>& SparseLDLFactorization<Field>::Front()

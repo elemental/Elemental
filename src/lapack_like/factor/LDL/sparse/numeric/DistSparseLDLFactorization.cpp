@@ -8,7 +8,38 @@
 */
 #include <El.hpp>
 
+#include "./LowerSolve/Forward.hpp"
+#include "./LowerSolve/Backward.hpp"
+#include "./LowerMultiply/Forward.hpp"
+#include "./LowerMultiply/Backward.hpp"
+
 namespace El {
+
+// Prototypes
+namespace ldl {
+
+template<typename Field>
+void DiagonalSolve
+( const DistNodeInfo& info,
+  const DistFront<Field>& front,
+        DistMultiVecNode<Field>& B );
+template<typename Field>
+void DiagonalSolve
+( const DistNodeInfo& info,
+  const DistFront<Field>& front,
+        DistMatrixNode<Field>& B );
+template<typename Field>
+void DiagonalScale
+( const DistNodeInfo& info,
+  const DistFront<Field>& front,
+        DistMultiVecNode<Field>& B );
+template<typename Field>
+void DiagonalScale
+( const DistNodeInfo& info,
+  const DistFront<Field>& front,
+        DistMatrixNode<Field>& B );
+
+} // namespace ldl
 
 template<typename Field>
 DistSparseLDLFactorization<Field>::DistSparseLDLFactorization()
@@ -31,6 +62,7 @@ void DistSparseLDLFactorization<Field>::Initialize
 
     front_.reset
     ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+    factored_ = false;
 }
 
 template<typename Field>
@@ -53,6 +85,7 @@ void DistSparseLDLFactorization<Field>::Initialize2DGridGraph
 
     front_.reset
     ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+    factored_ = false;
 }
 
 template<typename Field>
@@ -76,6 +109,7 @@ void DistSparseLDLFactorization<Field>::Initialize3DGridGraph
 
     front_.reset
     ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+    factored_ = false;
 }
 
 template<typename Field>
@@ -83,6 +117,7 @@ void DistSparseLDLFactorization<Field>::Factor( LDLFrontType frontType )
 {
     EL_DEBUG_CSE
     LDL( *info_, *front_, frontType );
+    factored_ = true;
 }
 
 template<typename Field>
@@ -99,13 +134,103 @@ void DistSparseLDLFactorization<Field>::ChangeNonzeroValues
     front_->Pull
     ( ANew, map_, *separator_, *info_,
       mappedSources_, mappedTargets_, columnOffsets_ );
+    factored_ = false;
 }
 
 template<typename Field>
 void DistSparseLDLFactorization<Field>::Solve( DistMultiVec<Field>& B ) const
 {
     EL_DEBUG_CSE
-    ldl::SolveAfter( inverseMap_, *info_, *front_, B );
+    if( !factored_ )
+        LogicError("Must call Factor() before Solve()");
+    if( FrontIs1D(front_->type) )
+    {
+        ldl::DistMultiVecNode<Field> BNodal( inverseMap_, *info_, B );
+        Solve( BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+    else
+    {
+        ldl::DistMatrixNode<Field> BNodal( inverseMap_, *info_, B );
+        Solve( BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::Solve
+( ldl::DistMultiVecNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before Solve()");
+
+    // TODO(poulson): Only perform the switch if there are a sufficient
+    // number of right-hand sides?
+    /*
+    if( !FrontIs1D(front_->type) )
+    {
+        // TODO(poulson): Add warning?
+        ldl::DistMatrixNode<Field> BMat( B );
+        Solve( BMat );
+        B = BMat;
+        return;
+    }
+    */
+
+    const Orientation orientation = front_->isHermitian ? ADJOINT : TRANSPOSE;
+    if( BlockFactorization(front_->type) )
+    {
+        // Solve against block diagonal factor, L D
+        SolveAgainstL( NORMAL, B );
+        // Solve against the (conjugate-)transpose of the block unit diagonal L
+        SolveAgainstL( orientation, B );
+    }
+    else
+    {
+        // Solve against unit diagonal L
+        SolveAgainstL( NORMAL, B );
+        // Solve against diagonal
+        SolveAgainstD( NORMAL, B );
+        // Solve against the (conjugate-)transpose of the unit diagonal L
+        SolveAgainstL( orientation, B );
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::Solve
+( ldl::DistMatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before Solve()");
+
+    if( FrontIs1D(front_->type) )
+    {
+        // TODO: Add warning?
+        ldl::DistMultiVecNode<Field> BMV( B );
+        Solve( BMV );
+        B = BMV;
+        return;
+    }
+
+    const Orientation orientation = front_->isHermitian ? ADJOINT : TRANSPOSE;
+    if( BlockFactorization(front_->type) )
+    {
+        // Solve against block diagonal factor, L D
+        SolveAgainstL( NORMAL, B );
+        // Solve against the (conjugate-)transpose of the block unit diagonal L
+        SolveAgainstL( orientation, B );
+    }
+    else
+    {
+        // Solve against unit diagonal L
+        SolveAgainstL( NORMAL, B );
+        // Solve against diagonal
+        SolveAgainstD( NORMAL, B );
+        // Solve against the (conjugate-)transpose of the unit diagonal L
+        SolveAgainstL( orientation, B );
+    }
 }
 
 template<typename Field>
@@ -116,10 +241,12 @@ void DistSparseLDLFactorization<Field>::SolveWithIterativeRefinement
         Int maxRefineIts ) const
 {
     EL_DEBUG_CSE
-    const Grid& grid = B.Grid();
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveWithIterativeRefinement()");
     // TODO(poulson): Generalize this implementation
     if( B.Width() > 1 )
         LogicError("Iterative Refinement currently only supported for one RHS");
+    const Grid& grid = B.Grid();
 
     DistMultiVec<Field> BOrig(grid);
     BOrig = B;
@@ -168,6 +295,214 @@ void DistSparseLDLFactorization<Field>::SolveWithIterativeRefinement
     // ======================
     B = X;
 }
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveAgainstL
+( Orientation orientation, DistMultiVec<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstL()");
+    if( FrontIs1D(front_->type) )
+    {
+        ldl::DistMultiVecNode<Field> BNodal( inverseMap_, *info_, B );
+        SolveAgainstL( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+    else
+    {
+        ldl::DistMatrixNode<Field> BNodal( inverseMap_, *info_, B );
+        SolveAgainstL( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveAgainstL
+( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstL()");
+    if( orientation == NORMAL )
+        ldl::LowerForwardSolve( *info_, *front_, B );
+    else
+        ldl::LowerBackwardSolve( *info_, *front_, B, orientation==ADJOINT );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveAgainstL
+( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstL()");
+    if( orientation == NORMAL )
+        ldl::LowerForwardSolve( *info_, *front_, B );
+    else
+        ldl::LowerBackwardSolve( *info_, *front_, B, orientation==ADJOINT );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::MultiplyWithL
+( Orientation orientation, DistMultiVec<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithL()");
+    if( FrontIs1D(front_->type) )
+    {
+        ldl::DistMultiVecNode<Field> BNodal( inverseMap_, *info_, B );
+        MultiplyWithL( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+    else
+    {
+        ldl::DistMatrixNode<Field> BNodal( inverseMap_, *info_, B );
+        MultiplyWithL( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::MultiplyWithL
+( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithL()");
+    if( orientation == NORMAL )
+        ldl::LowerForwardMultiply( *info_, *front_, B );
+    else
+        ldl::LowerBackwardMultiply( *info_, *front_, B, orientation==ADJOINT );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::MultiplyWithL
+( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithL()");
+    if( orientation == NORMAL )
+        ldl::LowerForwardMultiply( *info_, *front_, B );
+    else
+        ldl::LowerBackwardMultiply( *info_, *front_, B, orientation==ADJOINT );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveAgainstD
+( Orientation orientation, DistMultiVec<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstD()");
+    if( FrontIs1D(front_->type) )
+    {
+        ldl::DistMultiVecNode<Field> BNodal( inverseMap_, *info_, B );
+        SolveAgainstD( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+    else
+    {
+        ldl::DistMatrixNode<Field> BNodal( inverseMap_, *info_, B );
+        SolveAgainstD( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveAgainstD
+( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstD()");
+    if( orientation == NORMAL )
+    {
+        ldl::DiagonalSolve( *info_, *front_, B );
+    }
+    else
+    {
+        LogicError("Conjugated SolveAgainstD() not yet supported");
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveAgainstD
+( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before SolveAgainstD()");
+    if( orientation == NORMAL )
+    {
+        ldl::DiagonalSolve( *info_, *front_, B );
+    }
+    else
+    {
+        LogicError("Conjugated SolveAgainstD() not yet supported");
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::MultiplyWithD
+( Orientation orientation, DistMultiVec<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithD()");
+    if( FrontIs1D(front_->type) )
+    {
+        ldl::DistMultiVecNode<Field> BNodal( inverseMap_, *info_, B );
+        MultiplyWithD( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+    else
+    {
+        ldl::DistMatrixNode<Field> BNodal( inverseMap_, *info_, B );
+        MultiplyWithD( orientation, BNodal );
+        BNodal.Push( inverseMap_, *info_, B );
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::MultiplyWithD
+( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithD()");
+    if( orientation == NORMAL )
+    {
+        ldl::DiagonalScale( *info_, *front_, B );
+    }
+    else
+    {
+        LogicError("Conjugated MultiplyWithD() not yet supported");
+    }
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::MultiplyWithD
+( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const
+{
+    EL_DEBUG_CSE
+    if( !factored_ )
+        LogicError("Must call Factor() before MultiplyWithD()");
+    if( orientation == NORMAL )
+    {
+        ldl::DiagonalScale( *info_, *front_, B );
+    }
+    else
+    {
+        LogicError("Conjugated MultiplyWithD() not yet supported");
+    }
+}
+
+template<typename Field>
+bool DistSparseLDLFactorization<Field>::Factored() const
+{ return factored_; }
 
 template<typename Field>
 ldl::DistFront<Field>& DistSparseLDLFactorization<Field>::Front()

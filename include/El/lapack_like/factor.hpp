@@ -230,28 +230,6 @@ void SolveAfter
         AbstractDistMatrix<Field>& B,
   bool conjugated );
 
-template<typename Field>
-void SolveAfter
-( const vector<Int>& invMap, const NodeInfo& info,
-  const Front<Field>& front, Matrix<Field>& X );
-template<typename Field>
-void SolveAfter
-( const DistMap& invMap, const DistNodeInfo& info,
-  const DistFront<Field>& front, DistMultiVec<Field>& X );
-
-template<typename Field>
-void SolveAfter
-( const NodeInfo& info,
-  const Front<Field>& front, MatrixNode<Field>& X );
-template<typename Field>
-void SolveAfter
-( const DistNodeInfo& info,
-  const DistFront<Field>& front, DistMultiVecNode<Field>& X );
-template<typename Field>
-void SolveAfter
-( const DistNodeInfo& info,
-  const DistFront<Field>& front, DistMatrixNode<Field>& X );
-
 // Solve linear system with the implicit representations of L, D, and P
 // --------------------------------------------------------------------
 template<typename Field>

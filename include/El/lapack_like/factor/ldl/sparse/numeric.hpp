@@ -468,32 +468,6 @@ void DiagonalSolve
   const DistFront<Field>& L,
         DistMatrixNode<Field>& X );
 
-template<typename Field>
-void LowerSolve
-( Orientation orientation, const NodeInfo& info,
-  const Front<Field>& L, MatrixNode<Field>& X );
-template<typename Field>
-void LowerSolve
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<Field>& L, DistMultiVecNode<Field>& X );
-template<typename Field>
-void LowerSolve
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<Field>& L, DistMatrixNode<Field>& X );
-
-template<typename Field>
-void LowerMultiply
-( Orientation orientation, const NodeInfo& info,
-  const Front<Field>& L, MatrixNode<Field>& X );
-template<typename Field>
-void LowerMultiply
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<Field>& L, DistMultiVecNode<Field>& X );
-template<typename Field>
-void LowerMultiply
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<Field>& L, DistMatrixNode<Field>& X );
-
 } // namespace ldl
 
 template<typename Field>
@@ -528,6 +502,7 @@ public:
 
     // Overwrite 'B' with the solution to 'A X = B'.
     void Solve( Matrix<Field>& B ) const;
+    void Solve( ldl::MatrixNode<Field>& B ) const;
 
     // Overwrite 'B' with the solution to 'A X = B' using Iterative Refinement.
     void SolveWithIterativeRefinement
@@ -535,6 +510,27 @@ public:
             Matrix<Field>& B,
       const Base<Field>& relTolRefine,
       Int maxRefineIts ) const;
+
+    void SolveAgainstL
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void SolveAgainstL
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    void SolveAgainstD
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void SolveAgainstD
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+    // TODO(poulson): Apply permutation?
+
+    bool Factored() const;
 
     ldl::Front<Field>& Front();
     const ldl::Front<Field>& Front() const;
@@ -552,6 +548,7 @@ public:
     const vector<Int>& InverseMap() const;
     
 private:
+    bool factored_=false;
     unique_ptr<ldl::Front<Field>> front_;
     unique_ptr<ldl::NodeInfo> info_;
     unique_ptr<ldl::Separator> separator_;
@@ -591,6 +588,8 @@ public:
 
     // Overwrite 'B' with the solution to 'A X = B'.
     void Solve( DistMultiVec<Field>& B ) const;
+    void Solve( ldl::DistMultiVecNode<Field>& B ) const;
+    void Solve( ldl::DistMatrixNode<Field>& B ) const;
 
     // Overwrite 'B' with the solution to 'A X = B' using Iterative Refinement.
     void SolveWithIterativeRefinement
@@ -598,6 +597,36 @@ public:
             DistMultiVec<Field>& B,
       const Base<Field>& relTolRefine,
       Int maxRefineIts ) const;
+
+    void SolveAgainstL
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void SolveAgainstL
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void SolveAgainstL
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    void SolveAgainstD
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void SolveAgainstD
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void SolveAgainstD
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // TODO(poulson): Apply permutation?
+
+    bool Factored() const;
 
     ldl::DistFront<Field>& Front();
     const ldl::DistFront<Field>& Front() const;
@@ -617,6 +646,7 @@ public:
     ldl::DistMultiVecNodeMeta& DistMultiVecNodeMeta() const;
 
 private:
+    bool factored_=false;
     unique_ptr<ldl::DistFront<Field>> front_;
     unique_ptr<ldl::DistNodeInfo> info_;
     unique_ptr<ldl::DistSeparator> separator_;
