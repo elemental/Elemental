@@ -76,23 +76,13 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-
     SparseLDLFactorization<Field> sparseLDLFact;
     const bool hermitian = true;
     sparseLDLFact.Initialize( A, hermitian, ctrl );
     sparseLDLFact.Factor();
-
-    // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
-    // multiple right-hand sides
     /*
-    ldl::SolveWithIterativeRefinement
-    ( A,
-      sparseLDLFact.InverseMap(),
-      sparseLDLFact.NodeInfo(),
-      sparseLDLFact.Front(),
-      B,
-      minReductionFactor,
-      maxRefineIts );
+    sparseLDLFact.SolveWithIterativeRefinement
+    ( A, B, relTolRefine, maxRefineIts );
     */
     sparseLDLFact.Solve( B );
 }
@@ -105,23 +95,13 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-
     DistSparseLDLFactorization<Field> sparseLDLFact;
     const bool hermitian = true;
     sparseLDLFact.Initialize( A, hermitian, ctrl );
     sparseLDLFact.Factor();
-
-    // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
-    // multiple right-hand sides
     /*
-    ldl::SolveWithIterativeRefinement
-    ( A,
-      sparseLDLFact.InverseMap(),
-      sparseLDLFact.NodeInfo(),
-      sparseLDLFact.Front(),
-      B,
-      minReductionFactor,
-      maxRefineIts );
+    sparseLDLFact.SolveWithIterativeRefinement
+    ( A, B, relTolRefine, maxRefineIts );
     */
     sparseLDLFact.Solve( B );
 }

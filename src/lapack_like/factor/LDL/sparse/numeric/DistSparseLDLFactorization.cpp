@@ -109,6 +109,67 @@ void DistSparseLDLFactorization<Field>::Solve( DistMultiVec<Field>& B ) const
 }
 
 template<typename Field>
+void DistSparseLDLFactorization<Field>::SolveWithIterativeRefinement
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
+  const Base<Field>& minReductionFactor,
+        Int maxRefineIts ) const
+{
+    EL_DEBUG_CSE
+    const Grid& grid = B.Grid();
+    // TODO(poulson): Generalize this implementation
+    if( B.Width() > 1 )
+        LogicError("Iterative Refinement currently only supported for one RHS");
+
+    DistMultiVec<Field> BOrig(grid);
+    BOrig = B;
+
+    // Compute the initial guess
+    // =========================
+    DistMultiVec<Field> X(B);
+    Solve( X );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        DistMultiVec<Field> dX(grid), XCand(grid);
+        Multiply( NORMAL, Field(-1), A, X, Field(1), B );
+        Base<Field> errorNorm = FrobeniusNorm( B );
+        for( ; refineIt<maxRefineIts; ++refineIt )
+        {
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            dX = B;
+            Solve( dX );
+            XCand = X;
+            XCand += dX;
+
+            // If the proposed update lowers the residual, accept it
+            // -----------------------------------------------------
+            B = BOrig;
+            Multiply( NORMAL, Field(-1), A, XCand, Field(1), B );
+            Base<Field> newErrorNorm = FrobeniusNorm( B );
+            if( minReductionFactor*newErrorNorm < errorNorm )
+            {
+                X = XCand;
+                errorNorm = newErrorNorm;
+            }
+            else if( newErrorNorm < errorNorm )
+            {
+                X = XCand;
+                errorNorm = newErrorNorm;
+                break;
+            }
+            else
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    B = X;
+}
+
+template<typename Field>
 ldl::DistFront<Field>& DistSparseLDLFactorization<Field>::Front()
 {
     EL_DEBUG_CSE

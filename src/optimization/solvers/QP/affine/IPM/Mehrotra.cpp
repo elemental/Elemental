@@ -975,19 +975,10 @@ void Mehrotra
 
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1078,19 +1069,10 @@ void Mehrotra
         {
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1439,21 +1421,10 @@ void Mehrotra
                 timer.Start();
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1549,21 +1520,10 @@ void Mehrotra
                 timer.Start();
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  d,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );

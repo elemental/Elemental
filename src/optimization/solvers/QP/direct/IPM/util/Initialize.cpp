@@ -370,11 +370,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg,
-          sparseLDLFact.InverseMap(),
-          sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(),
-          d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
@@ -390,11 +386,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg,
-          sparseLDLFact.InverseMap(),
-          sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(),
-          d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
@@ -520,11 +512,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg,
-          sparseLDLFact.InverseMap(),
-          sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(),
-          d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
@@ -540,11 +528,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg,
-          sparseLDLFact.InverseMap(),
-          sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(),
-          d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );

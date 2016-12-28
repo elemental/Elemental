@@ -98,6 +98,64 @@ void SparseLDLFactorization<Field>::Solve( Matrix<Field>& B ) const
 }
 
 template<typename Field>
+void SparseLDLFactorization<Field>::SolveWithIterativeRefinement
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
+  const Base<Field>& minReductionFactor,
+        Int maxRefineIts ) const
+{
+    EL_DEBUG_CSE
+    // TODO(poulson): Generalize this implementation
+    if( B.Width() > 1 )
+        LogicError("Iterative Refinement currently only supported for one RHS");
+    auto BOrig = B;
+
+    // Compute the initial guess
+    // =========================
+    Matrix<Field> X( B );
+    Solve( X );
+
+    Int refineIt = 0;
+    if( maxRefineIts > 0 )
+    {
+        Matrix<Field> dX, XCand;
+        Multiply( NORMAL, Field(-1), A, X, Field(1), B );
+        Base<Field> errorNorm = FrobeniusNorm( B );
+        for( ; refineIt<maxRefineIts; ++refineIt )
+        {
+            // Compute the proposed update to the solution
+            // -------------------------------------------
+            dX = B;
+            Solve( dX );
+            XCand = X;
+            XCand += dX;
+
+            // If the proposed update lowers the residual, accept it
+            // -----------------------------------------------------
+            B = BOrig;
+            Multiply( NORMAL, Field(-1), A, XCand, Field(1), B );
+            Base<Field> newErrorNorm = FrobeniusNorm( B );
+            if( minReductionFactor*newErrorNorm < errorNorm )
+            {
+                X = XCand;
+                errorNorm = newErrorNorm;
+            }
+            else if( newErrorNorm < errorNorm )
+            {
+                X = XCand;
+                errorNorm = newErrorNorm;
+                break;
+            }
+            else
+                break;
+        }
+    }
+    // Store the final result
+    // ======================
+    B = X;
+}
+
+template<typename Field>
 ldl::Front<Field>& SparseLDLFactorization<Field>::Front()
 {
     EL_DEBUG_CSE

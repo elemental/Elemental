@@ -1144,20 +1144,12 @@ void EquilibratedMehrotra
         {
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  rhs,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  rhs,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
         catch(...)
@@ -1592,21 +1584,10 @@ void EquilibratedMehrotra
                 timer.Start();
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  rhs,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  rhs,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
+                ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );

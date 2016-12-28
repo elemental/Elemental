@@ -383,15 +383,11 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    vector<Int> map, invMap;
-    ldl::Separator rootSep;
-    ldl::NodeInfo info;
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront );
+    SparseLDLFactorization<Real> sparseLDLFact;
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor();
 
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
@@ -412,7 +408,7 @@ void Initialize
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -432,7 +428,7 @@ void Initialize
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -543,15 +539,11 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    DistMap map(grid), invMap(grid);
-    ldl::DistSeparator rootSep;
-    ldl::DistNodeInfo info(grid);
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info );
-    LDL( info, JFront, LDL_2D );
+    DistSparseLDLFactorization<Real> sparseLDLFact;
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor( LDL_2D );
 
     DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
                        d(grid);
@@ -573,7 +565,7 @@ void Initialize
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -593,7 +585,7 @@ void Initialize
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }

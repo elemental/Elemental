@@ -1620,19 +1620,10 @@ void EquilibratedMehrotra
                 sparseLDLFact.Factor( LDL_2D );
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
                       ctrl.solveCtrl.relTol,
                       ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
@@ -1687,11 +1678,7 @@ void EquilibratedMehrotra
 
                 // NOTE: regTmp should be all zeros; replace with unregularized
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  affineCorrection.y,
+                ( J, regTmp, sparseLDLFact, affineCorrection.y,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress,
@@ -1796,19 +1783,10 @@ void EquilibratedMehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparesLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
                       ctrl.solveCtrl.relTol,
                       ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
@@ -1832,19 +1810,10 @@ void EquilibratedMehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
                       ctrl.solveCtrl.relTol,
                       ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
@@ -1871,11 +1840,7 @@ void EquilibratedMehrotra
             {
                 // NOTE: regTmp should be all zeros; replace with unregularized
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  correction.y,
+                ( J, regTmp, sparseLDLFact, correction.y,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress,
@@ -2290,20 +2255,10 @@ void EquilibratedMehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      sparseLDLFact.DistMultiVecNodeMeta(),
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
                       ctrl.solveCtrl.relTol,
                       ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
@@ -2383,12 +2338,7 @@ void EquilibratedMehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  affineCorrection.y,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
+                ( J, regTmp, sparseLDLFact, affineCorrection.y,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress,
@@ -2497,21 +2447,10 @@ void EquilibratedMehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      sparseLDLFact.DistMultiVecNodeMeta(),
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      sparseLDLFact.DistMultiVecNodeMeta(),
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
                       ctrl.solveCtrl.relTol,
                       ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
@@ -2539,21 +2478,10 @@ void EquilibratedMehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      sparseLDLFact.DistMultiVecNodeMeta(),
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner,
-                      sparseLDLFact.InverseMap(),
-                      sparseLDLFact.NodeInfo(),
-                      sparseLDLFact.Front(),
-                      d,
-                      sparseLDLFact.DistMultiVecNodeMeta(),
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
                       ctrl.solveCtrl.relTol,
                       ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
@@ -2583,12 +2511,7 @@ void EquilibratedMehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp,
-                  sparseLDLFact.InverseMap(),
-                  sparseLDLFact.NodeInfo(),
-                  sparseLDLFact.Front(),
-                  correction.y,
-                  sparseLDLFact.DistMultiVecNodeMeta(),
+                ( J, regTmp, sparseLDLFact, correction.y,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress,

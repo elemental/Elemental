@@ -118,10 +118,7 @@ void SQSDSolve
     // =============================================
     if( ctrl.time )
         timer.Start();
-    // TODO(poulson): Introduce a better interface for this.
-    reg_ldl::SolveAfter
-    ( A, regTmp, sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
-      sparseLDLFact.Front(), B, ctrl.solveCtrl );
+    reg_ldl::SolveAfter( A, regTmp, sparseLDLFact, B, ctrl.solveCtrl );
     if( ctrl.time )
         Output("  Solve: ",timer.Stop()," secs");
 }
@@ -215,11 +212,7 @@ void SQSDSolve
     // ==========================
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    // TODO(poulson): Introduce a better interface for this.
-    reg_ldl::SolveAfter
-    ( A, regTmp, sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
-      sparseLDLFact.Front(), B,
-      sparseLDLFact.DistMultiVecNodeMeta(), ctrl.solveCtrl );
+    reg_ldl::SolveAfter( A, regTmp, sparseLDLFact, B, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("  Solve: ",timer.Stop()," secs");
 }

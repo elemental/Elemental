@@ -106,27 +106,17 @@ void SymmetricSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-
     if( tryLDL )
     {
         const BisectCtrl ctrl;
         SparseLDLFactorization<Field> sparseLDLFact;
         sparseLDLFact.Initialize( A, hermitian, ctrl );
-
         sparseLDLFact.Factor();
-
-        // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
-        // multiple right-hand sides
         /*
-        ldl::SolveWithIterativeRefinement
-        ( A, sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(), B, minReductionFactor, maxRefineIts );
+        sparseLDLFact.SolveWithIterativeRefinement
+        ( A, B, relTolRefine, maxRefineIts );
         */
-        ldl::SolveAfter
-        ( sparseLDLFact.InverseMap(),
-          sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(),
-          B );
+        sparseLDLFact.Solve( B );
     }
     else
     {
@@ -149,22 +139,12 @@ void SymmetricSolve
         const BisectCtrl ctrl;
         DistSparseLDLFactorization<Field> sparseLDLFact;
         sparseLDLFact.Initialize( A, hermitian, ctrl );
-
         sparseLDLFact.Factor( LDL_INTRAPIV_1D );
-
-        // TODO(poulson): A better interface for the following.
-        // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
-        // multiple right-hand sides
         /*
-        ldl::SolveWithIterativeRefinement
-        ( A, sparseLDLFact.InverseMap(), sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(), B, minReductionFactor, maxRefineIts );
+        sparseLDLFact.SolveWithIterativeRefinement
+        ( A, B, relTolRefine, maxRefineIts );
         */
-        ldl::SolveAfter
-        ( sparseLDLFact.InverseMap(),
-          sparseLDLFact.NodeInfo(),
-          sparseLDLFact.Front(),
-          B );
+        sparseLDLFact.Solve( B );
     }
     else
     {

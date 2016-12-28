@@ -529,6 +529,13 @@ public:
     // Overwrite 'B' with the solution to 'A X = B'.
     void Solve( Matrix<Field>& B ) const;
 
+    // Overwrite 'B' with the solution to 'A X = B' using Iterative Refinement.
+    void SolveWithIterativeRefinement
+    ( const SparseMatrix<Field>& A,
+            Matrix<Field>& B,
+      const Base<Field>& relTolRefine,
+      Int maxRefineIts ) const;
+
     ldl::Front<Field>& Front();
     const ldl::Front<Field>& Front() const;
 
@@ -584,6 +591,13 @@ public:
 
     // Overwrite 'B' with the solution to 'A X = B'.
     void Solve( DistMultiVec<Field>& B ) const;
+
+    // Overwrite 'B' with the solution to 'A X = B' using Iterative Refinement.
+    void SolveWithIterativeRefinement
+    ( const DistSparseMatrix<Field>& A,
+            DistMultiVec<Field>& B,
+      const Base<Field>& relTolRefine,
+      Int maxRefineIts ) const;
 
     ldl::DistFront<Field>& Front();
     const ldl::DistFront<Field>& Front() const;
