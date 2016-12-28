@@ -1027,14 +1027,14 @@ void Mehrotra
         KKTRHS
         ( rc, rb, rh, rmu, wRoot,
           orders, firstInds, origToSparseFirstInds, kSparse, d );
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regTmp );
 
         // Solve for the direction
         // -----------------------
         try
         {
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ctrl.ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
             else if( wMaxNorm >= ctrl.diagEquilTol )
@@ -1571,17 +1571,17 @@ void Mehrotra
           d, cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("KKTRHS construction: ",timer.Stop()," secs");
+        // Cache the metadata for the finalized JOrig
+        JOrig.LockedDistGraph().multMeta = meta;
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regTmp );
+        J.LockedDistGraph().multMeta = meta;
 
         // Solve for the direction
         // -----------------------
         try
         {
-            // Cache the metadata for the finalized JOrig
-            JOrig.LockedDistGraph().multMeta = meta;
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
-
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -1593,8 +1593,6 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Equilibration: ",timer.Stop()," secs");
 
-            // Cache the metadata for the finalized J
-            J.LockedDistGraph().multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
             sparseLDLFact.ChangeNonzeroValues( J );

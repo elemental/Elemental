@@ -522,7 +522,7 @@ public:
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 
-    void Factor();
+    void Factor( LDLFrontType frontType=LDL_2D );
 
     void ChangeNonzeroValues( const SparseMatrix<Field>& ANew );
 

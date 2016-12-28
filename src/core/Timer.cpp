@@ -16,10 +16,6 @@ Timer::Timer( const string& name )
 
 void Timer::Start()
 {
-    EL_DEBUG_ONLY(
-      if( running_ )
-          LogicError("Forgot to stop timer before restarting.");
-    )
     lastTime_ = Clock::now();
     running_ = true;
 }

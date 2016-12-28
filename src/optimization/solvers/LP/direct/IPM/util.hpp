@@ -29,23 +29,14 @@ template<typename Real>
 void Initialize
 ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         DirectLPSolution<Matrix<Real>>& solution,
-        vector<Int>& map,
-        vector<Int>& invMap,
-        ldl::Separator& rootSep,
-        ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
 ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         DirectLPSolution<DistMultiVec<Real>>& solution,
-        DistMap& map,
-        DistMap& invMap,
-        ldl::DistSeparator& rootSep,
-        ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 

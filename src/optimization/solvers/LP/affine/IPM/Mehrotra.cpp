@@ -1097,6 +1097,7 @@ void EquilibratedMehrotra
       sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
 
+    Int numIts = 0;
     Real relError = 1;
     Matrix<Real> dInner;
     SparseMatrix<Real> J, JOrig;
@@ -1116,7 +1117,16 @@ void EquilibratedMehrotra
             else
                 Ones( dInner, J.Height(), 1 );
 
-            sparseLDLFact.ChangeNonzeroValues( J );
+            if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
+            {
+                const bool hermitian = true;
+                const BisectCtrl bisectCtrl;
+                sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+            }
+            else
+            {
+                sparseLDLFact.ChangeNonzeroValues( J );
+            }
             sparseLDLFact.Factor();
         }
         catch(...)
@@ -1164,7 +1174,7 @@ void EquilibratedMehrotra
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
 
     const Int indent = PushIndent();
-    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
+    for( ; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -1514,34 +1524,20 @@ void EquilibratedMehrotra
             Output("Imbalance factor of J: ",imbalanceJ);
     }
 
-    DistMap map, invMap;
-    ldl::DistNodeInfo info(grid);
-    ldl::DistSeparator rootSep;
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
-    if( commRank == 0 && ctrl.time )
-        Output("ND: ",timer.Stop()," secs");
-    InvertMap( map, invMap );
-
-    vector<Int> mappedSources, mappedTargets, colOffs;
-    JStatic.MappedSources( map, mappedSources );
-    JStatic.MappedTargets( map, mappedTargets, colOffs );
-
-    if( commRank == 0 && ctrl.time )
-        timer.Start();
+    DistSparseLDLFactorization<Real> sparseLDLFact;
     Initialize
     ( problem, solution, JStatic, regTmp,
-      map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
+      sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
+    Int numIts = 0;
     Real relError = 1;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
-    ldl::DistFront<Real> JFront;
     DistMultiVec<Real> d(grid), w(grid), dInner(grid);
-    ldl::DistMultiVecNodeMeta dmvMeta;
     auto attemptToFactor = [&]( const Real& wMaxNorm )
       {
         try
@@ -1562,12 +1558,20 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Equilibration: ",timer.Stop()," secs");
 
-            JFront.Pull
-            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
+            if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
+            {
+                const bool hermitian = true;
+                const BisectCtrl bisectCtrl;
+                sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+            }
+            else
+            {
+                sparseLDLFact.ChangeNonzeroValues( J );
+            }
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.Factor( LDL_2D );
             if( commRank == 0 && ctrl.time )
                 Output("LDL: ",timer.Stop()," secs");
         }
@@ -1588,12 +1592,23 @@ void EquilibratedMehrotra
                 timer.Start();
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs, dmvMeta,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  rhs,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
                   ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, rhs, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  rhs,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
@@ -1617,7 +1632,7 @@ void EquilibratedMehrotra
     ForceSimpleAlignments( correction, grid );
 
     const Int indent = PushIndent();
-    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
+    for( ; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================

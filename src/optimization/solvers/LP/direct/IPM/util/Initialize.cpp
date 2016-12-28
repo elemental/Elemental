@@ -299,10 +299,7 @@ template<typename Real>
 void Initialize
 ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         DirectLPSolution<Matrix<Real>>& solution,
-        vector<Int>& map,
-        vector<Int>& invMap,
-        ldl::Separator& rootSep,
-        ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -314,7 +311,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, problem.A, problem.b, problem.c, solution.x, solution.y, solution.z,
-      map, invMap, rootSep, info,
+      sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
@@ -322,13 +319,7 @@ template<typename Real>
 void Initialize
 ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         DirectLPSolution<DistMultiVec<Real>>& solution,
-        DistMap& map,
-        DistMap& invMap,
-        ldl::DistSeparator& rootSep,
-        ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -340,8 +331,7 @@ void Initialize
     Q.Resize( n, n );
     qp::direct::Initialize
     ( Q, problem.A, problem.b, problem.c, solution.x, solution.y, solution.z,
-      map, invMap, rootSep, info,
-      mappedSources, mappedTargets, colOffs,
+      sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
@@ -361,10 +351,7 @@ void Initialize
   template void Initialize \
   ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
           DirectLPSolution<Matrix<Real>>& solution, \
-          vector<Int>& map, \
-          vector<Int>& invMap, \
-          ldl::Separator& rootSep, \
-          ldl::NodeInfo& info, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift, \
@@ -372,13 +359,7 @@ void Initialize
   template void Initialize \
   ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
           DirectLPSolution<DistMultiVec<Real>>& solution, \
-          DistMap& map, \
-          DistMap& invMap, \
-          ldl::DistSeparator& rootSep, \
-          ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift, \

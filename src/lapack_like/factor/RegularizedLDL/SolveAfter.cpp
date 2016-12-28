@@ -12,6 +12,8 @@ namespace El {
 
 namespace reg_ldl {
 
+// TODO(poulson): Replace with interface to [Dist]SparseLDLFactorization
+
 template<typename Field>
 Int RegularizedSolveAfterNoPromote
 ( const SparseMatrix<Field>& A, 

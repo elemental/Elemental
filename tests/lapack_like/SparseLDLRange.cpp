@@ -14,7 +14,7 @@
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
+template<typename Field>
 void TestSparseDirect
 ( Int n1,
   Int n2,
@@ -30,16 +30,15 @@ void TestSparseDirect
   Int nbSolveInc,
   Int nbSolveEnd,
   bool natural,
-  Int cutoff,
   bool print,
   bool display,
   const BisectCtrl& ctrl,
   const Grid& grid )
 {
     const Int N = n1*n2*n3;
-    DistSparseMatrix<F> A(grid);
+    DistSparseMatrix<Field> A(grid);
     Laplacian( A, n1, n2, n3 );
-    A *= F(-1);
+    A *= Field(-1);
     if( display )
     {
         Display( A );
@@ -50,26 +49,22 @@ void TestSparseDirect
         Print( A );
         Print( A.DistGraph() );
     }
+    const bool hermitian = true;
 
     Timer timer;
 
+    DistSparseLDLFactorization<Field> sparseLDLFact;
     OutputFromRoot(grid.Comm(),"Running nested dissection...");
     timer.Start();
-    const auto& graph = A.DistGraph();
-    ldl::DistNodeInfo info(grid);
-    ldl::DistSeparator sep;
-    DistMap map, invMap;
     if( natural )
-        ldl::NaturalNestedDissection
-        ( n1, n2, n3, graph, map, sep, info, cutoff );
+        sparseLDLFact.Initialize3DGridGraph( n1, n2, n3, A, hermitian, ctrl );
     else
-        ldl::NestedDissection( graph, map, sep, info, ctrl );
-    InvertMap( map, invMap );
+        sparseLDLFact.Initialize( A, hermitian, ctrl );
     mpi::Barrier( grid.Comm() );
     timer.Stop();
     OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
-    const Int rootSepSize = info.size;
+    const Int rootSepSize = sparseLDLFact.NodeInfo().size;
     OutputFromRoot(grid.Comm(),rootSepSize," vertices in root separator\n");
     /*
     if( display )
@@ -82,16 +77,8 @@ void TestSparseDirect
     }
     */
 
-    OutputFromRoot(grid.Comm(),"Building DistSymmFront tree...");
-    mpi::Barrier( grid.Comm() );
-    timer.Start();
-    ldl::DistFront<F> front( A, map, sep, info, false );
-    mpi::Barrier( grid.Comm() );
-    timer.Stop();
-    OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
-
     // Memory usage before factorization
-    const Int localEntriesBefore = front.NumLocalEntries();
+    const Int localEntriesBefore = sparseLDLFact.Front().NumLocalEntries();
     const Int minLocalEntriesBefore =
       mpi::AllReduce( localEntriesBefore, mpi::MIN, grid.Comm() );
     const Int maxLocalEntriesBefore =
@@ -113,27 +100,28 @@ void TestSparseDirect
     if( solve2d )
     {
         if( intraPiv )
-            type = ( selInv ? LDL_INTRAPIV_SELINV_2D : LDL_INTRAPIV_2D );
+            type = selInv ? LDL_INTRAPIV_SELINV_2D : LDL_INTRAPIV_2D;
         else
-            type = ( selInv ? LDL_SELINV_2D : LDL_2D );
+            type = selInv ? LDL_SELINV_2D : LDL_2D;
     }
     else
     {
         if( intraPiv )
-            type = ( selInv ? LDL_INTRAPIV_SELINV_1D : LDL_INTRAPIV_1D );
+            type = selInv ? LDL_INTRAPIV_SELINV_1D : LDL_INTRAPIV_1D;
         else
-            type = ( selInv ? LDL_SELINV_1D : LDL_1D );
+            type = selInv ? LDL_SELINV_1D : LDL_1D;
     }
-    LDL( info, front, type );
+    sparseLDLFact.Factor( type );
     mpi::Barrier( grid.Comm() );
     const double factTime = timer.Stop();
-    const double localFactGFlops = front.LocalFactorGFlops( selInv );
+    const double localFactGFlops =
+      sparseLDLFact.Front().LocalFactorGFlops( selInv );
     const double factGFlops = mpi::AllReduce( localFactGFlops, grid.Comm() );
     const double factSpeed = factGFlops / factTime;
     OutputFromRoot(grid.Comm(),factTime," seconds, ",factSpeed," GFlop/s");
 
     // Memory usage after factorization
-    const Int localEntriesAfter = front.NumLocalEntries();
+    const Int localEntriesAfter = sparseLDLFact.Front().NumLocalEntries();
     const Int minLocalEntriesAfter =
       mpi::AllReduce( localEntriesAfter, mpi::MIN, grid.Comm() );
     const Int maxLocalEntriesAfter =
@@ -149,11 +137,12 @@ void TestSparseDirect
 
     for( Int numRHS=numRHSBeg; numRHS<=numRHSEnd; numRHS+=numRHSInc )
     {
-        const double localSolveGFlops = front.LocalSolveGFlops(numRHS);
+        const double localSolveGFlops =
+          sparseLDLFact.Front().LocalSolveGFlops(numRHS);
         const double solveGFlops =
           mpi::AllReduce( localSolveGFlops, grid.Comm() );
 
-        DistMultiVec<F> Y( N, numRHS, grid );
+        DistMultiVec<Field> Y( N, numRHS, grid );
         for( Int nbSolve=nbSolveBeg; nbSolve<=nbSolveEnd;
              nbSolve+=nbSolveInc )
         {
@@ -162,7 +151,7 @@ void TestSparseDirect
             OutputFromRoot(grid.Comm(),"nbSolve=",nbSolve,"...");
             mpi::Barrier( grid.Comm() );
             timer.Start();
-            ldl::SolveAfter( invMap, info, front, Y );
+            sparseLDLFact.Solve( Y );
             mpi::Barrier( grid.Comm() );
             const double solveTime = timer.Stop();
             const double solveSpeed = solveGFlops / solveTime;
@@ -219,50 +208,50 @@ int main( int argc, char* argv[] )
 
         TestSparseDirect<float>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
         TestSparseDirect<Complex<float>>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
 
         TestSparseDirect<double>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
         TestSparseDirect<Complex<double>>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
 
 #ifdef EL_HAVE_QD
         TestSparseDirect<DoubleDouble>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
         TestSparseDirect<Complex<DoubleDouble>>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
 
         TestSparseDirect<QuadDouble>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
         TestSparseDirect<Complex<QuadDouble>>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestSparseDirect<Quad>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
         TestSparseDirect<Complex<Quad>>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
 #endif
 
@@ -270,11 +259,11 @@ int main( int argc, char* argv[] )
         mpfr::SetPrecision( prec );
         TestSparseDirect<BigFloat>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
         TestSparseDirect<Complex<BigFloat>>
         ( n1, n2, n3, numRHSBeg, numRHSInc, numRHSEnd, intraPiv, solve2d,
-          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural, cutoff,
+          selInv, nbFact, nbSolveBeg, nbSolveInc, nbSolveEnd, natural,
           print, display, ctrl, grid );
 #endif
     }

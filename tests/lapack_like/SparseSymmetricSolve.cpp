@@ -14,7 +14,7 @@
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
+template<typename Field>
 void TestSparseDirect
 ( Int n1,
   Int n2,
@@ -26,11 +26,11 @@ void TestSparseDirect
   const BisectCtrl& ctrl,
   const Grid& grid )
 {
-    typedef Base<F> Real;
-    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<F>());
+    typedef Base<Field> Real;
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
 
     const int N = n1*n2*n3;
-    DistSparseMatrix<F> A(grid);
+    DistSparseMatrix<Field> A(grid);
     Laplacian( A, n1, n2, n3 );
     A *= -1;
     if( display )
@@ -50,10 +50,10 @@ void TestSparseDirect
     OutputFromRoot
     (grid.Comm(),"Generating random vector X and forming Y := A X");
     timer.Start();
-    DistMultiVec<F> X( N, numRHS, grid ), Y( N, numRHS, grid );
+    DistMultiVec<Field> X( N, numRHS, grid ), Y( N, numRHS, grid );
     MakeUniform( X );
     Zero( Y );
-    Multiply( NORMAL, F(1), A, X, F(0), Y );
+    Multiply( NORMAL, Field(1), A, X, Field(0), Y );
     Matrix<Real> YOrigNorms;
     ColumnTwoNorms( Y, YOrigNorms );
     mpi::Barrier( grid.Comm() );
@@ -116,7 +116,7 @@ int main( int argc, char* argv[] )
         ctrl.cutoff = cutoff;
 
         // TODO(poulson): Test complex variants?
-      
+
         const Grid grid( comm );
 
         TestSparseDirect<float>

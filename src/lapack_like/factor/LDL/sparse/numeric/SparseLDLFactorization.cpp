@@ -76,10 +76,10 @@ void SparseLDLFactorization<Field>::Initialize3DGridGraph
 }
 
 template<typename Field>
-void SparseLDLFactorization<Field>::Factor()
+void SparseLDLFactorization<Field>::Factor( LDLFrontType frontType )
 {
     EL_DEBUG_CSE
-    LDL( *info_, *front_ );
+    LDL( *info_, *front_, frontType );
 }
 
 template<typename Field>

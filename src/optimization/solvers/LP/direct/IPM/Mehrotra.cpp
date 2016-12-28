@@ -467,7 +467,7 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     relativeGap = Abs(primalObjective-dualObjective) / (1+Abs(primalObjective));
 
     // Compute the primal equality residual,
-    //   
+    //
     //   r_b = A x - b,
     //
     // and its (relative) norm.
@@ -819,7 +819,7 @@ void Mehrotra
     const bool outputRoot = true;
     if( ctrl.outerEquil )
     {
-        DirectLPProblem<Matrix<Real>,Matrix<Real>> equilibratedProblem;    
+        DirectLPProblem<Matrix<Real>,Matrix<Real>> equilibratedProblem;
         DirectLPSolution<Matrix<Real>> equilibratedSolution;
         DenseDirectLPEquilibration<Real> equilibration;
         Equilibrate
@@ -834,7 +834,7 @@ void Mehrotra
         EquilibratedMehrotra( problem, solution, ctrl, outputRoot );
     }
     if( ctrl.print && outputRoot )
-    {   
+    {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
@@ -1278,31 +1278,31 @@ void Mehrotra
           equilibration, ctrl );
         EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
-    }       
+    }
     else
-    {   
+    {
         // Avoid creating unnecessary copies where we can.
         if( SimpleAlignments(problem) && SimpleAlignments(solution) )
-        {   
+        {
             EquilibratedMehrotra( problem, solution, ctrl );
-        }   
+        }
         else if( SimpleAlignments(problem) )
-        {   
+        {
             DirectLPSolution<DistMatrix<Real>> alignedSolution;
-            ForceSimpleAlignments( alignedSolution, grid ); 
+            ForceSimpleAlignments( alignedSolution, grid );
             alignedSolution = solution;
             EquilibratedMehrotra( problem, alignedSolution, ctrl );
             solution = alignedSolution;
-        }   
+        }
         else if( SimpleAlignments(solution) )
-        {   
+        {
             DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>> alignedProblem;
             ForceSimpleAlignments( alignedProblem, grid );
             CopyOrViewHelper( problem.c, alignedProblem.c );
             CopyOrViewHelper( problem.A, alignedProblem.A );
             CopyOrViewHelper( problem.b, alignedProblem.b );
             EquilibratedMehrotra( alignedProblem, solution, ctrl );
-        }   
+        }
         else
         {
             DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>> alignedProblem;
@@ -1318,7 +1318,7 @@ void Mehrotra
         }
     }
     if( ctrl.print )
-    {   
+    {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
@@ -1414,25 +1414,21 @@ void EquilibratedMehrotra
         Output("|| c ||_2 = ",cNrm2);
     }
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
+    SparseLDLFactorization<Real> sparseLDLFact;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( problem, solution, map, invMap, rootSep, info,
+        ( problem, solution, sparseLDLFact,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
     else
     {
-        vector<Int> augMap, augInvMap;
-        ldl::NodeInfo augInfo;
-        ldl::Separator augRootSep;
+        SparseLDLFactorization<Real> augmentedSparseLDLFact;
         Initialize
-        ( problem, solution, augMap, augInvMap, augRootSep, augInfo,
+        ( problem, solution, augmentedSparseLDLFact,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
 
@@ -1466,7 +1462,6 @@ void EquilibratedMehrotra
     Real muOld = 0.1;
     Real relError = 1;
     SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
     Matrix<Real> d, w;
     Matrix<Real> dInner;
 
@@ -1586,14 +1581,13 @@ void EquilibratedMehrotra
                 ( solution.x, residual.dualEquality, residual.primalEquality,
                   residual.dualConic, d );
             }
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
 
             // Solve for the direction
             // -----------------------
             try
             {
-                J = JOrig;
-                UpdateDiagonal( J, Real(1), regTmp );
-
                 if( wMaxNorm >= ctrl.ruizEquilTol )
                 {
                     if( ctrl.print )
@@ -1610,22 +1604,37 @@ void EquilibratedMehrotra
                 else
                     Ones( dInner, J.Height(), 1 );
 
-                if( numIts == 0 )
+                if( numIts == 0 &&
+                    (ctrl.system != AUGMENTED_KKT ||
+                     (ctrl.primalInit && ctrl.dualInit)) )
                 {
-                    NestedDissection( J.LockedGraph(), map, rootSep, info );
-                    InvertMap( map, invMap );
+                    const bool hermitian = true;
+                    const BisectCtrl bisectCtrl;
+                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
                 }
-                JFront.Pull( J, map, info );
+                else
+                {
+                    sparseLDLFact.ChangeNonzeroValues( J );
+                }
 
-                LDL( info, JFront, LDL_2D );
+                sparseLDLFact.Factor( LDL_2D );
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
                       ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
             }
             catch(...)
@@ -1665,17 +1674,28 @@ void EquilibratedMehrotra
             {
                 if( numIts == 0 )
                 {
-                    NestedDissection( J.LockedGraph(), map, rootSep, info );
-                    InvertMap( map, invMap );
+                    const bool hermitian = true;
+                    const BisectCtrl bisectCtrl;
+                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
                 }
-                JFront.Pull( J, map, info );
+                else
+                {
+                    sparseLDLFact.ChangeNonzeroValues( J );
+                }
 
-                LDL( info, JFront, LDL_2D );
+                sparseLDLFact.Factor( LDL_2D );
+
                 // NOTE: regTmp should be all zeros; replace with unregularized
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp, invMap, info, JFront, affineCorrection.y,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress, ctrl.solveCtrl.time );
+                ( J, regTmp,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  affineCorrection.y,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress,
+                  ctrl.solveCtrl.time );
             }
             catch(...)
             {
@@ -1776,12 +1796,21 @@ void EquilibratedMehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
                       ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
             }
             catch(...)
@@ -1803,12 +1832,21 @@ void EquilibratedMehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
                       ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
             }
             catch(...)
@@ -1833,9 +1871,15 @@ void EquilibratedMehrotra
             {
                 // NOTE: regTmp should be all zeros; replace with unregularized
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp, invMap, info, JFront, correction.y,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress, ctrl.solveCtrl.time );
+                ( J, regTmp,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  correction.y,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress,
+                  ctrl.solveCtrl.time );
             }
             catch(...)
             {
@@ -1902,7 +1946,7 @@ void Mehrotra
         EquilibratedMehrotra( problem, solution, ctrl );
     }
     if( ctrl.print )
-    {   
+    {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
@@ -2002,10 +2046,7 @@ void EquilibratedMehrotra
         }
     }
 
-    DistMap map, invMap;
-    ldl::DistNodeInfo info(grid);
-    ldl::DistSeparator rootSep;
-    vector<Int> mappedSources, mappedTargets, colOffs;
+    DistSparseLDLFactorization<Real> sparseLDLFact;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
@@ -2014,19 +2055,14 @@ void EquilibratedMehrotra
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( problem, solution, map, invMap, rootSep, info,
-          mappedSources, mappedTargets, colOffs,
+        ( problem, solution, sparseLDLFact,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
     else
     {
-        DistMap augMap, augInvMap;
-        ldl::DistNodeInfo augInfo(grid);
-        ldl::DistSeparator augRootSep;
-        vector<Int> augMappedSources, augMappedTargets, augColOffs;
+        DistSparseLDLFactorization<Real> augmentedSparseLDLFact;
         Initialize
-        ( problem, solution, augMap, augInvMap, augRootSep, augInfo,
-          augMappedSources, augMappedTargets, augColOffs,
+        ( problem, solution, augmentedSparseLDLFact,
           ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
     }
     if( commRank == 0 && ctrl.time )
@@ -2066,8 +2102,6 @@ void EquilibratedMehrotra
 
     DistGraphMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
-    ldl::DistFront<Real> JFront;
-    ldl::DistMultiVecNodeMeta dmvMeta;
     DistMultiVec<Real> d(grid), w(grid);
     DistMultiVec<Real> dInner(grid);
 
@@ -2188,40 +2222,29 @@ void EquilibratedMehrotra
                 ( solution.x, residual.dualEquality, residual.primalEquality,
                   residual.dualConic, d );
             }
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
+            if( numIts == 0 )
+            {
+                metaOrig = JOrig.InitializeMultMeta();
+                meta = J.InitializeMultMeta();
+                if( ctrl.print )
+                {
+                    const double imbalanceJ = J.Imbalance();
+                    if( commRank == 0 )
+                        Output("Imbalance factor of J: ",imbalanceJ);
+                }
+            }
+            else
+            {
+                JOrig.LockedDistGraph().multMeta = metaOrig;
+                J.LockedDistGraph().multMeta = meta;
+            }
 
             // Solve for the direction
             // -----------------------
             try
             {
-                // Cache the metadata for the finalized JOrig
-                if( numIts == 0 )
-                    metaOrig = JOrig.InitializeMultMeta();
-                else
-                    JOrig.LockedDistGraph().multMeta = metaOrig;
-                J = JOrig;
-
-                UpdateDiagonal( J, Real(1), regTmp );
-                // Cache the metadata for the finalized J
-                if( numIts == 0 )
-                {
-                    if( ctrl.print )
-                    {
-                        const double imbalanceJ = J.Imbalance();
-                        if( commRank == 0 )
-                            Output("Imbalance factor of J: ",imbalanceJ);
-                    }
-
-                    meta = J.InitializeMultMeta();
-                    if( commRank == 0 && ctrl.time )
-                        timer.Start();
-                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-                    if( commRank == 0 && ctrl.time )
-                        Output("ND: ",timer.Stop()," secs");
-                    InvertMap( map, invMap );
-                }
-                else
-                    J.LockedDistGraph().multMeta = meta;
-
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -2242,13 +2265,24 @@ void EquilibratedMehrotra
                 if( commRank == 0 && ctrl.time )
                     Output("Equilibration: ",timer.Stop()," secs");
 
-                JFront.Pull
-                ( J, map, rootSep, info,
-                  mappedSources, mappedTargets, colOffs );
+                if( numIts == 0 &&
+                    (ctrl.system != AUGMENTED_KKT ||
+                     (ctrl.primalInit && ctrl.dualInit)) )
+                {
+                    if( commRank == 0 && ctrl.time )
+                        timer.Start();
+                    const bool hermitian = true;
+                    const BisectCtrl bisectCtrl;
+                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+                    if( commRank == 0 && ctrl.time )
+                        Output("Analysis: ",timer.Stop()," secs");
+                }
+                else
+                    sparseLDLFact.ChangeNonzeroValues( J );
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                LDL( info, JFront, LDL_2D );
+                sparseLDLFact.Factor( LDL_2D );
                 if( commRank == 0 && ctrl.time )
                     Output("LDL: ",timer.Stop()," secs");
 
@@ -2256,12 +2290,22 @@ void EquilibratedMehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      sparseLDLFact.DistMultiVecNodeMeta(),
                       ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
@@ -2296,47 +2340,59 @@ void EquilibratedMehrotra
             ( problem.A, gammaPerm, solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
+            if( numIts == 0 )
+            {
+                if( ctrl.print )
+                {
+                    const double imbalanceJ = J.Imbalance();
+                    if( commRank == 0 )
+                        Output("Imbalance factor of J: ",imbalanceJ);
+                }
+                meta = J.InitializeMultMeta();
+            }
+            else
+            {
+                J.LockedDistGraph().multMeta = meta;
+            }
 
             // Solve for the direction
             // -----------------------
             try
             {
-                // Cache the metadata for the finalized J
                 if( numIts == 0 )
                 {
-                    if( ctrl.print )
-                    {
-                        const double imbalanceJ = J.Imbalance();
-                        if( commRank == 0 )
-                            Output("Imbalance factor of J: ",imbalanceJ);
-                    }
-
-                    meta = J.InitializeMultMeta();
                     if( commRank == 0 && ctrl.time )
                         timer.Start();
-                    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
+                    const bool hermitian = true;
+                    const BisectCtrl bisectCtrl;
+                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
                     if( commRank == 0 && ctrl.time )
-                        Output("ND: ",timer.Stop()," secs");
-                    InvertMap( map, invMap );
+                        Output("Analysis: ",timer.Stop()," secs");
                 }
                 else
-                    J.LockedDistGraph().multMeta = meta;
-                JFront.Pull
-                ( J, map, rootSep, info,
-                  mappedSources, mappedTargets, colOffs );
+                {
+                    sparseLDLFact.ChangeNonzeroValues( J );
+                }
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                LDL( info, JFront, LDL_2D );
+                sparseLDLFact.Factor( LDL_2D );
                 if( commRank == 0 && ctrl.time )
                     Output("LDL: ",timer.Stop()," secs");
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp, invMap, info, JFront, affineCorrection.y, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress, ctrl.solveCtrl.time );
+                ( J, regTmp,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  affineCorrection.y,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress,
+                  ctrl.solveCtrl.time );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
             }
@@ -2441,12 +2497,23 @@ void EquilibratedMehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      sparseLDLFact.DistMultiVecNodeMeta(),
                       ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      sparseLDLFact.DistMultiVecNodeMeta(),
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
@@ -2472,12 +2539,23 @@ void EquilibratedMehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      sparseLDLFact.DistMultiVecNodeMeta(),
                       ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner,
+                      sparseLDLFact.InverseMap(),
+                      sparseLDLFact.NodeInfo(),
+                      sparseLDLFact.Front(),
+                      d,
+                      sparseLDLFact.DistMultiVecNodeMeta(),
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
@@ -2505,9 +2583,16 @@ void EquilibratedMehrotra
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 reg_ldl::RegularizedSolveAfter
-                ( J, regTmp, invMap, info, JFront, correction.y, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress, ctrl.solveCtrl.time );
+                ( J, regTmp,
+                  sparseLDLFact.InverseMap(),
+                  sparseLDLFact.NodeInfo(),
+                  sparseLDLFact.Front(),
+                  correction.y,
+                  sparseLDLFact.DistMultiVecNodeMeta(),
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress,
+                  ctrl.solveCtrl.time );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
             }
@@ -2577,7 +2662,7 @@ void Mehrotra
         EquilibratedMehrotra( problem, solution, ctrl );
     }
     if( ctrl.print )
-    {   
+    {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));

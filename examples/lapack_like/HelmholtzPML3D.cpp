@@ -20,6 +20,7 @@ int main( int argc, char* argv[] )
     {
         typedef double Real;
         typedef El::Complex<Real> Scalar;
+        El::Timer timer;
 
         const El::Int n1 = El::Input("--n1","first grid dimension",30);
         const El::Int n2 = El::Input("--n2","second grid dimension",30);
@@ -74,58 +75,48 @@ int main( int argc, char* argv[] )
             z.SetLocal( iSource-firstLocalRow, 0, Scalar(1) );
         y = z;
 
+        El::DistSparseLDLFactorization<Scalar> sparseLDLFact;
+        El::BisectCtrl ctrl;
+        ctrl.sequential = sequential;
+        ctrl.numSeqSeps = numSeqSeps;
+        ctrl.numDistSeps = numDistSeps;
+        ctrl.cutoff = cutoff;
+        const bool hermitian = false;
         if( commRank == 0 )
-            El::Output("Running nested dissection...");
-        const double nestedStart = El::mpi::Time();
-        const auto& graph = A.DistGraph();
-        El::ldl::DistNodeInfo info(grid);
-        El::ldl::DistSeparator sep;
-        El::DistMap map, invMap;
+            El::Output("Running analysis...");
+        timer.Start();
         if( natural )
         {
-            El::ldl::NaturalNestedDissection
-            ( n1, n2, n3, graph, map, sep, info, cutoff );
+            sparseLDLFact.Initialize3DGridGraph
+            ( n1, n2, n3, A, hermitian, ctrl );
         }
         else
         {
-            El::BisectCtrl ctrl;
-            ctrl.sequential = sequential;
-            ctrl.numSeqSeps = numSeqSeps;
-            ctrl.numDistSeps = numDistSeps;
-            ctrl.cutoff = cutoff;
-            El::ldl::NestedDissection( graph, map, sep, info, ctrl );
+            sparseLDLFact.Initialize( A, hermitian, ctrl );
         }
-        El::InvertMap( map, invMap );
         El::mpi::Barrier(comm);
         if( commRank == 0 )
-            El::Output(El::mpi::Time()-nestedStart," seconds");
+            El::Output(timer.Stop()," seconds");
 
+        auto& info = sparseLDLFact.NodeInfo();
+        auto& front = sparseLDLFact.Front();
         const El::Int rootSepSize = info.size;
         if( commRank == 0 )
             El::Output(rootSepSize," vertices in root separator\n");
 
         if( commRank == 0 )
-            El::Output("Building ldl::DistFront tree...");
+            El::Output("Running LDL^T...");
         El::mpi::Barrier(comm);
-        const double buildStart = El::mpi::Time();
-        El::ldl::DistFront<Scalar> front( A, map, sep, info, false );
-        El::mpi::Barrier(comm);
-        if( commRank == 0 )
-            El::Output(El::mpi::Time()-buildStart," seconds");
-
-        if( commRank == 0 )
-            El::Output("Running block LDL^T...");
-        El::mpi::Barrier(comm);
-        const double ldlStart = El::mpi::Time();
+        timer.Start();
         El::LDLFrontType type;
         if( intraPiv )
             type = selInv ? El::LDL_INTRAPIV_SELINV_2D : El::LDL_INTRAPIV_2D;
         else
             type = selInv ? El::LDL_SELINV_2D : El::LDL_2D;
-        El::LDL( info, front, type );
+        sparseLDLFact.Factor( type );
         El::mpi::Barrier(comm);
         if( commRank == 0 )
-            El::Output(El::mpi::Time()-ldlStart," seconds");
+            El::Output(timer.Stop()," seconds");
 
         if( info.child != nullptr && info.child->onLeft )
         {
@@ -133,7 +124,7 @@ int main( int argc, char* argv[] )
                 El::Output
                 ("Computing SVD of connectivity of second separator to "
                  "the root separator...");
-            const double svdStart = El::mpi::Time();
+            timer.Start();
             const auto& FL = front.child->L2D;
             const El::Grid& grid = FL.Grid();
             const El::Int height = FL.Height();
@@ -148,8 +139,7 @@ int main( int argc, char* argv[] )
             if( grid.Rank() == singVals.Root() )
             {
                 El::Output
-                ("  two norm=",twoNorm," (",El::mpi::Time()-svdStart,
-                 " seconds)");
+                ("  two norm=",twoNorm," (",timer.Stop()," seconds)");
                 for( Real tol=1e-1; tol>=Real(1e-10); tol/=10 )
                 {
                     El::Int numRank = minDim;
@@ -171,7 +161,7 @@ int main( int argc, char* argv[] )
             ("Computing SVD of the largest off-diagonal block of "
              "numerical Green's function on root separator...");
         {
-            const double svdStart = El::mpi::Time();
+            timer.Start();
             const auto& FL = front.L2D;
             const El::Grid& grid = FL.Grid();
             const El::Int lHalf = rootSepSize/2;
@@ -187,7 +177,7 @@ int main( int argc, char* argv[] )
             const Real twoNorm = El::MaxNorm( singVals_VR_STAR );
             if( grid.Rank() == singVals.Root() )
             {
-                El::Output(El::mpi::Time()-svdStart," seconds");
+                El::Output(timer.Stop()," seconds");
                 for( Real tol=1e-1; tol>=Real(1e-10); tol/=10 )
                 {
                     El::Int numRank = lHalf;
@@ -207,7 +197,7 @@ int main( int argc, char* argv[] )
         if( commRank == 0 )
             El::Output("Solving against y...");
         const double solveStart = El::mpi::Time();
-        El::ldl::SolveAfter( invMap, info, front, y );
+        sparseLDLFact.Solve( y );
         El::mpi::Barrier(comm);
         if( commRank == 0 )
             El::Output(El::mpi::Time()-solveStart," seconds");

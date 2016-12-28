@@ -472,13 +472,7 @@ void Initialize
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMap& map,
-  const DistMap& invMap,
-  const ldl::DistSeparator& rootSep,
-  const ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -523,14 +517,16 @@ void Initialize
     J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
+    // Analyze the nonzero pattern
+    // ===========================
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+
     // (Approximately) factor the KKT matrix
     // =====================================
-    // TODO(poulson): Use PullUpdate just on the identity
-    // (or avoid it entirely?)
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
     // TODO(poulson): Consider selective inversion
-    LDL( info, JFront, LDL_2D );
+    sparseLDLFact.Factor( LDL_2D );
 
     DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
                        d(grid);
@@ -552,8 +548,14 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
-          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+        ( JOrig, regTmp,
+          sparseLDLFact.InverseMap(),
+          sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(),
+          d,
+          solveCtrl.relTol,
+          solveCtrl.maxRefineIts,
+          solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -573,8 +575,14 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
-          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+        ( JOrig, regTmp,
+          sparseLDLFact.InverseMap(),
+          sparseLDLFact.NodeInfo(),
+          sparseLDLFact.Front(),
+          d,
+          solveCtrl.relTol,
+          solveCtrl.maxRefineIts,
+          solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -660,13 +668,7 @@ void Initialize
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const DistMap& map, \
-    const DistMap& invMap, \
-    const ldl::DistSeparator& rootSep, \
-    const ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

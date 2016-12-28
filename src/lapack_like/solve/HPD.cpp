@@ -76,22 +76,25 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    vector<Int> map, invMap;
-    ldl::NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
-    InvertMap( map, invMap );
 
-    ldl::Front<Field> front( A, map, info, true );
-    LDL( info, front );
+    SparseLDLFactorization<Field> sparseLDLFact;
+    const bool hermitian = true;
+    sparseLDLFact.Initialize( A, hermitian, ctrl );
+    sparseLDLFact.Factor();
 
     // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
     // multiple right-hand sides
     /*
     ldl::SolveWithIterativeRefinement
-    ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
+    ( A,
+      sparseLDLFact.InverseMap(),
+      sparseLDLFact.NodeInfo(),
+      sparseLDLFact.Front(),
+      B,
+      minReductionFactor,
+      maxRefineIts );
     */
-    ldl::SolveAfter( invMap, info, front, B );
+    sparseLDLFact.Solve( B );
 }
 
 // TODO(poulson): Add iterative refinement parameter
@@ -102,22 +105,25 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    ldl::DistNodeInfo info(A.Grid());
-    ldl::DistSeparator rootSep;
-    DistMap map, invMap;
-    ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
-    InvertMap( map, invMap );
 
-    ldl::DistFront<Field> front( A, map, rootSep, info, true );
-    LDL( info, front );
+    DistSparseLDLFactorization<Field> sparseLDLFact;
+    const bool hermitian = true;
+    sparseLDLFact.Initialize( A, hermitian, ctrl );
+    sparseLDLFact.Factor();
 
     // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
     // multiple right-hand sides
     /*
     ldl::SolveWithIterativeRefinement
-    ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
+    ( A,
+      sparseLDLFact.InverseMap(),
+      sparseLDLFact.NodeInfo(),
+      sparseLDLFact.Front(),
+      B,
+      minReductionFactor,
+      maxRefineIts );
     */
-    ldl::SolveAfter( invMap, info, front, B );
+    sparseLDLFact.Solve( B );
 }
 
 #define PROTO(Field) \

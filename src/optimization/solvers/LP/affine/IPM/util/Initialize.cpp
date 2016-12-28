@@ -347,13 +347,7 @@ void Initialize
         AffineLPSolution<DistMultiVec<Real>>& solution,
   const DistSparseMatrix<Real>& JStatic,
   const DistMultiVec<Real>& regTmp,
-  const DistMap& map,
-  const DistMap& invMap,
-  const ldl::DistSeparator& rootSep,
-  const ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -364,7 +358,7 @@ void Initialize
     ( JStatic, regTmp,
       problem.b, problem.c, problem.h,
       solution.x, solution.y, solution.z, solution.s,
-      map, invMap, rootSep, info, mappedSources, mappedTargets, colOffs,
+      sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
@@ -396,13 +390,7 @@ void Initialize
           AffineLPSolution<DistMultiVec<Real>>& solution, \
     const DistSparseMatrix<Real>& JStatic, \
     const DistMultiVec<Real>& regTmp, \
-    const DistMap& map, \
-    const DistMap& invMap, \
-    const ldl::DistSeparator& rootSep, \
-    const ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift, \
