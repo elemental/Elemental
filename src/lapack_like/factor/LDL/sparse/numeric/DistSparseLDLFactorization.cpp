@@ -8,6 +8,7 @@
 */
 #include <El.hpp>
 
+#include "./Process.hpp"
 #include "./LowerSolve/Forward.hpp"
 #include "./LowerSolve/Backward.hpp"
 #include "./LowerMultiply/Forward.hpp"
@@ -18,6 +19,9 @@ namespace El {
 // Prototypes
 namespace ldl {
 
+template<typename Field>
+void ChangeFrontType
+( DistFront<Field>& front, LDLFrontType type, bool recurse=true );
 template<typename Field>
 void DiagonalSolve
 ( const DistNodeInfo& info,
@@ -52,16 +56,15 @@ void DistSparseLDLFactorization<Field>::Initialize
   const BisectCtrl& bisectCtrl )
 {
     EL_DEBUG_CSE
-
     info_.reset( new ldl::DistNodeInfo(A.Grid()) );
     separator_.reset( new ldl::DistSeparator );
-
     ldl::NestedDissection
     ( A.LockedDistGraph(), map_, *separator_, *info_, bisectCtrl );
     InvertMap( map_, inverseMap_ );
-
     front_.reset
     ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+
+    initialized_ = true;
     factored_ = false;
 }
 
@@ -74,17 +77,16 @@ void DistSparseLDLFactorization<Field>::Initialize2DGridGraph
   const BisectCtrl& bisectCtrl )
 {
     EL_DEBUG_CSE
-
     info_.reset( new ldl::DistNodeInfo(A.Grid()) );
     separator_.reset( new ldl::DistSeparator );
-
     ldl::NaturalNestedDissection
     ( gridDim0, gridDim1, 1, A.LockedDistGraph(),
       map_, *separator_, *info_, bisectCtrl.cutoff );
     InvertMap( map_, inverseMap_ );
-
     front_.reset
     ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+
+    initialized_ = true;
     factored_ = false;
 }
 
@@ -98,17 +100,16 @@ void DistSparseLDLFactorization<Field>::Initialize3DGridGraph
   const BisectCtrl& bisectCtrl )
 {
     EL_DEBUG_CSE
-
     info_.reset( new ldl::DistNodeInfo(A.Grid()) );
     separator_.reset( new ldl::DistSeparator );
-
     ldl::NaturalNestedDissection
     ( gridDim0, gridDim1, gridDim2, A.LockedDistGraph(),
       map_, *separator_, *info_, bisectCtrl.cutoff );
     InvertMap( map_, inverseMap_ );
-
     front_.reset
     ( new ldl::DistFront<Field>(A,map_,*separator_,*info_,hermitian) );
+
+    initialized_ = true;
     factored_ = false;
 }
 
@@ -116,8 +117,32 @@ template<typename Field>
 void DistSparseLDLFactorization<Field>::Factor( LDLFrontType frontType )
 {
     EL_DEBUG_CSE
-    LDL( *info_, *front_, frontType );
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'Factor()'");
+    // We make use of the following rather than checking 'factored_' since it
+    // is sometimes useful to directly manipulate the fronts.
+    if( !Unfactored(front_->type) )
+        LogicError("Fronts are already marked as factored");
+
+    // Convert from 1D to 2D if necessary
+    ChangeFrontType( SYMM_2D );
+
+    // Perform the initial factorization
+    ldl::Process( *info_, *front_, InitialFactorType(frontType) );
     factored_ = true;
+
+    // Convert the fronts from the initial factorization to the requested form
+    ChangeFrontType( frontType );
+}
+
+template<typename Field>
+void DistSparseLDLFactorization<Field>::ChangeFrontType
+( LDLFrontType frontType )
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'ChangeFrontType()'");
+    ldl::ChangeFrontType( *front_, frontType );
 }
 
 template<typename Field>
@@ -125,6 +150,8 @@ void DistSparseLDLFactorization<Field>::ChangeNonzeroValues
 ( const DistSparseMatrix<Field>& ANew )
 {
     EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'ChangeNonzeroValues()'");
     if( !formedPullMetadata_ )
     {
         ANew.MappedSources( map_, mappedSources_ );

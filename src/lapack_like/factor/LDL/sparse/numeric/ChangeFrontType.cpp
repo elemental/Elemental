@@ -25,6 +25,13 @@
 namespace El {
 namespace ldl {
 
+template<typename Field>
+void ChangeFrontType
+( Front<Field>& front, LDLFrontType type, bool recurse=true );
+template<typename Field>
+void ChangeFrontType
+( DistFront<Field>& front, LDLFrontType type, bool recurse=true );
+
 template<typename F>
 void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse )
 {

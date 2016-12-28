@@ -161,19 +161,6 @@ void LDL
   bool conjugate,
   const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
 
-// All fronts of L are required to be initialized to the expansions of the
-// original sparse matrix before calling LDL.
-template<typename Field>
-void LDL
-( const ldl::NodeInfo& info,
-        ldl::Front<Field>& L,
-  LDLFrontType newType=LDL_2D );
-template<typename Field>
-void LDL
-( const ldl::DistNodeInfo& info,
-        ldl::DistFront<Field>& L,
-  LDLFrontType newType=LDL_2D );
-
 namespace ldl {
 
 // Compute the inertia triplet of a Hermitian matrix's LDL^H factorization

@@ -431,43 +431,6 @@ struct DistFront
     ( const DistNodeInfo& info, bool computeRecvInds ) const;
 };
 
-template<typename Field>
-void ChangeFrontType
-( Front<Field>& front, LDLFrontType type, bool recurse=true );
-template<typename Field>
-void ChangeFrontType
-( DistFront<Field>& front, LDLFrontType type, bool recurse=true );
-
-template<typename Field>
-void DiagonalScale
-( const NodeInfo& info, const Front<Field>& front, MatrixNode<Field>& X );
-template<typename Field>
-void DiagonalScale
-( const DistNodeInfo& info,
-  const DistFront<Field>& L,
-        DistMultiVecNode<Field>& X );
-template<typename Field>
-void DiagonalScale
-( const DistNodeInfo& info,
-  const DistFront<Field>& L,
-        DistMatrixNode<Field>& X );
-
-template<typename Field>
-void DiagonalSolve
-( const NodeInfo& info,
-  const Front<Field>& front,
-        MatrixNode<Field>& X );
-template<typename Field>
-void DiagonalSolve
-( const DistNodeInfo& info,
-  const DistFront<Field>& front,
-        DistMultiVecNode<Field>& X );
-template<typename Field>
-void DiagonalSolve
-( const DistNodeInfo& info,
-  const DistFront<Field>& L,
-        DistMatrixNode<Field>& X );
-
 } // namespace ldl
 
 template<typename Field>
@@ -476,12 +439,17 @@ class SparseLDLFactorization
 public:
     SparseLDLFactorization();
 
+    // Find a reordering and initialize the frontal tree.
     void Initialize
     ( const SparseMatrix<Field>& A,
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 
-    // TODO(poulson): Combine these two interfaces
+    // Avoid explicit calls to a graph partitioner by making use of analytic
+    // bisections of a grid graph.
+    //
+    // NOTE: These routines should *only* be called on lexicographically-ordered
+    // grid graphs.
     void Initialize2DGridGraph
     ( Int gridDim0,
       Int gridDim1,
@@ -496,9 +464,17 @@ public:
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 
+    // Re-initialize the multifrontal tree with a new sparse matrix which has
+    // the same nonzero pattern. Usually this is called after having factored
+    // with a different matrix (e.g., within an Interior Point Method).
+    void ChangeNonzeroValues( const SparseMatrix<Field>& ANew );
+
+    // Factor the initialized multifrontal tree.
     void Factor( LDLFrontType frontType=LDL_2D );
 
-    void ChangeNonzeroValues( const SparseMatrix<Field>& ANew );
+    // Change the storage format of the multifrontal tree. This can be called
+    // either before or after factorization.
+    void ChangeFrontType( LDLFrontType frontType );
 
     // Overwrite 'B' with the solution to 'A X = B'.
     void Solve( Matrix<Field>& B ) const;
@@ -511,23 +487,30 @@ public:
       const Base<Field>& relTolRefine,
       Int maxRefineIts ) const;
 
+    // Overwrite 'B' with 'inv(L) B', 'inv(L)^T B', or 'inv(L)^H B'.
     void SolveAgainstL
     ( Orientation orientation, Matrix<Field>& B ) const;
     void SolveAgainstL
     ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'L B', 'L^T B', or 'L^H B'.
     void MultiplyWithL
     ( Orientation orientation, Matrix<Field>& B ) const;
     void MultiplyWithL
     ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
 
+    // Overwrite 'B' with 'inv(D) B', 'inv(D)^T B', or 'inv(D)^H B'.
     void SolveAgainstD
     ( Orientation orientation, Matrix<Field>& B ) const;
     void SolveAgainstD
     ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'D B', 'D^T B', or 'D^H B'.
     void MultiplyWithD
     ( Orientation orientation, Matrix<Field>& B ) const;
     void MultiplyWithD
     ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
     // TODO(poulson): Apply permutation?
 
     bool Factored() const;
@@ -548,6 +531,7 @@ public:
     const vector<Int>& InverseMap() const;
     
 private:
+    bool initialized_=false;
     bool factored_=false;
     unique_ptr<ldl::Front<Field>> front_;
     unique_ptr<ldl::NodeInfo> info_;
@@ -562,12 +546,17 @@ class DistSparseLDLFactorization
 public:
     DistSparseLDLFactorization();
 
+    // Find a reordering and initialize the frontal tree.
     void Initialize
     ( const DistSparseMatrix<Field>& A,
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 
-    // TODO(poulson): Combine these two interfaces
+    // Avoid explicit calls to a graph partitioner by making use of analytic
+    // bisections of a grid graph.
+    //
+    // NOTE: These routines should *only* be called on lexicographically-ordered
+    // grid graphs.
     void Initialize2DGridGraph
     ( Int gridDim0,
       Int gridDim1,
@@ -582,9 +571,17 @@ public:
             bool hermitian=true,
       const BisectCtrl& bisectCtrl=BisectCtrl() );
 
+    // Re-initialize the multifrontal tree with a new sparse matrix which has
+    // the same nonzero pattern. Usually this is called after having factored
+    // with a different matrix (e.g., within an Interior Point Method).
+    void ChangeNonzeroValues( const DistSparseMatrix<Field>& ANew );
+
+    // Factor the initialized multifrontal tree.
     void Factor( LDLFrontType frontType=LDL_2D );
 
-    void ChangeNonzeroValues( const DistSparseMatrix<Field>& ANew );
+    // Change the storage format of the multifrontal tree. This can be called
+    // either before or after factorization.
+    void ChangeFrontType( LDLFrontType frontType );
 
     // Overwrite 'B' with the solution to 'A X = B'.
     void Solve( DistMultiVec<Field>& B ) const;
@@ -598,12 +595,15 @@ public:
       const Base<Field>& relTolRefine,
       Int maxRefineIts ) const;
 
+    // Overwrite 'B' with 'inv(L) B', 'inv(L)^T B', or 'inv(L)^H B'.
     void SolveAgainstL
     ( Orientation orientation, DistMultiVec<Field>& B ) const;
     void SolveAgainstL
     ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
     void SolveAgainstL
     ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'L B', 'L^T B', or 'L^H B'.
     void MultiplyWithL
     ( Orientation orientation, DistMultiVec<Field>& B ) const;
     void MultiplyWithL
@@ -611,12 +611,15 @@ public:
     void MultiplyWithL
     ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
 
+    // Overwrite 'B' with 'inv(D) B', 'inv(D)^T B', or 'inv(D)^H B'.
     void SolveAgainstD
     ( Orientation orientation, DistMultiVec<Field>& B ) const;
     void SolveAgainstD
     ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
     void SolveAgainstD
     ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'D B', 'D^T B', or 'D^H B'.
     void MultiplyWithD
     ( Orientation orientation, DistMultiVec<Field>& B ) const;
     void MultiplyWithD
@@ -646,6 +649,7 @@ public:
     ldl::DistMultiVecNodeMeta& DistMultiVecNodeMeta() const;
 
 private:
+    bool initialized_=false;
     bool factored_=false;
     unique_ptr<ldl::DistFront<Field>> front_;
     unique_ptr<ldl::DistNodeInfo> info_;

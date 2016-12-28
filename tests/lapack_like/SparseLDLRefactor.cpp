@@ -17,7 +17,6 @@ using namespace El;
 template<typename Field>
 void MakeFrontsUniform( ldl::Front<Field>& front )
 {
-    ldl::ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.LDense );
     for( const auto& child : front.children )
         MakeFrontsUniform( *child );
@@ -26,7 +25,6 @@ void MakeFrontsUniform( ldl::Front<Field>& front )
 template<typename Field>
 void MakeFrontsUniform( ldl::DistFront<Field>& front )
 {
-    ldl::ChangeFrontType( front, SYMM_2D );
     MakeUniform( front.L2D );
     if( front.child.get() != nullptr )
         MakeFrontsUniform( *front.child );
@@ -85,7 +83,10 @@ void TestSparseDirect
     for( Int repeat=0; repeat<numRepeats; ++repeat )
     {
         if( repeat != 0 )
+        {
+            sparseLDLFact.ChangeFrontType( SYMM_2D );
             MakeFrontsUniform( sparseLDLFact.Front() );
+        }
 
         OutputFromRoot(grid.Comm(),"Running LDL^T and redistribution...");
         mpi::Barrier( grid.Comm() );
