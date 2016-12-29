@@ -532,6 +532,53 @@ bool DistSparseLDLFactorization<Field>::Factored() const
 { return factored_; }
 
 template<typename Field>
+Int DistSparseLDLFactorization<Field>::NumLocalEntries() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'NumLocalEntries()'");
+    return front_->NumLocalEntries();
+}
+
+template<typename Field>
+Int DistSparseLDLFactorization<Field>::NumTopLeftLocalEntries() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'NumTopLeftLocalEntries()'");
+    return front_->NumTopLeftLocalEntries();
+}
+
+template<typename Field>
+Int DistSparseLDLFactorization<Field>::NumBottomLeftLocalEntries() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError
+        ("Must initialize before calling 'NumBottomLeftLocalEntries()'");
+    return front_->NumBottomLeftLocalEntries();
+}
+
+template<typename Field>
+double DistSparseLDLFactorization<Field>::LocalFactorGFlops
+( bool selectiveInversion ) const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'LocalFactorGFlops()'");
+    return front_->LocalFactorGFlops( selectiveInversion );
+}
+
+template<typename Field>
+double DistSparseLDLFactorization<Field>::LocalSolveGFlops( Int numRHS ) const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'LocalSolveGFlops()'");
+    return front_->LocalSolveGFlops( numRHS );
+}
+
+template<typename Field>
 ldl::DistFront<Field>& DistSparseLDLFactorization<Field>::Front()
 {
     EL_DEBUG_CSE

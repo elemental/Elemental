@@ -352,6 +352,51 @@ bool SparseLDLFactorization<Field>::Factored() const
 { return factored_; }
 
 template<typename Field>
+Int SparseLDLFactorization<Field>::NumEntries() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'NumEntries()'");
+    return front_->NumEntries();
+}
+
+template<typename Field>
+Int SparseLDLFactorization<Field>::NumTopLeftEntries() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'NumTopLeftEntries()'");
+    return front_->NumTopLeftEntries();
+}
+
+template<typename Field>
+Int SparseLDLFactorization<Field>::NumBottomLeftEntries() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'NumBottomLeftEntries()'");
+    return front_->NumBottomLeftEntries();
+}
+
+template<typename Field>
+double SparseLDLFactorization<Field>::FactorGFlops() const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'FactorGFlops()'");
+    return front_->FactorGFlops();
+}
+
+template<typename Field>
+double SparseLDLFactorization<Field>::SolveGFlops( Int numRHS ) const
+{
+    EL_DEBUG_CSE
+    if( !initialized_ )
+        LogicError("Must initialize before calling 'SolveGFlops()'");
+    return front_->SolveGFlops( numRHS );
+}
+
+template<typename Field>
 ldl::Front<Field>& SparseLDLFactorization<Field>::Front()
 {
     EL_DEBUG_CSE

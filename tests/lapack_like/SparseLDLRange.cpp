@@ -78,7 +78,7 @@ void TestSparseDirect
     */
 
     // Memory usage before factorization
-    const Int localEntriesBefore = sparseLDLFact.Front().NumLocalEntries();
+    const Int localEntriesBefore = sparseLDLFact.NumLocalEntries();
     const Int minLocalEntriesBefore =
       mpi::AllReduce( localEntriesBefore, mpi::MIN, grid.Comm() );
     const Int maxLocalEntriesBefore =
@@ -114,14 +114,13 @@ void TestSparseDirect
     sparseLDLFact.Factor( type );
     mpi::Barrier( grid.Comm() );
     const double factTime = timer.Stop();
-    const double localFactGFlops =
-      sparseLDLFact.Front().LocalFactorGFlops( selInv );
+    const double localFactGFlops = sparseLDLFact.LocalFactorGFlops( selInv );
     const double factGFlops = mpi::AllReduce( localFactGFlops, grid.Comm() );
     const double factSpeed = factGFlops / factTime;
     OutputFromRoot(grid.Comm(),factTime," seconds, ",factSpeed," GFlop/s");
 
     // Memory usage after factorization
-    const Int localEntriesAfter = sparseLDLFact.Front().NumLocalEntries();
+    const Int localEntriesAfter = sparseLDLFact.NumLocalEntries();
     const Int minLocalEntriesAfter =
       mpi::AllReduce( localEntriesAfter, mpi::MIN, grid.Comm() );
     const Int maxLocalEntriesAfter =
@@ -137,8 +136,7 @@ void TestSparseDirect
 
     for( Int numRHS=numRHSBeg; numRHS<=numRHSEnd; numRHS+=numRHSInc )
     {
-        const double localSolveGFlops =
-          sparseLDLFact.Front().LocalSolveGFlops(numRHS);
+        const double localSolveGFlops = sparseLDLFact.LocalSolveGFlops(numRHS);
         const double solveGFlops =
           mpi::AllReduce( localSolveGFlops, grid.Comm() );
 

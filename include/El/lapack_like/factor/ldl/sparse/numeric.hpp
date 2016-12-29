@@ -515,6 +515,12 @@ public:
 
     bool Factored() const;
 
+    Int NumEntries() const;
+    Int NumTopLeftEntries() const;
+    Int NumBottomLeftEntries() const;
+    double FactorGFlops() const;
+    double SolveGFlops( Int numRHS=1 ) const;
+
     ldl::Front<Field>& Front();
     const ldl::Front<Field>& Front() const;
 
@@ -630,6 +636,12 @@ public:
     // TODO(poulson): Apply permutation?
 
     bool Factored() const;
+
+    Int NumLocalEntries() const;
+    Int NumTopLeftLocalEntries() const;
+    Int NumBottomLeftLocalEntries() const;
+    double LocalFactorGFlops( bool selInv=false ) const;
+    double LocalSolveGFlops( Int numRHS=1 ) const;
 
     ldl::DistFront<Field>& Front();
     const ldl::DistFront<Field>& Front() const;
