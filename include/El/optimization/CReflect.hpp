@@ -31,19 +31,29 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system        = CReflect(ctrl.system);
     ctrlC.mehrotra      = ctrl.mehrotra;
-    ctrlC.forceSameStep = ctrl.forceSameStep;
-    ctrlC.solveCtrl     = CReflect(ctrl.solveCtrl);
-    ctrlC.resolveReg    = ctrl.resolveReg;
-    ctrlC.outerEquil    = ctrl.outerEquil;
-    ctrlC.basisSize     = ctrl.basisSize;
-    ctrlC.print         = ctrl.print;
-    ctrlC.time          = ctrl.time;
-    ctrlC.wSafeMaxNorm  = ctrl.wSafeMaxNorm;
-    ctrlC.wMaxLimit     = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol  = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter   = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol  = ctrl.diagEquilTol;
-    ctrlC.checkResiduals = ctrl.checkResiduals;
+   
+    auto centralityRuleRes =
+      ctrl.centralityRule.target<float(*)(float,float,float,float)>();
+    if( centralityRuleRes )
+        ctrlC.centralityRule = *centralityRuleRes;
+    else
+        RuntimeError("Could not convert centralityRule to C function pointer");
+
+    ctrlC.standardInitShift = ctrl.standardInitShift;
+    ctrlC.balanceTol        = ctrl.balanceTol;
+    ctrlC.forceSameStep     = ctrl.forceSameStep;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.resolveReg        = ctrl.resolveReg;
+    ctrlC.outerEquil        = ctrl.outerEquil;
+    ctrlC.basisSize         = ctrl.basisSize;
+    ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
+    ctrlC.wSafeMaxNorm      = ctrl.wSafeMaxNorm;
+    ctrlC.wMaxLimit         = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol      = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter       = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol      = ctrl.diagEquilTol;
+    ctrlC.checkResiduals    = ctrl.checkResiduals;
 
     ctrlC.reg0Tmp = ctrl.reg0Tmp;
     ctrlC.reg1Tmp = ctrl.reg1Tmp;
@@ -65,19 +75,29 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system        = CReflect(ctrl.system);
     ctrlC.mehrotra      = ctrl.mehrotra;
-    ctrlC.forceSameStep = ctrl.forceSameStep;
-    ctrlC.solveCtrl     = CReflect(ctrl.solveCtrl);
-    ctrlC.resolveReg    = ctrl.resolveReg;
-    ctrlC.outerEquil    = ctrl.outerEquil;
-    ctrlC.basisSize     = ctrl.basisSize;
-    ctrlC.print         = ctrl.print;
-    ctrlC.time          = ctrl.time;
-    ctrlC.wSafeMaxNorm  = ctrl.wSafeMaxNorm;
-    ctrlC.wMaxLimit     = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol  = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter   = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol  = ctrl.diagEquilTol;
-    ctrlC.checkResiduals = ctrl.checkResiduals;
+
+    auto centralityRuleRes =
+      ctrl.centralityRule.target<double(*)(double,double,double,double)>();
+    if( centralityRuleRes )
+        ctrlC.centralityRule = *centralityRuleRes;
+    else
+        RuntimeError("Could not convert centralityRule to C function pointer");
+
+    ctrlC.standardInitShift = ctrl.standardInitShift;
+    ctrlC.balanceTol        = ctrl.balanceTol;
+    ctrlC.forceSameStep     = ctrl.forceSameStep;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.resolveReg        = ctrl.resolveReg;
+    ctrlC.outerEquil        = ctrl.outerEquil;
+    ctrlC.basisSize         = ctrl.basisSize;
+    ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
+    ctrlC.wSafeMaxNorm      = ctrl.wSafeMaxNorm;
+    ctrlC.wMaxLimit         = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol      = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter       = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol      = ctrl.diagEquilTol;
+    ctrlC.checkResiduals    = ctrl.checkResiduals;
 
     ctrlC.reg0Tmp = ctrl.reg0Tmp;
     ctrlC.reg1Tmp = ctrl.reg1Tmp;
@@ -91,27 +111,30 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
 inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
 {
     MehrotraCtrl<float> ctrl;
-    ctrl.primalInit    = ctrlC.primalInit;
-    ctrl.dualInit      = ctrlC.dualInit;
-    ctrl.minTol        = ctrlC.minTol;
-    ctrl.targetTol     = ctrlC.targetTol;
-    ctrl.maxIts        = ctrlC.maxIts;
-    ctrl.maxStepRatio  = ctrlC.maxStepRatio;
-    ctrl.system        = CReflect(ctrlC.system);
-    ctrl.mehrotra      = ctrlC.mehrotra;
-    ctrl.forceSameStep = ctrlC.forceSameStep;
-    ctrl.solveCtrl     = CReflect(ctrlC.solveCtrl);
-    ctrl.resolveReg    = ctrlC.resolveReg;
-    ctrl.outerEquil    = ctrlC.outerEquil;
-    ctrl.basisSize     = ctrlC.basisSize;
-    ctrl.print         = ctrlC.print;
-    ctrl.time          = ctrlC.time;
-    ctrl.wSafeMaxNorm  = ctrlC.wSafeMaxNorm;
-    ctrl.wMaxLimit     = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol  = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter   = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol  = ctrlC.diagEquilTol;
-    ctrl.checkResiduals = ctrlC.checkResiduals;
+    ctrl.primalInit        = ctrlC.primalInit;
+    ctrl.dualInit          = ctrlC.dualInit;
+    ctrl.minTol            = ctrlC.minTol;
+    ctrl.targetTol         = ctrlC.targetTol;
+    ctrl.maxIts            = ctrlC.maxIts;
+    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.system            = CReflect(ctrlC.system);
+    ctrl.mehrotra          = ctrlC.mehrotra;
+    ctrl.centralityRule    = ctrlC.centralityRule;
+    ctrl.standardInitShift = ctrlC.standardInitShift;
+    ctrl.balanceTol        = ctrlC.balanceTol;
+    ctrl.forceSameStep     = ctrlC.forceSameStep;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.resolveReg        = ctrlC.resolveReg;
+    ctrl.outerEquil        = ctrlC.outerEquil;
+    ctrl.basisSize         = ctrlC.basisSize;
+    ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
+    ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
+    ctrl.wMaxLimit         = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol      = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter       = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol      = ctrlC.diagEquilTol;
+    ctrl.checkResiduals    = ctrlC.checkResiduals;
 
     ctrl.reg0Tmp = ctrlC.reg0Tmp;
     ctrl.reg1Tmp = ctrlC.reg1Tmp;
@@ -125,27 +148,30 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
 inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
 {
     MehrotraCtrl<double> ctrl;
-    ctrl.primalInit    = ctrlC.primalInit;
-    ctrl.dualInit      = ctrlC.dualInit;
-    ctrl.minTol        = ctrlC.minTol;
-    ctrl.targetTol     = ctrlC.targetTol;
-    ctrl.maxIts        = ctrlC.maxIts;
-    ctrl.maxStepRatio  = ctrlC.maxStepRatio;
-    ctrl.system        = CReflect(ctrlC.system);
-    ctrl.mehrotra      = ctrlC.mehrotra;
-    ctrl.forceSameStep = ctrlC.forceSameStep;
-    ctrl.solveCtrl     = CReflect(ctrlC.solveCtrl);
-    ctrl.resolveReg    = ctrlC.resolveReg;
-    ctrl.outerEquil    = ctrlC.outerEquil;
-    ctrl.basisSize     = ctrlC.basisSize;
-    ctrl.print         = ctrlC.print;
-    ctrl.time          = ctrlC.time;
-    ctrl.wSafeMaxNorm  = ctrlC.wSafeMaxNorm;
-    ctrl.wMaxLimit     = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol  = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter   = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol  = ctrlC.diagEquilTol;
-    ctrl.checkResiduals = ctrlC.checkResiduals;
+    ctrl.primalInit        = ctrlC.primalInit;
+    ctrl.dualInit          = ctrlC.dualInit;
+    ctrl.minTol            = ctrlC.minTol;
+    ctrl.targetTol         = ctrlC.targetTol;
+    ctrl.maxIts            = ctrlC.maxIts;
+    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.system            = CReflect(ctrlC.system);
+    ctrl.mehrotra          = ctrlC.mehrotra;
+    ctrl.centralityRule    = ctrlC.centralityRule;
+    ctrl.standardInitShift = ctrlC.standardInitShift;
+    ctrl.balanceTol        = ctrlC.balanceTol;
+    ctrl.forceSameStep     = ctrlC.forceSameStep;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.resolveReg        = ctrlC.resolveReg;
+    ctrl.outerEquil        = ctrlC.outerEquil;
+    ctrl.basisSize         = ctrlC.basisSize;
+    ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
+    ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
+    ctrl.wMaxLimit         = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol      = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter       = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol      = ctrlC.diagEquilTol;
+    ctrl.checkResiduals    = ctrlC.checkResiduals;
 
     ctrl.reg0Tmp = ctrlC.reg0Tmp;
     ctrl.reg1Tmp = ctrlC.reg1Tmp;

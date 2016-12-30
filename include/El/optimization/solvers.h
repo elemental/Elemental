@@ -30,6 +30,9 @@ typedef struct {
   float maxStepRatio;
   ElKKTSystem system;
   bool mehrotra;
+  float (*centralityRule)(float,float,float,float);
+  bool standardInitShift;
+  float balanceTol;
   bool forceSameStep;
   ElRegSolveCtrl_s solveCtrl;
   bool resolveReg;
@@ -60,6 +63,9 @@ typedef struct {
   double maxStepRatio;
   ElKKTSystem system;
   bool mehrotra;
+  double (*centralityRule)(double,double,double,double);
+  bool standardInitShift;
+  double balanceTol;
   bool forceSameStep;
   ElRegSolveCtrl_d solveCtrl;
   bool resolveReg;

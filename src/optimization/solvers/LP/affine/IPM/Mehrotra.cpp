@@ -325,15 +325,6 @@ void EquilibratedMehrotra
     const Int k = problem.G.Height();
     const Int degree = k;
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -349,7 +340,8 @@ void EquilibratedMehrotra
     }
 
     Initialize
-    ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
+    ( problem, solution,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real relError = 1;
     Matrix<Real> J, d;
@@ -554,7 +546,8 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -664,15 +657,6 @@ void EquilibratedMehrotra
           LogicError("Solution matrices were not simply aligned");
     )
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
@@ -698,7 +682,8 @@ void EquilibratedMehrotra
     }
 
     Initialize
-    ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
+    ( problem, solution,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real relError = 1;
     DistMatrix<Real> J(grid), d(grid);
@@ -901,12 +886,13 @@ void EquilibratedMehrotra
         // NOTE: dz and ds are used as temporaries
         correction.s = solution.s;
         correction.z = solution.z;
-        Axpy( alphaAffPri,  affineCorrection.s, solution.s );
-        Axpy( alphaAffDual, affineCorrection.z, solution.z );
+        Axpy( alphaAffPri,  affineCorrection.s, correction.s );
+        Axpy( alphaAffDual, affineCorrection.z, correction.z );
         const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 
@@ -1049,15 +1035,6 @@ void EquilibratedMehrotra
     const Int k = problem.G.Height();
     const Int degree = k;
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -1095,7 +1072,7 @@ void EquilibratedMehrotra
     Initialize
     ( problem, solution, JStatic, regTmp,
       sparseLDLFact,
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
     Int numIts = 0;
     Real relError = 1;
@@ -1350,7 +1327,8 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -1446,16 +1424,6 @@ void EquilibratedMehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
@@ -1522,7 +1490,7 @@ void EquilibratedMehrotra
     Initialize
     ( problem, solution, JStatic, regTmp,
       sparseLDLFact,
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
@@ -1800,7 +1768,8 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 

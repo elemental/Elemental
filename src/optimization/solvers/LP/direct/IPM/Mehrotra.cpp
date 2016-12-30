@@ -414,8 +414,7 @@ struct DirectState<Real,Matrix<Real>,Matrix<Real>>
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
       const DirectLPSolution<Matrix<Real>>& solution,
       const DirectRegularization<Real>& permReg,
-      const MehrotraCtrl<Real>& ctrl,
-            Real balanceTol );
+      const MehrotraCtrl<Real>& ctrl );
 
     void PrintResiduals
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
@@ -448,8 +447,7 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const DirectLPSolution<Matrix<Real>>& solution,
   const DirectRegularization<Real>& permReg,
-  const MehrotraCtrl<Real>& ctrl,
-        Real balanceTol )
+  const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int degree = problem.A.Width();
@@ -458,7 +456,8 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     // ---------------------------------
     barrier = Dot(solution.x,solution.z) / degree;
     const Real compRatio = pos_orth::ComplementRatio( solution.x, solution.z );
-    barrier = compRatio > balanceTol ? barrierOld : Min(barrier,barrierOld);
+    barrier = compRatio > ctrl.balanceTol ? barrierOld
+      : Min(barrier,barrierOld);
     barrierOld = barrier;
 
     // Compute the objectives and relative duality gap
@@ -678,16 +677,6 @@ void EquilibratedMehrotra
     const Int degree = n;
     const Real eps = limits::Epsilon<Real>();
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-    const Real balanceTol = Pow(eps,Real(-0.19));
-
     // TODO(poulson): Implement nonzero regularization
     DirectRegularization<Real> permReg;
     permReg.primalEquality = 0;
@@ -699,7 +688,8 @@ void EquilibratedMehrotra
     const Int indent = PushIndent();
     try {
     Initialize
-    ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
+    ( problem, solution,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
     DirectKKTSolver<Real,Matrix<Real>,Matrix<Real>> solver;
     DirectLPSolution<Matrix<Real>> affineCorrection, correction;
     for( state.numIts=0; state.numIts<ctrl.maxIts; ++state.numIts )
@@ -713,7 +703,7 @@ void EquilibratedMehrotra
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        state.Update( problem, solution, permReg, ctrl, balanceTol );
+        state.Update( problem, solution, permReg, ctrl );
 
         // Check for convergence
         // =====================
@@ -756,7 +746,7 @@ void EquilibratedMehrotra
             Output
             ("barrierAffine = ",state.barrierAffine,", barrier=",state.barrier);
         state.sigma =
-          centralityRule
+          ctrl.centralityRule
           (state.barrier,state.barrierAffine,alphaAffPri,alphaAffDual);
         if( ctrl.print && outputRoot )
             Output("sigma=",state.sigma);
@@ -892,15 +882,6 @@ void EquilibratedMehrotra
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-    const Real balanceTol = Pow(eps,Real(-0.19));
     // TODO(poulson): Implement nonzero regularization
     const Real gammaPerm = 0;
     const Real deltaPerm = 0;
@@ -919,7 +900,8 @@ void EquilibratedMehrotra
     }
 
     Initialize
-    ( problem, solution, ctrl.primalInit, ctrl.dualInit, standardShift );
+    ( problem, solution,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real muOld = 0.1;
     Real relError = 1;
@@ -977,7 +959,7 @@ void EquilibratedMehrotra
         Real mu = Dot(solution.x,solution.z) / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
-        mu = compRatio > balanceTol ? muOld : Min(mu,muOld);
+        mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
         muOld = mu;
 
         // Check for convergence
@@ -1161,7 +1143,8 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.x,correction.z) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 
@@ -1380,13 +1363,6 @@ void EquilibratedMehrotra
     const Real eps = limits::Epsilon<Real>();
 
     // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
     Real gammaPerm, deltaPerm, betaPerm, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
@@ -1401,7 +1377,6 @@ void EquilibratedMehrotra
         deltaTmp = ctrl.reg1Tmp;
         betaTmp = ctrl.reg2Tmp;
     }
-    const Real balanceTol = Pow(eps,Real(-0.19));
 
     const Real bNrm2 = FrobeniusNorm( problem.b );
     const Real cNrm2 = FrobeniusNorm( problem.c );
@@ -1422,14 +1397,16 @@ void EquilibratedMehrotra
     {
         Initialize
         ( problem, solution, sparseLDLFact,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
     }
     else
     {
         SparseLDLFactorization<Real> augmentedSparseLDLFact;
         Initialize
         ( problem, solution, augmentedSparseLDLFact,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
     }
 
     Matrix<Real> regTmp;
@@ -1521,7 +1498,7 @@ void EquilibratedMehrotra
         Real mu = Dot(solution.x,solution.z) / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
-        mu = compRatio > balanceTol ? muOld : Min(mu,muOld);
+        mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
         muOld = mu;
 
         if( ctrl.print )
@@ -1754,7 +1731,8 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.x,correction.z) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -1972,13 +1950,6 @@ void EquilibratedMehrotra
     Timer timer;
 
     // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
     Real gammaPerm, deltaPerm, betaPerm, gammaTmp, deltaTmp, betaTmp;
     if( ctrl.system == NORMAL_KKT )
     {
@@ -1993,7 +1964,6 @@ void EquilibratedMehrotra
         deltaTmp = ctrl.reg1Tmp;
         betaTmp = ctrl.reg2Tmp;
     }
-    const Real balanceTol = Pow(eps,Real(-0.19));
 
     const Real bNrm2 = FrobeniusNorm( problem.b );
     const Real cNrm2 = FrobeniusNorm( problem.c );
@@ -2021,14 +1991,16 @@ void EquilibratedMehrotra
     {
         Initialize
         ( problem, solution, sparseLDLFact,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
     }
     else
     {
         DistSparseLDLFactorization<Real> augmentedSparseLDLFact;
         Initialize
         ( problem, solution, augmentedSparseLDLFact,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
     }
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
@@ -2095,7 +2067,7 @@ void EquilibratedMehrotra
         Real mu = Dot(solution.x,solution.z) / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
-        mu = compRatio > balanceTol ? muOld : Min(mu,muOld);
+        mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
         muOld = mu;
 
         pos_orth::NesterovTodd( solution.x, solution.z, w );
@@ -2417,7 +2389,8 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.x,correction.z) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 

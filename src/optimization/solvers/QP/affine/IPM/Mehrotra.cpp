@@ -49,15 +49,6 @@ void Mehrotra
 {
     EL_DEBUG_CSE
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     // Equilibrate the QP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
@@ -117,7 +108,7 @@ void Mehrotra
 
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real relError = 1;
     Matrix<Real> J, d,
@@ -281,7 +272,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -357,16 +349,6 @@ void Mehrotra
   const MehrotraCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
     Timer timer;
@@ -467,7 +449,7 @@ void Mehrotra
         timer.Start();
     Initialize
     ( Q, A, G, b, c, h, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
     if( ctrl.time && commRank == 0 )
         Output("Init time: ",timer.Stop()," secs");
 
@@ -650,7 +632,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 
@@ -744,15 +727,6 @@ void Mehrotra
 {
     EL_DEBUG_CSE
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
     auto A = APre;
@@ -833,7 +807,7 @@ void Mehrotra
     Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s,
       sparseLDLFact,
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> d,
@@ -1040,7 +1014,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -1137,14 +1112,6 @@ void Mehrotra
 {
     EL_DEBUG_CSE
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
     //const Real selInvTol = Pow(eps,Real(-0.25));
     const Real selInvTol = 0;
 
@@ -1257,7 +1224,7 @@ void Mehrotra
     Initialize
     ( JStatic, regTmp, b, c, h, x, y, z, s,
       sparseLDLFact,
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
@@ -1488,7 +1455,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 

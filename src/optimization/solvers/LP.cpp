@@ -9,6 +9,7 @@
 #include <El.hpp>
 #include "./LP/direct/IPM.hpp"
 #include "./LP/affine/IPM.hpp"
+#include "./LP/MPS.hpp"
 
 namespace El {
 
@@ -480,7 +481,55 @@ void LP
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const lp::affine::Ctrl<Real>& ctrl );
+    const lp::affine::Ctrl<Real>& ctrl ); \
+  template void ReadMPS \
+  ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void ReadMPS \
+  ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void ReadMPS \
+  ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void ReadMPS \
+  ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+    const string& filename, \
+    bool compressed ); \
+  template void WriteMPS \
+  ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+    const string& filename, \
+    bool compressed );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
