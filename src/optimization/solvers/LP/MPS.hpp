@@ -19,7 +19,7 @@ enum MPSSection {
   MPS_RANGES,
   MPS_OBJSENSE,
   MPS_END,
-  MPS_NONE 
+  MPS_NONE
 };
 
 enum MPSRowType {
@@ -39,12 +39,24 @@ struct MPSVariableData
 {
   Int index;
   Int numNonzeros=0;
+
   bool lowerBounded=false;
+  Int lowerBoundIndex=-1;
+
   bool upperBounded=false;
+  Int upperBoundIndex=-1;
+
   bool fixed=false;
+  Int fixedIndex=-1;
+
   bool free=false;
+  Int freeIndex=-1;
+
   bool nonpositive=false;
+  Int nonpositiveIndex=-1;
+
   bool nonnegative=false;
+  Int nonnegativeIndex=-1;
 };
 
 struct MPSMeta
@@ -83,6 +95,12 @@ struct MPSMeta
 
 namespace read_mps {
 
+// TODO(poulson): Convert to a parser that outputs tuples of the form:
+//
+//   (whichMatrix,row,column,value).
+//
+// It must also be possible to query the relevant matrix sizes.
+
 // NOTE: It is assumed that MPSMeta is in its original state on entry.
 void GetMetadata
 ( const string& filename,
@@ -110,12 +128,9 @@ void GetMetadata
     string line;
     while( std::getline( file, line ) )
     {
-        if( section == MPS_END )
-        {
-            Output("WARNING: Manually stopping after 'ENDATA'");
-            break;
-        }
         std::stringstream lineStream( line );
+        const char firstChar = lineStream.peek();
+        const bool isDataLine = firstChar == ' ' || firstChar == '\t';
 
         // The first token on each line should be a string. We will check it for
         // equivalence with each section string.
@@ -124,71 +139,78 @@ void GetMetadata
             // This line only consists of whitespace.
             continue;
         }
-        if( token == "NAME" )
+
+        if( !isDataLine )
         {
-            if( meta.name != "" )
-                Output("WARNING: Multiple 'NAME' sections");
-            if( !(lineStream >> meta.name) )
-                LogicError("Missing 'NAME' string");
-            section = MPS_NAME;
+            if( token == "NAME" )
+            {
+                if( meta.name != "" )
+                    Output("WARNING: Multiple 'NAME' sections");
+                if( !(lineStream >> meta.name) )
+                    LogicError("Missing 'NAME' string");
+                section = MPS_NAME;
+            }
+            else if( token == "OBJSENSE" )
+            {
+                LogicError("OBJSENSE is not yet handled");
+            }
+            else if( token == "ROWS" )
+            {
+                if( meta.numLesserRows > 0 ||
+                    meta.numGreaterRows > 0 ||
+                    meta.numEqualityRows > 0 ||
+                    meta.numNonconstrainingRows > 0 )
+                    Output("WARNING: Multiple ROWS sections");
+                section = MPS_ROWS;
+            }
+            else if( token == "COLUMNS" )
+            {
+                if( meta.numColumnEntries > 0 )
+                    Output("WARNING: Multiple 'COLUMNS' sections");
+                section = MPS_COLUMNS;
+            }
+            else if( token == "RHS" )
+            {
+                section = MPS_RHS;
+            }
+            else if( token == "BOUNDS" )
+            {
+                if( meta.numUpperBounds > 0 ||
+                    meta.numLowerBounds > 0 ||
+                    meta.numFixedBounds > 0 ||
+                    meta.numFreeBounds > 0 ||
+                    meta.numNonpositiveBounds > 0 ||
+                    meta.numNonnegativeBounds > 0 )
+                    Output("WARNING: Multiple 'BOUNDS' sections");
+                section = MPS_BOUNDS;
+            }
+            else if( token == "RANGES" )
+            {
+                section = MPS_RANGES;
+                LogicError("MPS 'RANGES' section is not yet supported");
+            }
+            else if( token == "ENDATA" )
+            {
+                section = MPS_END;
+                break;
+            }
+            else if( token == "MARKER" )
+            {
+                LogicError("MPS 'MARKER' section is not yet supported");
+            }
+            else if( token == "SOS" )
+            {
+                LogicError("MPS 'SOS' section is not yet supported");
+            }
+            else
+            {
+                LogicError("Section token ",token," is not recognized");
+            }
             continue;
-        }
-        else if( token == "ROWS" )
-        {
-            if( meta.numLesserRows > 0 ||
-                meta.numGreaterRows > 0 ||
-                meta.numEqualityRows > 0 ||
-                meta.numNonconstrainingRows > 0 )
-                Output("WARNING: Multiple ROWS sections");
-            section = MPS_ROWS;
-            continue;
-        }
-        else if( token == "COLUMNS" )
-        {
-            if( meta.numColumnEntries > 0 )
-                Output("WARNING: Multiple 'COLUMNS' sections");
-            section = MPS_COLUMNS;
-            continue;
-        }
-        else if( token == "RHS" )
-        {
-            section = MPS_RHS;
-            continue;
-        }
-        else if( token == "BOUNDS" )
-        {
-            if( meta.numUpperBounds > 0 ||
-                meta.numLowerBounds > 0 ||
-                meta.numFixedBounds > 0 ||
-                meta.numFreeBounds > 0 ||
-                meta.numNonpositiveBounds > 0 ||
-                meta.numNonnegativeBounds > 0 )
-                Output("WARNING: Multiple 'BOUNDS' sections");
-            section = MPS_BOUNDS;
-            continue;
-        }
-        else if( token == "RANGES" )
-        {
-            section = MPS_RANGES;
-            LogicError("MPS 'RANGES' section is not yet supported");
-            continue;
-        }
-        else if( token == "ENDATA" )
-        {
-            section = MPS_END;
-            continue;
-        }
-        else if( token == "MARKER" )
-        {
-            LogicError("MPS 'MARKER' section is not yet supported");
-        }
-        else if( token == "SOS" )
-        {
-            LogicError("MPS 'SOS' section is not yet supported");
         }
 
         // No section marker was found, so handle this data line.
-        if( section == MPS_ROWS ) 
+        if( section == MPS_ROWS )
         {
             rowType = token;
             if( !(lineStream >> rowName) )
@@ -230,31 +252,28 @@ void GetMetadata
             if( variableIter == meta.variableDict.end() )
             {
                 MPSVariableData variableData;
-                variableData.index = variableCounter++;    
+                variableData.index = variableCounter++;
                 meta.variableDict[variableName] = variableData;
                 variableIter = meta.variableDict.find( variableName );
             }
             MPSVariableData& variableData = variableIter->second;
 
             // There should be either one or two pairs of entries left to read
-            // from this line. We will now read in the first such pair.
-            if( !(lineStream >> rowName) )
-                LogicError("Invalid 'COLUMNS' section");
-            if( !(lineStream >> value) )
-                LogicError("Invalid 'COLUMNS' section");
-            ++variableData.numNonzeros;
-            ++meta.numColumnEntries;
-
-            // We will attempt to read in a second pair.
-            if( !(lineStream >> rowName) )
+            // from this line.
+            for( Int pair=0; pair<2; ++pair )
             {
-                // There was not a second pair.
-                continue;
+                if( !(lineStream >> rowName) )
+                {
+                    if( pair == 0 )
+                        LogicError("Invalid 'COLUMNS' section");
+                    else
+                        break;
+                }
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'COLUMNS' section");
+                ++variableData.numNonzeros;
+                ++meta.numColumnEntries;
             }
-            if( !(lineStream >> value) )
-                LogicError("Invalid 'COLUMNS' section");
-            ++variableData.numNonzeros;
-            ++meta.numColumnEntries;
         }
         else if( section == MPS_RHS )
         {
@@ -269,7 +288,21 @@ void GetMetadata
                 LogicError
                 ("Only single problem instances are currently supported "
                  "(multiple right-hand side names were encountered)");
-            continue;
+
+            // There should be either one or two pairs of entries left to read
+            // from this line.
+            for( Int pair=0; pair<2; ++pair )
+            {
+                if( !(lineStream >> rowName) )
+                {
+                    if( pair == 0 )
+                        LogicError("Invalid 'RHS' section");
+                    else
+                        break;
+                }
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'RHS' section");
+            }
         }
         else if( section == MPS_BOUNDS )
         {
@@ -333,75 +366,87 @@ void GetMetadata
     // Also warn if there are possibly conflicting bound types.
     for( auto& entry : meta.variableDict )
     {
+        auto& data = entry.second;
         // Handle explicit upper and lower bounds.
         if( upperBoundImplicitlyNonnegative )
         {
-            if( entry.second.upperBounded && entry.second.lowerBounded )
+            if( data.upperBounded && data.lowerBounded )
             {
-                ++meta.numUpperBounds;
-                ++meta.numLowerBounds;
+                data.upperBoundIndex = meta.numUpperBounds++;
+                data.lowerBoundIndex = meta.numLowerBounds++;
             }
-            else if( entry.second.upperBounded )
+            else if( data.upperBounded )
             {
-                ++meta.numUpperBounds;
-                entry.second.nonnegative = true;
+                data.upperBoundIndex = meta.numUpperBounds++;
+                data.nonnegative = true;
             }
-            else if( entry.second.lowerBounded )
+            else if( data.lowerBounded )
             {
+                data.lowerBoundIndex = meta.numLowerBounds++;
                 ++meta.numLowerBounds;
             }
         }
         else
         {
-            if( entry.second.upperBounded )
+            if( data.upperBounded )
             {
-                ++meta.numUpperBounds;
+                data.upperBoundIndex = meta.numUpperBounds++;
             }
-            if( entry.second.lowerBounded )
+            if( data.lowerBounded )
             {
-                ++meta.numLowerBounds;
+                data.lowerBoundIndex = meta.numLowerBounds++;
             }
         }
-        
+
         // Handle fixed values.
-        if( entry.second.fixed )
+        if( data.fixed )
         {
-            if( entry.second.upperBounded || entry.second.lowerBounded )
+            if( data.upperBounded || data.lowerBounded )
                 LogicError("Invalid bound combination");
-            ++meta.numFixedBounds;
+            data.fixedIndex = meta.numFixedBounds++;
         }
 
         // Handle free values.
-        if( entry.second.free )
+        if( data.free )
         {
-            if( entry.second.upperBounded || entry.second.lowerBounded )
+            if( data.upperBounded || data.lowerBounded )
                 LogicError("Invalid bound combination");
-            ++meta.numFreeBounds;
+            data.freeIndex = meta.numFreeBounds++;
         }
 
         // Handle non-positive values.
-        if( entry.second.nonpositive )
+        if( data.nonpositive )
         {
-            if( entry.second.upperBounded )
+            if( data.upperBounded )
                 Output
                 ("WARNING: Combined nonpositive constraint with upper bound");
-            ++meta.numNonpositiveBounds;
+            data.nonpositiveIndex = meta.numNonpositiveBounds++;
         }
 
-        // Handle non-negative values. 
-        if( entry.second.nonnegative )
+        // Default to nonnegative if there were not any markings.
+        if( !data.upperBounded &&
+            !data.lowerBounded &&
+            !data.fixed &&
+            !data.free &&
+            !data.nonpositive )
         {
-            if( entry.second.lowerBounded )
+            data.nonnegative = true;
+        }
+
+        // Handle non-negative values.
+        if( data.nonnegative )
+        {
+            if( data.lowerBounded )
                 Output
                 ("WARNING: Combined nonnegative constraint with lower bound");
-            ++meta.numNonnegativeBounds;
+            data.nonnegativeIndex = meta.numNonnegativeBounds++;
         }
     }
 }
 
 template<typename Real>
-void GetMetadata
-( AffileLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+void FormProblem
+( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const string& filename,
   const MPSMeta& meta )
 {
@@ -418,7 +463,7 @@ void GetMetadata
     //   | A0 | x = | b0 |,
     //   | A1 |     | b1 |
     //
-    // where 'A0 x = b0' the set of 'equality' rows and 'A1 x = b1' is the 
+    // where 'A0 x = b0' the set of 'equality' rows and 'A1 x = b1' is the
     // set of 'fixed' rows (so that each row of 'A1' is all zeros except for
     // a single one).
     //
@@ -432,21 +477,27 @@ void GetMetadata
     //   | G1 |      | h1 |
     //   | G2 |      | h2 |
     //   | G3 |      | h3 |
+    //   | G4 |      | h4 |
+    //   | G5 |      | h5 |
     //
-    // where 'G0 x <= h0' consists of the 'lesser' rows, 'G1 x <= h1' is the 
+    // where 'G0 x <= h0' consists of the 'lesser' rows, 'G1 x <= h1' is the
     // negation of the 'greater' rows, 'G2 x <= h2' consists of the upper
     // bounds (each row of 'G0' is all zeros except for a single one),
-    // and 'G3 x <= h3' is the negation of the lower bounds (each row of 'G3'
-    // is all zeros except for a single negative one).
+    // 'G3 x <= h3' is the negation of the lower bounds (each row of 'G3'
+    // is all zeros except for a single negative one), 'G4 x <= h4' is the
+    // set of nonpositive bounds, and 'G5 x <= h5' is the set of nonnegative
+    // bounds.
     //
     const Int lesserOffset = 0;
     const Int greaterOffset = meta.numLesserRows;
     const Int upperBoundOffset = greaterOffset + meta.numGreaterRows;
     const Int lowerBoundOffset = upperBoundOffset + meta.numUpperBounds;
-    const Int k = lowerBoundOffset + meta.numLowerBounds;
+    const Int nonpositiveOffset = lowerBoundOffset + meta.numLowerBounds;
+    const Int nonnegativeOffset = nonpositiveOffset + meta.numNonpositiveBounds;
+    const Int k = nonnegativeOffset + meta.numNonnegativeBounds;
 
     // TODO(poulson): Support for reducing the system by eliminating the
-    // 'fixed' variables. 
+    // 'fixed' variables.
 
     Zeros( problem.c, n, 1 );
     Zeros( problem.A, m, n );
@@ -469,12 +520,9 @@ void GetMetadata
     string line;
     while( std::getline( file, line ) )
     {
-        if( section == MPS_END )
-        {
-            Output("WARNING: Manually stopping after 'ENDATA'");
-            break;
-        }
         std::stringstream lineStream( line );
+        const char firstChar = lineStream.peek();
+        const bool isDataLine = firstChar == ' ' || firstChar == '\t';
 
         // The first token on each line should be a string. We will check it for
         // equivalence with each section string.
@@ -483,106 +531,145 @@ void GetMetadata
             // This line only consists of whitespace.
             continue;
         }
-        if( token == "NAME" )
+
+        if( !isDataLine )
         {
-            if( !(lineStream >> meta.name) )
-                LogicError("Missing 'NAME' string");
-            section = MPS_NAME;
+            if( token == "NAME" )
+            {
+                section = MPS_NAME;
+            }
+            else if( token == "OBJSENSE" )
+            {
+                LogicError("OBJSENSE is not yet handled");
+            }
+            else if( token == "ROWS" )
+            {
+                section = MPS_ROWS;
+            }
+            else if( token == "COLUMNS" )
+            {
+                section = MPS_COLUMNS;
+            }
+            else if( token == "RHS" )
+            {
+                section = MPS_RHS;
+            }
+            else if( token == "BOUNDS" )
+            {
+                section = MPS_BOUNDS;
+            }
+            else if( token == "RANGES" )
+            {
+                section = MPS_RANGES;
+            }
+            else if( token == "ENDATA" )
+            {
+                section = MPS_END;
+                break;
+            }
+            else
+            {
+                LogicError("Section token ",token," is not recognized");
+            }
             continue;
-        }
-        else if( token == "ROWS" )
-        {
-            section = MPS_ROWS;
-            continue;
-        }
-        else if( token == "COLUMNS" )
-        {
-            section = MPS_COLUMNS;
-            continue;
-        }
-        else if( token == "RHS" )
-        {
-            section = MPS_RHS;
-            continue;
-        }
-        else if( token == "BOUNDS" )
-        {
-            section = MPS_BOUNDS;
-            continue;
-        }
-        else if( token == "RANGES" )
-        {
-            section = MPS_RANGES;
-            LogicError("MPS 'RANGES' section is not yet supported");
-            continue;
-        }
-        else if( token == "ENDATA" )
-        {
-            section = MPS_END;
-            continue;
-        }
-        else if( token == "MARKER" )
-        {
-            LogicError("MPS 'MARKER' section is not yet supported");
-        }
-        else if( token == "SOS" )
-        {
-            LogicError("MPS 'SOS' section is not yet supported");
         }
 
         // No section marker was found, so handle this data line.
-        if( section == MPS_ROWS ) 
+        if( section == MPS_ROWS )
         {
-            continue;
+            // We already have the row names.
         }
         else if( section == MPS_COLUMNS )
         {
-            // HERE
             variableName = token;
             auto variableIter = meta.variableDict.find( variableName );
             if( variableIter == meta.variableDict.end() )
-            {
-                MPSVariableData variableData;
-                variableData.index = variableCounter++;    
-                meta.variableDict[variableName] = variableData;
-                variableIter = meta.variableDict.find( variableName );
-            }
-            MPSVariableData& variableData = variableIter->second;
+                LogicError("Could not find variable ",variableName);
+            const MPSVariableData& variableData = variableIter->second;
+            const Int column = variableData.index;
 
             // There should be either one or two pairs of entries left to read
-            // from this line. We will now read in the first such pair.
-            if( !(lineStream >> rowName) )
-                LogicError("Invalid 'COLUMNS' section");
-            if( !(lineStream >> value) )
-                LogicError("Invalid 'COLUMNS' section");
-            ++variableData.numNonzeros;
-            ++meta.numColumnEntries;
-
-            // We will attempt to read in a second pair.
-            if( !(lineStream >> rowName) )
+            // from this line.
+            for( Int pair=0; pair<2; ++pair )
             {
-                // There was not a second pair.
-                continue;
+                if( !(lineStream >> rowName) )
+                {
+                    if( pair == 0 )
+                        LogicError("Invalid 'COLUMNS' section");
+                    else
+                        break;
+                }
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'COLUMNS' section");
+                auto rowIter = meta.rowDict.find( rowName );
+                if( rowIter == meta.rowDict.end() )
+                    LogicError("Could not find row ",rowName);
+                const auto& rowData = rowIter->second;
+                if( rowData.type == MPS_EQUALITY_ROW )
+                {
+                    const Int row = equalityOffset + rowData.typeIndex;
+                    problem.A(row,column) = value;
+                }
+                else if( rowData.type == MPS_LESSER_ROW )
+                {
+                    const Int row = lesserOffset + rowData.typeIndex;
+                    problem.G(row,column) = value;
+                }
+                else if( rowData.type == MPS_GREATER_ROW )
+                {
+                    const Int row = greaterOffset + rowData.typeIndex;
+                    problem.G(row,column) = -value;
+                }
+                else if( rowData.type == MPS_NONCONSTRAINING_ROW )
+                {
+                    if( rowData.typeIndex == 0 )
+                    {
+                        // Store the cost for this variable.
+                        problem.c(column) = value;
+                    }
+                    // else?
+                }
             }
-            if( !(lineStream >> value) )
-                LogicError("Invalid 'COLUMNS' section");
-            ++variableData.numNonzeros;
-            ++meta.numColumnEntries;
         }
         else if( section == MPS_RHS )
         {
-            rhsNameCandidate = token;
-            if( meta.numRHS == 0 )
+            // There should be either one or two pairs of entries left to read
+            // from this line.
+            for( Int pair=0; pair<2; ++pair )
             {
-                // We should currently have that rhsName == "".
-                meta.rhsName = rhsNameCandidate;
-                meta.numRHS = 1;
+                if( !(lineStream >> rowName) )
+                {
+                    if( pair == 0 )
+                        LogicError("Invalid 'RHS' section");
+                    else
+                        break;
+                }
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'RHS' section");
+                auto rowIter = meta.rowDict.find( rowName );
+                if( rowIter == meta.rowDict.end() )
+                    LogicError("Could not find row ",rowName);
+                const auto& rowData = rowIter->second;
+                if( rowData.type == MPS_EQUALITY_ROW )
+                {
+                    const Int row = equalityOffset + rowData.typeIndex;
+                    problem.b(row) = value;
+                }
+                else if( rowData.type == MPS_LESSER_ROW )
+                {
+                    const Int row = lesserOffset + rowData.typeIndex;
+                    problem.h(row) = value;
+                }
+                else if( rowData.type == MPS_GREATER_ROW )
+                {
+                    const Int row = greaterOffset + rowData.typeIndex;
+                    problem.h(row) = -value;
+                }
+                else if( rowData.type == MPS_NONCONSTRAINING_ROW )
+                {
+                    Output("WARNING: Nonsensical RHS for nonconstrained row");
+                }
             }
-            else if( rhsNameCandidate != meta.rhsName )
-                LogicError
-                ("Only single problem instances are currently supported "
-                 "(multiple right-hand side names were encountered)");
-            continue;
         }
         else if( section == MPS_BOUNDS )
         {
@@ -594,33 +681,53 @@ void GetMetadata
             // in the case of 'VARIABLENAME' being fixed ('FX') at the value
             // 1734 (with this problem's bound name being 'BOUNDROW').
             boundMark = token;
-            if( !(lineStream >> boundNameCandidate) )
+            if( !(lineStream >> token) )
                 LogicError("Invalid 'BOUNDS' section");
-            if( meta.boundName == "" )
-                meta.boundName = boundNameCandidate;
-            else if( meta.boundName != boundNameCandidate )
-                LogicError
-                ("Only single problem instances are currently supported "
-                 "(multiple bound names were encountered)");
             if( !(lineStream >> variableName) )
                 LogicError("Invalid 'BOUNDS' section");
             auto variableIter = meta.variableDict.find( variableName );
             if( variableIter == meta.variableDict.end() )
                 LogicError
                 ("Invalid 'BOUNDS' section (variable name not found)");
-            MPSVariableData& variableData = variableIter->second;
+            const MPSVariableData& variableData = variableIter->second;
+            const Int column = variableData.index;
+
             if( boundMark == "UP" )
-                variableData.upperBounded = true;
+            {
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'BOUNDS' section");
+                const Int row = upperBoundOffset + variableData.upperBoundIndex;
+                problem.G(row,column) = Real(1);
+                problem.h(row) = value;
+            }
             else if( boundMark == "LO" )
-                variableData.lowerBounded = true;
+            {
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'BOUNDS' section");
+                const Int row = lowerBoundOffset + variableData.lowerBoundIndex;
+                problem.G(row,column) = Real(-1);
+                problem.h(row) = -value;
+            }
             else if( boundMark == "FX" )
-                variableData.fixed = true;
+            {
+                if( !(lineStream >> value) )
+                    LogicError("Invalid 'BOUNDS' section");
+                const Int row = fixedOffset + variableData.fixedIndex;
+                problem.A(row,column) = Real(1);
+                problem.h(row) = value;
+            }
             else if( boundMark == "FR" )
-                variableData.free = true;
+            {
+                continue;
+            }
             else if( boundMark == "MI" )
-                variableData.nonpositive = true;
+            {
+                // These will be handled later.
+            }
             else if( boundMark == "PL" )
-                variableData.nonnegative = true;
+            {
+                // These will be handled later.
+            }
             else
                 LogicError("Invalid 'BOUNDS' section (unknown bound mark)");
         }
@@ -633,81 +740,29 @@ void GetMetadata
             LogicError("Invalid MPS file");
         }
     }
-    if( meta.name == "" )
-        LogicError("No nontrivial 'NAME' was found");
-    if( meta.numRHS == 0 )
-    {
-        // Any unmentioned values are assumed to be zero.
-        meta.numRHS = 1;
-    }
 
-    // Now iterate through the variable map and make use of the requested
-    // conventions for counting the number of bounds of each type.
-    // Also warn if there are possibly conflicting bound types.
-    for( auto& entry : meta.variableDict )
+    // Now iterate through the variable map to handle the nonpositive and
+    // nonnegative bounds (since many of the former were perhaps implicit).
+    // We handle them both here for the sake of consistency.
+    for( const auto& entry : meta.variableDict )
     {
-        // Handle explicit upper and lower bounds.
-        if( upperBoundImplicitlyNonnegative )
-        {
-            if( entry.second.upperBounded && entry.second.lowerBounded )
-            {
-                ++meta.numUpperBounds;
-                ++meta.numLowerBounds;
-            }
-            else if( entry.second.upperBounded )
-            {
-                ++meta.numUpperBounds;
-                entry.second.nonnegative = true;
-            }
-            else if( entry.second.lowerBounded )
-            {
-                ++meta.numLowerBounds;
-            }
-        }
-        else
-        {
-            if( entry.second.upperBounded )
-            {
-                ++meta.numUpperBounds;
-            }
-            if( entry.second.lowerBounded )
-            {
-                ++meta.numLowerBounds;
-            }
-        }
-        
-        // Handle fixed values.
-        if( entry.second.fixed )
-        {
-            if( entry.second.upperBounded || entry.second.lowerBounded )
-                LogicError("Invalid bound combination");
-            ++meta.numFixedBounds;
-        }
-
-        // Handle free values.
-        if( entry.second.free )
-        {
-            if( entry.second.upperBounded || entry.second.lowerBounded )
-                LogicError("Invalid bound combination");
-            ++meta.numFreeBounds;
-        }
+        const auto& data = entry.second;
+        const Int column = data.index;
 
         // Handle non-positive values.
-        if( entry.second.nonpositive )
+        if( data.nonpositive )
         {
-            if( entry.second.upperBounded )
-                Output
-                ("WARNING: Combined nonpositive constraint with upper bound");
-            ++meta.numNonpositiveBounds;
+            const Int row = nonpositiveOffset + data.nonpositiveIndex;
+            problem.G(row,column) = Real(1);
+            // There is no need to explicitly set h(row) to zero.
         }
 
-        // Handle non-negative values. 
-        if( entry.second.nonnegative )
+        // Handle non-negative values.
+        if( data.nonnegative )
         {
-            if( entry.second.lowerBounded )
-                Output
-                ("WARNING: Combined nonnegative constraint with lower bound");
-            ++meta.numNonnegativeBounds;
+            const Int row = nonnegativeOffset + data.nonnegativeIndex;
+            problem.G(row,column) = Real(-1);
+            // There is no need to explicitly set h(row) to zero.
         }
     }
 }
@@ -721,32 +776,30 @@ void Helper
     EL_DEBUG_CSE
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
-    bool upperBoundImplicitlyNonnegative = false;
+    const bool upperBoundImplicitlyNonnegative = false;
+    const bool metadataSummary = false;
 
     // Perform an initial pass through the file to determine the metadata.
     MPSMeta meta;
     GetMetadata( filename, meta, upperBoundImplicitlyNonnegative );
-
-    // We will formulate the LP as...
-
-    // TODO(poulson): Test what we have so far on adlittle.
-
-    Output("meta.name=",meta.name);
-    Output("meta.costName=",meta.costName);
-    Output("meta.numLesserRows=",meta.numLesserRows);
-    Output("meta.numGreaterRows=",meta.numGreaterRows);
-    Output("meta.numEqualityRows=",meta.numEqualityRows);
-    Output("meta.numNonconstrainingRows=",meta.numNonconstrainingRows);
-    Output("meta.numColumnEntries=",meta.numColumnEntries);
-    Output("meta.boundName=",meta.boundName);
-    Output("meta.numUpperBounds=",meta.numUpperBounds);
-    Output("meta.numLowerBounds=",meta.numLowerBounds);
-    Output("meta.numFixedBounds=",meta.numFixedBounds);
-    Output("meta.numFreeBounds=",meta.numFreeBounds);
-    Output("meta.numNonpositiveBounds=",meta.numNonpositiveBounds);
-    Output("meta.numNonnegativeBounds=",meta.numNonnegativeBounds);
-    Output("meta.rhsName=",meta.rhsName);
-    Output("meta.numRHS=",meta.numRHS);
+    if( metadataSummary )
+    {
+        Output("meta.name=",meta.name);
+        Output("meta.costName=",meta.costName);
+        Output("meta.numLesserRows=",meta.numLesserRows);
+        Output("meta.numGreaterRows=",meta.numGreaterRows);
+        Output("meta.numEqualityRows=",meta.numEqualityRows);
+        Output("meta.numNonconstrainingRows=",meta.numNonconstrainingRows);
+        Output("meta.numColumnEntries=",meta.numColumnEntries);
+        Output("meta.boundName=",meta.boundName);
+        Output("meta.numUpperBounds=",meta.numUpperBounds);
+        Output("meta.numLowerBounds=",meta.numLowerBounds);
+        Output("meta.numFixedBounds=",meta.numFixedBounds);
+        Output("meta.numFreeBounds=",meta.numFreeBounds);
+        Output("meta.numNonpositiveBounds=",meta.numNonpositiveBounds);
+        Output("meta.numNonnegativeBounds=",meta.numNonnegativeBounds);
+        Output("meta.rhsName=",meta.rhsName);
+    }
 
     FormProblem( problem, filename, meta );
 }

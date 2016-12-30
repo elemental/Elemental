@@ -363,7 +363,7 @@ void ForceSimpleAlignments
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem )
-{ }
+{ return true; }
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem )
@@ -377,11 +377,11 @@ bool SimpleAlignments
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem )
-{ }
+{ return true; }
 template<typename Real>
 bool SimpleAlignments
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem )
-{ }
+{ return true; }
 
 template<typename VectorType>
 struct AffineLPSolution

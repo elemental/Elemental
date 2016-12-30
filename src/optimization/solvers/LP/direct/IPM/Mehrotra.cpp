@@ -675,7 +675,6 @@ void EquilibratedMehrotra
     EL_DEBUG_CSE
     const Int n = problem.A.Width();
     const Int degree = n;
-    const Real eps = limits::Epsilon<Real>();
 
     // TODO(poulson): Implement nonzero regularization
     DirectRegularization<Real> permReg;
@@ -878,7 +877,6 @@ void EquilibratedMehrotra
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int degree = n;
-    const Real eps = limits::Epsilon<Real>();
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
 
@@ -1360,7 +1358,6 @@ void EquilibratedMehrotra
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int degree = n;
-    const Real eps = limits::Epsilon<Real>();
 
     // TODO(poulson): Move these into the control structure
     Real gammaPerm, deltaPerm, betaPerm, gammaTmp, deltaTmp, betaTmp;
@@ -1944,7 +1941,6 @@ void EquilibratedMehrotra
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int degree = n;
-    const Real eps = limits::Epsilon<Real>();
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
     Timer timer;

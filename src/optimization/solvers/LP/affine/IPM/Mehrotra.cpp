@@ -1429,7 +1429,6 @@ void EquilibratedMehrotra
     const Int k = problem.G.Height();
     const Int degree = k;
     const Grid& grid = problem.A.Grid();
-    mpi::Comm comm = grid.Comm();
     const int commRank = grid.Rank();
     Timer timer;
 

@@ -7,24 +7,64 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
+
+// While Elemental supports sparse Interior Point Methods for LPs, QPs, and
+// SOCPs, the MPS reader is very new and so far only supports dense matrices.
+
+template<typename Real>
+void LoadAndSolve
+( const std::string& filename,
+  bool compressed,
+  bool print )
+{
+    EL_DEBUG_CSE
+    El::Output("Testing with ",El::TypeName<Real>());
+
+    El::AffineLPProblem<El::Matrix<Real>,El::Matrix<Real>> problem;
+    El::ReadMPS( problem, filename, compressed );
+    if( print )
+    {
+        El::Print( problem.c, "c" );
+        El::Print( problem.A, "A" );
+        El::Print( problem.b, "b" );
+        El::Print( problem.G, "G" );
+        El::Print( problem.h, "h" );
+    }
+
+    El::AffineLPSolution<El::Matrix<Real>> solution;
+    El::LP( problem, solution );
+    if( print )
+    {
+        El::Print( solution.x, "x" );
+        El::Print( solution.s, "s" );
+        El::Print( solution.y, "y" );
+        El::Print( solution.z, "z" );
+    }
+    El::Output("c^T x = ",El::Dot(problem.c,solution.x));
+    El::Output("");
+}
 
 int main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
 
     try
     {
-        const Int n = Input("--n","matrix width",100);
-        const string filename =
-          Input("--filename","MPS filename","adlittle.mps");
-        const bool compressed = Input("--compressed","compressed?",false);
-        ProcessInput();
+        const std::string filename =
+          El::Input
+          ("--filename","MPS filename","../data/optimization/share1b.mps");
+        const bool compressed = El::Input("--compressed","compressed?",false);
+        const bool print = El::Input("--print","print matrices?",false);
+        El::ProcessInput();
 
-        AffineLPProblem<Matrix<double>,Matrix<double>> problem;
-        ReadMPS( problem, filename, compressed );
+        // 'float' appears to not be sufficient for share1b.mps
+        LoadAndSolve<double>( filename, compressed, print );
+#ifdef EL_HAVE_QD
+        LoadAndSolve<El::DoubleDouble>( filename, compressed, print );
+        LoadAndSolve<El::QuadDouble>( filename, compressed, print );
+#endif
     }
-    catch( std::exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }
