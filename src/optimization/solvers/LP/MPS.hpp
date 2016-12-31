@@ -1017,7 +1017,7 @@ void Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
     const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = false;
+    const bool metadataSummary = true;
 
     MPSReader reader
       ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
@@ -1061,7 +1061,7 @@ void Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
     const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = false;
+    const bool metadataSummary = true;
 
     MPSReader reader
       ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
@@ -1102,7 +1102,7 @@ void Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
     const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = false;
+    const bool metadataSummary = true;
 
     MPSReader reader
       ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
@@ -1110,6 +1110,7 @@ void Helper
     if( metadataSummary )
         meta.PrintSummary();
 
+    Output("m=",meta.m,", n=",meta.n,", k=",meta.k);
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
     Zeros( problem.b, meta.m, 1 );

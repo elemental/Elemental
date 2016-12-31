@@ -1083,10 +1083,6 @@ void EquilibratedMehrotra
       {
         try
         {
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
-
             if( wMaxNorm >= ctrl.ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
             else if( wMaxNorm >= ctrl.diagEquilTol )
@@ -1257,6 +1253,9 @@ void EquilibratedMehrotra
           residual.primalConic,
           residual.dualConic,
           solution.z, d );
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regTmp );
 
         // Solve for the direction
         // -----------------------
@@ -1501,11 +1500,6 @@ void EquilibratedMehrotra
       {
         try
         {
-            J = JOrig;
-            J.FreezeSparsity();
-            J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-            UpdateDiagonal( J, Real(1), regTmp );
-
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -1696,6 +1690,10 @@ void EquilibratedMehrotra
           residual.primalConic,
           residual.dualConic,
           solution.z, d );
+        J = JOrig;
+        J.FreezeSparsity();
+        J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
+        UpdateDiagonal( J, Real(1), regTmp );
 
         // Solve for the direction
         // -----------------------

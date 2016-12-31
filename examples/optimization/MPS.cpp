@@ -73,7 +73,9 @@ void SparseLoadAndSolve
 
     timer.Start();
     El::AffineLPSolution<El::Matrix<Real>> solution;
-    El::LP( problem, solution );
+    El::lp::affine::Ctrl<Real> ctrl;
+    ctrl.mehrotraCtrl.print = true;
+    El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
     {

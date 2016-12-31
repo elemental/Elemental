@@ -21,7 +21,8 @@ void RandomFeasibleLP( El::Int m, El::Int n, El::Int k )
     El::Uniform( xFeas, n, 1 ); // Sample over B_1(0)
     El::Uniform( sFeas, k, 1, Real(1), Real(1) ); // Sample over B_1(1)
 
-    El::Matrix<Real> A, G, b, c, h;
+    El::Matrix<Real> A, G;
+    El::Matrix<Real> b, c, h;
     El::Uniform( A, m, n );
     El::Uniform( G, k, n );
     El::Gemv( El::NORMAL, Real(1), A, xFeas, b );
