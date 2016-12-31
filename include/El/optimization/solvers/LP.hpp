@@ -585,21 +585,22 @@ void LP
 // (MPS) format.
 template<class MatrixType,class VectorType>
 void ReadMPS
-(       AffineLPProblem<MatrixType,VectorType>& problem,
+( AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
-        bool compressed=false );
+  bool compressed=false,
+  bool minimize=true );
 
 // Write out an LP in the MPS format.
 template<class MatrixType,class VectorType>
 void WriteMPS
 ( const DirectLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
-        bool compressed=false );
+  bool compressed=false );
 template<class MatrixType,class VectorType>
 void WriteMPS
 ( const AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
-        bool compressed=false );
+  bool compressed=false );
 
 void CompressMPS
 ( const string& filename, const string& compressedFilename );

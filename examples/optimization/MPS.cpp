@@ -8,20 +8,21 @@
 */
 #include <El.hpp>
 
-// While Elemental supports sparse Interior Point Methods for LPs, QPs, and
-// SOCPs, the MPS reader is very new and so far only supports dense matrices.
-
 template<typename Real>
-void LoadAndSolve
+void DenseLoadAndSolve
 ( const std::string& filename,
   bool compressed,
+  bool minimize,
   bool print )
 {
     EL_DEBUG_CSE
-    El::Output("Testing with ",El::TypeName<Real>());
+    El::Output("Will load into El::Matrix<",El::TypeName<Real>(),">");
+    El::Timer timer;
 
+    timer.Start();
     El::AffineLPProblem<El::Matrix<Real>,El::Matrix<Real>> problem;
     El::ReadMPS( problem, filename, compressed );
+    El::Output("Reading took ",timer.Stop()," seconds");
     if( print )
     {
         El::Print( problem.c, "c" );
@@ -31,8 +32,49 @@ void LoadAndSolve
         El::Print( problem.h, "h" );
     }
 
+    timer.Start();
     El::AffineLPSolution<El::Matrix<Real>> solution;
     El::LP( problem, solution );
+    El::Output("Solving took ",timer.Stop()," seconds");
+    if( print )
+    {
+        El::Print( solution.x, "x" );
+        El::Print( solution.s, "s" );
+        El::Print( solution.y, "y" );
+        El::Print( solution.z, "z" );
+    }
+    El::Output("c^T x = ",El::Dot(problem.c,solution.x));
+    El::Output("");
+}
+
+template<typename Real>
+void SparseLoadAndSolve
+( const std::string& filename,
+  bool compressed,
+  bool minimize,
+  bool print )
+{
+    EL_DEBUG_CSE
+    El::Output("Will load into El::SparseMatrix<",El::TypeName<Real>(),">");
+    El::Timer timer;
+
+    timer.Start();
+    El::AffineLPProblem<El::SparseMatrix<Real>,El::Matrix<Real>> problem;
+    El::ReadMPS( problem, filename, compressed );
+    El::Output("Reading took ",timer.Stop()," seconds");
+    if( print )
+    {
+        El::Print( problem.c, "c" );
+        El::Print( problem.A, "A" );
+        El::Print( problem.b, "b" );
+        El::Print( problem.G, "G" );
+        El::Print( problem.h, "h" );
+    }
+
+    timer.Start();
+    El::AffineLPSolution<El::Matrix<Real>> solution;
+    El::LP( problem, solution );
+    El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
     {
         El::Print( solution.x, "x" );
@@ -55,14 +97,28 @@ int main( int argc, char* argv[] )
           ("--filename","MPS filename",
            std::string("../data/optimization/share1b.mps"));
         const bool compressed = El::Input("--compressed","compressed?",false);
+        const bool minimize = El::Input("--minimize","minimize c^T?",true);
         const bool print = El::Input("--print","print matrices?",false);
         El::ProcessInput();
 
         // 'float' appears to not be sufficient for share1b.mps
-        LoadAndSolve<double>( filename, compressed, print );
+
+        DenseLoadAndSolve<double>
+        ( filename, compressed, minimize, print );
 #ifdef EL_HAVE_QD
-        LoadAndSolve<El::DoubleDouble>( filename, compressed, print );
-        LoadAndSolve<El::QuadDouble>( filename, compressed, print );
+        DenseLoadAndSolve<El::DoubleDouble>
+        ( filename, compressed, minimize, print );
+        DenseLoadAndSolve<El::QuadDouble>
+        ( filename, compressed, minimize, print );
+#endif
+
+        SparseLoadAndSolve<double>
+        ( filename, compressed, minimize, print );
+#ifdef EL_HAVE_QD
+        SparseLoadAndSolve<El::DoubleDouble>
+        ( filename, compressed, minimize, print );
+        SparseLoadAndSolve<El::QuadDouble>
+        ( filename, compressed, minimize, print );
 #endif
     }
     catch( std::exception& e ) { El::ReportException(e); }

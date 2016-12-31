@@ -485,19 +485,23 @@ void LP
   template void ReadMPS \
   ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \
-    bool compressed ); \
+    bool compressed, \
+    bool minimize ); \
   template void ReadMPS \
   ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
     const string& filename, \
-    bool compressed ); \
+    bool compressed, \
+    bool minimize ); \
   template void ReadMPS \
   ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \
-    bool compressed ); \
+    bool compressed, \
+    bool minimize ); \
   template void ReadMPS \
   ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
     const string& filename, \
-    bool compressed ); \
+    bool compressed, \
+    bool minimize ); \
   template void WriteMPS \
   ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \

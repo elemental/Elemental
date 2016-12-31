@@ -74,7 +74,8 @@ struct MPSMeta
 
   // From the COLUMNS section
   std::map<string,MPSVariableData> variableDict;
-  Int numColumnEntries=0;
+  Int numEqualityEntries=0;
+  Int numInequalityEntries=0;
 
   // From the BOUNDS section
   string boundName="";
@@ -114,6 +115,27 @@ struct MPSMeta
       lowerBoundOffset=-1,
       nonpositiveOffset=-1,
       nonnegativeOffset=-1;
+
+  void PrintSummary() const
+  {
+      Output("MPSMeta summary:");
+      Output("  name=",name);
+      Output("  costName=",costName);
+      Output("  numLesserRows=",numLesserRows);
+      Output("  numGreaterRows=",numGreaterRows);
+      Output("  numEqualityRows=",numEqualityRows);
+      Output("  numNonconstrainingRows=",numNonconstrainingRows);
+      Output("  numEqualityEntries=",numEqualityEntries);
+      Output("  numInequalityEntries=",numInequalityEntries);
+      Output("  boundName=",boundName);
+      Output("  numUpperBounds=",numUpperBounds);
+      Output("  numLowerBounds=",numLowerBounds);
+      Output("  numFixedBounds=",numFixedBounds);
+      Output("  numFreeBounds=",numFreeBounds);
+      Output("  numNonpositiveBounds=",numNonpositiveBounds);
+      Output("  numNonnegativeBounds=",numNonnegativeBounds);
+      Output("  rhsName=",rhsName);
+  }
 };
 
 enum AffineLPMatrixType {
@@ -170,6 +192,7 @@ public:
     MPSReader
     ( const string& filename,
       bool compressed=false,
+      bool minimize=true,
       bool upperBoundImplicitlyNonnegative=false );
 
     // Attempt to enqueue another entry and return true if successful.
@@ -181,9 +204,11 @@ public:
     const MPSMeta& Meta() const;
 
 private:
-    bool upperBoundImplicitlyNonnegative_;
     string filename_;
     std::ifstream file_;
+
+    bool minimize_; 
+    bool upperBoundImplicitlyNonnegative_;
     MPSMeta meta_;
 
     vector<AffineLPEntry<double>> queuedEntries_;
@@ -203,9 +228,12 @@ private:
 MPSReader::MPSReader
 ( const string& filename,
   bool compressed,
+  bool minimize,
   bool upperBoundImplicitlyNonnegative )
-: upperBoundImplicitlyNonnegative_(upperBoundImplicitlyNonnegative),
-  filename_(filename), file_(filename.c_str())
+: filename_(filename),
+  file_(filename.c_str()),
+  minimize_(minimize),
+  upperBoundImplicitlyNonnegative_(upperBoundImplicitlyNonnegative)
 {
     EL_DEBUG_CSE
     if( compressed )
@@ -266,7 +294,8 @@ MPSReader::MPSReader
             }
             else if( token == "COLUMNS" )
             {
-                if( meta_.numColumnEntries > 0 )
+                if( meta_.numEqualityEntries > 0 ||
+                    meta_.numInequalityEntries > 0 )
                     Output("WARNING: Multiple 'COLUMNS' sections");
                 section = MPS_COLUMNS;
             }
@@ -373,7 +402,35 @@ MPSReader::MPSReader
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'COLUMNS' section");
                 ++variableData.numNonzeros;
-                ++meta_.numColumnEntries;
+
+
+                auto rowIter = meta_.rowDict.find( rowName );
+                if( rowIter == meta_.rowDict.end() )
+                    LogicError("Could not find row ",rowName);
+                const auto& rowData = rowIter->second;
+                if( rowData.type == MPS_EQUALITY_ROW )
+                {
+                    // A(row,column) = value
+                    ++meta_.numEqualityEntries;
+                }
+                else if( rowData.type == MPS_LESSER_ROW )
+                {
+                    // G(row,column) = value
+                    ++meta_.numInequalityEntries;
+                }
+                else if( rowData.type == MPS_GREATER_ROW )
+                {
+                    // G(row,column) = -value
+                    ++meta_.numInequalityEntries;
+                }
+                else if( rowData.type == MPS_NONCONSTRAINING_ROW )
+                {
+                    if( rowData.typeIndex == 0 )
+                    {
+                        // c(column) = value
+                    }
+                    // else?
+                }
             }
         }
         else if( section == MPS_RHS )
@@ -714,7 +771,7 @@ bool MPSReader::QueuedEntry()
                         entry.type = AFFINE_LP_COST_VECTOR;
                         entry.row = column;
                         entry.column = 0;
-                        entry.value = value;
+                        entry.value = minimize_ ? value : -value;
                         queuedEntries_.push_back( entry );
                     }
                     // else?
@@ -953,7 +1010,8 @@ template<typename Real>
 void Helper
 ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const string& filename,
-  bool compressed )
+  bool compressed,
+  bool minimize )
 {
     EL_DEBUG_CSE
     if( compressed )
@@ -961,26 +1019,11 @@ void Helper
     const bool upperBoundImplicitlyNonnegative = false;
     const bool metadataSummary = false;
 
-    MPSReader reader( filename, compressed, upperBoundImplicitlyNonnegative );
+    MPSReader reader
+      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
     const MPSMeta& meta = reader.Meta();
     if( metadataSummary )
-    {
-        Output("meta.name=",meta.name);
-        Output("meta.costName=",meta.costName);
-        Output("meta.numLesserRows=",meta.numLesserRows);
-        Output("meta.numGreaterRows=",meta.numGreaterRows);
-        Output("meta.numEqualityRows=",meta.numEqualityRows);
-        Output("meta.numNonconstrainingRows=",meta.numNonconstrainingRows);
-        Output("meta.numColumnEntries=",meta.numColumnEntries);
-        Output("meta.boundName=",meta.boundName);
-        Output("meta.numUpperBounds=",meta.numUpperBounds);
-        Output("meta.numLowerBounds=",meta.numLowerBounds);
-        Output("meta.numFixedBounds=",meta.numFixedBounds);
-        Output("meta.numFreeBounds=",meta.numFreeBounds);
-        Output("meta.numNonpositiveBounds=",meta.numNonpositiveBounds);
-        Output("meta.numNonnegativeBounds=",meta.numNonnegativeBounds);
-        Output("meta.rhsName=",meta.rhsName);
-    }
+        meta.PrintSummary();
 
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
@@ -1007,30 +1050,136 @@ template<typename Real>
 void Helper
 ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
   const string& filename,
-  bool compressed )
+  bool compressed,
+  bool minimize )
 {
     EL_DEBUG_CSE
-    LogicError("This routine is not yet written");
+   
+    // TODO(poulson): Consider loading on a single process and then distributing
+    // the results instead.
+
+    if( compressed )
+        LogicError("Compressed MPS is not yet supported");
+    const bool upperBoundImplicitlyNonnegative = false;
+    const bool metadataSummary = false;
+
+    MPSReader reader
+      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+    const MPSMeta& meta = reader.Meta();
+    if( metadataSummary && problem.A.Grid().Rank() == 0 )
+        meta.PrintSummary();
+
+    Zeros( problem.c, meta.n, 1 );
+    Zeros( problem.A, meta.m, meta.n );
+    Zeros( problem.b, meta.m, 1 );
+    Zeros( problem.G, meta.k, meta.n );
+    Zeros( problem.h, meta.k, 1 );
+
+    while( reader.QueuedEntry() )
+    {
+        const AffineLPEntry<double> entry = reader.GetEntry();
+        if( entry.type == AFFINE_LP_COST_VECTOR )
+            problem.c.Set( entry.row, 0, entry.value );
+        else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
+            problem.A.Set( entry.row, entry.column, entry.value );
+        else if( entry.type == AFFINE_LP_EQUALITY_VECTOR )
+            problem.b.Set( entry.row, 0, entry.value );
+        else if( entry.type == AFFINE_LP_INEQUALITY_MATRIX )
+            problem.G.Set( entry.row, entry.column, entry.value );
+        else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
+            problem.h.Set( entry.row, 0, entry.value );
+    }
 }
 
 template<typename Real>
 void Helper
 ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
   const string& filename,
-  bool compressed )
+  bool compressed,
+  bool minimize )
 {
     EL_DEBUG_CSE
-    LogicError("This routine is not yet written");
+    if( compressed )
+        LogicError("Compressed MPS is not yet supported");
+    const bool upperBoundImplicitlyNonnegative = false;
+    const bool metadataSummary = false;
+
+    MPSReader reader
+      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+    const MPSMeta& meta = reader.Meta();
+    if( metadataSummary )
+        meta.PrintSummary();
+
+    Zeros( problem.c, meta.n, 1 );
+    Zeros( problem.A, meta.m, meta.n );
+    Zeros( problem.b, meta.m, 1 );
+    Zeros( problem.G, meta.k, meta.n );
+    Zeros( problem.h, meta.k, 1 );
+
+    problem.A.Reserve( meta.numEqualityEntries );
+    problem.G.Reserve( meta.numInequalityEntries );
+    while( reader.QueuedEntry() )
+    {
+        const AffineLPEntry<double> entry = reader.GetEntry();
+        if( entry.type == AFFINE_LP_COST_VECTOR )
+            problem.c.Set( entry.row, 0, entry.value );
+        else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
+            problem.A.QueueUpdate( entry.row, entry.column, entry.value );
+        else if( entry.type == AFFINE_LP_EQUALITY_VECTOR )
+            problem.b.Set( entry.row, 0, entry.value );
+        else if( entry.type == AFFINE_LP_INEQUALITY_MATRIX )
+            problem.G.QueueUpdate( entry.row, entry.column, entry.value );
+        else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
+            problem.h.Set( entry.row, 0, entry.value );
+    }
+    problem.A.ProcessQueues();
+    problem.G.ProcessQueues();
 }
 
 template<typename Real>
 void Helper
 ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
   const string& filename,
-  bool compressed )
+  bool compressed,
+  bool minimize )
 {
     EL_DEBUG_CSE
-    LogicError("This routine is not yet written");
+    if( compressed )
+        LogicError("Compressed MPS is not yet supported");
+    const bool upperBoundImplicitlyNonnegative = false;
+    const bool metadataSummary = false;
+
+    MPSReader reader
+      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+    const MPSMeta& meta = reader.Meta();
+    if( metadataSummary && problem.A.Grid().Rank() == 0 )
+        meta.PrintSummary();
+
+    Zeros( problem.c, meta.n, 1 );
+    Zeros( problem.A, meta.m, meta.n );
+    Zeros( problem.b, meta.m, 1 );
+    Zeros( problem.G, meta.k, meta.n );
+    Zeros( problem.h, meta.k, 1 );
+
+    bool passive=true;
+    problem.A.Reserve( meta.numEqualityEntries );
+    problem.G.Reserve( meta.numInequalityEntries );
+    while( reader.QueuedEntry() )
+    {
+        const AffineLPEntry<double> entry = reader.GetEntry();
+        if( entry.type == AFFINE_LP_COST_VECTOR )
+            problem.c.Set( entry.row, 0, entry.value );
+        else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
+            problem.A.QueueUpdate( entry.row, entry.column, entry.value, passive );
+        else if( entry.type == AFFINE_LP_EQUALITY_VECTOR )
+            problem.b.Set( entry.row, 0, entry.value );
+        else if( entry.type == AFFINE_LP_INEQUALITY_MATRIX )
+            problem.G.QueueUpdate( entry.row, entry.column, entry.value, passive );
+        else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
+            problem.h.Set( entry.row, 0, entry.value );
+    }
+    problem.A.ProcessLocalQueues();
+    problem.G.ProcessLocalQueues();
 }
 
 } // namespace read_mps
@@ -1039,10 +1188,11 @@ template<class MatrixType,class VectorType>
 void ReadMPS
 ( AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
-  bool compressed )
+  bool compressed,
+  bool minimize )
 {
     EL_DEBUG_CSE
-    read_mps::Helper( problem, filename, compressed );
+    read_mps::Helper( problem, filename, compressed, minimize );
 }
 
 namespace write_mps {
