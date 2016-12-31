@@ -2,16 +2,16 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename Field> 
+template<typename Field>
 void TestCorrectness
-( bool print, 
+( bool print,
   const Matrix<Field>& A,
   const Permutation& P,
   const Matrix<Field>& AOrig,
@@ -43,9 +43,9 @@ void TestCorrectness
         LogicError("Unacceptably large relative error");
 }
 
-template<typename Field> 
+template<typename Field>
 void TestCorrectness
-( bool print, 
+( bool print,
   const DistMatrix<Field>& A,
   const DistPermutation& P,
   const DistMatrix<Field>& AOrig,
@@ -79,7 +79,7 @@ void TestCorrectness
         LogicError("Unacceptably large relative error");
 }
 
-template<typename Field> 
+template<typename Field>
 void TestLUMod
 ( Int m,
   Int updateRank,
@@ -126,7 +126,7 @@ void TestLUMod
             Gemm( NORMAL, TRANSPOSE, Field(1), U, V, Field(1), AOrig );
     }
 
-    { 
+    {
         Output("Starting low-rank LU modification...");
         Timer timer;
         timer.Start();
@@ -143,7 +143,7 @@ void TestLUMod
     PopIndent();
 }
 
-template<typename Field> 
+template<typename Field>
 void TestLUMod
 ( const Grid& grid,
   Int m,
@@ -193,7 +193,7 @@ void TestLUMod
             Gemm( NORMAL, TRANSPOSE, Field(1), U, V, Field(1), AOrig );
     }
 
-    { 
+    {
         OutputFromRoot(grid.Comm(),"Starting low-rank LU modification...");
         mpi::Barrier( grid.Comm() );
         Timer timer;
@@ -211,7 +211,7 @@ void TestLUMod
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -241,8 +241,8 @@ main( int argc, char* argv[] )
 #endif
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
         const Grid grid( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();

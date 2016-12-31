@@ -103,7 +103,7 @@ void TestGemm
         const double gemmTime = timer.Stop();
         double gFlops = (2.*m*n*k)/(gemmTime*1.e9);
         if( El::IsComplex<T>::value )
-            gFlops *= 4; 
+            gFlops *= 4;
         El::Output("Sequential: ",gemmTime," secs (",gFlops," GFlop/s)");
         timer.Start();
     }
@@ -158,7 +158,7 @@ int main( int argc, char *argv[] )
 
         // If no process grid height was specified, try for a square
         if( gridHeight == 0 )
-            gridHeight = El::Grid::FindFactor( commSize );
+            gridHeight = El::Grid::DefaultHeight( commSize );
         El::Grid grid( El::mpi::COMM_WORLD, gridHeight );
         if( commRank == 0 )
             El::Output("grid is ",grid.Height()," x ",grid.Width());

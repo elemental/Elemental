@@ -75,7 +75,7 @@ void NesterovTodd
         DistMultiVec<Real>& w )
 {
     EL_DEBUG_CSE
-    w.SetComm( s.Comm() );
+    w.SetGrid( s.Grid() );
     w.Resize( s.Height(), 1 );
     const Real* sBuf = s.LockedMatrix().LockedBuffer();
     const Real* zBuf = z.LockedMatrix().LockedBuffer();

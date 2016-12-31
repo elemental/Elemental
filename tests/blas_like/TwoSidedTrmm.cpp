@@ -215,8 +215,8 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
         const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );

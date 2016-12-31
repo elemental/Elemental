@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid
         if( gridHeight == 0 )
-            gridHeight = El::Grid::FindFactor( commSize );
+            gridHeight = El::Grid::DefaultHeight( commSize );
         const El::Grid grid( comm, gridHeight );
 
         // Set up random A and B, then make the copy X := B

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -294,7 +294,7 @@ void InvertPermutation
 
 DistPermutation::DistPermutation( const Grid& g )
 : grid_(&g)
-{ 
+{
     EL_DEBUG_CSE
     swapDests_.SetGrid( g );
     swapOrigins_.SetGrid( g );
@@ -359,7 +359,7 @@ void DistPermutation::MakeIdentity( Int size )
 
     parity_ = false;
     staleParity_ = false;
-    
+
     numSwaps_ = 0;
     implicitSwapOrigins_ = true;
 }
@@ -376,7 +376,7 @@ void DistPermutation::ReserveSwaps( Int maxSwaps )
     {
         MakeIdentity( size_ );
         swapDests_.Resize( maxSwaps, 1 );
-        return; 
+        return;
     }
 }
 
@@ -388,7 +388,7 @@ void DistPermutation::Swap( Int origin, Int dest )
           LogicError
           ("Attempted swap (",origin,",",dest,") for perm. of size ",size_);
     )
-    
+
     if( origin != dest )
         parity_ = !parity_;
     if( swapSequence_ && numSwaps_ == swapDests_.Height() )
@@ -421,7 +421,7 @@ void DistPermutation::Swap( Int origin, Int dest )
 
         swapOrigins_.SetGrid( *grid_ );
         swapOrigins_.Resize( maxSwaps, 1 );
-        
+
         auto swapOriginsActive = swapOrigins_(IR(0,numSwaps_),ALL);
         const Int localHeight = swapOriginsActive.LocalHeight();
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -468,7 +468,7 @@ void DistPermutation::SwapSequence( const DistPermutation& P, Int offset )
 
         staleParity_ = true;
         staleInverse_ = true;
-        staleMeta_ = true; 
+        staleMeta_ = true;
     }
 }
 
@@ -485,8 +485,9 @@ void DistPermutation::SwapSequence
     auto& swapDests = swapDestsProx.GetLocked();
     auto& swapOriginsLoc = swapOrigins.LockedMatrix();
     auto& swapDestsLoc = swapDests.LockedMatrix();
-      
-    // TODO: Assert swapOrigins and swapDests are column vectors of same size
+
+    // TODO(poulson): Assert swapOrigins and swapDests are column vectors of
+    // same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
         Swap( swapOriginsLoc(k)+offset, swapDestsLoc(k)+offset );
@@ -503,7 +504,8 @@ void DistPermutation::ImplicitSwapSequence
 
     const Int numPrevSwaps = numSwaps_;
 
-    // TODO: Assert swapOrigins and swapDests are column vectors of same size
+    // TODO(poulson): Assert swapOrigins and swapDests are column vectors of
+    // same size
     const Int numSwaps = swapDests.Height();
     for( Int k=0; k<numSwaps; ++k )
         Swap( numPrevSwaps+k, swapDestsLoc(k)+offset );
@@ -608,7 +610,7 @@ const DistPermutation& DistPermutation::operator=( const Permutation& P )
 
     invPerm_.Resize( P.invPerm_.Height(), P.invPerm_.Width() );
     Copy( P.invPerm_, invPerm_.Matrix() );
-    
+
     parity_ = P.parity_;
     staleParity_ = P.staleParity_;
     staleInverse_ = P.staleInverse_;
@@ -632,7 +634,7 @@ const DistPermutation& DistPermutation::operator=( const DistPermutation& P )
     swapOrigins_ = P.swapOrigins_;
     perm_ = P.perm_;
     invPerm_ = P.invPerm_;
-    
+
     parity_ = P.parity_;
     staleParity_ = P.staleParity_;
     staleInverse_ = P.staleInverse_;
@@ -652,11 +654,11 @@ bool DistPermutation::Parity() const
         if( swapSequence_ )
             LogicError("Unexpected stale parity for a swap sequence");
 
-        // Walking through the process of LU factorization with partial 
+        // Walking through the process of LU factorization with partial
         // pivoting for a permutation matrix, which never requires a
-        // Schur-complement update, yields an algorithm for expressing the 
-        // inverse of a permutation in terms of a sequence of transpositions in 
-        // linear time. Note that performing the swaps requires access to the 
+        // Schur-complement update, yields an algorithm for expressing the
+        // inverse of a permutation in terms of a sequence of transpositions in
+        // linear time. Note that performing the swaps requires access to the
         // inverse permutation, which can be formed in linear time.
         if( staleInverse_ )
         {
@@ -670,15 +672,15 @@ bool DistPermutation::Parity() const
 
         parity_ = false;
         for( Int k=0; k<size_; ++k )
-        {   
+        {
             const Int permVal = permCopyLoc(k);
             if( permVal != k )
-            {   
+            {
                 parity_ = !parity_;
                 const Int invPermVal = invPermCopyLoc(k);
                 // We only need to perform half of the swaps
                 //      perm[k] <-> perm[invPerm[k]]
-                //   invPerm[k] <-> invPerm[perk[k]] 
+                //   invPerm[k] <-> invPerm[perk[k]]
                 // since we will not need to access perm[k] and invPerm[k] again
                 permCopyLoc(invPermVal) = permVal;
                 invPermCopyLoc(permVal) = invPermVal;
@@ -722,7 +724,7 @@ template<typename T>
 void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
 {
     EL_DEBUG_CSE
-    // TODO: Use an (MC,MR) proxy for A?
+    // TODO(poulson): Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -732,10 +734,11 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
 
         auto activeInd = IR(0,numSwaps_);
 
-        // TODO: Introduce an std::map for caching the pivots this process
-        //       needs to care about to avoid redundant [STAR,STAR] formations
-        // TODO: Decide on the data structure; an std::vector of pivot origins
-        //       and destinations?
+        // TODO(poulson): Introduce an std::map for caching the pivots this
+        // process needs to care about to avoid redundant [STAR,STAR] formations
+        //
+        // TODO(poulson): Decide on the data structure; an std::vector of pivot
+        // origins and destinations?
 
         DistMatrix<Int,STAR,STAR> dests_STAR_STAR( swapDests_(activeInd,ALL) );
         auto& destsLoc = dests_STAR_STAR.Matrix();
@@ -774,21 +777,22 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
             staleMeta_ = false;
         }
 
-        // TODO: Move El::InversePermutation into this class
+        // TODO(poulson): Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
             staleInverse_ = false;
         }
 
-        // TODO: Query/maintain the unordered_map
+        // TODO(poulson): Query/maintain the unordered_map
         const Int align = A.RowAlign();
         mpi::Comm comm = A.RowComm();
         keyType_ key = std::pair<Int,mpi::Comm>(align,comm);
         auto data = colMeta_.find( key );
         if( data == colMeta_.end() )
         {
-// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+// TODO(poulson): Enable this branch; it apparently is not possible with
+// GCC 4.7.1
 #ifdef EL_HAVE_STD_EMPLACE
             colMeta_.emplace
             ( std::piecewise_construct,
@@ -801,7 +805,7 @@ void DistPermutation::PermuteCols( AbstractDistMatrix<T>& A, Int offset ) const
 #endif
             data = colMeta_.find( key );
         }
-        // TODO: Move El::PermuteCols into this class
+        // TODO(poulson): Move El::PermuteCols into this class
         El::PermuteCols( A, data->second );
     }
 }
@@ -811,7 +815,7 @@ void DistPermutation::InversePermuteCols
 ( AbstractDistMatrix<T>& A, Int offset ) const
 {
     EL_DEBUG_CSE
-    // TODO: Use an (MC,MR) proxy for A?
+    // TODO(poulson): Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -858,21 +862,22 @@ void DistPermutation::InversePermuteCols
             staleMeta_ = false;
         }
 
-        // TODO: Move El::InversePermutation into this class
+        // TODO(poulson): Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
             staleInverse_ = false;
         }
 
-        // TODO: Query/maintain the unordered_map
+        // TODO(poulson): Query/maintain the unordered_map
         const Int align = A.RowAlign();
         mpi::Comm comm = A.RowComm();
         keyType_ key = std::pair<Int,mpi::Comm>(align,comm);
         auto data = colMeta_.find( key );
         if( data == colMeta_.end() )
         {
-// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+// TODO(poulson): Enable this branch; it apparently is not possible with
+// GCC 4.7.1
 #ifdef EL_HAVE_STD_EMPLACE
             colMeta_.emplace
             ( std::piecewise_construct,
@@ -885,7 +890,7 @@ void DistPermutation::InversePermuteCols
 #endif
             data = colMeta_.find( key );
         }
-        // TODO: Move El::PermuteCols into this class
+        // TODO(poulson): Move El::PermuteCols into this class
         El::PermuteCols( A, data->second, true );
     }
 }
@@ -894,7 +899,7 @@ template<typename T>
 void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
 {
     EL_DEBUG_CSE
-    // TODO: Use an (MC,MR) proxy for A?
+    // TODO(poulson): Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -941,21 +946,22 @@ void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
             staleMeta_ = false;
         }
 
-        // TODO: Move El::InversePermutation into this class
+        // TODO(poulson): Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
             staleInverse_ = false;
         }
 
-        // TODO: Query/maintain the unordered_map
+        // TODO(poulson): Query/maintain the unordered_map
         const Int align = A.ColAlign();
         mpi::Comm comm = A.ColComm();
         keyType_ key = std::pair<Int,mpi::Comm>(align,comm);
         auto data = rowMeta_.find( key );
         if( data == rowMeta_.end() )
         {
-// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+// TODO(poulson): Enable this branch; it apparently is not possible with
+// GCC 4.7.1
 #ifdef EL_HAVE_STD_EMPLACE
             rowMeta_.emplace
             ( std::piecewise_construct,
@@ -968,7 +974,7 @@ void DistPermutation::PermuteRows( AbstractDistMatrix<T>& A, Int offset ) const
 #endif
             data = rowMeta_.find( key );
         }
-        // TODO: Move El::PermuteRows into this class
+        // TODO(poulson): Move El::PermuteRows into this class
         El::PermuteRows( A, data->second );
     }
 }
@@ -978,7 +984,7 @@ void DistPermutation::InversePermuteRows
 ( AbstractDistMatrix<T>& A, Int offset ) const
 {
     EL_DEBUG_CSE
-    // TODO: Use an (MC,MR) proxy for A?
+    // TODO(poulson): Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -1025,21 +1031,22 @@ void DistPermutation::InversePermuteRows
             staleMeta_ = false;
         }
 
-        // TODO: Move El::InversePermutation into this class
+        // TODO(poulson): Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
             staleInverse_ = false;
         }
 
-        // TODO: Query/maintain the unordered_map
+        // TODO(poulson): Query/maintain the unordered_map
         const Int align = A.ColAlign();
         mpi::Comm comm = A.ColComm();
         keyType_ key = std::pair<Int,mpi::Comm>(align,comm);
         auto data = rowMeta_.find( key );
         if( data == rowMeta_.end() )
         {
-// TODO: Enable this branch; it apparently is not possible with GCC 4.7.1
+// TODO(poulson): Enable this branch; it apparently is not possible with
+// GCC 4.7.1
 #ifdef EL_HAVE_STD_EMPLACE
             rowMeta_.emplace
             ( std::piecewise_construct,
@@ -1052,7 +1059,7 @@ void DistPermutation::InversePermuteRows
 #endif
             data = rowMeta_.find( key );
         }
-        // TODO: Move El::PermuteRows into this class
+        // TODO(poulson): Move El::PermuteRows into this class
         El::PermuteRows( A, data->second, true );
     }
 }
@@ -1065,7 +1072,7 @@ void DistPermutation::PermuteSymmetrically
   Int offset ) const
 {
     EL_DEBUG_CSE
-    // TODO: Use an (MC,MR) proxy for A?
+    // TODO(poulson): Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -1112,7 +1119,7 @@ void DistPermutation::PermuteSymmetrically
             staleMeta_ = false;
         }
 
-        // TODO: Move El::InversePermutation into this class
+        // TODO(poulson): Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );
@@ -1130,7 +1137,7 @@ void DistPermutation::InversePermuteSymmetrically
   Int offset ) const
 {
     EL_DEBUG_CSE
-    // TODO: Use an (MC,MR) proxy for A?
+    // TODO(poulson): Use an (MC,MR) proxy for A?
     if( swapSequence_ )
     {
         const Int height = A.Height();
@@ -1177,7 +1184,7 @@ void DistPermutation::InversePermuteSymmetrically
             staleMeta_ = false;
         }
 
-        // TODO: Move El::InversePermutation into this class
+        // TODO(poulson): Move El::InversePermutation into this class
         if( staleInverse_ )
         {
             InvertPermutation( perm_, invPerm_ );

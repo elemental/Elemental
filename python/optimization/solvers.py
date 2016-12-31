@@ -2,12 +2,15 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
 from El.lapack_like.factor import *
+
+import ctypes
+from ctypes import CFUNCTYPE
 
 (FULL_KKT,AUGMENTED_KKT,NORMAL_KKT) = (0,1,2)
 
@@ -23,6 +26,9 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("maxStepRatio",sType),
               ("system",c_uint),
               ("mehrotra",bType),
+              ("centralityRule",CFUNCTYPE(sType,sType,sType,sType,sType)),
+              ("standardInitShift",bType),
+              ("balanceTol",sType),
               ("forceSameStep",bType),
               ("solveCtrl",RegSolveCtrl_s),
               ("resolveReg",bType),
@@ -47,6 +53,9 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("maxStepRatio",dType),
               ("system",c_uint),
               ("mehrotra",bType),
+              ("centralityRule",CFUNCTYPE(dType,dType,dType,dType,dType)),
+              ("standardInitShift",bType),
+              ("balanceTol",dType),
               ("forceSameStep",bType),
               ("solveCtrl",RegSolveCtrl_d),
               ("resolveReg",bType),
@@ -146,37 +155,37 @@ def LPDirect(A,b,c,x,y,z,ctrl=None):
   argsCtrl = [A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,ctrl]
   if type(A) is Matrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPDirect_s(*args)
       else:            lib.ElLPDirectX_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPDirect_d(*args)
       else:            lib.ElLPDirectX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix: raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPDirectDist_s(*args)
       else:            lib.ElLPDirectXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPDirectDist_d(*args)
       else:            lib.ElLPDirectXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPDirectSparse_s(*args)
       else:            lib.ElLPDirectXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPDirectSparse_d(*args)
       else:            lib.ElLPDirectXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec: raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPDirectDistSparse_s(*args)
       else:            lib.ElLPDirectXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPDirectDistSparse_d(*args)
       else:            lib.ElLPDirectXDistSparse_d(*argsCtrl)
     else: DataExcept()
@@ -240,40 +249,40 @@ def LPAffine(A,G,b,c,h,x,y,z,s,ctrl=None):
   if type(A) is Matrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPAffine_s(*args)
       else:            lib.ElLPAffineX_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPAffine_d(*args)
       else:            lib.ElLPAffineX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix:
       raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPAffineDist_s(*args)
       else:            lib.ElLPAffineXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPAffineDist_d(*args)
       else:            lib.ElLPAffineXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPAffineSparse_s(*args)
       else:            lib.ElLPAffineXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPAffineSparse_d(*args)
       else:            lib.ElLPAffineXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElLPAffineDistSparse_s(*args)
       else:            lib.ElLPAffineXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElLPAffineDistSparse_d(*args)
       else:            lib.ElLPAffineXDistSparse_d(*argsCtrl)
     else: DataExcept()
@@ -338,37 +347,37 @@ def QPDirect(Q,A,b,c,x,y,z,ctrl=None):
   argsCtrl = [Q.obj,A.obj,b.obj,c.obj,x.obj,y.obj,z.obj,ctrl]
   if type(A) is Matrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPDirect_s(*args)
       else:            lib.ElQPDirectX_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPDirect_d(*args)
       else:            lib.ElQPDirectX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix: raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPDirectDist_s(*args)
       else:            lib.ElQPDirectXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPDirectDist_d(*args)
       else:            lib.ElQPDirectXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPDirectSparse_s(*args)
       else:            lib.ElQPDirectXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPDirectSparse_d(*args)
       else:            lib.ElQPDirectXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec: raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPDirectDistSparse_s(*args)
       else:            lib.ElQPDirectXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPDirectDistSparse_d(*args)
       else:            lib.ElQPDirectXDistSparse_d(*argsCtrl)
     else: DataExcept()
@@ -432,40 +441,40 @@ def QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl=None):
   if type(A) is Matrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPAffine_s(*args)
       else:            lib.ElQPAffineX_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPAffine_d(*args)
       else:            lib.ElQPAffineX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix:
       raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPAffineDist_s(*args)
       else:            lib.ElQPAffineXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPAffineDist_d(*args)
       else:            lib.ElQPAffineXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPAffineSparse_s(*args)
       else:            lib.ElQPAffineXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPAffineSparse_d(*args)
       else:            lib.ElQPAffineXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElQPAffineDistSparse_s(*args)
       else:            lib.ElQPAffineXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElQPAffineDistSparse_d(*args)
       else:            lib.ElQPAffineXDistSparse_d(*argsCtrl)
     else: DataExcept()
@@ -497,10 +506,10 @@ def QPBoxADMM(Q,C,lb,ub,ctrl=None):
     Z = Matrix(Q.tag)
     args = [Q.obj,C.obj,lb,ub,Z.obj,pointer(numIts)]
     argsCtrl = [Q.obj,C.obj,lb,ub,Z.obj,ctrl,pointer(numIts)]
-    if   Q.tag == sTag: 
+    if   Q.tag == sTag:
       if ctrl==None: lib.ElQPBoxADMM_s(*args)
       else:          lib.ElQPBoxADMMX_s(*argsCtrl)
-    elif Q.tag == dTag: 
+    elif Q.tag == dTag:
       if ctrl==None: lib.ElQPBoxADMM_d(*args)
       else:          lib.ElQPBoxADMMX_d(*argsCtrl)
     else: DataExcept()
@@ -509,10 +518,10 @@ def QPBoxADMM(Q,C,lb,ub,ctrl=None):
     Z = DistMatrix(Q.tag,MC,MR,Q.Grid())
     args = [Q.obj,C.obj,lb,ub,Z.obj,pointer(numIts)]
     argsCtrl = [Q.obj,C.obj,lb,ub,Z.obj,ctrl,pointer(numIts)]
-    if   Q.tag == sTag: 
+    if   Q.tag == sTag:
       if ctrl==None: lib.ElQPBoxADMMDist_s(*args)
       else:          lib.ElQPBoxADMMXDist_s(*argsCtrl)
-    elif Q.tag == dTag: 
+    elif Q.tag == dTag:
       if ctrl==None: lib.ElQPBoxADMMDist_d(*args)
       else:          lib.ElQPBoxADMMXDist_d(*argsCtrl)
     else: DataExcept()
@@ -585,37 +594,37 @@ def SOCPDirect(A,b,c,orders,firstInds,x,y,z,ctrl=None):
   argsCtrl = [A.obj,b.obj,c.obj,orders.obj,firstInds.obj,x.obj,y.obj,z.obj,ctrl]
   if type(A) is Matrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPDirect_s(*args)
       else:            lib.ElSOCPDirectX_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPDirect_d(*args)
       else:            lib.ElSOCPDirectX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix: raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPDirectDist_s(*args)
       else:            lib.ElSOCPDirectXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPDirectDist_d(*args)
       else:            lib.ElSOCPDirectXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix: raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPDirectSparse_s(*args)
       else:            lib.ElSOCPDirectXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPDirectSparse_d(*args)
       else:            lib.ElSOCPDirectXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec: raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPDirectDistSparse_s(*args)
       else:            lib.ElSOCPDirectXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPDirectDistSparse_d(*args)
       else:            lib.ElSOCPDirectXDistSparse_d(*argsCtrl)
     else: DataExcept()
@@ -679,7 +688,7 @@ def SOCPAffine(A,G,b,c,h,orders,firstInds,x,y,z,s,ctrl=None):
      type(b) is not type(y) or type(b) is not type(z) or \
      type(b) is not type(s) or type(b) is not type(orders) or \
      type(b) is not type(firstInds):
-    raise Exception('vectors must be of the same type')
+    raise Exception('Vectors must be of the same type')
   args = [A.obj,G.obj,b.obj,c.obj,h.obj,orders.obj,firstInds.obj,
           x.obj,y.obj,z.obj,s.obj]
   argsCtrl = [A.obj,G.obj,b.obj,c.obj,h.obj,orders.obj,firstInds.obj,
@@ -687,40 +696,40 @@ def SOCPAffine(A,G,b,c,h,orders,firstInds,x,y,z,s,ctrl=None):
   if type(A) is Matrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPAffine_s(*args)
       else:            lib.ElSOCPAffineX_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPAffine_d(*args)
       else:            lib.ElSOCPAffineX_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistMatrix:
     if type(b) is not DistMatrix:
       raise Exception('b must be a DistMatrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPAffineDist_s(*args)
       else:            lib.ElSOCPAffineXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPAffineDist_d(*args)
       else:            lib.ElSOCPAffineXDist_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is SparseMatrix:
     if type(b) is not Matrix:
       raise Exception('b must be a Matrix')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPAffineSparse_s(*args)
       else:            lib.ElSOCPAffineXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPAffineSparse_d(*args)
       else:            lib.ElSOCPAffineXSparse_d(*argsCtrl)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl == None: lib.ElSOCPAffineDistSparse_s(*args)
       else:            lib.ElSOCPAffineXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl == None: lib.ElSOCPAffineDistSparse_d(*args)
       else:            lib.ElSOCPAffineXDistSparse_d(*argsCtrl)
     else: DataExcept()

@@ -62,7 +62,7 @@ Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol )
     for( Int k=0; k<numLocalEntries; ++k )
         if( Abs(A.Value(k)) > tol )
             ++numNonzeros;
-    return mpi::AllReduce( numNonzeros, A.Comm() );
+    return mpi::AllReduce( numNonzeros, A.Grid().Comm() );
 }
 
 #define PROTO(T) \

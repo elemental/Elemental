@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_SCATTER_HPP
@@ -30,7 +30,7 @@ void Scatter
         // TODO(poulson):
         // Broadcast over the redundant communicator and use mpi::Translate
         // rank to determine whether a process is the root of the broadcast.
-        GeneralPurpose( A, B ); 
+        GeneralPurpose( A, B );
         return;
     }
 
@@ -40,7 +40,7 @@ void Scatter
 
     // Translate the root of A into the DistComm of B (if possible)
     const Int root = A.Root();
-    const Int target = mpi::Translate( A.CrossComm(), root, B.DistComm() ); 
+    const Int target = mpi::Translate( A.CrossComm(), root, B.DistComm() );
     if( target == mpi::UNDEFINED )
         return;
 

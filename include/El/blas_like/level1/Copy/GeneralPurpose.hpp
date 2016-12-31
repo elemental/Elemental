@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_GENERALPURPOSE_HPP
@@ -15,7 +15,7 @@ namespace copy {
 template<typename S,typename T,typename=EnableIf<CanCast<S,T>>>
 void Helper
 ( const AbstractDistMatrix<S>& A,
-        AbstractDistMatrix<T>& B ) 
+        AbstractDistMatrix<T>& B )
 {
     EL_DEBUG_CSE
 
@@ -65,7 +65,7 @@ void Helper
             const int ownerCol = B.ColOwner(j);
             const Int localCol = B.LocalCol(j,ownerCol);
             const bool isLocalCol = ( BPartic && ownerCol == rowRank );
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
                 const int ownerRow = ownerRows[iLoc];
                 const Int localRow = localRows[iLoc];
@@ -125,7 +125,7 @@ void Helper
         vector<int> distBToVC(distBSize);
         for( int distBRank=0; distBRank<distBSize; ++distBRank )
         {
-            distBToVC[distBRank] = 
+            distBToVC[distBRank] =
               g.CoordsToVC
               (B.ColDist(),B.RowDist(),distBRank,BRoot,redundantRootB);
         }
@@ -173,7 +173,7 @@ void Helper
 template<typename S,typename T,typename>
 void GeneralPurpose
 ( const AbstractDistMatrix<S>& A,
-        AbstractDistMatrix<T>& B ) 
+        AbstractDistMatrix<T>& B )
 {
     EL_DEBUG_CSE
 
@@ -190,7 +190,7 @@ void GeneralPurpose
 template<typename T,typename>
 void GeneralPurpose
 ( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B ) 
+        AbstractDistMatrix<T>& B )
 {
     EL_DEBUG_CSE
 
@@ -220,7 +220,7 @@ void GeneralPurpose
         // This appears to be noticeably faster than the current
         // Elemental-native scheme which also transmits metadata
         //
-        // Hmmm...should there be some type of check to ensure that the  
+        // Hmmm...should there be some type of check to ensure that the
         // entire set of processes in contextA encompasses the entire set of
         // processes used for A and B?
         blacs::Redistribute

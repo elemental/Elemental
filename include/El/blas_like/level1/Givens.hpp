@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_GIVENS_HPP
@@ -29,19 +29,19 @@ template<typename Real>
 Real Givens( const Real& chi0, const Real& chi1, Real& c, Real& s )
 {
     const Real zero(0), one(1);
-    if( chi1 == zero ) 
+    if( chi1 == zero )
     {
         c = 1;
-        s = 0; 
+        s = 0;
         return chi0;
     }
     else if( chi0 == zero )
-    {       
+    {
         c = 0;
         s = 1;
         return chi1;
     }
-    
+
     const Real safeMinToSquare = limits::SafeMinToSquare(one);
     const Real safeMaxToSquare = one / safeMinToSquare;
 
@@ -56,7 +56,7 @@ Real Givens( const Real& chi0, const Real& chi1, Real& c, Real& s )
             chi0Scaled *= safeMinToSquare;
             chi1Scaled *= safeMinToSquare;
             scale *= safeMinToSquare;
-            ++rescaleCounter; 
+            ++rescaleCounter;
         }
     }
     else if( scale <= safeMinToSquare )

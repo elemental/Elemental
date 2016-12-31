@@ -31,8 +31,7 @@ void TV
   const qp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = b.Grid().Comm();
-    DistMultiVec<Real> bDMV(comm), xDMV(comm);
+    DistMultiVec<Real> bDMV(b.Grid()), xDMV(b.Grid());
     bDMV = b;
     xDMV = x;
     TV( bDMV, lambda, xDMV, ctrl );
@@ -120,10 +119,10 @@ void TV
 {
     EL_DEBUG_CSE
     const Int n = b.Height();
-    mpi::Comm comm = b.Comm();
+    const Grid& grid = b.Grid();
 
-    DistSparseMatrix<Real> Q(comm), A(comm), G(comm);
-    DistMultiVec<Real> c(comm), bHat(comm), h(comm);
+    DistSparseMatrix<Real> Q(grid), A(grid), G(grid);
+    DistMultiVec<Real> c(grid), bHat(grid), h(grid);
 
     auto& bLoc = b.LockedMatrix();
     auto& cLoc = c.Matrix();
@@ -197,7 +196,7 @@ void TV
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     QP( Q, A, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // Extract x from [x;t]

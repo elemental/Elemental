@@ -55,7 +55,7 @@ Int Degree( const DistMultiVec<Int>& firstInds )
         if( i == firstIndsLoc(iLoc) )
             ++localDegree;
     }
-    return mpi::AllReduce( localDegree, firstInds.Comm() );
+    return mpi::AllReduce( localDegree, firstInds.Grid().Comm() );
 }
 
 } // namespace soc

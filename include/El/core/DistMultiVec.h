@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_DISTMULTIVEC_C_H
@@ -30,13 +30,18 @@ typedef const struct ElDistMultiVec_zDummy* ElConstDistMultiVec_z;
 /* Constructors and destructors
    ============================ */
 
-/* DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
-   ----------------------------------------------- */
-EL_EXPORT ElError ElDistMultiVecCreate_i( ElDistMultiVec_i* A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecCreate_s( ElDistMultiVec_s* A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecCreate_d( ElDistMultiVec_d* A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecCreate_c( ElDistMultiVec_c* A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecCreate_z( ElDistMultiVec_z* A, MPI_Comm comm );
+/* DistMultiVec<T>::DistMultiVec( const Grid& grid )
+   ------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecCreate_i
+( ElDistMultiVec_i* A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecCreate_s
+( ElDistMultiVec_s* A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecCreate_d
+( ElDistMultiVec_d* A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecCreate_c
+( ElDistMultiVec_c* A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecCreate_z
+( ElDistMultiVec_z* A, ElConstGrid grid );
 
 /* DistMultiVec<T>::~DistMultiVec()
    -------------------------------- */
@@ -70,13 +75,18 @@ EL_EXPORT ElError ElDistMultiVecResize_c
 EL_EXPORT ElError ElDistMultiVecResize_z
 ( ElDistMultiVec_z A, ElInt height, ElInt width );
 
-/* void DistMultiVec<T>::SetComm( mpi::Comm comm )
-   ----------------------------------------------- */
-EL_EXPORT ElError ElDistMultiVecSetComm_i( ElDistMultiVec_i A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecSetComm_s( ElDistMultiVec_s A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecSetComm_d( ElDistMultiVec_d A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecSetComm_c( ElDistMultiVec_c A, MPI_Comm comm );
-EL_EXPORT ElError ElDistMultiVecSetComm_z( ElDistMultiVec_z A, MPI_Comm comm );
+/* void DistMultiVec<T>::SetGrid( const Grid& grid )
+   ------------------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecSetGrid_i
+( ElDistMultiVec_i A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecSetGrid_s
+( ElDistMultiVec_s A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecSetGrid_d
+( ElDistMultiVec_d A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecSetGrid_c
+( ElDistMultiVec_c A, ElConstGrid grid );
+EL_EXPORT ElError ElDistMultiVecSetGrid_z
+( ElDistMultiVec_z A, ElConstGrid grid );
 
 /* Queries
    ======= */
@@ -159,18 +169,18 @@ EL_EXPORT ElError ElDistMultiVecLockedMatrix_c
 EL_EXPORT ElError ElDistMultiVecLockedMatrix_z
 ( ElConstDistMultiVec_z A, ElConstMatrix_z* ALoc );
 
-/* mpi::Comm DistMultiVec<T>::Comm() const
-   --------------------------------------- */
-EL_EXPORT ElError ElDistMultiVecComm_i
-( ElConstDistMultiVec_i A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistMultiVecComm_s
-( ElConstDistMultiVec_s A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistMultiVecComm_d
-( ElConstDistMultiVec_d A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistMultiVecComm_c
-( ElConstDistMultiVec_c A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistMultiVecComm_z
-( ElConstDistMultiVec_z A, MPI_Comm* comm );
+/* const Grid& DistMultiVec<T>::Grid() const
+   ----------------------------------------- */
+EL_EXPORT ElError ElDistMultiVecGrid_i
+( ElConstDistMultiVec_i A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistMultiVecGrid_s
+( ElConstDistMultiVec_s A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistMultiVecGrid_d
+( ElConstDistMultiVec_d A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistMultiVecGrid_c
+( ElConstDistMultiVec_c A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistMultiVecGrid_z
+( ElConstDistMultiVec_z A, ElConstGrid* grid );
 
 /* Int DistMultiVec<T>::Blocksize() const
    -------------------------------------- */

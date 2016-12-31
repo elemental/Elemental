@@ -65,11 +65,11 @@ void SymmetricDiagonalEquil
 {
     EL_DEBUG_CSE
     typedef Base<Field> Real;
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
 
-    d.SetComm( comm );
+    d.SetGrid( grid );
     auto maxSqrt = []( const Field& delta )
       { return Sqrt(Max(Abs(delta),Real(1))); };
     if( commRank == 0 && time )

@@ -58,6 +58,7 @@ main( int argc, char* argv[] )
         ctrl.admmCtrl.usePinv = usePinv;
         ctrl.admmCtrl.pinvTol = pinvTol;
         ctrl.admmCtrl.progress = progress;
+        ctrl.lpIPMCtrl.mehrotraCtrl.print = true;
 
         El::DistMatrix<Real> x;
         El::Timer timer;
@@ -73,6 +74,14 @@ main( int argc, char* argv[] )
         {
             El::Output("Basis Pursuit time: ",timer.Total()," secs");
             El::Output("|| x ||_0 = ",xZeroNorm);
+        }
+        SoftThreshold( x, El::Sqrt(El::limits::Epsilon<Real>()) );
+        if( print )
+            El::Print( x, "xThresh" );
+        const El::Int xZeroNormThresh = El::ZeroNorm( x );
+        if( El::mpi::Rank() == 0 )
+        {
+            El::Output("|| xThresh ||_0 = ",xZeroNormThresh);
         }
     }
     catch( std::exception& e ) { El::ReportException(e); }

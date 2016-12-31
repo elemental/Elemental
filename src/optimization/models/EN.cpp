@@ -258,9 +258,10 @@ void EN
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm), AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), h(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> Q(grid), AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), h(grid);
 
     // Q := | 2*lambda_2     0      0 |
     //      |     0      2*lambda_2 0 |
@@ -322,7 +323,7 @@ void EN
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     QP( Q, AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v

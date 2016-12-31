@@ -76,22 +76,15 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    vector<Int> map, invMap;
-    ldl::NestedDissection( A.LockedGraph(), map, rootSep, info, ctrl );
-    InvertMap( map, invMap );
-
-    ldl::Front<Field> front( A, map, info, true );
-    LDL( info, front );
-
-    // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
-    // multiple right-hand sides
+    SparseLDLFactorization<Field> sparseLDLFact;
+    const bool hermitian = true;
+    sparseLDLFact.Initialize( A, hermitian, ctrl );
+    sparseLDLFact.Factor();
     /*
-    ldl::SolveWithIterativeRefinement
-    ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
+    sparseLDLFact.SolveWithIterativeRefinement
+    ( A, B, relTolRefine, maxRefineIts );
     */
-    ldl::SolveAfter( invMap, info, front, B );
+    sparseLDLFact.Solve( B );
 }
 
 // TODO(poulson): Add iterative refinement parameter
@@ -102,22 +95,15 @@ void HPDSolve
   const BisectCtrl& ctrl )
 {
     EL_DEBUG_CSE
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    DistMap map, invMap;
-    ldl::NestedDissection( A.LockedDistGraph(), map, rootSep, info, ctrl );
-    InvertMap( map, invMap );
-
-    ldl::DistFront<Field> front( A, map, rootSep, info, true );
-    LDL( info, front );
-
-    // TODO(poulson): Extend ldl::SolveWithIterativeRefinement to support
-    // multiple right-hand sides
+    DistSparseLDLFactorization<Field> sparseLDLFact;
+    const bool hermitian = true;
+    sparseLDLFact.Initialize( A, hermitian, ctrl );
+    sparseLDLFact.Factor();
     /*
-    ldl::SolveWithIterativeRefinement
-    ( A, invMap, info, front, B, minReductionFactor, maxRefineIts );
+    sparseLDLFact.SolveWithIterativeRefinement
+    ( A, B, relTolRefine, maxRefineIts );
     */
-    ldl::SolveAfter( invMap, info, front, B );
+    sparseLDLFact.Solve( B );
 }
 
 #define PROTO(Field) \

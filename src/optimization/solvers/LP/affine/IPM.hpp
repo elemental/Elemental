@@ -14,51 +14,23 @@ namespace affine {
 
 template<typename Real>
 void Mehrotra
-( const Matrix<Real>& A,
-  const Matrix<Real>& G,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        Matrix<Real>& s,
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
-( const AbstractDistMatrix<Real>& A,
-  const AbstractDistMatrix<Real>& G,
-  const AbstractDistMatrix<Real>& b,
-  const AbstractDistMatrix<Real>& c,
-  const AbstractDistMatrix<Real>& h,
-        AbstractDistMatrix<Real>& x,
-        AbstractDistMatrix<Real>& y,
-        AbstractDistMatrix<Real>& z,
-        AbstractDistMatrix<Real>& s,
+( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        AffineLPSolution<DistMatrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
-( const SparseMatrix<Real>& A,
-  const SparseMatrix<Real>& G,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-  const Matrix<Real>& h,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        Matrix<Real>& s,
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        AffineLPSolution<Matrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 template<typename Real>
 void Mehrotra
-( const DistSparseMatrix<Real>& A,
-  const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-  const DistMultiVec<Real>& h,
-        DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,
-        DistMultiVec<Real>& s,
+( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        AffineLPSolution<DistMultiVec<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
 
 } // namespace affine

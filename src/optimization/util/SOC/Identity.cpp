@@ -93,7 +93,7 @@ void Identity
 
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
-    x.SetComm( orders.Comm() );
+    x.SetGrid( orders.Grid() );
     Zeros( x, height, 1 );
     Real* xBuf = x.Matrix().Buffer();
     const Int localHeight = x.LocalHeight();

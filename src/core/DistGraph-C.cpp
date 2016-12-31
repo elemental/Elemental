@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -12,8 +12,8 @@ using namespace El;
 
 extern "C" {
 
-ElError ElDistGraphCreate( ElDistGraph* graph, MPI_Comm comm )
-{ EL_TRY( *graph = CReflect( new DistGraph(mpi::Comm(comm)) ) ) }
+ElError ElDistGraphCreate( ElDistGraph* graph, ElConstGrid grid )
+{ EL_TRY( *graph = CReflect( new DistGraph(*CReflect(grid)) ) ) }
 
 ElError ElDistGraphDestroy( ElConstDistGraph graph )
 { EL_TRY( delete CReflect(graph) ) }
@@ -25,21 +25,21 @@ ElError ElDistGraphResize
 ( ElDistGraph graph, ElInt numSources, ElInt numTargets )
 { EL_TRY( CReflect(graph)->Resize( numSources, numTargets ) ) }
 
-ElError ElDistGraphSetComm( ElDistGraph graph, MPI_Comm comm )
-{ EL_TRY( CReflect(graph)->SetComm(comm) ) }
+ElError ElDistGraphSetGrid( ElDistGraph graph, ElConstGrid grid )
+{ EL_TRY( CReflect(graph)->SetGrid(*CReflect(grid)) ) }
 
 ElError ElDistGraphReserve
 ( ElDistGraph graph, ElInt numLocalEdges, ElInt numRemoteEdges )
 { EL_TRY( CReflect(graph)->Reserve(numLocalEdges,numRemoteEdges) ) }
 
-ElError 
+ElError
 ElDistGraphConnect( ElDistGraph graph, ElInt row, ElInt col )
 { EL_TRY( CReflect(graph)->Connect( row, col ) ) }
 
 ElError ElDistGraphConnectLocal( ElDistGraph graph, ElInt localRow, ElInt col )
 { EL_TRY( CReflect(graph)->ConnectLocal( localRow, col ) ) }
 
-ElError 
+ElError
 ElDistGraphDisconnect( ElDistGraph graph, ElInt row, ElInt col )
 { EL_TRY( CReflect(graph)->Disconnect( row, col ) ) }
 
@@ -70,10 +70,10 @@ ElError ElDistGraphProcessLocalQueues( ElDistGraph graph )
 { EL_TRY( CReflect(graph)->ProcessLocalQueues() ) }
 
 ElError ElDistGraphNumSources( ElConstDistGraph graph, ElInt* numSources )
-{ EL_TRY( *numSources = CReflect(graph)->NumSources() ) } 
+{ EL_TRY( *numSources = CReflect(graph)->NumSources() ) }
 
 ElError ElDistGraphNumTargets( ElConstDistGraph graph, ElInt* numTargets )
-{ EL_TRY( *numTargets = CReflect(graph)->NumTargets() ) } 
+{ EL_TRY( *numTargets = CReflect(graph)->NumTargets() ) }
 
 ElError ElDistGraphFirstLocalSource
 ( ElConstDistGraph graph, ElInt* firstLocalSource )
@@ -84,16 +84,16 @@ ElError ElDistGraphNumLocalSources
 { EL_TRY( *numLocalSources = CReflect(graph)->NumLocalSources() ) }
 
 ElError ElDistGraphNumLocalEdges( ElConstDistGraph graph, ElInt* numLocalEdges )
-{ EL_TRY( *numLocalEdges = CReflect(graph)->NumLocalEdges() ) } 
+{ EL_TRY( *numLocalEdges = CReflect(graph)->NumLocalEdges() ) }
 
 ElError ElDistGraphCapacity( ElConstDistGraph graph, ElInt* capacity )
-{ EL_TRY( *capacity = CReflect(graph)->Capacity() ) } 
+{ EL_TRY( *capacity = CReflect(graph)->Capacity() ) }
 
 ElError ElDistGraphLocallyConsistent( ElConstDistGraph graph, bool* consistent )
 { EL_TRY( *consistent = CReflect(graph)->LocallyConsistent() ) }
 
-ElError ElDistGraphComm( ElConstDistGraph graph, MPI_Comm* comm )
-{ EL_TRY( *comm = CReflect(graph)->Comm().comm ) }
+ElError ElDistGraphGrid( ElConstDistGraph graph, ElConstGrid* grid )
+{ EL_TRY( *grid = CReflect(&CReflect(graph)->Grid()) ) }
 
 ElError ElDistGraphBlocksize( ElConstDistGraph graph, ElInt* blocksize )
 { EL_TRY( *blocksize = CReflect(graph)->Blocksize() ) }

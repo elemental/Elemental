@@ -1067,8 +1067,8 @@ inline void SplitGrid
         mpi::Group leftGroup, rightGroup;
         mpi::Incl( group, pLeft, leftRanks.data(), leftGroup );
         mpi::Incl( group, pRight, rightRanks.data(), rightGroup );
-        const Int rLeft = Grid::FindFactor(pLeft);
-        const Int rRight = Grid::FindFactor(pRight);
+        const Int rLeft = Grid::DefaultHeight(pLeft);
+        const Int rRight = Grid::DefaultHeight(pRight);
         if( progress && grid.Rank() == 0 )
             cout << "leftWork/rightWork=" << leftWork/rightWork 
                  << ", so split " << p << " processes into " 

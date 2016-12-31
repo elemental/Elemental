@@ -51,15 +51,6 @@ void Mehrotra
     EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
 
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -111,7 +102,7 @@ void Mehrotra
 
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real relError = 1;
     Matrix<Real> J, d,
@@ -299,7 +290,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -396,16 +388,7 @@ void Mehrotra
     EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = true;
-
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
     const Int cutoffPar = 1000;
-    const bool standardShift = true;
 
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
@@ -477,7 +460,7 @@ void Mehrotra
 
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, cutoffPar );
 
     Real relError = 1;
     DistMatrix<Real> J(grid),     d(grid),
@@ -681,7 +664,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 
@@ -782,16 +766,8 @@ void Mehrotra
     EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
-
-    // TODO(poulson): Move these into the control structure
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
+    // TODO(poulson): Move into the control structure
     const bool cutoffSparse = 64;
-    const bool standardShift = true;
 
     auto A = APre;
     auto G = GPre;
@@ -846,7 +822,7 @@ void Mehrotra
 
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
     // Form the offsets for the sparse embedding of the barrier's Hessian
     // ==================================================================
@@ -862,7 +838,6 @@ void Mehrotra
     const Int kSparse = sparseOrders.Height();
 
     SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
     Matrix<Real> d,
                  w,     wRoot, wRootInv,
                  l,     lInv,
@@ -910,11 +885,12 @@ void Mehrotra
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    NestedDissection( JStatic.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
+    // Analyze the nonzero pattern of the KKT systems
+    // ----------------------------------------------
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    SparseLDLFactorization<Real> sparseLDLFact;
+    sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -1027,14 +1003,14 @@ void Mehrotra
         KKTRHS
         ( rc, rb, rh, rmu, wRoot,
           orders, firstInds, origToSparseFirstInds, kSparse, d );
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regTmp );
 
         // Solve for the direction
         // -----------------------
         try
         {
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
             if( wMaxNorm >= ctrl.ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
             else if( wMaxNorm >= ctrl.diagEquilTol )
@@ -1042,16 +1018,17 @@ void Mehrotra
             else
                 Ones( dInner, n+m+kSparse, 1 );
 
-            JFront.Pull( J, map, info );
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.ChangeNonzeroValues( J );
+            sparseLDLFact.Factor();
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
         catch(...)
@@ -1126,7 +1103,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -1158,14 +1136,15 @@ void Mehrotra
           orders, firstInds, origToSparseFirstInds, kSparse, d );
         try
         {
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
         }
         catch(...)
@@ -1238,17 +1217,9 @@ void Mehrotra
     EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const bool onlyLower = false;
-
     // TODO(poulson): Move these into the control structur
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
     const Int cutoffSparse = 64;
     const Int cutoffPar = 1000;
-    const bool standardShift = false;
 
     auto A = APre;
     auto G = GPre;
@@ -1260,11 +1231,11 @@ void Mehrotra
     const Int k = G.Height();
     const Int n = A.Width();
     const Int degree = soc::Degree( firstInds );
-    mpi::Comm comm = APre.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
     Timer timer, iterTimer;
 
-    DistMultiVec<Real> dRowA(comm), dRowG(comm), dCol(comm);
+    DistMultiVec<Real> dRowA(grid), dRowG(grid), dCol(grid);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
@@ -1321,7 +1292,7 @@ void Mehrotra
         timer.Start();
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, standardShift, cutoffPar,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, cutoffPar,
       ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
@@ -1329,9 +1300,9 @@ void Mehrotra
     // Form the offsets for the sparse embedding of the barrier's Hessian
     // ==================================================================
     DistMultiVec<Int>
-      origToSparseOrders(comm),    sparseToOrigOrders(comm),
-      origToSparseFirstInds(comm), sparseToOrigFirstInds(comm),
-      sparseOrders(comm), sparseFirstInds(comm);
+      origToSparseOrders(grid),    sparseToOrigOrders(grid),
+      origToSparseFirstInds(grid), sparseToOrigFirstInds(grid),
+      sparseOrders(grid), sparseFirstInds(grid);
     soc::EmbeddingMaps
     ( orders, firstInds,
       sparseOrders, sparseFirstInds,
@@ -1345,19 +1316,18 @@ void Mehrotra
     auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
 
     DistGraphMultMeta metaOrig;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm),
-                       w(comm),     wRoot(comm), wRootInv(comm),
-                       l(comm),     lInv(comm),
-                       rc(comm),    rb(comm),    rh(comm),    rmu(comm),
-                       dxAff(comm), dyAff(comm), dzAff(comm), dsAff(comm),
-                       dx(comm),    dy(comm),    dz(comm),    ds(comm),
-                       dzAffScaled(comm), dsAffScaled(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
+    DistMultiVec<Real> d(grid),
+                       w(grid),     wRoot(grid), wRootInv(grid),
+                       l(grid),     lInv(grid),
+                       rc(grid),    rb(grid),    rh(grid),    rmu(grid),
+                       dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
+                       dx(grid),    dy(grid),    dz(grid),    ds(grid),
+                       dzAffScaled(grid), dsAffScaled(grid);
 
     // Form the regularization vectors
     // ===============================
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     Zeros( regTmp, n+m+kSparse, 1 );
     // Set the analytical part
     // -----------------------
@@ -1393,7 +1363,7 @@ void Mehrotra
 
     // Form the static portion of the KKT system
     // =========================================
-    DistSparseMatrix<Real> JStatic(comm);
+    DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
@@ -1408,23 +1378,17 @@ void Mehrotra
     auto meta = JStatic.InitializeMultMeta();
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    NestedDissection( JStatic.LockedDistGraph(), map, rootSep, info );
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    DistSparseLDLFactorization<Real> sparseLDLFact;
+    sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
-        Output("ND: ",timer.Stop()," secs");
-    InvertMap( map, invMap );
-
-    vector<Int> mappedSources, mappedTargets, colOffs;
-    JStatic.MappedSources( map, mappedSources );
-    JStatic.MappedTargets( map, mappedTargets, colOffs );
+        Output("Analysis: ",timer.Stop()," secs");
 
     Real relError = 1;
-    DistMultiVec<Real> dInner(comm);
-    DistMultiVec<Real> dxError(comm), dyError(comm),
-                       dzError(comm), dmuError(comm);
-    ldl::DistMultiVecNodeMeta dmvMeta;
+    DistMultiVec<Real> dInner(grid);
+    DistMultiVec<Real> dxError(grid), dyError(grid),
+                       dzError(grid), dmuError(grid);
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -1558,17 +1522,17 @@ void Mehrotra
           d, cutoffPar );
         if( ctrl.time && commRank == 0 )
             Output("KKTRHS construction: ",timer.Stop()," secs");
+        // Cache the metadata for the finalized JOrig
+        JOrig.LockedDistGraph().multMeta = meta;
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regTmp );
+        J.LockedDistGraph().multMeta = meta;
 
         // Solve for the direction
         // -----------------------
         try
         {
-            // Cache the metadata for the finalized JOrig
-            JOrig.LockedDistGraph().multMeta = meta;
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
-
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -1580,31 +1544,29 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Equilibration: ",timer.Stop()," secs");
 
-            // Cache the metadata for the finalized J
-            J.LockedDistGraph().multMeta = meta;
             if( ctrl.time && commRank == 0 )
                 timer.Start();
-            JFront.Pull
-            ( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
+            sparseLDLFact.ChangeNonzeroValues( J );
             if( ctrl.time && commRank == 0 )
                 Output("Front pull: ",timer.Stop()," secs");
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
-            LDL( info, JFront, LDL_2D );
+            sparseLDLFact.Factor( LDL_2D );
             if( commRank == 0 && ctrl.time )
                 Output("LDL: ",timer.Stop()," secs");
 
             if( commRank == 0 && ctrl.time )
                 timer.Start();
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
@@ -1697,7 +1659,8 @@ void Mehrotra
         const Real muAff = Dot(ds,dz) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 
@@ -1736,14 +1699,15 @@ void Mehrotra
         {
             if( commRank == 0 && ctrl.time )
                 timer.Start();
+            // TODO(poulson): Make use of a better interface to these routines.
             if( ctrl.resolveReg )
                 reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl );
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             else
                 reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                  ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
             if( commRank == 0 && ctrl.time )
                 Output("Corrector solver: ",timer.Stop()," secs");

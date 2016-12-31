@@ -2,12 +2,14 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
 from imports     import mpi
+
+import Grid
 
 import Matrix as M
 
@@ -19,13 +21,13 @@ class DistMultiVec(object):
   lib.ElDistMultiVecCreate_d.argtypes = \
   lib.ElDistMultiVecCreate_c.argtypes = \
   lib.ElDistMultiVecCreate_z.argtypes = \
-    [POINTER(c_void_p),mpi.Comm]
-  def __init__(self,tag=dTag,comm=mpi.COMM_WORLD(),create=True):
+    [POINTER(c_void_p),c_void_p]
+  def __init__(self,tag=dTag,grid=Grid.Grid.Default(),create=True):
     self.obj = c_void_p()
     self.tag = tag
     CheckTag(tag)
     if create:
-      args = [pointer(self.obj),comm]
+      args = [pointer(self.obj),grid.obj]
       if   tag == iTag: lib.ElDistMultiVecCreate_i(*args)
       elif tag == sTag: lib.ElDistMultiVecCreate_s(*args)
       elif tag == dTag: lib.ElDistMultiVecCreate_d(*args)
@@ -80,19 +82,19 @@ class DistMultiVec(object):
     elif self.tag == zTag: lib.ElDistMultiVecResize_z(*args)
     else: DataExcept()
 
-  lib.ElDistMultiVecSetComm_i.argtypes = \
-  lib.ElDistMultiVecSetComm_s.argtypes = \
-  lib.ElDistMultiVecSetComm_d.argtypes = \
-  lib.ElDistMultiVecSetComm_c.argtypes = \
-  lib.ElDistMultiVecSetComm_z.argtypes = \
-    [c_void_p,mpi.Comm]
-  def SetComm(self,comm):
-    args = [self.obj,comm]
-    if   self.tag == iTag: lib.ElDistMultiVecSetComm_i(*args)
-    elif self.tag == sTag: lib.ElDistMultiVecSetComm_s(*args)
-    elif self.tag == dTag: lib.ElDistMultiVecSetComm_d(*args)
-    elif self.tag == cTag: lib.ElDistMultiVecSetComm_c(*args)
-    elif self.tag == zTag: lib.ElDistMultiVecSetComm_z(*args)
+  lib.ElDistMultiVecSetGrid_i.argtypes = \
+  lib.ElDistMultiVecSetGrid_s.argtypes = \
+  lib.ElDistMultiVecSetGrid_d.argtypes = \
+  lib.ElDistMultiVecSetGrid_c.argtypes = \
+  lib.ElDistMultiVecSetGrid_z.argtypes = \
+    [c_void_p,c_void_p]
+  def SetGrid(self,grid):
+    args = [self.obj,grid.obj]
+    if   self.tag == iTag: lib.ElDistMultiVecSetGrid_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecSetGrid_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecSetGrid_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecSetGrid_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecSetGrid_z(*args)
     else: DataExcept()
 
   # Queries
@@ -195,22 +197,22 @@ class DistMultiVec(object):
       else: DataExcept()
     return A
 
-  lib.ElDistMultiVecComm_i.argtypes = \
-  lib.ElDistMultiVecComm_s.argtypes = \
-  lib.ElDistMultiVecComm_d.argtypes = \
-  lib.ElDistMultiVecComm_c.argtypes = \
-  lib.ElDistMultiVecComm_z.argtypes = \
-    [c_void_p,POINTER(mpi.Comm)]
-  def Comm(self):
-    comm = mpi.Comm()
-    args = [self.obj,pointer(comm)]
-    if   self.tag == iTag: lib.ElDistMultiVecComm_i(*args)
-    elif self.tag == sTag: lib.ElDistMultiVecComm_s(*args)
-    elif self.tag == dTag: lib.ElDistMultiVecComm_d(*args)
-    elif self.tag == cTag: lib.ElDistMultiVecComm_c(*args)
-    elif self.tag == zTag: lib.ElDistMultiVecComm_z(*args)
+  lib.ElDistMultiVecGrid_i.argtypes = \
+  lib.ElDistMultiVecGrid_s.argtypes = \
+  lib.ElDistMultiVecGrid_d.argtypes = \
+  lib.ElDistMultiVecGrid_c.argtypes = \
+  lib.ElDistMultiVecGrid_z.argtypes = \
+    [c_void_p,POINTER(c_void_p)]
+  def Grid(self):
+    grid = Grid.Grid(create=False)
+    args = [self.obj,pointer(grid.obj)]
+    if   self.tag == iTag: lib.ElDistMultiVecGrid_i(*args)
+    elif self.tag == sTag: lib.ElDistMultiVecGrid_s(*args)
+    elif self.tag == dTag: lib.ElDistMultiVecGrid_d(*args)
+    elif self.tag == cTag: lib.ElDistMultiVecGrid_c(*args)
+    elif self.tag == zTag: lib.ElDistMultiVecGrid_z(*args)
     else: DataExcept()
-    return comm
+    return grid
 
   lib.ElDistMultiVecBlocksize_i.argtypes = \
   lib.ElDistMultiVecBlocksize_s.argtypes = \
@@ -403,7 +405,7 @@ class DistMultiVec(object):
         jInd = slice(jInd.start,self.Width(),jInd.step)
     iRan = IndexRange(iInd)
     jRan = IndexRange(jInd)
-    ASub = DistMultiVec(self.tag,self.Comm())
+    ASub = DistMultiVec(self.tag,self.Grid())
     args = [self.obj,iRan,jRan,ASub.obj]
     if   self.tag == iTag: lib.ElGetContigSubmatrixDistMultiVec_i(*args)
     elif self.tag == sTag: lib.ElGetContigSubmatrixDistMultiVec_s(*args)

@@ -321,10 +321,7 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const vector<Int>& map,
-  const vector<Int>& invMap,
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -332,7 +329,7 @@ void Initialize
 {
     EL_DEBUG_CSE
     const Int m = b.Height();
-    const Int n = c.Width();
+    const Int n = c.Height();
     const Int k = h.Height();
     if( primalInit )
     {
@@ -365,11 +362,15 @@ void Initialize
     J.FreezeSparsity();
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
+    // Analyze the sparsity pattern of the KKT system
+    // ==============================================
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+
     // (Approximately) factor the KKT matrix
     // =====================================
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront, LDL_2D );
+    sparseLDLFact.Factor();
 
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
@@ -392,7 +393,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
+        ( JOrig, regTmp, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
@@ -413,7 +414,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
+        ( JOrig, regTmp, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
@@ -463,13 +464,7 @@ void Initialize
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMap& map,
-  const DistMap& invMap,
-  const ldl::DistSeparator& rootSep,
-  const ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
@@ -479,7 +474,7 @@ void Initialize
     const Int m = b.Height();
     const Int n = c.Height();
     const Int k = h.Height();
-    mpi::Comm comm = JStatic.Comm();
+    const Grid& grid = JStatic.Grid();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -502,11 +497,11 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
+    DistSparseMatrix<Real> JOrig(grid);
     JOrig = JStatic;
     JOrig.FreezeSparsity();
     JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-    DistMultiVec<Real> ones(comm);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, k, 1 );
     FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
@@ -514,17 +509,19 @@ void Initialize
     J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
+    // Analyze the nonzero pattern
+    // ===========================
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+
     // (Approximately) factor the KKT matrix
     // =====================================
-    // TODO(poulson): Use PullUpdate just on the identity
-    // (or avoid it entirely?)
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
     // TODO(poulson): Consider selective inversion
-    LDL( info, JFront, LDL_2D );
+    sparseLDLFact.Factor( LDL_2D );
 
-    DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
-                       d(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
+                       d(grid);
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
@@ -543,8 +540,10 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
-          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+        ( JOrig, regTmp, sparseLDLFact, d,
+          solveCtrl.relTol,
+          solveCtrl.maxRefineIts,
+          solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -564,8 +563,10 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
-          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+        ( JOrig, regTmp, sparseLDLFact, d,
+          solveCtrl.relTol,
+          solveCtrl.maxRefineIts,
+          solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -638,10 +639,7 @@ void Initialize
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const vector<Int>& map, \
-    const vector<Int>& invMap, \
-    const ldl::Separator& rootSep, \
-    const ldl::NodeInfo& info, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
@@ -654,13 +652,7 @@ void Initialize
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const DistMap& map, \
-    const DistMap& invMap, \
-    const ldl::DistSeparator& rootSep, \
-    const ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

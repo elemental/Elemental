@@ -55,10 +55,10 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& x,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& JPre,
   bool onlyLower )
 {
     EL_DEBUG_CSE
@@ -109,7 +109,7 @@ void AugmentedKKT
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    DistSparseMatrix<Real> Q(A.Comm());
+    DistSparseMatrix<Real> Q(A.Grid());
     Zeros( Q, n, n );
     qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
@@ -122,10 +122,10 @@ void AugmentedKKT
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& J, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& x, \
+    const DistMatrix<Real>& z, \
+          DistMatrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \

@@ -339,16 +339,16 @@ Int Single
 
     typedef Base<Field> Real;
     const Int n = b.Height();
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
     Timer iterTimer;
 
     // x := 0
     // ======
-    DistMultiVec<Field> x(comm);
+    DistMultiVec<Field> x(grid);
     Zeros( x, n, 1 );
 
-    DistMultiVec<Field> Ax0(comm);
+    DistMultiVec<Field> Ax0(grid);
     if( saveProducts )
     {
         // A x_0 := 0
@@ -358,7 +358,7 @@ Int Single
 
     // w := b (= b - A x_0)
     // ====================
-    DistMultiVec<Field> w(comm);
+    DistMultiVec<Field> w(grid);
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( progress && commRank == 0 )
@@ -371,7 +371,7 @@ Int Single
     bool converged = false;
     Matrix<Real> cs;
     Matrix<Field> sn, H, t;
-    DistMultiVec<Field> x0(comm), q(comm), V(comm), Z(comm), AZ(comm);
+    DistMultiVec<Field> x0(grid), q(grid), V(grid), Z(grid), AZ(grid);
     while( !converged )
     {
         if( progress && commRank == 0 )
@@ -601,7 +601,7 @@ Int FGMRES
     const Int width = B.Width();
 
     Int mostIts = 0;
-    DistMultiVec<Field> u(B.Comm());
+    DistMultiVec<Field> u(B.Grid());
     Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();

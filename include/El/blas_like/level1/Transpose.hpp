@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_TRANSPOSE_HPP
@@ -78,13 +78,13 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
     B.Resize( n, m );
 #ifdef EL_HAVE_MKL
     Orientation orient = ( conjugate ? ADJOINT : TRANSPOSE );
-    mkl::omatcopy 
+    mkl::omatcopy
     ( orient, m, n, T(1), A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 #else
-    // OpenBLAS's {i,o}matcopy routines where disabled for the reasons detailed in
-    // src/core/imports/openblas.cpp
+    // OpenBLAS's {i,o}matcopy routines where disabled for the reasons detailed
+    // in src/core/imports/openblas.cpp
 
-    // TODO: Optimize this routine
+    // TODO(poulson): Optimize this routine
     const T* ABuf = A.LockedBuffer();
           T* BBuf = B.Buffer();
     const Int ldA = A.LDim();
@@ -98,7 +98,7 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
     else
     {
         copy::util::InterleaveMatrix
-        ( m, n, 
+        ( m, n,
           ABuf, 1,   ldA,
           BBuf, ldB, 1 );
     }
@@ -157,7 +157,7 @@ void Transpose
     }
     else
     {
-        unique_ptr<ElementalMatrix<T>> 
+        unique_ptr<ElementalMatrix<T>>
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BData );
         Copy( A, *C );
@@ -169,7 +169,7 @@ void Transpose
 template<typename T>
 void Transpose
 ( const BlockMatrix<T>& A,
-        BlockMatrix<T>& B, 
+        BlockMatrix<T>& B,
   bool conjugate )
 {
     EL_DEBUG_CSE
@@ -177,15 +177,15 @@ void Transpose
     const auto BData = B.DistData();
     if( AData.colDist == BData.rowDist &&
         AData.rowDist == BData.colDist &&
-        ((AData.colAlign    == BData.rowAlign && 
+        ((AData.colAlign    == BData.rowAlign &&
           AData.blockHeight == BData.blockWidth &&
           AData.colCut      == BData.rowCut) || !B.RowConstrained()) &&
-        ((AData.rowAlign   == BData.colAlign && 
+        ((AData.rowAlign   == BData.colAlign &&
           AData.blockWidth == BData.blockHeight &&
           AData.rowCut     == BData.colCut) || !B.ColConstrained()))
     {
         B.Align
-        ( A.BlockWidth(), A.BlockHeight(), 
+        ( A.BlockWidth(), A.BlockHeight(),
           A.RowAlign(), A.ColAlign(), A.RowCut(), A.ColCut() );
         B.Resize( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
@@ -222,7 +222,7 @@ void Transpose
     }
     else
     {
-        unique_ptr<BlockMatrix<T>> 
+        unique_ptr<BlockMatrix<T>>
             C( B.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BData );
         Copy( A, *C );
@@ -234,7 +234,7 @@ void Transpose
 template<typename T>
 void Transpose
 ( const AbstractDistMatrix<T>& A,
-        AbstractDistMatrix<T>& B, 
+        AbstractDistMatrix<T>& B,
   bool conjugate )
 {
     EL_DEBUG_CSE
@@ -253,7 +253,7 @@ void Transpose
     else if( A.Wrap() == ELEMENT ) // && B.Wrap() == BLOCK
     {
         auto& BCast = static_cast<BlockMatrix<T>&>(B);
-        unique_ptr<BlockMatrix<T>> 
+        unique_ptr<BlockMatrix<T>>
             C( BCast.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BCast );
         Copy( A, *C );
@@ -263,13 +263,13 @@ void Transpose
     else  // A.Wrap() == BLOCK && B.Wrap() == ELEMENT
     {
         auto& BCast = static_cast<ElementalMatrix<T>&>(B);
-        unique_ptr<ElementalMatrix<T>> 
+        unique_ptr<ElementalMatrix<T>>
             C( BCast.ConstructTranspose(A.Grid(),A.Root()) );
         C->AlignWith( BCast );
         Copy( A, *C );
         BCast.Resize( A.Width(), A.Height() );
         Transpose( C->LockedMatrix(), BCast.Matrix(), conjugate );
-    } 
+    }
 }
 
 template<typename T>
@@ -287,7 +287,7 @@ void Transpose
 ( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B, bool conjugate )
 {
     EL_DEBUG_CSE
-    B.SetComm( A.Comm() );
+    B.SetGrid( A.Grid() );
     B.Resize( A.Width(), A.Height() );
     Zero( B, false );
     TransposeAxpy( T(1), A, B, conjugate );
@@ -298,37 +298,37 @@ void Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
     EL_DEBUG_CSE
     Transpose( A, B, true );
-}   
+}
 
 template<typename T>
 void Adjoint( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     EL_DEBUG_CSE
     Transpose( A, B, true );
-}   
+}
 
 template<typename T>
 void Adjoint
 ( const BlockMatrix<T>& A, BlockMatrix<T>& B )
-{ 
+{
     EL_DEBUG_CSE
     Transpose( A, B, true );
-}   
+}
 
 template<typename T>
 void Adjoint
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
-{ 
+{
     EL_DEBUG_CSE
     Transpose( A, B, true );
-}   
+}
 
 template<typename T>
 void Adjoint( const SparseMatrix<T>& A, SparseMatrix<T>& B )
 {
     EL_DEBUG_CSE
     Transpose( A, B, true );
-}   
+}
 
 template<typename T>
 void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
@@ -338,7 +338,7 @@ void Adjoint( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1
-# define EL_EXTERN 
+# define EL_EXTERN
 #else
 # define EL_EXTERN extern
 #endif

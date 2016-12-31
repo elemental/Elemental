@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_ROWALLTOALLPROMOTE_HPP
@@ -52,7 +52,7 @@ void RowAllToAllPromote
             T* firstBuf  = &buffer[0];
             T* secondBuf = &buffer[rowStrideUnion*portionSize];
 
-            // Pack            
+            // Pack
             util::ColStridedPack
             ( height, A.LocalWidth(),
               B.ColAlign(), rowStrideUnion,
@@ -124,7 +124,7 @@ void RowAllToAllPromote
 {
     EL_DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
+    // TODO(poulson): More efficient implementation
     GeneralPurpose( A, B );
 }
 

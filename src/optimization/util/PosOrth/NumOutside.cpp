@@ -70,7 +70,7 @@ Int NumOutside( const DistSparseMatrix<Real>& A )
         if( valBuf[k] <= Real(0) )
             ++numLocalNonPos;
 
-    return mpi::AllReduce( numLocalNonPos, A.Comm() );
+    return mpi::AllReduce( numLocalNonPos, A.Grid().Comm() );
 }
 
 template<typename Real,
@@ -89,7 +89,7 @@ Int NumOutside( const DistMultiVec<Real>& A )
             if( ABuf[iLoc+j*ALDim] <= Real(0) )
                 ++numLocalNonPos;
 
-    return mpi::AllReduce( numLocalNonPos, A.Comm() );
+    return mpi::AllReduce( numLocalNonPos, A.Grid().Comm() );
 }
 
 #define PROTO(Real) \

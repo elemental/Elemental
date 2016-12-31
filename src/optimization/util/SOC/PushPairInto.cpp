@@ -110,7 +110,7 @@ void PushPairInto
 {
     EL_DEBUG_CSE
 
-    DistMultiVec<Real> sLower(s.Comm()), zLower(z.Comm());
+    DistMultiVec<Real> sLower(s.Grid()), zLower(z.Grid());
     soc::LowerNorms( s, sLower, orders, firstInds, cutoff );
     soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 

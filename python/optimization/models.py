@@ -168,7 +168,7 @@ def BP(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -260,7 +260,7 @@ def CP(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -348,7 +348,7 @@ def DS(A,b,lambdaPre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,lambd,x.obj]
     argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -434,7 +434,7 @@ def LAV(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -519,7 +519,7 @@ def RLS(A,b,rho,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,rho,x.obj]
     argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -604,7 +604,7 @@ def RNNLS(A,b,rho,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,rho,x.obj]
     argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -706,7 +706,7 @@ def NNLS(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -869,7 +869,7 @@ def BPDN(A,b,lambdPre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,lambd,x.obj]
     argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -958,7 +958,7 @@ def EN(A,b,lambda1Pre,lambda2Pre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,lambda1,lambda2,x.obj]
     argsCtrl = [A.obj,b.obj,lambda1,lambda2,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -1222,7 +1222,7 @@ def SVM(A,d,lambdPre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(d) is not DistMultiVec:
       raise Exception('d must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,d.obj,lambd,x.obj]
     argsCtrl = [A.obj,d.obj,lambd,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -1282,7 +1282,7 @@ def TV(b,lambdPre,ctrl=None):
     else: DataExcept()
     return x
   elif type(b) is DistMultiVec:
-    x = DistMultiVec(b.tag,b.Comm())
+    x = DistMultiVec(b.tag,b.Grid())
     args = [b.obj,lambd,x.obj]
     argsCtrl = [b.obj,lambd,x.obj,ctrl]
     if   b.tag == sTag: 
@@ -1338,7 +1338,7 @@ def LongOnlyPortfolio(d,F,c,gammaPre,ctrl=None):
     else: DataExcept()
     return x
   elif type(F) is DistSparseMatrix:
-    x = DistMultiVec(d.tag,d.Comm())
+    x = DistMultiVec(d.tag,d.Grid())
     args = [d.obj,F.obj,c.obj,gamma,x.obj]
     argsCtrl = [d.obj,F.obj,c.obj,gamma,x.obj,ctrl]
     if   d.tag == sTag:

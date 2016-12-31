@@ -51,10 +51,7 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const vector<Int>& map,
-  const vector<Int>& invMap,
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
@@ -68,13 +65,7 @@ void Initialize
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMap& map,
-  const DistMap& invMap,
-  const ldl::DistSeparator& rootSep,
-  const ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 

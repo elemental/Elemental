@@ -21,7 +21,6 @@ main( int argc, char* argv[] )
         const El::Int m = El::Input("--numExamples","number of examples",200);
         const El::Int n = El::Input("--numFeatures","number of features",100);
         const double gamma = El::Input("--gamma","hinge-loss penalty",1.0);
-        const bool progress = El::Input("--progress","print progress?",true);
         const bool display = El::Input("--display","display matrices?",false);
         const bool print = El::Input("--print","print matrices",false);
         El::ProcessInput();

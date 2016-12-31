@@ -72,7 +72,7 @@ void Broadcast
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    const int commSize = mpi::Size(comm);
+    const int commSize = x.DistSize();
 
     Field* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
@@ -160,10 +160,10 @@ void Broadcast
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
     EL_DEBUG_CSE
+    const Grid& grid = x.Grid();
+    const int commSize = grid.Size();
 
     // TODO(poulson): Check that the communicators are congruent
-    mpi::Comm comm = x.Comm();
-    const int commSize = mpi::Size(comm);
     const Int localHeight = x.LocalHeight();
     const Int firstLocalRow = x.FirstLocalRow();
 
@@ -234,13 +234,13 @@ void Broadcast
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
-    mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
+    mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, grid.Comm() );
     vector<int> recvOffs;
     const int totalRecv = Scan( numRecvCones, recvOffs );
     vector<Entry<Field>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
-      recvData.data(), numRecvCones.data(), recvOffs.data(), comm );
+      recvData.data(), numRecvCones.data(), recvOffs.data(), grid.Comm() );
     for( Int largeCone=0; largeCone<totalRecv; ++largeCone )
     {
         const Int i = recvData[largeCone].i;

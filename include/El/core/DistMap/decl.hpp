@@ -29,9 +29,9 @@ class DistMap
 {
 public:
     // Constructors and destructors
-    DistMap( mpi::Comm comm=mpi::COMM_WORLD );
-    DistMap( Int numSources, mpi::Comm comm=mpi::COMM_WORLD );
-    // TODO: Constructor for building from a DistMap
+    DistMap( const El::Grid& grid=El::Grid::Default() );
+    DistMap( Int numSources, const El::Grid& grid=El::Grid::Default() );
+    // TODO(poulson): Constructor for building from a DistMap
     ~DistMap();
 
     // Map manipulation
@@ -47,11 +47,9 @@ public:
     // High-level information
     Int NumSources() const;
 
-    // Communicator management
-    void SetComm( mpi::Comm comm );
-    mpi::Comm Comm() const;
-
     // Distribution information
+    void SetGrid( const El::Grid& grid );
+    const El::Grid& Grid() const;
     Int Blocksize() const;
     Int FirstLocalSource() const;
     Int NumLocalSources() const;
@@ -75,10 +73,8 @@ public:
 private:
     Int numSources_;
 
-    mpi::Comm comm_;
-    // Apparently calling MPI_Comm_size in an inner loop is a bad idea
-    int commSize_;
-    int commRank_;
+    // An observing pointer to a pre-existing Grid.
+    const El::Grid* grid_=nullptr;
 
     Int blocksize_;
 

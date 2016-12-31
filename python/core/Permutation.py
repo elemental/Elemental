@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
@@ -60,7 +60,7 @@ class Permutation(object):
 
   lib.ElPermutationDestroy.argtypes = [c_void_p]
   def Destroy(self):
-    lib.ElPermutationDestroy(self.obj)  
+    lib.ElPermutationDestroy(self.obj)
 
   lib.ElPermutationEmpty.argtypes = [c_void_p]
   def Empty(self):
@@ -86,7 +86,7 @@ class Permutation(object):
   def SwapSequence(self,PAppend,offset=0):
     lib.ElPermutationSwapSequence(self.obj,PAppend.obj,offset)
 
-  lib.ElPermutationSetImage.argtypes = [c_void_p,iType,iType] 
+  lib.ElPermutationSetImage.argtypes = [c_void_p,iType,iType]
   def SetImage(self,origin,dest):
     lib.ElPermutationSetImage(self.obj,origin,dest)
 
@@ -183,7 +183,7 @@ class Permutation(object):
   def ExplicitMatrix(self):
     P = Matrix(iTag)
     lib.ElPermutationExplicitMatrix(self.obj,P.obj)
-    return P 
+    return P
 
 class DistPermutation(object):
   lib.ElDistPermutationCreate.argtypes = [POINTER(c_void_p),c_void_p]
@@ -219,7 +219,7 @@ class DistPermutation(object):
   def SwapSequence(self,PAppend,offset=0):
     lib.ElDistPermutationSwapSequence(self.obj,PAppend.obj,offset)
 
-  lib.ElDistPermutationSetImage.argtypes = [c_void_p,iType,iType] 
+  lib.ElDistPermutationSetImage.argtypes = [c_void_p,iType,iType]
   def SetImage(self,origin,dest):
     lib.ElDistPermutationSetImage(self.obj,origin,dest)
 
@@ -317,4 +317,4 @@ class DistPermutation(object):
   def ExplicitMatrix(self):
     P = DistMatrix(iTag,VC,STAR)
     lib.ElDistPermutationExplicitMatrix(self.obj,P.obj)
-    return P 
+    return P

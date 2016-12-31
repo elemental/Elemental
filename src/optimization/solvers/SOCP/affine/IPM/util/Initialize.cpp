@@ -189,17 +189,17 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& b,
+  const DistMatrix<Real>& c,
+  const DistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& x,
+        DistMatrix<Real>& y,
+        DistMatrix<Real>& z,
+        DistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
@@ -383,15 +383,11 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    vector<Int> map, invMap;
-    ldl::Separator rootSep;
-    ldl::NodeInfo info;
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront );
+    SparseLDLFactorization<Real> sparseLDLFact;
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor();
 
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
@@ -412,7 +408,7 @@ void Initialize
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -432,7 +428,7 @@ void Initialize
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -498,7 +494,7 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -521,8 +517,8 @@ void Initialize
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
-    DistMultiVec<Real> ones(comm);
+    DistSparseMatrix<Real> JOrig(grid);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, k, 1 );
     const bool onlyLower = false;
     lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
@@ -532,7 +528,7 @@ void Initialize
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> reg(comm);
+    DistMultiVec<Real> reg(grid);
     reg.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
@@ -543,18 +539,14 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    DistMap map(comm), invMap(comm);
-    ldl::DistSeparator rootSep;
-    ldl::DistNodeInfo info;
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
+    DistSparseLDLFactorization<Real> sparseLDLFact;
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor( LDL_2D );
 
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info );
-    LDL( info, JFront, LDL_2D );
-
-    DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
-                       d(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
+                       d(grid);
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
@@ -573,7 +565,7 @@ void Initialize
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -593,7 +585,7 @@ void Initialize
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -644,17 +636,17 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-    const ElementalMatrix<Real>& h, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& s, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& G, \
+    const DistMatrix<Real>& b, \
+    const DistMatrix<Real>& c, \
+    const DistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          DistMatrix<Real>& x, \
+          DistMatrix<Real>& y, \
+          DistMatrix<Real>& z, \
+          DistMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \

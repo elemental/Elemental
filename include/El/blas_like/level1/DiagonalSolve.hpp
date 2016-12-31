@@ -271,7 +271,7 @@ void DiagonalSolve
     EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
-      if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+      if( !mpi::Congruent( d.Grid().Comm(), A.Grid().Comm() ) )
           LogicError("Communicators must be congruent");
     )
     const bool conjugate = ( orientation == ADJOINT );
@@ -323,7 +323,7 @@ void DiagonalSolve
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
           recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
-          A.Comm() );
+          A.Grid().Comm() );
 
         // Loop over the entries of A and rescale
         for( Int k=0; k<numEntries; ++k )
@@ -342,7 +342,7 @@ void SymmetricDiagonalSolve
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
           LogicError("The length of d must match the height of A");
-      if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+      if( !mpi::Congruent( d.Grid().Comm(), A.Grid().Comm() ) )
           LogicError("Communicators must be congruent");
     )
     typedef Base<F> Real;
@@ -371,7 +371,7 @@ void SymmetricDiagonalSolve
     mpi::AllToAll
     ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
       recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
-      A.Comm() );
+      A.Grid().Comm() );
 
     // Loop over the entries of A and rescale
     for( Int k=0; k<numEntries; ++k )
@@ -392,7 +392,7 @@ void DiagonalSolve
     EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
-    if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+    if( !mpi::Congruent( d.Grid().Comm(), X.Grid().Comm() ) )
         LogicError("Communicators must be congruent");
     if( side != LEFT )
         LogicError("Only the 'LEFT' argument is currently supported");

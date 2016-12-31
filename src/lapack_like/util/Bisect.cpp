@@ -97,6 +97,7 @@ Int Bisect
 
 Int Bisect
 ( const DistGraph& graph, 
+        unique_ptr<Grid>& childGrid,
         DistGraph& child, 
         DistMap& perm,
         bool& onLeft, 
@@ -104,9 +105,9 @@ Int Bisect
 {
     EL_DEBUG_CSE
 #ifdef EL_HAVE_METIS
-    mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = graph.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
     if( commSize == 1 )
         LogicError
         ("This routine assumes at least two processes are used, "
@@ -156,7 +157,8 @@ Int Bisect
     {
         // Gather the number of local valid edges on the root process
         vector<Int> edgeSizes( commSize ), edgeOffs;
-        mpi::AllGather( &numLocalValidEdges, 1, edgeSizes.data(), 1, comm );
+        mpi::AllGather
+        ( &numLocalValidEdges, 1, edgeSizes.data(), 1, grid.Comm() );
         Int numEdges=0;
         if( commRank == 0 )
         {
@@ -174,7 +176,7 @@ Int Bisect
             globalAdj.resize( maxLocalValidEdges*commSize, 0 );
         mpi::Gather
         ( adjacency.data(), maxLocalValidEdges, 
-          globalAdj.data(), maxLocalValidEdges, 0, comm );
+          globalAdj.data(), maxLocalValidEdges, 0, grid.Comm() );
 
         if( commRank == 0 )
         {
@@ -205,11 +207,12 @@ Int Bisect
 
             if( commRank == q )
             {
-                mpi::Send( xAdj.data(), numLocalSources, 0, comm );
+                mpi::Send( xAdj.data(), numLocalSources, 0, grid.Comm() );
             }
             else if( commRank == 0 )
             {
-                mpi::Recv( &globalXAdj[q*blocksize], thisLocalSize, q, comm );
+                mpi::Recv
+                ( &globalXAdj[q*blocksize], thisLocalSize, q, grid.Comm() );
                 for( Int j=0; j<thisLocalSize; ++j )
                     globalXAdj[q*blocksize+j] += edgeOffs[q];
             }
@@ -260,7 +263,7 @@ Int Bisect
         }
 
         // Set up space for the distributed permutation
-        perm.SetComm( comm );
+        perm.SetGrid( grid );
         perm.Resize( numSources );
 
         // For now, loop over the processes to send the data
@@ -275,13 +278,16 @@ Int Bisect
                 break;
 
             if( commRank == 0 )
-                mpi::Send( &seqPerm[q*blocksize], thisLocalSize, q, comm );
+                mpi::Send
+                ( &seqPerm[q*blocksize], thisLocalSize, q, grid.Comm() );
             else if( commRank == q )
-                mpi::Recv( perm.Buffer(), thisLocalSize, 0, comm );
+                mpi::Recv( perm.Buffer(), thisLocalSize, 0, grid.Comm() );
         }
 
         // Broadcast the sizes information from the root
-        mpi::Broadcast( (byte*)sizes.data(), 3*sizeof(idx_t), 0, comm );
+        mpi::Broadcast
+        ( reinterpret_cast<byte*>(sizes.data()), 3*sizeof(idx_t), 0,
+          grid.Comm() );
     }
     else
     {
@@ -293,7 +299,7 @@ Int Bisect
         vtxDist[commSize] = graph.NumSources();
 
         // Create space for the result
-        perm.SetComm( comm );
+        perm.SetGrid( grid );
         perm.Resize( numSources );
 
         vector<idx_t> perm_idx_t( perm.NumLocalSources() );
@@ -301,6 +307,7 @@ Int Bisect
         idx_t nseqseps = ctrl.numSeqSeps;
         idx_t nparseps = ctrl.numDistSeps;
         real_t imbalance = 1.1;
+        mpi::Comm comm = grid.Comm();
         ParMETIS_ComputeVertexSeparator
         ( vtxDist.data(), xAdj.data(), adjacency.data(), &nparseps, &nseqseps, 
           &imbalance, NULL, perm_idx_t.data(), sizes.data(), &comm.comm );
@@ -312,7 +319,8 @@ Int Bisect
 #endif
     }
     EL_DEBUG_ONLY(EnsurePermutation( perm ))
-    BuildChildFromPerm( graph, perm, sizes[0], sizes[1], onLeft, child );
+    BuildChildFromPerm
+    ( graph, perm, sizes[0], sizes[1], onLeft, childGrid, child );
     return sizes[2];
 #else
     LogicError("METIS was not available");
@@ -337,14 +345,14 @@ void EnsurePermutation( const vector<Int>& map )
 void EnsurePermutation( const DistMap& map )
 {
     EL_DEBUG_CSE
-    mpi::Comm comm = map.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = map.Grid();
+    const int commRank = grid.Rank();
     const Int numSources = map.NumSources();
     const Int numLocalSources = map.NumLocalSources();
     vector<Int> timesMapped( numSources, 0 );
     for( Int iLocal=0; iLocal<numLocalSources; ++iLocal )
         ++timesMapped[map.GetLocal(iLocal)];
-    mpi::Reduce( timesMapped.data(), numSources, MPI_SUM, 0, comm );
+    mpi::Reduce( timesMapped.data(), numSources, MPI_SUM, 0, grid.Comm() );
     if( commRank == 0 )
         for( Int i=0; i<numSources; ++i )
             if( timesMapped[i] != 1 )
@@ -436,6 +444,7 @@ void BuildChildFromPerm
         Int leftChildSize,
         Int rightChildSize,
         bool& onLeft,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child )
 {
     EL_DEBUG_CSE
@@ -446,9 +455,9 @@ void BuildChildFromPerm
       const Int sepSize = numSources - leftChildSize - rightChildSize;
     )
 
-    mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = graph.Grid();
+    const int commRank = grid.Rank();
+    const int commSize = grid.Size();
 
     // Build the child graph from the partitioned parent
     const int smallTeamSize = commSize/2;
@@ -461,11 +470,11 @@ void BuildChildFromPerm
     const int rightTeamOff = ( smallOnLeft ? smallTeamSize : 0 );
     onLeft = ( inSmallTeam == smallOnLeft );
 
-    // TODO: Generalize to 2D distributions?
+    // TODO(poulson): Generalize to 2D distributions?
     Int leftTeamBlocksize = leftChildSize / leftTeamSize;
     if( leftTeamBlocksize*leftTeamSize < leftChildSize )
         ++leftTeamBlocksize;
-    // TODO: Generalize to 2D distributions?
+    // TODO(poulson): Generalize to 2D distributions?
     Int rightTeamBlocksize = rightChildSize / rightTeamSize;
     if( rightTeamBlocksize*rightTeamSize < rightChildSize )
         ++rightTeamBlocksize;
@@ -489,7 +498,8 @@ void BuildChildFromPerm
 
     // Exchange the number of rows
     vector<int> rowRecvSizes( commSize );
-    mpi::AllToAll( rowSendSizes.data(), 1, rowRecvSizes.data(), 1, comm );
+    mpi::AllToAll
+    ( rowSendSizes.data(), 1, rowRecvSizes.data(), 1, grid.Comm() );
 
     // Prepare for the AllToAll to exchange the row indices and 
     // the number of column indices per row
@@ -524,13 +534,15 @@ void BuildChildFromPerm
     vector<Int> rowRecvLengths( numRecvRows );
     mpi::AllToAll
     ( rowSendLengths.data(), rowSendSizes.data(), rowSendOffs.data(),
-      rowRecvLengths.data(), rowRecvSizes.data(), rowRecvOffs.data(), comm );
+      rowRecvLengths.data(), rowRecvSizes.data(), rowRecvOffs.data(),
+      grid.Comm() );
 
     // Perform the row indices exchange
     vector<Int> rowRecvInds( numRecvRows );
     mpi::AllToAll
     ( rowSendInds.data(), rowSendSizes.data(), rowSendOffs.data(),
-      rowRecvInds.data(), rowRecvSizes.data(), rowRecvOffs.data(), comm );
+      rowRecvInds.data(), rowRecvSizes.data(), rowRecvOffs.data(),
+      grid.Comm() );
     SwapClear( rowSendInds );
 
     // Set up for sending the column indices
@@ -592,7 +604,7 @@ void BuildChildFromPerm
     vector<Int> recvInds( numRecvInds );
     mpi::AllToAll
     ( sendInds.data(), indSendSizes.data(), indSendOffs.data(),
-      recvInds.data(), indRecvSizes.data(), indRecvOffs.data(), comm );
+      recvInds.data(), indRecvSizes.data(), indRecvOffs.data(), grid.Comm() );
     SwapClear( sendInds );
     SwapClear( indSendSizes );
     SwapClear( indSendOffs );
@@ -602,10 +614,12 @@ void BuildChildFromPerm
 
     // Put the connections into our new graph
     const int childTeamRank = 
-        ( onLeft ? commRank-leftTeamOff : commRank-rightTeamOff );
+      onLeft ? commRank-leftTeamOff : commRank-rightTeamOff;
     mpi::Comm childComm;
-    mpi::Split( comm, onLeft, childTeamRank, childComm );
-    child.SetComm( childComm );
+    mpi::Split( grid.Comm(), onLeft, childTeamRank, childComm );
+    // TODO(poulson): Decide on the grid dimensions.
+    childGrid.reset( new Grid(childComm) );
+    child.SetGrid( *childGrid );
     mpi::Free( childComm );
     if( onLeft )
         child.Resize( leftChildSize, numTargets );

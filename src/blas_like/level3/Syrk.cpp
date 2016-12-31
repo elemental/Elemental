@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -69,7 +69,7 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
+  T alpha, const AbstractDistMatrix<T>& A,
   T beta,        AbstractDistMatrix<T>& C, bool conjugate )
 {
     EL_DEBUG_CSE
@@ -87,7 +87,7 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const AbstractDistMatrix<T>& A, 
+  T alpha, const AbstractDistMatrix<T>& A,
                  AbstractDistMatrix<T>& C, bool conjugate )
 {
     EL_DEBUG_CSE
@@ -100,7 +100,7 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
+  T alpha, const SparseMatrix<T>& A,
   T beta,        SparseMatrix<T>& C, bool conjugate )
 {
     EL_DEBUG_CSE
@@ -148,7 +148,7 @@ void Syrk
                 {
                     const T A_kj = A.Value(offset+jConn);
                     if( conjugate )
-                        C.QueueUpdate( i, j, T(alpha)*Conj(A_ki)*A_kj ); 
+                        C.QueueUpdate( i, j, T(alpha)*Conj(A_ki)*A_kj );
                     else
                         C.QueueUpdate( i, j, T(alpha)*A_ki*A_kj );
                 }
@@ -164,7 +164,7 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const SparseMatrix<T>& A, 
+  T alpha, const SparseMatrix<T>& A,
                  SparseMatrix<T>& C, bool conjugate )
 {
     EL_DEBUG_CSE
@@ -181,14 +181,14 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
+  T alpha, const DistSparseMatrix<T>& A,
   T beta,        DistSparseMatrix<T>& C, bool conjugate )
 {
     EL_DEBUG_CSE
 
     if( orientation == NORMAL )
     {
-        DistSparseMatrix<T> B(A.Comm());
+        DistSparseMatrix<T> B(A.Grid());
         Transpose( A, B, conjugate );
         const Orientation newOrient = ( conjugate ? ADJOINT : TRANSPOSE );
         Syrk( uplo, newOrient, alpha, B, beta, C, conjugate );
@@ -198,7 +198,7 @@ void Syrk
     const Int n = A.Width();
     if( C.Height() != n || C.Width() != n )
         LogicError("C was of the incorrect size");
-    if( C.Comm() != A.Comm() )
+    if( C.Grid().Comm() != A.Grid().Comm() )
         LogicError("Communicators of A and C must match");
 
     ScaleTrapezoid( beta, uplo, C );
@@ -224,13 +224,13 @@ void Syrk
     }
 
     // Apply the updates
-    // ================= 
+    // =================
     C.Reserve( sendCount, sendCount );
     for( Int kLoc=0; kLoc<localHeightA; ++kLoc )
     {
         const Int offset = A.RowOffset(kLoc);
         const Int numConn = A.NumConnections(kLoc);
-        for( Int iConn=0; iConn<numConn; ++iConn ) 
+        for( Int iConn=0; iConn<numConn; ++iConn )
         {
             const Int i = A.Col(offset+iConn);
             const T A_ki = A.Value(offset+iConn);
@@ -254,7 +254,7 @@ void Syrk
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistSparseMatrix<T>& A, 
+  T alpha, const DistSparseMatrix<T>& A,
                  DistSparseMatrix<T>& C, bool conjugate )
 {
     EL_DEBUG_CSE

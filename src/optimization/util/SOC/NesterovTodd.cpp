@@ -123,29 +123,29 @@ void ClassicalNT
 {
     EL_DEBUG_CSE
     typedef Promote<Real> PReal;
-    mpi::Comm comm = s.Comm();
+    const Grid& grid = s.Grid();
 
-    DistMultiVec<PReal> sProm(comm), zProm(comm);
+    DistMultiVec<PReal> sProm(grid), zProm(grid);
     Copy( s, sProm );
     Copy( z, zProm );
 
-    DistMultiVec<PReal> sRoot(comm);
+    DistMultiVec<PReal> sRoot(grid);
     soc::SquareRoot( sProm, sRoot, orders, firstInds, cutoff );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
-    DistMultiVec<PReal> a(comm);
+    DistMultiVec<PReal> a(grid);
     soc::ApplyQuadratic( sRoot, zProm, a, orders, firstInds, cutoff );
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMultiVec<PReal> b(comm);
+    DistMultiVec<PReal> b(grid);
     soc::SquareRoot( a, b, orders, firstInds, cutoff );
     soc::Inverse( b, a, orders, firstInds, cutoff );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
-    DistMultiVec<PReal> wProm(comm);
+    DistMultiVec<PReal> wProm(grid);
     soc::ApplyQuadratic( sRoot, a, wProm, orders, firstInds, cutoff );
     Copy( wProm, w );
 }
@@ -303,16 +303,16 @@ void VandenbergheNT
 {
     EL_DEBUG_CSE
     typedef Promote<Real> PReal;
-    mpi::Comm comm = s.Comm();
+    const Grid& grid = s.Grid();
 
-    DistMultiVec<PReal> sProm(comm), zProm(comm);
+    DistMultiVec<PReal> sProm(grid), zProm(grid);
     Copy( s, sProm );
     Copy( z, zProm );
 
     // Normalize with respect to the Jordan determinant
     // ================================================
     const Int nLocal = sProm.LocalHeight();
-    DistMultiVec<PReal> sDets(comm), zDets(comm);
+    DistMultiVec<PReal> sDets(grid), zDets(grid);
     soc::Dets( sProm, sDets, orders, firstInds, cutoff );
     soc::Dets( zProm, zDets, orders, firstInds, cutoff );
     cone::Broadcast( sDets, orders, firstInds, cutoff );
@@ -329,7 +329,7 @@ void VandenbergheNT
 
     // Compute the 'gamma' coefficients
     // ================================
-    DistMultiVec<PReal> gammas(comm);
+    DistMultiVec<PReal> gammas(grid);
     soc::Dots( zProm, sProm, gammas, orders, firstInds, cutoff );
     cone::Broadcast( gammas, orders, firstInds, cutoff );
     auto& gammasLoc = gammas.Matrix();

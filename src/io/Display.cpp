@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -75,8 +75,8 @@ void Display( const Matrix<Complex<Real>>& A, string title )
         for( Int i=0; i<m; ++i )
         {
             const Complex<Real> alpha = A.Get(i,j);
-            const Complex<double> alphaDouble = 
-                Complex<double>(alpha.real(),alpha.imag()); 
+            const Complex<double> alphaDouble =
+                Complex<double>(alpha.real(),alpha.imag());
             ADouble->Set( i, j, alphaDouble );
         }
     }
@@ -114,8 +114,7 @@ template<typename T>
 void Display( const DistMultiVec<T>& X, string title )
 {
     EL_DEBUG_CSE
-    const int commRank = mpi::Rank( X.Comm() );
-    if( commRank == 0 )
+    if( X.Grid().Rank() == 0 )
     {
         Matrix<T> XLoc;
         CopyFromRoot( X, XLoc );
@@ -158,10 +157,7 @@ void Display( const Graph& graph, string title )
 void Display( const DistGraph& graph, string title )
 {
     EL_DEBUG_CSE
-    const mpi::Comm comm = graph.Comm();
-    const int commRank = mpi::Rank( comm );
-
-    if( commRank == 0 )
+    if( graph.Grid().Rank() == 0 )
     {
         Graph seqGraph;
         CopyFromRoot( graph, seqGraph );
@@ -242,16 +238,13 @@ void Display( const DistSparseMatrix<T>& A, string title )
 {
     EL_DEBUG_CSE
     A.AssertLocallyConsistent();
-    const mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
-    
-    if( commRank == 0 )
+    if( A.Grid().Rank() == 0 )
     {
-        SparseMatrix<T> ASeq; 
+        SparseMatrix<T> ASeq;
         CopyFromRoot( A, ASeq );
         Display( ASeq, title );
     }
-    else 
+    else
     {
         CopyFromNonRoot( A, 0 );
     }

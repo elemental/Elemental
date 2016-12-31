@@ -76,9 +76,11 @@ class DistGraph
 public:
     // Constructors and destructors
     // ============================
-    DistGraph( mpi::Comm comm=mpi::COMM_WORLD );
-    DistGraph( Int numSources, mpi::Comm comm=mpi::COMM_WORLD );
-    DistGraph( Int numSources, Int numTargets, mpi::Comm comm=mpi::COMM_WORLD );
+    DistGraph( const El::Grid& grid=El::Grid::Default() );
+    DistGraph( Int numSources, const El::Grid& grid=El::Grid::Default() );
+    DistGraph
+    ( Int numSources, Int numTargets,
+      const El::Grid& grid=El::Grid::Default() );
     DistGraph( const Graph& graph );
     // TODO: Move constructor
     DistGraph( const DistGraph& graph );
@@ -108,7 +110,7 @@ public:
 
     // Changing the distribution
     // -------------------------
-    void SetComm( mpi::Comm comm );
+    void SetGrid( const El::Grid& grid );
 
     // Assembly
     // --------
@@ -163,7 +165,7 @@ public:
 
     // Distribution information
     // ------------------------
-    mpi::Comm Comm() const EL_NO_EXCEPT;
+    const El::Grid& Grid() const EL_NO_EXCEPT;
     Int Blocksize() const EL_NO_EXCEPT;
     int SourceOwner( Int s ) const EL_NO_RELEASE_EXCEPT;
     Int GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT;
@@ -189,10 +191,9 @@ public:
 
 private:
     Int numSources_, numTargets_;
-    mpi::Comm comm_;
-    // Apparently calling MPI_Comm_size in an inner loop is a very bad idea...
-    int commSize_;
-    int commRank_;
+
+    // An observing pointer to a pre-existing Grid.
+    const El::Grid* grid_=nullptr;
 
     Int blocksize_;
     Int numLocalSources_;

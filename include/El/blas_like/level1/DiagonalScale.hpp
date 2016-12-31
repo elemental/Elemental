@@ -191,7 +191,7 @@ void DiagonalScale
     EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
-    if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+    if( !mpi::Congruent( d.Grid().Comm(), A.Grid().Comm() ) )
         LogicError("Communicators must be congruent");
     const bool conjugate = ( orientation == ADJOINT );
     const Int numEntries = A.NumLocalEntries();
@@ -205,7 +205,7 @@ void DiagonalScale
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
-        // TODO: Ensure that the DistMultiVec conforms
+        // TODO(poulson): Ensure that the DistMultiVec conforms
         for( Int k=0; k<numEntries; ++k )
         {
             const Int i = rowBuf[k];
@@ -240,7 +240,7 @@ void DiagonalScale
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
           recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
-          A.Comm() );
+          A.Grid().Comm() );
 
         // Loop over the entries of A and rescale
         for( Int k=0; k<numEntries; ++k )
@@ -259,7 +259,7 @@ void DiagonalScale
     EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
-      if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+      if( !mpi::Congruent( d.Grid().Comm(), X.Grid().Comm() ) )
           LogicError("Communicators must be congruent");
       if( side != LEFT )
           LogicError("Only the 'LEFT' argument is currently supported");

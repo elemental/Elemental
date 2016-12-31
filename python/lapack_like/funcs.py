@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
@@ -176,7 +176,7 @@ def SymmetricInverse(uplo,A,conjugate=False):
   if type(A) is Matrix:
     if   A.tag == sTag: lib.ElSymmetricInverse_s(*args)
     elif A.tag == dTag: lib.ElSymmetricInverse_d(*args)
-    elif A.tag == cTag: 
+    elif A.tag == cTag:
       if conjugate: lib.ElHermitianInverse_c(*args)
       else:         lib.ElSymmetricInverse_c(*args)
     elif A.tag == zTag:
@@ -186,7 +186,7 @@ def SymmetricInverse(uplo,A,conjugate=False):
   elif type(A) is DistMatrix:
     if   A.tag == sTag: lib.ElSymmetricInverseDist_s(*args)
     elif A.tag == dTag: lib.ElSymmetricInverseDist_d(*args)
-    elif A.tag == cTag: 
+    elif A.tag == cTag:
       if conjugate: lib.ElHermitianInverseDist_c(*args)
       else:         lib.ElSymmetricInverseDist_c(*args)
     elif A.tag == zTag:

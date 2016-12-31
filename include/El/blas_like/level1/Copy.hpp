@@ -21,7 +21,7 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-    B.Resize( height, width ); 
+    B.Resize( height, width );
 
     lapack::Copy
     ( 'F', A.Height(), A.Width(),
@@ -299,13 +299,13 @@ template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
 {
     EL_DEBUG_CSE
-    const mpi::Comm comm = ADist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = ADist.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     const int numLocalEntries = ADist.NumLocalEntries();
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     const int numEntries = Scan( entrySizes, entryOffs );
 
@@ -317,15 +317,15 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
       A.SourceBuffer(), entrySizes.data(), entryOffs.data(),
-      commRank, comm );
+      commRank, grid.Comm() );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
       A.TargetBuffer(), entrySizes.data(), entryOffs.data(),
-      commRank, comm );
+      commRank, grid.Comm() );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
       A.ValueBuffer(), entrySizes.data(), entryOffs.data(),
-      commRank, comm );
+      commRank, grid.Comm() );
     A.ProcessQueues();
 }
 
@@ -333,34 +333,34 @@ template<typename T>
 void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
 {
     EL_DEBUG_CSE
-    const mpi::Comm comm = ADist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = ADist.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
     if( commRank == root )
         LogicError("Root called CopyFromNonRoot");
 
     const int numLocalEntries = ADist.NumLocalEntries();
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     Scan( entrySizes, entryOffs );
 
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
-      (Int*)0, entrySizes.data(), entryOffs.data(), root, comm );
+      (Int*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
-      (Int*)0, entrySizes.data(), entryOffs.data(), root, comm );
+      (Int*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
-      (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
+      (T*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
 }
 
 template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
 {
     EL_DEBUG_CSE
-    B.SetComm( A.Comm() );
+    B.SetGrid( A.Grid() );
     B.Resize( A.Height(), A.Width() );
     B.Matrix() = A.LockedMatrix();
 }
@@ -401,8 +401,7 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
-    mpi::Comm comm = A.Grid().Comm();
-    B.SetComm( comm );
+    B.SetGrid( A.Grid() );
     B.Resize( m, n );
     Zero( B );
     B.Reserve( mLoc*nLoc );
@@ -429,13 +428,14 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     if( Min(m,n) == 0 )
         return;
 
-    const mpi::Comm comm = XDist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = XDist.Grid();
+    Output("grid.Size()=",grid.Size());
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     const int numLocalEntries = XDist.LocalHeight()*n;
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     const int numEntries = Scan( entrySizes, entryOffs );
 
@@ -448,7 +448,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
           recvBuf.data(), entrySizes.data(), entryOffs.data(),
-          commRank, comm );
+          commRank, grid.Comm() );
     }
     else
     {
@@ -460,7 +460,7 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
           recvBuf.data(), entrySizes.data(), entryOffs.data(),
-          commRank, comm );
+          commRank, grid.Comm() );
     }
     for( Int q=0; q<commSize; ++q )
     {
@@ -480,15 +480,15 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     if( Min(m,n) == 0 )
         return;
 
-    const mpi::Comm comm = XDist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = XDist.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
     if( commRank == root )
         LogicError("Called CopyFromNonRoot from root");
 
     const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     Scan( entrySizes, entryOffs );
 
@@ -497,7 +497,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     {
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
-          (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
+          (T*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     }
     else
     {
@@ -508,7 +508,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
-          (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
+          (T*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     }
 }
 

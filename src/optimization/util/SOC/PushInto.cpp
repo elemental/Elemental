@@ -86,7 +86,7 @@ void PushInto
 {
     EL_DEBUG_CSE
 
-    DistMultiVec<Real> d(x.Comm());
+    DistMultiVec<Real> d(x.Grid());
     soc::LowerNorms( x, d, orders, firstInds, cutoff );
 
     const int localHeight = x.LocalHeight();

@@ -163,7 +163,9 @@ Real MaxEig
   Int cutoff )
 {
     EL_DEBUG_CSE
-    DistMultiVec<Real> maxEigs(x.Comm());
+    const Grid& grid = x.Grid();
+
+    DistMultiVec<Real> maxEigs(grid);
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 
     const Real* maxEigBuf = maxEigs.LockedMatrix().LockedBuffer();
@@ -174,7 +176,7 @@ Real MaxEig
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
             maxEigLocal = Max(maxEigLocal,maxEigBuf[iLoc]);
-    return mpi::AllReduce( maxEigLocal, mpi::MAX, x.Comm() );
+    return mpi::AllReduce( maxEigLocal, mpi::MAX, grid.Comm() );
 }
 
 #define PROTO(Real) \

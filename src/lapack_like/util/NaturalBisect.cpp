@@ -158,6 +158,7 @@ Int NaturalBisect
         Int& nxChild,
         Int& nyChild,
         Int& nzChild,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child,
         DistMap& perm,
         bool& onLeft )
@@ -166,8 +167,8 @@ Int NaturalBisect
     const Int numSources = graph.NumSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     const Int numLocalSources = graph.NumLocalSources();
-    mpi::Comm comm = graph.Comm();
-    const Int commSize = mpi::Size( comm );
+    const Grid& grid = graph.Grid();
+    const int commSize = grid.Size();
     if( commSize == 1 )
         LogicError
         ("This routine assumes at least two processes are used, "
@@ -175,7 +176,7 @@ Int NaturalBisect
 
     Int leftChildSize, rightChildSize, sepSize;
     Int nxLeft, nyLeft, nzLeft, nxRight, nyRight, nzRight;
-    perm.SetComm( comm );
+    perm.SetGrid( grid );
     perm.Resize( numSources );
     if( nx != 0 && ny != 0 && nz != 0 )
     {
@@ -316,7 +317,7 @@ Int NaturalBisect
     EL_DEBUG_ONLY(EnsurePermutation( perm ))
 
     BuildChildFromPerm
-    ( graph, perm, leftChildSize, rightChildSize, onLeft, child );
+    ( graph, perm, leftChildSize, rightChildSize, onLeft, childGrid, child );
 
     if( onLeft )
     {

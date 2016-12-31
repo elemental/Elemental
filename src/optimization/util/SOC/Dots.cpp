@@ -99,7 +99,7 @@ void Dots
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    const int commSize = mpi::Size(comm);
+    const int commSize = x.DistSize();
 
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
@@ -190,10 +190,10 @@ void Dots
         Int cutoff )
 {
     EL_DEBUG_CSE
-
     // TODO(poulson): Check that the communicators are congruent
-    mpi::Comm comm = x.Comm();
-    const int commSize = mpi::Size(comm);
+    const Grid& grid = x.Grid();
+    const int commSize = grid.Size();
+
     const Int localHeight = x.LocalHeight();
     const Int firstLocalRow = x.FirstLocalRow();
 
@@ -207,7 +207,7 @@ void Dots
           LogicError("x and y must be the same size");
     )
 
-    z.SetComm( x.Comm() );
+    z.SetGrid( grid );
     Zeros( z, x.Height(), x.Width() );
 
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
@@ -274,13 +274,13 @@ void Dots
     }
     const int numSendInts = sendPairs.size();
     vector<int> numRecvInts(commSize);
-    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, comm );
+    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, grid.Comm() );
     vector<int> recvOffs;
     const int totalRecv = Scan( numRecvInts, recvOffs );
     vector<Int> recvPairs(totalRecv);
     mpi::AllGather
     ( sendPairs.data(), numSendInts,
-      recvPairs.data(), numRecvInts.data(), recvOffs.data(), comm );
+      recvPairs.data(), numRecvInts.data(), recvOffs.data(), grid.Comm() );
     const Int iFirst = firstLocalRow;
     const Int iLast = iFirst + localHeight;
     for( Int largeCone=0; largeCone<totalRecv/2; ++largeCone )
@@ -297,11 +297,11 @@ void Dots
         const int owner = z.Owner(i,0);
         if( z.IsLocal(i,0) )
         {
-            const Real dot = mpi::Reduce( localDot, owner, x.Comm() );
+            const Real dot = mpi::Reduce( localDot, owner, grid.Comm() );
             zBuf[i-firstLocalRow] = dot;
         }
         else
-            mpi::Reduce( localDot, owner, x.Comm() );
+            mpi::Reduce( localDot, owner, grid.Comm() );
     }
 }
 

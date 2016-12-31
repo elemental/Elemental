@@ -12,16 +12,32 @@
 namespace El {
 
 Grid* Grid::defaultGrid = 0;
+Grid* Grid::trivialGrid = 0;
 
 void Grid::InitializeDefault()
 {
+    EL_DEBUG_CSE
     defaultGrid = new Grid( mpi::COMM_WORLD );    
+}
+
+void Grid::InitializeTrivial()
+{
+    EL_DEBUG_CSE
+    trivialGrid = new Grid( mpi::COMM_SELF );
 }
 
 void Grid::FinalizeDefault()
 {
+    EL_DEBUG_CSE
     delete defaultGrid;
     defaultGrid = 0;
+}
+
+void Grid::FinalizeTrivial()
+{
+    EL_DEBUG_CSE
+    delete trivialGrid;
+    trivialGrid = 0;
 }
 
 const Grid& Grid::Default() EL_NO_RELEASE_EXCEPT
@@ -36,12 +52,24 @@ const Grid& Grid::Default() EL_NO_RELEASE_EXCEPT
     return *defaultGrid;
 }
 
-int Grid::FindFactor( int p ) EL_NO_EXCEPT
+const Grid& Grid::Trivial() EL_NO_RELEASE_EXCEPT
 {
-    int factor = int(sqrt(double(p)));
-    while( p % factor != 0 )
-        ++factor;
-    return factor;
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( trivialGrid == 0 )
+          LogicError
+          ("Attempted to return a non-existant trivial grid. Please ensure "
+           "that Elemental is initialized before creating a DistMatrix.");
+    )
+    return *trivialGrid;
+}
+
+int Grid::DefaultHeight( int gridSize ) EL_NO_EXCEPT
+{
+    int gridHeight = int(sqrt(double(gridSize)));
+    while( gridHeight % gridSize != 0 )
+        ++gridHeight;
+    return gridHeight;
 }
 
 Grid::Grid( mpi::Comm comm, GridOrder order )
@@ -58,7 +86,7 @@ Grid::Grid( mpi::Comm comm, GridOrder order )
     owningGroup_ = viewingGroup_;
 
     // Factor p
-    height_ = FindFactor( size_ );
+    height_ = DefaultHeight( size_ );
     SetUpGrid();
 }
 

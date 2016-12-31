@@ -108,16 +108,16 @@ void ApplyQuadratic
     EL_DEBUG_CSE
 
     // detRy := det(x) R y
-    DistMultiVec<Real> d(x.Comm());
+    DistMultiVec<Real> d(x.Grid());
     soc::Dets( x, d, orders, firstInds, cutoff );
     cone::Broadcast( d, orders, firstInds, cutoff );
     auto Ry = y;
     soc::Reflect( Ry, orders, firstInds );
-    DistMultiVec<Real> detRy(x.Comm());
+    DistMultiVec<Real> detRy(x.Grid());
     Hadamard( d, Ry, detRy );
 
     // z := 2 (x^T y) x
-    DistMultiVec<Real> xTy(x.Comm());
+    DistMultiVec<Real> xTy(x.Grid());
     soc::Dots( x, y, xTy, orders, firstInds, cutoff );
     cone::Broadcast( xTy, orders, firstInds, cutoff );
     Hadamard( xTy, x, z );
@@ -169,7 +169,7 @@ void ApplyQuadratic
 {
     EL_DEBUG_CSE
     // TODO(poulson)?: Optimize
-    DistMultiVec<Real> z(x.Comm());
+    DistMultiVec<Real> z(x.Grid());
     soc::ApplyQuadratic( x, y, z, orders, firstInds, cutoff );
     y = z;
 }

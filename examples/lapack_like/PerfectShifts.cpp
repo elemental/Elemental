@@ -127,13 +127,9 @@ void TestRandom( El::Int n, const El::HessenbergSchurCtrl& ctrl, bool print )
 int main( int argc, char* argv[] )
 {
     El::Environment env( argc, argv );
-    El::mpi::Comm comm = El::mpi::COMM_WORLD;
 
     try
     {
-        typedef double Real;
-        typedef El::Complex<Real> Scalar;
-
         const El::Int n = El::Input("--n","random matrix size",60);
         const El::Int algInt =
           El::Input("--alg","AED: 0, MultiBulge: 1, Simple: 2",0);

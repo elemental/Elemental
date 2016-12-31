@@ -184,6 +184,7 @@ void Initialize( int& argc, char**& argv )
 
     // Build the default grid
     Grid::InitializeDefault();
+    Grid::InitializeTrivial();
 
 #ifdef EL_HAVE_QD
     InitializeQD();
@@ -214,6 +215,7 @@ void Finalize()
         ::args = 0;
 
         Grid::FinalizeDefault();
+        Grid::FinalizeTrivial();
 
         // Destroy the types and ops
         mpi::DestroyCustom();

@@ -324,7 +324,7 @@ void Equilibrated
       if( A.Height() != B.Height() )
           LogicError("Heights of A and B must match");
     )
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
     const Int m = A.Height();
     const Int n = A.Width();
@@ -332,7 +332,7 @@ void Equilibrated
 
     // J := [alpha*I,A;A^H,0] or [alpha*I,A^H;A,0]
     // ===========================================
-    DistSparseMatrix<F> J(comm);
+    DistSparseMatrix<F> J(grid);
     Zeros( J, m+n, m+n );
     {
         const Int JLocalHeight = J.LocalHeight();
@@ -377,7 +377,7 @@ void Equilibrated
 
     // Set D to [B; 0] or [0; B]
     // =========================
-    DistMultiVec<F> D(comm);
+    DistMultiVec<F> D(grid);
     Zeros( D, m+n, numRHS );
     {
         const Int BLocalHeight = B.LocalHeight();
@@ -424,10 +424,10 @@ void LeastSquares
 {
     EL_DEBUG_CSE
     typedef Base<F> Real;
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
 
-    DistSparseMatrix<F> ABar(comm);
+    DistSparseMatrix<F> ABar(grid);
     if( orientation == NORMAL )
         ABar = A;
     else if( orientation == TRANSPOSE )
@@ -440,7 +440,7 @@ void LeastSquares
 
     // Equilibrate the matrix
     // ======================
-    DistMultiVec<Real> dR(comm), dC(comm);
+    DistMultiVec<Real> dR(grid), dC(grid);
     if( ctrl.equilibrate )
     {
         auto normMap = []( const Real& beta )

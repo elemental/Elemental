@@ -129,11 +129,11 @@ void SymmetricRuizEquil
     EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
-    mpi::Comm comm = A.Comm();
-    d.SetComm( comm );
+    const Grid& grid = A.Grid();
+    d.SetGrid( grid );
     Ones( d, n, 1 );
 
-    DistMultiVec<Real> scales(comm);
+    DistMultiVec<Real> scales(grid);
     const Int indent = PushIndent();
     for( Int iter=0; iter<maxIter; ++iter )
     {

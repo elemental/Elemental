@@ -31,17 +31,17 @@ void Initialize
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& b,
+  const DistMatrix<Real>& c,
+  const DistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& x,
+        DistMatrix<Real>& y,
+        DistMatrix<Real>& z,
+        DistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, Int cutoff );
 template<typename Real>
 void Initialize
@@ -87,12 +87,12 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& w,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& J,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& J,
   bool onlyLower=true, Int cutoff=1000 );
 template<typename Real>
 void KKT
@@ -181,14 +181,14 @@ void KKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
-( const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb,
-  const ElementalMatrix<Real>& rh,
-  const ElementalMatrix<Real>& rmu,
-  const ElementalMatrix<Real>& wRoot,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& d,
+( const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rb,
+  const DistMatrix<Real>& rh,
+  const DistMatrix<Real>& rmu,
+  const DistMatrix<Real>& wRoot,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        AbstractDistMatrix<Real>& d,
   Int cutoff=1000 );
 template<typename Real>
 void KKTRHS

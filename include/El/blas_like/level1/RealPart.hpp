@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_REALPART_HPP
@@ -26,7 +26,7 @@ void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
 template<typename T>
 void RealPart
 ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AReal )
-{ 
+{
     auto realPart = []( const T& alpha ) { return RealPart(alpha); };
     EntrywiseMap( A, AReal, MakeFunction(realPart) );
 }

@@ -273,9 +273,9 @@ void SOCP
     const Int n = A.Width();
     const Int k = B.Width();
     const Int numEntriesA = A.NumLocalEntries();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm);
+    DistMultiVec<Int> orders(grid), firstInds(grid);
     Zeros( orders, m+n+1, 1 );
     Zeros( firstInds, m+n+1, 1 );
     auto& ordersLoc = orders.Matrix();
@@ -301,7 +301,7 @@ void SOCP
     // G := | -1  0 |
     //      |  0  A |
     //      |  0 -I |
-    DistSparseMatrix<Real> G(comm);
+    DistSparseMatrix<Real> G(grid);
     {
         Zeros( G, m+n+1, n+1 );
 
@@ -337,22 +337,22 @@ void SOCP
     }
 
     // c := [1; 0]
-    DistMultiVec<Real> c(comm);
+    DistMultiVec<Real> c(grid);
     Zeros( c, n+1, 1 );
     c.Set( 0, 0, 1 );
 
-    DistSparseMatrix<Real> AHat(comm);
+    DistSparseMatrix<Real> AHat(grid);
     Zeros( AHat, 0, n+1 );
 
-    DistMultiVec<Real> bHat(comm);
+    DistMultiVec<Real> bHat(grid);
     Zeros( bHat, 0, 1 );
 
-    DistMultiVec<Real> h(comm);
+    DistMultiVec<Real> h(grid);
     Zeros( h, m+n+1, 1 );
 
-    X.SetComm( A.Comm() );
+    X.SetGrid( grid );
     Zeros( X, n, k );
-    DistMultiVec<Real> x(comm), xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> x(grid), xHat(grid), y(grid), z(grid), s(grid);
     auto& BLoc = B.LockedMatrix();
     auto& xHatLoc = xHat.LockedMatrix();
     for( Int j=0; j<k; ++j )

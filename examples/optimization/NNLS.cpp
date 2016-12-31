@@ -99,7 +99,7 @@ main( int argc, char* argv[] )
         const Real ENorm = El::FrobeniusNorm( A );
         if( El::mpi::Rank() == 0 )
         {
-            El::Output("NNLS time: ",timer.Total(),"secs");
+            El::Output("NNLS time: ",timer.Total()," secs");
             El::Output("|| A - B X' ||_2 / || A ||_2 = ",ENorm/ANorm);
         }
     }

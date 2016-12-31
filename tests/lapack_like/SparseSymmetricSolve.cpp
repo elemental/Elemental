@@ -6,31 +6,31 @@
 
    Copyright (c) 2016, Jack Poulson.
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
+template<typename Field>
 void TestSparseDirect
 ( Int n1,
   Int n2,
   Int n3,
   Int numRHS,
   bool tryLDL,
-  bool print,  
+  bool print,
   bool display,
   const BisectCtrl& ctrl,
-  mpi::Comm& comm )
+  const Grid& grid )
 {
-    typedef Base<F> Real;
-    OutputFromRoot(comm,"Testing with ",TypeName<F>());
+    typedef Base<Field> Real;
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
 
     const int N = n1*n2*n3;
-    DistSparseMatrix<F> A(comm);
+    DistSparseMatrix<Field> A(grid);
     Laplacian( A, n1, n2, n3 );
     A *= -1;
     if( display )
@@ -47,25 +47,26 @@ void TestSparseDirect
 
     Timer timer;
 
-    OutputFromRoot(comm,"Generating random vector X and forming Y := A X");
+    OutputFromRoot
+    (grid.Comm(),"Generating random vector X and forming Y := A X");
     timer.Start();
-    DistMultiVec<F> X( N, numRHS, comm ), Y( N, numRHS, comm );
+    DistMultiVec<Field> X( N, numRHS, grid ), Y( N, numRHS, grid );
     MakeUniform( X );
     Zero( Y );
-    Multiply( NORMAL, F(1), A, X, F(0), Y );
+    Multiply( NORMAL, Field(1), A, X, Field(0), Y );
     Matrix<Real> YOrigNorms;
     ColumnTwoNorms( Y, YOrigNorms );
-    mpi::Barrier( comm );
+    mpi::Barrier( grid.Comm() );
     timer.Stop();
-    OutputFromRoot(comm,timer.Partial()," seconds");
+    OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
-    OutputFromRoot(comm,"Solving...");
+    OutputFromRoot(grid.Comm(),"Solving...");
     timer.Start();
     SymmetricSolve( A, Y, conjugate, tryLDL, ctrl );
     timer.Stop();
-    OutputFromRoot(comm,timer.Partial()," seconds");
+    OutputFromRoot(grid.Comm(),timer.Partial()," seconds");
 
-    OutputFromRoot(comm,"Checking error in computed solution...");
+    OutputFromRoot(grid.Comm(),"Checking error in computed solution...");
     Matrix<Real> XNorms, YNorms;
     ColumnTwoNorms( X, XNorms );
     ColumnTwoNorms( Y, YNorms );
@@ -74,7 +75,7 @@ void TestSparseDirect
     ColumnTwoNorms( Y, errorNorms );
     for( int j=0; j<numRHS; ++j )
         OutputFromRoot
-        (comm,
+        (grid.Comm(),
          "Right-hand side ",j,"\n",Indent(),
          "------------------------------------------\n",Indent(),
          "|| x     ||_2 = ",XNorms.Get(j,0),"\n",Indent(),
@@ -116,26 +117,28 @@ int main( int argc, char* argv[] )
 
         // TODO(poulson): Test complex variants?
 
+        const Grid grid( comm );
+
         TestSparseDirect<float>
-        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, comm );
+        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, grid );
         TestSparseDirect<double>
-        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, comm );
+        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, grid );
 
 #ifdef EL_HAVE_QD
         TestSparseDirect<DoubleDouble>
-        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, comm );
+        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, grid );
         TestSparseDirect<QuadDouble>
-        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, comm );
+        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, grid );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestSparseDirect<Quad>
-        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, comm );
+        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, grid );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestSparseDirect<BigFloat>
-        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, comm );
+        ( n1, n2, n3, numRHS, tryLDL, print, display, ctrl, grid );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

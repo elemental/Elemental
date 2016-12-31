@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -52,7 +52,7 @@ void Read
 {
     EL_DEBUG_CSE
     if( format == AUTO )
-        format = DetectFormat( filename ); 
+        format = DetectFormat( filename );
 
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
@@ -97,7 +97,7 @@ void Read
             read::MatrixMarket( A, filename );
             break;
         default:
-            LogicError("Format unsupported for reading a DistMatrix"); 
+            LogicError("Format unsupported for reading a DistMatrix");
         }
     }
 }

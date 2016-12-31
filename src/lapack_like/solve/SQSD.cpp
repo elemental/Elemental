@@ -95,19 +95,22 @@ void SQSDSolve
     auto AMod( A );
     UpdateRealPartOfDiagonal( AMod, Real(1), regTmp );
 
+    // Analyze the sparsity pattern and initialize the frontal tree
+    // ============================================================
     if( ctrl.time )
         timer.Start();
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    ldl::NestedDissection( AMod.LockedGraph(), map, rootSep, info );
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    SparseLDLFactorization<Field> sparseLDLFact;
+    sparseLDLFact.Initialize( AMod, hermitian, bisectCtrl );
     if( ctrl.time )
-        Output("  ND: ",timer.Stop()," secs");
-    InvertMap( map, invMap );
-    ldl::Front<Field> AModFront( AMod, map, info );
+        Output("  Analysis: ",timer.Stop()," secs");
+
+    // Factor the sparse system
+    // ========================
     if( ctrl.time )
         timer.Start();
-    LDL( info, AModFront );
+    sparseLDLFact.Factor();
     if( ctrl.time )
         Output("  LDL: ",timer.Stop()," secs");
 
@@ -115,8 +118,7 @@ void SQSDSolve
     // =============================================
     if( ctrl.time )
         timer.Start();
-    reg_ldl::SolveAfter
-    ( A, regTmp, invMap, info, AModFront, B, ctrl.solveCtrl );
+    reg_ldl::SolveAfter( A, regTmp, sparseLDLFact, B, ctrl.solveCtrl );
     if( ctrl.time )
         Output("  Solve: ",timer.Stop()," secs");
 }
@@ -154,8 +156,8 @@ void SQSDSolve
     }
 
     const Int n = A.Height();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
 
     if( ctrl.scaleTwoNorm )
@@ -174,7 +176,7 @@ void SQSDSolve
     const Real scaledReg0Perm =  ctrl.reg0Perm*ctrl.reg0Perm;
     const Real scaledReg1Perm = -ctrl.reg1Perm*ctrl.reg1Perm;
 
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
+    DistMultiVec<Real> regTmp(grid), regPerm(grid);
     regTmp.Resize( n, 1 );
     regPerm.Resize( n, 1 );
     for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
@@ -187,20 +189,22 @@ void SQSDSolve
     auto AMod( A );
     UpdateRealPartOfDiagonal( AMod, Real(1), regTmp );
 
+    // Analyze the sparsity pattern and initialize the frontal tree
+    // ============================================================
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    ldl::NestedDissection( AMod.LockedDistGraph(), map, rootSep, info );
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    DistSparseLDLFactorization<Field> sparseLDLFact;
+    sparseLDLFact.Initialize( AMod, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
-        Output("  ND: ",timer.Stop()," secs");
-    InvertMap( map, invMap );
-    ldl::DistFront<Field> AModFront( AMod, map, rootSep, info );
+        Output("  Analysis: ",timer.Stop()," secs");
 
+    // Factor the sparse system
+    // ========================
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    LDL( info, AModFront, LDL_2D );
+    sparseLDLFact.Factor( LDL_2D );
     if( commRank == 0 && ctrl.time )
         Output("  LDL: ",timer.Stop()," secs");
 
@@ -208,8 +212,7 @@ void SQSDSolve
     // ==========================
     if( commRank == 0 && ctrl.time )
         timer.Start();
-    reg_ldl::SolveAfter
-    ( A, regTmp, invMap, info, AModFront, B, ctrl.solveCtrl );
+    reg_ldl::SolveAfter( A, regTmp, sparseLDLFact, B, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
         Output("  Solve: ",timer.Stop()," secs");
 }

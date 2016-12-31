@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_TRANSLATEBETWEENGRIDS_HPP
@@ -15,7 +15,7 @@ namespace copy {
 template<typename T,Dist U,Dist V>
 void TranslateBetweenGrids
 ( const DistMatrix<T,U,V>& A,
-        DistMatrix<T,U,V>& B ) 
+        DistMatrix<T,U,V>& B )
 {
     EL_DEBUG_CSE
     GeneralPurpose( A, B );
@@ -25,7 +25,7 @@ void TranslateBetweenGrids
 template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,MC,MR>& A,
-        DistMatrix<T,MC,MR>& B ) 
+        DistMatrix<T,MC,MR>& B )
 {
     EL_DEBUG_CSE
     const Int m = A.Height();
@@ -171,10 +171,10 @@ void TranslateBetweenGrids
                 for( Int colRecv=0; colRecv<numColRecvs; ++colRecv )
                 {
                     const Int sendColShift =
-                      Shift( sendRow, colAlignA, colStrideA ) + 
+                      Shift( sendRow, colAlignA, colStrideA ) +
                       colSend*colStrideA;
                     const Int sendHeight = Length( m, sendColShift, colLCM );
-                    const Int localColOffset = 
+                    const Int localColOffset =
                       (sendColShift-colShiftB) / colStride;
 
                     Int sendCol = firstSendCol;
@@ -221,7 +221,7 @@ void TranslateBetweenGrids
 template<typename T>
 void TranslateBetweenGrids
 ( const DistMatrix<T,STAR,STAR>& A,
-        DistMatrix<T,STAR,STAR>& B ) 
+        DistMatrix<T,STAR,STAR>& B )
 {
     EL_DEBUG_CSE
     const Int height = A.Height();
@@ -286,7 +286,7 @@ void TranslateBetweenGrids
 
     // Compute and allocate the amount of required memory
     Int requiredMemory = 0;
-    if( rankA == 0 ) 
+    if( rankA == 0 )
         requiredMemory += height*width;
     if( B.Participating() )
         requiredMemory += height*width;
@@ -294,13 +294,13 @@ void TranslateBetweenGrids
     FastResize( buffer, requiredMemory );
     Int offset = 0;
     T* sendBuf = &buffer[offset];
-    if( rankA == 0 ) 
+    if( rankA == 0 )
         offset += height*width;
     T* bcastBuffer = &buffer[offset];
 
     // Send from the root of A to the root of B's matrix's grid
     mpi::Request<T> sendRequest;
-    if( rankA == 0 ) 
+    if( rankA == 0 )
     {
         util::InterleaveMatrix
         ( height, width,
@@ -316,7 +316,7 @@ void TranslateBetweenGrids
     // over the owning communicator
     if( B.Participating() )
     {
-        if( rankB == 0 ) 
+        if( rankB == 0 )
         {
             // TODO(poulson): Use mpi::Translate instead?
             const Int sendRank =

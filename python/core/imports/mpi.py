@@ -2,14 +2,14 @@
 # Copyright (c) 2009-2016, Jack Poulson
 # All rights reserved.
 #
-# This file is part of Elemental and is under the BSD 2-Clause License, 
-# which can be found in the LICENSE file in the root directory, or at 
+# This file is part of Elemental and is under the BSD 2-Clause License,
+# which can be found in the LICENSE file in the root directory, or at
 # http://opensource.org/licenses/BSD-2-Clause
 #
 from ..environment import *
 
 # Query Elemental to determine whether MPI_Comm is an 'int' or a void pointer
-# TODO: Complain if not same size as c_int or c_void_p
+# TODO(poulson): Complain if not same size as c_int or c_void_p
 commSameSizeAsInteger = bType()
 lib.ElMPICommSameSizeAsInteger(pointer(commSameSizeAsInteger))
 if commSameSizeAsInteger:
@@ -18,7 +18,7 @@ else:
   Comm = c_void_p
 
 # Query Elemental to determine whether MPI_Group is an 'int' or a void pointer
-# TODO: Complain if not same size as c_int or c_void_p
+# TODO(poulson): Complain if not same size as c_int or c_void_p
 groupSameSizeAsInteger = bType()
 lib.ElMPIGroupSameSizeAsInteger(pointer(groupSameSizeAsInteger))
 if groupSameSizeAsInteger:

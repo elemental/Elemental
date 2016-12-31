@@ -26,8 +26,8 @@ template<typename T>
 BDM::DistMatrix( const El::Grid& g, int root )
 : BCM(g,root)
 {
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
 }
 
@@ -36,8 +36,8 @@ BDM::DistMatrix
 ( const El::Grid& g, Int blockHeight, Int blockWidth, int root )
 : BCM(g,blockHeight,blockWidth,root)
 {
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
 }
 
@@ -46,8 +46,8 @@ BDM::DistMatrix
 ( Int height, Int width, const El::Grid& g, int root )
 : BCM(g,root)
 {
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts(); this->Resize(height,width);
 }
 
@@ -57,8 +57,8 @@ BDM::DistMatrix
   Int blockHeight, Int blockWidth, int root )
 : BCM(g,blockHeight,blockWidth,root)
 {
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     this->Resize(height,width);
 }
@@ -68,8 +68,8 @@ BDM::DistMatrix( const BDM& A )
 : BCM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -83,8 +83,8 @@ BDM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 : BCM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( COLDIST != U || ROWDIST != V ||
         reinterpret_cast<const BDM*>(&A) != this )
@@ -98,8 +98,8 @@ BDM::DistMatrix( const AbstractDistMatrix<T>& A )
 : BCM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     #define GUARD(CDIST,RDIST,WRAP) \
       A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
@@ -115,8 +115,8 @@ BDM::DistMatrix( const BlockMatrix<T>& A )
 : BCM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     #define GUARD(CDIST,RDIST,WRAP) \
       A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
@@ -138,8 +138,8 @@ BDM::DistMatrix( const DistMatrix<T,U,V>& A )
 : BCM(A.Grid())
 {
     EL_DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     *this = A;
 }

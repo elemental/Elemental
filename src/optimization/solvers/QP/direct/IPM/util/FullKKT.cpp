@@ -236,7 +236,7 @@ void KKT
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
     const Int numEntriesA = A.NumLocalEntries();
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, m+2*n, m+2*n );
 
     const Int xLocalHeight = x.LocalHeight();
@@ -396,7 +396,7 @@ void KKTRHS
     EL_DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rc.Height();
-    d.SetComm( rmu.Comm() );
+    d.SetGrid( rmu.Grid() );
     Zeros( d, m+2*n, 1 );
 
     d.Reserve( rc.LocalHeight()+rb.LocalHeight()+rmu.LocalHeight() );

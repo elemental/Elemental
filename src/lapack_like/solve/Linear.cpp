@@ -312,8 +312,7 @@ void LinearSolve
   const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
     EL_DEBUG_CSE
-    DistMultiVec<Field> X;
-    X.SetComm( B.Comm() );
+    DistMultiVec<Field> X(B.Grid());
     LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
 }

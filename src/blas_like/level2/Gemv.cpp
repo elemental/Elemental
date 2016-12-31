@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -18,7 +18,7 @@ template<typename T>
 void Gemv
 ( Orientation orientation,
   T alpha, const Matrix<T>& A,
-           const Matrix<T>& x, 
+           const Matrix<T>& x,
   T beta,        Matrix<T>& y )
 {
     EL_DEBUG_CSE
@@ -71,7 +71,7 @@ template<typename T>
 void Gemv
 ( Orientation orientation,
   T alpha, const Matrix<T>& A,
-           const Matrix<T>& x, 
+           const Matrix<T>& x,
                  Matrix<T>& y )
 {
     EL_DEBUG_CSE
@@ -122,7 +122,7 @@ void LocalGemv
   T beta,        AbstractDistMatrix<T>& y )
 {
     EL_DEBUG_CSE
-    // TODO: Add error checking here
+    // TODO(poulson): Add error checking here
     Gemv
     ( orientation ,
       alpha, A.LockedMatrix(), x.LockedMatrix(),
@@ -152,7 +152,7 @@ void ScaLAPACKHelper
       alpha,
       A.LockedBuffer(), descA.data(),
       x.LockedBuffer(), descx.data(), 1,
-      beta, 
+      beta,
       y.Buffer(),       descy.data(), 1 );
 #endif
 }

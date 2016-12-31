@@ -135,20 +135,20 @@ void Mehrotra
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
-    mpi::Comm comm = c.Comm();
+    const Grid& grid = A.Grid();
 
-    DistSparseMatrix<Real> G(comm);
+    DistSparseMatrix<Real> G(grid);
     Identity( G, n, n );
     G *= -1;
 
-    DistMultiVec<Real> h(comm);
+    DistMultiVec<Real> h(grid);
     Zeros( h, n, 1 );
 
     MehrotraCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
 
-    DistMultiVec<Real> s(comm);
+    DistMultiVec<Real> s(grid);
     socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 

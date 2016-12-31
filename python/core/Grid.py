@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from environment import *
@@ -17,22 +17,39 @@ class Grid(object):
     if create:
       lib.ElDefaultGrid(pointer(self.obj))
 
+  @classmethod
+  def Default(cls):
+    grid = cls(False)
+    grid.obj = c_void_p()
+    lib.ElDefaultGrid(pointer(grid.obj))
+    return grid
+
+  lib.ElTrivialGrid.argtypes = [POINTER(c_void_p)]
+  @classmethod
+  def Trivial(cls):
+    grid = cls(False)
+    grid.obj = c_void_p()
+    lib.ElTrivialGrid(pointer(grid.obj))
+    return grid
+
   lib.ElGridCreate.argtypes = [mpi.Comm,c_uint,POINTER(c_void_p)]
   @classmethod
   def FromComm(cls,comm=mpi.COMM_WORLD(),order=COL_MAJOR):
-    g = cls(False)
-    lib.ElGridCreate(comm,order,pointer(g.obj))
-    return g
+    grid = cls(False)
+    grid.obj = c_void_p()
+    lib.ElGridCreate(comm,order,pointer(grid.obj))
+    return grid
 
   lib.ElGridCreateSpecific.argtypes = [mpi.Comm,c_int,c_uint,POINTER(c_void_p)]
   @classmethod
   def FromCommSpecific(cls,comm,height,order=COL_MAJOR):
-    g = cls(False)
-    lib.ElGridCreateSpecific(comm,height,order,pointer(g.obj))
-    return g
+    grid = cls(False)
+    grid.obj = c_void_p()
+    lib.ElGridCreateSpecific(comm,height,order,pointer(grid.obj))
+    return grid
 
   lib.ElGridDestroy.argtypes = [c_void_p]
-  def Destroy(self): 
+  def Destroy(self):
     lib.ElGridDestroy(self.obj)
 
   lib.ElGridRow.argtypes = [c_void_p,POINTER(c_int)]
@@ -199,7 +216,7 @@ class Grid(object):
 
   lib.ElGridHaveViewers.argtypes = [c_void_p,POINTER(bType)]
   def HaveViewers(self):
-    haveViewers = bType() 
+    haveViewers = bType()
     lib.ElGridHaveViewers(self.obj,pointer(haveViewers))
     return haveViewers.value
 
@@ -245,9 +262,9 @@ class Grid(object):
     lib.ElGridDiagRank(self.obj,vcRank,pointer(pathRank))
     return pathRank.value
 
-  # TODO: VCToVR
-  # TODO: VRToVC
-  # TODO: CoordsToVC
+  # TODO(poulson): VCToVR
+  # TODO(poulson): VRToVC
+  # TODO(poulson): CoordsToVC
 
   lib.ElGridVCToViewing.argtypes = [c_void_p,c_int,POINTER(c_int)]
   def VCToViewing(self,vcRank):
@@ -256,11 +273,8 @@ class Grid(object):
     return viewingRank.value
 
   # NOTE: The following method is static
-  lib.ElGridFindFactor.argtypes = [c_int,POINTER(c_int)]
-  def FindFactor(numProcs):
+  lib.ElGridDefaultHeight.argtypes = [c_int,POINTER(c_int)]
+  def DefaultHeight(numProcs):
     factor = c_int()
-    lib.ElGridFindFactor(numProcs,pointer(factor))
+    lib.ElGridDefaultHeight(numProcs,pointer(factor))
     return factor.value
-
-def DefaultGrid():
-  return Grid()

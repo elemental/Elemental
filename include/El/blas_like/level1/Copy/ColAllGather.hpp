@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_COLALLGATHER_HPP
@@ -14,7 +14,7 @@ namespace copy {
 
 // (U,V) |-> (Collect(U),V)
 template<typename T>
-void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
+void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
     EL_DEBUG_CSE
     EL_DEBUG_ONLY(
@@ -156,7 +156,7 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
                 // Unpack the contents of each member of the column team
                 util::ColStridedUnpack
                 ( height, B.LocalWidth(), A.ColAlign(), colStride,
-                  secondBuf,  portionSize, 
+                  secondBuf,  portionSize,
                   B.Buffer(), B.LDim() );
             }
         }
@@ -170,7 +170,7 @@ void ColAllGather( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 
 template<typename T>
 void ColAllGather
-( const BlockMatrix<T>& A, BlockMatrix<T>& B ) 
+( const BlockMatrix<T>& A, BlockMatrix<T>& B )
 {
     EL_DEBUG_CSE
     AssertSameGrids( A, B );

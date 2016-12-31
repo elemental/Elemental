@@ -138,13 +138,13 @@ void QP
   const qp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm), AHat(comm);
-    DistMultiVec<Real> bHat(comm), c(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> Q(grid), AHat(grid);
+    DistMultiVec<Real> bHat(grid), c(grid);
 
     Herk( LOWER, ADJOINT, Real(1), A, Q );
     MakeHermitian( LOWER, Q );
@@ -152,7 +152,7 @@ void QP
     Zeros( bHat, 0, 1 );
     Zeros( X,    n, k );
 
-    DistMultiVec<Real> q(comm), y(comm), z(comm);
+    DistMultiVec<Real> q(grid), y(grid), z(grid);
     auto& qLoc = q.Matrix();
     auto& XLoc = X.Matrix();
     auto& BLoc = B.LockedMatrix();

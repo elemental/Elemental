@@ -2,7 +2,7 @@
    Copyright 2009-2011, Jack Poulson.
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright 2011-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
@@ -14,9 +14,12 @@
 
    Copyright 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright 2016, Jack Poulson.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -24,9 +27,11 @@
 namespace El {
 namespace ldl {
 
+// TODO(poulson): Replace 'T' with 'Ring'.
+
 template<typename T>
 DistMatrixNode<T>::DistMatrixNode( DistMatrixNode<T>* parentNode )
-: parent(parentNode), child(nullptr), duplicate(nullptr)
+: parent(parentNode)
 { }
 
 template<typename T>
@@ -34,7 +39,6 @@ DistMatrixNode<T>::DistMatrixNode
 ( const DistMap& invMap,
   const DistNodeInfo& info,
   const DistMultiVec<T>& X )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     Pull( invMap, info, X );
@@ -42,18 +46,13 @@ DistMatrixNode<T>::DistMatrixNode
 
 template<typename T>
 DistMatrixNode<T>::DistMatrixNode( const DistMultiVecNode<T>& X )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
     EL_DEBUG_CSE
     *this = X;
 }
 
 template<typename T>
-DistMatrixNode<T>::~DistMatrixNode()
-{
-    delete child;
-    delete duplicate;
-}
+DistMatrixNode<T>::~DistMatrixNode() { }
 
 template<typename T>
 const DistMatrixNode<T>&
@@ -61,10 +60,9 @@ DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
 {
     EL_DEBUG_CSE
 
-    if( X.child == nullptr )
+    if( X.child.get() == nullptr )
     {
-        delete duplicate;
-        duplicate = new MatrixNode<T>(this);
+        duplicate.reset( new MatrixNode<T>(this) );
         *duplicate = *X.duplicate;
 
         matrix.Attach( X.matrix.Grid(), duplicate->matrix );
@@ -76,8 +74,7 @@ DistMatrixNode<T>::operator=( const DistMultiVecNode<T>& X )
     matrix.SetGrid( X.matrix.Grid() );
     matrix = X.matrix;
 
-    delete child;
-    child = new DistMatrixNode<T>(this);
+    child.reset( new DistMatrixNode<T>(this) );
     *child = *X.child;
 
     return *this;
@@ -112,14 +109,14 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     EL_DEBUG_CSE
     if( commMeta.numChildSendInds.size() != 0 )
         return;
-    if( child == nullptr )
+    if( child.get() == nullptr )
         return;
-    
+
     const Int numRHS = matrix.Width();
     const Int childSize = info.child->size;
     const Int updateSize = info.child->lowerStruct.size();
     const Int workSize = childSize + updateSize;
-    
+
     auto childWT = child->work( IR(0,childSize),        IR(0,numRHS) );
     auto childWB = child->work( IR(childSize,workSize), IR(0,numRHS) );
     EL_DEBUG_ONLY(
@@ -139,10 +136,12 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
 
     // Fill numChildSendInds
     // =====================
-    const int teamSize = mpi::Size( info.comm );
+    const Grid& grid = info.Grid();
+    const int teamSize = grid.Size();
+    const int teamRank = grid.Rank();
     commMeta.numChildSendInds.resize( teamSize );
     MemZero( commMeta.numChildSendInds.data(), teamSize );
-    const Int myChild = ( info.child->onLeft ? 0 : 1 );
+    const Int myChild = info.child->onLeft ? 0 : 1;
     const Int childLocalHeight = childWB.LocalHeight();
     const Int childLocalWidth = childWB.LocalWidth();
     for( Int iChildLoc=0; iChildLoc<childLocalHeight; ++iChildLoc )
@@ -160,12 +159,11 @@ void DistMatrixNode<T>::ComputeCommMeta( const DistNodeInfo& info ) const
     // Compute the solve recv indices
     // ==============================
     vector<int> gridHeights, gridWidths;
-    GetChildGridDims( info, gridHeights, gridWidths );
-
-    const int teamRank = mpi::Rank( info.comm );
+    info.GetChildGridDims( gridHeights, gridWidths );
     const bool onLeft = info.child->onLeft;
-    const int childTeamSize = mpi::Size( info.child->comm );
-    const int childTeamRank = mpi::Rank( info.child->comm );
+    const Grid& childGrid = info.child->Grid();
+    const int childTeamSize = childGrid.Size();
+    const int childTeamRank = childGrid.Rank();
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( onLeft==inFirstTeam );
     vector<int> teamSizes(2), teamOffs(2);

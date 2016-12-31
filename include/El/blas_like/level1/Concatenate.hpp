@@ -163,7 +163,7 @@ void HCat
     if( A.Height() != B.Height() )
         LogicError("Incompatible heights for HCat");
     /*
-    if( A.Comm() != B.Comm() )
+    if( A.Grid().Comm() != B.Grid().Comm() )
         LogicError("A and B had different communicators");
     */
 
@@ -173,7 +173,7 @@ void HCat
 
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesB = B.NumLocalEntries();
-    C.SetComm( A.Comm() );
+    C.SetGrid( A.Grid() );
     C.Resize( m, nA+nB );
     Zero( C );
     C.Reserve( numEntriesA+numEntriesB );
@@ -195,7 +195,7 @@ void VCat
     if( A.Width() != B.Width() )
         LogicError("Incompatible widths for VCat");
     /*
-    if( A.Comm() != B.Comm() )
+    if( A.Grid().Comm() != B.Grid().Comm() )
         LogicError("A and B had different communicators");
     */
 
@@ -205,7 +205,7 @@ void VCat
 
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesB = B.NumLocalEntries();
-    C.SetComm( A.Comm() );
+    C.SetGrid( A.Grid() );
     C.Resize( mA+mB, n );
     Zero( C );
     C.Reserve( numEntriesA+numEntriesB, numEntriesA+numEntriesB );
@@ -229,9 +229,8 @@ void HCat
     const Int m = A.Height();
     const Int nA = A.Width();
     const Int nB = B.Width();
-    mpi::Comm comm = A.Comm();
 
-    C.SetComm( comm );
+    C.SetGrid( A.Grid() );
     C.Resize( m, nA+nB );
     Zero( C );
 
@@ -261,7 +260,7 @@ void VCat
     const Int mLocB = B.LocalHeight();
     const Int n = A.Width();
 
-    C.SetComm( A.Comm() );
+    C.SetGrid( A.Grid() );
     C.Resize( mA+mB, n );
     Zero( C );
     C.Reserve( (mLocA+mLocB)*n );

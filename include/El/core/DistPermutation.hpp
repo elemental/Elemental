@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_PERM_DISTPERMUTATION_HPP
@@ -52,8 +52,8 @@ struct PermutationMeta
     }
 
     PermutationMeta()
-    : align(0), comm(mpi::COMM_SELF), 
-      sendCounts(1,0), sendDispls(1,0), 
+    : align(0), comm(mpi::COMM_SELF),
+      sendCounts(1,0), sendDispls(1,0),
       recvCounts(1,0), recvDispls(1,0)
     { }
 
@@ -70,6 +70,7 @@ struct PermutationMeta
             mpi::Comm permComm );
 };
 
+// TODO(poulson): Convert to accepting Grid rather than mpi::Comm
 class DistPermutation
 {
 public:
@@ -82,7 +83,7 @@ public:
 
     void ReserveSwaps( Int maxSwaps );
     void MakeArbitrary() const;
-    
+
     const DistPermutation& operator=( const Permutation& p );
     const DistPermutation& operator=( const DistPermutation& p );
 

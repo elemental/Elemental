@@ -52,7 +52,7 @@ namespace direct {
 //     http://web.stanford.edu/class/msande318/notes/notes07-PDinterior.pdf
 //
 
-// TODO: Avoid reforming D
+// TODO(poulson): Avoid reforming D
 
 template<typename Real>
 void NormalKKT
@@ -83,7 +83,7 @@ void NormalKKT
     ShiftDiagonal( J, delta*delta );
     Syrk( LOWER, NORMAL, Real(1), AD, Real(1), J );
 
-    // TODO: Inflate diagonal?
+    // TODO(poulson): Inflate diagonal?
 
     if( !onlyLower )
         MakeSymmetric( LOWER, J );
@@ -91,12 +91,12 @@ void NormalKKT
 
 template<typename Real>
 void NormalKKT
-( const ElementalMatrix<Real>& A,
+( const DistMatrix<Real>& A,
         Real gamma,
         Real delta,
-  const ElementalMatrix<Real>& xPre,
-  const ElementalMatrix<Real>& zPre,
-        ElementalMatrix<Real>& J,
+  const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& zPre,
+        DistMatrix<Real>& J,
   bool onlyLower )
 {
     EL_DEBUG_CSE
@@ -106,7 +106,6 @@ void NormalKKT
     ElementalProxyCtrl ctrl;
     ctrl.colAlign = 0;
     ctrl.colConstrain = true;
-
     DistMatrixReadProxy<Real,Real,MR,STAR>
       xProx( xPre, ctrl ),
       zProx( zPre, ctrl );
@@ -149,7 +148,7 @@ void NormalKKT
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    // TODO: Expose this value as a parameter
+    // TODO(poulson): Expose this value as a parameter
     const Real inflateRatio = Pow(limits::Epsilon<Real>(),Real(0.83));
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
@@ -162,7 +161,7 @@ void NormalKKT
     // Form A D^2 A^T + delta^2 I
     // ==========================
     SparseMatrix<Real> G;
-    // TODO: Avoid forming this within an inner loop...
+    // TODO(poulson): Avoid forming this within an inner loop...
     Transpose( A, G );
     DiagonalSolve( LEFT, NORMAL, dInv, G );
     Zeros( J, m, m );
@@ -171,7 +170,7 @@ void NormalKKT
 
     // Inflate the diagonal in a small relative sense
     // ==============================================
-    // TODO: Create EntrywiseMapDiagonal and replace this with it
+    // TODO(poulson): Create EntrywiseMapDiagonal and replace this with it
     Real* valBuf = J.ValueBuffer();
     for( Int i=0; i<m; ++i )
     {
@@ -197,10 +196,10 @@ void NormalKKT
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    if( !mpi::Congruent( comm, x.Comm() ) )
+    const Grid& grid = A.Grid();
+    if( !mpi::Congruent( grid.Comm(), x.Grid().Comm() ) )
         LogicError("Communicators of A and x must match");
-    if( !mpi::Congruent( comm, z.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), z.Grid().Comm() ) )
         LogicError("Communicators of A and z must match");
 
     // TODO: Expose this value as a parameter
@@ -211,7 +210,7 @@ void NormalKKT
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
-    DistMultiVec<Real> dInv(comm);
+    DistMultiVec<Real> dInv(grid);
     dInv.Resize( n, 1 );
     auto& dInvLoc = dInv.Matrix();
     const Int dInvLocalHeight = dInv.LocalHeight();
@@ -220,7 +219,7 @@ void NormalKKT
 
     // Form A D^2 A^T + delta^2 I
     // ==========================
-    DistSparseMatrix<Real> G(comm);
+    DistSparseMatrix<Real> G(grid);
     // TODO: Avoid forming this within an inner loop...
     Transpose( A, G );
     DiagonalSolve( LEFT, NORMAL, dInv, G );
@@ -283,14 +282,14 @@ void NormalKKTRHS
 
 template<typename Real>
 void NormalKKTRHS
-( const ElementalMatrix<Real>& A,
+( const DistMatrix<Real>& A,
         Real gamma,
-  const ElementalMatrix<Real>& xPre,
-  const ElementalMatrix<Real>& zPre,
-  const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb,
-  const ElementalMatrix<Real>& rmu,
-        ElementalMatrix<Real>& d )
+  const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& zPre,
+  const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rb,
+  const DistMatrix<Real>& rmu,
+        DistMatrix<Real>& d )
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
@@ -378,22 +377,22 @@ void NormalKKTRHS
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    if( !mpi::Congruent( comm, rmu.Comm() ) )
+    const Grid& grid = A.Grid();
+    if( !mpi::Congruent( grid.Comm(), rmu.Grid().Comm() ) )
         LogicError("Communicators of A and r_mu must match");
-    if( !mpi::Congruent( comm, rc.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), rc.Grid().Comm() ) )
         LogicError("Communicators of A and r_c must match");
-    if( !mpi::Congruent( comm, rb.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), rb.Grid().Comm() ) )
         LogicError("Communicators of A and r_b must match");
-    if( !mpi::Congruent( comm, x.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), x.Grid().Comm() ) )
         LogicError("Communicators of A and x must match");
-    if( !mpi::Congruent( comm, z.Comm() ) )
+    if( !mpi::Congruent( grid.Comm(), z.Grid().Comm() ) )
         LogicError("Communicators of A and z must match");
 
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    DistMultiVec<Real> dInv(comm);
+    DistMultiVec<Real> dInv(grid);
     dInv.Resize( n, 1 );
     auto& dInvLoc = dInv.Matrix();
     const Int nLocal = dInv.LocalHeight();
@@ -417,59 +416,55 @@ void NormalKKTRHS
 
 template<typename Real>
 void ExpandNormalSolution
-( const Matrix<Real>& A,
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         Real gamma,
-  const Matrix<Real>& x,
-  const Matrix<Real>& z,
-  const Matrix<Real>& rc,
-  const Matrix<Real>& rmu,
-        Matrix<Real>& dx,
-  const Matrix<Real>& dy,
-        Matrix<Real>& dz )
+  const DirectLPSolution<Matrix<Real>>& solution,
+  const DirectLPResidual<Matrix<Real>>& residual,
+        DirectLPSolution<Matrix<Real>>& correction )
 {
     EL_DEBUG_CSE
-    const Int n = A.Width();
+    const Int n = problem.A.Width();
 
     // dInv := sqrt( (z ./ x) .+ gamma^2 )
     // ===================================
     Matrix<Real> dInv;
     dInv.Resize( n, 1 );
     for( Int i=0; i<n; ++i )
-        dInv(i) = Sqrt(z(i)/x(i) + gamma*gamma);
+        dInv(i) = Sqrt(solution.z(i)/solution.x(i) + gamma*gamma);
 
-    // Use dz as a temporary for storing A^T dy
-    // ========================================
-    Zeros( dz, n, 1 );
-    Gemv( TRANSPOSE, Real(1), A, dy, Real(0), dz );
+    // Use correction.z as a temporary for storing A^T correction.y
+    // ============================================================
+    Zeros( correction.z, n, 1 );
+    Gemv( TRANSPOSE, Real(1), problem.A, correction.y, Real(0), correction.z );
 
-    // dx = D^2 (-A^T dy + r_1 + inv(X) r_3)
-    //    = D^2 (-A^T dy - r_c - inv(X) r_mu)
-    // ======================================
-    dx = rmu;
-    DiagonalSolve( LEFT, NORMAL, x, dx );
-    dx += rc;
-    dx += dz;
-    dx *= -1;
-    DiagonalSolve( LEFT, NORMAL, dInv, dx );
-    DiagonalSolve( LEFT, NORMAL, dInv, dx );
+    // correction.x = D^2 (-A^T correction.y + r_1 + inv(X) r_3)
+    //              = D^2 (-A^T correction.y - r_c - inv(X) r_mu)
+    // ==========================================================
+    correction.x = residual.dualConic;
+    DiagonalSolve( LEFT, NORMAL, solution.x, correction.x );
+    correction.x += residual.dualEquality;
+    correction.x += correction.z;
+    correction.x *= -1;
+    DiagonalSolve( LEFT, NORMAL, dInv, correction.x );
+    DiagonalSolve( LEFT, NORMAL, dInv, correction.x );
 
-    // dz := r_c + gamma^2 dx + A^T dy
-    // ===============================
-    Axpy( gamma*gamma, dx, dz );
-    dz += rc;
+    // correction.z := r_c + gamma^2 correction.x + A^T correction.y
+    // =============================================================
+    Axpy( gamma*gamma, correction.x, correction.z );
+    correction.z += residual.dualEquality;
 }
 
 template<typename Real>
 void ExpandNormalSolution
-( const ElementalMatrix<Real>& A,
+( const DistMatrix<Real>& A,
         Real gamma,
-  const ElementalMatrix<Real>& xPre,
-  const ElementalMatrix<Real>& zPre,
-  const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rmu,
-        ElementalMatrix<Real>& dx,
-  const ElementalMatrix<Real>& dy,
-        ElementalMatrix<Real>& dz )
+  const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& zPre,
+  const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rmu,
+        DistMatrix<Real>& dx,
+  const DistMatrix<Real>& dy,
+        DistMatrix<Real>& dz )
 {
     EL_DEBUG_CSE
     const Int n = A.Width();
@@ -576,7 +571,7 @@ void ExpandNormalSolution
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    DistMultiVec<Real> dInv(A.Comm());
+    DistMultiVec<Real> dInv(A.Grid());
     dInv.Resize( n, 1 );
     auto& dInvLoc = dInv.Matrix();
     const Int nLocal = dInv.LocalHeight();
@@ -614,12 +609,12 @@ void ExpandNormalSolution
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
-  ( const ElementalMatrix<Real>& A, \
+  ( const DistMatrix<Real>& A, \
           Real gamma, \
           Real delta, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& J, bool onlyLower ); \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
+          DistMatrix<Real>& J, bool onlyLower ); \
   template void NormalKKT \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \
@@ -644,14 +639,14 @@ void ExpandNormalSolution
     const Matrix<Real>& rmu, \
           Matrix<Real>& d ); \
   template void NormalKKTRHS \
-  ( const ElementalMatrix<Real>& A, \
+  ( const DistMatrix<Real>& A, \
           Real gamma, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-    const ElementalMatrix<Real>& rc, \
-    const ElementalMatrix<Real>& rb, \
-    const ElementalMatrix<Real>& rmu, \
-          ElementalMatrix<Real>& d ); \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
+    const DistMatrix<Real>& rc, \
+    const DistMatrix<Real>& rb, \
+    const DistMatrix<Real>& rmu, \
+          DistMatrix<Real>& d ); \
   template void NormalKKTRHS \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \
@@ -671,25 +666,21 @@ void ExpandNormalSolution
     const DistMultiVec<Real>& rmu, \
           DistMultiVec<Real>& d ); \
   template void ExpandNormalSolution \
-  ( const Matrix<Real>& A, \
+  ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
           Real gamma, \
-    const Matrix<Real>& x, \
-    const Matrix<Real>& z, \
-    const Matrix<Real>& rc, \
-    const Matrix<Real>& rmu, \
-          Matrix<Real>& dx, \
-    const Matrix<Real>& dy, \
-          Matrix<Real>& dz ); \
+    const DirectLPSolution<Matrix<Real>>& solution, \
+    const DirectLPResidual<Matrix<Real>>& residual, \
+          DirectLPSolution<Matrix<Real>>& correction ); \
   template void ExpandNormalSolution \
-  ( const ElementalMatrix<Real>& A, \
+  ( const DistMatrix<Real>& A, \
           Real gamma, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-    const ElementalMatrix<Real>& rc, \
-    const ElementalMatrix<Real>& rmu, \
-          ElementalMatrix<Real>& dx, \
-    const ElementalMatrix<Real>& dy, \
-          ElementalMatrix<Real>& dz ); \
+    const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& z, \
+    const DistMatrix<Real>& rc, \
+    const DistMatrix<Real>& rmu, \
+          DistMatrix<Real>& dx, \
+    const DistMatrix<Real>& dy, \
+          DistMatrix<Real>& dz ); \
   template void ExpandNormalSolution \
   ( const SparseMatrix<Real>& A, \
           Real gamma, \

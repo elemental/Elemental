@@ -380,8 +380,8 @@ main( int argc, char* argv[] )
         ComplainIfDebug();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
         const Grid grid( comm, gridHeight, order );
 
         if( sequential && commRank == 0 )

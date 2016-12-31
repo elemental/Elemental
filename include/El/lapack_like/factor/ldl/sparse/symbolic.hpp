@@ -28,11 +28,7 @@ namespace El {
 namespace ldl {
 
 Int Analysis( NodeInfo& rootInfo, Int myOff=0 );
-void Analysis
-( DistNodeInfo& rootInfo, bool storeFactRecvInds=true );
-
-void GetChildGridDims
-( const DistNodeInfo& info, vector<int>& gridHeights, vector<int>& gridWidths );
+void Analysis( DistNodeInfo& rootInfo, bool storeFactRecvInds=true );
 
 void AMDOrder
 ( const vector<Int>& subOffsets,
@@ -69,9 +65,6 @@ void NaturalNestedDissection
         DistNodeInfo& info,
         Int cutoff,
         bool storeFactRecvInds=false );
-
-void BuildMap( const Separator& rootSep, vector<Int>& map );
-void BuildMap( const DistSeparator& rootSep, DistMap& map );
 
 } // namespace ldl
 } // namespace El

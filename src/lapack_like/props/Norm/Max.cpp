@@ -131,7 +131,7 @@ Base<Ring> MaxNorm( const DistSparseMatrix<Ring>& A )
     for( Int k=0; k<numLocalEntries; ++k )
         localNorm = Max( localNorm, Abs(AValBuf[k]) );
 
-    return mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
+    return mpi::AllReduce( localNorm, mpi::MAX, A.Grid().Comm() );
 }
 
 template<typename Ring>
@@ -139,7 +139,7 @@ Base<Ring> MaxNorm( const DistMultiVec<Ring>& A )
 {
     EL_DEBUG_CSE
     Base<Ring> localNorm = MaxNorm( A.LockedMatrix() );
-    return mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
+    return mpi::AllReduce( localNorm, mpi::MAX, A.Grid().Comm() );
 }
 
 template<typename Ring>
@@ -206,7 +206,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistSparseMatrix<Ring>& A )
             localNorm = Max( localNorm, Abs(AValBuf[k]) );
     }
 
-    return mpi::AllReduce( localNorm, mpi::MAX, A.Comm() );
+    return mpi::AllReduce( localNorm, mpi::MAX, A.Grid().Comm() );
 }
 
 template<typename Ring>

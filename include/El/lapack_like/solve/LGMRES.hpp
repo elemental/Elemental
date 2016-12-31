@@ -282,17 +282,17 @@ Int Single
     )
     typedef Base<Field> Real;
     const Int n = b.Height();
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
 
     // x := 0
     // ======
-    DistMultiVec<Field> x(comm);
+    DistMultiVec<Field> x(grid);
     Zeros( x, n, 1 );
 
     // w := b (= b - A x_0)
     // ====================
-    DistMultiVec<Field> w(comm);
+    DistMultiVec<Field> w(grid);
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( origResidNorm == Real(0) )
@@ -302,7 +302,7 @@ Int Single
     bool converged = false;
     Matrix<Real> cs;
     Matrix<Field> sn, H, t;
-    DistMultiVec<Field> x0(comm), q(comm), V(comm);
+    DistMultiVec<Field> x0(grid), q(grid), V(grid);
     while( !converged )
     {
         if( progress && commRank == 0 )
@@ -497,7 +497,7 @@ Int LGMRES
     const Int width = B.Width();
 
     Int mostIts = 0;
-    DistMultiVec<Field> u(B.Comm());
+    DistMultiVec<Field> u(B.Grid());
     Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();

@@ -176,7 +176,8 @@ Base<Field> FrobeniusNorm( const DistSparseMatrix<Field>& A )
     for( Int k=0; k<numLocalEntries; ++k )
         UpdateScaledSquare( valBuf[k], localScale, localScaledSquare );
 
-    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
+    return NormFromScaledSquare
+      ( localScale, localScaledSquare, A.Grid().Comm() );
 }
 
 template<typename Field>
@@ -264,7 +265,8 @@ Base<Field> HermitianFrobeniusNorm
             UpdateScaledSquare( value, localScale, localScaledSquare );
     }
 
-    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
+    return NormFromScaledSquare
+      ( localScale, localScaledSquare, A.Grid().Comm() );
 }
 
 template<typename Field>
@@ -296,7 +298,8 @@ Base<Field> FrobeniusNorm( const DistMultiVec<Field>& A )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare( ALoc(iLoc,j), localScale, localScaledSquare );
 
-    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
+    return NormFromScaledSquare
+      ( localScale, localScaledSquare, A.Grid().Comm() );
 }
 
 #define PROTO(Field) \

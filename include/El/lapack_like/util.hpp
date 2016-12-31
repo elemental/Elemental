@@ -37,25 +37,40 @@ Int Bisect
 // NOTE: for two or more processes
 Int Bisect
 ( const DistGraph& graph,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child,
         DistMap& perm,
         bool& onLeft,
   const BisectCtrl& ctrl=BisectCtrl() );
 
 Int NaturalBisect
-( Int nx, Int ny, Int nz,
+( Int nx,
+  Int ny,
+  Int nz,
   const Graph& graph,
-  Int& nxLeft, Int& nyLeft, Int& nzLeft,
+  Int& nxLeft,
+  Int& nyLeft,
+  Int& nzLeft,
   Graph& leftChild,
-  Int& nxRight, Int& nyRight, Int& nzRight,
-  Graph& rightChild, vector<Int>& perm );
+  Int& nxRight,
+  Int& nyRight,
+  Int& nzRight,
+  Graph& rightChild,
+  vector<Int>& perm );
 
 // NOTE: for two or more processes
 Int NaturalBisect
-( Int nx, Int ny, Int nz,
+( Int nx,
+  Int ny,
+  Int nz,
   const DistGraph& graph,
-  Int& nxChild, Int& nyChild, Int& nzChild,
-  DistGraph& child, DistMap& perm, bool& onLeft );
+  Int& nxChild,
+  Int& nyChild,
+  Int& nzChild,
+  unique_ptr<Grid>& childGrid,
+  DistGraph& child,
+  DistMap& perm,
+  bool& onLeft );
 
 void EnsurePermutation( const vector<Int>& map );
 void EnsurePermutation( const DistMap& map );
@@ -67,7 +82,7 @@ void BuildChildrenFromPerm
 void BuildChildFromPerm
 ( const DistGraph& graph, const DistMap& perm,
   Int leftChildSize, Int rightChildSize,
-  bool& onLeft, DistGraph& child );
+  bool& onLeft, unique_ptr<Grid>& childGrid, DistGraph& child );
 
 // Median
 // ======

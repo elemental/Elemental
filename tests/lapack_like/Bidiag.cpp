@@ -2,16 +2,16 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F> 
+template<typename F>
 void TestCorrectness
-( const Matrix<F>& A, 
+( const Matrix<F>& A,
   const Matrix<F>& householderScalarsP,
   const Matrix<F>& householderScalarsQ,
         Matrix<F>& AOrig,
@@ -75,7 +75,7 @@ void TestCorrectness
     }
     else
     {
-        MakeTrapezoidal( LOWER, AOrig ); 
+        MakeTrapezoidal( LOWER, AOrig );
         MakeTrapezoidal( UPPER, AOrig, -1 );
     }
     B -= AOrig;
@@ -94,9 +94,9 @@ void TestCorrectness
         LogicError("Relative error was unacceptably large");
 }
 
-template<typename F> 
+template<typename F>
 void TestCorrectness
-( const DistMatrix<F>& A, 
+( const DistMatrix<F>& A,
   const DistMatrix<F,STAR,STAR>& householderScalarsP,
   const DistMatrix<F,STAR,STAR>& householderScalarsQ,
         DistMatrix<F>& AOrig,
@@ -162,7 +162,7 @@ void TestCorrectness
     }
     else
     {
-        MakeTrapezoidal( LOWER, AOrig ); 
+        MakeTrapezoidal( LOWER, AOrig );
         MakeTrapezoidal( UPPER, AOrig, -1 );
     }
     B -= AOrig;
@@ -276,7 +276,7 @@ void TestBidiag
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -290,7 +290,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--width","width of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool sequential = Input("--sequential","test sequential?",true);
-        const bool correctness = 
+        const bool correctness =
           Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
@@ -305,7 +305,7 @@ main( int argc, char* argv[] )
 #endif
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );

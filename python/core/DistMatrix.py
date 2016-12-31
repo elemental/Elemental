@@ -35,7 +35,7 @@ class DistMatrix(object):
   lib.ElDistMatrixCreateSpecific_c.argtypes = \
   lib.ElDistMatrixCreateSpecific_z.argtypes = \
     [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
-  def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.DefaultGrid()):
+  def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.Grid.Default()):
     self.obj = c_void_p()
     CheckTag(tag)
     args = [colDist,rowDist,grid.obj,pointer(self.obj)]
@@ -648,7 +648,7 @@ class DistMatrix(object):
   lib.ElDistMatrixGrid_z.argtypes = \
     [c_void_p,POINTER(c_void_p)]
   def Grid(self):
-    grid = G.Grid()
+    grid = G.Grid(create=False)
     args = [self.obj,pointer(grid.obj)]
     if   self.tag == iTag: lib.ElDistMatrixGrid_i(*args)
     elif self.tag == sTag: lib.ElDistMatrixGrid_s(*args)

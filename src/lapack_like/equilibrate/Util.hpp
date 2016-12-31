@@ -78,7 +78,7 @@ MinAbsNonzero( const DistSparseMatrix<Field>& A, Base<Field> upperBound )
         if( absVal > Real(0) )
             minLocAbs = Min(minLocAbs,absVal);
     }
-    return mpi::AllReduce( minLocAbs, mpi::MIN, A.Comm() );
+    return mpi::AllReduce( minLocAbs, mpi::MIN, A.Grid().Comm() );
 }
 
 template<typename Field,Dist U,Dist V>

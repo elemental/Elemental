@@ -91,12 +91,15 @@ public:
     int BlacsMCMRContext() const;
 #endif
 
-    static int FindFactor( int p ) EL_NO_EXCEPT;
+    static int DefaultHeight( int gridSize ) EL_NO_EXCEPT;
 
     // To be used internally by Elemental
     static void InitializeDefault();
+    static void InitializeTrivial();
     static void FinalizeDefault(); 
+    static void FinalizeTrivial();
     static const Grid& Default() EL_NO_RELEASE_EXCEPT;
+    static const Grid& Trivial() EL_NO_RELEASE_EXCEPT;
 
 private:
     bool haveViewers_;
@@ -105,6 +108,7 @@ private:
     GridOrder order_;
 
     static Grid* defaultGrid;
+    static Grid* trivialGrid;
 
     vector<int> diagsAndRanks_;
     vector<int> vcToViewing_;

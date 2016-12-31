@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -39,7 +39,7 @@ void TestCorrectness
     const Real relErr = infNormE / (eps*n*oneNormY);
 
     Output("||X - A \\ Y ||_oo / (eps n || Y ||_1) = ",relErr);
-    // TODO: Use more refined failure criteria 
+    // TODO(poulson): Use more refined failure criteria
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
@@ -76,14 +76,14 @@ void TestCorrectness
 
     OutputFromRoot
     (g.Comm(), "||X - A \\ Y ||_oo / (eps n || Y ||_1) = ",relErr);
-    // TODO: Use more refined failure criteria 
+    // TODO(poulson): Use more refined failure criteria
     if( relErr > Real(100) )
         LogicError("Relative error was unacceptably large");
 }
 
-template<typename F> 
+template<typename F>
 void TestSequentialCholesky
-( UpperOrLower uplo, 
+( UpperOrLower uplo,
   bool pivot,
   Int m,
   bool print,
@@ -113,7 +113,7 @@ void TestSequentialCholesky
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     Output(runTime," seconds (",gFlops," GFlop/s)");
     if( print )
-    { 
+    {
         Print( A, "A after factorization" );
         if( pivot )
         {
@@ -129,10 +129,10 @@ void TestSequentialCholesky
     PopIndent();
 }
 
-template<typename F> 
+template<typename F>
 void TestCholesky
 ( const Grid& g,
-  UpperOrLower uplo, 
+  UpperOrLower uplo,
   bool pivot,
   Int m,
   Int nbLocal,
@@ -172,7 +172,7 @@ void TestCholesky
     const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
     OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
-    { 
+    {
         Print( A, "A after factorization" );
         if( pivot )
         {
@@ -188,7 +188,7 @@ void TestCholesky
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -224,8 +224,8 @@ main( int argc, char* argv[] )
 #endif
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
         const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );

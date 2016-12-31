@@ -107,14 +107,14 @@ void ProductLanczos
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
     // Cache the adjoint
     // -----------------
-    DistSparseMatrix<Field> AAdj(comm);
+    DistSparseMatrix<Field> AAdj(grid);
     Adjoint( A, AAdj );
 
-    DistMultiVec<Field> S(comm);
+    DistMultiVec<Field> S(grid);
 
     if( m >= n )
     {
@@ -153,13 +153,13 @@ Base<Field> ProductLanczosDecomp
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Field> S(comm);
+    DistMultiVec<Field> S(grid);
 
     // Cache the adjoint
     // -----------------
-    DistSparseMatrix<Field> AAdj(comm);
+    DistSparseMatrix<Field> AAdj(grid);
     Adjoint( A, AAdj );
 
     if( m >= n )

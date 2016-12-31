@@ -288,10 +288,10 @@ Real MaxStep
 {
     EL_DEBUG_CSE
     typedef Promote<Real> PReal;
-    mpi::Comm comm = x.Comm();
+    const Grid& grid = x.Grid();
 
-    DistMultiVec<PReal> xProm(comm), yProm(comm),
-                        xDets(comm), yDets(comm), xTRys(comm), maxSteps(comm);
+    DistMultiVec<PReal> xProm(grid), yProm(grid),
+                        xDets(grid), yDets(grid), xTRys(grid), maxSteps(grid);
     Copy( x, xProm );
     Copy( y, yProm );
     soc::Dets( xProm, xDets, orders, firstInds, cutoff );
@@ -326,7 +326,7 @@ Real MaxStep
 
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
-    return Real(mpi::AllReduce( alpha, mpi::MIN, comm ));
+    return Real(mpi::AllReduce( alpha, mpi::MIN, grid.Comm() ));
 }
 
 #define PROTO(Real) \

@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
@@ -136,7 +136,7 @@ def LogDetDiv(uplo,A,B):
 
 # SOC Identity
 # ============
-# TODO
+# TODO(poulson)
 
 # SOC dots
 # ========
@@ -150,7 +150,7 @@ lib.ElSOCDotsDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCDots(x,y,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     z = Matrix(x.tag)
     args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj]
@@ -166,7 +166,7 @@ def SOCDots(x,y,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return z
   elif type(x) is DistMultiVec:
-    z = DistMultiVec(x.tag,x.Comm())
+    z = DistMultiVec(x.tag,x.Grid())
     args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElSOCDotsDistMultiVec_s(*args)
     elif x.tag == dTag: lib.ElSOCDotsDistMultiVec_d(*args)
@@ -186,13 +186,13 @@ lib.ElConeBroadcastDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_int]
 
 def ConeBroadcast(x,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     args = [x.obj,orders.obj,firstInds.obj]
     if   x.tag == sTag: lib.ElConeBroadcast_s(*args)
     elif x.tag == dTag: lib.ElConeBroadcast_d(*args)
     else: DataExcept()
-  elif type(x) is DistMatrix: 
+  elif type(x) is DistMatrix:
     args = [x.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElConeBroadcastDist_s(*args)
     elif x.tag == dTag: lib.ElConeBroadcastDist_d(*args)
@@ -215,7 +215,7 @@ lib.ElSOCIdentityDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
 def SOCIdentity(x,orders,firstInds):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   args = [x.obj,orders.obj,firstInds.obj]
   if type(x) is Matrix:
     if   x.tag == sTag: lib.ElSOCIdentity_s(*args)
@@ -242,7 +242,7 @@ lib.ElSOCReflectDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p]
 
 def SOCReflect(x,orders,firstInds):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   args = [x.obj,orders.obj,firstInds.obj]
   if type(x) is Matrix:
     if   x.tag == sTag: lib.ElSOCReflect_s(*args)
@@ -270,7 +270,7 @@ lib.ElSOCDetsDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCDets(x,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     d = Matrix(x.tag)
     args = [x.obj,d.obj,orders.obj,firstInds.obj]
@@ -286,7 +286,7 @@ def SOCDets(x,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return d
   elif type(x) is DistMultiVec:
-    d = DistMultiVec(x.tag,x.Comm())
+    d = DistMultiVec(x.tag,x.Grid())
     args = [x.obj,d.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElSOCDetsDistMultiVec_s(*args)
     elif x.tag == dTag: lib.ElSOCDetsDistMultiVec_d(*args)
@@ -306,14 +306,14 @@ lib.ElNumNonSOCDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_int,POINTER(c_int)]
 
 def NumNonSOC(x,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   numNonSOC = iType()
   if type(x) is Matrix:
     args = [x.obj,orders.obj,firstInds.obj,pointer(numNonSOC)]
     if   x.tag == sTag: lib.ElNumNonSOC_s(*args)
     elif x.tag == dTag: lib.ElNumNonSOC_d(*args)
     else: DataExcept()
-  elif type(x) is DistMatrix: 
+  elif type(x) is DistMatrix:
     args = [x.obj,orders.obj,firstInds.obj,cutoff,pointer(numNonSOC)]
     if   x.tag == sTag: lib.ElNumNonSOCDist_s(*args)
     elif x.tag == dTag: lib.ElNumNonSOCDist_d(*args)
@@ -338,7 +338,7 @@ lib.ElSOCApplyDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCApply(x,y,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     z = Matrix(x.tag)
     args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj]
@@ -354,7 +354,7 @@ def SOCApply(x,y,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return z
   elif type(x) is DistMultiVec:
-    z = DistMultiVec(x.tag,x.Comm())
+    z = DistMultiVec(x.tag,x.Grid())
     args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElSOCApplyDistMultiVec_s(*args)
     elif x.tag == dTag: lib.ElSOCApplyDistMultiVec_d(*args)
@@ -374,7 +374,7 @@ lib.ElSOCApplyQuadraticDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCApplyQuadratic(x,y,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     z = Matrix(x.tag)
     args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj]
@@ -390,7 +390,7 @@ def SOCApplyQuadratic(x,y,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return z
   elif type(x) is DistMultiVec:
-    z = DistMultiVec(x.tag,x.Comm())
+    z = DistMultiVec(x.tag,x.Grid())
     args = [x.obj,y.obj,z.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElSOCApplyQuadraticDistMultiVec_s(*args)
     elif x.tag == dTag: lib.ElSOCApplyQuadraticDistMultiVec_d(*args)
@@ -410,7 +410,7 @@ lib.ElSOCInverseDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCInverse(x,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     xInv = Matrix(x.tag)
     args = [x.obj,xInv.obj,orders.obj,firstInds.obj]
@@ -426,7 +426,7 @@ def SOCInverse(x,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return xInv
   elif type(x) is DistMultiVec:
-    xInv = DistMultiVec(x.tag,x.Comm())
+    xInv = DistMultiVec(x.tag,x.Grid())
     args = [x.obj,xInv.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElSOCInverseDistMultiVec_s(*args)
     elif x.tag == dTag: lib.ElSOCInverseDistMultiVec_d(*args)
@@ -446,7 +446,7 @@ lib.ElSOCSquareRootDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCSquareRoot(x,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(x) is Matrix:
     xRoot = Matrix(x.tag)
     args = [x.obj,xRoot.obj,orders.obj,firstInds.obj]
@@ -462,7 +462,7 @@ def SOCSquareRoot(x,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return xRoot
   elif type(x) is DistMultiVec:
-    xRoot = DistMultiVec(x.tag,x.Comm())
+    xRoot = DistMultiVec(x.tag,x.Grid())
     args = [x.obj,xRoot.obj,orders.obj,firstInds.obj,cutoff]
     if   x.tag == sTag: lib.ElSOCSquareRootDistMultiVec_s(*args)
     elif x.tag == dTag: lib.ElSOCSquareRootDistMultiVec_d(*args)
@@ -482,7 +482,7 @@ lib.ElSOCNesterovToddDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,c_void_p,c_int]
 
 def SOCNesterovTodd(s,z,orders,firstInds,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   if type(s) is Matrix:
     w = Matrix(s.tag)
     args = [s.obj,z.obj,w.obj,orders.obj,firstInds.obj]
@@ -498,7 +498,7 @@ def SOCNesterovTodd(s,z,orders,firstInds,cutoff=1000):
     else: DataExcept()
     return w
   elif type(s) is DistMultiVec:
-    w = DistMultiVec(s.tag,s.Comm())
+    w = DistMultiVec(s.tag,s.Grid())
     args = [s.obj,z.obj,w.obj,orders.obj,firstInds.obj,cutoff]
     if   s.tag == sTag: lib.ElSOCNesterovToddDistMultiVec_s(*args)
     elif s.tag == dTag: lib.ElSOCNesterovToddDistMultiVec_d(*args)
@@ -520,7 +520,7 @@ lib.ElMaxStepInSOCDistMultiVec_d.argtypes = \
   [c_void_p,c_void_p,c_void_p,c_void_p,dType,iType,POINTER(dType)]
 
 def MaxStepInSOC(x,y,orders,firstInds,upperBound,cutoff=1000):
-  # TODO: Sanity checking
+  # TODO(poulson): Sanity checking
   alpha = TagToType(x.tag)()
   if type(x) is Matrix:
     args = [x.obj,y.obj,orders.obj,firstInds.obj,upperBound,pointer(alpha)]

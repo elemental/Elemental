@@ -317,9 +317,9 @@ void SymmetricGeomEquil
     EL_DEBUG_CSE
     typedef Base<Field> Real;
     const Int n = A.Height();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    d.SetComm( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
+    d.SetGrid( grid );
     Ones( d, n, 1 );
 
     // TODO(poulson): Expose these as control parameters
@@ -339,7 +339,7 @@ void SymmetricGeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    DistMultiVec<Real> scales(comm), rowMaxAbs(comm), rowMinAbs(comm);
+    DistMultiVec<Real> scales(grid), rowMaxAbs(grid), rowMinAbs(grid);
     Zeros( scales, n, 1 );
     auto& scalesLoc = scales.Matrix();
     const Real sqrtDamp = Sqrt(damp);
