@@ -91,25 +91,126 @@ struct MPSMeta
   // From the RHS section
   string rhsName="";
   Int numRHS=0;
+
+  Int m=0, n=0, k=0;
+
+  //
+  //   | A0 | x = | b0 |
+  //   | A1 |     | b1 |
+  //
+  Int equalityOffset=-1, fixedOffset=-1;
+
+  //
+  //   | G0 | x <= | h0 |
+  //   | G1 |      | h1 |
+  //   | G2 |      | h2 |
+  //   | G3 |      | h3 |
+  //   | G4 |      | h4 |
+  //   | G5 |      | h5 |
+  //
+  Int lesserOffset=-1,
+      greaterOffset=-1,
+      upperBoundOffset=-1,
+      lowerBoundOffset=-1,
+      nonpositiveOffset=-1,
+      nonnegativeOffset=-1;
 };
 
-namespace read_mps {
+enum AffineLPMatrixType {
+  AFFINE_LP_COST_VECTOR, // The 'c' in 'c^T x'
+  AFFINE_LP_EQUALITY_MATRIX, // The 'A' in 'A x = b'
+  AFFINE_LP_EQUALITY_VECTOR, // The 'b' in 'A x = b'
+  AFFINE_LP_INEQUALITY_MATRIX, // The 'G' in  'G x <= h'
+  AFFINE_LP_INEQUALITY_VECTOR // The 'h' in 'G x <= h'
+};
 
-// TODO(poulson): Convert to a parser that outputs tuples of the form:
-//
-//   (whichMatrix,row,column,value).
-//
-// It must also be possible to query the relevant matrix sizes.
+template<typename Real>
+struct AffineLPEntry
+{
+  AffineLPMatrixType type;
+  Int row;
+  Int column;
+  Real value;
+};
 
-// NOTE: It is assumed that MPSMeta is in its original state on entry.
-void GetMetadata
+// We form the primal problem
+//
+//   arginf_{x,s} { c^T x | A x = b, G x + s = h, s >= 0 },
+//
+// where 'A x = b' consists of the 'equality' MPS rows and the 'fixed'
+// rows, e.g.,
+//
+//   | A0 | x = | b0 |,
+//   | A1 |     | b1 |
+//
+// where 'A0 x = b0' the set of 'equality' rows and 'A1 x = b1' is the
+// set of 'fixed' rows (so that each row of 'A1' is all zeros except for
+// a single one).
+//
+// Furthermore, 'G x + s = h, s >= 0' takes the form
+//
+//   | G0 | x <= | h0 |,
+//   | G1 |      | h1 |
+//   | G2 |      | h2 |
+//   | G3 |      | h3 |
+//   | G4 |      | h4 |
+//   | G5 |      | h5 |
+//
+// where 'G0 x <= h0' consists of the 'lesser' rows, 'G1 x <= h1' is the
+// negation of the 'greater' rows, 'G2 x <= h2' consists of the upper
+// bounds (each row of 'G0' is all zeros except for a single one),
+// 'G3 x <= h3' is the negation of the lower bounds (each row of 'G3'
+// is all zeros except for a single negative one), 'G4 x <= h4' is the
+// set of nonpositive bounds, and 'G5 x <= h5' is the set of nonnegative
+// bounds.
+//
+class MPSReader
+{
+public:
+    MPSReader
+    ( const string& filename,
+      bool compressed=false,
+      bool upperBoundImplicitlyNonnegative=false );
+
+    // Attempt to enqueue another entry and return true if successful.
+    bool QueuedEntry();
+
+    // Only one call is allowed per call to 'QueuedEntry'.
+    AffineLPEntry<double> GetEntry(); 
+
+    const MPSMeta& Meta() const;
+
+private:
+    bool upperBoundImplicitlyNonnegative_;
+    string filename_;
+    std::ifstream file_;
+    MPSMeta meta_;
+
+    vector<AffineLPEntry<double>> queuedEntries_;
+  
+    MPSSection section_=MPS_NONE;
+
+    // Temporaries for the metadata extraction process.
+    string line_;
+    string token_, rowType_, rowName_, variableName_, boundMark_;
+    double value_;
+
+    // For the final loop over the variable dictionary to extract the
+    // nonpositive and nonnegative bounds.
+    typename std::map<string,MPSVariableData>::const_iterator variableIter_;
+};
+
+MPSReader::MPSReader
 ( const string& filename,
-  MPSMeta& meta,
+  bool compressed,
   bool upperBoundImplicitlyNonnegative )
+: upperBoundImplicitlyNonnegative_(upperBoundImplicitlyNonnegative),
+  filename_(filename), file_(filename.c_str())
 {
     EL_DEBUG_CSE
-    std::ifstream file( filename.c_str() );
-    if( !file.is_open() )
+    if( compressed )
+        LogicError("Compressed reads are not yet supported");
+    if( !file_.is_open() )
         RuntimeError("Could not open ",filename);
 
     // Rather than assuming that std::map<string,Int>::size() is constant-time,
@@ -126,7 +227,7 @@ void GetMetadata
     // not required.
     MPSSection section = MPS_NONE;
     string line;
-    while( std::getline( file, line ) )
+    while( std::getline( file_, line ) )
     {
         std::stringstream lineStream( line );
         const char firstChar = lineStream.peek();
@@ -144,9 +245,9 @@ void GetMetadata
         {
             if( token == "NAME" )
             {
-                if( meta.name != "" )
+                if( meta_.name != "" )
                     Output("WARNING: Multiple 'NAME' sections");
-                if( !(lineStream >> meta.name) )
+                if( !(lineStream >> meta_.name) )
                     LogicError("Missing 'NAME' string");
                 section = MPS_NAME;
             }
@@ -156,16 +257,16 @@ void GetMetadata
             }
             else if( token == "ROWS" )
             {
-                if( meta.numLesserRows > 0 ||
-                    meta.numGreaterRows > 0 ||
-                    meta.numEqualityRows > 0 ||
-                    meta.numNonconstrainingRows > 0 )
+                if( meta_.numLesserRows > 0 ||
+                    meta_.numGreaterRows > 0 ||
+                    meta_.numEqualityRows > 0 ||
+                    meta_.numNonconstrainingRows > 0 )
                     Output("WARNING: Multiple ROWS sections");
                 section = MPS_ROWS;
             }
             else if( token == "COLUMNS" )
             {
-                if( meta.numColumnEntries > 0 )
+                if( meta_.numColumnEntries > 0 )
                     Output("WARNING: Multiple 'COLUMNS' sections");
                 section = MPS_COLUMNS;
             }
@@ -175,12 +276,12 @@ void GetMetadata
             }
             else if( token == "BOUNDS" )
             {
-                if( meta.numUpperBounds > 0 ||
-                    meta.numLowerBounds > 0 ||
-                    meta.numFixedBounds > 0 ||
-                    meta.numFreeBounds > 0 ||
-                    meta.numNonpositiveBounds > 0 ||
-                    meta.numNonnegativeBounds > 0 )
+                if( meta_.numUpperBounds > 0 ||
+                    meta_.numLowerBounds > 0 ||
+                    meta_.numFixedBounds > 0 ||
+                    meta_.numFreeBounds > 0 ||
+                    meta_.numNonpositiveBounds > 0 ||
+                    meta_.numNonnegativeBounds > 0 )
                     Output("WARNING: Multiple 'BOUNDS' sections");
                 section = MPS_BOUNDS;
             }
@@ -219,28 +320,28 @@ void GetMetadata
             if( rowType == "L" )
             {
                 rowData.type = MPS_LESSER_ROW;
-                rowData.typeIndex = meta.numLesserRows++;
-                meta.rowDict[rowName] = rowData;
+                rowData.typeIndex = meta_.numLesserRows++;
+                meta_.rowDict[rowName] = rowData;
             }
             else if( rowType == "G" )
             {
                 rowData.type = MPS_GREATER_ROW;
-                rowData.typeIndex = meta.numGreaterRows++;
-                meta.rowDict[rowName] = rowData;
+                rowData.typeIndex = meta_.numGreaterRows++;
+                meta_.rowDict[rowName] = rowData;
             }
             else if( rowType == "E" )
             {
                 rowData.type = MPS_EQUALITY_ROW;
-                rowData.typeIndex = meta.numEqualityRows++;
-                meta.rowDict[rowName] = rowData;
+                rowData.typeIndex = meta_.numEqualityRows++;
+                meta_.rowDict[rowName] = rowData;
             }
             else if( rowType == "N" )
             {
                 rowData.type = MPS_NONCONSTRAINING_ROW;
-                rowData.typeIndex = meta.numNonconstrainingRows++;
-                meta.rowDict[rowName] = rowData;
-                if( meta.numNonconstrainingRows == 1 )
-                    meta.costName = rowName;
+                rowData.typeIndex = meta_.numNonconstrainingRows++;
+                meta_.rowDict[rowName] = rowData;
+                if( meta_.numNonconstrainingRows == 1 )
+                    meta_.costName = rowName;
             }
             else
                 LogicError("Invalid 'ROWS' section");
@@ -248,13 +349,13 @@ void GetMetadata
         else if( section == MPS_COLUMNS )
         {
             variableName = token;
-            auto variableIter = meta.variableDict.find( variableName );
-            if( variableIter == meta.variableDict.end() )
+            auto variableIter = meta_.variableDict.find( variableName );
+            if( variableIter == meta_.variableDict.end() )
             {
                 MPSVariableData variableData;
                 variableData.index = variableCounter++;
-                meta.variableDict[variableName] = variableData;
-                variableIter = meta.variableDict.find( variableName );
+                meta_.variableDict[variableName] = variableData;
+                variableIter = meta_.variableDict.find( variableName );
             }
             MPSVariableData& variableData = variableIter->second;
 
@@ -272,19 +373,19 @@ void GetMetadata
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'COLUMNS' section");
                 ++variableData.numNonzeros;
-                ++meta.numColumnEntries;
+                ++meta_.numColumnEntries;
             }
         }
         else if( section == MPS_RHS )
         {
             rhsNameCandidate = token;
-            if( meta.numRHS == 0 )
+            if( meta_.numRHS == 0 )
             {
                 // We should currently have that rhsName == "".
-                meta.rhsName = rhsNameCandidate;
-                meta.numRHS = 1;
+                meta_.rhsName = rhsNameCandidate;
+                meta_.numRHS = 1;
             }
-            else if( rhsNameCandidate != meta.rhsName )
+            else if( rhsNameCandidate != meta_.rhsName )
                 LogicError
                 ("Only single problem instances are currently supported "
                  "(multiple right-hand side names were encountered)");
@@ -316,16 +417,16 @@ void GetMetadata
             boundMark = token;
             if( !(lineStream >> boundNameCandidate) )
                 LogicError("Invalid 'BOUNDS' section");
-            if( meta.boundName == "" )
-                meta.boundName = boundNameCandidate;
-            else if( meta.boundName != boundNameCandidate )
+            if( meta_.boundName == "" )
+                meta_.boundName = boundNameCandidate;
+            else if( meta_.boundName != boundNameCandidate )
                 LogicError
                 ("Only single problem instances are currently supported "
                  "(multiple bound names were encountered)");
             if( !(lineStream >> variableName) )
                 LogicError("Invalid 'BOUNDS' section");
-            auto variableIter = meta.variableDict.find( variableName );
-            if( variableIter == meta.variableDict.end() )
+            auto variableIter = meta_.variableDict.find( variableName );
+            if( variableIter == meta_.variableDict.end() )
                 LogicError
                 ("Invalid 'BOUNDS' section (variable name not found)");
             MPSVariableData& variableData = variableIter->second;
@@ -353,18 +454,18 @@ void GetMetadata
             LogicError("Invalid MPS file");
         }
     }
-    if( meta.name == "" )
+    if( meta_.name == "" )
         LogicError("No nontrivial 'NAME' was found");
-    if( meta.numRHS == 0 )
+    if( meta_.numRHS == 0 )
     {
         // Any unmentioned values are assumed to be zero.
-        meta.numRHS = 1;
+        meta_.numRHS = 1;
     }
 
     // Now iterate through the variable map and make use of the requested
     // conventions for counting the number of bounds of each type.
     // Also warn if there are possibly conflicting bound types.
-    for( auto& entry : meta.variableDict )
+    for( auto& entry : meta_.variableDict )
     {
         auto& data = entry.second;
         // Handle explicit upper and lower bounds.
@@ -372,29 +473,28 @@ void GetMetadata
         {
             if( data.upperBounded && data.lowerBounded )
             {
-                data.upperBoundIndex = meta.numUpperBounds++;
-                data.lowerBoundIndex = meta.numLowerBounds++;
+                data.upperBoundIndex = meta_.numUpperBounds++;
+                data.lowerBoundIndex = meta_.numLowerBounds++;
             }
             else if( data.upperBounded )
             {
-                data.upperBoundIndex = meta.numUpperBounds++;
+                data.upperBoundIndex = meta_.numUpperBounds++;
                 data.nonnegative = true;
             }
             else if( data.lowerBounded )
             {
-                data.lowerBoundIndex = meta.numLowerBounds++;
-                ++meta.numLowerBounds;
+                data.lowerBoundIndex = meta_.numLowerBounds++;
             }
         }
         else
         {
             if( data.upperBounded )
             {
-                data.upperBoundIndex = meta.numUpperBounds++;
+                data.upperBoundIndex = meta_.numUpperBounds++;
             }
             if( data.lowerBounded )
             {
-                data.lowerBoundIndex = meta.numLowerBounds++;
+                data.lowerBoundIndex = meta_.numLowerBounds++;
             }
         }
 
@@ -403,7 +503,7 @@ void GetMetadata
         {
             if( data.upperBounded || data.lowerBounded )
                 LogicError("Invalid bound combination");
-            data.fixedIndex = meta.numFixedBounds++;
+            data.fixedIndex = meta_.numFixedBounds++;
         }
 
         // Handle free values.
@@ -411,7 +511,7 @@ void GetMetadata
         {
             if( data.upperBounded || data.lowerBounded )
                 LogicError("Invalid bound combination");
-            data.freeIndex = meta.numFreeBounds++;
+            data.freeIndex = meta_.numFreeBounds++;
         }
 
         // Handle non-positive values.
@@ -420,7 +520,7 @@ void GetMetadata
             if( data.upperBounded )
                 Output
                 ("WARNING: Combined nonpositive constraint with upper bound");
-            data.nonpositiveIndex = meta.numNonpositiveBounds++;
+            data.nonpositiveIndex = meta_.numNonpositiveBounds++;
         }
 
         // Default to nonnegative if there were not any markings.
@@ -439,94 +539,63 @@ void GetMetadata
             if( data.lowerBounded )
                 Output
                 ("WARNING: Combined nonnegative constraint with lower bound");
-            data.nonnegativeIndex = meta.numNonnegativeBounds++;
+            data.nonnegativeIndex = meta_.numNonnegativeBounds++;
         }
     }
-}
 
-template<typename Real>
-void FormProblem
-( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
-  const string& filename,
-  const MPSMeta& meta )
-{
-    EL_DEBUG_CSE
-    const Int n = meta.variableDict.size();
+    // Now that the initial pass over the file is done, we can set up for the
+    // 'QueuedEntry'/'GetEntry' cycle.
 
-    // We form the primal problem
+    // Reset the file.
+    file_.clear();
+    file_.seekg( 0, std::ios::beg );
+
+    // Extract the number of variables
+    // (the matrix 'A' is 'm x n' and 'G' is 'k x n').
+    meta_.n = meta_.variableDict.size();
+    variableIter_ = meta_.variableDict.cbegin();
+
     //
-    //   arginf_{x,s} { c^T x | A x = b, G x + s = h, s >= 0 },
-    //
-    // where 'A x = b' consists of the 'equality' MPS rows and the 'fixed'
-    // rows, e.g.,
-    //
-    //   | A0 | x = | b0 |,
+    //   | A0 | x = | b0 |
     //   | A1 |     | b1 |
     //
-    // where 'A0 x = b0' the set of 'equality' rows and 'A1 x = b1' is the
-    // set of 'fixed' rows (so that each row of 'A1' is all zeros except for
-    // a single one).
-    //
-    const Int equalityOffset = 0;
-    const Int fixedOffset = meta.numEqualityRows;
-    const Int m = fixedOffset + meta.numFixedBounds;
+    meta_.equalityOffset = 0;
+    meta_.fixedOffset = meta_.numEqualityRows;
+    meta_.m = meta_.fixedOffset + meta_.numFixedBounds;
 
-    // Furthermore, 'G x + s = h, s >= 0' takes the form
     //
-    //   | G0 | x <= | h0 |,
+    //   | G0 | x <= | h0 |
     //   | G1 |      | h1 |
     //   | G2 |      | h2 |
     //   | G3 |      | h3 |
     //   | G4 |      | h4 |
     //   | G5 |      | h5 |
     //
-    // where 'G0 x <= h0' consists of the 'lesser' rows, 'G1 x <= h1' is the
-    // negation of the 'greater' rows, 'G2 x <= h2' consists of the upper
-    // bounds (each row of 'G0' is all zeros except for a single one),
-    // 'G3 x <= h3' is the negation of the lower bounds (each row of 'G3'
-    // is all zeros except for a single negative one), 'G4 x <= h4' is the
-    // set of nonpositive bounds, and 'G5 x <= h5' is the set of nonnegative
-    // bounds.
-    //
-    const Int lesserOffset = 0;
-    const Int greaterOffset = meta.numLesserRows;
-    const Int upperBoundOffset = greaterOffset + meta.numGreaterRows;
-    const Int lowerBoundOffset = upperBoundOffset + meta.numUpperBounds;
-    const Int nonpositiveOffset = lowerBoundOffset + meta.numLowerBounds;
-    const Int nonnegativeOffset = nonpositiveOffset + meta.numNonpositiveBounds;
-    const Int k = nonnegativeOffset + meta.numNonnegativeBounds;
+    meta_.lesserOffset = 0;
+    meta_.greaterOffset = meta_.numLesserRows;
+    meta_.upperBoundOffset = meta_.greaterOffset + meta_.numGreaterRows;
+    meta_.lowerBoundOffset = meta_.upperBoundOffset + meta_.numUpperBounds;
+    meta_.nonpositiveOffset = meta_.lowerBoundOffset + meta_.numLowerBounds;
+    meta_.nonnegativeOffset =
+      meta_.nonpositiveOffset + meta_.numNonpositiveBounds;
+    meta_.k = meta_.nonnegativeOffset + meta_.numNonnegativeBounds;
+}
 
-    // TODO(poulson): Support for reducing the system by eliminating the
-    // 'fixed' variables.
+bool MPSReader::QueuedEntry()
+{
+    EL_DEBUG_CSE
 
-    Zeros( problem.c, n, 1 );
-    Zeros( problem.A, m, n );
-    Zeros( problem.b, m, 1 );
-    Zeros( problem.G, k, n );
-    Zeros( problem.h, k, 1 );
-
-    std::ifstream file( filename.c_str() );
-    if( !file.is_open() )
-        RuntimeError("Could not open ",filename);
-
-    // Temporaries for the metadata extraction process.
-    string token, rowType, rowName, variableName, boundMark;
-    double value;
-
-    // TODO(poulson): Convert each token to upper-case letters before each
-    // comparison. While capital letters are used by convention, they are
-    // not required.
-    MPSSection section = MPS_NONE;
-    string line;
-    while( std::getline( file, line ) )
+    while( queuedEntries_.size() == 0 &&
+           section_ != MPS_END &&
+           std::getline( file_, line_ ) )
     {
-        std::stringstream lineStream( line );
+        std::stringstream lineStream( line_ );
         const char firstChar = lineStream.peek();
         const bool isDataLine = firstChar == ' ' || firstChar == '\t';
 
         // The first token on each line should be a string. We will check it for
         // equivalence with each section string.
-        if( !(lineStream >> token) )
+        if( !(lineStream >> token_) )
         {
             // This line only consists of whitespace.
             continue;
@@ -534,57 +603,58 @@ void FormProblem
 
         if( !isDataLine )
         {
-            if( token == "NAME" )
+            if( token_ == "NAME" )
             {
-                section = MPS_NAME;
+                section_ = MPS_NAME;
             }
-            else if( token == "OBJSENSE" )
+            else if( token_ == "OBJSENSE" )
             {
                 LogicError("OBJSENSE is not yet handled");
             }
-            else if( token == "ROWS" )
+            else if( token_ == "ROWS" )
             {
-                section = MPS_ROWS;
+                section_ = MPS_ROWS;
             }
-            else if( token == "COLUMNS" )
+            else if( token_ == "COLUMNS" )
             {
-                section = MPS_COLUMNS;
+                section_ = MPS_COLUMNS;
             }
-            else if( token == "RHS" )
+            else if( token_ == "RHS" )
             {
-                section = MPS_RHS;
+                section_ = MPS_RHS;
             }
-            else if( token == "BOUNDS" )
+            else if( token_ == "BOUNDS" )
             {
-                section = MPS_BOUNDS;
+                section_ = MPS_BOUNDS;
             }
-            else if( token == "RANGES" )
+            else if( token_ == "RANGES" )
             {
-                section = MPS_RANGES;
+                section_ = MPS_RANGES;
             }
-            else if( token == "ENDATA" )
+            else if( token_ == "ENDATA" )
             {
-                section = MPS_END;
+                section_ = MPS_END;
                 break;
             }
             else
             {
-                LogicError("Section token ",token," is not recognized");
+                LogicError("Section token ",token_," is not recognized");
             }
             continue;
         }
 
         // No section marker was found, so handle this data line.
-        if( section == MPS_ROWS )
+        double value;
+        if( section_ == MPS_ROWS )
         {
             // We already have the row names.
         }
-        else if( section == MPS_COLUMNS )
+        else if( section_ == MPS_COLUMNS )
         {
-            variableName = token;
-            auto variableIter = meta.variableDict.find( variableName );
-            if( variableIter == meta.variableDict.end() )
-                LogicError("Could not find variable ",variableName);
+            variableName_ = token_;
+            auto variableIter = meta_.variableDict.find( variableName_ );
+            if( variableIter == meta_.variableDict.end() )
+                LogicError("Could not find variable ",variableName_);
             const MPSVariableData& variableData = variableIter->second;
             const Int column = variableData.index;
 
@@ -592,7 +662,7 @@ void FormProblem
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(lineStream >> rowName) )
+                if( !(lineStream >> rowName_) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'COLUMNS' section");
@@ -601,43 +671,63 @@ void FormProblem
                 }
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'COLUMNS' section");
-                auto rowIter = meta.rowDict.find( rowName );
-                if( rowIter == meta.rowDict.end() )
-                    LogicError("Could not find row ",rowName);
+                auto rowIter = meta_.rowDict.find( rowName_ );
+                if( rowIter == meta_.rowDict.end() )
+                    LogicError("Could not find row ",rowName_);
                 const auto& rowData = rowIter->second;
+                AffineLPEntry<double> entry;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
-                    const Int row = equalityOffset + rowData.typeIndex;
-                    problem.A(row,column) = value;
+                    // A(row,column) = value
+                    const Int row = meta_.equalityOffset + rowData.typeIndex;
+                    entry.type = AFFINE_LP_EQUALITY_MATRIX;
+                    entry.row = row;
+                    entry.column = column;
+                    entry.value = value;
+                    queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_LESSER_ROW )
                 {
-                    const Int row = lesserOffset + rowData.typeIndex;
-                    problem.G(row,column) = value;
+                    // G(row,column) = value
+                    const Int row = meta_.lesserOffset + rowData.typeIndex;
+                    entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+                    entry.row = row;
+                    entry.column = column;
+                    entry.value = value;
+                    queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_GREATER_ROW )
                 {
-                    const Int row = greaterOffset + rowData.typeIndex;
-                    problem.G(row,column) = -value;
+                    // G(row,column) = -value
+                    const Int row = meta_.greaterOffset + rowData.typeIndex;
+                    entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+                    entry.row = row;
+                    entry.column = column;
+                    entry.value = -value;
+                    queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_NONCONSTRAINING_ROW )
                 {
                     if( rowData.typeIndex == 0 )
                     {
-                        // Store the cost for this variable.
-                        problem.c(column) = value;
+                        // c(column) = value
+                        entry.type = AFFINE_LP_COST_VECTOR;
+                        entry.row = column;
+                        entry.column = 0;
+                        entry.value = value;
+                        queuedEntries_.push_back( entry );
                     }
                     // else?
                 }
             }
         }
-        else if( section == MPS_RHS )
+        else if( section_ == MPS_RHS )
         {
             // There should be either one or two pairs of entries left to read
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(lineStream >> rowName) )
+                if( !(lineStream >> rowName_) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'RHS' section");
@@ -646,24 +736,40 @@ void FormProblem
                 }
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'RHS' section");
-                auto rowIter = meta.rowDict.find( rowName );
-                if( rowIter == meta.rowDict.end() )
-                    LogicError("Could not find row ",rowName);
+                auto rowIter = meta_.rowDict.find( rowName_ );
+                if( rowIter == meta_.rowDict.end() )
+                    LogicError("Could not find row ",rowName_);
                 const auto& rowData = rowIter->second;
+                AffineLPEntry<double> entry;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
-                    const Int row = equalityOffset + rowData.typeIndex;
-                    problem.b(row) = value;
+                    // b(row) = value
+                    const Int row = meta_.equalityOffset + rowData.typeIndex;
+                    entry.type = AFFINE_LP_EQUALITY_VECTOR;
+                    entry.row = row;
+                    entry.column = 0;
+                    entry.value = value;
+                    queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_LESSER_ROW )
                 {
-                    const Int row = lesserOffset + rowData.typeIndex;
-                    problem.h(row) = value;
+                    // h(row) = value
+                    const Int row = meta_.lesserOffset + rowData.typeIndex;
+                    entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+                    entry.row = row;
+                    entry.column = 0;
+                    entry.value = value;
+                    queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_GREATER_ROW )
                 {
-                    const Int row = greaterOffset + rowData.typeIndex;
-                    problem.h(row) = -value;
+                    // h(row) = -value
+                    const Int row = meta_.greaterOffset + rowData.typeIndex;
+                    entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+                    entry.row = row;
+                    entry.column = 0;
+                    entry.value = -value;
+                    queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_NONCONSTRAINING_ROW )
                 {
@@ -671,7 +777,7 @@ void FormProblem
                 }
             }
         }
-        else if( section == MPS_BOUNDS )
+        else if( section_ == MPS_BOUNDS )
         {
             // We already have the first token of a bounding row, which should
             // be of the same general form as
@@ -680,58 +786,97 @@ void FormProblem
             //
             // in the case of 'VARIABLENAME' being fixed ('FX') at the value
             // 1734 (with this problem's bound name being 'BOUNDROW').
-            boundMark = token;
-            if( !(lineStream >> token) )
+            boundMark_ = token_;
+            if( !(lineStream >> token_) )
                 LogicError("Invalid 'BOUNDS' section");
-            if( !(lineStream >> variableName) )
+            if( !(lineStream >> variableName_) )
                 LogicError("Invalid 'BOUNDS' section");
-            auto variableIter = meta.variableDict.find( variableName );
-            if( variableIter == meta.variableDict.end() )
+            auto variableIter = meta_.variableDict.find( variableName_ );
+            if( variableIter == meta_.variableDict.end() )
                 LogicError
                 ("Invalid 'BOUNDS' section (variable name not found)");
             const MPSVariableData& variableData = variableIter->second;
             const Int column = variableData.index;
 
-            if( boundMark == "UP" )
+            AffineLPEntry<double> entry;
+            if( boundMark_ == "UP" )
             {
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'BOUNDS' section");
-                const Int row = upperBoundOffset + variableData.upperBoundIndex;
-                problem.G(row,column) = Real(1);
-                problem.h(row) = value;
+                const Int row =
+                  meta_.upperBoundOffset + variableData.upperBoundIndex;
+
+                // G(row,column) = 1
+                entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+                entry.row = row;
+                entry.column = column;
+                entry.value = 1;
+                queuedEntries_.push_back( entry );
+
+                // h(row) = value
+                entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+                entry.row = row;
+                entry.column = 0;
+                entry.value = value;
+                queuedEntries_.push_back( entry );
             }
-            else if( boundMark == "LO" )
+            else if( boundMark_ == "LO" )
             {
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'BOUNDS' section");
-                const Int row = lowerBoundOffset + variableData.lowerBoundIndex;
-                problem.G(row,column) = Real(-1);
-                problem.h(row) = -value;
+                const Int row =
+                  meta_.lowerBoundOffset + variableData.lowerBoundIndex;
+
+                // G(row,column) = -1
+                entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+                entry.row = row;
+                entry.column = column;
+                entry.value = -1;
+                queuedEntries_.push_back( entry );
+
+                // h(row) = -value
+                entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+                entry.row = row;
+                entry.column = 0;
+                entry.value = -value;
+                queuedEntries_.push_back( entry );
             }
-            else if( boundMark == "FX" )
+            else if( boundMark_ == "FX" )
             {
                 if( !(lineStream >> value) )
                     LogicError("Invalid 'BOUNDS' section");
-                const Int row = fixedOffset + variableData.fixedIndex;
-                problem.A(row,column) = Real(1);
-                problem.h(row) = value;
+                const Int row = meta_.fixedOffset + variableData.fixedIndex;
+
+                // A(row,column) = 1
+                entry.type = AFFINE_LP_EQUALITY_MATRIX;
+                entry.row = row;
+                entry.column = column;
+                entry.value = 1;
+                queuedEntries_.push_back( entry );
+
+                // h(row) = value
+                entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+                entry.row = row;
+                entry.column = 0;
+                entry.value = value;
+                queuedEntries_.push_back( entry );
             }
-            else if( boundMark == "FR" )
+            else if( boundMark_ == "FR" )
             {
                 continue;
             }
-            else if( boundMark == "MI" )
+            else if( boundMark_ == "MI" )
             {
                 // These will be handled later.
             }
-            else if( boundMark == "PL" )
+            else if( boundMark_ == "PL" )
             {
                 // These will be handled later.
             }
             else
                 LogicError("Invalid 'BOUNDS' section (unknown bound mark)");
         }
-        else if( section == MPS_RANGES )
+        else if( section_ == MPS_RANGES )
         {
             LogicError("The 'RANGES' section is not yet supported");
         }
@@ -740,32 +885,69 @@ void FormProblem
             LogicError("Invalid MPS file");
         }
     }
+    if( queuedEntries_.size() > 0 )
+        return true;
 
     // Now iterate through the variable map to handle the nonpositive and
     // nonnegative bounds (since many of the former were perhaps implicit).
     // We handle them both here for the sake of consistency.
-    for( const auto& entry : meta.variableDict )
+    while( queuedEntries_.size() == 0 &&
+           variableIter_ != meta_.variableDict.end() )
     {
-        const auto& data = entry.second;
+        const auto& data = variableIter_->second;
         const Int column = data.index;
 
         // Handle non-positive values.
+        AffineLPEntry<double> entry;
         if( data.nonpositive )
         {
-            const Int row = nonpositiveOffset + data.nonpositiveIndex;
-            problem.G(row,column) = Real(1);
+            // G(row,column) = 1
+            const Int row = meta_.nonpositiveOffset + data.nonpositiveIndex;
+            entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+            entry.row = row;
+            entry.column = column;
+            entry.value = 1;
+            queuedEntries_.push_back( entry );
+
             // There is no need to explicitly set h(row) to zero.
         }
 
         // Handle non-negative values.
         if( data.nonnegative )
         {
-            const Int row = nonnegativeOffset + data.nonnegativeIndex;
-            problem.G(row,column) = Real(-1);
+            // G(row,column) = -1
+            const Int row = meta_.nonnegativeOffset + data.nonnegativeIndex;
+            entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+            entry.row = row;
+            entry.column = column;
+            entry.value = -1;
+            queuedEntries_.push_back( entry );
+
             // There is no need to explicitly set h(row) to zero.
         }
+
+        ++variableIter_;
     }
+    return queuedEntries_.size() > 0;
 }
+
+AffineLPEntry<double> MPSReader::GetEntry()
+{
+    EL_DEBUG_CSE
+    if( queuedEntries_.size() == 0 )
+        LogicError("No entries are currently enqueued");
+    AffineLPEntry<double> entry = queuedEntries_.back();
+    queuedEntries_.pop_back();
+    return entry;
+}
+
+const MPSMeta& MPSReader::Meta() const
+{
+    EL_DEBUG_CSE
+    return meta_;
+}
+
+namespace read_mps {
 
 template<typename Real>
 void Helper
@@ -779,9 +961,8 @@ void Helper
     const bool upperBoundImplicitlyNonnegative = false;
     const bool metadataSummary = false;
 
-    // Perform an initial pass through the file to determine the metadata.
-    MPSMeta meta;
-    GetMetadata( filename, meta, upperBoundImplicitlyNonnegative );
+    MPSReader reader( filename, compressed, upperBoundImplicitlyNonnegative );
+    const MPSMeta& meta = reader.Meta();
     if( metadataSummary )
     {
         Output("meta.name=",meta.name);
@@ -801,7 +982,25 @@ void Helper
         Output("meta.rhsName=",meta.rhsName);
     }
 
-    FormProblem( problem, filename, meta );
+    Zeros( problem.c, meta.n, 1 );
+    Zeros( problem.A, meta.m, meta.n );
+    Zeros( problem.b, meta.m, 1 );
+    Zeros( problem.G, meta.k, meta.n );
+    Zeros( problem.h, meta.k, 1 );
+    while( reader.QueuedEntry() )
+    {
+        const AffineLPEntry<double> entry = reader.GetEntry();
+        if( entry.type == AFFINE_LP_COST_VECTOR )
+            problem.c(entry.row) = entry.value;
+        else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
+            problem.A(entry.row,entry.column) = entry.value;
+        else if( entry.type == AFFINE_LP_EQUALITY_VECTOR )
+            problem.b(entry.row) = entry.value;
+        else if( entry.type == AFFINE_LP_INEQUALITY_MATRIX )
+            problem.G(entry.row,entry.column) = entry.value;
+        else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
+            problem.h(entry.row) = entry.value;
+    }
 }
 
 template<typename Real>

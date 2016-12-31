@@ -61,14 +61,9 @@ void TestSparseDirect
         Print( A.DistGraph() );
     }
 
-    Timer timer;
-
-    OutputFromRoot(grid.Comm(),"Running nested dissection...");
-    timer.Start();
-    const DistGraph& graph = A.DistGraph();
-
     const bool hermitian = false;
     DistSparseLDLFactorization<Field> sparseLDLFact;
+    Timer timer;
     mpi::Barrier( grid.Comm() );
     OutputFromRoot(grid.Comm(),"Building ldl::DistFront tree...");
     timer.Start();

@@ -52,7 +52,8 @@ int main( int argc, char* argv[] )
     {
         const std::string filename =
           El::Input
-          ("--filename","MPS filename","../data/optimization/share1b.mps");
+          ("--filename","MPS filename",
+           std::string("../data/optimization/share1b.mps"));
         const bool compressed = El::Input("--compressed","compressed?",false);
         const bool print = El::Input("--print","print matrices?",false);
         El::ProcessInput();
