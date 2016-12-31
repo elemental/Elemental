@@ -47,6 +47,8 @@ namespace affine {
 template<typename Real>
 struct DenseAffineLPEquilibration
 {
+    Real sScale;
+    Real zScale;
     Matrix<Real> rowScaleA;
     Matrix<Real> rowScaleG;
     Matrix<Real> colScale;
@@ -54,6 +56,8 @@ struct DenseAffineLPEquilibration
 template<typename Real>
 struct DistDenseAffineLPEquilibration
 {
+    Real sScale;
+    Real zScale;
     DistMatrix<Real,MC,STAR> rowScaleA;
     DistMatrix<Real,MC,STAR> rowScaleG;
     DistMatrix<Real,MR,STAR> colScale;
@@ -61,6 +65,8 @@ struct DistDenseAffineLPEquilibration
 template<typename Real>
 struct SparseAffineLPEquilibration
 {
+    Real sScale;
+    Real zScale;
     Matrix<Real> rowScaleA;
     Matrix<Real> rowScaleG;
     Matrix<Real> colScale;
@@ -68,6 +74,8 @@ struct SparseAffineLPEquilibration
 template<typename Real>
 struct DistSparseAffineLPEquilibration
 {
+    Real sScale;
+    Real zScale;
     DistMultiVec<Real> rowScaleA;
     DistMultiVec<Real> rowScaleG;
     DistMultiVec<Real> colScale;
@@ -116,6 +124,27 @@ void Equilibrate
         DiagonalScale
         ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
     }
+
+    // Rescale max(|| b ||_max,|| h ||_max) to roughly one.
+    equilibration.sScale =
+      Max(Max(MaxNorm(equilibratedProblem.b),MaxNorm(equilibratedProblem.h)),
+        Real(1));
+    equilibratedProblem.b *= Real(1)/equilibration.sScale;
+    equilibratedProblem.h *= Real(1)/equilibration.sScale;
+    if( ctrl.primalInit )
+    {
+        equilibratedSolution.x *= Real(1)/equilibration.sScale;
+        equilibratedSolution.s *= Real(1)/equilibration.sScale;
+    }
+
+    // Rescale || c ||_max to roughly one.
+    equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
+    equilibratedProblem.c *= Real(1)/equilibration.zScale;
+    if( ctrl.dualInit )
+    {
+        equilibratedSolution.y *= Real(1)/equilibration.zScale;
+        equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
 }
 
 template<typename Real>
@@ -161,6 +190,27 @@ void Equilibrate
         DiagonalScale
         ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
     }
+
+    // Rescale max(|| b ||_max,|| h ||_max) to roughly one.
+    equilibration.sScale =
+      Max(Max(MaxNorm(equilibratedProblem.b),MaxNorm(equilibratedProblem.h)),
+        Real(1));
+    equilibratedProblem.b *= Real(1)/equilibration.sScale;
+    equilibratedProblem.h *= Real(1)/equilibration.sScale;
+    if( ctrl.primalInit )
+    {
+        equilibratedSolution.x *= Real(1)/equilibration.sScale;
+        equilibratedSolution.s *= Real(1)/equilibration.sScale;
+    }
+    
+    // Rescale || c ||_max to roughly one.
+    equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
+    equilibratedProblem.c *= Real(1)/equilibration.zScale;
+    if( ctrl.dualInit )
+    {
+        equilibratedSolution.y *= Real(1)/equilibration.zScale;
+        equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
 }
 
 template<typename Real>
@@ -205,6 +255,27 @@ void Equilibrate
         ( LEFT, NORMAL, equilibration.rowScaleA, equilibratedSolution.y );
         DiagonalScale
         ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
+    }
+
+    // Rescale max(|| b ||_max,|| h ||_max) to roughly one.
+    equilibration.sScale =
+      Max(Max(MaxNorm(equilibratedProblem.b),MaxNorm(equilibratedProblem.h)),
+        Real(1));
+    equilibratedProblem.b *= Real(1)/equilibration.sScale;
+    equilibratedProblem.h *= Real(1)/equilibration.sScale;
+    if( ctrl.primalInit )
+    {
+        equilibratedSolution.x *= Real(1)/equilibration.sScale;
+        equilibratedSolution.s *= Real(1)/equilibration.sScale;
+    }
+    
+    // Rescale || c ||_max to roughly one.
+    equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
+    equilibratedProblem.c *= Real(1)/equilibration.zScale;
+    if( ctrl.dualInit )
+    {
+        equilibratedSolution.y *= Real(1)/equilibration.zScale;
+        equilibratedSolution.z *= Real(1)/equilibration.zScale;
     }
 }
 
@@ -255,6 +326,27 @@ void Equilibrate
         DiagonalScale
         ( LEFT, NORMAL, equilibration.rowScaleG, equilibratedSolution.z );
     }
+
+    // Rescale max(|| b ||_max,|| h ||_max) to roughly one.
+    equilibration.sScale =
+      Max(Max(MaxNorm(equilibratedProblem.b),MaxNorm(equilibratedProblem.h)),
+        Real(1));
+    equilibratedProblem.b *= Real(1)/equilibration.sScale;
+    equilibratedProblem.h *= Real(1)/equilibration.sScale;
+    if( ctrl.primalInit )
+    {
+        equilibratedSolution.x *= Real(1)/equilibration.sScale;
+        equilibratedSolution.s *= Real(1)/equilibration.sScale;
+    }
+    
+    // Rescale || c ||_max to roughly one.
+    equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
+    equilibratedProblem.c *= Real(1)/equilibration.zScale;
+    if( ctrl.dualInit )
+    {
+        equilibratedSolution.y *= Real(1)/equilibration.zScale;
+        equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
 }
 
 template<typename Real>
@@ -265,6 +357,10 @@ void UndoEquilibration
 {
     EL_DEBUG_CSE
     solution = equilibratedSolution;
+    solution.x *= equilibration.sScale;
+    solution.s *= equilibration.sScale;
+    solution.y *= equilibration.zScale;
+    solution.z *= equilibration.zScale;
     DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
@@ -279,6 +375,10 @@ void UndoEquilibration
 {
     EL_DEBUG_CSE
     solution = equilibratedSolution;
+    solution.x *= equilibration.sScale;
+    solution.s *= equilibration.sScale;
+    solution.y *= equilibration.zScale;
+    solution.z *= equilibration.zScale;
     DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
@@ -293,6 +393,10 @@ void UndoEquilibration
 {
     EL_DEBUG_CSE
     solution = equilibratedSolution;
+    solution.x *= equilibration.sScale;
+    solution.s *= equilibration.sScale;
+    solution.y *= equilibration.zScale;
+    solution.z *= equilibration.zScale;
     DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
@@ -307,6 +411,10 @@ void UndoEquilibration
 {
     EL_DEBUG_CSE
     solution = equilibratedSolution;
+    solution.x *= equilibration.sScale;
+    solution.s *= equilibration.sScale;
+    solution.y *= equilibration.zScale;
+    solution.z *= equilibration.zScale;
     DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  solution.x );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, solution.y );
     DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, solution.z );
