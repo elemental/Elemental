@@ -588,7 +588,9 @@ void ReadMPS
 ( AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
   bool compressed=false,
-  bool minimize=true );
+  bool minimize=true,
+  bool keepNonnegativeWithZeroUpperBound=true,
+  bool metadataSummary=false );
 
 // Write out an LP in the MPS format.
 template<class MatrixType,class VectorType>

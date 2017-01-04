@@ -486,22 +486,30 @@ void LP
   ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \
     bool compressed, \
-    bool minimize ); \
+    bool minimize, \
+    bool keepNonnegativeWithZeroUpperBounds, \
+    bool metadataSummary ); \
   template void ReadMPS \
   ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
     const string& filename, \
     bool compressed, \
-    bool minimize ); \
+    bool minimize, \
+    bool keepNonnegativeWithZeroUpperBounds, \
+    bool metadataSummary ); \
   template void ReadMPS \
   ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \
     bool compressed, \
-    bool minimize ); \
+    bool minimize, \
+    bool keepNonnegativeWithZeroUpperBounds, \
+    bool metadataSummary ); \
   template void ReadMPS \
   ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
     const string& filename, \
     bool compressed, \
-    bool minimize ); \
+    bool minimize, \
+    bool keepNonnegativeWithZeroUpperBounds, \
+    bool metadataSummary ); \
   template void WriteMPS \
   ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \

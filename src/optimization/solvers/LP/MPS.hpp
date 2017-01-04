@@ -10,6 +10,15 @@
 
 namespace El {
 
+// Please see http://lpsolve.sourceforge.net/5.5/mps-format.htm for a very
+// nuanced discussion of the MPS file format.
+//
+// An important, but seemingly not widely discussed, issue is that some of the
+// lp_data LP examples (e.g., tuff.mps) are not well-formed. I found out the
+// hard way that the fourth equality constraint of tuff.mps is empty.
+
+// TODO(poulson): Allow the default lower and upper bounds to be configurable.
+
 enum MPSSection {
   MPS_NAME,
   MPS_ROWS,
@@ -33,8 +42,22 @@ struct MPSRowData
 {
   MPSRowType type;
   Int typeIndex;
+  Int numNonzeros=0; // We will delete rows with no nonzeros (e.g., for tuff).
 };
 
+// We will follow the de facto convention of assuming that variables live within
+// [0,\infty) if no bounds are specified and only modify the assumption as
+// little as possible when explicit bounds are given. For example, if only a
+// positive upper bound of 7 is specified, the interval will be changed to
+// [0,7]. If a positive lower bound of 4 was instead specified, the interval
+// would become [4,\infty).
+//
+// If the upper bound is negative, then the lower bound is reset to -\infty;
+// if the upper bound is exactly zero, then there is disagreement in how to
+// handle the lower bound. Many MPS readers reset the lower bound to -\infty,
+// but ILOG famously does not. We provide an option to choose between the two
+// behaviors.
+//
 struct MPSVariableData
 {
   Int index;
@@ -42,12 +65,15 @@ struct MPSVariableData
 
   bool lowerBounded=false;
   Int lowerBoundIndex=-1;
+  double lowerBound;
 
   bool upperBounded=false;
   Int upperBoundIndex=-1;
+  double upperBound;
 
   bool fixed=false;
   Int fixedIndex=-1;
+  double fixedValue;
 
   bool free=false;
   Int freeIndex=-1;
@@ -135,6 +161,7 @@ struct MPSMeta
       Output("  numNonpositiveBounds=",numNonpositiveBounds);
       Output("  numNonnegativeBounds=",numNonnegativeBounds);
       Output("  rhsName=",rhsName);
+      Output("  m=",m,", n=",n,", k=",k);
   }
 };
 
@@ -193,13 +220,15 @@ public:
     ( const string& filename,
       bool compressed=false,
       bool minimize=true,
-      bool upperBoundImplicitlyNonnegative=false );
+      bool keepNonnegativeWithZeroUpperBound=true );
+    // The PILOT netlib lp_data model appears to require
+    // 'keepNonnegativeWithZeroUpperBound=true'.
 
     // Attempt to enqueue another entry and return true if successful.
     bool QueuedEntry();
 
     // Only one call is allowed per call to 'QueuedEntry'.
-    AffineLPEntry<double> GetEntry(); 
+    AffineLPEntry<double> GetEntry();
 
     const MPSMeta& Meta() const;
 
@@ -207,13 +236,25 @@ private:
     string filename_;
     std::ifstream file_;
 
-    bool minimize_; 
-    bool upperBoundImplicitlyNonnegative_;
+    bool minimize_;
+    bool keepNonnegativeWithZeroUpperBound_;
     MPSMeta meta_;
 
     vector<AffineLPEntry<double>> queuedEntries_;
-  
+
     MPSSection section_=MPS_NONE;
+
+    // The RHS section typically has a name followed by either one or two pairs
+    // per row, but some models (e.g., dfl001.mps) do not involve a name.
+    bool initializedRHSSection_=false;
+    bool rhsHasName_;
+
+    // The BOUNDS section typically has a bound type marker, followed by a
+    // bound set name, followed by a variable name, and, if applicable,
+    // a numeric value). But some models (e.g., dfl001.mps) do not involve a
+    // bound set name.
+    bool initializedBoundsSection_=false;
+    bool boundsHasName_;
 
     // Temporaries for the metadata extraction process.
     string line_;
@@ -229,11 +270,11 @@ MPSReader::MPSReader
 ( const string& filename,
   bool compressed,
   bool minimize,
-  bool upperBoundImplicitlyNonnegative )
+  bool keepNonnegativeWithZeroUpperBound )
 : filename_(filename),
   file_(filename.c_str()),
   minimize_(minimize),
-  upperBoundImplicitlyNonnegative_(upperBoundImplicitlyNonnegative)
+  keepNonnegativeWithZeroUpperBound_(keepNonnegativeWithZeroUpperBound)
 {
     EL_DEBUG_CSE
     if( compressed )
@@ -257,13 +298,19 @@ MPSReader::MPSReader
     string line;
     while( std::getline( file_, line ) )
     {
-        std::stringstream lineStream( line );
-        const char firstChar = lineStream.peek();
-        const bool isDataLine = firstChar == ' ' || firstChar == '\t';
+        // We first determine which section we are in
+        // ------------------------------------------
+        std::stringstream sectionStream( line );
+        const char firstChar = sectionStream.peek();
+        const bool isDataLine =
+          firstChar == ' ' ||
+          firstChar == '\t' ||
+          firstChar == '*' ||
+          firstChar == '#';
 
         // The first token on each line should be a string. We will check it for
         // equivalence with each section string.
-        if( !(lineStream >> token) )
+        if( !(sectionStream >> token) )
         {
             // This line only consists of whitespace.
             continue;
@@ -274,8 +321,8 @@ MPSReader::MPSReader
             if( token == "NAME" )
             {
                 if( meta_.name != "" )
-                    Output("WARNING: Multiple 'NAME' sections");
-                if( !(lineStream >> meta_.name) )
+                    LogicError("Multiple 'NAME' sections");
+                if( !(sectionStream >> meta_.name) )
                     LogicError("Missing 'NAME' string");
                 section = MPS_NAME;
             }
@@ -289,14 +336,14 @@ MPSReader::MPSReader
                     meta_.numGreaterRows > 0 ||
                     meta_.numEqualityRows > 0 ||
                     meta_.numNonconstrainingRows > 0 )
-                    Output("WARNING: Multiple ROWS sections");
+                    LogicError("Multiple ROWS sections");
                 section = MPS_ROWS;
             }
             else if( token == "COLUMNS" )
             {
                 if( meta_.numEqualityEntries > 0 ||
                     meta_.numInequalityEntries > 0 )
-                    Output("WARNING: Multiple 'COLUMNS' sections");
+                    LogicError("Multiple 'COLUMNS' sections");
                 section = MPS_COLUMNS;
             }
             else if( token == "RHS" )
@@ -342,32 +389,32 @@ MPSReader::MPSReader
         // No section marker was found, so handle this data line.
         if( section == MPS_ROWS )
         {
-            rowType = token;
-            if( !(lineStream >> rowName) )
+            std::stringstream rowStream( line );
+            if( !(rowStream >> rowType) )
+                LogicError("Invalid 'ROWS' section");
+            if( !(rowStream >> rowName) )
                 LogicError("Invalid 'ROWS' section");
             MPSRowData rowData;
+            // We set the 'typeIndex' fields later since it is not uncommon
+            // (e.g., see tuff.mps) for rows to be empty.
             if( rowType == "L" )
             {
                 rowData.type = MPS_LESSER_ROW;
-                rowData.typeIndex = meta_.numLesserRows++;
                 meta_.rowDict[rowName] = rowData;
             }
             else if( rowType == "G" )
             {
                 rowData.type = MPS_GREATER_ROW;
-                rowData.typeIndex = meta_.numGreaterRows++;
                 meta_.rowDict[rowName] = rowData;
             }
             else if( rowType == "E" )
             {
                 rowData.type = MPS_EQUALITY_ROW;
-                rowData.typeIndex = meta_.numEqualityRows++;
                 meta_.rowDict[rowName] = rowData;
             }
             else if( rowType == "N" )
             {
                 rowData.type = MPS_NONCONSTRAINING_ROW;
-                rowData.typeIndex = meta_.numNonconstrainingRows++;
                 meta_.rowDict[rowName] = rowData;
                 if( meta_.numNonconstrainingRows == 1 )
                     meta_.costName = rowName;
@@ -377,7 +424,9 @@ MPSReader::MPSReader
         }
         else if( section == MPS_COLUMNS )
         {
-            variableName = token;
+            std::stringstream columnStream( line );
+            if( !(columnStream >> variableName) )
+                LogicError("Invalid 'COLUMNS' section");
             auto variableIter = meta_.variableDict.find( variableName );
             if( variableIter == meta_.variableDict.end() )
             {
@@ -392,78 +441,155 @@ MPSReader::MPSReader
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(lineStream >> rowName) )
+                if( !(columnStream >> rowName) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'COLUMNS' section");
                     else
                         break;
                 }
-                if( !(lineStream >> value) )
+                if( !(columnStream >> value) )
                     LogicError("Invalid 'COLUMNS' section");
                 ++variableData.numNonzeros;
-
 
                 auto rowIter = meta_.rowDict.find( rowName );
                 if( rowIter == meta_.rowDict.end() )
                     LogicError("Could not find row ",rowName);
-                const auto& rowData = rowIter->second;
+                auto& rowData = rowIter->second;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
                     // A(row,column) = value
                     ++meta_.numEqualityEntries;
+                    ++rowData.numNonzeros;
                 }
                 else if( rowData.type == MPS_LESSER_ROW )
                 {
                     // G(row,column) = value
                     ++meta_.numInequalityEntries;
+                    ++rowData.numNonzeros;
                 }
                 else if( rowData.type == MPS_GREATER_ROW )
                 {
                     // G(row,column) = -value
                     ++meta_.numInequalityEntries;
+                    ++rowData.numNonzeros;
                 }
                 else if( rowData.type == MPS_NONCONSTRAINING_ROW )
                 {
-                    if( rowData.typeIndex == 0 )
-                    {
-                        // c(column) = value
-                    }
-                    // else?
+                    // c(column) = value (assuming typeIndex==0)
+                    ++rowData.numNonzeros;
                 }
+                else
+                    LogicError("Unknown row data type");
             }
         }
         else if( section == MPS_RHS )
         {
-            rhsNameCandidate = token;
-            if( meta_.numRHS == 0 )
+            if( !initializedRHSSection_ )
             {
-                // We should currently have that rhsName == "".
-                meta_.rhsName = rhsNameCandidate;
-                meta_.numRHS = 1;
+                std::stringstream rhsTestStream( line );
+                Int numTokens=0;
+                string rhsToken;
+                while( rhsTestStream >> rhsToken )
+                    ++numTokens;
+                if( numTokens == 2 || numTokens == 4 )
+                {
+                    // There were either one or two pairs with no name.
+                    rhsHasName_ = false;
+                    meta_.numRHS = 1;
+                }
+                else if( numTokens == 3 || numTokens == 5 )
+                {
+                    // There were either one or two pairs with a name.
+                    rhsHasName_ = true;
+                }
+                else
+                {
+                    LogicError("Invalid 'RHS' section (1)");
+                }
+                
+                initializedRHSSection_ = true;
             }
-            else if( rhsNameCandidate != meta_.rhsName )
-                LogicError
-                ("Only single problem instances are currently supported "
-                 "(multiple right-hand side names were encountered)");
+
+            std::stringstream rhsStream( line );
+            if( rhsHasName_ )
+            {
+                if( !(rhsStream >> rhsNameCandidate) )
+                    LogicError("Invalid 'RHS' section (2)");
+                if( meta_.numRHS == 0 )
+                {
+                    // We should currently have that rhsName == "".
+                    meta_.rhsName = rhsNameCandidate;
+                    meta_.numRHS = 1;
+                }
+                else if( rhsNameCandidate != meta_.rhsName )
+                    LogicError
+                    ("Only single problem instances are currently supported "
+                     "(multiple right-hand side names were encountered)");
+            }
 
             // There should be either one or two pairs of entries left to read
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(lineStream >> rowName) )
+                if( !(rhsStream >> rowName) )
                 {
                     if( pair == 0 )
-                        LogicError("Invalid 'RHS' section");
+                        LogicError("Invalid 'RHS' section (3)");
                     else
                         break;
                 }
-                if( !(lineStream >> value) )
-                    LogicError("Invalid 'RHS' section");
+                if( !(rhsStream >> value) )
+                    LogicError("Invalid 'RHS' section (4)");
             }
         }
         else if( section == MPS_BOUNDS )
         {
+            if( !initializedBoundsSection_ )
+            {
+                std::stringstream boundsTestStream( line );
+                if( !(boundsTestStream >> boundMark) )
+                    LogicError("Invalid 'BOUNDS' section");
+                if( !(boundsTestStream >> token) )
+                    LogicError("Invalid 'BOUNDS' section");
+
+                Int numTokens=2;
+                string rhsToken;
+                while( boundsTestStream >> rhsToken )
+                    ++numTokens;
+                if( boundMark == "LO" ||
+                    boundMark == "UP" ||
+                    boundMark == "FX" )
+                {
+                    if( numTokens == 4 )
+                        boundsHasName_ = true;
+                    else if( numTokens == 3 )
+                        boundsHasName_ = false;
+                    else
+                        LogicError("Invalid ",boundMark," 'BOUNDS' line");
+                }
+                else if( boundMark == "FR" ||
+                         boundMark == "MI" ||
+                         boundMark == "PL" )
+                {
+                    if( numTokens == 3 )
+                        boundsHasName_ = true;
+                    else if( numTokens == 2 )
+                        boundsHasName_ = false;
+                    else
+                        LogicError("Invalid ",boundMark," 'BOUNDS' line");
+                }
+                else
+                    LogicError("Unknown bound mark ",boundMark);
+
+                // If there is a name, it occurred in the second position.
+                if( boundsHasName_ )
+                    meta_.boundName = token;
+
+                initializedBoundsSection_ = true;
+            }
+
+            std::stringstream boundStream( line );
             // We already have the first token of a bounding row, which should
             // be of the same general form as
             //
@@ -471,34 +597,51 @@ MPSReader::MPSReader
             //
             // in the case of 'VARIABLENAME' being fixed ('FX') at the value
             // 1734 (with this problem's bound name being 'BOUNDROW').
-            boundMark = token;
-            if( !(lineStream >> boundNameCandidate) )
+            if( !(boundStream >> boundMark) )
                 LogicError("Invalid 'BOUNDS' section");
-            if( meta_.boundName == "" )
-                meta_.boundName = boundNameCandidate;
-            else if( meta_.boundName != boundNameCandidate )
-                LogicError
-                ("Only single problem instances are currently supported "
-                 "(multiple bound names were encountered)");
-            if( !(lineStream >> variableName) )
+            if( boundsHasName_ )
+            {
+                if( !(boundStream >> boundNameCandidate) )
+                    LogicError("Invalid 'BOUNDS' section");
+                if( meta_.boundName != boundNameCandidate )
+                    LogicError
+                    ("Only single problem instances are currently supported "
+                     "(multiple bound names were encountered)");
+            }
+            if( !(boundStream >> variableName) )
                 LogicError("Invalid 'BOUNDS' section");
             auto variableIter = meta_.variableDict.find( variableName );
             if( variableIter == meta_.variableDict.end() )
                 LogicError
-                ("Invalid 'BOUNDS' section (variable name not found)");
-            MPSVariableData& variableData = variableIter->second;
+                ("Invalid 'BOUNDS' section (name ",variableName," not found)");
+            MPSVariableData& data = variableIter->second;
             if( boundMark == "UP" )
-                variableData.upperBounded = true;
+            {
+                if( !(boundStream >> value) )
+                    LogicError("Invalid 'BOUNDS' section");
+                data.upperBounded = true;
+                data.upperBound = value;
+            }
             else if( boundMark == "LO" )
-                variableData.lowerBounded = true;
+            {
+                if( !(boundStream >> value) )
+                    LogicError("Invalid 'BOUNDS' section");
+                data.lowerBounded = true;
+                data.lowerBound = value;
+            }
             else if( boundMark == "FX" )
-                variableData.fixed = true;
+            {
+                if( !(boundStream >> value) )
+                    LogicError("Invalid 'BOUNDS' section");
+                data.fixed = true;
+                data.fixedValue = value;
+            }
             else if( boundMark == "FR" )
-                variableData.free = true;
+                data.free = true;
             else if( boundMark == "MI" )
-                variableData.nonpositive = true;
+                data.nonpositive = true;
             else if( boundMark == "PL" )
-                variableData.nonnegative = true;
+                data.nonnegative = true;
             else
                 LogicError("Invalid 'BOUNDS' section (unknown bound mark)");
         }
@@ -519,46 +662,153 @@ MPSReader::MPSReader
         meta_.numRHS = 1;
     }
 
+    // Iterate through the row map to delete any empty rows.
+    for( auto iter=meta_.rowDict.begin(); iter!=meta_.rowDict.end(); )
+    {
+        if( iter->second.numNonzeros == 0 )
+        {
+            if( iter->second.type == MPS_NONCONSTRAINING_ROW )
+            {
+                Output("WARNING: Objective was entirely zero.");
+                iter->second.typeIndex = 0;
+                ++iter;
+            }
+            else
+            {
+                if( iter->second.type == MPS_EQUALITY_ROW )
+                    Output("WARNING: Deleting empty equality row ",iter->first);
+                else if( iter->second.type == MPS_GREATER_ROW )
+                    Output("WARNING: Deleting empty greater row ",iter->first);
+                else if( iter->second.type == MPS_LESSER_ROW )
+                    Output("WARNING: Deleting empty lesser row ",iter->first);
+                else
+                    LogicError("Unknown empty row type");
+                // Delete this entry.
+                iter = meta_.rowDict.erase(iter);
+            }
+        }
+        else
+        {
+            if( iter->second.type == MPS_EQUALITY_ROW )
+            {
+                iter->second.typeIndex = meta_.numEqualityRows++;
+            }
+            else if( iter->second.type == MPS_GREATER_ROW )
+            {
+                iter->second.typeIndex = meta_.numGreaterRows++;
+            }
+            else if( iter->second.type == MPS_LESSER_ROW )
+            {
+                iter->second.typeIndex = meta_.numLesserRows++;
+            }
+            else if( iter->second.type == MPS_NONCONSTRAINING_ROW )
+            {
+                iter->second.typeIndex = 0;
+            }
+            else
+                LogicError("Unknown row type");
+            ++iter;
+        }
+    }
+
     // Now iterate through the variable map and make use of the requested
     // conventions for counting the number of bounds of each type.
     // Also warn if there are possibly conflicting bound types.
     for( auto& entry : meta_.variableDict )
     {
         auto& data = entry.second;
+
         // Handle explicit upper and lower bounds.
-        if( upperBoundImplicitlyNonnegative )
+        if( data.upperBounded )
         {
-            if( data.upperBounded && data.lowerBounded )
-            {
-                data.upperBoundIndex = meta_.numUpperBounds++;
-                data.lowerBoundIndex = meta_.numLowerBounds++;
-            }
-            else if( data.upperBounded )
-            {
-                data.upperBoundIndex = meta_.numUpperBounds++;
-                data.nonnegative = true;
-            }
-            else if( data.lowerBounded )
-            {
-                data.lowerBoundIndex = meta_.numLowerBounds++;
-            }
-        }
-        else
-        {
-            if( data.upperBounded )
-            {
-                data.upperBoundIndex = meta_.numUpperBounds++;
-            }
             if( data.lowerBounded )
             {
-                data.lowerBoundIndex = meta_.numLowerBounds++;
+                if( data.lowerBound < data.upperBound )
+                {
+                    // This should be the standard case.
+                    data.upperBoundIndex = meta_.numUpperBounds++;
+                }
+                else if( data.lowerBound == data.upperBound )
+                {
+                    // We will instead fix the variable.
+                    data.upperBounded = false;
+                    data.lowerBounded = false;
+                    data.fixed = true;
+                    data.fixedValue = data.upperBound;
+                    Output
+                    ("WARNING: Fixing ",entry.first," since the lower and "
+                     "upper bounds were both ",data.fixedValue);
+                }
+                else
+                {
+                    LogicError
+                    ("Cannot enforce a lower bound of ",data.lowerBound,
+                     " and an upper bound of ",data.upperBound," for ",
+                     entry.first);
+                }
             }
+            else
+            {
+                // Handling the default non-negativity is somewhat subtle and
+                // varies between different MPS readers.
+                if( data.upperBound > 0. )
+                {
+                    // Preserve the default non-negativity assumption.
+                    data.upperBoundIndex = meta_.numUpperBounds++;
+                    data.nonnegative = true;
+                }
+                else if( data.upperBound == 0. && !data.nonnegative )
+                {
+                    // There is disagreement on how to handle the lower bounds
+                    // in the case of a zero upper bound. We print a warning
+                    // to signify this corner case.
+                    if( keepNonnegativeWithZeroUpperBound_ )
+                    {
+                        // Preserve the default non-negativity and fix the
+                        // variable at zero.
+                        data.nonnegative = false;
+                        data.upperBounded = false;
+                        data.fixed = true;
+                        data.fixedValue = 0.;
+                        Output
+                        ("WARNING: Fixing ",entry.first,
+                         " at zero due to zero upper bound. If this is not "
+                         "desired, please set "
+                         "'keepNonnegativeWithZeroUpperBound=false'");
+                    }
+                    else
+                    {
+                        // Do not enforce non-negativity.
+                        data.upperBoundIndex = meta_.numUpperBounds++;
+                        data.nonnegative = false;
+                        Output
+                        ("WARNING: Removing default non-negativity of ",
+                         entry.first," due to zero upper bound. If this is "
+                         "not desired, please set "
+                         "'keepNonnegativeWithZeroUpperBound=true'");
+                    }
+                }
+                else
+                {
+                    data.upperBoundIndex = meta_.numUpperBounds++;
+                    if( data.nonnegative )
+                        LogicError
+                        ("Cannot have non-negative variable with an upper bound"
+                         " of ",data.upperBound);
+                }
+            }
+        }
+        if( data.lowerBounded )
+        {
+            // Any conflicts with an upper bound are already resolved.
+            data.lowerBoundIndex = meta_.numLowerBounds++;
         }
 
         // Handle fixed values.
         if( data.fixed )
         {
-            if( data.upperBounded || data.lowerBounded )
+            if( data.upperBounded || data.lowerBounded || data.free ||
+                data.nonpositive || data.nonnegative )
                 LogicError("Invalid bound combination");
             data.fixedIndex = meta_.numFixedBounds++;
         }
@@ -566,7 +816,9 @@ MPSReader::MPSReader
         // Handle free values.
         if( data.free )
         {
-            if( data.upperBounded || data.lowerBounded )
+            if( data.upperBounded || data.lowerBounded ||
+                data.nonnegative || data.nonpositive ||
+                data.fixed )
                 LogicError("Invalid bound combination");
             data.freeIndex = meta_.numFreeBounds++;
         }
@@ -581,14 +833,15 @@ MPSReader::MPSReader
         }
 
         // Default to nonnegative if there were not any markings.
-        if( !data.upperBounded &&
-            !data.lowerBounded &&
-            !data.fixed &&
-            !data.free &&
-            !data.nonpositive )
-        {
+        const bool hasAMark =
+          data.upperBounded ||
+          data.lowerBounded ||
+          data.fixed ||
+          data.free ||
+          data.nonpositive ||
+          data.nonnegative;
+        if( !hasAMark )
             data.nonnegative = true;
-        }
 
         // Handle non-negative values.
         if( data.nonnegative )
@@ -646,13 +899,17 @@ bool MPSReader::QueuedEntry()
            section_ != MPS_END &&
            std::getline( file_, line_ ) )
     {
-        std::stringstream lineStream( line_ );
-        const char firstChar = lineStream.peek();
-        const bool isDataLine = firstChar == ' ' || firstChar == '\t';
+        std::stringstream sectionStream( line_ );
+        const char firstChar = sectionStream.peek();
+        const bool isDataLine =
+          firstChar == ' ' ||
+          firstChar == '\t' ||
+          firstChar == '*' ||
+          firstChar == '#';
 
         // The first token on each line should be a string. We will check it for
         // equivalence with each section string.
-        if( !(lineStream >> token_) )
+        if( !(sectionStream >> token_) )
         {
             // This line only consists of whitespace.
             continue;
@@ -701,14 +958,17 @@ bool MPSReader::QueuedEntry()
         }
 
         // No section marker was found, so handle this data line.
-        double value;
         if( section_ == MPS_ROWS )
         {
             // We already have the row names.
         }
         else if( section_ == MPS_COLUMNS )
         {
-            variableName_ = token_;
+           double columnValue;
+           std::stringstream columnStream( line_ );
+
+           if( !(columnStream >> variableName_) )
+                LogicError("Invalid 'COLUMNS' section");
             auto variableIter = meta_.variableDict.find( variableName_ );
             if( variableIter == meta_.variableDict.end() )
                 LogicError("Could not find variable ",variableName_);
@@ -719,14 +979,14 @@ bool MPSReader::QueuedEntry()
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(lineStream >> rowName_) )
+                if( !(columnStream >> rowName_) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'COLUMNS' section");
                     else
                         break;
                 }
-                if( !(lineStream >> value) )
+                if( !(columnStream >> columnValue) )
                     LogicError("Invalid 'COLUMNS' section");
                 auto rowIter = meta_.rowDict.find( rowName_ );
                 if( rowIter == meta_.rowDict.end() )
@@ -735,43 +995,43 @@ bool MPSReader::QueuedEntry()
                 AffineLPEntry<double> entry;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
-                    // A(row,column) = value
+                    // A(row,column) = columnValue
                     const Int row = meta_.equalityOffset + rowData.typeIndex;
                     entry.type = AFFINE_LP_EQUALITY_MATRIX;
                     entry.row = row;
                     entry.column = column;
-                    entry.value = value;
+                    entry.value = columnValue;
                     queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_LESSER_ROW )
                 {
-                    // G(row,column) = value
+                    // G(row,column) = columnValue
                     const Int row = meta_.lesserOffset + rowData.typeIndex;
                     entry.type = AFFINE_LP_INEQUALITY_MATRIX;
                     entry.row = row;
                     entry.column = column;
-                    entry.value = value;
+                    entry.value = columnValue;
                     queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_GREATER_ROW )
                 {
-                    // G(row,column) = -value
+                    // G(row,column) = -columnValue
                     const Int row = meta_.greaterOffset + rowData.typeIndex;
                     entry.type = AFFINE_LP_INEQUALITY_MATRIX;
                     entry.row = row;
                     entry.column = column;
-                    entry.value = -value;
+                    entry.value = -columnValue;
                     queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_NONCONSTRAINING_ROW )
                 {
                     if( rowData.typeIndex == 0 )
                     {
-                        // c(column) = value
+                        // c(column) = columnValue
                         entry.type = AFFINE_LP_COST_VECTOR;
                         entry.row = column;
                         entry.column = 0;
-                        entry.value = minimize_ ? value : -value;
+                        entry.value = minimize_ ? columnValue : -columnValue;
                         queuedEntries_.push_back( entry );
                     }
                     // else?
@@ -780,18 +1040,27 @@ bool MPSReader::QueuedEntry()
         }
         else if( section_ == MPS_RHS )
         {
+            double rhsValue;
+            std::stringstream rhsStream( line_ );
+
+            if( rhsHasName_ )
+            {
+                if( !(rhsStream >> token_) )
+                    LogicError("Invalid 'RHS' section");
+            }
+
             // There should be either one or two pairs of entries left to read
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(lineStream >> rowName_) )
+                if( !(rhsStream >> rowName_) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'RHS' section");
                     else
                         break;
                 }
-                if( !(lineStream >> value) )
+                if( !(rhsStream >> rhsValue) )
                     LogicError("Invalid 'RHS' section");
                 auto rowIter = meta_.rowDict.find( rowName_ );
                 if( rowIter == meta_.rowDict.end() )
@@ -800,32 +1069,32 @@ bool MPSReader::QueuedEntry()
                 AffineLPEntry<double> entry;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
-                    // b(row) = value
+                    // b(row) = rhsValue
                     const Int row = meta_.equalityOffset + rowData.typeIndex;
                     entry.type = AFFINE_LP_EQUALITY_VECTOR;
                     entry.row = row;
                     entry.column = 0;
-                    entry.value = value;
+                    entry.value = rhsValue;
                     queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_LESSER_ROW )
                 {
-                    // h(row) = value
+                    // h(row) = rhsValue
                     const Int row = meta_.lesserOffset + rowData.typeIndex;
                     entry.type = AFFINE_LP_INEQUALITY_VECTOR;
                     entry.row = row;
                     entry.column = 0;
-                    entry.value = value;
+                    entry.value = rhsValue;
                     queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_GREATER_ROW )
                 {
-                    // h(row) = -value
+                    // h(row) = -rhsValue
                     const Int row = meta_.greaterOffset + rowData.typeIndex;
                     entry.type = AFFINE_LP_INEQUALITY_VECTOR;
                     entry.row = row;
                     entry.column = 0;
-                    entry.value = -value;
+                    entry.value = -rhsValue;
                     queuedEntries_.push_back( entry );
                 }
                 else if( rowData.type == MPS_NONCONSTRAINING_ROW )
@@ -836,102 +1105,7 @@ bool MPSReader::QueuedEntry()
         }
         else if( section_ == MPS_BOUNDS )
         {
-            // We already have the first token of a bounding row, which should
-            // be of the same general form as
-            //
-            //   FX BOUNDROW VARIABLENAME 1734.
-            //
-            // in the case of 'VARIABLENAME' being fixed ('FX') at the value
-            // 1734 (with this problem's bound name being 'BOUNDROW').
-            boundMark_ = token_;
-            if( !(lineStream >> token_) )
-                LogicError("Invalid 'BOUNDS' section");
-            if( !(lineStream >> variableName_) )
-                LogicError("Invalid 'BOUNDS' section");
-            auto variableIter = meta_.variableDict.find( variableName_ );
-            if( variableIter == meta_.variableDict.end() )
-                LogicError
-                ("Invalid 'BOUNDS' section (variable name not found)");
-            const MPSVariableData& variableData = variableIter->second;
-            const Int column = variableData.index;
-
-            AffineLPEntry<double> entry;
-            if( boundMark_ == "UP" )
-            {
-                if( !(lineStream >> value) )
-                    LogicError("Invalid 'BOUNDS' section");
-                const Int row =
-                  meta_.upperBoundOffset + variableData.upperBoundIndex;
-
-                // G(row,column) = 1
-                entry.type = AFFINE_LP_INEQUALITY_MATRIX;
-                entry.row = row;
-                entry.column = column;
-                entry.value = 1;
-                queuedEntries_.push_back( entry );
-
-                // h(row) = value
-                entry.type = AFFINE_LP_INEQUALITY_VECTOR;
-                entry.row = row;
-                entry.column = 0;
-                entry.value = value;
-                queuedEntries_.push_back( entry );
-            }
-            else if( boundMark_ == "LO" )
-            {
-                if( !(lineStream >> value) )
-                    LogicError("Invalid 'BOUNDS' section");
-                const Int row =
-                  meta_.lowerBoundOffset + variableData.lowerBoundIndex;
-
-                // G(row,column) = -1
-                entry.type = AFFINE_LP_INEQUALITY_MATRIX;
-                entry.row = row;
-                entry.column = column;
-                entry.value = -1;
-                queuedEntries_.push_back( entry );
-
-                // h(row) = -value
-                entry.type = AFFINE_LP_INEQUALITY_VECTOR;
-                entry.row = row;
-                entry.column = 0;
-                entry.value = -value;
-                queuedEntries_.push_back( entry );
-            }
-            else if( boundMark_ == "FX" )
-            {
-                if( !(lineStream >> value) )
-                    LogicError("Invalid 'BOUNDS' section");
-                const Int row = meta_.fixedOffset + variableData.fixedIndex;
-
-                // A(row,column) = 1
-                entry.type = AFFINE_LP_EQUALITY_MATRIX;
-                entry.row = row;
-                entry.column = column;
-                entry.value = 1;
-                queuedEntries_.push_back( entry );
-
-                // h(row) = value
-                entry.type = AFFINE_LP_INEQUALITY_VECTOR;
-                entry.row = row;
-                entry.column = 0;
-                entry.value = value;
-                queuedEntries_.push_back( entry );
-            }
-            else if( boundMark_ == "FR" )
-            {
-                continue;
-            }
-            else if( boundMark_ == "MI" )
-            {
-                // These will be handled later.
-            }
-            else if( boundMark_ == "PL" )
-            {
-                // These will be handled later.
-            }
-            else
-                LogicError("Invalid 'BOUNDS' section (unknown bound mark)");
+            // All bounds are handled at the bottom of this routine.
         }
         else if( section_ == MPS_RANGES )
         {
@@ -945,17 +1119,72 @@ bool MPSReader::QueuedEntry()
     if( queuedEntries_.size() > 0 )
         return true;
 
-    // Now iterate through the variable map to handle the nonpositive and
-    // nonnegative bounds (since many of the former were perhaps implicit).
-    // We handle them both here for the sake of consistency.
+    // Now iterate through the variable map to handle the bounds.
+    AffineLPEntry<double> entry;
     while( queuedEntries_.size() == 0 &&
            variableIter_ != meta_.variableDict.end() )
     {
         const auto& data = variableIter_->second;
         const Int column = data.index;
 
+        if( data.upperBounded )
+        {
+            const Int row = meta_.upperBoundOffset + data.upperBoundIndex;
+
+            // G(row,column) = 1
+            entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+            entry.row = row;
+            entry.column = column;
+            entry.value = 1;
+            queuedEntries_.push_back( entry );
+
+            // h(row) = value
+            entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+            entry.row = row;
+            entry.column = 0;
+            entry.value = data.upperBound;
+            queuedEntries_.push_back( entry );
+        }
+
+        if( data.lowerBounded )
+        {
+            const Int row = meta_.lowerBoundOffset + data.lowerBoundIndex;
+
+            // G(row,column) = -1
+            entry.type = AFFINE_LP_INEQUALITY_MATRIX;
+            entry.row = row;
+            entry.column = column;
+            entry.value = -1;
+            queuedEntries_.push_back( entry );
+
+            // h(row) = -value
+            entry.type = AFFINE_LP_INEQUALITY_VECTOR;
+            entry.row = row;
+            entry.column = 0;
+            entry.value = -data.lowerBound;
+            queuedEntries_.push_back( entry );
+        }
+
+        if( data.fixed )
+        {
+            const Int row = meta_.fixedOffset + data.fixedIndex;
+
+            // A(row,column) = 1
+            entry.type = AFFINE_LP_EQUALITY_MATRIX;
+            entry.row = row;
+            entry.column = column;
+            entry.value = 1;
+            queuedEntries_.push_back( entry );
+
+            // h(row) = value
+            entry.type = AFFINE_LP_EQUALITY_VECTOR;
+            entry.row = row;
+            entry.column = 0;
+            entry.value = data.fixedValue;
+            queuedEntries_.push_back( entry );
+        }
+
         // Handle non-positive values.
-        AffineLPEntry<double> entry;
         if( data.nonpositive )
         {
             // G(row,column) = 1
@@ -1011,16 +1240,16 @@ void Helper
 ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const string& filename,
   bool compressed,
-  bool minimize )
+  bool minimize,
+  bool keepNonnegativeWithZeroUpperBound,
+  bool metadataSummary )
 {
     EL_DEBUG_CSE
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
-    const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = true;
 
     MPSReader reader
-      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+      ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const MPSMeta& meta = reader.Meta();
     if( metadataSummary )
         meta.PrintSummary();
@@ -1034,15 +1263,42 @@ void Helper
     {
         const AffineLPEntry<double> entry = reader.GetEntry();
         if( entry.type == AFFINE_LP_COST_VECTOR )
+        {
+            if( problem.c(entry.row) != Real(0) )
+                LogicError
+                ("c(",entry.row,") was already ",problem.c(entry.row));
             problem.c(entry.row) = entry.value;
+        }
         else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
+        {
+            if( problem.A(entry.row,entry.column) != Real(0) )
+                LogicError
+                ("A(",entry.row,",",entry.column,") was already ",
+                 problem.A(entry.row,entry.column));
             problem.A(entry.row,entry.column) = entry.value;
+        }
         else if( entry.type == AFFINE_LP_EQUALITY_VECTOR )
+        {
+            if( problem.b(entry.row) != Real(0) )
+                LogicError
+                ("b(",entry.row,") was already ",problem.b(entry.row));
             problem.b(entry.row) = entry.value;
+        }
         else if( entry.type == AFFINE_LP_INEQUALITY_MATRIX )
+        {
+            if( problem.G(entry.row,entry.column) != Real(0) )
+                LogicError
+                ("G(",entry.row,",",entry.column,") was already ",
+                 problem.G(entry.row,entry.column));
             problem.G(entry.row,entry.column) = entry.value;
+        }
         else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
+        {
+            if( problem.h(entry.row) != Real(0) )
+                LogicError
+                ("h(",entry.row,") was already ",problem.h(entry.row));
             problem.h(entry.row) = entry.value;
+        }
     }
 }
 
@@ -1051,20 +1307,20 @@ void Helper
 ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
   const string& filename,
   bool compressed,
-  bool minimize )
+  bool minimize,
+  bool keepNonnegativeWithZeroUpperBound,
+  bool metadataSummary )
 {
     EL_DEBUG_CSE
-   
+
     // TODO(poulson): Consider loading on a single process and then distributing
     // the results instead.
 
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
-    const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = true;
 
     MPSReader reader
-      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+      ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const MPSMeta& meta = reader.Meta();
     if( metadataSummary && problem.A.Grid().Rank() == 0 )
         meta.PrintSummary();
@@ -1096,21 +1352,20 @@ void Helper
 ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
   const string& filename,
   bool compressed,
-  bool minimize )
+  bool minimize,
+  bool keepNonnegativeWithZeroUpperBound,
+  bool metadataSummary )
 {
     EL_DEBUG_CSE
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
-    const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = true;
 
     MPSReader reader
-      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+      ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const MPSMeta& meta = reader.Meta();
     if( metadataSummary )
         meta.PrintSummary();
 
-    Output("m=",meta.m,", n=",meta.n,", k=",meta.k);
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
     Zeros( problem.b, meta.m, 1 );
@@ -1142,16 +1397,16 @@ void Helper
 ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
   const string& filename,
   bool compressed,
-  bool minimize )
+  bool minimize,
+  bool keepNonnegativeWithZeroUpperBound,
+  bool metadataSummary )
 {
     EL_DEBUG_CSE
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
-    const bool upperBoundImplicitlyNonnegative = false;
-    const bool metadataSummary = false;
 
     MPSReader reader
-      ( filename, compressed, minimize, upperBoundImplicitlyNonnegative );
+      ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const MPSMeta& meta = reader.Meta();
     if( metadataSummary && problem.A.Grid().Rank() == 0 )
         meta.PrintSummary();
@@ -1171,11 +1426,13 @@ void Helper
         if( entry.type == AFFINE_LP_COST_VECTOR )
             problem.c.Set( entry.row, 0, entry.value );
         else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
-            problem.A.QueueUpdate( entry.row, entry.column, entry.value, passive );
+            problem.A.QueueUpdate
+            ( entry.row, entry.column, entry.value, passive );
         else if( entry.type == AFFINE_LP_EQUALITY_VECTOR )
             problem.b.Set( entry.row, 0, entry.value );
         else if( entry.type == AFFINE_LP_INEQUALITY_MATRIX )
-            problem.G.QueueUpdate( entry.row, entry.column, entry.value, passive );
+            problem.G.QueueUpdate
+            ( entry.row, entry.column, entry.value, passive );
         else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
             problem.h.Set( entry.row, 0, entry.value );
     }
@@ -1190,10 +1447,14 @@ void ReadMPS
 ( AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
   bool compressed,
-  bool minimize )
+  bool minimize,
+  bool keepNonnegativeWithZeroUpperBound,
+  bool metadataSummary )
 {
     EL_DEBUG_CSE
-    read_mps::Helper( problem, filename, compressed, minimize );
+    read_mps::Helper
+    ( problem, filename, compressed,
+      minimize, keepNonnegativeWithZeroUpperBound, metadataSummary );
 }
 
 namespace write_mps {
