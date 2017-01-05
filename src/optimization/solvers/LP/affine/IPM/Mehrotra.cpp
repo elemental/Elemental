@@ -128,7 +128,7 @@ void Equilibrate
     // Rescale max(|| b ||_max,|| h ||_max) to roughly one.
     equilibration.sScale =
       Max(Max(MaxNorm(equilibratedProblem.b),MaxNorm(equilibratedProblem.h)),
-        Real(1));
+        Real(1e-6));
     equilibratedProblem.b *= Real(1)/equilibration.sScale;
     equilibratedProblem.h *= Real(1)/equilibration.sScale;
     if( ctrl.primalInit )
@@ -138,12 +138,21 @@ void Equilibrate
     }
 
     // Rescale || c ||_max to roughly one.
-    equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
+    equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1e-6));
     equilibratedProblem.c *= Real(1)/equilibration.zScale;
     if( ctrl.dualInit )
     {
         equilibratedSolution.y *= Real(1)/equilibration.zScale;
         equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
+
+    if( ctrl.print )
+    {
+        Output("sScale=",equilibration.sScale);
+        Output("zScale=",equilibration.zScale);
+        Output("|| rowScaleA ||_2 = ",FrobeniusNorm(equilibration.rowScaleA));
+        Output("|| rowScaleG ||_2 = ",FrobeniusNorm(equilibration.rowScaleG));
+        Output("|| colScale  ||_2 = ",FrobeniusNorm(equilibration.colScale));
     }
 }
 
@@ -202,7 +211,7 @@ void Equilibrate
         equilibratedSolution.x *= Real(1)/equilibration.sScale;
         equilibratedSolution.s *= Real(1)/equilibration.sScale;
     }
-    
+
     // Rescale || c ||_max to roughly one.
     equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
     equilibratedProblem.c *= Real(1)/equilibration.zScale;
@@ -210,6 +219,15 @@ void Equilibrate
     {
         equilibratedSolution.y *= Real(1)/equilibration.zScale;
         equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
+
+    if( ctrl.print && problem.A.Grid().Rank() == 0 )
+    {
+        Output("sScale=",equilibration.sScale);
+        Output("zScale=",equilibration.zScale);
+        Output("|| rowScaleA ||_2 = ",FrobeniusNorm(equilibration.rowScaleA));
+        Output("|| rowScaleG ||_2 = ",FrobeniusNorm(equilibration.rowScaleG));
+        Output("|| colScale  ||_2 = ",FrobeniusNorm(equilibration.colScale));
     }
 }
 
@@ -268,7 +286,7 @@ void Equilibrate
         equilibratedSolution.x *= Real(1)/equilibration.sScale;
         equilibratedSolution.s *= Real(1)/equilibration.sScale;
     }
-    
+
     // Rescale || c ||_max to roughly one.
     equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
     equilibratedProblem.c *= Real(1)/equilibration.zScale;
@@ -276,6 +294,15 @@ void Equilibrate
     {
         equilibratedSolution.y *= Real(1)/equilibration.zScale;
         equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
+
+    if( ctrl.print )
+    {
+        Output("sScale=",equilibration.sScale);
+        Output("zScale=",equilibration.zScale);
+        Output("|| rowScaleA ||_2 = ",FrobeniusNorm(equilibration.rowScaleA));
+        Output("|| rowScaleG ||_2 = ",FrobeniusNorm(equilibration.rowScaleG));
+        Output("|| colScale  ||_2 = ",FrobeniusNorm(equilibration.colScale));
     }
 }
 
@@ -338,7 +365,7 @@ void Equilibrate
         equilibratedSolution.x *= Real(1)/equilibration.sScale;
         equilibratedSolution.s *= Real(1)/equilibration.sScale;
     }
-    
+
     // Rescale || c ||_max to roughly one.
     equilibration.zScale = Max(MaxNorm(equilibratedProblem.c),Real(1));
     equilibratedProblem.c *= Real(1)/equilibration.zScale;
@@ -346,6 +373,15 @@ void Equilibrate
     {
         equilibratedSolution.y *= Real(1)/equilibration.zScale;
         equilibratedSolution.z *= Real(1)/equilibration.zScale;
+    }
+
+    if( ctrl.print && problem.A.Grid().Rank() == 0 )
+    {
+        Output("sScale=",equilibration.sScale);
+        Output("zScale=",equilibration.zScale);
+        Output("|| rowScaleA ||_2 = ",FrobeniusNorm(equilibration.rowScaleA));
+        Output("|| rowScaleG ||_2 = ",FrobeniusNorm(equilibration.rowScaleG));
+        Output("|| colScale  ||_2 = ",FrobeniusNorm(equilibration.colScale));
     }
 }
 
@@ -451,7 +487,7 @@ void EquilibratedMehrotra
     ( problem, solution,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
-    Real relError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     Matrix<Real> J, d;
     Matrix<Real> dSub;
     Permutation p;
@@ -460,7 +496,7 @@ void EquilibratedMehrotra
         try { LDL( J, dSub, p, false ); }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
             return false;
@@ -472,7 +508,7 @@ void EquilibratedMehrotra
         try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
             return false;
@@ -483,7 +519,8 @@ void EquilibratedMehrotra
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
     AffineLPResidual<Matrix<Real>> residual, error;
     const Int indent = PushIndent();
-    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
+    Int numIts=0;
+    for( ; numIts<=ctrl.maxIts; ++numIts, dimacsErrorOld=dimacsError )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -538,7 +575,7 @@ void EquilibratedMehrotra
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -561,9 +598,13 @@ void EquilibratedMehrotra
              "  dual   = ",dualObj,"\n",Indent(),
              "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        // Exit if progress has stalled and we are sufficiently accurate.
+        if( dimacsError <= ctrl.minTol &&
+            dimacsError >= Real(0.99)*dimacsErrorOld )
+            break;
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
@@ -661,9 +702,6 @@ void EquilibratedMehrotra
 
         // Solve for the combined direction
         // ================================
-        residual.primalEquality *= 1-sigma;
-        residual.primalConic *= 1-sigma;
-        residual.dualEquality *= 1-sigma;
         Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -710,7 +748,7 @@ void EquilibratedMehrotra
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -793,7 +831,7 @@ void EquilibratedMehrotra
     ( problem, solution,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
-    Real relError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     DistMatrix<Real> J(grid), d(grid);
     DistMatrix<Real> dSub(grid);
     DistPermutation p(grid);
@@ -802,7 +840,7 @@ void EquilibratedMehrotra
         try { LDL( J, dSub, p, false ); }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
             return false;
@@ -814,7 +852,7 @@ void EquilibratedMehrotra
         try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
             return false;
@@ -830,7 +868,8 @@ void EquilibratedMehrotra
     ForceSimpleAlignments( correction, grid );
 
     const Int indent = PushIndent();
-    for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
+    Int numIts=0;
+    for( ; numIts<=ctrl.maxIts; ++numIts, dimacsErrorOld=dimacsError )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -885,7 +924,7 @@ void EquilibratedMehrotra
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -909,9 +948,13 @@ void EquilibratedMehrotra
                  "  dual   = ",dualObj,"\n",Indent(),
                  "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        // Exit if progress has stalled and we are sufficiently accurate.
+        if( dimacsError <= ctrl.minTol &&
+            dimacsError >= Real(0.99)*dimacsErrorOld )
+            break;
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
@@ -1006,9 +1049,6 @@ void EquilibratedMehrotra
 
         // Solve for the combined direction
         // ================================
-        residual.primalEquality *= 1-sigma;
-        residual.primalConic *= 1-sigma;
-        residual.dualEquality *= 1-sigma;
         Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -1055,7 +1095,7 @@ void EquilibratedMehrotra
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1133,7 +1173,8 @@ void Mehrotra
 
 template<typename Real>
 void EquilibratedMehrotra
-( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+(       SparseAffineLPEquilibration<Real>& equilibration,
+        AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl )
 {
@@ -1142,6 +1183,7 @@ void EquilibratedMehrotra
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
     const Int degree = k;
+    bool resolveReg = ctrl.resolveReg;
 
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
@@ -1183,17 +1225,18 @@ void EquilibratedMehrotra
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
     Int numIts = 0;
-    Real relError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
+    Real infeasError = 1;
     Matrix<Real> dInner;
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> d, w;
-    auto attemptToFactor = [&]( const Real& wMaxNorm )
+    auto attemptToFactor = [&]( const Real& wDynamicRange )
       {
         try
         {
-            if( wMaxNorm >= ctrl.ruizEquilTol )
+            if( wDynamicRange >= ctrl.ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
+            else if( wDynamicRange >= ctrl.diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, J.Height(), 1 );
@@ -1212,7 +1255,7 @@ void EquilibratedMehrotra
         }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
             return false;
@@ -1221,34 +1264,85 @@ void EquilibratedMehrotra
       };
     auto attemptToSolve = [&]( Matrix<Real>& rhs )
       {
-        try
+        const Int indentLevel = IndentLevel();
+        if( resolveReg )
         {
-            if( ctrl.resolveReg )
+            try
+            {
                 reg_ldl::SolveAfter
                 ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
+                SetIndent( indentLevel );
+                return true;
+            }
+            catch(...)
+            {
+                SetIndent( indentLevel );
+                resolveReg = false;
+                if( dimacsError > ctrl.minTol )
+                    Output("WARNING: Could not resolve regularization");
+            }
+        }
+        try
+        {
+            reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
         }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
+            {
+                SetIndent( indentLevel );
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
             return false;
         }
+        SetIndent( indentLevel );
         return true;
       };
 
     AffineLPResidual<Matrix<Real>> residual, error;
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
 
+    // TODO(poulson): Propagate this through more routines?
+    const bool dynamicallyRescale = false;
+
     const Int indent = PushIndent();
-    for( ; numIts<=ctrl.maxIts; ++numIts )
+    Real mu = 0.1, muOld = 0.1;
+    for( ; numIts<=ctrl.maxIts; ++numIts, muOld=mu, dimacsErrorOld=dimacsError )
     {
+        if( dynamicallyRescale )
+        {
+            const Real sScaleNew = MaxNorm(solution.s);
+            if( sScaleNew > Real(10) )
+            {
+                equilibration.sScale *= sScaleNew;
+                if( ctrl.print )
+                    Output
+                    ("s /= ",sScaleNew," (total is ",equilibration.sScale,")");
+                problem.b *= Real(1)/sScaleNew;
+                problem.h *= Real(1)/sScaleNew;
+                solution.x *= Real(1)/sScaleNew;
+                solution.s *= Real(1)/sScaleNew;
+            }
+
+            // Rescale || c ||_max to roughly one.
+            const Real zScaleNew = MaxNorm(solution.z);
+            if( zScaleNew > Real(10) )
+            {
+                equilibration.zScale *= zScaleNew;
+                if( ctrl.print )
+                    Output
+                    ("z /= ",zScaleNew," (total is ",equilibration.zScale,")");
+                problem.c *= Real(1)/zScaleNew;
+                solution.y *= Real(1)/zScaleNew;
+                solution.z *= Real(1)/zScaleNew;
+            }
+        }
+
         // Ensure that s and z are in the cone
         // ===================================
         const Int sNumNonPos = pos_orth::NumOutside( solution.s );
@@ -1260,18 +1354,98 @@ void EquilibratedMehrotra
 
         // Compute the duality measure and scaling point
         // =============================================
-        const Real mu = Dot(solution.s,solution.z) / k;
         pos_orth::NesterovTodd( solution.s, solution.z, w );
-        const Real wMaxNorm = MaxNorm( w );
+        Real lowerRatio=1; Real upperRatio=1;
+        for( Int i=0; i<n; ++i )
+        {
+            if( solution.s(i) > solution.z(i) )
+                upperRatio = Max( upperRatio, solution.s(i)/solution.z(i) );
+            if( solution.z(i) > solution.s(i) )
+                lowerRatio = Max( lowerRatio, solution.z(i)/solution.s(i) );
+        }
+        const Real wDynamicRange = lowerRatio*upperRatio;
+        if( ctrl.print )
+        {
+            Output
+            ("wLowerRatio=",lowerRatio,", wUpperRatio=",upperRatio,
+             ", wDynamicRange=",wDynamicRange);
+        }
+        const Real compRatio =
+          pos_orth::ComplementRatio( solution.s, solution.z );
+        if( ctrl.print )
+        {
+            Output("Complement ratio: ",compRatio);
+            Output("dimacs error: ",dimacsError);
+        }
+        
+        // Apply reg' sparingly to the KKT system's bottom-right corner
+        auto sMod( solution.s );
+        auto zMod( solution.z );
+        const Real maxRatio = Pow(limits::Epsilon<Real>(),Real(-0.35));
+        for( Int i=0; i<n; ++i )
+        {
+            if( solution.z(i)/solution.s(i) > maxRatio )
+                zMod(i) = maxRatio*solution.s(i);
+        }
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
+
+        // Carefully compute a relative duality gap.
+        const Real dualProd = Dot(solution.s,solution.z);
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y) -
           Dot(problem.h,solution.z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        // TODO(poulson): Propagate this logic more widely.
+        Real relGap;
+        if( primObj < Real(0) )
+            relGap = dualProd / -primObj;
+        else if( dualObj > Real(0) )
+            relGap = dualProd / dualObj;
+        else
+            relGap = 2; // 200% error if the signs differ wrong.
+
+        if( ctrl.print )
+        {
+            auto x( solution.x );
+            auto s( solution.s );
+            auto y( solution.y );
+            auto z( solution.z );
+            x *= equilibration.sScale;
+            s *= equilibration.sScale;
+            y *= equilibration.zScale;
+            z *= equilibration.zScale;
+            DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  x );
+            DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, y );
+            DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, z );
+
+            // TODO(poulson): Move this out of the loop.
+            auto c( problem.c );
+            auto b( problem.b );
+            auto h( problem.h );
+            c *= equilibration.zScale;
+            b *= equilibration.sScale;
+            h *= equilibration.sScale;
+            DiagonalScale( LEFT, NORMAL, equilibration.rowScaleA, b );
+            DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, h );
+            DiagonalScale( LEFT, NORMAL, equilibration.colScale, c );
+
+            const Real dualProdOrig = Dot(s,z);
+            const Real primObjOrig = Dot(c,x);
+            const Real dualObjOrig = -Dot(b,y) - Dot(h,z);
+            Real relGapOrig;
+            if( primObjOrig < Real(0) )
+                relGapOrig = dualProdOrig / -primObjOrig;
+            else if( dualObjOrig > Real(0) )
+                relGapOrig = dualProdOrig / dualObjOrig;
+            else
+                relGapOrig = 2; // 200% error if the signs differ wrong.
+
+            Output("original primal: ",primObjOrig);
+            Output("original dual: ",dualObjOrig);
+            Output("original relative gap: ",relGapOrig);
+        }
+
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         residual.primalEquality = problem.b;
@@ -1312,7 +1486,9 @@ void EquilibratedMehrotra
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        const Real equalityError = Max(rbConv,rcConv);
+        infeasError = Max(rhConv,equalityError);
+        dimacsError = Max(relGap,infeasError);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -1333,17 +1509,34 @@ void EquilibratedMehrotra
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
              "  primal = ",primObj,"\n",Indent(),
              "  dual   = ",dualObj,"\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv);
+             "  relative duality gap = ",relGap);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        // Exit if progress has stalled and we are sufficiently accurate.
+        if( dimacsError <= ctrl.minTol &&
+            dimacsError >= Real(0.99)*dimacsErrorOld )
+            break;
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+        const bool freezeBarrier = compRatio > 1000 || relGap < equalityError;
+        if( freezeBarrier )
+        {
+            mu = muOld;
+            if( ctrl.print )
+                Output("Freezing barrier at ",mu);
+        }
+        else
+        {
+            mu = Dot(solution.s,solution.z) / k;
+            if( ctrl.print )
+                Output("New barrier parameter is ",mu);
+        }
 
         // r_mu := s o z
         // -------------
@@ -1354,7 +1547,7 @@ void EquilibratedMehrotra
         // ------------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        FinishKKT( m, n, solution.s, solution.z, JOrig );
+        FinishKKT( m, n, sMod, zMod, JOrig );
         KKTRHS
         ( residual.dualEquality,
           residual.primalEquality,
@@ -1367,7 +1560,7 @@ void EquilibratedMehrotra
 
         // Solve for the direction
         // -----------------------
-        if( !attemptToFactor(wMaxNorm) )
+        if( !attemptToFactor(wDynamicRange) )
             break;
         if( !attemptToSolve(d) )
             break;
@@ -1434,16 +1627,27 @@ void EquilibratedMehrotra
         const Real muAff = Dot(correction.s,correction.z) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma =
-          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        // TODO(poulson): Avoid unnecessary extra solve when freezing barrier
+        Real sigma;
+        if( freezeBarrier )
+        {
+            sigma = 1;
+            if( ctrl.print )
+                Output("Freezing sigma at one");
+        }
+        else
+        {
+            sigma = ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+            if( ctrl.print )
+                Output("Computed sigma=",sigma);
+        }
         if( ctrl.print )
             Output("sigma=",sigma);
 
+        // TODO(poulson): Experiment with several centrality choices?
+
         // Solve for the combined direction
         // ================================
-        residual.primalEquality *= 1-sigma;
-        residual.primalConic *= 1-sigma;
-        residual.dualEquality *= 1-sigma;
         Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -1489,7 +1693,7 @@ void EquilibratedMehrotra
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1515,12 +1719,23 @@ void Mehrotra
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        EquilibratedMehrotra
+        ( equilibration, equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
     {
-        EquilibratedMehrotra( problem, solution, ctrl );
+        SparseAffineLPEquilibration<Real> equilibration;
+        Ones( equilibration.rowScaleA, problem.A.Height(), 1 );
+        Ones( equilibration.rowScaleG, problem.G.Height(), 1 );
+        Ones( equilibration.colScale, problem.A.Width(), 1 );
+        equilibration.sScale = 1;
+        equilibration.zScale = 1;
+        auto equilibratedProblem = problem;
+        auto equilibratedSolution = solution;
+        EquilibratedMehrotra
+        ( equilibration, equilibratedProblem, equilibratedSolution, ctrl );
+        UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
 }
 
@@ -1601,7 +1816,7 @@ void EquilibratedMehrotra
         Output("Init: ",timer.Stop()," secs");
 
     Int numIts = 0;
-    Real relError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
     DistMultiVec<Real> d(grid), w(grid), dInner(grid);
     auto attemptToFactor = [&]( const Real& wMaxNorm )
@@ -1638,7 +1853,7 @@ void EquilibratedMehrotra
         }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
             return false;
@@ -1665,7 +1880,7 @@ void EquilibratedMehrotra
         }
         catch(...)
         {
-            if( relError > ctrl.minTol )
+            if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
             return false;
@@ -1681,8 +1896,12 @@ void EquilibratedMehrotra
     ForceSimpleAlignments( affineCorrection, grid );
     ForceSimpleAlignments( correction, grid );
 
+    // TODO(poulson): Use a more generic cap.
+    const Real eps = limits::Epsilon<Real>();
+    const Real maxRatio = Pow(eps,Real(-0.4));
+
     const Int indent = PushIndent();
-    for( ; numIts<=ctrl.maxIts; ++numIts )
+    for( ; numIts<=ctrl.maxIts; ++numIts, dimacsErrorOld=dimacsError )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -1696,6 +1915,8 @@ void EquilibratedMehrotra
         // Compute the duality measure and scaling point
         // =============================================
         const Real mu = Dot(solution.s,solution.z) / k;
+        pos_orth::NesterovTodd( solution.s, solution.z, w );
+        pos_orth::PushPairInto( solution.s, solution.z, w, maxRatio );
         pos_orth::NesterovTodd( solution.s, solution.z, w );
         const Real wMaxNorm = MaxNorm( w );
 
@@ -1747,7 +1968,7 @@ void EquilibratedMehrotra
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -1771,9 +1992,13 @@ void EquilibratedMehrotra
                  "  dual   = ",dualObj,"\n",Indent(),
                  "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        // Exit if progress has stalled and we are sufficiently accurate.
+        if( dimacsError <= ctrl.minTol &&
+            dimacsError >= Real(0.99)*dimacsErrorOld )
+            break;
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
@@ -1880,9 +2105,6 @@ void EquilibratedMehrotra
 
         // Solve for the combined direction
         // ================================
-        residual.primalEquality *= 1-sigma;
-        residual.primalConic *= 1-sigma;
-        residual.dualEquality *= 1-sigma;
         Shift( residual.dualConic, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -1928,7 +2150,7 @@ void EquilibratedMehrotra
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError

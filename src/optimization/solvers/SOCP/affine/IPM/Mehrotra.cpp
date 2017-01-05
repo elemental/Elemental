@@ -104,6 +104,8 @@ void Mehrotra
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
+    // TODO(poulson): Use dimacsErrorOld to early exit
+
     Real relError = 1;
     Matrix<Real> J, d,
                  w, wRoot, wRootInv,
@@ -297,9 +299,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
@@ -461,6 +460,8 @@ void Mehrotra
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, cutoffPar );
+
+    // TODO(poulson): Use dimacsErrorOld to early exit
 
     Real relError = 1;
     DistMatrix<Real> J(grid),     d(grid),
@@ -671,9 +672,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
@@ -891,6 +889,8 @@ void Mehrotra
     const BisectCtrl bisectCtrl;
     SparseLDLFactorization<Real> sparseLDLFact;
     sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
+
+    // TODO(poulson): Use dimacsErrorOld to early exit
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -1110,9 +1110,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         if( ctrl.mehrotra )
         {
             // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
@@ -1384,6 +1381,8 @@ void Mehrotra
     sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
         Output("Analysis: ",timer.Stop()," secs");
+
+    // TODO(poulson): Use dimacsErrorOld to early exit
 
     Real relError = 1;
     DistMultiVec<Real> dInner(grid);
@@ -1666,9 +1665,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         if( ctrl.time && commRank == 0 )
             timer.Start();
         if( ctrl.mehrotra )

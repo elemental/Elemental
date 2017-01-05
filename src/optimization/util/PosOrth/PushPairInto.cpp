@@ -17,17 +17,20 @@ void PushPairInto
 (       Matrix<Real>& s,
         Matrix<Real>& z,
   const Matrix<Real>& w,
-  Real wMaxNormLimit )
+  Real wRatioLimit )
 {
     EL_DEBUG_CSE
     const Int height = s.Height();
-    const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
+    const Real ratioLimit = wRatioLimit;
     for( Int i=0; i<height; ++i )
     {
-        if( w(i) > wMaxNormLimit )
+        if( s(i) / z(i) > ratioLimit )
         {
-            // TODO(poulson): Switch to a non-adhoc modification
-            z(i) += Min(Real(1)/wMaxNormLimit,maxMod);
+            z(i) = s(i) / ratioLimit;
+        }
+        else if( z(i) / s(i) > ratioLimit )
+        {
+            s(i) = z(i) / ratioLimit;
         }
     }
 }
@@ -38,11 +41,11 @@ void PushPairInto
 (       AbstractDistMatrix<Real>& sPre,
         AbstractDistMatrix<Real>& zPre,
   const AbstractDistMatrix<Real>& wPre,
-  Real wMaxNormLimit )
+  Real wRatioLimit )
 {
     EL_DEBUG_CSE
     AssertSameGrids( sPre, zPre, wPre );
-    const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
+    const Real ratioLimit = wRatioLimit;
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -51,21 +54,27 @@ void PushPairInto
     DistMatrixWriteProxy<Real,Real,VC,STAR>
       sProx( sPre, ctrl ),
       zProx( zPre, ctrl );
+    /*
     DistMatrixReadProxy<Real,Real,VC,STAR>
       wProx( wPre, ctrl );
+    */
     auto& s = sProx.Get();
     auto& z = zProx.Get();
-    auto& w = wProx.GetLocked();
+    //auto& w = wProx.GetLocked();
 
     const Int localHeight = s.LocalHeight();
-    const Real* wBuf = w.LockedBuffer();
+    //const Real* wBuf = w.LockedBuffer();
+    Real* sBuf = s.Buffer();
     Real* zBuf = z.Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        if( wBuf[iLoc] > wMaxNormLimit )
+        if( sBuf[iLoc] / zBuf[iLoc] > ratioLimit )
         {
-            // TODO(poulson): Switch to a non-adhoc modification
-            zBuf[iLoc] += Min(Real(1)/wMaxNormLimit,maxMod);
+            zBuf[iLoc] = sBuf[iLoc] / ratioLimit; 
+        }
+        else if( zBuf[iLoc] / sBuf[iLoc] > ratioLimit )
+        {
+            sBuf[iLoc] = zBuf[iLoc] / ratioLimit;
         }
     }
 }
@@ -76,19 +85,24 @@ void PushPairInto
 (       DistMultiVec<Real>& s,
         DistMultiVec<Real>& z,
   const DistMultiVec<Real>& w,
-  Real wMaxNormLimit )
+  Real wRatioLimit )
 {
     EL_DEBUG_CSE
-    const Real maxMod = Pow(limits::Epsilon<Real>(),Real(0.5));
+    const Real ratioLimit = wRatioLimit;
+
     const int localHeight = s.LocalHeight();
-    const Real* wBuf = w.LockedMatrix().LockedBuffer();
+    //const Real* wBuf = w.LockedMatrix().LockedBuffer();
+    Real* sBuf = s.Matrix().Buffer();
     Real* zBuf = z.Matrix().Buffer();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        if( wBuf[iLoc] > wMaxNormLimit )
+        if( sBuf[iLoc] / zBuf[iLoc] > ratioLimit )
         {
-            // TODO(poulson): Switch to a non-adhoc modification
-            zBuf[iLoc] += Min(Real(1)/wMaxNormLimit,maxMod);
+            zBuf[iLoc] = sBuf[iLoc] / ratioLimit; 
+        }
+        else if( zBuf[iLoc] / sBuf[iLoc] > ratioLimit )
+        {
+            sBuf[iLoc] = zBuf[iLoc] / ratioLimit;
         }
     }
 }
@@ -98,17 +112,17 @@ void PushPairInto
   (       Matrix<Real>& s, \
           Matrix<Real>& z, \
     const Matrix<Real>& w, \
-    Real wMaxNormLimit ); \
+    Real wRatioLimit ); \
   template void PushPairInto \
   (       AbstractDistMatrix<Real>& s, \
           AbstractDistMatrix<Real>& z, \
     const AbstractDistMatrix<Real>& w, \
-    Real wMaxNormLimit ); \
+    Real wRatioLimit ); \
   template void PushPairInto \
   (       DistMultiVec<Real>& s, \
           DistMultiVec<Real>& z, \
     const DistMultiVec<Real>& w, \
-    Real wMaxNormLimit );
+    Real wRatioLimit );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

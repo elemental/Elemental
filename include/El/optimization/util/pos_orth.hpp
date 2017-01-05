@@ -100,21 +100,21 @@ void PushPairInto
 (       Matrix<Real>& s,
         Matrix<Real>& z,
   const Matrix<Real>& w,
-  Real wMaxNormLimit );
+  Real maxRatio );
 template<typename Real,
          typename=EnableIf<IsReal<Real>>>
 void PushPairInto
 (       AbstractDistMatrix<Real>& s,
         AbstractDistMatrix<Real>& z,
   const AbstractDistMatrix<Real>& w,
-  Real wMaxNormLimit );
+  Real maxRatio );
 template<typename Real,
          typename=EnableIf<IsReal<Real>>>
 void PushPairInto
 (       DistMultiVec<Real>& s,
         DistMultiVec<Real>& z,
   const DistMultiVec<Real>& w,
-  Real wMaxNormLimit );
+  Real maxRatio );
 
 } // namespace pos_orth
 } // namespace El

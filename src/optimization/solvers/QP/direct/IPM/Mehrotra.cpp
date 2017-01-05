@@ -95,6 +95,8 @@ void Mehrotra
     ( Q, A, b, c, x, y, z,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
+    // TODO(poulson): Use dimacsErrorOld to early exit
+
     Real relError = 1;
     Matrix<Real> J, d,
                  rb,    rc,    rmu,
@@ -286,8 +288,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rb *= 1-sigma;
-        rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -464,6 +464,8 @@ void Mehrotra
     Initialize
     ( Q, A, b, c, x, y, z,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
+
+    // TODO(poulson): Use dimacsErrorOld to early exit
 
     Real relError = 1;
     DistMatrix<Real>
@@ -665,8 +667,6 @@ void Mehrotra
 
         // Compute the combined direction
         // ==============================
-        rb *= 1-sigma;
-        rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -863,6 +863,8 @@ void Mehrotra
                  rc,    rb,    rmu,
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
+
+    // TODO(poulson): Use dimacsErrorOld to early exit
 
     Real relError = 1;
     Matrix<Real> dInner;
@@ -1077,8 +1079,6 @@ void Mehrotra
 
         // Compute the combined direction
         // ==============================
-        rb *= 1-sigma;
-        rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -1318,6 +1318,8 @@ void Mehrotra
                        rc(grid),    rb(grid),    rmu(grid),
                        dxAff(grid), dyAff(grid), dzAff(grid),
                        dx(grid),    dy(grid),    dz(grid);
+
+    // TODO(poulson): Use dimacsErrorOld to early exit
 
     Real relError = 1;
     DistMultiVec<Real> dInner(grid);
@@ -1562,8 +1564,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rb *= 1-sigma;
-        rc *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {

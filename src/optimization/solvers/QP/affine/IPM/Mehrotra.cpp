@@ -110,7 +110,9 @@ void Mehrotra
     ( Q, A, G, b, c, h, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
-    Real relError = 1;
+    // TODO(poulson): Use dimacsErrorOld to early exit
+
+    Real dimacsError = 1;
     Matrix<Real> J, d,
                  rmu,   rc,    rb,    rh,
                  dxAff, dyAff, dzAff, dsAff,
@@ -167,7 +169,7 @@ void Mehrotra
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -190,9 +192,9 @@ void Mehrotra
              "  dual   = ",dualObj,"\n",Indent(),
              "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
@@ -219,7 +221,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -279,9 +281,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -316,7 +315,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -453,7 +452,9 @@ void Mehrotra
     if( ctrl.time && commRank == 0 )
         Output("Init time: ",timer.Stop()," secs");
 
-    Real relError = 1;
+    // TODO(poulson): Use dimacsErrorOld to early exit
+
+    Real dimacsError = 1;
     DistMatrix<Real> J(grid),     d(grid),
                      rc(grid),    rb(grid),    rh(grid),    rmu(grid),
                      dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
@@ -516,7 +517,7 @@ void Mehrotra
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -540,9 +541,9 @@ void Mehrotra
                  "  dual   = ",dualObj,"\n",Indent(),
                  "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
@@ -578,7 +579,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -639,9 +640,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -668,7 +666,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -693,7 +691,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -816,7 +814,9 @@ void Mehrotra
                  dxAff, dyAff, dzAff, dsAff,
                  dx,    dy,    dz,    ds;
 
-    Real relError = 1;
+    // TODO(poulson): Use dimacsErrorOld to early exit
+
+    Real dimacsError = 1;
     Matrix<Real> dInner;
     Matrix<Real> dxError, dyError, dzError;
     const Int indent = PushIndent();
@@ -874,7 +874,7 @@ void Mehrotra
         // TODO(poulson): Update rh using -ctrl.reg2Perm*ctrl.reg2Perm?
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -897,9 +897,9 @@ void Mehrotra
              "  dual   = ",dualObj,"\n",Indent(),
              "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving minTol=",ctrl.minTol);
@@ -959,7 +959,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1021,9 +1021,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -1054,7 +1051,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1078,7 +1075,7 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1234,7 +1231,9 @@ void Mehrotra
                        dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
                        dx(grid),    dy(grid),    dz(grid),    ds(grid);
 
-    Real relError = 1;
+    // TODO(poulson): Use dimacsErrorOld to early exit
+
+    Real dimacsError = 1;
     DistMultiVec<Real> dInner(grid);
     DistMultiVec<Real> dxError(grid), dyError(grid), dzError(grid);
     const Int indent = PushIndent();
@@ -1296,7 +1295,7 @@ void Mehrotra
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -1320,9 +1319,9 @@ void Mehrotra
                  "  dual   = ",dualObj,"\n",Indent(),
                  "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( relError <= ctrl.targetTol )
+        if( dimacsError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without "
              "achieving minTol=",ctrl.minTol);
@@ -1399,7 +1398,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1462,9 +1461,6 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        rc *= 1-sigma;
-        rb *= 1-sigma;
-        rh *= 1-sigma;
         Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
@@ -1499,7 +1495,7 @@ void Mehrotra
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
@@ -1525,7 +1521,7 @@ void Mehrotra
             Output("iteration: ",iterTimer.Stop()," secs");
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( dimacsError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
