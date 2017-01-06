@@ -85,6 +85,12 @@ struct MPSVariableData
   Int nonnegativeIndex=-1;
 };
 
+struct MPSTrivialEquality
+{
+  string variableName;
+  double singleNonzero;
+};
+
 struct MPSMeta
 {
   // From the NAME section
@@ -107,7 +113,7 @@ struct MPSMeta
   string boundName="";
   Int numUpperBounds=0;
   Int numLowerBounds=0;
-  Int numFixedBounds=0;
+  Int numFixedBounds=0; // The bottom rows of 'A' and 'x'
   Int numFreeBounds=0;
   Int numNonpositiveBounds=0;
   Int numNonnegativeBounds=0;
@@ -118,6 +124,13 @@ struct MPSMeta
   // From the RHS section
   string rhsName="";
   Int numRHS=0;
+
+  // Pre-solve.
+
+  // A map from the original MPS_EQUALITY_ROW row name to the trivial equality
+  // struct, which stores the variable name and the floating-point value
+  // of the single nonzero in the row (eventually).
+  std::map<string,MPSTrivialEquality> trivialEqualityDict;
 
   Int m=0, n=0, k=0;
 
@@ -287,20 +300,22 @@ MPSReader::MPSReader
     Int variableCounter=0;
 
     // Temporaries for the metadata extraction process.
-    string token, rowType, rowName, variableName, boundMark;
     string rhsNameCandidate, boundNameCandidate;
-    double value;
+
+    // For quickly reparsing the column data section if there were any trivial
+    // equality rows that required retrieving the associated single nonzero
+    // column name.
+    std::ifstream::pos_type colSectionBeg;
 
     // TODO(poulson): Convert each token to upper-case letters before each
     // comparison. While capital letters are used by convention, they are
     // not required.
     MPSSection section = MPS_NONE;
-    string line;
-    while( std::getline( file_, line ) )
+    while( std::getline( file_, line_ ) )
     {
         // We first determine which section we are in
         // ------------------------------------------
-        std::stringstream sectionStream( line );
+        std::stringstream sectionStream( line_ );
         const char firstChar = sectionStream.peek();
         const bool isDataLine =
           firstChar == ' ' ||
@@ -310,7 +325,7 @@ MPSReader::MPSReader
 
         // The first token on each line should be a string. We will check it for
         // equivalence with each section string.
-        if( !(sectionStream >> token) )
+        if( !(sectionStream >> token_) )
         {
             // This line only consists of whitespace.
             continue;
@@ -318,7 +333,140 @@ MPSReader::MPSReader
 
         if( !isDataLine )
         {
-            if( token == "NAME" )
+            if( section == MPS_COLUMNS )
+            {
+                // We are finished reading in the column data, so iterate
+                // through the row map to delete any empty rows and convert any
+                // equality rows with a single nonzero to a fixed state.
+                for( auto iter=meta_.rowDict.begin();
+                  iter!=meta_.rowDict.end(); )
+                {
+                    if( iter->second.numNonzeros == 0 )
+                    {
+                        if( iter->second.type == MPS_NONCONSTRAINING_ROW )
+                        {
+                            Output("WARNING: Objective was entirely zero.");
+                            iter->second.typeIndex = 0;
+                            ++iter;
+                        }
+                        else
+                        {
+                            if( iter->second.type == MPS_EQUALITY_ROW )
+                                Output
+                                ("WARNING: Deleting empty equality row ",
+                                 iter->first);
+                            else if( iter->second.type == MPS_GREATER_ROW )
+                                Output
+                                ("WARNING: Deleting empty greater row ",
+                                 iter->first);
+                            else if( iter->second.type == MPS_LESSER_ROW )
+                                Output
+                                ("WARNING: Deleting empty lesser row ",
+                                 iter->first);
+                            else
+                                LogicError("Unknown empty row type");
+                            // Delete this entry.
+                            iter = meta_.rowDict.erase(iter);
+                        }
+                    }
+                    else if( iter->second.numNonzeros == 1 &&
+                             iter->second.type == MPS_EQUALITY_ROW )
+                    {
+                        // Convert to a fixed value. We will divide the
+                        // corresponding RHS value by the single nonzero.
+                        MPSTrivialEquality trivialEquality;
+                        meta_.trivialEqualityDict[iter->first] =
+                          trivialEquality;
+                        iter = meta_.rowDict.erase(iter);
+                        // Subtract one from the equality entries
+                        // (which will be added back later when iterating over
+                        // all of the fixed bounds).
+                        --meta_.numEqualityEntries;
+                    }
+                    else
+                    {
+                        if( iter->second.type == MPS_EQUALITY_ROW )
+                        {
+                            iter->second.typeIndex = meta_.numEqualityRows++;
+                        }
+                        else if( iter->second.type == MPS_GREATER_ROW )
+                        {
+                            iter->second.typeIndex = meta_.numGreaterRows++;
+                        }
+                        else if( iter->second.type == MPS_LESSER_ROW )
+                        {
+                            iter->second.typeIndex = meta_.numLesserRows++;
+                        }
+                        else if( iter->second.type == MPS_NONCONSTRAINING_ROW )
+                        {
+                            iter->second.typeIndex = 0;
+                        }
+                        else
+                            LogicError("Unknown row type");
+                        ++iter;
+                    }
+                }
+
+                if( meta_.trivialEqualityDict.size() != 0 )
+                {
+                    // Loop through the COLUMNS section again to store the
+                    // variable name associated with each trivial equality row.
+                    file_.seekg( colSectionBeg );
+                    string columnLine, columnToken;
+                    while( std::getline( file_, columnLine ) )
+                    {
+                        std::stringstream columnStream( columnLine );
+                        const char firstColumnChar = columnStream.peek();
+                        const bool isColumnLine =
+                          firstColumnChar == ' ' ||
+                          firstColumnChar == '\t' ||
+                          firstColumnChar == '*' ||
+                          firstColumnChar == '#';
+                        if( !isColumnLine )
+                            break;
+                        if( !(columnStream >> variableName_) )
+                            continue;
+                        auto variableIter =
+                            meta_.variableDict.find( variableName_ );
+                        if( variableIter == meta_.variableDict.end() )
+                            LogicError("Invalid 'COLUMNS' section");
+                        MPSVariableData& variableData = variableIter->second;
+                        for( Int pair=0; pair<2; ++pair )
+                        {
+                            if( !(columnStream >> rowName_) )
+                            {
+                                if( pair == 0 )
+                                    LogicError("Invalid 'COLUMNS' section");
+                                else
+                                    break;
+                            }
+                            if( !(columnStream >> value_) )
+                                LogicError("Invalid 'COLUMNS' section");
+                            auto trivialEqualityIter =
+                              meta_.trivialEqualityDict.find( rowName_ );
+                            if( trivialEqualityIter ==
+                                meta_.trivialEqualityDict.end() )
+                                continue;
+                            if( value_ == 0. )
+                                LogicError
+                                ("Trivial equality rows with a zero \"nonzero\""
+                                 " value are not yet supported");
+                            auto& trivialData = trivialEqualityIter->second;
+                            trivialData.variableName = variableName_;
+                            trivialData.singleNonzero = value_;
+                            Output
+                            ("WARNING: Storing nonzero of ",value_,
+                             " for trivial equality row ",rowName_);
+                            variableData.fixedIndex = meta_.numFixedBounds++;
+                            // We initialize at zero and overwrite if there is
+                            // relevant RHS data.
+                            variableData.fixedValue = 0;
+                        }
+                    }
+                }
+            }
+
+            if( token_ == "NAME" )
             {
                 if( meta_.name != "" )
                     LogicError("Multiple 'NAME' sections");
@@ -326,62 +474,48 @@ MPSReader::MPSReader
                     LogicError("Missing 'NAME' string");
                 section = MPS_NAME;
             }
-            else if( token == "OBJSENSE" )
+            else if( token_ == "OBJSENSE" )
             {
                 LogicError("OBJSENSE is not yet handled");
             }
-            else if( token == "ROWS" )
+            else if( token_ == "ROWS" )
             {
-                if( meta_.numLesserRows > 0 ||
-                    meta_.numGreaterRows > 0 ||
-                    meta_.numEqualityRows > 0 ||
-                    meta_.numNonconstrainingRows > 0 )
-                    LogicError("Multiple ROWS sections");
                 section = MPS_ROWS;
             }
-            else if( token == "COLUMNS" )
+            else if( token_ == "COLUMNS" )
             {
-                if( meta_.numEqualityEntries > 0 ||
-                    meta_.numInequalityEntries > 0 )
-                    LogicError("Multiple 'COLUMNS' sections");
                 section = MPS_COLUMNS;
+                colSectionBeg = file_.tellg();
             }
-            else if( token == "RHS" )
+            else if( token_ == "RHS" )
             {
                 section = MPS_RHS;
             }
-            else if( token == "BOUNDS" )
+            else if( token_ == "BOUNDS" )
             {
-                if( meta_.numUpperBounds > 0 ||
-                    meta_.numLowerBounds > 0 ||
-                    meta_.numFixedBounds > 0 ||
-                    meta_.numFreeBounds > 0 ||
-                    meta_.numNonpositiveBounds > 0 ||
-                    meta_.numNonnegativeBounds > 0 )
-                    Output("WARNING: Multiple 'BOUNDS' sections");
                 section = MPS_BOUNDS;
             }
-            else if( token == "RANGES" )
+            else if( token_ == "RANGES" )
             {
                 section = MPS_RANGES;
                 LogicError("MPS 'RANGES' section is not yet supported");
             }
-            else if( token == "ENDATA" )
+            else if( token_ == "ENDATA" )
             {
                 section = MPS_END;
                 break;
             }
-            else if( token == "MARKER" )
+            else if( token_ == "MARKER" )
             {
                 LogicError("MPS 'MARKER' section is not yet supported");
             }
-            else if( token == "SOS" )
+            else if( token_ == "SOS" )
             {
                 LogicError("MPS 'SOS' section is not yet supported");
             }
             else
             {
-                LogicError("Section token ",token," is not recognized");
+                LogicError("Section token ",token_," is not recognized");
             }
             continue;
         }
@@ -389,51 +523,51 @@ MPSReader::MPSReader
         // No section marker was found, so handle this data line.
         if( section == MPS_ROWS )
         {
-            std::stringstream rowStream( line );
-            if( !(rowStream >> rowType) )
+            std::stringstream rowStream( line_ );
+            if( !(rowStream >> rowType_) )
                 LogicError("Invalid 'ROWS' section");
-            if( !(rowStream >> rowName) )
+            if( !(rowStream >> rowName_) )
                 LogicError("Invalid 'ROWS' section");
             MPSRowData rowData;
             // We set the 'typeIndex' fields later since it is not uncommon
             // (e.g., see tuff.mps) for rows to be empty.
-            if( rowType == "L" )
+            if( rowType_ == "L" )
             {
                 rowData.type = MPS_LESSER_ROW;
-                meta_.rowDict[rowName] = rowData;
+                meta_.rowDict[rowName_] = rowData;
             }
-            else if( rowType == "G" )
+            else if( rowType_ == "G" )
             {
                 rowData.type = MPS_GREATER_ROW;
-                meta_.rowDict[rowName] = rowData;
+                meta_.rowDict[rowName_] = rowData;
             }
-            else if( rowType == "E" )
+            else if( rowType_ == "E" )
             {
                 rowData.type = MPS_EQUALITY_ROW;
-                meta_.rowDict[rowName] = rowData;
+                meta_.rowDict[rowName_] = rowData;
             }
-            else if( rowType == "N" )
+            else if( rowType_ == "N" )
             {
                 rowData.type = MPS_NONCONSTRAINING_ROW;
-                meta_.rowDict[rowName] = rowData;
+                meta_.rowDict[rowName_] = rowData;
                 if( meta_.numNonconstrainingRows == 1 )
-                    meta_.costName = rowName;
+                    meta_.costName = rowName_;
             }
             else
                 LogicError("Invalid 'ROWS' section");
         }
         else if( section == MPS_COLUMNS )
         {
-            std::stringstream columnStream( line );
-            if( !(columnStream >> variableName) )
+            std::stringstream columnStream( line_ );
+            if( !(columnStream >> variableName_) )
                 LogicError("Invalid 'COLUMNS' section");
-            auto variableIter = meta_.variableDict.find( variableName );
+            auto variableIter = meta_.variableDict.find( variableName_ );
             if( variableIter == meta_.variableDict.end() )
             {
                 MPSVariableData variableData;
                 variableData.index = variableCounter++;
-                meta_.variableDict[variableName] = variableData;
-                variableIter = meta_.variableDict.find( variableName );
+                meta_.variableDict[variableName_] = variableData;
+                variableIter = meta_.variableDict.find( variableName_ );
             }
             MPSVariableData& variableData = variableIter->second;
 
@@ -441,38 +575,38 @@ MPSReader::MPSReader
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(columnStream >> rowName) )
+                if( !(columnStream >> rowName_) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'COLUMNS' section");
                     else
                         break;
                 }
-                if( !(columnStream >> value) )
+                if( !(columnStream >> value_) )
                     LogicError("Invalid 'COLUMNS' section");
                 ++variableData.numNonzeros;
 
-                auto rowIter = meta_.rowDict.find( rowName );
+                auto rowIter = meta_.rowDict.find( rowName_ );
                 if( rowIter == meta_.rowDict.end() )
-                    LogicError("Could not find row ",rowName);
+                    LogicError("Could not find row ",rowName_);
                 auto& rowData = rowIter->second;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
                     // A(row,column) = value
-                    ++meta_.numEqualityEntries;
                     ++rowData.numNonzeros;
+                    ++meta_.numEqualityEntries;
                 }
                 else if( rowData.type == MPS_LESSER_ROW )
                 {
                     // G(row,column) = value
-                    ++meta_.numInequalityEntries;
                     ++rowData.numNonzeros;
+                    ++meta_.numInequalityEntries;
                 }
                 else if( rowData.type == MPS_GREATER_ROW )
                 {
                     // G(row,column) = -value
-                    ++meta_.numInequalityEntries;
                     ++rowData.numNonzeros;
+                    ++meta_.numInequalityEntries;
                 }
                 else if( rowData.type == MPS_NONCONSTRAINING_ROW )
                 {
@@ -487,7 +621,7 @@ MPSReader::MPSReader
         {
             if( !initializedRHSSection_ )
             {
-                std::stringstream rhsTestStream( line );
+                std::stringstream rhsTestStream( line_ );
                 Int numTokens=0;
                 string rhsToken;
                 while( rhsTestStream >> rhsToken )
@@ -511,7 +645,7 @@ MPSReader::MPSReader
                 initializedRHSSection_ = true;
             }
 
-            std::stringstream rhsStream( line );
+            std::stringstream rhsStream( line_ );
             if( rhsHasName_ )
             {
                 if( !(rhsStream >> rhsNameCandidate) )
@@ -532,64 +666,65 @@ MPSReader::MPSReader
             // from this line.
             for( Int pair=0; pair<2; ++pair )
             {
-                if( !(rhsStream >> rowName) )
+                if( !(rhsStream >> rowName_) )
                 {
                     if( pair == 0 )
                         LogicError("Invalid 'RHS' section (3)");
                     else
                         break;
                 }
-                if( !(rhsStream >> value) )
+                if( !(rhsStream >> value_) )
                     LogicError("Invalid 'RHS' section (4)");
+                // TODO(poulson): Store fixed value.
             }
         }
         else if( section == MPS_BOUNDS )
         {
             if( !initializedBoundsSection_ )
             {
-                std::stringstream boundsTestStream( line );
-                if( !(boundsTestStream >> boundMark) )
+                std::stringstream boundsTestStream( line_ );
+                if( !(boundsTestStream >> boundMark_) )
                     LogicError("Invalid 'BOUNDS' section");
-                if( !(boundsTestStream >> token) )
+                if( !(boundsTestStream >> token_) )
                     LogicError("Invalid 'BOUNDS' section");
 
                 Int numTokens=2;
                 string rhsToken;
                 while( boundsTestStream >> rhsToken )
                     ++numTokens;
-                if( boundMark == "LO" ||
-                    boundMark == "UP" ||
-                    boundMark == "FX" )
+                if( boundMark_ == "LO" ||
+                    boundMark_ == "UP" ||
+                    boundMark_ == "FX" )
                 {
                     if( numTokens == 4 )
                         boundsHasName_ = true;
                     else if( numTokens == 3 )
                         boundsHasName_ = false;
                     else
-                        LogicError("Invalid ",boundMark," 'BOUNDS' line");
+                        LogicError("Invalid ",boundMark_," 'BOUNDS' line");
                 }
-                else if( boundMark == "FR" ||
-                         boundMark == "MI" ||
-                         boundMark == "PL" )
+                else if( boundMark_ == "FR" ||
+                         boundMark_ == "MI" ||
+                         boundMark_ == "PL" )
                 {
                     if( numTokens == 3 )
                         boundsHasName_ = true;
                     else if( numTokens == 2 )
                         boundsHasName_ = false;
                     else
-                        LogicError("Invalid ",boundMark," 'BOUNDS' line");
+                        LogicError("Invalid ",boundMark_," 'BOUNDS' line");
                 }
                 else
-                    LogicError("Unknown bound mark ",boundMark);
+                    LogicError("Unknown bound mark ",boundMark_);
 
                 // If there is a name, it occurred in the second position.
                 if( boundsHasName_ )
-                    meta_.boundName = token;
+                    meta_.boundName = token_;
 
                 initializedBoundsSection_ = true;
             }
 
-            std::stringstream boundStream( line );
+            std::stringstream boundStream( line_ );
             // We already have the first token of a bounding row, which should
             // be of the same general form as
             //
@@ -597,7 +732,7 @@ MPSReader::MPSReader
             //
             // in the case of 'VARIABLENAME' being fixed ('FX') at the value
             // 1734 (with this problem's bound name being 'BOUNDROW').
-            if( !(boundStream >> boundMark) )
+            if( !(boundStream >> boundMark_) )
                 LogicError("Invalid 'BOUNDS' section");
             if( boundsHasName_ )
             {
@@ -608,39 +743,39 @@ MPSReader::MPSReader
                     ("Only single problem instances are currently supported "
                      "(multiple bound names were encountered)");
             }
-            if( !(boundStream >> variableName) )
+            if( !(boundStream >> variableName_) )
                 LogicError("Invalid 'BOUNDS' section");
-            auto variableIter = meta_.variableDict.find( variableName );
+            auto variableIter = meta_.variableDict.find( variableName_ );
             if( variableIter == meta_.variableDict.end() )
                 LogicError
-                ("Invalid 'BOUNDS' section (name ",variableName," not found)");
+                ("Invalid 'BOUNDS' section (name ",variableName_," not found)");
             MPSVariableData& data = variableIter->second;
-            if( boundMark == "UP" )
+            if( boundMark_ == "UP" )
             {
-                if( !(boundStream >> value) )
+                if( !(boundStream >> value_) )
                     LogicError("Invalid 'BOUNDS' section");
                 data.upperBounded = true;
-                data.upperBound = value;
+                data.upperBound = value_;
             }
-            else if( boundMark == "LO" )
+            else if( boundMark_ == "LO" )
             {
-                if( !(boundStream >> value) )
+                if( !(boundStream >> value_) )
                     LogicError("Invalid 'BOUNDS' section");
                 data.lowerBounded = true;
-                data.lowerBound = value;
+                data.lowerBound = value_;
             }
-            else if( boundMark == "FX" )
+            else if( boundMark_ == "FX" )
             {
-                if( !(boundStream >> value) )
+                if( !(boundStream >> value_) )
                     LogicError("Invalid 'BOUNDS' section");
                 data.fixed = true;
-                data.fixedValue = value;
+                data.fixedValue = value_;
             }
-            else if( boundMark == "FR" )
+            else if( boundMark_ == "FR" )
                 data.free = true;
-            else if( boundMark == "MI" )
+            else if( boundMark_ == "MI" )
                 data.nonpositive = true;
-            else if( boundMark == "PL" )
+            else if( boundMark_ == "PL" )
                 data.nonnegative = true;
             else
                 LogicError("Invalid 'BOUNDS' section (unknown bound mark)");
@@ -662,55 +797,6 @@ MPSReader::MPSReader
         meta_.numRHS = 1;
     }
 
-    // Iterate through the row map to delete any empty rows.
-    for( auto iter=meta_.rowDict.begin(); iter!=meta_.rowDict.end(); )
-    {
-        if( iter->second.numNonzeros == 0 )
-        {
-            if( iter->second.type == MPS_NONCONSTRAINING_ROW )
-            {
-                Output("WARNING: Objective was entirely zero.");
-                iter->second.typeIndex = 0;
-                ++iter;
-            }
-            else
-            {
-                if( iter->second.type == MPS_EQUALITY_ROW )
-                    Output("WARNING: Deleting empty equality row ",iter->first);
-                else if( iter->second.type == MPS_GREATER_ROW )
-                    Output("WARNING: Deleting empty greater row ",iter->first);
-                else if( iter->second.type == MPS_LESSER_ROW )
-                    Output("WARNING: Deleting empty lesser row ",iter->first);
-                else
-                    LogicError("Unknown empty row type");
-                // Delete this entry.
-                iter = meta_.rowDict.erase(iter);
-            }
-        }
-        else
-        {
-            if( iter->second.type == MPS_EQUALITY_ROW )
-            {
-                iter->second.typeIndex = meta_.numEqualityRows++;
-            }
-            else if( iter->second.type == MPS_GREATER_ROW )
-            {
-                iter->second.typeIndex = meta_.numGreaterRows++;
-            }
-            else if( iter->second.type == MPS_LESSER_ROW )
-            {
-                iter->second.typeIndex = meta_.numLesserRows++;
-            }
-            else if( iter->second.type == MPS_NONCONSTRAINING_ROW )
-            {
-                iter->second.typeIndex = 0;
-            }
-            else
-                LogicError("Unknown row type");
-            ++iter;
-        }
-    }
-
     // Now iterate through the variable map and make use of the requested
     // conventions for counting the number of bounds of each type.
     // Also warn if there are possibly conflicting bound types.
@@ -727,6 +813,7 @@ MPSReader::MPSReader
                 {
                     // This should be the standard case.
                     data.upperBoundIndex = meta_.numUpperBounds++;
+                    ++meta_.numInequalityEntries;
                 }
                 else if( data.lowerBound == data.upperBound )
                 {
@@ -755,6 +842,7 @@ MPSReader::MPSReader
                 {
                     // Preserve the default non-negativity assumption.
                     data.upperBoundIndex = meta_.numUpperBounds++;
+                    ++meta_.numInequalityEntries;
                     data.nonnegative = true;
                 }
                 else if( data.upperBound == 0. && !data.nonnegative )
@@ -780,6 +868,7 @@ MPSReader::MPSReader
                     {
                         // Do not enforce non-negativity.
                         data.upperBoundIndex = meta_.numUpperBounds++;
+                        ++meta_.numInequalityEntries;
                         data.nonnegative = false;
                         Output
                         ("WARNING: Removing default non-negativity of ",
@@ -791,6 +880,7 @@ MPSReader::MPSReader
                 else
                 {
                     data.upperBoundIndex = meta_.numUpperBounds++;
+                    ++meta_.numInequalityEntries;
                     if( data.nonnegative )
                         LogicError
                         ("Cannot have non-negative variable with an upper bound"
@@ -802,6 +892,7 @@ MPSReader::MPSReader
         {
             // Any conflicts with an upper bound are already resolved.
             data.lowerBoundIndex = meta_.numLowerBounds++;
+            ++meta_.numInequalityEntries;
         }
 
         // Handle fixed values.
@@ -811,6 +902,7 @@ MPSReader::MPSReader
                 data.nonpositive || data.nonnegative )
                 LogicError("Invalid bound combination");
             data.fixedIndex = meta_.numFixedBounds++;
+            ++meta_.numEqualityEntries;
         }
 
         // Handle free values.
@@ -830,6 +922,7 @@ MPSReader::MPSReader
                 Output
                 ("WARNING: Combined nonpositive constraint with upper bound");
             data.nonpositiveIndex = meta_.numNonpositiveBounds++;
+            ++meta_.numInequalityEntries;
         }
 
         // Default to nonnegative if there were not any markings.
@@ -850,6 +943,7 @@ MPSReader::MPSReader
                 Output
                 ("WARNING: Combined nonnegative constraint with lower bound");
             data.nonnegativeIndex = meta_.numNonnegativeBounds++;
+            ++meta_.numInequalityEntries;
         }
     }
 
@@ -988,11 +1082,33 @@ bool MPSReader::QueuedEntry()
                 }
                 if( !(columnStream >> columnValue) )
                     LogicError("Invalid 'COLUMNS' section");
+
+                AffineLPEntry<double> entry;
                 auto rowIter = meta_.rowDict.find( rowName_ );
                 if( rowIter == meta_.rowDict.end() )
-                    LogicError("Could not find row ",rowName_);
+                {
+                    auto trivialEqualityIter =
+                      meta_.trivialEqualityDict.find( rowName_ );
+                    if( trivialEqualityIter == meta_.trivialEqualityDict.end() )
+                    {
+                        LogicError("Could not find row ",rowName_);
+                    }
+                    if( columnValue == 0. )
+                    {
+                        LogicError
+                        ("Trivial rows are not yet allowed to have their only "
+                         "specified \"nonzero\" value be zero");
+                    }
+                    Output
+                    ("WARNING: Trivial equality row ",rowName_,
+                     " only had a nonzero in column ",variableName_);
+                    auto& trivialData = trivialEqualityIter->second;
+                    trivialData.variableName = variableName_; 
+                    trivialData.singleNonzero = columnValue;
+                    continue;
+                }
+
                 const auto& rowData = rowIter->second;
-                AffineLPEntry<double> entry;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
                     // A(row,column) = columnValue
@@ -1064,9 +1180,26 @@ bool MPSReader::QueuedEntry()
                     LogicError("Invalid 'RHS' section");
                 auto rowIter = meta_.rowDict.find( rowName_ );
                 if( rowIter == meta_.rowDict.end() )
-                    LogicError("Could not find row ",rowName_);
-                const auto& rowData = rowIter->second;
+                {
+                    auto trivialEqualityIter =
+                      meta_.trivialEqualityDict.find( rowName_ );
+                    if( trivialEqualityIter == meta_.trivialEqualityDict.end() )
+                        LogicError("Could not find trivial row ",rowName_);
+                    const auto& trivialData = trivialEqualityIter->second;
+                    auto variableIter =
+                      meta_.variableDict.find( trivialData.variableName );
+                    if( variableIter == meta_.variableDict.end() )
+                    {
+                        LogicError
+                        ("Could not find variable ",trivialData.variableName,
+                         " for trivial equality from row ",rowName_);
+                    }
+                    variableIter->second.fixedValue =
+                      rhsValue / trivialData.singleNonzero;
+                    continue;
+                }
                 AffineLPEntry<double> entry;
+                const auto& rowData = rowIter->second;
                 if( rowData.type == MPS_EQUALITY_ROW )
                 {
                     // b(row) = rhsValue
