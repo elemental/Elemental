@@ -45,29 +45,31 @@ void LPIPM
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
-    Matrix<Real> c, AHat;
+    
+    DirectLPProblem<Matrix<Real>,Matrix<Real>> problem;
+    problem.b = b;
 
     // c := ones(2*n,1)
     // ================
-    Ones( c, 2*n, 1 );
+    Ones( problem.c, 2*n, 1 );
 
     // \hat A := [A, -A]
     // =================
-    Zeros( AHat, m, 2*n );
-    auto AHatu = AHat( IR(0,m), uInd );
-    auto AHatv = AHat( IR(0,m), vInd );
+    Zeros( problem.A, m, 2*n );
+    auto AHatu = problem.A( IR(0,m), uInd );
+    auto AHatv = problem.A( IR(0,m), vInd );
     AHatu = A;
     AHatv -= A;
 
     // Solve the direct LP
     // ===================
-    Matrix<Real> xHat, y, z;
-    LP( AHat, b, c, xHat, y, z, ctrl );
+    DirectLPSolution<Matrix<Real>> solution;
+    LP( problem, solution, ctrl );
 
     // x := u - v
     // ==========
-    x = xHat( uInd, ALL );
-    x -= xHat( vInd, ALL );
+    x = solution.x( uInd, ALL );
+    x -= solution.x( vInd, ALL );
 }
 
 template<typename Real>
@@ -87,31 +89,35 @@ void LPIPM
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Grid& g = A.Grid();
+    const Grid& grid = A.Grid();
     const Range<Int> uInd(0,n), vInd(n,2*n);
-    DistMatrix<Real> c(g), AHat(g);
+    DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>> problem;
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.b = b;
 
     // c := ones(2*n,1)
     // ================
-    Ones( c, 2*n, 1 );
+    Ones( problem.c, 2*n, 1 );
 
     // \hat A := [A, -A]
     // =================
-    Zeros( AHat, m, 2*n );
-    auto AHatu = AHat( IR(0,m), uInd );
-    auto AHatv = AHat( IR(0,m), vInd );
+    Zeros( problem.A, m, 2*n );
+    auto AHatu = problem.A( IR(0,m), uInd );
+    auto AHatv = problem.A( IR(0,m), vInd );
     AHatu = A;
     AHatv -= A;
 
     // Solve the direct LP
     // ===================
-    DistMatrix<Real> xHat(g), y(g), z(g);
-    LP( AHat, b, c, xHat, y, z, ctrl );
+    DirectLPSolution<DistMatrix<Real>> solution;
+    LP( problem, solution, ctrl );
 
     // x := u - v
     // ==========
-    x = xHat( uInd, ALL );
-    x -= xHat( vInd, ALL );
+    x = solution.x( uInd, ALL );
+    x -= solution.x( vInd, ALL );
 }
 
 template<typename Real>
@@ -125,34 +131,34 @@ void LPIPM
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
-    SparseMatrix<Real> AHat;
-    Matrix<Real> c;
+    DirectLPProblem<SparseMatrix<Real>,Matrix<Real>> problem;
+    problem.b = b;
 
     // c := ones(2*n,1)
     // ================
-    Ones( c, 2*n, 1 );
+    Ones( problem.c, 2*n, 1 );
 
     // \hat A := [A, -A]
     // =================
     const Int numEntriesA = A.NumEntries();
-    Zeros( AHat, m, 2*n );
-    AHat.Reserve( 2*numEntriesA );
+    Zeros( problem.A, m, 2*n );
+    problem.A.Reserve( 2*numEntriesA );
     for( Int e=0; e<numEntriesA; ++e )
     {
-        AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
-        AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
+        problem.A.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
+        problem.A.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
-    AHat.ProcessQueues();
+    problem.A.ProcessQueues();
 
     // Solve the direct LP
     // ===================
-    Matrix<Real> xHat, y, z;
-    LP( AHat, b, c, xHat, y, z, ctrl );
+    DirectLPSolution<Matrix<Real>> solution;
+    LP( problem, solution, ctrl );
 
     // x := u - v
     // ==========
-    x = xHat( uInd, ALL );
-    x -= xHat( vInd, ALL );
+    x = solution.x( uInd, ALL );
+    x -= solution.x( vInd, ALL );
 }
 
 template<typename Real>
@@ -166,43 +172,46 @@ void LPIPM
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
-    DistSparseMatrix<Real> AHat(grid);
-    DistMultiVec<Real> c(grid);
+    DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.b = b;
 
     // c := ones(2*n,1)
     // ================
-    Ones( c, 2*n, 1 );
+    Ones( problem.c, 2*n, 1 );
 
     // \hat A := [A, -A]
     // ================
     // NOTE: Since A and \hat A are the same height and each distributed within
     //       columns, it is possible to form \hat A from A without communication
     const Int numLocalEntriesA = A.NumLocalEntries();
-    Zeros( AHat, m, 2*n );
-    AHat.Reserve( 2*numLocalEntriesA );
+    Zeros( problem.A, m, 2*n );
+    problem.A.Reserve( 2*numLocalEntriesA );
     for( Int e=0; e<numLocalEntriesA; ++e )
     {
-        AHat.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
-        AHat.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
+        problem.A.QueueUpdate( A.Row(e), A.Col(e),    A.Value(e) );
+        problem.A.QueueUpdate( A.Row(e), A.Col(e)+n, -A.Value(e) );
     }
-    AHat.ProcessLocalQueues();
+    problem.A.ProcessLocalQueues();
 
     // Solve the direct LP
     // ===================
-    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
-    LP( AHat, b, c, xHat, y, z, ctrl );
+    DirectLPSolution<DistMultiVec<Real>> solution;
+    LP( problem, solution, ctrl );
 
     // x := u - v
     // ==========
     Zeros( x, n, 1 );
-    x.Reserve( 2*xHat.LocalHeight() );
-    for( Int iLoc=0; iLoc<xHat.LocalHeight(); ++iLoc )
+    x.Reserve( 2*solution.x.LocalHeight() );
+    for( Int iLoc=0; iLoc<solution.x.LocalHeight(); ++iLoc )
     {
-        const Int i = xHat.GlobalRow(iLoc);
+        const Int i = solution.x.GlobalRow(iLoc);
         if( i < n )
-            x.QueueUpdate( i,   0,  xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i,   0,  solution.x.GetLocal(iLoc,0) );
         else
-            x.QueueUpdate( i-n, 0, -xHat.GetLocal(iLoc,0) );
+            x.QueueUpdate( i-n, 0, -solution.x.GetLocal(iLoc,0) );
     }
     x.ProcessQueues();
 }

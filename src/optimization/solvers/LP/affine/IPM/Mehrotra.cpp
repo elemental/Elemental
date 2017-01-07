@@ -22,6 +22,22 @@ void CopyOrViewHelper( const DistMatrix<Real>& A, DistMatrix<Real>& B )
 }
 
 namespace lp {
+
+template<typename Real>
+Real RelativeDualityGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    Real relGap;
+    if( primalObj < Real(0) )
+        relGap = dualityProduct / -primalObj;
+    else if( dualObj > Real(0) )
+        relGap = dualityProduct / dualObj;
+    else
+        relGap = 2; // 200% error if the signs differ wrong.
+    return relGap;
+}
+
 namespace affine {
 
 // The following solves a pair of linear programs in "affine" conic form:
@@ -43,6 +59,42 @@ namespace affine {
 // which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
 // scheme.
 //
+
+template<typename Real,class MatrixType,class VectorType>
+Real PrimalObjective
+( const AffineLPProblem<MatrixType,VectorType>& problem,
+  const AffineLPSolution<VectorType>& solution )
+{
+    EL_DEBUG_CSE
+    const Real primalObjective = Dot(problem.c,solution.x);
+    return primalObjective;
+}
+
+template<typename Real,class MatrixType,class VectorType>
+Real DualObjective
+( const AffineLPProblem<MatrixType,VectorType>& problem,
+  const AffineLPSolution<VectorType>& solution )
+{
+    EL_DEBUG_CSE
+    const Real dualObjective = -Dot(problem.b,solution.y) -
+      Dot(problem.h,solution.z);
+    return dualObjective;
+}
+
+/*
+template<typename Real,class MatrixType,class VectorType>
+Real RelativeDualityGap
+( const AffineLPProblem<MatrixType,VectorType>& problem,
+  const AffineLPSolution<VectorType>& solution )
+{
+    EL_DEBUG_CSE
+    const Real primalObj = PrimalObjective<Real>( problem, solution );
+    const Real dualObj = DualObjective<Real>( problem, solution );
+    const Real dualProd = Dot(solution.s,solution.z);
+    const Real relGap = RelativeDualityGap( primalObj, dualObj, dualProd );
+    return relGap;
+}
+*/
 
 template<typename Real>
 struct DenseAffineLPEquilibration
@@ -533,16 +585,16 @@ void EquilibratedMehrotra
 
         // Compute the duality measure
         // ===========================
-        const Real mu = Dot(solution.s,solution.z) / k;
+        const Real dualProd = Dot( solution.s, solution.z );
+        const Real mu = dualProd / k;
 
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(problem.c,solution.x);
-        const Real dualObj = -Dot(problem.b,solution.y) -
-          Dot(problem.h,solution.z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real primObj = PrimalObjective<Real>( problem, solution );
+        const Real dualObj = DualObjective<Real>( problem, solution );
+        const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         residual.primalEquality = problem.b;
@@ -575,7 +627,7 @@ void EquilibratedMehrotra
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(relGap,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -594,9 +646,9 @@ void EquilibratedMehrotra
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
-             "  primal = ",primObj,"\n",Indent(),
-             "  dual   = ",dualObj,"\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv);
+             "  scaled primal = ",primObj,"\n",Indent(),
+             "  scaled dual   = ",dualObj,"\n",Indent(),
+             "  scaled relative duality gap = ",relGap);
         }
         if( dimacsError <= ctrl.targetTol )
             break;
@@ -882,16 +934,16 @@ void EquilibratedMehrotra
 
         // Compute the duality measure
         // ===========================
-        const Real mu = Dot(solution.s,solution.z) / k;
+        const Real dualProd = Dot( solution.s, solution.z );
+        const Real mu = dualProd / k;
 
         // Check for convergence
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(problem.c,solution.x);
-        const Real dualObj = -Dot(problem.b,solution.y) -
-          Dot(problem.h,solution.z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real primObj = PrimalObjective<Real>( problem, solution );
+        const Real dualObj = DualObjective<Real>( problem, solution );
+        const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         residual.primalEquality = problem.b;
@@ -924,7 +976,7 @@ void EquilibratedMehrotra
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(relGap,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -944,9 +996,9 @@ void EquilibratedMehrotra
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
-                 "  primal = ",primObj,"\n",Indent(),
-                 "  dual   = ",dualObj,"\n",Indent(),
-                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+                 "  scaled primal = ",primObj,"\n",Indent(),
+                 "  scaled dual   = ",dualObj,"\n",Indent(),
+                 "  scaled relative gap = ",relGap);
         }
         if( dimacsError <= ctrl.targetTol )
             break;
@@ -1173,7 +1225,8 @@ void Mehrotra
 
 template<typename Real>
 void EquilibratedMehrotra
-(       SparseAffineLPEquilibration<Real>& equilibration,
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
+        SparseAffineLPEquilibration<Real>& equilibration,
         AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const MehrotraCtrl<Real>& ctrl )
@@ -1352,8 +1405,8 @@ void EquilibratedMehrotra
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        // Compute the duality measure and scaling point
-        // =============================================
+        // Compute the scaling point
+        // =========================
         pos_orth::NesterovTodd( solution.s, solution.z, w );
         Real lowerRatio=1; Real upperRatio=1;
         for( Int i=0; i<n; ++i )
@@ -1377,7 +1430,7 @@ void EquilibratedMehrotra
             Output("Complement ratio: ",compRatio);
             Output("dimacs error: ",dimacsError);
         }
-        
+
         // Apply reg' sparingly to the KKT system's bottom-right corner
         auto sMod( solution.s );
         auto zMod( solution.z );
@@ -1392,62 +1445,41 @@ void EquilibratedMehrotra
         // =====================
 
         // Carefully compute a relative duality gap.
-        const Real dualProd = Dot(solution.s,solution.z);
-        const Real primObj = Dot(problem.c,solution.x);
-        const Real dualObj = -Dot(problem.b,solution.y) -
-          Dot(problem.h,solution.z);
-        // TODO(poulson): Propagate this logic more widely.
-        Real relGap;
-        if( primObj < Real(0) )
-            relGap = dualProd / -primObj;
-        else if( dualObj > Real(0) )
-            relGap = dualProd / dualObj;
-        else
-            relGap = 2; // 200% error if the signs differ wrong.
+        const Real dualProd = Dot( solution.s, solution.z );
+        const Real primObj = PrimalObjective<Real>( problem, solution );
+        const Real dualObj = DualObjective<Real>( problem, solution );
+        const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
 
         if( ctrl.print )
         {
-            auto x( solution.x );
-            auto s( solution.s );
-            auto y( solution.y );
-            auto z( solution.z );
-            x *= equilibration.sScale;
-            s *= equilibration.sScale;
-            y *= equilibration.zScale;
-            z *= equilibration.zScale;
-            DiagonalSolve( LEFT, NORMAL, equilibration.colScale,  x );
-            DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleA, y );
-            DiagonalSolve( LEFT, NORMAL, equilibration.rowScaleG, z );
+            AffineLPSolution<Matrix<Real>> origSolution;
+            origSolution.x = solution.x;
+            origSolution.s = solution.s;
+            origSolution.y = solution.y;
+            origSolution.z = solution.z;
+            origSolution.x *= equilibration.sScale;
+            origSolution.s *= equilibration.sScale;
+            origSolution.y *= equilibration.zScale;
+            origSolution.z *= equilibration.zScale;
+            DiagonalSolve
+            ( LEFT, NORMAL, equilibration.colScale,  origSolution.x );
+            DiagonalSolve
+            ( LEFT, NORMAL, equilibration.rowScaleA, origSolution.y );
+            DiagonalSolve
+            ( LEFT, NORMAL, equilibration.rowScaleG, origSolution.z );
 
-            // TODO(poulson): Move this out of the loop.
-            auto c( problem.c );
-            auto b( problem.b );
-            auto h( problem.h );
-            c *= equilibration.zScale;
-            b *= equilibration.sScale;
-            h *= equilibration.sScale;
-            DiagonalScale( LEFT, NORMAL, equilibration.rowScaleA, b );
-            DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, h );
-            DiagonalScale( LEFT, NORMAL, equilibration.colScale, c );
-
-            // This is the strategy used by many solvers (e.g., CVXOPT) but 
-            // doesn't even yield two digits of accuracy between the primal and
-            // dual residuals for pilot.mps.
-            const Real dualProdOrig = Dot(s,z);
-            const Real primObjOrig = Dot(c,x);
-            const Real dualObjOrig = -Dot(b,y) - Dot(h,z);
-            Real relGapOrig;
-            if( primObjOrig < Real(0) )
-                relGapOrig = dualProdOrig / -primObjOrig;
-            else if( dualObjOrig > Real(0) )
-                relGapOrig = dualProdOrig / dualObjOrig;
-            else
-                relGapOrig = 2; // 200% error if the signs differ wrong.
+            const Real dualProdOrig = Dot( origSolution.s, origSolution.z );
+            const Real primObjOrig =
+              PrimalObjective<Real>( origProblem, origSolution );
+            const Real dualObjOrig =
+              DualObjective<Real>( origProblem, origSolution );
+            const Real relGapOrig =
+              RelativeDualityGap( primObjOrig, dualObjOrig, dualProdOrig );
 
             Output("s^T z = ",dualProdOrig);
-            Output("original primal: ",primObjOrig);
-            Output("original dual: ",dualObjOrig);
-            Output("original relative gap: ",relGapOrig);
+            Output("primal: ",primObjOrig);
+            Output("dual: ",dualObjOrig);
+            Output("relative gap: ",relGapOrig);
         }
 
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
@@ -1511,9 +1543,9 @@ void EquilibratedMehrotra
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
-             "  primal = ",primObj,"\n",Indent(),
-             "  dual   = ",dualObj,"\n",Indent(),
-             "  relative duality gap = ",relGap);
+             "  scaled primal = ",primObj,"\n",Indent(),
+             "  scaled dual   = ",dualObj,"\n",Indent(),
+             "  scaled relative duality gap = ",relGap);
         }
         if( dimacsError <= ctrl.targetTol )
             break;
@@ -1724,7 +1756,8 @@ void Mehrotra
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
         EquilibratedMehrotra
-        ( equilibration, equilibratedProblem, equilibratedSolution, ctrl );
+        ( problem, equilibration,
+          equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
@@ -1738,7 +1771,8 @@ void Mehrotra
         auto equilibratedProblem = problem;
         auto equilibratedSolution = solution;
         EquilibratedMehrotra
-        ( equilibration, equilibratedProblem, equilibratedSolution, ctrl );
+        ( problem, equilibration,
+          equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
 }
@@ -1928,10 +1962,10 @@ void EquilibratedMehrotra
         // =====================
         // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
         // ---------------------------------------------------
-        const Real primObj = Dot(problem.c,solution.x);
-        const Real dualObj = -Dot(problem.b,solution.y) -
-          Dot(problem.h,solution.z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real dualProd = Dot( solution.s, solution.z );
+        const Real primObj = PrimalObjective<Real>( problem, solution );
+        const Real dualObj = DualObjective<Real>( problem, solution );
+        const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
         residual.primalEquality = problem.b;
@@ -1972,7 +2006,7 @@ void EquilibratedMehrotra
 
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsError = Max(Max(Max(relGap,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -1992,9 +2026,9 @@ void EquilibratedMehrotra
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
-                 "  primal = ",primObj,"\n",Indent(),
-                 "  dual   = ",dualObj,"\n",Indent(),
-                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+                 "  scaled primal = ",primObj,"\n",Indent(),
+                 "  scaled dual   = ",dualObj,"\n",Indent(),
+                 "  scaled relative gap = ",relGap);
         }
         if( dimacsError <= ctrl.targetTol )
             break;

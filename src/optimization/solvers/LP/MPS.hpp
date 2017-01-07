@@ -17,7 +17,7 @@ enum MPSSection {
   MPS_RHS,
   MPS_BOUNDS,
   MPS_RANGES,
-  MPS_OBJSENSE, 
+  MPS_OBJSENSE,
   MPS_END,
   MPS_NONE
 };
@@ -26,7 +26,7 @@ enum MPSRowType {
   MPS_LESSER_ROW,
   MPS_GREATER_ROW,
   MPS_EQUALITY_ROW,
-  MPS_NONCONSTRAINING_ROW 
+  MPS_NONCONSTRAINING_ROW
 };
 
 struct MPSRowData
@@ -571,7 +571,7 @@ MPSReader::MPSReader
                 {
                     LogicError("Invalid 'RHS' section (1)");
                 }
-                
+
                 initializedRHSSection_ = true;
             }
 
@@ -1033,7 +1033,7 @@ bool MPSReader::QueuedEntry()
                     ("WARNING: Trivial equality row ",rowName_,
                      " only had a nonzero in column ",variableName_);
                     auto& trivialData = trivialEqualityIter->second;
-                    trivialData.variableName = variableName_; 
+                    trivialData.variableName = variableName_;
                     trivialData.singleNonzero = columnValue;
                     continue;
                 }
