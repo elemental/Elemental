@@ -581,16 +581,83 @@ void LP
 // Mathematical Programming System
 // -------------------------------
 
+// Please see http://lpsolve.sourceforge.net/5.5/mps-format.htm for a very
+// nuanced discussion of the MPS file format.
+//
+// An important, but seemingly not widely discussed, issue is that some of the
+// lp_data LP examples (e.g., tuff.mps) are not well-formed. I found out the
+// hard way that the fourth equality constraint of tuff.mps is empty.
+
+// TODO(poulson): Allow the default lower and upper bounds to be configurable.
+
+struct LPMPSMeta
+{
+  // From the NAME section
+  string name="";
+
+  // From the ROWS section
+  string costName="";
+  Int numLesserRows=0;
+  Int numGreaterRows=0;
+  Int numEqualityRows=0;
+  Int numNonconstrainingRows=0;
+
+
+  // From the COLUMNS section
+  Int numEqualityEntries=0;
+  Int numInequalityEntries=0;
+
+  // From the BOUNDS section
+  string boundName="";
+  Int numUpperBounds=0;
+  Int numLowerBounds=0;
+  Int numFixedBounds=0; // The bottom rows of 'A' and 'x'
+  Int numFreeBounds=0;
+  Int numNonpositiveBounds=0;
+  Int numNonnegativeBounds=0;
+
+  // From the RANGES section
+  // TODO(poulson)
+
+  // From the RHS section
+  string rhsName="";
+  Int numRHS=0;
+
+  Int m=0, n=0, k=0;
+
+  //
+  //   | A0 | x = | b0 |
+  //   | A1 |     | b1 |
+  //
+  Int equalityOffset=-1, fixedOffset=-1;
+
+  //
+  //   | G0 | x <= | h0 |
+  //   | G1 |      | h1 |
+  //   | G2 |      | h2 |
+  //   | G3 |      | h3 |
+  //   | G4 |      | h4 |
+  //   | G5 |      | h5 |
+  //
+  Int lesserOffset=-1,
+      greaterOffset=-1,
+      upperBoundOffset=-1,
+      lowerBoundOffset=-1,
+      nonpositiveOffset=-1,
+      nonnegativeOffset=-1;
+
+  void PrintSummary() const;
+};
+
 // Load an affine conic form LP stored in the Mathematical Programming System
 // (MPS) format.
 template<class MatrixType,class VectorType>
-void ReadMPS
+LPMPSMeta ReadMPS
 ( AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
   bool compressed=false,
   bool minimize=true,
-  bool keepNonnegativeWithZeroUpperBound=true,
-  bool metadataSummary=false );
+  bool keepNonnegativeWithZeroUpperBound=true );
 
 // Write out an LP in the MPS format.
 template<class MatrixType,class VectorType>

@@ -10,15 +10,6 @@
 
 namespace El {
 
-// Please see http://lpsolve.sourceforge.net/5.5/mps-format.htm for a very
-// nuanced discussion of the MPS file format.
-//
-// An important, but seemingly not widely discussed, issue is that some of the
-// lp_data LP examples (e.g., tuff.mps) are not well-formed. I found out the
-// hard way that the fourth equality constraint of tuff.mps is empty.
-
-// TODO(poulson): Allow the default lower and upper bounds to be configurable.
-
 enum MPSSection {
   MPS_NAME,
   MPS_ROWS,
@@ -26,7 +17,7 @@ enum MPSSection {
   MPS_RHS,
   MPS_BOUNDS,
   MPS_RANGES,
-  MPS_OBJSENSE,
+  MPS_OBJSENSE, 
   MPS_END,
   MPS_NONE
 };
@@ -35,7 +26,7 @@ enum MPSRowType {
   MPS_LESSER_ROW,
   MPS_GREATER_ROW,
   MPS_EQUALITY_ROW,
-  MPS_NONCONSTRAINING_ROW
+  MPS_NONCONSTRAINING_ROW 
 };
 
 struct MPSRowData
@@ -91,92 +82,27 @@ struct MPSTrivialEquality
   double singleNonzero;
 };
 
-struct MPSMeta
+void LPMPSMeta::PrintSummary() const
 {
-  // From the NAME section
-  string name="";
-
-  // From the ROWS section
-  string costName="";
-  Int numLesserRows=0;
-  Int numGreaterRows=0;
-  Int numEqualityRows=0;
-  Int numNonconstrainingRows=0;
-  std::map<string,MPSRowData> rowDict;
-
-  // From the COLUMNS section
-  std::map<string,MPSVariableData> variableDict;
-  Int numEqualityEntries=0;
-  Int numInequalityEntries=0;
-
-  // From the BOUNDS section
-  string boundName="";
-  Int numUpperBounds=0;
-  Int numLowerBounds=0;
-  Int numFixedBounds=0; // The bottom rows of 'A' and 'x'
-  Int numFreeBounds=0;
-  Int numNonpositiveBounds=0;
-  Int numNonnegativeBounds=0;
-
-  // From the RANGES section
-  // TODO(poulson)
-
-  // From the RHS section
-  string rhsName="";
-  Int numRHS=0;
-
-  // Pre-solve.
-
-  // A map from the original MPS_EQUALITY_ROW row name to the trivial equality
-  // struct, which stores the variable name and the floating-point value
-  // of the single nonzero in the row (eventually).
-  std::map<string,MPSTrivialEquality> trivialEqualityDict;
-
-  Int m=0, n=0, k=0;
-
-  //
-  //   | A0 | x = | b0 |
-  //   | A1 |     | b1 |
-  //
-  Int equalityOffset=-1, fixedOffset=-1;
-
-  //
-  //   | G0 | x <= | h0 |
-  //   | G1 |      | h1 |
-  //   | G2 |      | h2 |
-  //   | G3 |      | h3 |
-  //   | G4 |      | h4 |
-  //   | G5 |      | h5 |
-  //
-  Int lesserOffset=-1,
-      greaterOffset=-1,
-      upperBoundOffset=-1,
-      lowerBoundOffset=-1,
-      nonpositiveOffset=-1,
-      nonnegativeOffset=-1;
-
-  void PrintSummary() const
-  {
-      Output("MPSMeta summary:");
-      Output("  name=",name);
-      Output("  costName=",costName);
-      Output("  numLesserRows=",numLesserRows);
-      Output("  numGreaterRows=",numGreaterRows);
-      Output("  numEqualityRows=",numEqualityRows);
-      Output("  numNonconstrainingRows=",numNonconstrainingRows);
-      Output("  numEqualityEntries=",numEqualityEntries);
-      Output("  numInequalityEntries=",numInequalityEntries);
-      Output("  boundName=",boundName);
-      Output("  numUpperBounds=",numUpperBounds);
-      Output("  numLowerBounds=",numLowerBounds);
-      Output("  numFixedBounds=",numFixedBounds);
-      Output("  numFreeBounds=",numFreeBounds);
-      Output("  numNonpositiveBounds=",numNonpositiveBounds);
-      Output("  numNonnegativeBounds=",numNonnegativeBounds);
-      Output("  rhsName=",rhsName);
-      Output("  m=",m,", n=",n,", k=",k);
-  }
-};
+    Output("LPMPSMeta summary:");
+    Output("  name=",name);
+    Output("  costName=",costName);
+    Output("  numLesserRows=",numLesserRows);
+    Output("  numGreaterRows=",numGreaterRows);
+    Output("  numEqualityRows=",numEqualityRows);
+    Output("  numNonconstrainingRows=",numNonconstrainingRows);
+    Output("  numEqualityEntries=",numEqualityEntries);
+    Output("  numInequalityEntries=",numInequalityEntries);
+    Output("  boundName=",boundName);
+    Output("  numUpperBounds=",numUpperBounds);
+    Output("  numLowerBounds=",numLowerBounds);
+    Output("  numFixedBounds=",numFixedBounds);
+    Output("  numFreeBounds=",numFreeBounds);
+    Output("  numNonpositiveBounds=",numNonpositiveBounds);
+    Output("  numNonnegativeBounds=",numNonnegativeBounds);
+    Output("  rhsName=",rhsName);
+    Output("  m=",m,", n=",n,", k=",k);
+}
 
 enum AffineLPMatrixType {
   AFFINE_LP_COST_VECTOR, // The 'c' in 'c^T x'
@@ -243,7 +169,7 @@ public:
     // Only one call is allowed per call to 'QueuedEntry'.
     AffineLPEntry<double> GetEntry();
 
-    const MPSMeta& Meta() const;
+    const LPMPSMeta& Meta() const;
 
 private:
     string filename_;
@@ -251,7 +177,14 @@ private:
 
     bool minimize_;
     bool keepNonnegativeWithZeroUpperBound_;
-    MPSMeta meta_;
+    LPMPSMeta meta_;
+
+    std::map<string,MPSRowData> rowDict_;
+    std::map<string,MPSVariableData> variableDict_;
+    // A map from the original MPS_EQUALITY_ROW row name to the trivial equality
+    // struct, which stores the variable name and the floating-point value
+    // of the single nonzero in the row (eventually).
+    std::map<string,MPSTrivialEquality> trivialEqualityDict_;
 
     vector<AffineLPEntry<double>> queuedEntries_;
 
@@ -338,8 +271,7 @@ MPSReader::MPSReader
                 // We are finished reading in the column data, so iterate
                 // through the row map to delete any empty rows and convert any
                 // equality rows with a single nonzero to a fixed state.
-                for( auto iter=meta_.rowDict.begin();
-                  iter!=meta_.rowDict.end(); )
+                for( auto iter=rowDict_.begin(); iter!=rowDict_.end(); )
                 {
                     if( iter->second.numNonzeros == 0 )
                     {
@@ -366,7 +298,7 @@ MPSReader::MPSReader
                             else
                                 LogicError("Unknown empty row type");
                             // Delete this entry.
-                            iter = meta_.rowDict.erase(iter);
+                            iter = rowDict_.erase(iter);
                         }
                     }
                     else if( iter->second.numNonzeros == 1 &&
@@ -375,9 +307,8 @@ MPSReader::MPSReader
                         // Convert to a fixed value. We will divide the
                         // corresponding RHS value by the single nonzero.
                         MPSTrivialEquality trivialEquality;
-                        meta_.trivialEqualityDict[iter->first] =
-                          trivialEquality;
-                        iter = meta_.rowDict.erase(iter);
+                        trivialEqualityDict_[iter->first] = trivialEquality;
+                        iter = rowDict_.erase(iter);
                         // Subtract one from the equality entries
                         // (which will be added back later when iterating over
                         // all of the fixed bounds).
@@ -407,7 +338,7 @@ MPSReader::MPSReader
                     }
                 }
 
-                if( meta_.trivialEqualityDict.size() != 0 )
+                if( trivialEqualityDict_.size() != 0 )
                 {
                     // Loop through the COLUMNS section again to store the
                     // variable name associated with each trivial equality row.
@@ -426,9 +357,8 @@ MPSReader::MPSReader
                             break;
                         if( !(columnStream >> variableName_) )
                             continue;
-                        auto variableIter =
-                            meta_.variableDict.find( variableName_ );
-                        if( variableIter == meta_.variableDict.end() )
+                        auto variableIter = variableDict_.find( variableName_ );
+                        if( variableIter == variableDict_.end() )
                             LogicError("Invalid 'COLUMNS' section");
                         MPSVariableData& variableData = variableIter->second;
                         for( Int pair=0; pair<2; ++pair )
@@ -443,9 +373,9 @@ MPSReader::MPSReader
                             if( !(columnStream >> value_) )
                                 LogicError("Invalid 'COLUMNS' section");
                             auto trivialEqualityIter =
-                              meta_.trivialEqualityDict.find( rowName_ );
+                              trivialEqualityDict_.find( rowName_ );
                             if( trivialEqualityIter ==
-                                meta_.trivialEqualityDict.end() )
+                                trivialEqualityDict_.end() )
                                 continue;
                             if( value_ == 0. )
                                 LogicError
@@ -534,22 +464,22 @@ MPSReader::MPSReader
             if( rowType_ == "L" )
             {
                 rowData.type = MPS_LESSER_ROW;
-                meta_.rowDict[rowName_] = rowData;
+                rowDict_[rowName_] = rowData;
             }
             else if( rowType_ == "G" )
             {
                 rowData.type = MPS_GREATER_ROW;
-                meta_.rowDict[rowName_] = rowData;
+                rowDict_[rowName_] = rowData;
             }
             else if( rowType_ == "E" )
             {
                 rowData.type = MPS_EQUALITY_ROW;
-                meta_.rowDict[rowName_] = rowData;
+                rowDict_[rowName_] = rowData;
             }
             else if( rowType_ == "N" )
             {
                 rowData.type = MPS_NONCONSTRAINING_ROW;
-                meta_.rowDict[rowName_] = rowData;
+                rowDict_[rowName_] = rowData;
                 if( meta_.numNonconstrainingRows == 1 )
                     meta_.costName = rowName_;
             }
@@ -561,13 +491,13 @@ MPSReader::MPSReader
             std::stringstream columnStream( line_ );
             if( !(columnStream >> variableName_) )
                 LogicError("Invalid 'COLUMNS' section");
-            auto variableIter = meta_.variableDict.find( variableName_ );
-            if( variableIter == meta_.variableDict.end() )
+            auto variableIter = variableDict_.find( variableName_ );
+            if( variableIter == variableDict_.end() )
             {
                 MPSVariableData variableData;
                 variableData.index = variableCounter++;
-                meta_.variableDict[variableName_] = variableData;
-                variableIter = meta_.variableDict.find( variableName_ );
+                variableDict_[variableName_] = variableData;
+                variableIter = variableDict_.find( variableName_ );
             }
             MPSVariableData& variableData = variableIter->second;
 
@@ -586,8 +516,8 @@ MPSReader::MPSReader
                     LogicError("Invalid 'COLUMNS' section");
                 ++variableData.numNonzeros;
 
-                auto rowIter = meta_.rowDict.find( rowName_ );
-                if( rowIter == meta_.rowDict.end() )
+                auto rowIter = rowDict_.find( rowName_ );
+                if( rowIter == rowDict_.end() )
                     LogicError("Could not find row ",rowName_);
                 auto& rowData = rowIter->second;
                 if( rowData.type == MPS_EQUALITY_ROW )
@@ -745,8 +675,8 @@ MPSReader::MPSReader
             }
             if( !(boundStream >> variableName_) )
                 LogicError("Invalid 'BOUNDS' section");
-            auto variableIter = meta_.variableDict.find( variableName_ );
-            if( variableIter == meta_.variableDict.end() )
+            auto variableIter = variableDict_.find( variableName_ );
+            if( variableIter == variableDict_.end() )
                 LogicError
                 ("Invalid 'BOUNDS' section (name ",variableName_," not found)");
             MPSVariableData& data = variableIter->second;
@@ -800,7 +730,7 @@ MPSReader::MPSReader
     // Now iterate through the variable map and make use of the requested
     // conventions for counting the number of bounds of each type.
     // Also warn if there are possibly conflicting bound types.
-    for( auto& entry : meta_.variableDict )
+    for( auto& entry : variableDict_ )
     {
         auto& data = entry.second;
 
@@ -956,8 +886,8 @@ MPSReader::MPSReader
 
     // Extract the number of variables
     // (the matrix 'A' is 'm x n' and 'G' is 'k x n').
-    meta_.n = meta_.variableDict.size();
-    variableIter_ = meta_.variableDict.cbegin();
+    meta_.n = variableDict_.size();
+    variableIter_ = variableDict_.cbegin();
 
     //
     //   | A0 | x = | b0 |
@@ -1063,8 +993,8 @@ bool MPSReader::QueuedEntry()
 
            if( !(columnStream >> variableName_) )
                 LogicError("Invalid 'COLUMNS' section");
-            auto variableIter = meta_.variableDict.find( variableName_ );
-            if( variableIter == meta_.variableDict.end() )
+            auto variableIter = variableDict_.find( variableName_ );
+            if( variableIter == variableDict_.end() )
                 LogicError("Could not find variable ",variableName_);
             const MPSVariableData& variableData = variableIter->second;
             const Int column = variableData.index;
@@ -1084,12 +1014,12 @@ bool MPSReader::QueuedEntry()
                     LogicError("Invalid 'COLUMNS' section");
 
                 AffineLPEntry<double> entry;
-                auto rowIter = meta_.rowDict.find( rowName_ );
-                if( rowIter == meta_.rowDict.end() )
+                auto rowIter = rowDict_.find( rowName_ );
+                if( rowIter == rowDict_.end() )
                 {
                     auto trivialEqualityIter =
-                      meta_.trivialEqualityDict.find( rowName_ );
-                    if( trivialEqualityIter == meta_.trivialEqualityDict.end() )
+                      trivialEqualityDict_.find( rowName_ );
+                    if( trivialEqualityIter == trivialEqualityDict_.end() )
                     {
                         LogicError("Could not find row ",rowName_);
                     }
@@ -1178,17 +1108,17 @@ bool MPSReader::QueuedEntry()
                 }
                 if( !(rhsStream >> rhsValue) )
                     LogicError("Invalid 'RHS' section");
-                auto rowIter = meta_.rowDict.find( rowName_ );
-                if( rowIter == meta_.rowDict.end() )
+                auto rowIter = rowDict_.find( rowName_ );
+                if( rowIter == rowDict_.end() )
                 {
                     auto trivialEqualityIter =
-                      meta_.trivialEqualityDict.find( rowName_ );
-                    if( trivialEqualityIter == meta_.trivialEqualityDict.end() )
+                      trivialEqualityDict_.find( rowName_ );
+                    if( trivialEqualityIter == trivialEqualityDict_.end() )
                         LogicError("Could not find trivial row ",rowName_);
                     const auto& trivialData = trivialEqualityIter->second;
                     auto variableIter =
-                      meta_.variableDict.find( trivialData.variableName );
-                    if( variableIter == meta_.variableDict.end() )
+                      variableDict_.find( trivialData.variableName );
+                    if( variableIter == variableDict_.end() )
                     {
                         LogicError
                         ("Could not find variable ",trivialData.variableName,
@@ -1255,7 +1185,7 @@ bool MPSReader::QueuedEntry()
     // Now iterate through the variable map to handle the bounds.
     AffineLPEntry<double> entry;
     while( queuedEntries_.size() == 0 &&
-           variableIter_ != meta_.variableDict.end() )
+           variableIter_ != variableDict_.end() )
     {
         const auto& data = variableIter_->second;
         const Int column = data.index;
@@ -1360,7 +1290,7 @@ AffineLPEntry<double> MPSReader::GetEntry()
     return entry;
 }
 
-const MPSMeta& MPSReader::Meta() const
+const LPMPSMeta& MPSReader::Meta() const
 {
     EL_DEBUG_CSE
     return meta_;
@@ -1369,13 +1299,12 @@ const MPSMeta& MPSReader::Meta() const
 namespace read_mps {
 
 template<typename Real>
-void Helper
+LPMPSMeta Helper
 ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const string& filename,
   bool compressed,
   bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
-  bool metadataSummary )
+  bool keepNonnegativeWithZeroUpperBound )
 {
     EL_DEBUG_CSE
     if( compressed )
@@ -1383,9 +1312,7 @@ void Helper
 
     MPSReader reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
-    const MPSMeta& meta = reader.Meta();
-    if( metadataSummary )
-        meta.PrintSummary();
+    const LPMPSMeta& meta = reader.Meta();
 
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
@@ -1433,16 +1360,16 @@ void Helper
             problem.h(entry.row) = entry.value;
         }
     }
+    return meta;
 }
 
 template<typename Real>
-void Helper
+LPMPSMeta Helper
 ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
   const string& filename,
   bool compressed,
   bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
-  bool metadataSummary )
+  bool keepNonnegativeWithZeroUpperBound )
 {
     EL_DEBUG_CSE
 
@@ -1454,9 +1381,7 @@ void Helper
 
     MPSReader reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
-    const MPSMeta& meta = reader.Meta();
-    if( metadataSummary && problem.A.Grid().Rank() == 0 )
-        meta.PrintSummary();
+    const LPMPSMeta& meta = reader.Meta();
 
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
@@ -1478,16 +1403,17 @@ void Helper
         else /* entry.type == AFFINE_LP_INEQUALITY_VECTOR */
             problem.h.Set( entry.row, 0, entry.value );
     }
+
+    return meta;
 }
 
 template<typename Real>
-void Helper
+LPMPSMeta Helper
 ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
   const string& filename,
   bool compressed,
   bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
-  bool metadataSummary )
+  bool keepNonnegativeWithZeroUpperBound )
 {
     EL_DEBUG_CSE
     if( compressed )
@@ -1495,9 +1421,7 @@ void Helper
 
     MPSReader reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
-    const MPSMeta& meta = reader.Meta();
-    if( metadataSummary )
-        meta.PrintSummary();
+    const LPMPSMeta& meta = reader.Meta();
 
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
@@ -1523,16 +1447,17 @@ void Helper
     }
     problem.A.ProcessQueues();
     problem.G.ProcessQueues();
+
+    return meta;
 }
 
 template<typename Real>
-void Helper
+LPMPSMeta Helper
 ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
   const string& filename,
   bool compressed,
   bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
-  bool metadataSummary )
+  bool keepNonnegativeWithZeroUpperBound )
 {
     EL_DEBUG_CSE
     if( compressed )
@@ -1540,9 +1465,7 @@ void Helper
 
     MPSReader reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
-    const MPSMeta& meta = reader.Meta();
-    if( metadataSummary && problem.A.Grid().Rank() == 0 )
-        meta.PrintSummary();
+    const LPMPSMeta& meta = reader.Meta();
 
     Zeros( problem.c, meta.n, 1 );
     Zeros( problem.A, meta.m, meta.n );
@@ -1571,23 +1494,24 @@ void Helper
     }
     problem.A.ProcessLocalQueues();
     problem.G.ProcessLocalQueues();
+
+    return meta;
 }
 
 } // namespace read_mps
 
 template<class MatrixType,class VectorType>
-void ReadMPS
+LPMPSMeta ReadMPS
 ( AffineLPProblem<MatrixType,VectorType>& problem,
   const string& filename,
   bool compressed,
   bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
-  bool metadataSummary )
+  bool keepNonnegativeWithZeroUpperBound )
 {
     EL_DEBUG_CSE
-    read_mps::Helper
+    return read_mps::Helper
     ( problem, filename, compressed,
-      minimize, keepNonnegativeWithZeroUpperBound, metadataSummary );
+      minimize, keepNonnegativeWithZeroUpperBound );
 }
 
 namespace write_mps {

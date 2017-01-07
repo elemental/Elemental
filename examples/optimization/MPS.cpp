@@ -23,9 +23,11 @@ void DenseLoadAndSolve
 
     timer.Start();
     El::AffineLPProblem<El::Matrix<Real>,El::Matrix<Real>> problem;
-    El::ReadMPS
+    auto meta = El::ReadMPS
     ( problem, filename, compressed,
-      minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary );
+      minimize, keepNonnegativeWithZeroUpperBounds );
+    if( metadataSummary )
+        meta.PrintSummary();
     El::Output("Reading took ",timer.Stop()," seconds");
     if( print )
     {
@@ -69,9 +71,11 @@ void SparseLoadAndSolve
 
     timer.Start();
     El::AffineLPProblem<El::SparseMatrix<Real>,El::Matrix<Real>> problem;
-    El::ReadMPS
+    auto meta = El::ReadMPS
     ( problem, filename, compressed,
-      minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary );
+      minimize, keepNonnegativeWithZeroUpperBounds );
+    if( metadataSummary )
+        meta.PrintSummary();
     El::Output("Reading took ",timer.Stop()," seconds");
     if( print )
     {

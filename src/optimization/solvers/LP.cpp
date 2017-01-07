@@ -482,34 +482,30 @@ void LP
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
     const lp::affine::Ctrl<Real>& ctrl ); \
-  template void ReadMPS \
+  template LPMPSMeta ReadMPS \
   ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \
     bool compressed, \
     bool minimize, \
-    bool keepNonnegativeWithZeroUpperBounds, \
-    bool metadataSummary ); \
-  template void ReadMPS \
+    bool keepNonnegativeWithZeroUpperBounds ); \
+  template LPMPSMeta ReadMPS \
   ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
     const string& filename, \
     bool compressed, \
     bool minimize, \
-    bool keepNonnegativeWithZeroUpperBounds, \
-    bool metadataSummary ); \
-  template void ReadMPS \
+    bool keepNonnegativeWithZeroUpperBounds ); \
+  template LPMPSMeta ReadMPS \
   ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \
     bool compressed, \
     bool minimize, \
-    bool keepNonnegativeWithZeroUpperBounds, \
-    bool metadataSummary ); \
-  template void ReadMPS \
+    bool keepNonnegativeWithZeroUpperBounds ); \
+  template LPMPSMeta ReadMPS \
   ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
     const string& filename, \
     bool compressed, \
     bool minimize, \
-    bool keepNonnegativeWithZeroUpperBounds, \
-    bool metadataSummary ); \
+    bool keepNonnegativeWithZeroUpperBounds ); \
   template void WriteMPS \
   ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
     const string& filename, \

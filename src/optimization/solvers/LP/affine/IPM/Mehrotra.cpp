@@ -1430,6 +1430,9 @@ void EquilibratedMehrotra
             DiagonalScale( LEFT, NORMAL, equilibration.rowScaleG, h );
             DiagonalScale( LEFT, NORMAL, equilibration.colScale, c );
 
+            // This is the strategy used by many solvers (e.g., CVXOPT) but 
+            // doesn't even yield two digits of accuracy between the primal and
+            // dual residuals for pilot.mps.
             const Real dualProdOrig = Dot(s,z);
             const Real primObjOrig = Dot(c,x);
             const Real dualObjOrig = -Dot(b,y) - Dot(h,z);
@@ -1441,6 +1444,7 @@ void EquilibratedMehrotra
             else
                 relGapOrig = 2; // 200% error if the signs differ wrong.
 
+            Output("s^T z = ",dualProdOrig);
             Output("original primal: ",primObjOrig);
             Output("original dual: ",dualObjOrig);
             Output("original relative gap: ",relGapOrig);
