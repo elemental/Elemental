@@ -42,8 +42,8 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("ruizMaxIter",iType),
               ("diagEquilTol",sType),
               ("checkResiduals",bType),
-              ("reg0Tmp",sType),("reg1Tmp",sType),("reg2Tmp",sType),
-              ("reg0Perm",sType),("reg1Perm",sType),("reg2Perm",sType)]
+              ("xRegTmp",sType),("yRegTmp",sType),("zRegTmp",sType),
+              ("xRegPerm",sType),("yRegPerm",sType),("zRegPerm",sType)]
   def __init__(self):
     lib.ElMehrotraCtrlDefault_s(pointer(self))
 class MehrotraCtrl_d(ctypes.Structure):
@@ -69,8 +69,8 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("ruizMaxIter",iType),
               ("diagEquilTol",dType),
               ("checkResiduals",bType),
-              ("reg0Tmp",dType),("reg1Tmp",dType),("reg2Tmp",dType),
-              ("reg0Perm",dType),("reg1Perm",dType),("reg2Perm",dType)]
+              ("xRegTmp",dType),("yRegTmp",dType),("zRegTmp",dType),
+              ("xRegPerm",dType),("yRegPerm",dType),("zRegPerm",dType)]
   def __init__(self):
     lib.ElMehrotraCtrlDefault_d(pointer(self))
 

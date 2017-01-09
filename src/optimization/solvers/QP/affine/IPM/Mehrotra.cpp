@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -31,6 +31,31 @@ namespace affine {
 //
 // which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
 // scheme.
+//
+// We make use of the regularized Lagrangian
+//
+//   L(x,s;y,z) = (1/2) x^T Q x + c^T x + y^T (A x - b) + z^T (G x + s - h) +
+//                mu Phi(s) +
+//                (1/2) gamma_x^2 || x ||_2^2 -
+//                (1/2) gamma_y^2 || y ||_2^2 -
+//                (1/2) gamma_z^2 || z ||_2^2,
+//
+// where we note that the two-norm regularization is positive for the primal
+// variable x and *negative* for the dual variables y and z. There is not yet
+// any regularization on the primal slack variable s (though it may be
+// investigated in the future).
+//
+// The subsequent first-order optimality conditions for x, y, and z become
+//
+//   Delta_x L = Q x + c + A^T y + G^T z + gamma_x^2 x = 0,
+//   Delta_y L = A x - b - gamma_y^2 y = 0,
+//   Delta_z L = G x + s - h - gamma_z^2 z = 0.
+//
+// These can be arranged into the symmetric quasi-definite form
+//
+//   | Q + gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
+//   |        A,        -gamma_y^2 I,       0      | | y |   |  b  |
+//   |        G,              0,      -gamma_z^2 I | | z |   | h-s |.
 //
 
 template<typename Real>
@@ -182,9 +207,6 @@ void Mehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -531,9 +553,6 @@ void Mehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -788,9 +807,9 @@ void Mehrotra
     regTmp.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
-        else if( i < n+m ) regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
-        else               regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
+        if( i < n )        regTmp(i) =  ctrl.xRegTmp;
+        else if( i < n+m ) regTmp(i) = -ctrl.yRegTmp;
+        else               regTmp(i) = -ctrl.zRegTmp;
     }
     regTmp *= origTwoNormEst;
 
@@ -798,7 +817,8 @@ void Mehrotra
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( Q, A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
+    ( Q, A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+      JStatic, false );
 
     SparseLDLFactorization<Real> sparseLDLFact;
 
@@ -835,7 +855,7 @@ void Mehrotra
         // =============================================
         const Real mu = Dot(s,z) / k;
         pos_orth::NesterovTodd( s, z, w );
-        const Real wMaxNorm = MaxNorm( w );
+        //const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -854,24 +874,24 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
+        Axpy( -ctrl.yRegPerm, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
+        Axpy( ctrl.xRegPerm, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h; rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
+        Axpy( -ctrl.zRegPerm, z, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-        // TODO(poulson): Update rh using -ctrl.reg2Perm*ctrl.reg2Perm?
         // Now check the pieces
         // --------------------
         dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
@@ -887,9 +907,6 @@ void Mehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -921,49 +938,54 @@ void Mehrotra
 
         // Solve for the direction
         // -----------------------
-        try
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regTmp );
+
+        /*
+        if( wMaxNorm >= ctrl.ruizEquilTol )
+            SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+        else if( wMaxNorm >= ctrl.diagEquilTol )
+            SymmetricDiagonalEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, n+m+k, 1 );
+        */
+        Ones( dInner, n+m+k, 1 );
+
+        if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
         {
-            J = JOrig;
-            J.FreezeSparsity();
-            UpdateDiagonal( J, Real(1), regTmp );
-
-            if( wMaxNorm >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, n+m+k, 1 );
-
-            if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
-            {
-                const bool hermitian = true;
-                const BisectCtrl bisectCtrl;
-                sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
-            }
-            else
-            {
-                sparseLDLFact.ChangeNonzeroValues( J );
-            }
-
-            sparseLDLFact.Factor();
-
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
+            const bool hermitian = true;
+            const BisectCtrl bisectCtrl;
+            sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
         }
-        catch(...)
+        else
         {
-            if( dimacsError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            sparseLDLFact.ChangeNonzeroValues( J );
+        }
+
+        sparseLDLFact.Factor();
+
+        RegSolveInfo<Real> solveInfo;
+        if( ctrl.resolveReg )
+        {
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+        }
+        if( !solveInfo.metRequestedTol )
+        {
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( dimacsError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
         }
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
@@ -1037,25 +1059,27 @@ void Mehrotra
         KKTRHS( rc, rb, rh, rmu, z, d );
         // Solve for the new direction
         // ---------------------------
-        try
+        solveInfo.metRequestedTol = false;
+        if( ctrl.resolveReg )
         {
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
-        catch(...)
+        if( !solveInfo.metRequestedTol )
         {
-            if( dimacsError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( dimacsError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
         }
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
@@ -1194,11 +1218,11 @@ void Mehrotra
     {
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-          regTmp.SetLocal( iLoc, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+          regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
         else if( i < n+m )
-          regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+          regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
         else
-          regTmp.SetLocal( iLoc, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
+          regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
     }
     regTmp *= origTwoNormEst;
 
@@ -1206,7 +1230,8 @@ void Mehrotra
     // ============================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( Q, A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, JStatic, false );
+    ( Q, A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+      JStatic, false );
     JStatic.InitializeMultMeta();
     if( ctrl.print )
     {
@@ -1274,24 +1299,24 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
+        Axpy( -ctrl.yRegPerm, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
+        Axpy( ctrl.xRegPerm, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h; rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
+        Axpy( -ctrl.zRegPerm, z, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, z, rh );
 
         // Now check the pieces
         // --------------------
@@ -1309,9 +1334,6 @@ void Mehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -1344,66 +1366,71 @@ void Mehrotra
 
         // Solve for the direction
         // -----------------------
-        try
+        J = JOrig;
+        J.FreezeSparsity();
+        J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
+        UpdateDiagonal( J, Real(1), regTmp );
+
+        /*
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        if( wMaxNorm >= ctrl.ruizEquilTol )
+            SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+        else if( wMaxNorm >= ctrl.diagEquilTol )
+            SymmetricDiagonalEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, n+m+k, 1 );
+        if( commRank == 0 && ctrl.time )
+            Output("Equilibration: ",timer.Stop()," secs");
+        */
+        Ones( dInner, n+m+k, 1 );
+
+        if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
         {
-            J = JOrig;
-            J.FreezeSparsity();
-            J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-            UpdateDiagonal( J, Real(1), regTmp );
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( wMaxNorm >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, n+m+k, 1 );
-            if( commRank == 0 && ctrl.time )
-                Output("Equilibration: ",timer.Stop()," secs");
-
-            if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
-            {
-                const bool hermitian = true;
-                const BisectCtrl bisectCtrl;
-                sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
-            }
-            else
-            {
-                sparseLDLFact.ChangeNonzeroValues( J );
-            }
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( wMaxNorm >= selInvTol )
-                sparseLDLFact.Factor( LDL_2D );
-            else
-                sparseLDLFact.Factor( LDL_SELINV_2D );
-            if( commRank == 0 && ctrl.time )
-                Output("LDL: ",timer.Stop()," secs");
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Affine solve: ",timer.Stop()," secs");
+            const bool hermitian = true;
+            const BisectCtrl bisectCtrl;
+            sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
         }
-        catch(...)
+        else
         {
-            if( dimacsError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            sparseLDLFact.ChangeNonzeroValues( J );
         }
+
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        if( wMaxNorm >= selInvTol )
+            sparseLDLFact.Factor( LDL_2D );
+        else
+            sparseLDLFact.Factor( LDL_SELINV_2D );
+        if( commRank == 0 && ctrl.time )
+            Output("LDL: ",timer.Stop()," secs");
+
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        RegSolveInfo<Real> solveInfo;
+        if( ctrl.resolveReg )
+        {
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+        }
+        if( !solveInfo.metRequestedTol )
+        {
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( dimacsError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
+        }
+        if( commRank == 0 && ctrl.time )
+            Output("Affine solve: ",timer.Stop()," secs");
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
         if( ctrl.checkResiduals && ctrl.print )
@@ -1477,30 +1504,32 @@ void Mehrotra
         KKTRHS( rc, rb, rh, rmu, z, d );
         // Compute the new direction
         // -------------------------
-        try
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        solveInfo.metRequestedTol = false;
+        if( ctrl.resolveReg )
         {
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Corrector solver: ",timer.Stop()," secs");
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
-        catch(...)
+        if( !solveInfo.metRequestedTol )
         {
-            if( dimacsError <= ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( dimacsError <= ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            }
         }
+        if( commRank == 0 && ctrl.time )
+            Output("Corrector solver: ",timer.Stop()," secs");
         ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
 
         // Update the current estimates

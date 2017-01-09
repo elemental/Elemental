@@ -264,10 +264,19 @@ struct RegSolveCtrl
     }
 };
 
+template<typename Real>
+struct RegSolveInfo
+{
+    Int numIts=0;
+    Real relTol=1;
+    bool metRequestedTol=false;
+};
+
 namespace reg_ldl {
 
 template<typename Field>
-Int RegularizedSolveAfter
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
@@ -277,7 +286,8 @@ Int RegularizedSolveAfter
         bool progress=false,
         bool time=false );
 template<typename Field>
-Int RegularizedSolveAfter
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
 ( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -288,7 +298,8 @@ Int RegularizedSolveAfter
         bool time=false );
 
 template<typename Field>
-Int RegularizedSolveAfter
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const Matrix<Base<Field>>& d,
@@ -299,7 +310,8 @@ Int RegularizedSolveAfter
         bool progress=false,
         bool time=false );
 template<typename Field>
-Int RegularizedSolveAfter
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
 ( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
@@ -311,14 +323,16 @@ Int RegularizedSolveAfter
         bool time=false );
 
 template<typename Field>
-Int SolveAfter
+RegSolveInfo<Base<Field>>
+SolveAfter
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   const RegSolveCtrl<Base<Field>>& ctrl );
 template<typename Field>
-Int SolveAfter
+RegSolveInfo<Base<Field>>
+SolveAfter
 ( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -326,7 +340,8 @@ Int SolveAfter
   const RegSolveCtrl<Base<Field>>& ctrl );
 
 template<typename Field>
-Int SolveAfter
+RegSolveInfo<Base<Field>>
+SolveAfter
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const Matrix<Base<Field>>& d,
@@ -334,7 +349,8 @@ Int SolveAfter
         Matrix<Field>& B,
   const RegSolveCtrl<Base<Field>>& ctrl );
 template<typename Field>
-Int SolveAfter
+RegSolveInfo<Base<Field>>
+SolveAfter
 ( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,

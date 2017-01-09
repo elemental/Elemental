@@ -20,8 +20,6 @@ main( int argc, char* argv[] )
         const El::Int m = El::Input("--m","height of matrix",100);
         const El::Int n = El::Input("--n","width of matrix",200);
         // TODO(poulson): Add options for controlling IPM
-        const El::Int maxIter =
-          El::Input("--maxIter","maximum # of iter's",500);
         const Real lambda = El::Input("--lambda","DS parameter",0.5);
         const bool display = El::Input("--display","display matrices?",false);
         const bool print = El::Input("--print","print matrices",false);

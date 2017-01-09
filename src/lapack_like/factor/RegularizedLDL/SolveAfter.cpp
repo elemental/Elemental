@@ -1,9 +1,9 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,13 +12,14 @@ namespace El {
 namespace reg_ldl {
 
 template<typename Field>
-Int RegularizedSolveAfterNoPromote
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfterNoPromote
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
         Base<Field> relTol,
-        Int maxRefineIts, 
+        Int maxRefineIts,
         bool progress,
         bool time )
 {
@@ -27,7 +28,7 @@ Int RegularizedSolveAfterNoPromote
       [&]( const Matrix<Field>& X, Matrix<Field>& Y )
       {
         Y = X;
-        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        DiagonalScale( LEFT, NORMAL, reg, Y );
         Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
     auto applyAInv =
@@ -35,20 +36,27 @@ Int RegularizedSolveAfterNoPromote
       {
         sparseLDLFact.Solve( Y );
       };
-    return
-      RefinedSolve 
+    auto refinedInfo =
+      RefinedSolve
       ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int RegularizedSolveAfterNoPromote
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfterNoPromote
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
-  const Matrix<Base<Field>>& d, 
+  const Matrix<Base<Field>>& d,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
-  Int maxRefineIts, 
+  Int maxRefineIts,
   bool progress,
   bool time )
 {
@@ -59,34 +67,40 @@ Int RegularizedSolveAfterNoPromote
       [&]( const Matrix<Field>& X, Matrix<Field>& Y )
       {
         Y = X;
-        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        DiagonalScale( LEFT, NORMAL, reg, Y );
         Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
-    auto applyAInv = 
+    auto applyAInv =
       [&]( Matrix<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
         sparseLDLFact.Solve( Y );
         DiagonalSolve( LEFT, NORMAL, d, Y );
       };
-    return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+    auto refinedInfo =
+      RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-DisableIf<IsSame<Field,Promote<Field>>,Int>
+DisableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const SparseMatrix<Field>& A, 
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
-  Int maxRefineIts, 
+  Int maxRefineIts,
   bool progress,
   bool time )
 {
     EL_DEBUG_CSE
-    
-    typedef Base<Field> Real; 
+    typedef Base<Field> Real;
     typedef Promote<Real> PReal;
     typedef Promote<Field> PField;
 
@@ -100,29 +114,35 @@ RegularizedSolveAfterPromote
     auto applyA =
       [&]( const Matrix<PField>& XProm, Matrix<PField>& YProm )
       {
-        YProm = XProm; 
-        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        YProm = XProm;
+        DiagonalScale( LEFT, NORMAL, regProm, YProm );
         Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
-      }; 
-    auto applyAInv =  
+      };
+    auto applyAInv =
       [&]( Matrix<Field>& Y )
       {
         sparseLDLFact.Solve( Y );
       };
 
-    return PromotedRefinedSolve
+    auto refinedInfo = PromotedRefinedSolve
       ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Real> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-EnableIf<IsSame<Field,Promote<Field>>,Int>
+EnableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const SparseMatrix<Field>& A, 
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
-  Int maxRefineIts, 
+  Int maxRefineIts,
   bool progress,
   bool time )
 {
@@ -132,15 +152,15 @@ RegularizedSolveAfterPromote
 }
 
 template<typename Field>
-DisableIf<IsSame<Field,Promote<Field>>,Int>
+DisableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const SparseMatrix<Field>& A, 
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
-  const Matrix<Base<Field>>& d, 
+  const Matrix<Base<Field>>& d,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
-  Int maxRefineIts, 
+  Int maxRefineIts,
   bool progress,
   bool time )
 {
@@ -159,11 +179,11 @@ RegularizedSolveAfterPromote
     auto applyA =
       [&]( const Matrix<PField>& XProm, Matrix<PField>& YProm )
       {
-        YProm = XProm; 
-        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        YProm = XProm;
+        DiagonalScale( LEFT, NORMAL, regProm, YProm );
         Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
-      }; 
-    auto applyAInv =  
+      };
+    auto applyAInv =
       [&]( Matrix<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
@@ -171,20 +191,26 @@ RegularizedSolveAfterPromote
         DiagonalSolve( LEFT, NORMAL, d, Y );
       };
 
-    return PromotedRefinedSolve
+    auto refinedInfo = PromotedRefinedSolve
       ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Real> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-EnableIf<IsSame<Field,Promote<Field>>,Int>
+EnableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const SparseMatrix<Field>& A, 
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
-  const Matrix<Base<Field>>& d, 
+  const Matrix<Base<Field>>& d,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
-  Int maxRefineIts, 
+  Int maxRefineIts,
   bool progress,
   bool time )
 {
@@ -194,13 +220,14 @@ RegularizedSolveAfterPromote
 }
 
 template<typename Field>
-Int RegularizedSolveAfter
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
-  Int maxRefineIts, 
+  Int maxRefineIts,
   bool progress,
   bool time )
 {
@@ -210,10 +237,11 @@ Int RegularizedSolveAfter
 }
 
 template<typename Field>
-Int RegularizedSolveAfter
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
-  const Matrix<Base<Field>>& d, 
+  const Matrix<Base<Field>>& d,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
   Base<Field> relTol,
@@ -228,8 +256,9 @@ Int RegularizedSolveAfter
 }
 
 template<typename Field>
-Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
@@ -243,7 +272,7 @@ Int RegularizedSolveAfterNoPromote
       [&]( const DistMultiVec<Field>& X, DistMultiVec<Field>& Y )
       {
         Y = X;
-        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        DiagonalScale( LEFT, NORMAL, reg, Y );
         Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
     auto applyAInv =
@@ -251,13 +280,20 @@ Int RegularizedSolveAfterNoPromote
       {
         sparseLDLFact.Solve( Y );
       };
-    return RefinedSolve
+    auto refinedInfo = RefinedSolve
       ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int RegularizedSolveAfterNoPromote
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfterNoPromote
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -272,23 +308,30 @@ Int RegularizedSolveAfterNoPromote
       [&]( const DistMultiVec<Field>& X, DistMultiVec<Field>& Y )
       {
         Y = X;
-        DiagonalScale( LEFT, NORMAL, reg, Y ); 
+        DiagonalScale( LEFT, NORMAL, reg, Y );
         Multiply( NORMAL, Field(1), A, X, Field(1), Y );
       };
-    auto applyAInv = 
+    auto applyAInv =
       [&]( DistMultiVec<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
         sparseLDLFact.Solve( Y );
         DiagonalSolve( LEFT, NORMAL, d, Y );
       };
-    return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+    auto refinedInfo =
+      RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-DisableIf<IsSame<Field,Promote<Field>>,Int>
+DisableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<Field>& A, 
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
@@ -314,7 +357,7 @@ RegularizedSolveAfterPromote
       [&]( const DistMultiVec<PField>& XProm, DistMultiVec<PField>& YProm )
       {
         YProm = XProm;
-        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        DiagonalScale( LEFT, NORMAL, regProm, YProm );
         Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
       };
     auto applyAInv =
@@ -322,14 +365,20 @@ RegularizedSolveAfterPromote
       {
         sparseLDLFact.Solve( Y );
       };
-    return PromotedRefinedSolve
+    auto refinedInfo = PromotedRefinedSolve
       ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Real> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-EnableIf<IsSame<Field,Promote<Field>>,Int>
+EnableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<Field>& A, 
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
@@ -344,9 +393,9 @@ RegularizedSolveAfterPromote
 }
 
 template<typename Field>
-DisableIf<IsSame<Field,Promote<Field>>,Int>
+DisableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<Field>& A, 
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -373,10 +422,10 @@ RegularizedSolveAfterPromote
       [&]( const DistMultiVec<PField>& XProm, DistMultiVec<PField>& YProm )
       {
         YProm = XProm;
-        DiagonalScale( LEFT, NORMAL, regProm, YProm ); 
+        DiagonalScale( LEFT, NORMAL, regProm, YProm );
         Multiply( NORMAL, PField(1), AProm, XProm, PField(1), YProm );
       };
-    auto applyAInv = 
+    auto applyAInv =
       [&]( DistMultiVec<Field>& Y )
       {
         DiagonalSolve( LEFT, NORMAL, d, Y );
@@ -384,14 +433,21 @@ RegularizedSolveAfterPromote
         DiagonalSolve( LEFT, NORMAL, d, Y );
       };
 
-    return PromotedRefinedSolve
-           ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+    auto refinedInfo =
+      PromotedRefinedSolve
+      ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
+
+    RegSolveInfo<Real> info;
+    info.numIts = refinedInfo.numIts;
+    info.relTol = refinedInfo.relTol;
+    info.metRequestedTol = refinedInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-EnableIf<IsSame<Field,Promote<Field>>,Int>
+EnableIf<IsSame<Field,Promote<Field>>,RegSolveInfo<Base<Field>>>
 RegularizedSolveAfterPromote
-( const DistSparseMatrix<Field>& A, 
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -407,8 +463,9 @@ RegularizedSolveAfterPromote
 }
 
 template<typename Field>
-Int RegularizedSolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
@@ -423,10 +480,11 @@ Int RegularizedSolveAfter
 }
 
 template<typename Field>
-Int RegularizedSolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+RegularizedSolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
-  const DistMultiVec<Base<Field>>& d, 
+  const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
   Base<Field> relTol,
@@ -440,8 +498,9 @@ Int RegularizedSolveAfter
 }
 
 template<typename Field>
-Int LGMRESSolveAfter
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+LGMRESSolveAfter
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
@@ -466,11 +525,19 @@ Int LGMRESSolveAfter
         ( A, reg, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto lgmresInfo =
+      LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = lgmresInfo.numIts;
+    info.relTol = lgmresInfo.relTol;
+    info.metRequestedTol = lgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int LGMRESSolveAfter
+RegSolveInfo<Base<Field>>
+LGMRESSolveAfter
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const Matrix<Base<Field>>& d,
@@ -497,11 +564,19 @@ Int LGMRESSolveAfter
         ( A, reg, d, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto lgmresInfo =
+      LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = lgmresInfo.numIts;
+    info.relTol = lgmresInfo.relTol;
+    info.metRequestedTol = lgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int LGMRESSolveAfter
+RegSolveInfo<Base<Field>>
+LGMRESSolveAfter
 ( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -528,12 +603,20 @@ Int LGMRESSolveAfter
         ( A, reg, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto lgmresInfo =
+      LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = lgmresInfo.numIts;
+    info.relTol = lgmresInfo.relTol;
+    info.metRequestedTol = lgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int LGMRESSolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+LGMRESSolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -559,12 +642,20 @@ Int LGMRESSolveAfter
         ( A, reg, d, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto lgmresInfo =
+      LGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = lgmresInfo.numIts;
+    info.relTol = lgmresInfo.relTol;
+    info.metRequestedTol = lgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int FGMRESSolveAfter
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+FGMRESSolveAfter
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
         Matrix<Field>& B,
@@ -572,7 +663,7 @@ Int FGMRESSolveAfter
         Int restart,
         Int maxIts,
         Base<Field> relTolRefine,
-        Int maxRefineIts, 
+        Int maxRefineIts,
         bool progress,
         bool time )
 {
@@ -589,12 +680,20 @@ Int FGMRESSolveAfter
         ( A, reg, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto fgmresInfo =
+      FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = fgmresInfo.numIts;
+    info.relTol = fgmresInfo.relTol;
+    info.metRequestedTol = fgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int FGMRESSolveAfter
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+FGMRESSolveAfter
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const Matrix<Base<Field>>& d,
   const SparseLDLFactorization<Field>& sparseLDLFact,
@@ -603,7 +702,7 @@ Int FGMRESSolveAfter
         Int restart,
         Int maxIts,
         Base<Field> relTolRefine,
-        Int maxRefineIts, 
+        Int maxRefineIts,
         bool progress,
         bool time )
 {
@@ -621,12 +720,20 @@ Int FGMRESSolveAfter
         ( A, reg, d, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto fgmresInfo =
+      FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = fgmresInfo.numIts;
+    info.relTol = fgmresInfo.relTol;
+    info.metRequestedTol = fgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int FGMRESSolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+FGMRESSolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
@@ -634,7 +741,7 @@ Int FGMRESSolveAfter
         Int restart,
         Int maxIts,
         Base<Field> relTolRefine,
-        Int maxRefineIts, 
+        Int maxRefineIts,
         bool progress,
         bool time )
 {
@@ -653,12 +760,20 @@ Int FGMRESSolveAfter
         ( A, reg, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto fgmresInfo =
+      FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = fgmresInfo.numIts;
+    info.relTol = fgmresInfo.relTol;
+    info.metRequestedTol = fgmresInfo.metRequestedTol;
+    return info;
 }
 
 template<typename Field>
-Int FGMRESSolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+FGMRESSolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -667,7 +782,7 @@ Int FGMRESSolveAfter
         Int restart,
         Int maxIts,
         Base<Field> relTolRefine,
-        Int maxRefineIts, 
+        Int maxRefineIts,
         bool progress,
         bool time )
 {
@@ -686,13 +801,21 @@ Int FGMRESSolveAfter
         ( A, reg, d, sparseLDLFact, W, relTolRefine, maxRefineIts, progress );
       };
 
-    return FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+    auto fgmresInfo =
+      FGMRES( applyA, precond, B, relTol, restart, maxIts, progress );
+
+    RegSolveInfo<Base<Field>> info;
+    info.numIts = fgmresInfo.numIts;
+    info.relTol = fgmresInfo.relTol;
+    info.metRequestedTol = fgmresInfo.metRequestedTol;
+    return info;
 }
 
 // TODO(poulson): Add RGMRES
 
 template<typename Field>
-Int SolveAfter
+RegSolveInfo<Base<Field>>
+SolveAfter
 ( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const SparseLDLFactorization<Field>& sparseLDLFact,
@@ -704,32 +827,34 @@ Int SolveAfter
     {
     case REG_SOLVE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, sparseLDLFact, B, 
+        ( A, reg, sparseLDLFact, B,
           ctrl.relTol,
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress,
           ctrl.time );
     case REG_SOLVE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, sparseLDLFact, B, 
+        ( A, reg, sparseLDLFact, B,
           ctrl.relTol,
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
-        return -1;
+        RegSolveInfo<Base<Field>> info;
+        return info;
     }
 }
 
 template<typename Field>
-Int SolveAfter
-( const SparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+SolveAfter
+( const SparseMatrix<Field>& A,
   const Matrix<Base<Field>>& reg,
   const Matrix<Base<Field>>& d,
   const SparseLDLFactorization<Field>& sparseLDLFact,
@@ -741,32 +866,34 @@ Int SolveAfter
     {
     case REG_SOLVE_FGMRES:
         return FGMRESSolveAfter
-        ( A, reg, d, sparseLDLFact, B, 
+        ( A, reg, d, sparseLDLFact, B,
           ctrl.relTol,
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress,
           ctrl.time );
     case REG_SOLVE_LGMRES:
         return LGMRESSolveAfter
-        ( A, reg, d, sparseLDLFact, B, 
+        ( A, reg, d, sparseLDLFact, B,
           ctrl.relTol,
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
-        return -1;
+        RegSolveInfo<Base<Field>> info;
+        return info;
     }
 }
 
 template<typename Field>
-Int SolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+SolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
         DistMultiVec<Field>& B,
@@ -782,7 +909,7 @@ Int SolveAfter
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress,
           ctrl.time );
     case REG_SOLVE_LGMRES:
@@ -792,17 +919,19 @@ Int SolveAfter
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
-        return -1;
+        RegSolveInfo<Base<Field>> info;
+        return info;
     }
 }
 
 template<typename Field>
-Int SolveAfter
-( const DistSparseMatrix<Field>& A, 
+RegSolveInfo<Base<Field>>
+SolveAfter
+( const DistSparseMatrix<Field>& A,
   const DistMultiVec<Base<Field>>& reg,
   const DistMultiVec<Base<Field>>& d,
   const DistSparseLDLFactorization<Field>& sparseLDLFact,
@@ -819,7 +948,7 @@ Int SolveAfter
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress,
           ctrl.time );
     case REG_SOLVE_LGMRES:
@@ -829,61 +958,62 @@ Int SolveAfter
           ctrl.restart,
           ctrl.maxIts,
           ctrl.relTolRefine,
-          ctrl.maxRefineIts, 
+          ctrl.maxRefineIts,
           ctrl.progress );
     default:
         LogicError("Invalid refinement algorithm");
-        return -1;
+        RegSolveInfo<Base<Field>> info;
+        return info;
     }
 }
 
 #define PROTO(Field) \
-  template Int RegularizedSolveAfter \
+  template RegSolveInfo<Base<Field>> RegularizedSolveAfter \
   ( const SparseMatrix<Field>& A, \
     const Matrix<Base<Field>>& reg, \
     const SparseLDLFactorization<Field>& sparseLDLFact, \
           Matrix<Field>& B, \
     Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
-  template Int RegularizedSolveAfter \
+  template RegSolveInfo<Base<Field>> RegularizedSolveAfter \
   ( const SparseMatrix<Field>& A, \
     const Matrix<Base<Field>>& reg, \
     const Matrix<Base<Field>>& d, \
     const SparseLDLFactorization<Field>& sparseLDLFact, \
           Matrix<Field>& B, \
     Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
-  template Int RegularizedSolveAfter \
+  template RegSolveInfo<Base<Field>> RegularizedSolveAfter \
   ( const DistSparseMatrix<Field>& A, \
     const DistMultiVec<Base<Field>>& reg, \
     const DistSparseLDLFactorization<Field>& sparseLDLFact, \
           DistMultiVec<Field>& B, \
     Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
-  template Int RegularizedSolveAfter \
+  template RegSolveInfo<Base<Field>> RegularizedSolveAfter \
   ( const DistSparseMatrix<Field>& A, \
     const DistMultiVec<Base<Field>>& reg, \
     const DistMultiVec<Base<Field>>& d, \
     const DistSparseLDLFactorization<Field>& sparseLDLFact, \
           DistMultiVec<Field>& B, \
     Base<Field> relTol, Int maxRefineIts, bool progress, bool time ); \
-  template Int SolveAfter \
+  template RegSolveInfo<Base<Field>> SolveAfter \
   ( const SparseMatrix<Field>& A, \
     const Matrix<Base<Field>>& reg, \
     const SparseLDLFactorization<Field>& sparseLDLFact, \
           Matrix<Field>& B, \
     const RegSolveCtrl<Base<Field>>& ctrl ); \
-  template Int SolveAfter \
+  template RegSolveInfo<Base<Field>> SolveAfter \
   ( const SparseMatrix<Field>& A, \
     const Matrix<Base<Field>>& reg, \
     const Matrix<Base<Field>>& d, \
     const SparseLDLFactorization<Field>& sparseLDLFact, \
           Matrix<Field>& B, \
     const RegSolveCtrl<Base<Field>>& ctrl ); \
-  template Int SolveAfter \
+  template RegSolveInfo<Base<Field>> SolveAfter \
   ( const DistSparseMatrix<Field>& A, \
     const DistMultiVec<Base<Field>>& reg, \
     const DistSparseLDLFactorization<Field>& sparseLDLFact, \
           DistMultiVec<Field>& B, \
     const RegSolveCtrl<Base<Field>>& ctrl ); \
-  template Int SolveAfter \
+  template RegSolveInfo<Base<Field>> SolveAfter \
   ( const DistSparseMatrix<Field>& A, \
     const DistMultiVec<Base<Field>>& reg, \
     const DistMultiVec<Base<Field>>& d, \

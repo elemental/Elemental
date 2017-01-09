@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -28,6 +28,14 @@
 
 namespace El {
 
+template<typename Real>
+struct RefinedSolveInfo
+{
+    Int numIts=0;
+    Real relTol=1;
+    bool metRequestedTol=false;
+};
+
 namespace refined_solve {
 
 // In what follows, 'applyA' should be a function of the form
@@ -42,7 +50,8 @@ namespace refined_solve {
 //
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int Single
+RefinedSolveInfo<Base<Field>>
+Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& b,
@@ -55,14 +64,11 @@ Int Single
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( b );
-        return 0;
-    }
+    typedef Base<Field> Real;
+    RefinedSolveInfo<Real> info;
 
     auto bOrig = b;
-    const Base<Field> bNorm = MaxNorm( b );
+    const Real bNorm = MaxNorm( b );
 
     // Compute the initial guess
     // =========================
@@ -74,17 +80,24 @@ Int Single
 
     applyA( x, y );
     b -= y;
-    Base<Field> errorNorm = MaxNorm( b );
+    Real errorNorm = MaxNorm( b );
+    info.relTol = errorNorm / bNorm;
     if( progress )
-        Output("original rel error: ",errorNorm/bNorm);
+        Output("original relative accuracy: ",info.relTol);
 
-    Int refineIt = 0;
     while( true )
     {
-        if( errorNorm/bNorm <= relTol )
+        if( info.relTol <= relTol )
         {
             if( progress )
-                Output(errorNorm/bNorm," <= ",relTol);
+                Output(info.relTol," <= ",relTol);
+            info.metRequestedTol = true;
+            break;
+        }
+        if( info.numIts >= maxRefineIts )
+        {
+            if( progress )
+                Output("WARNING: Iterative refinement did not converge");
             break;
         }
 
@@ -102,24 +115,29 @@ Int Single
         b -= y;
         auto newErrorNorm = MaxNorm( b );
         if( progress )
-            Output("refined rel error: ",newErrorNorm/bNorm);
+            Output("refined relative accuracy: ",newErrorNorm/bNorm);
 
+        ++info.numIts;
         if( newErrorNorm < errorNorm )
+        {
             x = xCand;
+            errorNorm = newErrorNorm;
+            info.relTol = newErrorNorm/bNorm;
+        }
         else
+        {
+            if( progress )
+                Output("WARNING: Not accepting lower quality iterate");
             break;
-
-        errorNorm = newErrorNorm;
-        ++refineIt;
-        if( refineIt >= maxRefineIts )
-            break;
+        }
     }
     b = x;
-    return refineIt;
+    return info;
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int Pair
+RefinedSolveInfo<Base<Field>>
+Pair
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& B,
@@ -132,16 +150,13 @@ Int Pair
       if( B.Width() != 2 )
           LogicError("Expected a pair of right-hand sides");
     )
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( B );
-        return 0;
-    }
+    typedef Base<Field> Real;
+    RefinedSolveInfo<Real> info;
 
     auto bL = B( ALL, IR(0) );
     auto bR = B( ALL, IR(1) );
-    const Base<Field> bLNorm = MaxNorm( bL );
-    const Base<Field> bRNorm = MaxNorm( bR );
+    const Real bLNorm = MaxNorm( bL );
+    const Real bRNorm = MaxNorm( bR );
 
     auto BOrig = B;
     auto bOrigL = BOrig( ALL, IR(0) );
@@ -168,32 +183,44 @@ Int Pair
 
     applyA( X, Y );
     B -= Y;
-    Base<Field> errorNormL = MaxNorm( bL );
-    Base<Field> errorNormR = MaxNorm( bR );
+    Real errorNormL = MaxNorm( bL );
+    Real errorNormR = MaxNorm( bR );
     if( progress )
         Output
         ("original rel errors: ",errorNormL/bLNorm," and ",errorNormR/bRNorm);
 
-    Int refineIt = 0;
     bool leftConv=false, rightConv=false;
+    bool leftMetTol=false, rightMetTol=false;
     while( true )
     {
-        const Base<Field> relErrorL = errorNormL/bLNorm;
-        const Base<Field> relErrorR = errorNormR/bRNorm;
+        const Real relErrorL = errorNormL/bLNorm;
+        const Real relErrorR = errorNormR/bRNorm;
+        info.relTol = Max( relErrorL, relErrorR );
         if( !leftConv && relErrorL <= relTol )
         {
             if( progress )
                 Output("Left converged with ",relErrorL," <= ",relTol);
             leftConv = true;
+            leftMetTol = true;
         }
         if( !rightConv && relErrorR <= relTol )
         {
             if( progress )
                 Output("Right converged with ",relErrorR," <= ",relTol);
             rightConv = true;
+            rightMetTol = true;
         }
         if( leftConv && rightConv )
+        {
+            info.metRequestedTol = leftMetTol && rightMetTol;
             break;
+        }
+        if( info.numIts >= maxRefineIts )
+        {
+            if( progress )
+                Output("WARNING: Iterative refinement did not converge");
+            break;
+        }
 
         if( leftConv )
         {
@@ -213,13 +240,19 @@ Int Pair
             if( progress )
                 Output("Right refined rel error: ",newErrorNormR/bRNorm);
 
+            ++info.numIts;
             if( newErrorNormR < errorNormR )
             {
                 xR = xRCand;
                 errorNormR = newErrorNormR;
             }
             else
+            {
+                if( progress )
+                    Output
+                    ("WARNING: Not accepting lower quality right iterate");
                 rightConv = true;
+            }
         }
         else if( rightConv )
         {
@@ -239,13 +272,18 @@ Int Pair
             if( progress )
                 Output("Left refined rel error: ",newErrorNormL/bLNorm);
 
+            ++info.numIts;
             if( newErrorNormL < errorNormL )
             {
                 xL = xLCand;
                 errorNormL = newErrorNormL;
             }
             else
+            {
+                if( progress )
+                    Output("WARNING: Not accepting lower quality left iterate");
                 leftConv = true;
+            }
         }
         else
         {
@@ -269,13 +307,18 @@ Int Pair
                 Output("Right refined rel error: ",newErrorNormR/bRNorm);
             }
 
+            ++info.numIts;
             if( newErrorNormL < errorNormL )
             {
                 xL = xLCand;
                 errorNormL = newErrorNormL;
             }
             else
+            {
+                if( progress )
+                    Output("WARNING: Not accepting lower quality left iterate");
                 leftConv = true;
+            }
 
             if( newErrorNormR < errorNormR )
             {
@@ -283,18 +326,21 @@ Int Pair
                 errorNormR = newErrorNormR;
             }
             else
+            {
+                if( progress )
+                    Output
+                    ("WARNING: Not accepting lower quality right iterate");
                 rightConv = true;
+            }
         }
-        ++refineIt;
-        if( refineIt >= maxRefineIts )
-            break;
     }
     B = X;
-    return refineIt;
+    return info;
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int Batch
+RefinedSolveInfo<Base<Field>>
+Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& B,
@@ -302,13 +348,10 @@ Int Batch
         bool progress )
 {
     EL_DEBUG_CSE
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( B );
-        return 0;
-    }
+    typedef Base<Field> Real;
+    RefinedSolveInfo<Real> info;
 
-    // TODO: Allow for early exits
+    // TODO(poulson): Allow for early exits
 
     // Compute the initial guesses
     // ===========================
@@ -321,7 +364,8 @@ Int Batch
     applyA( X, Y );
     B -= Y;
 
-    Int refineIt = 0;
+    // TODO(poulson): Compute original column norms of B.
+
     while( true )
     {
         // Compute the updates to the solutions
@@ -330,8 +374,8 @@ Int Batch
         applyAInv( dX );
         X += dX;
 
-        ++refineIt;
-        if( refineIt < maxRefineIts )
+        ++info.numIts;
+        if( info.numIts < maxRefineIts )
         {
             // Compute the new residual
             // ------------------------
@@ -343,13 +387,19 @@ Int Batch
             break;
     }
     B = X;
-    return refineIt;
+
+    // TODO(poulson): Properly check convergence tolerances.
+    info.relTol = 0;
+    info.metRequestedTol = true;
+
+    return info;
 }
 
 } // namespace refined_solve
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int RefinedSolve
+RefinedSolveInfo<Base<Field>>
+RefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& B,
@@ -372,7 +422,8 @@ Int RefinedSolve
 namespace refined_solve {
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int PromotedSingle
+RefinedSolveInfo<Base<Field>>
+PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& b,
@@ -385,14 +436,10 @@ Int PromotedSingle
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( b );
-        return 0;
-    }
     typedef Base<Field> Real;
     typedef Promote<Real> PReal;
     typedef Promote<Field> PField;
+    RefinedSolveInfo<Real> info;
 
     Matrix<PField> bProm, bOrigProm;
     Copy( b, bProm );
@@ -411,16 +458,23 @@ Int PromotedSingle
     applyA( xProm, yProm );
     bProm -= yProm;
     auto errorNorm = MaxNorm( bProm );
+    info.relTol = Real(errorNorm/bNorm);
     if( progress )
-        Output("original rel error: ",errorNorm/bNorm);
+        Output("original rel error: ",info.relTol);
 
-    Int refineIt = 0;
     while( true )
     {
-        if( errorNorm/bNorm <= relTol )
+        if( info.relTol <= relTol )
         {
             if( progress )
-                Output(errorNorm/bNorm," <= ",relTol);
+                Output(info.relTol," <= ",relTol);
+            info.metRequestedTol = true;
+            break;
+        }
+        if( info.numIts >= maxRefineIts )
+        {
+            if( progress )
+                Output("WARNING: Iterative refinement did not converge");
             break;
         }
 
@@ -441,22 +495,27 @@ Int PromotedSingle
         if( progress )
             Output("refined rel error: ",newErrorNorm/bNorm);
 
+        ++info.numIts;
         if( newErrorNorm < errorNorm )
+        {
             xProm = xCandProm;
+            errorNorm = newErrorNorm;
+            info.relTol = Real(newErrorNorm/bNorm);
+        }
         else
+        {
+            if( progress )
+                Output("WARNING: Not accepting lower quality iterate");
             break;
-
-        errorNorm = newErrorNorm;
-        ++refineIt;
-        if( refineIt >= maxRefineIts )
-            break;
+        }
     }
     Copy( xProm, b );
-    return refineIt;
+    return info;
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int PromotedPair
+RefinedSolveInfo<Base<Field>>
+PromotedPair
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& B,
@@ -469,14 +528,10 @@ Int PromotedPair
       if( B.Width() != 2 )
           LogicError("Expected a pair of right-hand sides");
     )
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( B );
-        return 0;
-    }
     typedef Base<Field> Real;
     typedef Promote<Real> PReal;
     typedef Promote<Field> PField;
+    RefinedSolveInfo<Real> info;
 
     Matrix<PField> BProm, BOrigProm;
     Copy( B, BProm );
@@ -521,26 +576,38 @@ Int PromotedPair
         Output
         ("original rel errors: ",errorNormL/bLNorm," and ",errorNormR/bRNorm);
 
-    Int refineIt = 0;
     bool leftConv=false, rightConv=false;
+    bool leftMetTol=false, rightMetTol=false;
     while( true )
     {
         const PReal relErrorL = errorNormL/bLNorm;
         const PReal relErrorR = errorNormR/bRNorm;
+        info.relTol = Real( Max( relErrorL, relErrorR ) );
         if( !leftConv && relErrorL <= relTol )
         {
             if( progress )
                 Output("Left converged with ",relErrorL," <= ",relTol);
             leftConv = true;
+            leftMetTol = true;
         }
         if( !rightConv && relErrorR <= relTol )
         {
             if( progress )
                 Output("Right converged with ",relErrorR," <= ",relTol);
             rightConv = true;
+            rightMetTol = true;
         }
         if( leftConv && rightConv )
+        {
+            info.metRequestedTol = leftMetTol && rightMetTol;
             break;
+        }
+        if( info.numIts >= maxRefineIts )
+        {
+            if( progress )
+                Output("WARNING: Iterative refinement did not converge");
+            break;
+        }
 
         if( leftConv )
         {
@@ -561,13 +628,19 @@ Int PromotedPair
             if( progress )
                 Output("Right refined rel error: ",newErrorNormR/bRNorm);
 
+            ++info.numIts;
             if( newErrorNormR < errorNormR )
             {
                 xRProm = xRCandProm;
                 errorNormR = newErrorNormR;
             }
             else
+            {
+                if( progress )
+                    Output
+                    ("WARNING: Not accepting lower quality right iterate");
                 rightConv = true;
+            }
         }
         else if( rightConv )
         {
@@ -588,13 +661,18 @@ Int PromotedPair
             if( progress )
                 Output("Left refined rel error: ",newErrorNormL/bLNorm);
 
+            ++info.numIts;
             if( newErrorNormL < errorNormL )
             {
                 xLProm = xLCandProm;
                 errorNormL = newErrorNormL;
             }
             else
+            {
+                if( progress )
+                    Output("WARNING: Not accepting lower quality left iterate");
                 leftConv = true;
+            }
         }
         else
         {
@@ -619,13 +697,18 @@ Int PromotedPair
                 Output("Right refined rel error: ",newErrorNormR/bRNorm);
             }
 
+            ++info.numIts;
             if( newErrorNormL < errorNormL )
             {
                 xLProm = xLCandProm;
                 errorNormL = newErrorNormL;
             }
             else
+            {
+                if( progress )
+                    Output("WARNING: Not accepting lower quality left iterate");
                 leftConv = true;
+            }
 
             if( newErrorNormR < errorNormR )
             {
@@ -633,19 +716,21 @@ Int PromotedPair
                 errorNormR = newErrorNormR;
             }
             else
+            {
+                if( progress )
+                    Output
+                    ("WARNING: Not accepting lower quality right iterate");
                 rightConv = true;
+            }
         }
-
-        ++refineIt;
-        if( refineIt >= maxRefineIts )
-            break;
     }
     Copy( XProm, B );
-    return refineIt;
+    return info;
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int PromotedBatch
+RefinedSolveInfo<Base<Field>>
+PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         Matrix<Field>& B,
@@ -653,12 +738,9 @@ Int PromotedBatch
         bool progress )
 {
     EL_DEBUG_CSE
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( B );
-        return 0;
-    }
     typedef Promote<Field> PField;
+    typedef Base<Field> Real;
+    RefinedSolveInfo<Real> info;
 
     Matrix<PField> BProm, BOrigProm;
     Copy( B, BProm );
@@ -675,7 +757,8 @@ Int PromotedBatch
     applyA( XProm, YProm );
     BProm -= YProm;
 
-    Int refineIt = 0;
+    // TODO(poulson): Compute original error norms.
+
     while( true )
     {
         // Update the solutions
@@ -685,8 +768,8 @@ Int PromotedBatch
         Copy( B, dXProm );
         XProm += dXProm;
 
-        ++refineIt;
-        if( refineIt < maxRefineIts )
+        ++info.numIts;
+        if( info.numIts < maxRefineIts )
         {
             // Form the new residuals
             // ----------------------
@@ -698,13 +781,18 @@ Int PromotedBatch
             break;
     }
     Copy( XProm, B );
-    return refineIt;
+
+    // TODO(poulson): Properly compute error norms.
+    info.relTol = 0;
+    info.metRequestedTol = true;
+
+    return info;
 }
 
 } // namespace refined_solve
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-DisableIf<IsSame<Field,Promote<Field>>,Int>
+DisableIf<IsSame<Field,Promote<Field>>,RefinedSolveInfo<Base<Field>>>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
@@ -726,7 +814,7 @@ PromotedRefinedSolve
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-EnableIf<IsSame<Field,Promote<Field>>,Int>
+EnableIf<IsSame<Field,Promote<Field>>,RefinedSolveInfo<Base<Field>>>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
@@ -742,7 +830,8 @@ PromotedRefinedSolve
 namespace refined_solve {
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int Single
+RefinedSolveInfo<Base<Field>>
+Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<Field>& b,
@@ -755,16 +844,13 @@ Int Single
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( b );
-        return 0;
-    }
+    typedef Base<Field> Real;
     const Grid& grid = b.Grid();
     const int commRank = grid.Rank();
+    RefinedSolveInfo<Real> info;
 
     auto bOrig = b;
-    const Base<Field> bNorm = MaxNorm( b );
+    const Real bNorm = MaxNorm( b );
 
     // Compute the initial guess
     // =========================
@@ -775,18 +861,25 @@ Int Single
     Zeros( y, x.Height(), 1 );
     applyA( x, y );
     b -= y;
-    Base<Field> errorNorm = MaxNorm( b );
+    Real errorNorm = MaxNorm( b );
+    info.relTol = errorNorm/bNorm;
     if( progress && commRank == 0 )
-        Output("original rel error: ",errorNorm/bNorm);
+        Output("original rel error: ",info.relTol);
 
-    Int refineIt = 0;
     const Int indent = PushIndent();
     while( true )
     {
-        if( errorNorm/bNorm <= relTol )
+        if( info.relTol <= relTol )
         {
             if( progress && commRank == 0 )
-                Output(errorNorm/bNorm," <= ",relTol);
+                Output(info.relTol," <= ",relTol);
+            info.metRequestedTol = true;
+            break;
+        }
+        if( info.numIts >= maxRefineIts )
+        {
+            if( progress && commRank == 0 )
+                Output("WARNING: Iterative refinement did not converge");
             break;
         }
 
@@ -802,27 +895,32 @@ Int Single
         applyA( xCand, y );
         b = bOrig;
         b -= y;
-        Base<Field> newErrorNorm = MaxNorm( b );
+        Real newErrorNorm = MaxNorm( b );
         if( progress && commRank == 0 )
             Output("refined rel error: ",newErrorNorm/bNorm);
 
+        ++info.numIts;
         if( newErrorNorm < errorNorm )
+        {
             x = xCand;
+            errorNorm = newErrorNorm;
+            info.relTol = errorNorm/bNorm;
+        }
         else
+        {
+            if( progress && commRank == 0 )
+                Output("WARNING: Not accepting lower quality iterate");
             break;
-
-        errorNorm = newErrorNorm;
-        ++refineIt;
-        if( refineIt >= maxRefineIts )
-            break;
+        }
     }
     SetIndent( indent );
     b = x;
-    return refineIt;
+    return info;
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int Batch
+RefinedSolveInfo<Base<Field>>
+Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<Field>& B,
@@ -830,12 +928,9 @@ Int Batch
         bool progress )
 {
     EL_DEBUG_CSE
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( B );
-        return 0;
-    }
+    typedef Base<Field> Real;
     const Grid& grid = B.Grid();
+    RefinedSolveInfo<Real> info;
 
     auto BOrig = B;
 
@@ -849,7 +944,8 @@ Int Batch
     applyA( X, Y );
     B -= Y;
 
-    Int refineIt = 0;
+    // TODO(poulson): Compute original error norms.
+
     const Int indent = PushIndent();
     while( true )
     {
@@ -859,8 +955,8 @@ Int Batch
         applyAInv( dX );
         X += dX;
 
-        ++refineIt;
-        if( refineIt < maxRefineIts )
+        ++info.numIts;
+        if( info.numIts < maxRefineIts )
         {
             // Compute the new residual
             // ------------------------
@@ -873,13 +969,19 @@ Int Batch
     }
     SetIndent( indent );
     B = X;
-    return refineIt;
+
+    // TODO(poulson): Properly compute errors.
+    info.relTol = 0;
+    info.metRequestedTol = true;
+
+    return info;
 }
 
 } // namespace refined_solve
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int RefinedSolve
+RefinedSolveInfo<Base<Field>>
+RefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<Field>& B,
@@ -899,7 +1001,8 @@ Int RefinedSolve
 namespace refined_solve {
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int PromotedSingle
+RefinedSolveInfo<Base<Field>>
+PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<Field>& b,
@@ -912,14 +1015,11 @@ Int PromotedSingle
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( b );
-        return 0;
-    }
+    typedef Base<Field> Real;
     typedef Promote<Field> PField;
     const Grid& grid = b.Grid();
     const int commRank = grid.Rank();
+    RefinedSolveInfo<Real> info;
 
     DistMultiVec<PField> bProm(grid), bOrigProm(grid);
     Copy( b, bProm );
@@ -937,17 +1037,24 @@ Int PromotedSingle
     applyA( xProm, yProm );
     bProm -= yProm;
     auto errorNorm = MaxNorm( bProm );
+    info.relTol = Real(errorNorm/bNorm);
     if( progress && commRank == 0 )
-        Output("original rel error: ",errorNorm/bNorm);
+        Output("original rel error: ",info.relTol);
 
-    Int refineIt = 0;
     const Int indent = PushIndent();
     while( true )
     {
-        if( errorNorm/bNorm <= relTol )
+        if( info.relTol <= relTol )
         {
             if( progress && commRank == 0 )
-                Output(errorNorm/bNorm," <= ",relTol);
+                Output(info.relTol," <= ",relTol);
+            info.metRequestedTol = true;
+            break;
+        }
+        if( info.numIts >= maxRefineIts )
+        {
+            if( progress && commRank == 0 )
+                Output("WARNING: Iterative refinement did not converge");
             break;
         }
 
@@ -968,23 +1075,28 @@ Int PromotedSingle
         if( progress && commRank == 0 )
             Output("refined rel error: ",newErrorNorm/bNorm);
 
+        ++info.numIts;
         if( newErrorNorm < errorNorm )
+        {
             xProm = xCandProm;
+            errorNorm = newErrorNorm;
+            info.relTol = Real(errorNorm/bNorm);
+        }
         else
+        {
+            if( progress && commRank == 0 )
+                Output("WARNING: Not accepting lower quality iterate");
             break;
-
-        errorNorm = newErrorNorm;
-        ++refineIt;
-        if( refineIt >= maxRefineIts )
-            break;
+        }
     }
     SetIndent( indent );
     Copy( xProm, b );
-    return refineIt;
+    return info;
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-Int PromotedBatch
+RefinedSolveInfo<Base<Field>>
+PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
         DistMultiVec<Field>& B,
@@ -992,13 +1104,10 @@ Int PromotedBatch
         bool progress )
 {
     EL_DEBUG_CSE
-    if( maxRefineIts <= 0 )
-    {
-        applyAInv( B );
-        return 0;
-    }
+    typedef Base<Field> Real;
     typedef Promote<Field> PField;
     const Grid& grid = B.Grid();
+    RefinedSolveInfo<Real> info;
 
     DistMultiVec<PField> BProm(grid), BOrigProm(grid);
     Copy( B, BProm );
@@ -1015,7 +1124,8 @@ Int PromotedBatch
     applyA( XProm, YProm );
     BProm -= YProm;
 
-    Int refineIt = 0;
+    // TODO(poulson): Compute original error norms.
+
     const Int indent = PushIndent();
     while( true )
     {
@@ -1026,8 +1136,8 @@ Int PromotedBatch
         Copy( B, dXProm );
         XProm += dXProm;
 
-        ++refineIt;
-        if( refineIt < maxRefineIts )
+        ++info.numIts;
+        if( info.numIts < maxRefineIts )
         {
             // Form the new residuals
             // ----------------------
@@ -1040,13 +1150,18 @@ Int PromotedBatch
     }
     SetIndent( indent );
     Copy( XProm, B );
-    return refineIt;
+
+    // TODO(poulson): Properly compute error norms.
+    info.relTol = 0;
+    info.metRequestedTol = true;
+
+    return info;
 }
 
 } // namespace refined_solve
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-DisableIf<IsSame<Field,Promote<Field>>,Int>
+DisableIf<IsSame<Field,Promote<Field>>,RefinedSolveInfo<Base<Field>>>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
@@ -1065,7 +1180,7 @@ PromotedRefinedSolve
 }
 
 template<typename Field,class ApplyAType,class ApplyAInvType>
-EnableIf<IsSame<Field,Promote<Field>>,Int>
+EnableIf<IsSame<Field,Promote<Field>>,RefinedSolveInfo<Base<Field>>>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,

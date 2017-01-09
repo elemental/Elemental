@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -31,6 +31,30 @@ namespace affine {
 //
 // which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
 // scheme.
+//
+// We make use of the regularized Lagrangian
+//
+//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) + mu Phi(s) +
+//                (1/2) gamma_x^2 || x ||_2^2 -
+//                (1/2) gamma_y^2 || y ||_2^2 -
+//                (1/2) gamma_z^2 || z ||_2^2,
+//
+// where we note that the two-norm regularization is positive for the primal
+// variable x and *negative* for the dual variables y and z. There is not yet
+// any regularization on the primal slack variable s (though it may be
+// investigated in the future).
+//
+// The subsequent first-order optimality conditions for x, y, and z become
+//
+//   Delta_x L = c + A^T y + G^T z + gamma_x^2 x = 0,
+//   Delta_y L = A x - b - gamma_y^2 y = 0,
+//   Delta_z L = G x + s - h - gamma_z^2 z = 0.
+//
+// These can be arranged into the symmetric quasi-definite form
+//
+//   | gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
+//   |      A,      -gamma_y^2 I,       0      | | y |   |  b  |
+//   |      G,            0,      -gamma_z^2 I | | z |   | h-s |.
 //
 
 template<typename Real>
@@ -140,26 +164,26 @@ void Mehrotra
         rb = b;
         rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
+        // TODO(poulson): Axpy with -ctrl.yRegPerm y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // TODO(poulson): Axpy with -ctrl.reg1Perm*ctrl.reg1Perm y?
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
+        // TODO(poulson): Axpy with ctrl.xRegPerm x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // TODO(poulson): Axpy with ctrl.reg0Perm*ctrl.reg0Perm x?
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
         rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
+        // TODO(poulson): Axpy with -ctrl.zRegPerm z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-        // TODO(poulson): Axpy with -ctrl.reg2Perm*ctrl.reg2Perm z?
 
         // Now check the pieces
         // --------------------
@@ -176,9 +200,6 @@ void Mehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -542,9 +563,6 @@ void Mehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -851,11 +869,11 @@ void Mehrotra
     {
         if( i < n )
         {
-            regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
+            regTmp(i) = ctrl.xRegTmp;
         }
         else if( i < n+m )
         {
-            regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+            regTmp(i) = -ctrl.yRegTmp;
         }
         else
         {
@@ -868,9 +886,9 @@ void Mehrotra
             // TODO(poulson): Use different diagonal modification for the
             // auxiliary variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp(i) = ctrl.reg2Tmp*ctrl.reg2Tmp;
+                regTmp(i) = ctrl.zRegTmp;
             else
-                regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
+                regTmp(i) = -ctrl.zRegTmp;
         }
     }
     regTmp *= origTwoNormEst;
@@ -879,7 +897,7 @@ void Mehrotra
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
+    ( A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
 
@@ -950,9 +968,6 @@ void Mehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -1009,36 +1024,42 @@ void Mehrotra
 
         // Solve for the direction
         // -----------------------
-        try
-        {
-            if( wMaxNorm >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, n+m+kSparse, 1 );
+        /*
+        if( wMaxNorm >= ctrl.ruizEquilTol )
+            SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+        else if( wMaxNorm >= ctrl.diagEquilTol )
+            SymmetricDiagonalEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, n+m+kSparse, 1 );
+        */
+        Ones( dInner, n+m+kSparse, 1 );
 
-            sparseLDLFact.ChangeNonzeroValues( J );
-            sparseLDLFact.Factor();
-            // TODO(poulson): Make use of a better interface to these routines.
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-        }
-        catch(...)
+        sparseLDLFact.ChangeNonzeroValues( J );
+        sparseLDLFact.Factor();
+        // TODO(poulson): Make use of a better interface to these routines.
+        RegSolveInfo<Real> solveInfo;
+        if( ctrl.resolveReg )
         {
-            if( relError < ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+        }
+        if( !solveInfo.metRequestedTol )
+        {
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( relError < ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
+            }
         }
         ExpandSolution
         ( m, n, d, rmu, wRoot,
@@ -1131,27 +1152,30 @@ void Mehrotra
         KKTRHS
         ( rc, rb, rh, rmu, wRoot,
           orders, firstInds, origToSparseFirstInds, kSparse, d );
-        try
+        // TODO(poulson): Make use of a better interface to these routines.
+        solveInfo.metRequestedTol = false;
+        if( ctrl.resolveReg )
         {
-            // TODO(poulson): Make use of a better interface to these routines.
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
-        catch(...)
+        if( !solveInfo.metRequestedTol )
         {
-            if( relError < ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( relError < ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
+            }
         }
         ExpandSolution
         ( m, n, d, rmu, wRoot,
@@ -1332,9 +1356,9 @@ void Mehrotra
     {
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-          regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
+          regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
         else if( i < n+m )
-          regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+          regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
         else break;
     }
     // Perform the portion that requires remote updates
@@ -1350,9 +1374,9 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder );
             const Int firstInd = sparseFirstIndsLoc(iLoc);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.reg2Tmp*ctrl.reg2Tmp );
+                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.zRegTmp );
             else
-                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
+                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.zRegTmp );
         }
         regTmp.ProcessQueues();
     }
@@ -1362,7 +1386,7 @@ void Mehrotra
     // =========================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( A, G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
+    ( A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
     if( ctrl.print )
@@ -1413,26 +1437,26 @@ void Mehrotra
         rb = b;
         rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
+        // TODO(poulson): Axpy with -ctrl.yRegPerm y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // TODO(poulson): Axpy with -ctrl.reg1Perm*ctrl.reg1Perm y?
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
+        // TODO(poulson): Axpy with ctrl.xRegPerm x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // TODO(poulson): Axpy with ctrl.reg0Perm*ctrl.reg0Perm x?
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         rh = h;
         rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
+        // TODO(poulson): Axpy with -ctrl.zRegPerm z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-        // TODO(poulson): Axpy with -ctrl.reg2Perm*ctrl.reg2Perm z?
 
         // Now check the pieces
         // --------------------
@@ -1450,9 +1474,6 @@ void Mehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -1530,55 +1551,61 @@ void Mehrotra
 
         // Solve for the direction
         // -----------------------
-        try
+        /*
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        if( wMaxNorm >= ctrl.ruizEquilTol )
+            SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+        else if( wMaxNorm >= ctrl.diagEquilTol )
+            SymmetricDiagonalEquil( J, dInner, ctrl.print );
+        else
+            Ones( dInner, n+m+kSparse, 1 );
+        if( commRank == 0 && ctrl.time )
+            Output("Equilibration: ",timer.Stop()," secs");
+        */
+        Ones( dInner, n+m+kSparse, 1 );
+
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
+        sparseLDLFact.ChangeNonzeroValues( J );
+        if( ctrl.time && commRank == 0 )
+            Output("Front pull: ",timer.Stop()," secs");
+
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        sparseLDLFact.Factor( LDL_2D );
+        if( commRank == 0 && ctrl.time )
+            Output("LDL: ",timer.Stop()," secs");
+
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        // TODO(poulson): Make use of a better interface to these routines.
+        RegSolveInfo<Real> solveInfo;
+        if( ctrl.resolveReg )
         {
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( wMaxNorm >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wMaxNorm >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
-                Ones( dInner, n+m+kSparse, 1 );
-            if( commRank == 0 && ctrl.time )
-                Output("Equilibration: ",timer.Stop()," secs");
-
-            if( ctrl.time && commRank == 0 )
-                timer.Start();
-            sparseLDLFact.ChangeNonzeroValues( J );
-            if( ctrl.time && commRank == 0 )
-                Output("Front pull: ",timer.Stop()," secs");
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            sparseLDLFact.Factor( LDL_2D );
-            if( commRank == 0 && ctrl.time )
-                Output("LDL: ",timer.Stop()," secs");
-
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            // TODO(poulson): Make use of a better interface to these routines.
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Affine: ",timer.Stop()," secs");
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
-        catch(...)
+        if( !solveInfo.metRequestedTol )
         {
-            if( relError < ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( relError < ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
+            }
         }
+        if( commRank == 0 && ctrl.time )
+            Output("Affine: ",timer.Stop()," secs");
         ExpandSolution
         ( m, n, d, rmu, wRoot,
           orders, firstInds,
@@ -1691,32 +1718,35 @@ void Mehrotra
         ( rc, rb, rh, rmu, wRoot,
           orders, firstInds, origToSparseFirstInds, kSparse,
           d, cutoffPar );
-        try
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        // TODO(poulson): Make use of a better interface to these routines.
+        solveInfo.metRequestedTol = false;
+        if( ctrl.resolveReg )
         {
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            // TODO(poulson): Make use of a better interface to these routines.
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-            else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Corrector solver: ",timer.Stop()," secs");
+            solveInfo = reg_ldl::SolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
-        catch(...)
+        if( !solveInfo.metRequestedTol )
         {
-            if( relError < ctrl.minTol )
-                break;
-            else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            solveInfo = reg_ldl::RegularizedSolveAfter
+            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+              ctrl.solveCtrl.relTol,
+              ctrl.solveCtrl.maxRefineIts,
+              ctrl.solveCtrl.progress );
+            if( !solveInfo.metRequestedTol )
+            {
+                if( relError < ctrl.minTol )
+                    break;
+                else
+                    RuntimeError
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
+            }
         }
+        if( commRank == 0 && ctrl.time )
+            Output("Corrector solver: ",timer.Stop()," secs");
         if( ctrl.time && commRank == 0 )
             timer.Start();
         ExpandSolution

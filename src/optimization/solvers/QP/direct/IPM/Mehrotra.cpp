@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -30,6 +30,28 @@ namespace direct {
 //   s.t. A^T y + G^T z + c in range(Q), z >= 0
 //
 // using a Mehrotra Predictor-Corrector scheme.
+//
+// We make use of the regularized Lagrangian
+//
+//   L(x;y,z) = (1/2) x^T Q x + c^T x + y^T (A x - b) - z^T x + mu Phi(x) +
+//              (1/2) gamma_x^2 || x ||_2^2 -
+//              (1/2) gamma_y^2 || y ||_2^2 -
+//              (1/2) gamma_z^2 || z ||_2^2,
+//
+// where we note that the two-norm regularization is positive for the primal
+// variable x and *negative* for the dual variables y and z. NOTE: While z is
+// regularized in the affine solver, it is not yet implemented for direct
+// solvers.
+//
+// The subsequent first-order optimality conditions for x, y, and z become
+//
+//   Delta_x L = Q x + c + A^T y - z + gamma_x^2 x = 0,
+//   Delta_y L = A x - b - gamma_y^2 y = 0,
+//
+// These can be arranged into the symmetric quasi-definite form
+//
+//   | Q + gamma_x^2 I,      A^T,    | | x | = | -c  |
+//   |        A,        -gamma_y^2 I | | y |   |  b  |
 //
 
 template<typename Real>
@@ -159,8 +181,6 @@ void Mehrotra
              "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  primal = ",primObj,"\n",Indent(),
@@ -537,8 +557,6 @@ void Mehrotra
                  "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  primal = ",primObj,"\n",Indent(),
@@ -841,9 +859,9 @@ void Mehrotra
         regTmp.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )        regTmp(i) =  ctrl.reg0Tmp*ctrl.reg0Tmp;
-            else if( i < n+m ) regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
-            else               regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
+            if( i < n )        regTmp(i) =  ctrl.xRegTmp;
+            else if( i < n+m ) regTmp(i) = -ctrl.yRegTmp;
+            else               regTmp(i) = -ctrl.zRegTmp;
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -851,8 +869,8 @@ void Mehrotra
         regTmp.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n ) regTmp(i) =  ctrl.reg0Tmp*ctrl.reg0Tmp;
-            else        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
+            if( i < n ) regTmp(i) =  ctrl.xRegTmp;
+            else        regTmp(i) = -ctrl.yRegTmp;
         }
     }
     regTmp *= origTwoNormEst;
@@ -885,7 +903,7 @@ void Mehrotra
         // =============================================
         const Real mu = Dot(x,z) / n;
         pos_orth::NesterovTodd( x, z, w );
-        const Real wMaxNorm = MaxNorm( w );
+        //const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -903,18 +921,18 @@ void Mehrotra
         rb = b;
         rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
+        Axpy( -ctrl.yRegPerm, y, rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.reg1Perm*ctrl.reg1Perm, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         rc -= z;
+        Axpy( ctrl.xRegPerm, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, x, rc );
         // Now check the pieces
         // --------------------
         relError = Max(Max(objConv,rbConv),rcConv);
@@ -928,8 +946,6 @@ void Mehrotra
              "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  primal = ",primObj,"\n",Indent(),
@@ -958,15 +974,17 @@ void Mehrotra
             if( ctrl.system == FULL_KKT )
             {
                 KKT
-                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, x, z,
-                  JOrig, false );
+                ( Q, A,
+                  Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+                  x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
                 AugmentedKKT
-                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, x, z, JOrig, false );
-                // TODO(poulson): Incorporate ctrl.reg2Perm?
+                ( Q, A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+                  x, z, JOrig, false );
+                // TODO(poulson): Incorporate ctrl.zRegPerm?
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
             J = JOrig;
@@ -974,47 +992,52 @@ void Mehrotra
 
             // Solve for the direction
             // -----------------------
-            try
+            /*
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil
+                ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+            */
+            Ones( dInner, J.Height(), 1 );
+
+            if( numIts == 0 &&
+                (ctrl.system != AUGMENTED_KKT ||
+                 (ctrl.primalInit && ctrl.dualInit) ) )
             {
-                if( wMaxNorm >= ctrl.ruizEquilTol )
-                    SymmetricRuizEquil
-                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-                else if( wMaxNorm >= ctrl.diagEquilTol )
-                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
-                else
-                    Ones( dInner, J.Height(), 1 );
-
-                if( numIts == 0 &&
-                    (ctrl.system != AUGMENTED_KKT ||
-                     (ctrl.primalInit && ctrl.dualInit) ) )
-                {
-                    const bool hermitian = true;
-                    const BisectCtrl bisectCtrl;
-                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
-                }
-                else
-                {
-                    sparseLDLFact.ChangeNonzeroValues( J );
-                }
-
-                sparseLDLFact.Factor( LDL_2D );
-                if( ctrl.resolveReg )
-                    reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-                else
-                    reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                      ctrl.solveCtrl.relTol,
-                      ctrl.solveCtrl.maxRefineIts,
-                      ctrl.solveCtrl.progress );
+                const bool hermitian = true;
+                const BisectCtrl bisectCtrl;
+                sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
             }
-            catch(...)
+            else
             {
-                if( relError <= ctrl.minTol )
-                    break;
-                else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                sparseLDLFact.ChangeNonzeroValues( J );
+            }
+
+            sparseLDLFact.Factor( LDL_2D );
+            RegSolveInfo<Real> solveInfo;
+            if( ctrl.resolveReg )
+            {
+                solveInfo = reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            }
+            if( !solveInfo.metRequestedTol )
+            {
+                solveInfo = reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+                if( !solveInfo.metRequestedTol )
+                {
+                    if( relError <= ctrl.minTol )
+                        break;
+                    else
+                        RuntimeError
+                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                }
             }
             if( ctrl.system == FULL_KKT )
                 ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
@@ -1097,25 +1120,27 @@ void Mehrotra
             KKTRHS( rc, rb, rmu, z, d );
             // Solve for the direction
             // -----------------------
-            try
+            RegSolveInfo<Real> solveInfo;
+            if( ctrl.resolveReg )
             {
-                if( ctrl.resolveReg )
-                    reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-                else
-                    reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                      ctrl.solveCtrl.relTol,
-                      ctrl.solveCtrl.maxRefineIts,
-                      ctrl.solveCtrl.progress );
+                solveInfo = reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
-            catch(...)
+            if( !solveInfo.metRequestedTol )
             {
-                if( relError <= ctrl.minTol )
-                    break;
-                else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                solveInfo = reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+                if( !solveInfo.metRequestedTol )
+                {
+                    if( relError <= ctrl.minTol )
+                        break;
+                    else
+                        RuntimeError
+                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                }
             }
             ExpandSolution( m, n, d, dx, dy, dz );
         }
@@ -1126,25 +1151,27 @@ void Mehrotra
             AugmentedKKTRHS( x, rc, rb, rmu, d );
             // Solve for the direction
             // -----------------------
-            try
+            RegSolveInfo<Real> solveInfo;
+            if( ctrl.resolveReg )
             {
-                if( ctrl.resolveReg )
-                    reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-                else
-                    reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                      ctrl.solveCtrl.relTol,
-                      ctrl.solveCtrl.maxRefineIts,
-                      ctrl.solveCtrl.progress );
+                solveInfo = reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
-            catch(...)
+            if( !solveInfo.metRequestedTol )
             {
-                if( relError <= ctrl.minTol )
-                    break;
-                else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                solveInfo = reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+                if( !solveInfo.metRequestedTol )
+                {
+                    if( relError <= ctrl.minTol )
+                        break;
+                    else
+                        RuntimeError
+                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                }
             }
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
@@ -1293,11 +1320,11 @@ void Mehrotra
         {
             const Int i = regTmp.GlobalRow(iLoc);
             if( i < n )
-              regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
+              regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
             else if( i < n+m )
-              regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+              regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
             else
-              regTmp.SetLocal( iLoc, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
+              regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -1306,8 +1333,8 @@ void Mehrotra
         for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
         {
             const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n ) regTmp.SetLocal( iLoc, 0,  ctrl.reg0Tmp*ctrl.reg0Tmp );
-            else        regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+            if( i < n ) regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
+            else        regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
         }
     }
     regTmp *= origTwoNormEst;
@@ -1340,7 +1367,7 @@ void Mehrotra
         // =============================================
         const Real mu = Dot(x,z) / degree;
         pos_orth::NesterovTodd( x, z, w );
-        const Real wMaxNorm = MaxNorm( w );
+        //const Real wMaxNorm = MaxNorm( w );
 
         // Check for convergence
         // =====================
@@ -1382,8 +1409,6 @@ void Mehrotra
                  "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  primal = ",primObj,"\n",Indent(),
@@ -1412,14 +1437,16 @@ void Mehrotra
             if( ctrl.system == FULL_KKT )
             {
                 KKT
-                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm, x, z,
-                  JOrig, false );
+                ( Q, A,
+                  Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+                  x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
                 AugmentedKKT
-                ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, x, z, JOrig, false );
+                ( Q, A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+                  x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
             J = JOrig;
@@ -1443,63 +1470,68 @@ void Mehrotra
 
             // Solve for the direction
             // -----------------------
-            try
+            /*
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            if( wMaxNorm >= ctrl.ruizEquilTol )
+                SymmetricRuizEquil
+                ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+            else if( wMaxNorm >= ctrl.diagEquilTol )
+                SymmetricDiagonalEquil( J, dInner, ctrl.print );
+            else
+                Ones( dInner, J.Height(), 1 );
+            if( commRank == 0 && ctrl.time )
+                Output("Equilibration: ",timer.Stop()," secs");
+            */
+            Ones( dInner, J.Height(), 1 );
+
+            if( numIts == 0 &&
+                (ctrl.system != AUGMENTED_KKT ||
+                 (ctrl.primalInit && ctrl.dualInit)) )
             {
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                if( wMaxNorm >= ctrl.ruizEquilTol )
-                    SymmetricRuizEquil
-                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-                else if( wMaxNorm >= ctrl.diagEquilTol )
-                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
-                else
-                    Ones( dInner, J.Height(), 1 );
+                const bool hermitian = true;
+                const BisectCtrl bisectCtrl;
+                sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
                 if( commRank == 0 && ctrl.time )
-                    Output("Equilibration: ",timer.Stop()," secs");
+                    Output("Analysis: ",timer.Stop()," secs");
+            }
+            else
+                sparseLDLFact.ChangeNonzeroValues( J );
 
-                if( numIts == 0 &&
-                    (ctrl.system != AUGMENTED_KKT ||
-                     (ctrl.primalInit && ctrl.dualInit)) )
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            sparseLDLFact.Factor( LDL_2D );
+            if( commRank == 0 && ctrl.time )
+                Output("LDL: ",timer.Stop()," secs");
+
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            RegSolveInfo<Real> solveInfo;
+            if( ctrl.resolveReg )
+            {
+                solveInfo = reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            }
+            if( !solveInfo.metRequestedTol )
+            {
+                solveInfo = reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+                if( !solveInfo.metRequestedTol )
                 {
-                    if( commRank == 0 && ctrl.time )
-                        timer.Start();
-                    const bool hermitian = true;
-                    const BisectCtrl bisectCtrl;
-                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
-                    if( commRank == 0 && ctrl.time )
-                        Output("Analysis: ",timer.Stop()," secs");
+                    if( relError <= ctrl.minTol )
+                        break;
+                    else
+                        RuntimeError
+                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
                 }
-                else
-                    sparseLDLFact.ChangeNonzeroValues( J );
-
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                sparseLDLFact.Factor( LDL_2D );
-                if( commRank == 0 && ctrl.time )
-                    Output("LDL: ",timer.Stop()," secs");
-
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                if( ctrl.resolveReg )
-                    reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-                else
-                    reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                      ctrl.solveCtrl.relTol,
-                      ctrl.solveCtrl.maxRefineIts,
-                      ctrl.solveCtrl.progress );
-                if( commRank == 0 && ctrl.time )
-                    Output("Affine: ",timer.Stop()," secs");
             }
-            catch(...)
-            {
-                if( relError <= ctrl.minTol )
-                    break;
-                else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
-            }
+            if( commRank == 0 && ctrl.time )
+                Output("Affine: ",timer.Stop()," secs");
             if( ctrl.system == FULL_KKT )
                 ExpandSolution( m, n, d, dxAff, dyAff, dzAff );
             else
@@ -1582,30 +1614,32 @@ void Mehrotra
             KKTRHS( rc, rb, rmu, z, d );
             // Solve for the direction
             // -----------------------
-            try
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            RegSolveInfo<Real> solveInfo;
+            if( ctrl.resolveReg )
             {
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                if( ctrl.resolveReg )
-                    reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-                else
-                    reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                      ctrl.solveCtrl.relTol,
-                      ctrl.solveCtrl.maxRefineIts,
-                      ctrl.solveCtrl.progress );
-                if( commRank == 0 && ctrl.time )
-                    Output("Corrector: ",timer.Stop()," secs");
+                solveInfo = reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
-            catch(...)
+            if( !solveInfo.metRequestedTol )
             {
-                if( relError <= ctrl.minTol )
-                    break;
-                else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                solveInfo = reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+                if( !solveInfo.metRequestedTol )
+                {
+                    if( relError <= ctrl.minTol )
+                        break;
+                    else
+                        RuntimeError
+                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                }
             }
+            if( commRank == 0 && ctrl.time )
+                Output("Corrector: ",timer.Stop()," secs");
             ExpandSolution( m, n, d, dx, dy, dz );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1615,30 +1649,32 @@ void Mehrotra
             AugmentedKKTRHS( x, rc, rb, rmu, d );
             // Solve for the direction
             // -----------------------
-            try
+            if( commRank == 0 && ctrl.time )
+                timer.Start();
+            RegSolveInfo<Real> solveInfo;
+            if( ctrl.resolveReg )
             {
-                if( commRank == 0 && ctrl.time )
-                    timer.Start();
-                if( ctrl.resolveReg )
-                    reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
-                else
-                    reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
-                      ctrl.solveCtrl.relTol,
-                      ctrl.solveCtrl.maxRefineIts,
-                      ctrl.solveCtrl.progress );
-                if( commRank == 0 && ctrl.time )
-                    Output("Corrector: ",timer.Stop()," secs");
+                solveInfo = reg_ldl::SolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
-            catch(...)
+            if( !solveInfo.metRequestedTol )
             {
-                if( relError <= ctrl.minTol )
-                    break;
-                else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                solveInfo = reg_ldl::RegularizedSolveAfter
+                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                  ctrl.solveCtrl.relTol,
+                  ctrl.solveCtrl.maxRefineIts,
+                  ctrl.solveCtrl.progress );
+                if( !solveInfo.metRequestedTol )
+                {
+                    if( relError <= ctrl.minTol )
+                        break;
+                    else
+                        RuntimeError
+                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                }
             }
+            if( commRank == 0 && ctrl.time )
+                Output("Corrector: ",timer.Stop()," secs");
             ExpandAugmentedSolution( x, z, rmu, d, dx, dy, dz );
         }
         else

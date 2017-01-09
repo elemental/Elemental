@@ -15,7 +15,15 @@ void DenseLoadAndSolve
   bool minimize,
   bool keepNonnegativeWithZeroUpperBounds,
   bool metadataSummary,
-  bool print )
+  bool print,
+  double minTolLogEps,
+  double targetTolLogEps,
+  double xRegTmpLogEps,
+  double yRegTmpLogEps,
+  double zRegTmpLogEps,
+  double xRegPermLogEps,
+  double yRegPermLogEps,
+  double zRegPermLogEps )
 {
     EL_DEBUG_CSE
     El::Output("Will load into El::Matrix<",El::TypeName<Real>(),">");
@@ -40,9 +48,18 @@ void DenseLoadAndSolve
 
     timer.Start();
     El::AffineLPSolution<El::Matrix<Real>> solution;
+    const Real eps = El::limits::Epsilon<Real>();
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.mehrotraCtrl.print = true;
     ctrl.mehrotraCtrl.mehrotra = true;
+    ctrl.mehrotraCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
+    ctrl.mehrotraCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
+    ctrl.mehrotraCtrl.xRegTmp = El::Pow(eps,Real(xRegTmpLogEps));
+    ctrl.mehrotraCtrl.yRegTmp = El::Pow(eps,Real(yRegTmpLogEps));
+    ctrl.mehrotraCtrl.zRegTmp = El::Pow(eps,Real(zRegTmpLogEps));
+    ctrl.mehrotraCtrl.xRegPerm = El::Pow(eps,Real(xRegPermLogEps));
+    ctrl.mehrotraCtrl.yRegPerm = El::Pow(eps,Real(yRegPermLogEps));
+    ctrl.mehrotraCtrl.zRegPerm = El::Pow(eps,Real(zRegPermLogEps));
     El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
@@ -63,7 +80,15 @@ void SparseLoadAndSolve
   bool minimize,
   bool keepNonnegativeWithZeroUpperBounds,
   bool metadataSummary,
-  bool print )
+  bool print,
+  double minTolLogEps,
+  double targetTolLogEps,
+  double xRegTmpLogEps,
+  double yRegTmpLogEps,
+  double zRegTmpLogEps,
+  double xRegPermLogEps,
+  double yRegPermLogEps,
+  double zRegPermLogEps )
 {
     EL_DEBUG_CSE
     El::Output("Will load into El::SparseMatrix<",El::TypeName<Real>(),">");
@@ -86,10 +111,31 @@ void SparseLoadAndSolve
         El::Print( problem.h, "h" );
     }
 
-    timer.Start();
+    // We will wait to do any presolves until a fast mechanism exists for
+    // deleting empty from a sparse matrix.
+
     El::AffineLPSolution<El::Matrix<Real>> solution;
+    const Real eps = El::limits::Epsilon<Real>();
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.mehrotraCtrl.print = true;
+    ctrl.mehrotraCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
+    ctrl.mehrotraCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
+    ctrl.mehrotraCtrl.xRegTmp = El::Pow(eps,Real(xRegTmpLogEps));
+    ctrl.mehrotraCtrl.yRegTmp = El::Pow(eps,Real(yRegTmpLogEps));
+    ctrl.mehrotraCtrl.zRegTmp = El::Pow(eps,Real(zRegTmpLogEps));
+    ctrl.mehrotraCtrl.xRegPerm = El::Pow(eps,Real(xRegPermLogEps));
+    ctrl.mehrotraCtrl.yRegPerm = El::Pow(eps,Real(yRegPermLogEps));
+    ctrl.mehrotraCtrl.zRegPerm = El::Pow(eps,Real(zRegPermLogEps));
+    ctrl.mehrotraCtrl.solveCtrl.progress = true;
+    El::Output("minTol=",ctrl.mehrotraCtrl.minTol);
+    El::Output("targetTol=",ctrl.mehrotraCtrl.targetTol);
+    El::Output("xRegTmp=",ctrl.mehrotraCtrl.xRegTmp);
+    El::Output("yRegTmp=",ctrl.mehrotraCtrl.yRegTmp);
+    El::Output("zRegTmp=",ctrl.mehrotraCtrl.zRegTmp);
+    El::Output("xRegPerm=",ctrl.mehrotraCtrl.xRegPerm);
+    El::Output("yRegPerm=",ctrl.mehrotraCtrl.yRegPerm);
+    El::Output("zRegPerm=",ctrl.mehrotraCtrl.zRegPerm);
+    timer.Start();
     El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
@@ -118,7 +164,7 @@ int main( int argc, char* argv[] )
         const bool keepNonnegativeWithZeroUpperBounds =
           El::Input
           ("--keepNonnegativeWithZeroUpperBounds",
-           "do not remove zero lower bound unless negative upper bound",false);
+           "do not remove zero lower bound unless negative upper bound",true);
         const bool metadataSummary =
           El::Input("--metadataSummary","summarize MPS metadata?",true);
         const bool testDense =
@@ -126,6 +172,22 @@ int main( int argc, char* argv[] )
         const bool testDouble =
           El::Input("--testDouble","test double-precision?",true);
         const bool print = El::Input("--print","print matrices?",false);
+        const double minTolLogEps =
+          El::Input("--minTolLogEps","log_eps(minTol)",0.3);
+        const double targetTolLogEps =
+          El::Input("--targetTolLogEps","log_eps(targetTol)",0.5);
+        const double xRegTmpLogEps =
+          El::Input("--xRegTmpLogEps","log_eps(xRegTmp)",0.6);
+        const double yRegTmpLogEps =
+          El::Input("--yRegTmpLogEps","log_eps(yRegTmp)",0.6);
+        const double zRegTmpLogEps =
+          El::Input("--zRegTmpLogEps","log_eps(zRegTmp)",0.6);
+        const double xRegPermLogEps =
+          El::Input("--xRegPermLogEps","log_eps(xRegPerm)",0.7);
+        const double yRegPermLogEps =
+          El::Input("--yRegPermLogEps","log_eps(yRegPerm)",0.7);
+        const double zRegPermLogEps =
+          El::Input("--zRegPermLogEps","log_eps(zRegPerm)",0.7);
         El::ProcessInput();
         El::PrintInputReport();
 
@@ -135,16 +197,25 @@ int main( int argc, char* argv[] )
                 DenseLoadAndSolve<double>
                 ( filename, compressed,
                   minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary,
-                  print );
+                  print,
+                  minTolLogEps, targetTolLogEps,
+                  xRegTmpLogEps, yRegTmpLogEps, zRegTmpLogEps,
+                  xRegPermLogEps, yRegPermLogEps, zRegPermLogEps );
 #ifdef EL_HAVE_QD
             DenseLoadAndSolve<El::DoubleDouble>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary,
-              print );
+              print,
+              minTolLogEps, targetTolLogEps,
+              xRegTmpLogEps, yRegTmpLogEps, zRegTmpLogEps,
+              xRegPermLogEps, yRegPermLogEps, zRegPermLogEps );
             DenseLoadAndSolve<El::QuadDouble>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary,
-              print );
+              print,
+              minTolLogEps, targetTolLogEps,
+              xRegTmpLogEps, yRegTmpLogEps, zRegTmpLogEps,
+              xRegPermLogEps, yRegPermLogEps, zRegPermLogEps );
 #endif
         }
 
@@ -152,16 +223,25 @@ int main( int argc, char* argv[] )
             SparseLoadAndSolve<double>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary,
-              print );
+              print,
+              minTolLogEps, targetTolLogEps,
+              xRegTmpLogEps, yRegTmpLogEps, zRegTmpLogEps,
+              xRegPermLogEps, yRegPermLogEps, zRegPermLogEps );
 #ifdef EL_HAVE_QD
         SparseLoadAndSolve<El::DoubleDouble>
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary,
-          print );
+          print,
+          minTolLogEps, targetTolLogEps,
+          xRegTmpLogEps, yRegTmpLogEps, zRegTmpLogEps,
+          xRegPermLogEps, yRegPermLogEps, zRegPermLogEps );
         SparseLoadAndSolve<El::QuadDouble>
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBounds, metadataSummary,
-          print );
+          print,
+          minTolLogEps, targetTolLogEps,
+          xRegTmpLogEps, yRegTmpLogEps, zRegTmpLogEps,
+          xRegPermLogEps, yRegPermLogEps, zRegPermLogEps );
 #endif
     }
     catch( std::exception& e ) { El::ReportException(e); }

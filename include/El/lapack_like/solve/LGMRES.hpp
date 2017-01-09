@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -12,6 +12,14 @@
 // TODO(poulson): Add support for promotion?
 
 namespace El {
+
+template<typename Real>
+struct LGMRESInfo
+{
+    Int numIts=0;
+    Real relTol=1;
+    bool metRequestedTol=false;
+};
 
 namespace lgmres {
 
@@ -30,7 +38,8 @@ namespace lgmres {
 
 // TODO(poulson): Add support for an initial guess
 template<typename Field,class ApplyAType,class PrecondType>
-Int Single
+LGMRESInfo<Base<Field>>
+Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         Matrix<Field>& b,
@@ -46,6 +55,7 @@ Int Single
     )
     typedef Base<Field> Real;
     const Int n = b.Height();
+    LGMRESInfo<Real> info;
 
     // x := 0
     // ======
@@ -58,17 +68,21 @@ Int Single
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( origResidNorm == Real(0) )
-        return 0;
+    {
+        info.numIts = 0;
+        info.relTol = 0;
+        info.metRequestedTol = true;
+        return info;
+    }
 
-    Int iter=0;
-    bool converged = false;
+    bool finished = false;
     Matrix<Real> cs;
     Matrix<Field> sn, H, t;
     Matrix<Field> x0, q, V;
-    while( !converged )
+    while( !finished )
     {
         if( progress )
-            Output("Starting GMRES iteration ",iter);
+            Output("Starting GMRES iteration ",info.numIts);
         const Int indent = PushIndent();
 
         Zeros( cs, restart, 1 );
@@ -208,38 +222,45 @@ Int Single
             const Real residNorm = Nrm2( w );
             if( !limits::IsFinite(residNorm) )
                 RuntimeError("Residual norm was not finite");
-            const Real relResidNorm = residNorm/origResidNorm;
-            if( relResidNorm < relTol )
+            info.relTol = residNorm/origResidNorm;
+            ++info.numIts;
+            if( info.relTol < relTol )
             {
                 if( progress )
-                    Output("converged with relative tolerance: ",relResidNorm);
-                converged = true;
-                ++iter;
+                    Output("converged with relative tolerance: ",info.relTol);
+                finished = true;
+                info.metRequestedTol = true;
                 break;
             }
             else
             {
                 if( progress )
                     Output
-                    ("finished iteration ",iter," with relResidNorm=",
-                     relResidNorm);
+                    ("finished iteration ",info.numIts-1,
+                     " with relative accuracy ",info.relTol);
             }
-            ++iter;
-            if( iter == maxIts )
-                RuntimeError("LGMRES did not converge");
+            if( info.numIts == maxIts )
+            {
+                if( progress )
+                    Output("WARNING: LGMRES did not converge");
+                finished = true;
+                info.metRequestedTol = false;
+                break;
+            }
             SetIndent( innerIndent );
         }
         SetIndent( indent );
     }
     b = x;
-    return iter;
+    return info;
 }
 
 } // namespace lgmres
 
 // TODO(poulson): Add support for an initial guess
 template<typename Field,class ApplyAType,class PrecondType>
-Int LGMRES
+LGMRESInfo<Base<Field>>
+LGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         Matrix<Field>& B,
@@ -249,24 +270,30 @@ Int LGMRES
         bool progress )
 {
     EL_DEBUG_CSE
-    Int mostIts = 0;
+    LGMRESInfo<Base<Field>> info;
+    info.relTol = 0;
+    info.metRequestedTol = true;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
     {
         auto b = B( ALL, IR(j) );
-        const Int its =
+        auto singleInfo =
           lgmres::Single
           ( applyA, precond, b, relTol, restart, maxIts, progress );
-        mostIts = Max(mostIts,its);
+        info.numIts = Max( info.numIts, singleInfo.numIts );
+        info.relTol = Max( info.relTol, singleInfo.relTol );
+        info.metRequestedTol =
+          info.metRequestedTol && singleInfo.metRequestedTol;
     }
-    return mostIts;
+    return info;
 }
 
 namespace lgmres {
 
 // TODO(poulson): Add support for an initial guess
 template<typename Field,class ApplyAType,class PrecondType>
-Int Single
+LGMRESInfo<Base<Field>>
+Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         DistMultiVec<Field>& b,
@@ -284,6 +311,7 @@ Int Single
     const Int n = b.Height();
     const Grid& grid = b.Grid();
     const int commRank = grid.Rank();
+    LGMRESInfo<Real> info;
 
     // x := 0
     // ======
@@ -296,26 +324,30 @@ Int Single
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( origResidNorm == Real(0) )
-        return 0;
+    {
+        info.numIts = 0;
+        info.relTol = 0;
+        info.metRequestedTol = true;
+        return info;
+    }
 
-    Int iter=0;
-    bool converged = false;
+    bool finished = false;
     Matrix<Real> cs;
     Matrix<Field> sn, H, t;
     DistMultiVec<Field> x0(grid), q(grid), V(grid);
-    while( !converged )
+    while( !finished )
     {
         if( progress && commRank == 0 )
-            Output("Starting GMRES iteration ",iter);
+            Output("Starting GMRES iteration ",info.numIts);
         const Int indent = PushIndent();
 
         Zeros( cs, restart, 1 );
         Zeros( sn, restart, 1 );
         Zeros( H,  restart, restart );
         Zeros( V, n, restart );
-        // TODO: Extend DistMultiVec so that it can be directly manipulated
-        //       rather than requiring access to the local Matrix and staging
-        //       through the temporary vector q
+        // TODO(poulson): Extend DistMultiVec so that it can be directly
+        // manipulated rather than requiring access to the local Matrix and
+        // staging through the temporary vector q
         auto& VLoc = V.Matrix();
         Zeros( q, n, 1 );
 
@@ -452,38 +484,45 @@ Int Single
             const Real residNorm = Nrm2( w );
             if( !limits::IsFinite(residNorm) )
                 RuntimeError("Residual norm was not finite");
-            const Real relResidNorm = residNorm/origResidNorm;
-            if( relResidNorm < relTol )
+            info.relTol = residNorm/origResidNorm;
+            ++info.numIts;
+            if( info.relTol < relTol )
             {
                 if( progress && commRank == 0 )
-                    Output("converged with relative tolerance: ",relResidNorm);
-                converged = true;
-                ++iter;
+                    Output("converged with relative tolerance: ",info.relTol);
+                finished = true;
+                info.metRequestedTol = true;
                 break;
             }
             else
             {
                 if( progress && commRank == 0 )
                     Output
-                    ("finished iteration ",iter," with relResidNorm=",
-                     relResidNorm);
+                    ("finished iteration ",info.numIts-1,
+                     " with relative accuracy ",info.relTol);
             }
-            ++iter;
-            if( iter == maxIts )
-                RuntimeError("LGMRES did not converge");
+            if( info.numIts == maxIts )
+            {
+                if( progress && commRank == 0 )
+                    Output("WARNING: LGMRES did not converge");
+                finished = true;
+                info.metRequestedTol = false;
+                break;
+            }
             SetIndent( innerIndent );
         }
         SetIndent( indent );
     }
     b = x;
-    return iter;
+    return info;
 }
 
 } // namespace lgmres
 
 // TODO(poulson): Add support for an initial guess
 template<typename Field,class ApplyAType,class PrecondType>
-Int LGMRES
+LGMRESInfo<Base<Field>>
+LGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
         DistMultiVec<Field>& B,
@@ -495,8 +534,10 @@ Int LGMRES
     EL_DEBUG_CSE
     const Int height = B.Height();
     const Int width = B.Width();
+    LGMRESInfo<Base<Field>> info;
+    info.relTol = 0;
+    info.metRequestedTol = true;
 
-    Int mostIts = 0;
     DistMultiVec<Field> u(B.Grid());
     Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
@@ -505,13 +546,16 @@ Int LGMRES
     {
         auto bLoc = BLoc( ALL, IR(j) );
         uLoc = bLoc;
-        const Int its =
+        auto singleInfo =
           lgmres::Single
           ( applyA, precond, u, relTol, restart, maxIts, progress );
         bLoc = uLoc;
-        mostIts = Max(mostIts,its);
+        info.numIts = Max( info.numIts, singleInfo.numIts );
+        info.relTol = Max( info.relTol, singleInfo.relTol );
+        info.metRequestedTol =
+          info.metRequestedTol && singleInfo.metRequestedTol;
     }
-    return mostIts;
+    return info;
 }
 
 } // namespace El

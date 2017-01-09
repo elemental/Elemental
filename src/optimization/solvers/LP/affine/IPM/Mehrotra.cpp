@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -58,6 +58,30 @@ namespace affine {
 //
 // which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
 // scheme.
+//
+// We make use of the regularized Lagrangian
+//
+//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) + mu Phi(s) +
+//                (1/2) gamma_x^2 || x ||_2^2 -
+//                (1/2) gamma_y^2 || y ||_2^2 -
+//                (1/2) gamma_z^2 || z ||_2^2,
+//
+// where we note that the two-norm regularization is positive for the primal
+// variable x and *negative* for the dual variables y and z. There is not yet
+// any regularization on the primal slack variable s (though it may be
+// investigated in the future).
+//
+// The subsequent first-order optimality conditions for x, y, and z become
+//
+//   Delta_x L = c + A^T y + G^T z + gamma_x^2 x = 0,
+//   Delta_y L = A x - b - gamma_y^2 y = 0,
+//   Delta_z L = G x + s - h - gamma_z^2 z = 0.
+//
+// These can be arranged into the symmetric quasi-definite form
+//
+//   | gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
+//   |      A,      -gamma_y^2 I,       0      | | y |   |  b  |
+//   |      G,            0,      -gamma_z^2 I | | z |   | h-s |.
 //
 
 template<typename Real,class MatrixType,class VectorType>
@@ -356,6 +380,11 @@ void Equilibrate
         Output("|| rowScaleG ||_2 = ",FrobeniusNorm(equilibration.rowScaleG));
         Output("|| colScale  ||_2 = ",FrobeniusNorm(equilibration.colScale));
     }
+
+    /*
+    Output("SLIGHTLY increasing h by sqrt(eps)");
+    Shift( equilibratedProblem.h, Pow(limits::Epsilon<Real>(),Real(0.5)) );
+    */
 }
 
 template<typename Real>
@@ -640,9 +669,6 @@ void EquilibratedMehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -990,9 +1016,6 @@ void EquilibratedMehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -1253,21 +1276,45 @@ void EquilibratedMehrotra
         Output("|| h ||_2 = ",hNrm2);
     }
 
+    const Real xRegTmp0 = origTwoNormEst*ctrl.xRegTmp;
+    const Real yRegTmp0 = origTwoNormEst*ctrl.yRegTmp;
+    const Real zRegTmp0 = origTwoNormEst*ctrl.zRegTmp;
+    const Real xRegPerm0 = origTwoNormEst*ctrl.xRegPerm;
+    const Real yRegPerm0 = origTwoNormEst*ctrl.yRegPerm;
+    const Real zRegPerm0 = origTwoNormEst*ctrl.zRegPerm;
+    const Real regIncreaseFactor = Real(2);
+    Real xRegTmp = xRegTmp0;
+    Real yRegTmp = yRegTmp0;
+    Real zRegTmp = zRegTmp0;
+    Real xRegPerm = xRegPerm0;
+    Real yRegPerm = yRegPerm0;
+    Real zRegPerm = zRegPerm0;
+    // Once the permanent regularization is sufficiently large, we no longer
+    // need to have separate 'temporary' regularization.
+
+    Matrix<Real> regPerm;
+    regPerm.Resize( n+m+k, 1 );
+    for( Int i=0; i<n+m+k; ++i )
+    {
+        if( i < n )        regPerm(i) =  xRegPerm;
+        else if( i < n+m ) regPerm(i) = -yRegPerm;
+        else               regPerm(i) = -zRegPerm;
+    }
+
     Matrix<Real> regTmp;
     regTmp.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regTmp(i) =  ctrl.reg0Tmp*ctrl.reg0Tmp;
-        else if( i < n+m ) regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
-        else               regTmp(i) = -ctrl.reg2Tmp*ctrl.reg2Tmp;
+        if( i < n )        regTmp(i) =  xRegTmp;
+        else if( i < n+m ) regTmp(i) = -yRegTmp;
+        else               regTmp(i) = -zRegTmp;
     }
-    regTmp *= origTwoNormEst;
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( problem.A, problem.G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
+    ( problem.A, problem.G, Sqrt(xRegPerm), Sqrt(yRegPerm), Sqrt(zRegPerm),
       JStatic, false );
     JStatic.FreezeSparsity();
 
@@ -1287,12 +1334,17 @@ void EquilibratedMehrotra
       {
         try
         {
+            // It seems that straight-forward equilibration can prevent the
+            // iterative solver from converging.
+            /*
             if( wDynamicRange >= ctrl.ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
             else if( wDynamicRange >= ctrl.diagEquilTol )
                 SymmetricDiagonalEquil( J, dInner, ctrl.print );
             else
                 Ones( dInner, J.Height(), 1 );
+            */
+            Ones( dInner, J.Height(), 1 );
 
             if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
             {
@@ -1318,32 +1370,36 @@ void EquilibratedMehrotra
     auto attemptToSolve = [&]( Matrix<Real>& rhs )
       {
         const Int indentLevel = IndentLevel();
+        // TODO(poulson): Keep increasing regularization (and refactoring???)
+        // while( resolveReg )
         if( resolveReg )
         {
-            try
+            auto solveInfo =
+              reg_ldl::SolveAfter
+              ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
+              SetIndent( indentLevel );
+            if( solveInfo.metRequestedTol )
             {
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
-                SetIndent( indentLevel );
                 return true;
             }
-            catch(...)
+            else
             {
-                SetIndent( indentLevel );
                 resolveReg = false;
                 if( dimacsError > ctrl.minTol )
                     Output("WARNING: Could not resolve regularization");
             }
         }
-        try
+        auto solveInfo =
+          reg_ldl::RegularizedSolveAfter
+          ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
+            ctrl.solveCtrl.relTol,
+            ctrl.solveCtrl.maxRefineIts,
+            ctrl.solveCtrl.progress );
+        if( solveInfo.metRequestedTol )
         {
-            reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
-              ctrl.solveCtrl.relTol,
-              ctrl.solveCtrl.maxRefineIts,
-              ctrl.solveCtrl.progress );
+            return true; 
         }
-        catch(...)
+        else
         {
             if( dimacsError > ctrl.minTol )
             {
@@ -1353,8 +1409,6 @@ void EquilibratedMehrotra
             }
             return false;
         }
-        SetIndent( indentLevel );
-        return true;
       };
 
     AffineLPResidual<Matrix<Real>> residual, error;
@@ -1434,12 +1488,14 @@ void EquilibratedMehrotra
         // Apply reg' sparingly to the KKT system's bottom-right corner
         auto sMod( solution.s );
         auto zMod( solution.z );
+        /*
         const Real maxRatio = Pow(limits::Epsilon<Real>(),Real(-0.35));
         for( Int i=0; i<n; ++i )
         {
             if( solution.z(i)/solution.s(i) > maxRatio )
                 zMod(i) = maxRatio*solution.s(i);
         }
+        */
 
         // Check for convergence
         // =====================
@@ -1489,11 +1545,11 @@ void EquilibratedMehrotra
         Multiply
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
+        Axpy( -yRegPerm, solution.y, residual.primalEquality );
+        if( !resolveReg )
+            Axpy( -yRegTmp, solution.y, residual.primalEquality );
         const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // TODO(poulson): Document this living *after* the norm computations
-        Axpy
-        ( -ctrl.reg1Perm*ctrl.reg1Perm, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
@@ -1503,10 +1559,11 @@ void EquilibratedMehrotra
         Multiply
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
+        Axpy( xRegPerm, solution.x, residual.dualEquality );
+        if( !resolveReg )
+            Axpy( xRegTmp, solution.x, residual.dualEquality );
         const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // TODO(poulson): Document this living *after* the norm computations
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, solution.x, residual.dualEquality );
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         residual.primalConic = problem.h;
@@ -1514,11 +1571,12 @@ void EquilibratedMehrotra
         Multiply
         ( NORMAL, Real(1), problem.G, solution.x,
           Real(1), residual.primalConic );
+        Axpy( -zRegPerm, solution.z, residual.primalConic );
+        if( !resolveReg )
+            Axpy( -zRegTmp, solution.z, residual.primalConic );
         residual.primalConic += solution.s;
         const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-        // TODO(poulson): Document this living *after* the norm computations
-        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, solution.z, residual.primalConic );
 
         // Now check the pieces
         // --------------------
@@ -1537,9 +1595,6 @@ void EquilibratedMehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-             "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-             "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
              "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
              "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
@@ -1613,6 +1668,9 @@ void EquilibratedMehrotra
             Multiply
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
+            Axpy( -yRegPerm, affineCorrection.y, error.primalEquality );
+            if( !resolveReg )
+                Axpy( -yRegTmp, affineCorrection.y, error.primalEquality );
             const Real dxErrorNrm2 = Nrm2( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
@@ -1622,6 +1680,9 @@ void EquilibratedMehrotra
             Multiply
             ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
               Real(1), error.dualEquality );
+            Axpy( xRegPerm, affineCorrection.x, error.dualEquality );
+            if( !resolveReg )
+                Axpy( xRegTmp, affineCorrection.x, error.dualEquality );
             const Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
             error.primalConic = residual.primalConic;
@@ -1629,6 +1690,9 @@ void EquilibratedMehrotra
             ( NORMAL, Real(1), problem.G, affineCorrection.x,
               Real(1), error.primalConic );
             error.primalConic += affineCorrection.s;
+            Axpy( -zRegPerm, affineCorrection.z, error.primalConic );
+            if( !resolveReg )
+                Axpy( -zRegTmp, affineCorrection.z, error.primalConic );
             const Real dzErrorNrm2 = Nrm2( error.primalConic );
 
             // TODO(poulson): error.dualConic
@@ -1643,6 +1707,35 @@ void EquilibratedMehrotra
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rhNrm2));
         }
+
+        // Prevent the update from decreasing values of s or z below sqrt(eps)
+        // ===================================================================
+        Real sMin = MaxNorm( solution.s );
+        Real zMin = MaxNorm( solution.z );
+        for( Int i=0; i<n; ++i )
+        {
+            sMin = Min( sMin, solution.s(i) );
+            zMin = Min( zMin, solution.z(i) );
+            /*
+            if( solution.s(i) < Pow(limits::Epsilon<Real>(),Real(0.75)) )
+            {
+                if( affineCorrection.s(i) < Real(0) )
+                {
+                    Output("Clipping affineCorrection.s(",i,")=",affineCorrection.s(i)," to zero since s(",i,")=",solution.s(i));
+                    affineCorrection.s(i) = 0;
+                }
+            }
+            */
+            if( solution.z(i) < Pow(limits::Epsilon<Real>(),Real(0.75)) )
+            {
+                if( affineCorrection.z(i) < Real(0) )
+                {
+                    Output("Clipping affineCorrection.z(",i,")=",affineCorrection.z(i)," to zero since z(",i,")=",solution.z(i));
+                    affineCorrection.z(i) = 0;
+                }
+            }
+        }
+        Output("sMin = ",sMin,", zMin = ",zMin);
 
         // Compute a centrality parameter
         // ==============================
@@ -1710,6 +1803,28 @@ void EquilibratedMehrotra
         ExpandSolution
         ( m, n, d, residual.dualConic, solution.s, solution.z,
           correction.x, correction.y, correction.z, correction.s );
+
+        for( Int i=0; i<n; ++i )
+        {
+            /*
+            if( solution.s(i) < Pow(limits::Epsilon<Real>(),Real(0.75)) )
+            {
+                if( correction.s(i) < Real(0) )
+                {
+                    Output("Clipping correction.s(",i,")=",correction.s(i)," to zero since s(",i,")=",solution.s(i));
+                    correction.s(i) = 0;
+                }
+            }
+            */
+            if( solution.z(i) < Pow(limits::Epsilon<Real>(),Real(0.75)) )
+            {
+                if( correction.z(i) < Real(0) )
+                {
+                    Output("Clipping correction.z(",i,")=",correction.z(i)," to zero since z(",i,")=",solution.z(i));
+                    correction.z(i) = 0;
+                }
+            }
+        }
 
         // Update the current estimates
         // ============================
@@ -1820,11 +1935,11 @@ void EquilibratedMehrotra
     {
         const Int i = regTmp.GlobalRow(iLoc);
         if( i < n )
-          regTmp.SetLocal( iLoc, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
+          regTmp.SetLocal( iLoc, 0, ctrl.xRegTmp );
         else if( i < n+m )
-          regTmp.SetLocal( iLoc, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
+          regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
         else
-          regTmp.SetLocal( iLoc, 0, -ctrl.reg2Tmp*ctrl.reg2Tmp );
+          regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
     }
     regTmp *= origTwoNormEst;
 
@@ -1832,7 +1947,8 @@ void EquilibratedMehrotra
     // ===========================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( problem.A, problem.G, ctrl.reg0Perm, ctrl.reg1Perm, ctrl.reg2Perm,
+    ( problem.A, problem.G,
+      Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
       JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
@@ -1861,6 +1977,7 @@ void EquilibratedMehrotra
       {
         try
         {
+            /*
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -1871,6 +1988,8 @@ void EquilibratedMehrotra
                 Ones( dInner, J.Height(), 1 );
             if( commRank == 0 && ctrl.time )
                 Output("Equilibration: ",timer.Stop()," secs");
+            */
+            Ones( dInner, J.Height(), 1 );
 
             if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
             {
@@ -1900,30 +2019,45 @@ void EquilibratedMehrotra
       };
     auto attemptToSolve = [&]( DistMultiVec<Real>& rhs )
       {
-        try
+        if( commRank == 0 && ctrl.time )
+            timer.Start();
+        if( ctrl.resolveReg )
         {
-            if( commRank == 0 && ctrl.time )
-                timer.Start();
-            if( ctrl.resolveReg )
-                reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
+            auto solveInfo =
+              reg_ldl::SolveAfter
+              ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
+            if( solveInfo.metRequestedTol )
+            {
+                if( commRank == 0 && ctrl.time )
+                    Output("Affine: ",timer.Stop()," secs");
+                return true;
+            }
             else
-                reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
-                  ctrl.solveCtrl.relTol,
-                  ctrl.solveCtrl.maxRefineIts,
-                  ctrl.solveCtrl.progress );
-            if( commRank == 0 && ctrl.time )
-                Output("Affine: ",timer.Stop()," secs");
+            {
+                if( commRank == 0 )
+                    Output("WARNING: Could not resolve regularization");
+                // TODO(poulson): resolveReg = false 
+            }
         }
-        catch(...)
+        auto solveInfo =
+          reg_ldl::RegularizedSolveAfter
+          ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
+            ctrl.solveCtrl.relTol,
+            ctrl.solveCtrl.maxRefineIts,
+            ctrl.solveCtrl.progress );
+        if( commRank == 0 && ctrl.time )
+            Output("Affine: ",timer.Stop()," secs");
+        if( solveInfo.metRequestedTol )
+        {
+            return true;
+        }
+        else
         {
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
             return false;
         }
-        return true;
       };
 
     AffineLPResidual<DistMultiVec<Real>> residual, error;
@@ -1933,10 +2067,6 @@ void EquilibratedMehrotra
     ForceSimpleAlignments( error, grid );
     ForceSimpleAlignments( affineCorrection, grid );
     ForceSimpleAlignments( correction, grid );
-
-    // TODO(poulson): Use a more generic cap.
-    const Real eps = limits::Epsilon<Real>();
-    const Real maxRatio = Pow(eps,Real(-0.4));
 
     const Int indent = PushIndent();
     for( ; numIts<=ctrl.maxIts; ++numIts, dimacsErrorOld=dimacsError )
@@ -1953,8 +2083,6 @@ void EquilibratedMehrotra
         // Compute the duality measure and scaling point
         // =============================================
         const Real mu = Dot(solution.s,solution.z) / k;
-        pos_orth::NesterovTodd( solution.s, solution.z, w );
-        pos_orth::PushPairInto( solution.s, solution.z, w, maxRatio );
         pos_orth::NesterovTodd( solution.s, solution.z, w );
         const Real wMaxNorm = MaxNorm( w );
 
@@ -1973,11 +2101,10 @@ void EquilibratedMehrotra
         Multiply
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
+        Axpy( -ctrl.yRegPerm, solution.y, residual.primalEquality );
         const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // TODO(poulson): Document this living *after* the norm computations
-        Axpy
-        ( -ctrl.reg1Perm*ctrl.reg1Perm, solution.y, residual.primalEquality );
+
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
@@ -1987,10 +2114,10 @@ void EquilibratedMehrotra
         Multiply
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
+        Axpy( ctrl.xRegPerm, solution.x, residual.dualEquality );
         const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // TODO(poulson): Document this living *after* the norm computations
-        Axpy( ctrl.reg0Perm*ctrl.reg0Perm, solution.x, residual.dualEquality );
+
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
         residual.primalConic = problem.h;
@@ -1998,11 +2125,10 @@ void EquilibratedMehrotra
         Multiply
         ( NORMAL, Real(1), problem.G, solution.x,
           Real(1), residual.primalConic );
+        Axpy( -ctrl.zRegPerm, solution.z, residual.primalConic );
         residual.primalConic += solution.s;
         const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
-        // TODO(poulson): Document this living *after* the norm computations
-        Axpy( -ctrl.reg2Perm*ctrl.reg2Perm, solution.z, residual.primalConic );
 
         // Now check the pieces
         // --------------------
@@ -2020,9 +2146,6 @@ void EquilibratedMehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 = ",rbNrm2,"\n",Indent(),
-                 "  || r_c ||_2 = ",rcNrm2,"\n",Indent(),
-                 "  || r_h ||_2 = ",rhNrm2,"\n",Indent(),
                  "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
                  "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),

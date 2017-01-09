@@ -47,12 +47,12 @@ typedef struct {
   float diagEquilTol;
   bool checkResiduals;
 
-  float reg0Tmp;
-  float reg1Tmp;
-  float reg2Tmp;
-  float reg0Perm;
-  float reg1Perm;
-  float reg2Perm;
+  float xRegTmp;
+  float yRegTmp;
+  float zRegTmp;
+  float xRegPerm;
+  float yRegPerm;
+  float zRegPerm;
 } ElMehrotraCtrl_s;
 
 typedef struct {
@@ -80,12 +80,12 @@ typedef struct {
   double diagEquilTol;
   bool checkResiduals;
 
-  double reg0Tmp;
-  double reg1Tmp;
-  double reg2Tmp;
-  double reg0Perm;
-  double reg1Perm;
-  double reg2Perm;
+  double xRegTmp;
+  double yRegTmp;
+  double zRegTmp;
+  double xRegPerm;
+  double yRegPerm;
+  double zRegPerm;
 } ElMehrotraCtrl_d;
 
 EL_EXPORT ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl );

@@ -148,14 +148,14 @@ struct MehrotraCtrl
 #endif
 
     // Temporary regularization for the primal, dual, and dual slack variables
-    Real reg0Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
-    Real reg1Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
-    Real reg2Tmp = Pow(limits::Epsilon<Real>(),Real(0.25));
+    Real xRegTmp = Pow(limits::Epsilon<Real>(),Real(0.6));
+    Real yRegTmp = Pow(limits::Epsilon<Real>(),Real(0.6));
+    Real zRegTmp = Pow(limits::Epsilon<Real>(),Real(0.6));
 
     // Permanent regularization for the primal, dual, and dual slack variables
-    Real reg0Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
-    Real reg1Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
-    Real reg2Perm = Pow(limits::Epsilon<Real>(),Real(0.35));
+    Real xRegPerm = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real yRegPerm = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real zRegPerm = Pow(limits::Epsilon<Real>(),Real(0.7));
 
     // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
     // replace the default, (muAff/mu)^3

@@ -228,10 +228,6 @@ MPSReader::MPSReader
     if( !file_.is_open() )
         RuntimeError("Could not open ",filename);
 
-    // Rather than assuming that std::map<string,Int>::size() is constant-time,
-    // we can maintain counters for the sizes of the variable dictionary.
-    Int variableCounter=0;
-
     // Temporaries for the metadata extraction process.
     string rhsNameCandidate, boundNameCandidate;
 
@@ -387,7 +383,6 @@ MPSReader::MPSReader
                             Output
                             ("WARNING: Storing nonzero of ",value_,
                              " for trivial equality row ",rowName_);
-                            variableData.fixedIndex = meta_.numFixedBounds++;
                             // We initialize at zero and overwrite if there is
                             // relevant RHS data.
                             variableData.fixedValue = 0;
@@ -495,7 +490,6 @@ MPSReader::MPSReader
             if( variableIter == variableDict_.end() )
             {
                 MPSVariableData variableData;
-                variableData.index = variableCounter++;
                 variableDict_[variableName_] = variableData;
                 variableIter = variableDict_.find( variableName_ );
             }
@@ -727,6 +721,10 @@ MPSReader::MPSReader
         meta_.numRHS = 1;
     }
 
+    // Extract the number of variables
+    // (the matrix 'A' is 'm x n' and 'G' is 'k x n').
+    meta_.n = variableDict_.size();
+
     // Now iterate through the variable map and make use of the requested
     // conventions for counting the number of bounds of each type.
     // Also warn if there are possibly conflicting bound types.
@@ -876,6 +874,21 @@ MPSReader::MPSReader
             ++meta_.numInequalityEntries;
         }
     }
+    // We now force the fixed variables to come last.
+    Int numFixedSoFar = 0;
+    Int numNotFixedSoFar = 0;
+    for( auto& entry : variableDict_ )
+    {
+        auto& data = entry.second;
+        if( data.fixed )
+        {
+            data.index = (meta_.n - meta_.numFixedBounds) + numFixedSoFar++;
+        }
+        else
+        {
+            data.index = numNotFixedSoFar++;
+        }
+    }
 
     // Now that the initial pass over the file is done, we can set up for the
     // 'QueuedEntry'/'GetEntry' cycle.
@@ -883,10 +896,6 @@ MPSReader::MPSReader
     // Reset the file.
     file_.clear();
     file_.seekg( 0, std::ios::beg );
-
-    // Extract the number of variables
-    // (the matrix 'A' is 'm x n' and 'G' is 'k x n').
-    meta_.n = variableDict_.size();
     variableIter_ = variableDict_.cbegin();
 
     //
@@ -1231,6 +1240,12 @@ bool MPSReader::QueuedEntry()
         if( data.fixed )
         {
             const Int row = meta_.fixedOffset + data.fixedIndex;
+            if( data.fixedIndex == 0 )
+            {
+                Output("fixedIndex was zero");
+                Output("meta_.fixedOffset=",meta_.fixedOffset);
+                Output("row=",row,", column=",column);
+            }
 
             // A(row,column) = 1
             entry.type = AFFINE_LP_EQUALITY_MATRIX;
