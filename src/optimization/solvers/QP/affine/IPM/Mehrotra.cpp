@@ -124,10 +124,10 @@ void Mehrotra
         const Real ANrm1 = OneNorm( A );
         const Real GNrm1 = OneNorm( G );
         Output("|| Q ||_1 = ",QNrm1);
-        Output("|| A ||_1 = ",ANrm1);
-        Output("|| G ||_1 = ",GNrm1);
-        Output("|| b ||_2 = ",bNrm2);
         Output("|| c ||_2 = ",cNrm2);
+        Output("|| A ||_1 = ",ANrm1);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| G ||_1 = ",GNrm1);
         Output("|| h ||_2 = ",hNrm2);
     }
 
@@ -458,10 +458,10 @@ void Mehrotra
         if( commRank == 0 )
         {
             Output("|| Q ||_1 = ",QNrm1);
-            Output("|| A ||_1 = ",ANrm1);
-            Output("|| G ||_1 = ",GNrm1);
-            Output("|| b ||_2 = ",bNrm2);
             Output("|| c ||_2 = ",cNrm2);
+            Output("|| A ||_1 = ",ANrm1);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| G ||_1 = ",GNrm1);
             Output("|| h ||_2 = ",hNrm2);
         }
     }
@@ -795,35 +795,35 @@ void Mehrotra
     if( ctrl.print )
     {
         Output("|| Q ||_2 estimate: ",twoNormEstQ);
-        Output("|| A ||_2 estimate: ",twoNormEstA);
-        Output("|| G ||_2 estimate: ",twoNormEstG);
-        Output("|| b ||_2 = ",bNrm2);
         Output("|| c ||_2 = ",cNrm2);
+        Output("|| A ||_2 estimate: ",twoNormEstA);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| G ||_2 estimate: ",twoNormEstG);
         Output("|| h ||_2 = ",hNrm2);
     }
 
     // TODO(poulson): Expose regularization rules to user
-    Matrix<Real> regTmp;
-    regTmp.Resize( n+m+k, 1 );
+    Matrix<Real> regLarge;
+    regLarge.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regTmp(i) =  ctrl.xRegTmp;
-        else if( i < n+m ) regTmp(i) = -ctrl.yRegTmp;
-        else               regTmp(i) = -ctrl.zRegTmp;
+        if( i < n )        regLarge(i) =  ctrl.xRegLarge;
+        else if( i < n+m ) regLarge(i) = -ctrl.yRegLarge;
+        else               regLarge(i) = -ctrl.zRegLarge;
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( Q, A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+    ( Q, A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
       JStatic, false );
 
     SparseLDLFactorization<Real> sparseLDLFact;
 
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s,
+    ( JStatic, regLarge, b, c, h, x, y, z, s,
       sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
@@ -874,14 +874,14 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegPerm, y, rb );
+        Axpy( -ctrl.yRegSmall, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        Axpy( ctrl.xRegPerm, x, rc );
+        Axpy( ctrl.xRegSmall, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
@@ -889,7 +889,7 @@ void Mehrotra
         rh = h; rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        Axpy( -ctrl.zRegPerm, z, rh );
+        Axpy( -ctrl.zRegSmall, z, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
         // Now check the pieces
@@ -940,7 +940,7 @@ void Mehrotra
         // -----------------------
         J = JOrig;
         J.FreezeSparsity();
-        UpdateDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regLarge );
 
         /*
         if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -966,15 +966,15 @@ void Mehrotra
         sparseLDLFact.Factor();
 
         RegSolveInfo<Real> solveInfo;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );
@@ -1060,15 +1060,15 @@ void Mehrotra
         // Solve for the new direction
         // ---------------------------
         solveInfo.metRequestedTol = false;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );
@@ -1201,10 +1201,10 @@ void Mehrotra
         if( commRank == 0 )
         {
             Output("|| Q ||_2 estimate: ",twoNormEstQ);
-            Output("|| A ||_2 estimate: ",twoNormEstA);
-            Output("|| G ||_2 estimate: ",twoNormEstG);
-            Output("|| b ||_2 = ",bNrm2);
             Output("|| c ||_2 = ",cNrm2);
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| G ||_2 estimate: ",twoNormEstG);
             Output("|| h ||_2 = ",hNrm2);
             Output("Imbalance factor of Q: ",imbalanceQ);
             Output("Imbalance factor of A: ",imbalanceA);
@@ -1212,25 +1212,25 @@ void Mehrotra
         }
     }
 
-    DistMultiVec<Real> regTmp(grid);
-    regTmp.Resize( n+m+k, 1 );
-    for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> regLarge(grid);
+    regLarge.Resize( n+m+k, 1 );
+    for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
     {
-        const Int i = regTmp.GlobalRow(iLoc);
+        const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
+          regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
         else if( i < n+m )
-          regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
+          regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
         else
-          regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
+          regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     // Compute the static portion of the KKT system
     // ============================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( Q, A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+    ( Q, A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
       JStatic, false );
     JStatic.InitializeMultMeta();
     if( ctrl.print )
@@ -1244,7 +1244,7 @@ void Mehrotra
         timer.Start();
     DistSparseLDLFactorization<Real> sparseLDLFact;
     Initialize
-    ( JStatic, regTmp, b, c, h, x, y, z, s,
+    ( JStatic, regLarge, b, c, h, x, y, z, s,
       sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
@@ -1299,14 +1299,14 @@ void Mehrotra
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegPerm, y, rb );
+        Axpy( -ctrl.yRegSmall, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
         Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        Axpy( ctrl.xRegPerm, x, rc );
+        Axpy( ctrl.xRegSmall, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
@@ -1314,7 +1314,7 @@ void Mehrotra
         rh = h; rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        Axpy( -ctrl.zRegPerm, z, rh );
+        Axpy( -ctrl.zRegSmall, z, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
 
@@ -1369,7 +1369,7 @@ void Mehrotra
         J = JOrig;
         J.FreezeSparsity();
         J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-        UpdateDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regLarge );
 
         /*
         if( commRank == 0 && ctrl.time )
@@ -1408,15 +1408,15 @@ void Mehrotra
         if( commRank == 0 && ctrl.time )
             timer.Start();
         RegSolveInfo<Real> solveInfo;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );
@@ -1507,15 +1507,15 @@ void Mehrotra
         if( commRank == 0 && ctrl.time )
             timer.Start();
         solveInfo.metRequestedTol = false;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );

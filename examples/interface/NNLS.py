@@ -46,7 +46,7 @@ ctrl.socpCtrl.mehrotraCtrl.time = False
 ctrl.socpCtrl.mehrotraCtrl.solveCtrl.progress = False
 
 # Solve *with* resolving the regularization
-ctrl.socpCtrl.mehrotraCtrl.resolveReg = True
+ctrl.socpCtrl.mehrotraCtrl.twoStage = True
 startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
@@ -56,7 +56,7 @@ if display:
   El.Display( x, "x" )
 
 # Solve without resolving the regularization
-ctrl.socpCtrl.mehrotraCtrl.resolveReg = False
+ctrl.socpCtrl.mehrotraCtrl.twoStage = False
 startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()

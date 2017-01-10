@@ -95,12 +95,6 @@ struct MehrotraCtrl
     // The controls for quasi-(semi)definite solves
     RegSolveCtrl<Real> solveCtrl;
 
-    // Always use an iterative solver to resolve the regularization?
-    // TODO(poulson): Generalize this to a strategy (e.g., resolve if
-    // stagnating), as this choice has been observed to substantially impact
-    // both the cost and number of iterations.
-    bool resolveReg=true;
-
     // Wrap the Interior Point Method with an equilibration.
     // This should almost always be set to true.
     bool outerEquil=true;
@@ -147,15 +141,39 @@ struct MehrotraCtrl
     bool checkResiduals=true;
 #endif
 
-    // Temporary regularization for the primal, dual, and dual slack variables
-    Real xRegTmp = Pow(limits::Epsilon<Real>(),Real(0.6));
-    Real yRegTmp = Pow(limits::Epsilon<Real>(),Real(0.6));
-    Real zRegTmp = Pow(limits::Epsilon<Real>(),Real(0.6));
+    // "Small" regularization for the primal, dual, and dual slack variables.
+    // Ideally solving a (scaled) problem with this regularization added in
+    // a form similar to
+    //
+    //   L(x,s;y,z) = c^T x + y^T (A x - b ) + z^T (G x + s - h) + mu Phi(s)
+    //                + (1/2) xRegSmall || x ||_2^2
+    //                - (1/2) yRegSmall || y ||_2^2
+    //                - (1/2) zRegSmall || z ||_2^2.
+    //
+    // In an ideal world, these would correspond to Friedlander's notion of
+    // "exact" regularization (TODO(poulson): Citation for said paper).
+    //
+    Real xRegSmall = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real yRegSmall = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real zRegSmall = Pow(limits::Epsilon<Real>(),Real(0.7));
 
-    // Permanent regularization for the primal, dual, and dual slack variables
-    Real xRegPerm = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real yRegPerm = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real zRegPerm = Pow(limits::Epsilon<Real>(),Real(0.7));
+    // "Large" regularization for the primal, dual, and dual slack variables
+    // that is ideally only used for preconditioning a problem involving the
+    // "small" regularization.
+    Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+    Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+    Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+
+    // Initially attempt to solve with only the "small" regularization by
+    // preconditioning with a factorization involving the "large"
+    // regularization? If this two-stage procedure breaks down before the
+    // minimum tolerance is met, we will not attempt to resolve down to the
+    // "small" regularization level.
+    bool twoStage=true;
+
+    // If it turns out that even the "large" regularization cannot be resolved,'
+    // we will increase it by the following factor at each iteration.
+    Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(0.01));
 
     // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
     // replace the default, (muAff/mu)^3

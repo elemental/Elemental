@@ -1039,7 +1039,7 @@ void EquilibratedMehrotra
           Real(-1), residual.primalEquality );
         const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegPerm, solution.y, residual.primalEquality );
+        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
@@ -1049,7 +1049,7 @@ void EquilibratedMehrotra
         residual.dualEquality -= solution.z;
         const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.xRegPerm, solution.x, residual.dualEquality );
+        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
         // Now check the pieces
         // --------------------
         dimacsError = Max(Max(objConv,rbConv),rcConv);
@@ -1132,10 +1132,10 @@ void EquilibratedMehrotra
             // Construct the KKT system
             // ------------------------
             NormalKKT
-            ( problem.A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+            ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
               solution.x, solution.z, J );
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
 
@@ -1146,7 +1146,7 @@ void EquilibratedMehrotra
             if( !attemptToSolve(affineCorrection.y) )
                 break;
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
@@ -1157,14 +1157,14 @@ void EquilibratedMehrotra
             Gemv
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
-            Axpy( -ctrl.yRegPerm, affineCorrection.y, error.primalEquality );
+            Axpy( -ctrl.yRegSmall, affineCorrection.y, error.primalEquality );
             Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
-            Axpy( ctrl.xRegPerm, affineCorrection.x, error.dualEquality );
+            Axpy( ctrl.xRegSmall, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
             Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -1260,7 +1260,7 @@ void EquilibratedMehrotra
             // Construct the new KKT RHS
             // -------------------------
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, correction.y );
 
@@ -1269,7 +1269,7 @@ void EquilibratedMehrotra
             if( !attemptToSolve(correction.y) )
                 break;
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               correction.x, correction.y, correction.z );
         }
@@ -1454,32 +1454,32 @@ void EquilibratedMehrotra
           ctrl.solveCtrl );
     }
 
-    Matrix<Real> regTmp;
+    Matrix<Real> regLarge;
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
+        regLarge.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )        regTmp(i) =  ctrl.xRegTmp;
-            else if( i < n+m ) regTmp(i) = -ctrl.yRegTmp;
-            else               regTmp(i) = -ctrl.zRegTmp;
+            if( i < n )        regLarge(i) =  ctrl.xRegLarge;
+            else if( i < n+m ) regLarge(i) = -ctrl.yRegLarge;
+            else               regLarge(i) = -ctrl.zRegLarge;
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
+        regLarge.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n ) regTmp(i) =  ctrl.xRegTmp;
-            else        regTmp(i) = -ctrl.yRegTmp;
+            if( i < n ) regLarge(i) =  ctrl.xRegLarge;
+            else        regLarge(i) = -ctrl.yRegLarge;
         }
     }
     else if( ctrl.system == NORMAL_KKT )
     {
-        regTmp.Resize( m, 1 );
-        Fill( regTmp, ctrl.yRegTmp );
+        regLarge.Resize( m, 1 );
+        Fill( regLarge, ctrl.yRegLarge );
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     Real muOld = 0.1;
     Real dimacsError = 1, dimacsErrorOld = 1;
@@ -1519,7 +1519,7 @@ void EquilibratedMehrotra
           Real(-1), residual.primalEquality );
         const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegPerm, solution.y, residual.primalEquality );
+        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
@@ -1529,7 +1529,7 @@ void EquilibratedMehrotra
         residual.dualEquality -= solution.z;
         const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.xRegPerm, solution.x, residual.dualEquality );
+        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
         // Now check the pieces
         // --------------------
         dimacsError = Max(Max(objConv,rbConv),rcConv);
@@ -1592,7 +1592,9 @@ void EquilibratedMehrotra
             {
                 KKT
                 ( problem.A,
-                  Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+                  Sqrt(ctrl.xRegSmall),
+                  Sqrt(ctrl.yRegSmall),
+                  Sqrt(ctrl.zRegSmall),
                   solution.x, solution.z, JOrig, false );
                 KKTRHS
                 ( residual.dualEquality, residual.primalEquality,
@@ -1601,14 +1603,14 @@ void EquilibratedMehrotra
             else
             {
                 AugmentedKKT
-                ( problem.A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+                ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
                   solution.x, solution.z, JOrig, false );
                 AugmentedKKTRHS
                 ( solution.x, residual.dualEquality, residual.primalEquality,
                   residual.dualConic, d );
             }
             J = JOrig;
-            UpdateDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regLarge );
 
             // Solve for the direction
             // -----------------------
@@ -1646,15 +1648,15 @@ void EquilibratedMehrotra
 
             sparseLDLFact.Factor( LDL_2D );
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1683,10 +1685,10 @@ void EquilibratedMehrotra
             // TODO(poulson): Apply updates to a matrix of explicit zeros
             // (with the correct sparsity pattern)
             NormalKKT
-            ( problem.A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+            ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
               solution.x, solution.z, J, false );
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
 
@@ -1705,9 +1707,9 @@ void EquilibratedMehrotra
 
             sparseLDLFact.Factor( LDL_2D );
 
-            // NOTE: regTmp should be all zeros; replace with unregularized
+            // NOTE: regLarge should be all zeros; replace with unregularized
             auto solveInfo = reg_ldl::RegularizedSolveAfter
-            ( J, regTmp, sparseLDLFact, affineCorrection.y,
+            ( J, regLarge, sparseLDLFact, affineCorrection.y,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress,
@@ -1721,7 +1723,7 @@ void EquilibratedMehrotra
                     ("Could not achieve minimum tolerance of ",ctrl.minTol);
             }
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
@@ -1733,14 +1735,14 @@ void EquilibratedMehrotra
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
             Axpy
-            ( -ctrl.yRegPerm, affineCorrection.y, error.primalEquality );
+            ( -ctrl.yRegSmall, affineCorrection.y, error.primalEquality );
             Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
-            Axpy( ctrl.xRegPerm, affineCorrection.x, error.dualEquality );
+            Axpy( ctrl.xRegSmall, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
             Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -1807,15 +1809,15 @@ void EquilibratedMehrotra
             ( residual.dualEquality, residual.primalEquality,
               residual.dualConic, solution.z, d );
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1836,15 +1838,15 @@ void EquilibratedMehrotra
             ( solution.x, residual.dualEquality, residual.primalEquality,
               residual.dualConic, d );
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1864,12 +1866,12 @@ void EquilibratedMehrotra
         else
         {
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, correction.y );
-            // NOTE: regTmp should be all zeros; replace with unregularized
+            // NOTE: regLarge should be all zeros; replace with unregularized
             auto solveInfo = reg_ldl::RegularizedSolveAfter
-            ( J, regTmp, sparseLDLFact, correction.y,
+            ( J, regLarge, sparseLDLFact, correction.y,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress,
@@ -1883,7 +1885,7 @@ void EquilibratedMehrotra
                     ("Could not achieve minimum tolerance of ",ctrl.minTol);
             }
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               correction.x, correction.y, correction.z );
         }
@@ -2038,34 +2040,34 @@ void EquilibratedMehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(grid);
+    DistMultiVec<Real> regLarge(grid);
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
-        for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+        regLarge.Resize( m+2*n, 1 );
+        for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
         {
-            const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n )        regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
-            else if( i < n+m ) regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
-            else               regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
+            const Int i = regLarge.GlobalRow(iLoc);
+            if( i < n )        regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
+            else if( i < n+m ) regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
+            else               regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
-        for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+        regLarge.Resize( n+m, 1 );
+        for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
         {
-            const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n ) regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
-            else        regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
+            const Int i = regLarge.GlobalRow(iLoc);
+            if( i < n ) regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
+            else        regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
         }
     }
     else if( ctrl.system == NORMAL_KKT )
     {
-        regTmp.Resize( m, 1 );
-        Fill( regTmp, ctrl.yRegTmp );
+        regLarge.Resize( m, 1 );
+        Fill( regLarge, ctrl.yRegLarge );
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     Real muOld = 0.1;
     Real dimacsError = 1, dimacsErrorOld = 1;
@@ -2122,7 +2124,7 @@ void EquilibratedMehrotra
           Real(-1), residual.primalEquality );
         const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegPerm, solution.y, residual.primalEquality );
+        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         residual.dualEquality = problem.c;
@@ -2132,7 +2134,7 @@ void EquilibratedMehrotra
         residual.dualEquality -= solution.z;
         const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.xRegPerm, solution.x, residual.dualEquality );
+        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
         // Now check the pieces
         // --------------------
         dimacsError = Max(Max(objConv,rbConv),rcConv);
@@ -2181,7 +2183,9 @@ void EquilibratedMehrotra
             {
                 KKT
                 ( problem.A,
-                  Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+                  Sqrt(ctrl.xRegSmall),
+                  Sqrt(ctrl.yRegSmall),
+                  Sqrt(ctrl.zRegSmall),
                   solution.x, solution.z, JOrig, false );
                 KKTRHS
                 ( residual.dualEquality, residual.primalEquality,
@@ -2190,7 +2194,7 @@ void EquilibratedMehrotra
             else
             {
                 AugmentedKKT
-                ( problem.A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+                ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
                   solution.x, solution.z,
                   JOrig, false );
                 AugmentedKKTRHS
@@ -2198,7 +2202,7 @@ void EquilibratedMehrotra
                   residual.dualConic, d );
             }
             J = JOrig;
-            UpdateDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regLarge );
             if( numIts == 0 )
             {
                 metaOrig = JOrig.InitializeMultMeta();
@@ -2265,15 +2269,15 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -2303,10 +2307,10 @@ void EquilibratedMehrotra
             // -----------------------
             // TODO(poulson): Apply updates on top of explicit zeros
             NormalKKT
-            ( problem.A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+            ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
               solution.x, solution.z, J, false );
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
             if( numIts == 0 )
@@ -2350,7 +2354,7 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             auto solveInfo = reg_ldl::RegularizedSolveAfter
-            ( J, regTmp, sparseLDLFact, affineCorrection.y,
+            ( J, regLarge, sparseLDLFact, affineCorrection.y,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress,
@@ -2366,7 +2370,7 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
@@ -2377,14 +2381,14 @@ void EquilibratedMehrotra
             Gemv
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
-            Axpy( -ctrl.yRegPerm, affineCorrection.y, error.primalEquality );
+            Axpy( -ctrl.yRegSmall, affineCorrection.y, error.primalEquality );
             Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
-            Axpy( ctrl.xRegPerm, affineCorrection.x, error.dualEquality );
+            Axpy( ctrl.xRegSmall, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
             Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -2453,15 +2457,15 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -2486,15 +2490,15 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 auto solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -2516,13 +2520,13 @@ void EquilibratedMehrotra
         else
         {
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, correction.y );
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             auto solveInfo = reg_ldl::RegularizedSolveAfter
-            ( J, regTmp, sparseLDLFact, correction.y,
+            ( J, regLarge, sparseLDLFact, correction.y,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress,
@@ -2538,7 +2542,7 @@ void EquilibratedMehrotra
             if( commRank == 0 && ctrl.time )
                 Output("Corrector: ",timer.Stop()," secs");
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegPerm), solution.x, solution.z,
+            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               correction.x, correction.y, correction.z );
         }

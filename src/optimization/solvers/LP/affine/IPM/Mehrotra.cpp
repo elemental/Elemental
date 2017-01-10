@@ -557,10 +557,10 @@ void EquilibratedMehrotra
     {
         const Real ANrm1 = OneNorm( problem.A );
         const Real GNrm1 = OneNorm( problem.G );
-        Output("|| A ||_1 = ",ANrm1);
-        Output("|| G ||_1 = ",GNrm1);
-        Output("|| b ||_2 = ",bNrm2);
         Output("|| c ||_2 = ",cNrm2);
+        Output("|| A ||_1 = ",ANrm1);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| G ||_1 = ",GNrm1);
         Output("|| h ||_2 = ",hNrm2);
     }
 
@@ -574,24 +574,28 @@ void EquilibratedMehrotra
     Permutation p;
     auto attemptToFactor = [&]()
       {
+        EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try { LDL( J, dSub, p, false ); }
         catch(...)
         {
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            EL_DEBUG_ONLY(SetCallStack(callStack))
             return false;
         }
         return true;
       };
     auto attemptToSolve = [&]( Matrix<Real>& rhs )
       {
+        EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
         catch(...)
         {
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            EL_DEBUG_ONLY(SetCallStack(callStack))
             return false;
         }
         return true;
@@ -619,13 +623,11 @@ void EquilibratedMehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
         const Real primObj = PrimalObjective<Real>( problem, solution );
         const Real dualObj = DualObjective<Real>( problem, solution );
         const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         residual.primalEquality = problem.b;
         residual.primalEquality *= -1;
         Gemv
@@ -633,8 +635,8 @@ void EquilibratedMehrotra
           Real(1), residual.primalEquality );
         const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+        // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         residual.dualEquality = problem.c;
         Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -644,8 +646,8 @@ void EquilibratedMehrotra
           Real(1), residual.dualEquality );
         const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         residual.primalConic = problem.h;
         residual.primalConic *= -1;
         Gemv
@@ -669,9 +671,10 @@ void EquilibratedMehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
-             "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+             rcConv,"\n",Indent(),
+             "  || primalConic  ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
              "  scaled primal = ",primObj,"\n",Indent(),
              "  scaled dual   = ",dualObj,"\n",Indent(),
              "  scaled relative duality gap = ",relGap);
@@ -897,10 +900,10 @@ void EquilibratedMehrotra
         const Real GNrm1 = OneNorm( problem.G );
         if( commRank == 0 )
         {
-            Output("|| A ||_1 = ",ANrm1);
-            Output("|| G ||_1 = ",GNrm1);
-            Output("|| b ||_2 = ",bNrm2);
             Output("|| c ||_2 = ",cNrm2);
+            Output("|| A ||_1 = ",ANrm1);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| G ||_1 = ",GNrm1);
             Output("|| h ||_2 = ",hNrm2);
         }
     }
@@ -915,24 +918,28 @@ void EquilibratedMehrotra
     DistPermutation p(grid);
     auto attemptToFactor = [&]()
       {
+        EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try { LDL( J, dSub, p, false ); }
         catch(...)
         {
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            EL_DEBUG_ONLY(SetCallStack(callStack))
             return false;
         }
         return true;
       };
     auto attemptToSolve = [&]( DistMatrix<Real>& rhs )
       {
+        EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
         catch(...)
         {
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Unable to achieve minimum tolerance ",ctrl.minTol);
+            EL_DEBUG_ONLY(SetCallStack(callStack))
             return false;
         }
         return true;
@@ -965,13 +972,11 @@ void EquilibratedMehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
         const Real primObj = PrimalObjective<Real>( problem, solution );
         const Real dualObj = DualObjective<Real>( problem, solution );
         const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         residual.primalEquality = problem.b;
         residual.primalEquality *= -1;
         Gemv
@@ -979,8 +984,8 @@ void EquilibratedMehrotra
           Real(1), residual.primalEquality );
         const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+        // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         residual.dualEquality = problem.c;
         Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -990,8 +995,8 @@ void EquilibratedMehrotra
           Real(1), residual.dualEquality );
         const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         residual.primalConic = problem.h;
         residual.primalConic *= -1;
         Gemv
@@ -1016,9 +1021,12 @@ void EquilibratedMehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
-                 "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+                 "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+                 rbConv,"\n",Indent(),
+                 "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+                 rcConv,"\n",Indent(),
+                 "  || primalConic  ||_2 / (1 + || h ||_2) = ",
+                 rhConv,"\n",Indent(),
                  "  scaled primal = ",primObj,"\n",Indent(),
                  "  scaled dual   = ",dualObj,"\n",Indent(),
                  "  scaled relative gap = ",relGap);
@@ -1259,7 +1267,7 @@ void EquilibratedMehrotra
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
     const Int degree = k;
-    bool resolveReg = ctrl.resolveReg;
+    bool twoStage = ctrl.twoStage;
 
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
@@ -1276,51 +1284,50 @@ void EquilibratedMehrotra
         Output("|| h ||_2 = ",hNrm2);
     }
 
-    const Real xRegTmp0 = origTwoNormEst*ctrl.xRegTmp;
-    const Real yRegTmp0 = origTwoNormEst*ctrl.yRegTmp;
-    const Real zRegTmp0 = origTwoNormEst*ctrl.zRegTmp;
-    const Real xRegPerm0 = origTwoNormEst*ctrl.xRegPerm;
-    const Real yRegPerm0 = origTwoNormEst*ctrl.yRegPerm;
-    const Real zRegPerm0 = origTwoNormEst*ctrl.zRegPerm;
-    const Real regIncreaseFactor = Real(2);
-    Real xRegTmp = xRegTmp0;
-    Real yRegTmp = yRegTmp0;
-    Real zRegTmp = zRegTmp0;
-    Real xRegPerm = xRegPerm0;
-    Real yRegPerm = yRegPerm0;
-    Real zRegPerm = zRegPerm0;
+    const Real xRegSmall0 = origTwoNormEst*ctrl.xRegSmall;
+    const Real yRegSmall0 = origTwoNormEst*ctrl.yRegSmall;
+    const Real zRegSmall0 = origTwoNormEst*ctrl.zRegSmall;
+    const Real xRegLarge0 = origTwoNormEst*ctrl.xRegLarge;
+    const Real yRegLarge0 = origTwoNormEst*ctrl.yRegLarge;
+    const Real zRegLarge0 = origTwoNormEst*ctrl.zRegLarge;
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
     // Once the permanent regularization is sufficiently large, we no longer
     // need to have separate 'temporary' regularization.
 
-    Matrix<Real> regPerm;
-    regPerm.Resize( n+m+k, 1 );
+    Matrix<Real> regSmall;
+    regSmall.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regPerm(i) =  xRegPerm;
-        else if( i < n+m ) regPerm(i) = -yRegPerm;
-        else               regPerm(i) = -zRegPerm;
+        if( i < n )        regSmall(i) =  xRegSmall;
+        else if( i < n+m ) regSmall(i) = -yRegSmall;
+        else               regSmall(i) = -zRegSmall;
     }
 
-    Matrix<Real> regTmp;
-    regTmp.Resize( n+m+k, 1 );
+    Matrix<Real> regLarge;
+    regLarge.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regTmp(i) =  xRegTmp;
-        else if( i < n+m ) regTmp(i) = -yRegTmp;
-        else               regTmp(i) = -zRegTmp;
+        if( i < n )        regLarge(i) =  xRegLarge;
+        else if( i < n+m ) regLarge(i) = -yRegLarge;
+        else               regLarge(i) = -zRegLarge;
     }
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( problem.A, problem.G, Sqrt(xRegPerm), Sqrt(yRegPerm), Sqrt(zRegPerm),
+    ( problem.A, problem.G, Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
       JStatic, false );
     JStatic.FreezeSparsity();
 
     SparseLDLFactorization<Real> sparseLDLFact;
     Initialize
-    ( problem, solution, JStatic, regTmp,
+    ( problem, solution, JStatic, regLarge,
       sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
@@ -1330,12 +1337,48 @@ void EquilibratedMehrotra
     Matrix<Real> dInner;
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> d, w;
-    auto attemptToFactor = [&]( const Real& wDynamicRange )
-      {
+
+    auto increaseRegularization = [&]() {
+        if( twoStage )
+        {
+            /*
+            UpdateDiagonal( JStatic, ctrl.regIncreaseFactor-1, regSmall );
+
+            regSmall *= ctrl.regIncreaseFactor;
+            regLarge *= ctrl.regIncreaseFactor;
+
+            xRegSmall *= ctrl.regIncreaseFactor;
+            yRegSmall *= ctrl.regIncreaseFactor;
+            zRegSmall *= ctrl.regIncreaseFactor;
+            xRegLarge *= ctrl.regIncreaseFactor;
+            yRegLarge *= ctrl.regIncreaseFactor;
+            zRegLarge *= ctrl.regIncreaseFactor;
+            */
+            Output("No longer attempting to resolve large regularization");
+            twoStage = false;
+        }
+        else
+        {
+            Output
+            ("Increasing regularization by a factor of ",
+             ctrl.regIncreaseFactor);
+            regLarge *= ctrl.regIncreaseFactor;
+            xRegLarge *= ctrl.regIncreaseFactor;
+            yRegLarge *= ctrl.regIncreaseFactor;
+            zRegLarge *= ctrl.regIncreaseFactor;
+        }
+    };
+
+    auto attemptToFactor = [&]( const Real& wDynamicRange ) {
+        EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try
         {
             // It seems that straight-forward equilibration can prevent the
             // iterative solver from converging.
+            //
+            // TODO(poulson): Determine if equilibration is safe on pilot87
+            // if twoStage=false.
+            //
             /*
             if( wDynamicRange >= ctrl.ruizEquilTol )
                 SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
@@ -1363,51 +1406,76 @@ void EquilibratedMehrotra
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            EL_DEBUG_ONLY(SetCallStack(callStack))
             return false;
         }
         return true;
       };
     auto attemptToSolve = [&]( Matrix<Real>& rhs )
       {
-        const Int indentLevel = IndentLevel();
-        // TODO(poulson): Keep increasing regularization (and refactoring???)
-        // while( resolveReg )
-        if( resolveReg )
+        if( twoStage )
         {
-            auto solveInfo =
-              reg_ldl::SolveAfter
-              ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
-              SetIndent( indentLevel );
+            EL_DEBUG_ONLY(auto callStack = CopyCallStack())
+            RegSolveInfo<Real> solveInfo;
+            auto origRhs( rhs );
+            try
+            {
+                solveInfo =
+                  reg_ldl::SolveAfter
+                  ( JOrig, regLarge, dInner, sparseLDLFact, rhs,
+                    ctrl.solveCtrl );
+            }
+            catch( const std::exception& except )
+            {
+                if( ctrl.print )
+                    Output
+                    ("reg_ldl::SolveAfter failed with error: ",except.what());
+                EL_DEBUG_ONLY(SetCallStack(callStack))
+                rhs = origRhs;
+            }
             if( solveInfo.metRequestedTol )
             {
                 return true;
             }
             else
             {
-                resolveReg = false;
                 if( dimacsError > ctrl.minTol )
-                    Output("WARNING: Could not resolve regularization");
+                    Output
+                    ("WARNING: Could not solve with two-stage regularization");
+                return false;
             }
-        }
-        auto solveInfo =
-          reg_ldl::RegularizedSolveAfter
-          ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
-            ctrl.solveCtrl.relTol,
-            ctrl.solveCtrl.maxRefineIts,
-            ctrl.solveCtrl.progress );
-        if( solveInfo.metRequestedTol )
-        {
-            return true; 
         }
         else
         {
-            if( dimacsError > ctrl.minTol )
+            EL_DEBUG_ONLY(auto callStack = CopyCallStack())
+            RegSolveInfo<Real> solveInfo;
+            try
             {
-                SetIndent( indentLevel );
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                solveInfo =
+                  reg_ldl::RegularizedSolveAfter
+                  ( JOrig, regLarge, dInner, sparseLDLFact, rhs,
+                    ctrl.solveCtrl.relTol,
+                    ctrl.solveCtrl.maxRefineIts,
+                    ctrl.solveCtrl.progress );
             }
-            return false;
+            catch( const std::exception& except )
+            {
+                if( ctrl.print )
+                    Output
+                    ("WARNING: solveInfo failed with error: ",except.what());
+                EL_DEBUG_ONLY(SetCallStack(callStack))
+            }
+            if( solveInfo.metRequestedTol )
+            {
+                return true;
+            }
+            else
+            {
+                if( dimacsError > ctrl.minTol )
+                    Output
+                    ("WARNING: Could not solve with one-stage regularization");
+                return false;
+            }
         }
       };
 
@@ -1418,6 +1486,11 @@ void EquilibratedMehrotra
     const bool dynamicallyRescale = false;
 
     const Int indent = PushIndent();
+
+    // We will monotonically drive down the barrier parameter
+    // (with the exception of the initial value).
+    Real muMin = 1.e6;
+
     Real mu = 0.1, muOld = 0.1;
     for( ; numIts<=ctrl.maxIts; ++numIts, muOld=mu, dimacsErrorOld=dimacsError )
     {
@@ -1508,6 +1581,7 @@ void EquilibratedMehrotra
 
         if( ctrl.print )
         {
+            // TODO(poulson): Move this into a subroutine.
             AffineLPSolution<Matrix<Real>> origSolution;
             origSolution.x = solution.x;
             origSolution.s = solution.s;
@@ -1538,20 +1612,20 @@ void EquilibratedMehrotra
             Output("relative gap: ",relGapOrig);
         }
 
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        // || A x - b - gamma_y y ||_2 / (1 + || b ||_2)
+        // ---------------------------------------------
         residual.primalEquality = problem.b;
         residual.primalEquality *= -1;
         Multiply
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
-        Axpy( -yRegPerm, solution.y, residual.primalEquality );
-        if( !resolveReg )
-            Axpy( -yRegTmp, solution.y, residual.primalEquality );
+        Axpy( -yRegSmall, solution.y, residual.primalEquality );
+        if( !twoStage )
+            Axpy( -yRegLarge, solution.y, residual.primalEquality );
         const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+        // || c + A^T y + G^T z + gamma_x x ||_2 / (1 + || c ||_2)
+        // -------------------------------------------------------
         residual.dualEquality = problem.c;
         Multiply
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -1559,21 +1633,21 @@ void EquilibratedMehrotra
         Multiply
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
-        Axpy( xRegPerm, solution.x, residual.dualEquality );
-        if( !resolveReg )
-            Axpy( xRegTmp, solution.x, residual.dualEquality );
+        Axpy( xRegSmall, solution.x, residual.dualEquality );
+        if( !twoStage )
+            Axpy( xRegLarge, solution.x, residual.dualEquality );
         const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+        // || G x + s - h - gamma_z z ||_2 / (1 + || h ||_2)
+        // -------------------------------------------------
         residual.primalConic = problem.h;
         residual.primalConic *= -1;
         Multiply
         ( NORMAL, Real(1), problem.G, solution.x,
           Real(1), residual.primalConic );
-        Axpy( -zRegPerm, solution.z, residual.primalConic );
-        if( !resolveReg )
-            Axpy( -zRegTmp, solution.z, residual.primalConic );
+        Axpy( -zRegSmall, solution.z, residual.primalConic );
+        if( !twoStage )
+            Axpy( -zRegLarge, solution.z, residual.primalConic );
         residual.primalConic += solution.s;
         const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
@@ -1595,9 +1669,9 @@ void EquilibratedMehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
-             "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+             "  || primalConic  ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
              "  scaled primal = ",primObj,"\n",Indent(),
              "  scaled dual   = ",dualObj,"\n",Indent(),
              "  scaled relative duality gap = ",relGap);
@@ -1625,6 +1699,8 @@ void EquilibratedMehrotra
         else
         {
             mu = Dot(solution.s,solution.z) / k;
+            mu = Min( mu, muMin );
+            muMin = Min( mu, muMin );
             if( ctrl.print )
                 Output("New barrier parameter is ",mu);
         }
@@ -1647,14 +1723,20 @@ void EquilibratedMehrotra
           solution.z, d );
         J = JOrig;
         J.FreezeSparsity();
-        UpdateDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regLarge );
 
         // Solve for the direction
         // -----------------------
         if( !attemptToFactor(wDynamicRange) )
-            break;
+        {
+            increaseRegularization();
+            continue;
+        }
         if( !attemptToSolve(d) )
-            break;
+        {
+            increaseRegularization();
+            continue;
+        }
         ExpandSolution
         ( m, n, d, residual.dualConic, solution.s, solution.z,
           affineCorrection.x,
@@ -1668,9 +1750,9 @@ void EquilibratedMehrotra
             Multiply
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
-            Axpy( -yRegPerm, affineCorrection.y, error.primalEquality );
-            if( !resolveReg )
-                Axpy( -yRegTmp, affineCorrection.y, error.primalEquality );
+            Axpy( -yRegSmall, affineCorrection.y, error.primalEquality );
+            if( !twoStage )
+                Axpy( -yRegLarge, affineCorrection.y, error.primalEquality );
             const Real dxErrorNrm2 = Nrm2( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
@@ -1680,9 +1762,9 @@ void EquilibratedMehrotra
             Multiply
             ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
               Real(1), error.dualEquality );
-            Axpy( xRegPerm, affineCorrection.x, error.dualEquality );
-            if( !resolveReg )
-                Axpy( xRegTmp, affineCorrection.x, error.dualEquality );
+            Axpy( xRegSmall, affineCorrection.x, error.dualEquality );
+            if( !twoStage )
+                Axpy( xRegLarge, affineCorrection.x, error.dualEquality );
             const Real dyErrorNrm2 = Nrm2( error.dualEquality );
 
             error.primalConic = residual.primalConic;
@@ -1690,9 +1772,9 @@ void EquilibratedMehrotra
             ( NORMAL, Real(1), problem.G, affineCorrection.x,
               Real(1), error.primalConic );
             error.primalConic += affineCorrection.s;
-            Axpy( -zRegPerm, affineCorrection.z, error.primalConic );
-            if( !resolveReg )
-                Axpy( -zRegTmp, affineCorrection.z, error.primalConic );
+            Axpy( -zRegSmall, affineCorrection.z, error.primalConic );
+            if( !twoStage )
+                Axpy( -zRegLarge, affineCorrection.z, error.primalConic );
             const Real dzErrorNrm2 = Nrm2( error.primalConic );
 
             // TODO(poulson): error.dualConic
@@ -1799,7 +1881,10 @@ void EquilibratedMehrotra
         // Solve for the proposed step
         // ---------------------------
         if( !attemptToSolve(d) )
-            break;
+        {
+            increaseRegularization();
+            continue;
+        }
         ExpandSolution
         ( m, n, d, residual.dualConic, solution.s, solution.z,
           correction.x, correction.y, correction.z, correction.s );
@@ -1919,36 +2004,36 @@ void EquilibratedMehrotra
         const double imbalanceG = problem.G.Imbalance();
         if( commRank == 0 )
         {
-            Output("|| A ||_2 estimate: ",twoNormEstA);
-            Output("|| G ||_2 estimate: ",twoNormEstG);
-            Output("|| b ||_2 = ",bNrm2);
             Output("|| c ||_2 = ",cNrm2);
+            Output("|| A ||_2 estimate: ",twoNormEstA);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| G ||_2 estimate: ",twoNormEstG);
             Output("|| h ||_2 = ",hNrm2);
             Output("Imbalance factor of A: ",imbalanceA);
             Output("Imbalance factor of G: ",imbalanceG);
         }
     }
 
-    DistMultiVec<Real> regTmp(grid);
-    regTmp.Resize( n+m+k, 1 );
-    for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+    DistMultiVec<Real> regLarge(grid);
+    regLarge.Resize( n+m+k, 1 );
+    for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
     {
-        const Int i = regTmp.GlobalRow(iLoc);
+        const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regTmp.SetLocal( iLoc, 0, ctrl.xRegTmp );
+          regLarge.SetLocal( iLoc, 0, ctrl.xRegLarge );
         else if( i < n+m )
-          regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
+          regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
         else
-          regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
+          regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     // Construct the static part of the KKT system
     // ===========================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( problem.A, problem.G,
-      Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+      Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
       JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
@@ -1963,7 +2048,7 @@ void EquilibratedMehrotra
         timer.Start();
     DistSparseLDLFactorization<Real> sparseLDLFact;
     Initialize
-    ( problem, solution, JStatic, regTmp,
+    ( problem, solution, JStatic, regLarge,
       sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
     if( commRank == 0 && ctrl.time )
@@ -1975,6 +2060,7 @@ void EquilibratedMehrotra
     DistMultiVec<Real> d(grid), w(grid), dInner(grid);
     auto attemptToFactor = [&]( const Real& wMaxNorm )
       {
+        EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try
         {
             /*
@@ -2013,6 +2099,7 @@ void EquilibratedMehrotra
             if( dimacsError > ctrl.minTol )
                 RuntimeError
                 ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            EL_DEBUG_ONLY(SetCallStack(callStack))
             return false;
         }
         return true;
@@ -2021,11 +2108,11 @@ void EquilibratedMehrotra
       {
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             auto solveInfo =
               reg_ldl::SolveAfter
-              ( JOrig, regTmp, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
+              ( JOrig, regLarge, dInner, sparseLDLFact, rhs, ctrl.solveCtrl );
             if( solveInfo.metRequestedTol )
             {
                 if( commRank == 0 && ctrl.time )
@@ -2036,12 +2123,12 @@ void EquilibratedMehrotra
             {
                 if( commRank == 0 )
                     Output("WARNING: Could not resolve regularization");
-                // TODO(poulson): resolveReg = false 
+                // TODO(poulson): twoStage = false
             }
         }
         auto solveInfo =
           reg_ldl::RegularizedSolveAfter
-          ( JOrig, regTmp, dInner, sparseLDLFact, rhs,
+          ( JOrig, regLarge, dInner, sparseLDLFact, rhs,
             ctrl.solveCtrl.relTol,
             ctrl.solveCtrl.maxRefineIts,
             ctrl.solveCtrl.progress );
@@ -2088,25 +2175,23 @@ void EquilibratedMehrotra
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
         const Real dualProd = Dot( solution.s, solution.z );
         const Real primObj = PrimalObjective<Real>( problem, solution );
         const Real dualObj = DualObjective<Real>( problem, solution );
         const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         residual.primalEquality = problem.b;
         residual.primalEquality *= -1;
         Multiply
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
-        Axpy( -ctrl.yRegPerm, solution.y, residual.primalEquality );
+        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
         const Real rbNrm2 = Nrm2( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
 
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+        // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         residual.dualEquality = problem.c;
         Multiply
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -2114,18 +2199,18 @@ void EquilibratedMehrotra
         Multiply
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
-        Axpy( ctrl.xRegPerm, solution.x, residual.dualEquality );
+        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
         const Real rcNrm2 = Nrm2( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
 
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         residual.primalConic = problem.h;
         residual.primalConic *= -1;
         Multiply
         ( NORMAL, Real(1), problem.G, solution.x,
           Real(1), residual.primalConic );
-        Axpy( -ctrl.zRegPerm, solution.z, residual.primalConic );
+        Axpy( -ctrl.zRegSmall, solution.z, residual.primalConic );
         residual.primalConic += solution.s;
         const Real rhNrm2 = Nrm2( residual.primalConic );
         const Real rhConv = rhNrm2 / (1+hNrm2);
@@ -2146,9 +2231,12 @@ void EquilibratedMehrotra
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
-                 "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+                 "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+                 rbConv,"\n",Indent(),
+                 "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+                 rcConv,"\n",Indent(),
+                 "  || primalConic  ||_2 / (1 + || h ||_2) = ",
+                 rhConv,"\n",Indent(),
                  "  scaled primal = ",primObj,"\n",Indent(),
                  "  scaled dual   = ",dualObj,"\n",Indent(),
                  "  scaled relative gap = ",relGap);
@@ -2187,7 +2275,7 @@ void EquilibratedMehrotra
         J = JOrig;
         J.FreezeSparsity();
         J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-        UpdateDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regLarge );
 
         // Solve for the direction
         // -----------------------

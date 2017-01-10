@@ -31,7 +31,6 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->balanceTol = Pow(eps,float(-0.19));
     ctrl->forceSameStep = true;
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
-    ctrl->resolveReg = true;
     ctrl->outerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
@@ -48,8 +47,10 @@ ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl )
     ctrl->checkResiduals = true;
 #endif
 
-    ctrl->xRegTmp = ctrl->yRegTmp = ctrl->zRegTmp = Pow(eps,float(0.6));
-    ctrl->xRegPerm = ctrl->yRegPerm = ctrl->zRegPerm = Pow(eps,float(0.7));
+    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,float(0.7));
+    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,float(0.6));
+    ctrl->twoStage = true;
+    ctrl->regIncreaseFactor = Pow(eps,float(0.01));
 
     return EL_SUCCESS;
 }
@@ -71,7 +72,6 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->balanceTol = Pow(eps,double(-0.19));
     ctrl->forceSameStep = true;
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
-    ctrl->resolveReg = true;
     ctrl->outerEquil = true;
     ctrl->basisSize = 6;
     ctrl->print = false;
@@ -88,8 +88,10 @@ ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl )
     ctrl->checkResiduals = true;
 #endif
 
-    ctrl->xRegTmp = ctrl->yRegTmp = ctrl->zRegTmp = Pow(eps,double(0.6));
-    ctrl->xRegPerm = ctrl->yRegPerm = ctrl->zRegPerm = Pow(eps,double(0.7));
+    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,double(0.7));
+    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,double(0.6));
+    ctrl->twoStage = true;
+    ctrl->regIncreaseFactor = Pow(eps,double(0.01));
 
     return EL_SUCCESS;
 }

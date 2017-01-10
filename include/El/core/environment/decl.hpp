@@ -9,6 +9,8 @@
 #ifndef EL_ENVIRONMENT_DECL_HPP
 #define EL_ENVIRONMENT_DECL_HPP
 
+#include <stack>
+
 namespace El {
 
 using std::size_t;
@@ -245,6 +247,9 @@ EL_DEBUG_ONLY(
     void PushCallStack( string s );
     void PopCallStack();
     void DumpCallStack( ostream& os=cerr );
+
+    std::stack<std::string> CopyCallStack();
+    void SetCallStack( const std::stack<std::string>& callStack );
 
     class CallStackEntry
     {

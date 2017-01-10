@@ -47,7 +47,7 @@ ctrl.mehrotraCtrl.time = True
 ctrl.mehrotraCtrl.solveCtrl.progress = True
 
 # Solve *with* resolving the regularization
-ctrl.mehrotraCtrl.resolveReg = True
+ctrl.mehrotraCtrl.twoStage = True
 startRNNLS = El.mpi.Time()
 x = El.RNNLS( A, b, rho, ctrl )
 endRNNLS = El.mpi.Time()

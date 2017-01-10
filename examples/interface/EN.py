@@ -76,7 +76,7 @@ ctrl.mehrotraCtrl.solveCtrl.progress = True
 ctrl.mehrotraCtrl.solveCtrl.time = True
 
 # Solve *with* resolving the regularization
-ctrl.mehrotraCtrl.resolveReg = True
+ctrl.mehrotraCtrl.twoStage = True
 startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()
@@ -86,7 +86,7 @@ if display:
   El.Display( x, "x" )
 
 # Solve *without* resolving the regularization
-ctrl.mehrotraCtrl.resolveReg = False
+ctrl.mehrotraCtrl.twoStage = False
 startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()

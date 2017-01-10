@@ -164,7 +164,7 @@ void Mehrotra
         rb = b;
         rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
-        // TODO(poulson): Axpy with -ctrl.yRegPerm y?
+        // TODO(poulson): Axpy with -ctrl.yRegSmall y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
@@ -172,7 +172,7 @@ void Mehrotra
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        // TODO(poulson): Axpy with ctrl.xRegPerm x?
+        // TODO(poulson): Axpy with ctrl.xRegSmall x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
@@ -181,7 +181,7 @@ void Mehrotra
         rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        // TODO(poulson): Axpy with -ctrl.zRegPerm z?
+        // TODO(poulson): Axpy with -ctrl.zRegSmall z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
 
@@ -863,17 +863,17 @@ void Mehrotra
                  dzAffScaled, dsAffScaled;
 
     // TODO(poulson): Expose regularization rules to user
-    Matrix<Real> regTmp;
-    regTmp.Resize( n+m+kSparse, 1 );
+    Matrix<Real> regLarge;
+    regLarge.Resize( n+m+kSparse, 1 );
     for( Int i=0; i<n+m+kSparse; ++i )
     {
         if( i < n )
         {
-            regTmp(i) = ctrl.xRegTmp;
+            regLarge(i) = ctrl.xRegLarge;
         }
         else if( i < n+m )
         {
-            regTmp(i) = -ctrl.yRegTmp;
+            regLarge(i) = -ctrl.yRegLarge;
         }
         else
         {
@@ -886,18 +886,18 @@ void Mehrotra
             // TODO(poulson): Use different diagonal modification for the
             // auxiliary variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp(i) = ctrl.zRegTmp;
+                regLarge(i) = ctrl.zRegLarge;
             else
-                regTmp(i) = -ctrl.zRegTmp;
+                regLarge(i) = -ctrl.zRegLarge;
         }
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+    ( A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
 
@@ -1020,7 +1020,7 @@ void Mehrotra
           orders, firstInds, origToSparseFirstInds, kSparse, d );
         J = JOrig;
         J.FreezeSparsity();
-        UpdateDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regLarge );
 
         // Solve for the direction
         // -----------------------
@@ -1038,15 +1038,15 @@ void Mehrotra
         sparseLDLFact.Factor();
         // TODO(poulson): Make use of a better interface to these routines.
         RegSolveInfo<Real> solveInfo;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );
@@ -1154,15 +1154,15 @@ void Mehrotra
           orders, firstInds, origToSparseFirstInds, kSparse, d );
         // TODO(poulson): Make use of a better interface to these routines.
         solveInfo.metRequestedTol = false;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );
@@ -1348,24 +1348,24 @@ void Mehrotra
 
     // Form the regularization vectors
     // ===============================
-    DistMultiVec<Real> regTmp(grid);
-    Zeros( regTmp, n+m+kSparse, 1 );
+    DistMultiVec<Real> regLarge(grid);
+    Zeros( regLarge, n+m+kSparse, 1 );
     // Set the analytical part
     // -----------------------
-    for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+    for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
     {
-        const Int i = regTmp.GlobalRow(iLoc);
+        const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
+          regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
         else if( i < n+m )
-          regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
+          regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
         else break;
     }
     // Perform the portion that requires remote updates
     // ------------------------------------------------
     {
         const Int sparseLocalHeight = sparseFirstInds.LocalHeight();
-        regTmp.Reserve( sparseLocalHeight );
+        regLarge.Reserve( sparseLocalHeight );
         for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
         {
             const Int iCone = sparseFirstInds.GlobalRow(iLoc);
@@ -1374,19 +1374,19 @@ void Mehrotra
             const bool embedded = ( order != sparseOrder );
             const Int firstInd = sparseFirstIndsLoc(iLoc);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regTmp.QueueUpdate( n+m+iCone, 0, ctrl.zRegTmp );
+                regLarge.QueueUpdate( n+m+iCone, 0, ctrl.zRegLarge );
             else
-                regTmp.QueueUpdate( n+m+iCone, 0, -ctrl.zRegTmp );
+                regLarge.QueueUpdate( n+m+iCone, 0, -ctrl.zRegLarge );
         }
-        regTmp.ProcessQueues();
+        regLarge.ProcessQueues();
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     // Form the static portion of the KKT system
     // =========================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( A, G, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+    ( A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
     if( ctrl.print )
@@ -1437,7 +1437,7 @@ void Mehrotra
         rb = b;
         rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
-        // TODO(poulson): Axpy with -ctrl.yRegPerm y?
+        // TODO(poulson): Axpy with -ctrl.yRegSmall y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
@@ -1445,7 +1445,7 @@ void Mehrotra
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        // TODO(poulson): Axpy with ctrl.xRegPerm x?
+        // TODO(poulson): Axpy with ctrl.xRegSmall x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
@@ -1454,7 +1454,7 @@ void Mehrotra
         rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        // TODO(poulson): Axpy with -ctrl.zRegPerm z?
+        // TODO(poulson): Axpy with -ctrl.zRegSmall z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
 
@@ -1546,7 +1546,7 @@ void Mehrotra
         JOrig.LockedDistGraph().multMeta = meta;
         J = JOrig;
         J.FreezeSparsity();
-        UpdateDiagonal( J, Real(1), regTmp );
+        UpdateDiagonal( J, Real(1), regLarge );
         J.LockedDistGraph().multMeta = meta;
 
         // Solve for the direction
@@ -1581,15 +1581,15 @@ void Mehrotra
             timer.Start();
         // TODO(poulson): Make use of a better interface to these routines.
         RegSolveInfo<Real> solveInfo;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );
@@ -1722,15 +1722,15 @@ void Mehrotra
             timer.Start();
         // TODO(poulson): Make use of a better interface to these routines.
         solveInfo.metRequestedTol = false;
-        if( ctrl.resolveReg )
+        if( ctrl.twoStage )
         {
             solveInfo = reg_ldl::SolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+            ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
         }
         if( !solveInfo.metRequestedTol )
         {
             solveInfo = reg_ldl::RegularizedSolveAfter
-            ( JOrig, regTmp, dInner, sparseLDLFact, d,
+            ( JOrig, regLarge, dInner, sparseLDLFact, d,
               ctrl.solveCtrl.relTol,
               ctrl.solveCtrl.maxRefineIts,
               ctrl.solveCtrl.progress );

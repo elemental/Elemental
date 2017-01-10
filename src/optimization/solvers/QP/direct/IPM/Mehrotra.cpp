@@ -108,9 +108,9 @@ void Mehrotra
         const Real QNrm1 = HermitianOneNorm( LOWER, Q );
         const Real ANrm1 = OneNorm( A );
         Output("|| Q ||_1 = ",QNrm1);
+        Output("|| c ||_2 = ",cNrm2);
         Output("|| A ||_1 = ",ANrm1);
         Output("|| b ||_2 = ",bNrm2);
-        Output("|| c ||_2 = ",cNrm2);
     }
 
     Initialize
@@ -475,9 +475,9 @@ void Mehrotra
         if( commRank == 0 )
         {
             Output("|| Q ||_1 = ",QNrm1);
+            Output("|| c ||_2 = ",cNrm2);
             Output("|| A ||_1 = ",ANrm1);
             Output("|| b ||_2 = ",bNrm2);
-            Output("|| c ||_2 = ",cNrm2);
         }
     }
 
@@ -825,9 +825,9 @@ void Mehrotra
     if( ctrl.print )
     {
         Output("|| Q ||_2 estimate: ",twoNormEstQ);
+        Output("|| c ||_2 = ",cNrm2);
         Output("|| A ||_2 estimate: ",twoNormEstA);
         Output("|| b ||_2 = ",bNrm2);
-        Output("|| c ||_2 = ",cNrm2);
     }
 
     SparseLDLFactorization<Real> sparseLDLFact;
@@ -853,27 +853,27 @@ void Mehrotra
           ctrl.solveCtrl );
     }
 
-    Matrix<Real> regTmp;
+    Matrix<Real> regLarge;
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
+        regLarge.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )        regTmp(i) =  ctrl.xRegTmp;
-            else if( i < n+m ) regTmp(i) = -ctrl.yRegTmp;
-            else               regTmp(i) = -ctrl.zRegTmp;
+            if( i < n )        regLarge(i) =  ctrl.xRegLarge;
+            else if( i < n+m ) regLarge(i) = -ctrl.yRegLarge;
+            else               regLarge(i) = -ctrl.zRegLarge;
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
+        regLarge.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n ) regTmp(i) =  ctrl.xRegTmp;
-            else        regTmp(i) = -ctrl.yRegTmp;
+            if( i < n ) regLarge(i) =  ctrl.xRegLarge;
+            else        regLarge(i) = -ctrl.yRegLarge;
         }
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> d,
@@ -921,7 +921,7 @@ void Mehrotra
         rb = b;
         rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
-        Axpy( -ctrl.yRegPerm, y, rb );
+        Axpy( -ctrl.yRegSmall, y, rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
@@ -930,7 +930,7 @@ void Mehrotra
         Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         rc -= z;
-        Axpy( ctrl.xRegPerm, x, rc );
+        Axpy( ctrl.xRegSmall, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // Now check the pieces
@@ -975,20 +975,22 @@ void Mehrotra
             {
                 KKT
                 ( Q, A,
-                  Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+                  Sqrt(ctrl.xRegSmall),
+                  Sqrt(ctrl.yRegSmall),
+                  Sqrt(ctrl.zRegSmall),
                   x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
                 AugmentedKKT
-                ( Q, A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+                ( Q, A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
                   x, z, JOrig, false );
-                // TODO(poulson): Incorporate ctrl.zRegPerm?
+                // TODO(poulson): Incorporate ctrl.zRegSmall?
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
             J = JOrig;
-            UpdateDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regLarge );
 
             // Solve for the direction
             // -----------------------
@@ -1018,15 +1020,15 @@ void Mehrotra
 
             sparseLDLFact.Factor( LDL_2D );
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1121,15 +1123,15 @@ void Mehrotra
             // Solve for the direction
             // -----------------------
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1152,15 +1154,15 @@ void Mehrotra
             // Solve for the direction
             // -----------------------
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1277,9 +1279,9 @@ void Mehrotra
         if( commRank == 0 )
         {
             Output("|| Q ||_2 estimate: ",twoNormEstQ);
+            Output("|| c ||_2 = ",cNrm2);
             Output("|| A ||_2 estimate: ",twoNormEstA);
             Output("|| b ||_2 = ",bNrm2);
-            Output("|| c ||_2 = ",cNrm2);
             Output("Imbalance factor of Q: ",imbalanceQ);
             Output("Imbalance factor of A: ",imbalanceA);
         }
@@ -1312,32 +1314,32 @@ void Mehrotra
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(grid);
+    DistMultiVec<Real> regLarge(grid);
     if( ctrl.system == FULL_KKT )
     {
-        regTmp.Resize( m+2*n, 1 );
-        for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+        regLarge.Resize( m+2*n, 1 );
+        for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
         {
-            const Int i = regTmp.GlobalRow(iLoc);
+            const Int i = regLarge.GlobalRow(iLoc);
             if( i < n )
-              regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
+              regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
             else if( i < n+m )
-              regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
+              regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
             else
-              regTmp.SetLocal( iLoc, 0, -ctrl.zRegTmp );
+              regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
     {
-        regTmp.Resize( n+m, 1 );
-        for( Int iLoc=0; iLoc<regTmp.LocalHeight(); ++iLoc )
+        regLarge.Resize( n+m, 1 );
+        for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
         {
-            const Int i = regTmp.GlobalRow(iLoc);
-            if( i < n ) regTmp.SetLocal( iLoc, 0,  ctrl.xRegTmp );
-            else        regTmp.SetLocal( iLoc, 0, -ctrl.yRegTmp );
+            const Int i = regLarge.GlobalRow(iLoc);
+            if( i < n ) regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
+            else        regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
         }
     }
-    regTmp *= origTwoNormEst;
+    regLarge *= origTwoNormEst;
 
     DistGraphMultMeta metaOrig, meta;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
@@ -1438,19 +1440,21 @@ void Mehrotra
             {
                 KKT
                 ( Q, A,
-                  Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm), Sqrt(ctrl.zRegPerm),
+                  Sqrt(ctrl.xRegSmall),
+                  Sqrt(ctrl.yRegSmall),
+                  Sqrt(ctrl.zRegSmall),
                   x, z, JOrig, false );
                 KKTRHS( rc, rb, rmu, z, d );
             }
             else
             {
                 AugmentedKKT
-                ( Q, A, Sqrt(ctrl.xRegPerm), Sqrt(ctrl.yRegPerm),
+                ( Q, A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
                   x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
             J = JOrig;
-            UpdateDiagonal( J, Real(1), regTmp );
+            UpdateDiagonal( J, Real(1), regLarge );
             if( numIts == 0 )
             {
                 if( ctrl.print )
@@ -1509,15 +1513,15 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1617,15 +1621,15 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );
@@ -1652,15 +1656,15 @@ void Mehrotra
             if( commRank == 0 && ctrl.time )
                 timer.Start();
             RegSolveInfo<Real> solveInfo;
-            if( ctrl.resolveReg )
+            if( ctrl.twoStage )
             {
                 solveInfo = reg_ldl::SolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
+                ( JOrig, regLarge, dInner, sparseLDLFact, d, ctrl.solveCtrl );
             }
             if( !solveInfo.metRequestedTol )
             {
                 solveInfo = reg_ldl::RegularizedSolveAfter
-                ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                ( JOrig, regLarge, dInner, sparseLDLFact, d,
                   ctrl.solveCtrl.relTol,
                   ctrl.solveCtrl.maxRefineIts,
                   ctrl.solveCtrl.progress );

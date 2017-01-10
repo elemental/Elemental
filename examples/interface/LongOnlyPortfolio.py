@@ -68,22 +68,22 @@ ctrl.mehrotraCtrl.solveCtrl.progress = False
 ctrl.mehrotraCtrl.solveCtrl.time = False
 
 # Solve *with* resolving the regularization
-ctrl.mehrotraCtrl.resolveReg = True
+ctrl.mehrotraCtrl.twoStage = True
 startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print('LOP time (resolve reg. w/ equil): {} seconds'.format(endLOP-startLOP))
+  print('LOP time (two-stage w/ equil): {} seconds'.format(endLOP-startLOP))
 if display:
   El.Display( x, "x" )
 
 # Solve without resolving the regularization
-ctrl.mehrotraCtrl.resolveReg = False
+ctrl.mehrotraCtrl.twoStage = False
 startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print('LOP time (no resolve reg. w/ equil): {} seconds'.format( \
+  print('LOP time (one-stage w/ equil): {} seconds'.format( \
     endLOP-startLOP))
 if display:
   El.Display( x, "x" )

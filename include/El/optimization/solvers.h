@@ -35,7 +35,6 @@ typedef struct {
   float balanceTol;
   bool forceSameStep;
   ElRegSolveCtrl_s solveCtrl;
-  bool resolveReg;
   bool outerEquil;
   ElInt basisSize;
   bool print;
@@ -47,12 +46,18 @@ typedef struct {
   float diagEquilTol;
   bool checkResiduals;
 
-  float xRegTmp;
-  float yRegTmp;
-  float zRegTmp;
-  float xRegPerm;
-  float yRegPerm;
-  float zRegPerm;
+  float xRegSmall;
+  float yRegSmall;
+  float zRegSmall;
+
+  float xRegLarge;
+  float yRegLarge;
+  float zRegLarge;
+
+  bool twoStage;
+
+  float regIncreaseFactor;
+
 } ElMehrotraCtrl_s;
 
 typedef struct {
@@ -68,7 +73,6 @@ typedef struct {
   double balanceTol;
   bool forceSameStep;
   ElRegSolveCtrl_d solveCtrl;
-  bool resolveReg;
   bool outerEquil;
   ElInt basisSize;
   bool print;
@@ -80,12 +84,18 @@ typedef struct {
   double diagEquilTol;
   bool checkResiduals;
 
-  double xRegTmp;
-  double yRegTmp;
-  double zRegTmp;
-  double xRegPerm;
-  double yRegPerm;
-  double zRegPerm;
+  double xRegSmall;
+  double yRegSmall;
+  double zRegSmall;
+
+  double xRegLarge;
+  double yRegLarge;
+  double zRegLarge;
+
+  bool twoStage;
+
+  double regIncreaseFactor;
+
 } ElMehrotraCtrl_d;
 
 EL_EXPORT ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl );

@@ -43,7 +43,6 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.balanceTol        = ctrl.balanceTol;
     ctrlC.forceSameStep     = ctrl.forceSameStep;
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
-    ctrlC.resolveReg        = ctrl.resolveReg;
     ctrlC.outerEquil        = ctrl.outerEquil;
     ctrlC.basisSize         = ctrl.basisSize;
     ctrlC.print             = ctrl.print;
@@ -55,12 +54,16 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.diagEquilTol      = ctrl.diagEquilTol;
     ctrlC.checkResiduals    = ctrl.checkResiduals;
 
-    ctrlC.xRegTmp = ctrl.xRegTmp;
-    ctrlC.yRegTmp = ctrl.yRegTmp;
-    ctrlC.zRegTmp = ctrl.zRegTmp;
-    ctrlC.xRegPerm = ctrl.xRegPerm;
-    ctrlC.yRegPerm = ctrl.yRegPerm;
-    ctrlC.zRegPerm = ctrl.zRegPerm;
+    ctrlC.xRegSmall = ctrl.xRegSmall;
+    ctrlC.yRegSmall = ctrl.yRegSmall;
+    ctrlC.zRegSmall = ctrl.zRegSmall;
+
+    ctrlC.xRegLarge = ctrl.xRegLarge;
+    ctrlC.yRegLarge = ctrl.yRegLarge;
+    ctrlC.zRegLarge = ctrl.zRegLarge;
+
+    ctrlC.twoStage = ctrl.twoStage;
+    ctrlC.regIncreaseFactor = ctrl.regIncreaseFactor;
 
     return ctrlC;
 }
@@ -87,7 +90,6 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.balanceTol        = ctrl.balanceTol;
     ctrlC.forceSameStep     = ctrl.forceSameStep;
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
-    ctrlC.resolveReg        = ctrl.resolveReg;
     ctrlC.outerEquil        = ctrl.outerEquil;
     ctrlC.basisSize         = ctrl.basisSize;
     ctrlC.print             = ctrl.print;
@@ -99,12 +101,16 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.diagEquilTol      = ctrl.diagEquilTol;
     ctrlC.checkResiduals    = ctrl.checkResiduals;
 
-    ctrlC.xRegTmp = ctrl.xRegTmp;
-    ctrlC.yRegTmp = ctrl.yRegTmp;
-    ctrlC.zRegTmp = ctrl.zRegTmp;
-    ctrlC.xRegPerm = ctrl.xRegPerm;
-    ctrlC.yRegPerm = ctrl.yRegPerm;
-    ctrlC.zRegPerm = ctrl.zRegPerm;
+    ctrlC.xRegSmall = ctrl.xRegSmall;
+    ctrlC.yRegSmall = ctrl.yRegSmall;
+    ctrlC.zRegSmall = ctrl.zRegSmall;
+
+    ctrlC.xRegLarge = ctrl.xRegLarge;
+    ctrlC.yRegLarge = ctrl.yRegLarge;
+    ctrlC.zRegLarge = ctrl.zRegLarge;
+
+    ctrlC.twoStage = ctrl.twoStage;
+    ctrlC.regIncreaseFactor = ctrl.regIncreaseFactor;
 
     return ctrlC;
 }
@@ -124,7 +130,6 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
     ctrl.balanceTol        = ctrlC.balanceTol;
     ctrl.forceSameStep     = ctrlC.forceSameStep;
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
-    ctrl.resolveReg        = ctrlC.resolveReg;
     ctrl.outerEquil        = ctrlC.outerEquil;
     ctrl.basisSize         = ctrlC.basisSize;
     ctrl.print             = ctrlC.print;
@@ -136,12 +141,16 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
     ctrl.diagEquilTol      = ctrlC.diagEquilTol;
     ctrl.checkResiduals    = ctrlC.checkResiduals;
 
-    ctrl.xRegTmp = ctrlC.xRegTmp;
-    ctrl.yRegTmp = ctrlC.yRegTmp;
-    ctrl.zRegTmp = ctrlC.zRegTmp;
-    ctrl.xRegPerm = ctrlC.xRegPerm;
-    ctrl.yRegPerm = ctrlC.yRegPerm;
-    ctrl.zRegPerm = ctrlC.zRegPerm;
+    ctrl.xRegSmall = ctrlC.xRegSmall;
+    ctrl.yRegSmall = ctrlC.yRegSmall;
+    ctrl.zRegSmall = ctrlC.zRegSmall;
+
+    ctrl.xRegLarge = ctrlC.xRegLarge;
+    ctrl.yRegLarge = ctrlC.yRegLarge;
+    ctrl.zRegLarge = ctrlC.zRegLarge;
+
+    ctrl.twoStage = ctrlC.twoStage;
+    ctrl.regIncreaseFactor = ctrlC.regIncreaseFactor;
 
     return ctrl;
 }
@@ -161,7 +170,6 @@ inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
     ctrl.balanceTol        = ctrlC.balanceTol;
     ctrl.forceSameStep     = ctrlC.forceSameStep;
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
-    ctrl.resolveReg        = ctrlC.resolveReg;
     ctrl.outerEquil        = ctrlC.outerEquil;
     ctrl.basisSize         = ctrlC.basisSize;
     ctrl.print             = ctrlC.print;
@@ -173,12 +181,16 @@ inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
     ctrl.diagEquilTol      = ctrlC.diagEquilTol;
     ctrl.checkResiduals    = ctrlC.checkResiduals;
 
-    ctrl.xRegTmp = ctrlC.xRegTmp;
-    ctrl.yRegTmp = ctrlC.yRegTmp;
-    ctrl.zRegTmp = ctrlC.zRegTmp;
-    ctrl.xRegPerm = ctrlC.xRegPerm;
-    ctrl.yRegPerm = ctrlC.yRegPerm;
-    ctrl.zRegPerm = ctrlC.zRegPerm;
+    ctrl.xRegSmall = ctrlC.xRegSmall;
+    ctrl.yRegSmall = ctrlC.yRegSmall;
+    ctrl.zRegSmall = ctrlC.zRegSmall;
+
+    ctrl.xRegLarge = ctrlC.xRegLarge;
+    ctrl.yRegLarge = ctrlC.yRegLarge;
+    ctrl.zRegLarge = ctrlC.zRegLarge;
+
+    ctrl.twoStage = ctrlC.twoStage;
+    ctrl.regIncreaseFactor = ctrlC.regIncreaseFactor;
 
     return ctrl;
 }
