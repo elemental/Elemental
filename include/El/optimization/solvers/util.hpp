@@ -173,7 +173,7 @@ struct MehrotraCtrl
 
     // If it turns out that even the "large" regularization cannot be resolved,'
     // we will increase it by the following factor at each iteration.
-    Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(0.01));
+    Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(-0.01));
 
     // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
     // replace the default, (muAff/mu)^3

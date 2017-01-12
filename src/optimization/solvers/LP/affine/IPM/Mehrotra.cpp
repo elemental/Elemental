@@ -380,11 +380,6 @@ void Equilibrate
         Output("|| rowScaleG ||_2 = ",FrobeniusNorm(equilibration.rowScaleG));
         Output("|| colScale  ||_2 = ",FrobeniusNorm(equilibration.colScale));
     }
-
-    /*
-    Output("SLIGHTLY increasing h by sqrt(eps)");
-    Shift( equilibratedProblem.h, Pow(limits::Epsilon<Real>(),Real(0.5)) );
-    */
 }
 
 template<typename Real>
@@ -550,6 +545,9 @@ void EquilibratedMehrotra
     const Int k = problem.G.Height();
     const Int degree = k;
 
+    // TODO(poulson): Move this into the mehrotra control structure.
+    const Real minDimacsDecreaseRatio = Real(0.99);
+
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -569,6 +567,7 @@ void EquilibratedMehrotra
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real dimacsError = 1, dimacsErrorOld = 1;
+    Real infeasError = 1;
     Matrix<Real> J, d;
     Matrix<Real> dSub;
     Permutation p;
@@ -633,8 +632,8 @@ void EquilibratedMehrotra
         Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
-        const Real rbConv = rbNrm2 / (1+bNrm2);
+        const Real primalInfeasNrm2 = Nrm2( residual.primalEquality );
+        const Real primalInfeasNrm2Rel = primalInfeasNrm2 / (1+bNrm2);
         // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
         // -------------------------------------------
         residual.dualEquality = problem.c;
@@ -644,8 +643,8 @@ void EquilibratedMehrotra
         Gemv
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
-        const Real rcConv = rcNrm2 / (1+cNrm2);
+        const Real dualInfeasNrm2 = Nrm2( residual.dualEquality );
+        const Real dualInfeasNrm2Rel = dualInfeasNrm2 / (1+cNrm2);
         // || G x + s - h ||_2 / (1 + || h ||_2)
         // -------------------------------------
         residual.primalConic = problem.h;
@@ -654,11 +653,13 @@ void EquilibratedMehrotra
         ( NORMAL, Real(1), problem.G, solution.x,
           Real(1), residual.primalConic );
         residual.primalConic += solution.s;
-        const Real rhNrm2 = Nrm2( residual.primalConic );
-        const Real rhConv = rhNrm2 / (1+hNrm2);
+        const Real conicInfeasNrm2 = Nrm2( residual.primalConic );
+        const Real conicInfeasNrm2Rel = conicInfeasNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(relGap,rbConv),rcConv),rhConv);
+        const Real equalityError = Max(primalInfeasNrm2Rel,dualInfeasNrm2Rel);
+        infeasError = Max(equalityError,conicInfeasNrm2Rel);
+        dimacsError = Max(infeasError,relGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -671,10 +672,12 @@ void EquilibratedMehrotra
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+             primalInfeasNrm2Rel,"\n",Indent(),
              "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
-             rcConv,"\n",Indent(),
-             "  || primalConic  ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
+             dualInfeasNrm2Rel,"\n",Indent(),
+             "  || conicInfeas  ||_2 / (1 + || h ||_2) = ",
+             conicInfeasNrm2Rel,"\n",Indent(),
              "  scaled primal = ",primObj,"\n",Indent(),
              "  scaled dual   = ",dualObj,"\n",Indent(),
              "  scaled relative duality gap = ",relGap);
@@ -683,7 +686,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
+            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -750,11 +753,11 @@ void EquilibratedMehrotra
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             dxErrorNrm2/(1+primalInfeasNrm2),"\n",Indent(),
              "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             dyErrorNrm2/(1+dualInfeasNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-             dzErrorNrm2/(1+rhNrm2));
+             dzErrorNrm2/(1+conicInfeasNrm2));
         }
 
         // Compute a centrality parameter
@@ -891,6 +894,9 @@ void EquilibratedMehrotra
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
 
+    // TODO(poulson): Move this into the mehrotra control structure.
+    const Real minDimacsDecreaseRatio = Real(0.99);
+
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -913,6 +919,7 @@ void EquilibratedMehrotra
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real dimacsError = 1, dimacsErrorOld = 1;
+    Real infeasError = 1;
     DistMatrix<Real> J(grid), d(grid);
     DistMatrix<Real> dSub(grid);
     DistPermutation p(grid);
@@ -982,8 +989,8 @@ void EquilibratedMehrotra
         Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
-        const Real rbConv = rbNrm2 / (1+bNrm2);
+        const Real primalInfeasNrm2 = Nrm2( residual.primalEquality );
+        const Real primalInfeasNrm2Rel = primalInfeasNrm2 / (1+bNrm2);
         // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
         // -------------------------------------------
         residual.dualEquality = problem.c;
@@ -993,8 +1000,8 @@ void EquilibratedMehrotra
         Gemv
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
-        const Real rcConv = rcNrm2 / (1+cNrm2);
+        const Real dualInfeasNrm2 = Nrm2( residual.dualEquality );
+        const Real dualInfeasNrm2Rel = dualInfeasNrm2 / (1+cNrm2);
         // || G x + s - h ||_2 / (1 + || h ||_2)
         // -------------------------------------
         residual.primalConic = problem.h;
@@ -1003,11 +1010,13 @@ void EquilibratedMehrotra
         ( NORMAL, Real(1), problem.G, solution.x,
           Real(1), residual.primalConic );
         residual.primalConic += solution.s;
-        const Real rhNrm2 = Nrm2( residual.primalConic );
-        const Real rhConv = rhNrm2 / (1+hNrm2);
+        const Real conicInfeasNrm2 = Nrm2( residual.primalConic );
+        const Real conicInfeasNrm2Rel = conicInfeasNrm2 / (1+hNrm2);
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(relGap,rbConv),rcConv),rhConv);
+        const Real equalityError = Max(primalInfeasNrm2Rel,dualInfeasNrm2Rel);
+        infeasError = Max(equalityError,conicInfeasNrm2Rel);
+        dimacsError = Max(infeasError,relGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -1022,11 +1031,11 @@ void EquilibratedMehrotra
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
                  "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
-                 rbConv,"\n",Indent(),
+                 primalInfeasNrm2Rel,"\n",Indent(),
                  "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
-                 rcConv,"\n",Indent(),
-                 "  || primalConic  ||_2 / (1 + || h ||_2) = ",
-                 rhConv,"\n",Indent(),
+                 dualInfeasNrm2Rel,"\n",Indent(),
+                 "  || conicInfeas  ||_2 / (1 + || h ||_2) = ",
+                 conicInfeasNrm2Rel,"\n",Indent(),
                  "  scaled primal = ",primObj,"\n",Indent(),
                  "  scaled dual   = ",dualObj,"\n",Indent(),
                  "  scaled relative gap = ",relGap);
@@ -1035,7 +1044,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
+            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -1099,11 +1108,11 @@ void EquilibratedMehrotra
             if( commRank == 0 )
                 Output
                 ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-                 dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+                 dxErrorNrm2/(1+primalInfeasNrm2),"\n",Indent(),
                  "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-                 dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+                 dyErrorNrm2/(1+dualInfeasNrm2),"\n",Indent(),
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-                 dzErrorNrm2/(1+rhNrm2));
+                 dzErrorNrm2/(1+conicInfeasNrm2));
         }
 
         // Compute a centrality parameter
@@ -1269,6 +1278,12 @@ void EquilibratedMehrotra
     const Int degree = k;
     bool twoStage = ctrl.twoStage;
 
+    if( ctrl.regIncreaseFactor <= Real(1) )
+        LogicError("Regularization increase factor must be at least 1");
+
+    // TODO(poulson): Move this into the mehrotra control structure.
+    const Real minDimacsDecreaseRatio = Real(0.99);
+
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -1341,20 +1356,8 @@ void EquilibratedMehrotra
     auto increaseRegularization = [&]() {
         if( twoStage )
         {
-            /*
-            UpdateDiagonal( JStatic, ctrl.regIncreaseFactor-1, regSmall );
-
-            regSmall *= ctrl.regIncreaseFactor;
-            regLarge *= ctrl.regIncreaseFactor;
-
-            xRegSmall *= ctrl.regIncreaseFactor;
-            yRegSmall *= ctrl.regIncreaseFactor;
-            zRegSmall *= ctrl.regIncreaseFactor;
-            xRegLarge *= ctrl.regIncreaseFactor;
-            yRegLarge *= ctrl.regIncreaseFactor;
-            zRegLarge *= ctrl.regIncreaseFactor;
-            */
-            Output("No longer attempting to resolve large regularization");
+            if( ctrl.print )
+                Output("No longer attempting to resolve large regularization");
             twoStage = false;
         }
         else
@@ -1377,17 +1380,22 @@ void EquilibratedMehrotra
             // iterative solver from converging.
             //
             // TODO(poulson): Determine if equilibration is safe on pilot87
-            // if twoStage=false.
+            // if twoStage=false. (Yes, but adds a few more iterations.)
             //
-            /*
-            if( wDynamicRange >= ctrl.ruizEquilTol )
-                SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
-            else if( wDynamicRange >= ctrl.diagEquilTol )
-                SymmetricDiagonalEquil( J, dInner, ctrl.print );
-            else
+            if( twoStage )
+            {
                 Ones( dInner, J.Height(), 1 );
-            */
-            Ones( dInner, J.Height(), 1 );
+            }
+            else
+            {
+                if( wDynamicRange >= ctrl.ruizEquilTol )
+                    SymmetricRuizEquil
+                    ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
+                else if( wDynamicRange >= ctrl.diagEquilTol )
+                    SymmetricDiagonalEquil( J, dInner, ctrl.print );
+                else
+                    Ones( dInner, J.Height(), 1 );
+            }
 
             if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
             {
@@ -1411,6 +1419,7 @@ void EquilibratedMehrotra
         }
         return true;
       };
+
     auto attemptToSolve = [&]( Matrix<Real>& rhs )
       {
         if( twoStage )
@@ -1555,7 +1564,6 @@ void EquilibratedMehrotra
         if( ctrl.print )
         {
             Output("Complement ratio: ",compRatio);
-            Output("dimacs error: ",dimacsError);
         }
 
         // Apply reg' sparingly to the KKT system's bottom-right corner
@@ -1579,8 +1587,74 @@ void EquilibratedMehrotra
         const Real dualObj = DualObjective<Real>( problem, solution );
         const Real relGap = RelativeDualityGap( primObj, dualObj, dualProd );
 
+        // || A x - b - gamma_y y ||_2 / (1 + || b ||_2)
+        // ---------------------------------------------
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Multiply
+        ( NORMAL, Real(1), problem.A, solution.x,
+          Real(1), residual.primalEquality );
+        Axpy( -yRegSmall, solution.y, residual.primalEquality );
+        if( !twoStage )
+            Axpy( -yRegLarge, solution.y, residual.primalEquality );
+        const Real primalInfeasNrm2 = Nrm2( residual.primalEquality );
+        const Real primalInfeasNrm2Rel = primalInfeasNrm2 / (1+bNrm2);
+        // || c + A^T y + G^T z + gamma_x x ||_2 / (1 + || c ||_2)
+        // -------------------------------------------------------
+        residual.dualEquality = problem.c;
+        Multiply
+        ( TRANSPOSE, Real(1), problem.A, solution.y,
+          Real(1), residual.dualEquality );
+        Multiply
+        ( TRANSPOSE, Real(1), problem.G, solution.z,
+          Real(1), residual.dualEquality );
+        Axpy( xRegSmall, solution.x, residual.dualEquality );
+        if( !twoStage )
+            Axpy( xRegLarge, solution.x, residual.dualEquality );
+        const Real dualInfeasNrm2 = Nrm2( residual.dualEquality );
+        const Real dualInfeasNrm2Rel = dualInfeasNrm2 / (1+cNrm2);
+        // || G x + s - h - gamma_z z ||_2 / (1 + || h ||_2)
+        // -------------------------------------------------
+        residual.primalConic = problem.h;
+        residual.primalConic *= -1;
+        Multiply
+        ( NORMAL, Real(1), problem.G, solution.x,
+          Real(1), residual.primalConic );
+        Axpy( -zRegSmall, solution.z, residual.primalConic );
+        if( !twoStage )
+            Axpy( -zRegLarge, solution.z, residual.primalConic );
+        residual.primalConic += solution.s;
+        const Real conicInfeasNrm2 = Nrm2( residual.primalConic );
+        const Real conicInfeasNrm2Rel = conicInfeasNrm2 / (1+hNrm2);
+
+        // Now check the pieces
+        // --------------------
+        const Real equalityError = Max(primalInfeasNrm2Rel,dualInfeasNrm2Rel);
+        infeasError = Max(conicInfeasNrm2Rel,equalityError);
+        dimacsError = Max(relGap,infeasError);
         if( ctrl.print )
         {
+            const Real xNrm2 = Nrm2( solution.x );
+            const Real yNrm2 = Nrm2( solution.y );
+            const Real zNrm2 = Nrm2( solution.z );
+            const Real sNrm2 = Nrm2( solution.s );
+            Output
+            ("iter ",numIts,":\n",Indent(),
+             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
+             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
+             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
+             "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
+             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+             primalInfeasNrm2Rel,"\n",Indent(),
+             "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+             dualInfeasNrm2Rel,"\n",Indent(),
+             "  || conicInfeas  ||_2 / (1 + || h ||_2) = ",
+             conicInfeasNrm2Rel,"\n",Indent(),
+             "  scaled primal = ",primObj,"\n",Indent(),
+             "  scaled dual   = ",dualObj,"\n",Indent(),
+             "  scaled relative duality gap = ",relGap,"\n",Indent(),
+             "  scaled dimacs error = ",dimacsError);
+
             // TODO(poulson): Move this into a subroutine.
             AffineLPSolution<Matrix<Real>> origSolution;
             origSolution.x = solution.x;
@@ -1606,81 +1680,16 @@ void EquilibratedMehrotra
             const Real relGapOrig =
               RelativeDualityGap( primObjOrig, dualObjOrig, dualProdOrig );
 
-            Output("s^T z = ",dualProdOrig);
-            Output("primal: ",primObjOrig);
-            Output("dual: ",dualObjOrig);
-            Output("relative gap: ",relGapOrig);
-        }
-
-        // || A x - b - gamma_y y ||_2 / (1 + || b ||_2)
-        // ---------------------------------------------
-        residual.primalEquality = problem.b;
-        residual.primalEquality *= -1;
-        Multiply
-        ( NORMAL, Real(1), problem.A, solution.x,
-          Real(1), residual.primalEquality );
-        Axpy( -yRegSmall, solution.y, residual.primalEquality );
-        if( !twoStage )
-            Axpy( -yRegLarge, solution.y, residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
-        const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || c + A^T y + G^T z + gamma_x x ||_2 / (1 + || c ||_2)
-        // -------------------------------------------------------
-        residual.dualEquality = problem.c;
-        Multiply
-        ( TRANSPOSE, Real(1), problem.A, solution.y,
-          Real(1), residual.dualEquality );
-        Multiply
-        ( TRANSPOSE, Real(1), problem.G, solution.z,
-          Real(1), residual.dualEquality );
-        Axpy( xRegSmall, solution.x, residual.dualEquality );
-        if( !twoStage )
-            Axpy( xRegLarge, solution.x, residual.dualEquality );
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
-        const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || G x + s - h - gamma_z z ||_2 / (1 + || h ||_2)
-        // -------------------------------------------------
-        residual.primalConic = problem.h;
-        residual.primalConic *= -1;
-        Multiply
-        ( NORMAL, Real(1), problem.G, solution.x,
-          Real(1), residual.primalConic );
-        Axpy( -zRegSmall, solution.z, residual.primalConic );
-        if( !twoStage )
-            Axpy( -zRegLarge, solution.z, residual.primalConic );
-        residual.primalConic += solution.s;
-        const Real rhNrm2 = Nrm2( residual.primalConic );
-        const Real rhConv = rhNrm2 / (1+hNrm2);
-
-        // Now check the pieces
-        // --------------------
-        const Real equalityError = Max(rbConv,rcConv);
-        infeasError = Max(rhConv,equalityError);
-        dimacsError = Max(relGap,infeasError);
-        if( ctrl.print )
-        {
-            const Real xNrm2 = Nrm2( solution.x );
-            const Real yNrm2 = Nrm2( solution.y );
-            const Real zNrm2 = Nrm2( solution.z );
-            const Real sNrm2 = Nrm2( solution.s );
-            Output
-            ("iter ",numIts,":\n",Indent(),
-             "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
-             "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
-             "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-             "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
-             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-             "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
-             "  || primalConic  ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
-             "  scaled primal = ",primObj,"\n",Indent(),
-             "  scaled dual   = ",dualObj,"\n",Indent(),
-             "  scaled relative duality gap = ",relGap);
+            Output("  s^T z = ",dualProdOrig);
+            Output("  primal: ",primObjOrig);
+            Output("  dual: ",dualObjOrig);
+            Output("  relative gap: ",relGapOrig);
         }
         if( dimacsError <= ctrl.targetTol )
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
+            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -1783,11 +1792,11 @@ void EquilibratedMehrotra
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-             dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+             dxErrorNrm2/(1+primalInfeasNrm2),"\n",Indent(),
              "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-             dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+             dyErrorNrm2/(1+dualInfeasNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-             dzErrorNrm2/(1+rhNrm2));
+             dzErrorNrm2/(1+conicInfeasNrm2));
         }
 
         // Prevent the update from decreasing values of s or z below sqrt(eps)
@@ -1992,6 +2001,9 @@ void EquilibratedMehrotra
     const int commRank = grid.Rank();
     Timer timer;
 
+    // TODO(poulson): Move this into the mehrotra control structure.
+    const Real minDimacsDecreaseRatio = Real(0.99);
+
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -2056,6 +2068,7 @@ void EquilibratedMehrotra
 
     Int numIts = 0;
     Real dimacsError = 1, dimacsErrorOld = 1;
+    Real infeasError = 1;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
     DistMultiVec<Real> d(grid), w(grid), dInner(grid);
     auto attemptToFactor = [&]( const Real& wMaxNorm )
@@ -2187,8 +2200,8 @@ void EquilibratedMehrotra
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(1), residual.primalEquality );
         Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
-        const Real rbNrm2 = Nrm2( residual.primalEquality );
-        const Real rbConv = rbNrm2 / (1+bNrm2);
+        const Real primalInfeasNrm2 = Nrm2( residual.primalEquality );
+        const Real primalInfeasNrm2Rel = primalInfeasNrm2 / (1+bNrm2);
 
         // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
         // -------------------------------------------
@@ -2200,8 +2213,8 @@ void EquilibratedMehrotra
         ( TRANSPOSE, Real(1), problem.G, solution.z,
           Real(1), residual.dualEquality );
         Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
-        const Real rcNrm2 = Nrm2( residual.dualEquality );
-        const Real rcConv = rcNrm2 / (1+cNrm2);
+        const Real dualInfeasNrm2 = Nrm2( residual.dualEquality );
+        const Real dualInfeasNrm2Rel = dualInfeasNrm2 / (1+cNrm2);
 
         // || G x + s - h ||_2 / (1 + || h ||_2)
         // -------------------------------------
@@ -2212,12 +2225,14 @@ void EquilibratedMehrotra
           Real(1), residual.primalConic );
         Axpy( -ctrl.zRegSmall, solution.z, residual.primalConic );
         residual.primalConic += solution.s;
-        const Real rhNrm2 = Nrm2( residual.primalConic );
-        const Real rhConv = rhNrm2 / (1+hNrm2);
+        const Real conicInfeasNrm2 = Nrm2( residual.primalConic );
+        const Real conicInfeasNrm2Rel = conicInfeasNrm2 / (1+hNrm2);
 
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(relGap,rbConv),rcConv),rhConv);
+        const Real equalityError = Max(primalInfeasNrm2Rel,dualInfeasNrm2Rel);
+        infeasError = Max(equalityError,conicInfeasNrm2Rel);
+        dimacsError = Max(infeasError,relGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( solution.x );
@@ -2232,11 +2247,11 @@ void EquilibratedMehrotra
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  s  ||_2 = ",sNrm2,"\n",Indent(),
                  "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
-                 rbConv,"\n",Indent(),
+                 primalInfeasNrm2Rel,"\n",Indent(),
                  "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
-                 rcConv,"\n",Indent(),
-                 "  || primalConic  ||_2 / (1 + || h ||_2) = ",
-                 rhConv,"\n",Indent(),
+                 dualInfeasNrm2Rel,"\n",Indent(),
+                 "  || conicInfeas  ||_2 / (1 + || h ||_2) = ",
+                 conicInfeasNrm2Rel,"\n",Indent(),
                  "  scaled primal = ",primObj,"\n",Indent(),
                  "  scaled dual   = ",dualObj,"\n",Indent(),
                  "  scaled relative gap = ",relGap);
@@ -2245,7 +2260,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
+            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -2321,11 +2336,11 @@ void EquilibratedMehrotra
             if( commRank == 0 )
                 Output
                 ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-                 dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
+                 dxErrorNrm2/(1+primalInfeasNrm2),"\n",Indent(),
                  "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-                 dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
+                 dyErrorNrm2/(1+dualInfeasNrm2),"\n",Indent(),
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-                 dzErrorNrm2/(1+rhNrm2));
+                 dzErrorNrm2/(1+conicInfeasNrm2));
         }
 
         // Compute a centrality parameter

@@ -24,7 +24,8 @@ void DenseLoadAndSolve
   double xRegLargeLogEps,
   double yRegLargeLogEps,
   double zRegLargeLogEps,
-  bool twoStage )
+  bool twoStage,
+  bool mehrotra )
 {
     EL_DEBUG_CSE
     El::Output("Will load into El::Matrix<",El::TypeName<Real>(),">");
@@ -52,7 +53,7 @@ void DenseLoadAndSolve
     const Real eps = El::limits::Epsilon<Real>();
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.mehrotraCtrl.print = true;
-    ctrl.mehrotraCtrl.mehrotra = true;
+    ctrl.mehrotraCtrl.mehrotra = mehrotra;
     ctrl.mehrotraCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
     ctrl.mehrotraCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
     ctrl.mehrotraCtrl.xRegLarge = El::Pow(eps,Real(xRegLargeLogEps));
@@ -91,7 +92,8 @@ void SparseLoadAndSolve
   double xRegLargeLogEps,
   double yRegLargeLogEps,
   double zRegLargeLogEps,
-  bool twoStage )
+  bool twoStage,
+  bool mehrotra )
 {
     EL_DEBUG_CSE
     El::Output("Will load into El::SparseMatrix<",El::TypeName<Real>(),">");
@@ -121,6 +123,7 @@ void SparseLoadAndSolve
     const Real eps = El::limits::Epsilon<Real>();
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.mehrotraCtrl.print = true;
+    ctrl.mehrotraCtrl.mehrotra = mehrotra;
     ctrl.mehrotraCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
     ctrl.mehrotraCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
     ctrl.mehrotraCtrl.xRegLarge = El::Pow(eps,Real(xRegLargeLogEps));
@@ -193,6 +196,8 @@ int main( int argc, char* argv[] )
         const double zRegLargeLogEps =
           El::Input("--zRegLargeLogEps","log_eps(zRegLarge)",0.6);
         const bool twoStage = El::Input("--twoStage","two-stage solver?",false);
+        const bool mehrotra =
+          El::Input("--mehrotra","Mehrotra predictor-corrector?",true);
         El::ProcessInput();
         El::PrintInputReport();
 
@@ -206,7 +211,7 @@ int main( int argc, char* argv[] )
                   minTolLogEps, targetTolLogEps,
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-                  twoStage );
+                  twoStage, mehrotra );
 #ifdef EL_HAVE_QD
             DenseLoadAndSolve<El::DoubleDouble>
             ( filename, compressed,
@@ -215,7 +220,7 @@ int main( int argc, char* argv[] )
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage );
+              twoStage, mehrotra );
             DenseLoadAndSolve<El::QuadDouble>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
@@ -223,7 +228,7 @@ int main( int argc, char* argv[] )
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage );
+              twoStage, mehrotra );
 #endif
 #ifdef EL_HAVE_QUAD
             DenseLoadAndSolve<El::Quad>
@@ -233,7 +238,7 @@ int main( int argc, char* argv[] )
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage );
+              twoStage, mehrotra );
 #endif
         }
 
@@ -245,7 +250,7 @@ int main( int argc, char* argv[] )
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage );
+              twoStage, mehrotra );
 #ifdef EL_HAVE_QD
         SparseLoadAndSolve<El::DoubleDouble>
         ( filename, compressed,
@@ -254,7 +259,7 @@ int main( int argc, char* argv[] )
           minTolLogEps, targetTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-          twoStage );
+          twoStage, mehrotra );
         SparseLoadAndSolve<El::QuadDouble>
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
@@ -262,7 +267,7 @@ int main( int argc, char* argv[] )
           minTolLogEps, targetTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-          twoStage );
+          twoStage, mehrotra );
 #endif
 #ifdef EL_HAVE_QUAD
         SparseLoadAndSolve<El::Quad>
@@ -272,7 +277,7 @@ int main( int argc, char* argv[] )
           minTolLogEps, targetTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-          twoStage );
+          twoStage, mehrotra );
 #endif
     }
     catch( std::exception& e ) { El::ReportException(e); }

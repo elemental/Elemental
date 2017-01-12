@@ -15,25 +15,107 @@ namespace qp {
 namespace affine {
 
 //
-// Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
-// is currently used by the code [2]:
+// Despite the fact that the CVXOPT QP documentation [1] suggests a single-stage
+// initialization for conic QPs, we make use of an analogue of their two-stage
+// LP initialization scheme.
 //
-// 1) Minimize || G x - h ||^2, s.t. A x = b  by solving
+// 1) In order to compute the initial primal variables, (x,s), we solve 
 //
-//    | Q A^T G^T | |  x |   | 0 |
-//    | A  0   0  | |  u | = | b |,
-//    | G  0  -I  | | -s |   | h |
+//      argmin_{x,s}
+//      { (1/2) x^T Q x + (1/2) || s ||^2 | A x = b, G x + s = h }
+//
+//    via seeking an extreme point of the Lagrangian
+//
+//      L(x,s;u,z) = (1/2) x^T Q x + (1/2) s^T s +
+//                   u^T (A x - b) + z^T (G x + s - h),
+//
+//    which must satisfy:
+
+//      Grad_x L = Q x + A^T u + G^T z = 0,
+//      Grad_u L = A x - b = 0,
+//      Grad_z L = G x + s - h = 0,
+//      Grad_s L = s + z = 0.
+//
+//    The latter implies that s = -z, so we end up with the system
+//
+//      | Q A^T G^T | |  x |   | 0 |
+//      | A  0   0  | |  u | = | b |,
+//      | G  0  -I  | | -s |   | h |
 //
 //   where 'u' is an unused dummy variable.
 //
-// 2) Minimize || z ||^2, s.t. A^T y + G^T z + c in range(Q) by solving
+//   In the case of sparse matrices {Q,A,G}, we instead seek an extreme point
+//   of the regularized Lagrangian
 //
-//    | Q A^T G^T | | u |   | -c |
-//    | A  0   0  | | y | = |  0 |,
-//    | G  0  -I  | | z |   |  0 |
+//     L(x,s;u,z) = (1/2) x^T Q x + (1/2) s^T s +
+//                  u^T (A x - b) + z^T (G x + s - h) +
+//                  (1/2) gamma_x || x ||_2^2 -
+//                  (1/2) gamma_y || u ||_2^2 -
+//                  (1/2) gamma_z || z ||_2^2.
 //
-//    where 'u' is an unused dummy variable.
+//   The gradients then take the form
+//
+//     Grad_x L = Q x + A^T u + G^T z + gamma_x x = 0,
+//     Grad_u L = A x - b - gamma_y u = 0,
+//     Grad_z L = G x + s - h - gamma_z z = 0,
+//     Grad_s L = s + z = 0.
+//
+//   Then s = -z again, and we have the regularized (symmetric quasi-definite)
+//   system
+//
+//     | (Q + gamma_x I),     A^T,           G^T       | |  x | = | 0 |
+//     |        A,        -gamma_y I,         0,       | |  u | = | b |.
+//     |        G,             0,     -(gamma_z + 1) I | | -s | = | h |
+//
+//   Clearly small amounts of regularization on z should not make much of a
+//   difference, but the regularization on x and y could be of importance to the
+//   solver stability.
+// 
+// 2) In order to initialize the dual variables, (y,z), if 'Q = 0' then we could
+//    solve
+//
+//      argmin_{y,z} { (1/2) || z ||_2^2 | A^T y + G^T z + c = 0 }
+//
+//    by seeking an extremal point of the Lagrangian
+//
+//      L(y,z;u) = (1/2) || z ||_2^2 + u^T (A^T y + G^T z + c).
+//
+//    It would follow that
+//
+//      Grad_u L = A^T y + G^T z + c = 0,
+//      Grad_y L = A u = 0,
+//      Grad_z L = G u + z = 0,
+//      
+//    which could be rearranged into the form
+//
+//      | 0, A^T, G^T | | -u | = | -c |.
+//      | A,  0,   0  | |  y |   |  0 |
+//      | G,  0,  -I  | |  z |   |  0 |
+//
+//    If Q is nontrivial, then we can instead investigate
+//
+//      argmin_{w,y,z} { (1/2) w^T Q w + (1/2) || z ||_2^2 |
+//                       Q w + A^T y + G^T z + c = 0 },
+//
+//    by seeking an extremal point of the Lagrangian
+//
+//      L(y,z;w,u) = (1/2) w^T Q w + (1/2) || z ||_2^2 +
+//                   u^T (Q w + A^T y + G^T z + c).
+//
+//    It follows that
+//
+//      Grad_u L = Q w + A^T y + G^T z + c = 0,
+//      Grad_y L = A u = 0,
+//      Grad_z L = G u + z = 0,
+//      Grad_w L = Q w + Q u = 0.
+//
+//    Thus, Q w = - Q u, so we can form the system of equations
+//      
+//      | Q, A^T, G^T | | -u | = | -c |.
+//      | A,  0,   0  | |  y |   |  0 |
+//      | G,  0,  -I  | |  z |   |  0 |
+//
+//    TODO(poulson): Describe regularization strategy.
 //
 // 3) Set
 //
@@ -57,10 +139,6 @@ namespace affine {
 // [1] L. Vandenberghe
 //     "The CVXOPT linear and quadratic cone program solvers"
 //     <http://www.seas.ucla.edu/~vandenbe/publications/coneprog.pdf>
-//
-// [2] L. Vandenberghe
-//     CVXOPT's source file, "src/python/coneprog.py"
-//     <https://github.com/cvxopt/cvxopt/blob/f3ca94fb997979a54b913f95b816132f7fd44820/src/python/coneprog.py>
 //
 
 template<typename Real>
@@ -313,7 +391,7 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& JStatic,
-  const Matrix<Real>& regTmp,
+  const Matrix<Real>& regLarge,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
@@ -360,7 +438,7 @@ void Initialize
     FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
     J.FreezeSparsity();
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+    UpdateRealPartOfDiagonal( J, Real(1), regLarge );
 
     // Analyze the sparsity pattern of the KKT system
     // ==============================================
@@ -393,7 +471,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, sparseLDLFact, d,
+        ( JOrig, regLarge, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
@@ -414,7 +492,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, sparseLDLFact, d,
+        ( JOrig, regLarge, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
@@ -456,7 +534,7 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& JStatic,
-  const DistMultiVec<Real>& regTmp,
+  const DistMultiVec<Real>& regLarge,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
@@ -507,7 +585,7 @@ void Initialize
     auto J = JOrig;
     J.FreezeSparsity();
     J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
+    UpdateRealPartOfDiagonal( J, Real(1), regLarge );
 
     // Analyze the nonzero pattern
     // ===========================
@@ -540,7 +618,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, sparseLDLFact, d,
+        ( JOrig, regLarge, sparseLDLFact, d,
           solveCtrl.relTol,
           solveCtrl.maxRefineIts,
           solveCtrl.progress );
@@ -563,7 +641,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, sparseLDLFact, d,
+        ( JOrig, regLarge, sparseLDLFact, d,
           solveCtrl.relTol,
           solveCtrl.maxRefineIts,
           solveCtrl.progress );
@@ -631,7 +709,7 @@ void Initialize
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
   ( const SparseMatrix<Real>& JStatic, \
-    const Matrix<Real>& regTmp, \
+    const Matrix<Real>& regLarge, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
@@ -644,7 +722,7 @@ void Initialize
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
   ( const DistSparseMatrix<Real>& JStatic, \
-    const DistMultiVec<Real>& regTmp, \
+    const DistMultiVec<Real>& regLarge, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
