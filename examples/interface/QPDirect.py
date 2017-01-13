@@ -10,8 +10,7 @@ import El
 
 m = 2000
 n = 4000
-testMehrotra = True
-testIPF = False
+testIPM = True
 manualInit = False
 display = False
 progress = True
@@ -95,59 +94,32 @@ x = El.DistMultiVec()
 y = El.DistMultiVec()
 z = El.DistMultiVec()
 
-if testMehrotra:
-  ctrl.approach = El.QP_MEHROTRA
-  ctrl.mehrotraCtrl.solveCtrl.progress = progress
-  ctrl.mehrotraCtrl.primalInit = manualInit
-  ctrl.mehrotraCtrl.dualInit = manualInit
-  ctrl.mehrotraCtrl.progress = progress
-  ctrl.mehrotraCtrl.time = True
+if testIPM:
+  ctrl.approach = El.QP_IPM
+  ctrl.ipmCtrl.solveCtrl.progress = progress
+  ctrl.ipmCtrl.primalInit = manualInit
+  ctrl.ipmCtrl.dualInit = manualInit
+  ctrl.ipmCtrl.progress = progress
+  ctrl.ipmCtrl.time = True
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
-  startMehrotra = El.mpi.Time()
+  startIPM = El.mpi.Time()
   El.QPDirect(Q,A,b,c,x,y,z,ctrl)
-  endMehrotra = El.mpi.Time()
+  endIPM = El.mpi.Time()
   if worldRank == 0:
-    print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
+    print('IPM time: {} seconds'.format(endIPM-startIPM))
 
   if display:
-    El.Display( x, "x Mehrotra" )
-    El.Display( y, "y Mehrotra" )
-    El.Display( z, "z Mehrotra" )
+    El.Display( x, "x IPM" )
+    El.Display( y, "y IPM" )
+    El.Display( z, "z IPM" )
 
   d = El.DistMultiVec()
   El.Zeros( d, n, 1 )
   El.Multiply( El.NORMAL, 1., Q, x, 0., d )
   obj = El.Dot(x,d)/2 + El.Dot(c,x)
   if worldRank == 0:
-    print('Mehrotra (1/2) x^T Q x + c^T x = {}'.format(obj))
-
-if testIPF:
-  ctrl.approach = El.QP_IPF
-  ctrl.ipfCtrl.primalInit = manualInit
-  ctrl.ipfCtrl.dualInit = manualInit
-  ctrl.ipfCtrl.progress = progress
-  ctrl.ipfCtrl.lineSearchCtrl.progress = progress
-  El.Copy( xOrig, x )
-  El.Copy( yOrig, y )
-  El.Copy( zOrig, z )
-  startIPF = El.mpi.Time()
-  El.QPDirect(Q,A,b,c,x,y,z,ctrl)
-  endIPF = El.mpi.Time()
-  if worldRank == 0:
-    print('IPF time: {} seconds'.format(endIPF-startIPF))
-
-  if display:
-    El.Display( x, "x IPF" )
-    El.Display( y, "y IPF" )
-    El.Display( z, "z IPF" )
-
-  d = El.DistMultiVec()
-  El.Zeros( d, n, 1 )
-  El.Multiply( El.NORMAL, 1., Q, x, 0., d )
-  obj = El.Dot(x,d)/2 + El.Dot(c,x)
-  if worldRank == 0:
-    print('IPF (1/2) x^T Q x + c^T x = {}'.format(obj))
+    print('IPM (1/2) x^T Q x + c^T x = {}'.format(obj))
 
 El.Finalize()

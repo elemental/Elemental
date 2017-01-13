@@ -31,7 +31,7 @@ namespace direct {
 //
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -40,7 +40,7 @@ void Mehrotra
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
@@ -52,16 +52,16 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl = ctrl;
+    IPMCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
 
     Matrix<Real> s;
-    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
+    socp::affine::IPM(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,
@@ -70,7 +70,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& x,
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
@@ -83,16 +83,16 @@ void Mehrotra
     DistMatrix<Real> h(grid);
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl = ctrl;
+    IPMCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
 
     DistMatrix<Real> s(grid);
-    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
+    socp::affine::IPM(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -101,7 +101,7 @@ void Mehrotra
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
@@ -113,16 +113,16 @@ void Mehrotra
     Matrix<Real> h;
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl = ctrl;
+    IPMCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
 
     Matrix<Real> s;
-    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
+    socp::affine::IPM(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
@@ -131,7 +131,7 @@ void Mehrotra
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int n = c.Height();
@@ -144,16 +144,16 @@ void Mehrotra
     DistMultiVec<Real> h(grid);
     Zeros( h, n, 1 );
 
-    MehrotraCtrl<Real> affineCtrl = ctrl;
+    IPMCtrl<Real> affineCtrl = ctrl;
     affineCtrl.primalInit = false;
     affineCtrl.dualInit = false;
 
     DistMultiVec<Real> s(grid);
-    socp::affine::Mehrotra(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
+    socp::affine::IPM(A,G,b,c,h,orders,firstInds,x,y,z,s,affineCtrl);
 }
 
 #define PROTO(Real) \
-  template void Mehrotra \
+  template void IPM \
   ( const Matrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
@@ -162,8 +162,8 @@ void Mehrotra
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
@@ -172,8 +172,8 @@ void Mehrotra
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
@@ -182,8 +182,8 @@ void Mehrotra
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
@@ -192,7 +192,7 @@ void Mehrotra
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl );
+    const IPMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

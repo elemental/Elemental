@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
             El::Display( A, "A" );
 
         El::lp::affine::Ctrl<Real> affineCtrl; 
-        affineCtrl.mehrotraCtrl.print = true;
+        affineCtrl.ipmCtrl.print = true;
 
         El::Matrix<Real> x;
         El::Timer timer;

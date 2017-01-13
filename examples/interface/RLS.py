@@ -42,12 +42,12 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.SOCPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = False
-ctrl.mehrotraCtrl.time = False
-ctrl.mehrotraCtrl.solveCtrl.progress = False
+ctrl.ipmCtrl.progress = False
+ctrl.ipmCtrl.time = False
+ctrl.ipmCtrl.solveCtrl.progress = False
 
 # Solve *with* resolving regularization
-ctrl.mehrotraCtrl.twoStage = True
+ctrl.ipmCtrl.twoStage = True
 startRLS = El.mpi.Time()
 x = El.RLS( A, b, rho, ctrl )
 endRLS = El.mpi.Time()
@@ -57,7 +57,7 @@ if display:
   El.Display( x, "x" )
 
 # Solve *without* resolving regularization
-ctrl.mehrotraCtrl.twoStage = False
+ctrl.ipmCtrl.twoStage = False
 startRLS = El.mpi.Time()
 x = El.RLS( A, b, rho, ctrl )
 endRLS = El.mpi.Time()

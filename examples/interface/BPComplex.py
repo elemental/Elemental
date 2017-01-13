@@ -54,11 +54,11 @@ b = El.DistMultiVec(El.zTag)
 El.Ones( b, n0*n1, 1 )
 
 ctrl = El.BPCtrl_z()
-ctrl.ipmCtrl.mehrotraCtrl.minTol = 1e-4
-ctrl.ipmCtrl.mehrotraCtrl.targetTol = 1e-8
-ctrl.ipmCtrl.mehrotraCtrl.time = True
-ctrl.ipmCtrl.mehrotraCtrl.progress = True
-ctrl.ipmCtrl.mehrotraCtrl.solveCtrl.progress = True
+ctrl.ipmCtrl.ipmCtrl.minTol = 1e-4
+ctrl.ipmCtrl.ipmCtrl.targetTol = 1e-8
+ctrl.ipmCtrl.ipmCtrl.time = True
+ctrl.ipmCtrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.ipmCtrl.solveCtrl.progress = True
 startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
 endBP = El.mpi.Time()

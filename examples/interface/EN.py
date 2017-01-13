@@ -70,13 +70,13 @@ if worldRank == 0:
   print('lambda1 = {}, lambda2 = {}'.format(lambda1,lambda2))
 
 ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.time = True
-ctrl.mehrotraCtrl.solveCtrl.progress = True
-ctrl.mehrotraCtrl.solveCtrl.time = True
+ctrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.time = True
+ctrl.ipmCtrl.solveCtrl.progress = True
+ctrl.ipmCtrl.solveCtrl.time = True
 
 # Solve *with* resolving the regularization
-ctrl.mehrotraCtrl.twoStage = True
+ctrl.ipmCtrl.twoStage = True
 startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()
@@ -86,7 +86,7 @@ if display:
   El.Display( x, "x" )
 
 # Solve *without* resolving the regularization
-ctrl.mehrotraCtrl.twoStage = False
+ctrl.ipmCtrl.twoStage = False
 startEN = El.mpi.Time()
 x = El.EN( A, b, lambda1, lambda2, ctrl )
 endEN = El.mpi.Time()

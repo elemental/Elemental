@@ -13,7 +13,7 @@ namespace qp {
 namespace affine {
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const Matrix<Real>& Q,
   const Matrix<Real>& A,
   const Matrix<Real>& G,
@@ -24,9 +24,9 @@ void Mehrotra
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AbstractDistMatrix<Real>& Q,
   const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& G,
@@ -37,9 +37,9 @@ void Mehrotra
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
         AbstractDistMatrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const SparseMatrix<Real>& Q,
   const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
@@ -50,9 +50,9 @@ void Mehrotra
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DistSparseMatrix<Real>& Q,
   const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
@@ -63,7 +63,7 @@ void Mehrotra
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 
 } // namespace affine
 } // namespace qp

@@ -58,7 +58,7 @@ main( int argc, char* argv[] )
         ctrl.admmCtrl.usePinv = usePinv;
         ctrl.admmCtrl.pinvTol = pinvTol;
         ctrl.admmCtrl.progress = progress;
-        ctrl.lpIPMCtrl.mehrotraCtrl.print = true;
+        ctrl.lpIPMCtrl.ipmCtrl.print = true;
 
         El::DistMatrix<Real> x;
         El::Timer timer;

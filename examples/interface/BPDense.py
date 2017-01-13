@@ -27,7 +27,7 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.BPCtrl_d(isSparse=False)
-ctrl.ipmCtrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.ipmCtrl.progress = True
 startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
 endBP = El.mpi.Time()

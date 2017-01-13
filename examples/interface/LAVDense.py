@@ -27,7 +27,7 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.progress = True
 startLAV = El.mpi.Time()
 x = El.LAV( A, b, ctrl )
 endLAV = El.mpi.Time()

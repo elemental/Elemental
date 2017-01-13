@@ -14,12 +14,12 @@ from ctypes import CFUNCTYPE
 
 (FULL_KKT,AUGMENTED_KKT,NORMAL_KKT) = (0,1,2)
 
-# Mehrotra Predictor-Corrector IPMs
-# =================================
-lib.ElMehrotraCtrlDefault_s.argtypes = \
-lib.ElMehrotraCtrlDefault_d.argtypes = \
+# Infeasible IPMs
+# ===============
+lib.ElIPMCtrlDefault_s.argtypes = \
+lib.ElIPMCtrlDefault_d.argtypes = \
   [c_void_p,bType]
-class MehrotraCtrl_s(ctypes.Structure):
+class IPMCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
               ("minTol",sType),("targetTol",sType),
               ("maxIts",iType),
@@ -33,10 +33,11 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("solveCtrl",RegSolveCtrl_s),
               ("resolveReg",bType),
               ("outerEquil",bType),
-              ("basisSize",iType),
+              ("twoNormKrylovBasisSize",iType),
               ("progress",bType),
               ("time",bType),
               ("wSafeMaxNorm",sType),
+              ("equilibrateIfSingleStage",bType),
               ("wMaxLimit",sType),
               ("ruizEquilTol",sType),
               ("ruizMaxIter",iType),
@@ -47,8 +48,8 @@ class MehrotraCtrl_s(ctypes.Structure):
               ("twoStage",bType),
               ("regIncreaseFactor",sType)]
   def __init__(self):
-    lib.ElMehrotraCtrlDefault_s(pointer(self))
-class MehrotraCtrl_d(ctypes.Structure):
+    lib.ElIPMCtrlDefault_s(pointer(self))
+class IPMCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
               ("minTol",dType),("targetTol",dType),
               ("maxIts",iType),
@@ -62,10 +63,11 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("solveCtrl",RegSolveCtrl_d),
               ("resolveReg",bType),
               ("outerEquil",bType),
-              ("basisSize",iType),
+              ("twoNormKrylovBasisSize",iType),
               ("progress",bType),
               ("time",bType),
               ("wSafeMaxNorm",dType),
+              ("equilibrateIfSingleStage",bType),
               ("wMaxLimit",dType),
               ("ruizEquilTol",dType),
               ("ruizMaxIter",iType),
@@ -76,7 +78,7 @@ class MehrotraCtrl_d(ctypes.Structure):
               ("twoStage",bType),
               ("regIncreaseFactor",dType)]
   def __init__(self):
-    lib.ElMehrotraCtrlDefault_d(pointer(self))
+    lib.ElIPMCtrlDefault_d(pointer(self))
 
 # Alternating Direction Method of Multipliers
 # ===========================================
@@ -101,7 +103,7 @@ class ADMMCtrl_d(ctypes.Structure):
 # Linear program
 # ==============
 
-(LP_ADMM,LP_MEHROTRA)=(0,1)
+(LP_ADMM,LP_IPM)=(0,1)
 
 # Direct conic form
 # -----------------
@@ -110,12 +112,12 @@ lib.ElLPDirectCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class LPDirectCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),("admmCtrl",ADMMCtrl_s),
-              ("mehrotraCtrl",MehrotraCtrl_s)]
+              ("ipmCtrl",IPMCtrl_s)]
   def __init__(self,isSparse=True):
     lib.ElLPDirectCtrlDefault_s(pointer(self),isSparse)
 class LPDirectCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),("admmCtrl",ADMMCtrl_d),
-              ("mehrotraCtrl",MehrotraCtrl_d)]
+              ("ipmCtrl",IPMCtrl_d)]
   def __init__(self,isSparse=True):
     lib.ElLPDirectCtrlDefault_d(pointer(self),isSparse)
 
@@ -202,12 +204,12 @@ lib.ElLPAffineCtrlDefault_d.argtypes = \
   [c_void_p]
 class LPAffineCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_s)]
+              ("ipmCtrl",IPMCtrl_s)]
   def __init__(self):
     lib.ElLPAffineCtrlDefault_s(pointer(self))
 class LPAffineCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_d)]
+              ("ipmCtrl",IPMCtrl_d)]
   def __init__(self):
     lib.ElLPAffineCtrlDefault_d(pointer(self))
 
@@ -294,7 +296,7 @@ def LPAffine(A,G,b,c,h,x,y,z,s,ctrl=None):
 
 # Quadratic program
 # =================
-(QP_ADMM,QP_MEHROTRA)=(0,1)
+(QP_ADMM,QP_IPM)=(0,1)
 
 # Direct conic form
 # -----------------
@@ -303,12 +305,12 @@ lib.ElQPDirectCtrlDefault_d.argtypes = \
   [c_void_p]
 class QPDirectCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_s)]
+              ("ipmCtrl",IPMCtrl_s)]
   def __init__(self):
     lib.ElQPDirectCtrlDefault_s(pointer(self))
 class QPDirectCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_d)]
+              ("ipmCtrl",IPMCtrl_d)]
   def __init__(self):
     lib.ElQPDirectCtrlDefault_d(pointer(self))
 
@@ -394,12 +396,12 @@ lib.ElQPAffineCtrlDefault_d.argtypes = \
   [c_void_p]
 class QPAffineCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_s)]
+              ("ipmCtrl",IPMCtrl_s)]
   def __init__(self):
     lib.ElQPAffineCtrlDefault_s(pointer(self))
 class QPAffineCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_d)]
+              ("ipmCtrl",IPMCtrl_d)]
   def __init__(self):
     lib.ElQPAffineCtrlDefault_d(pointer(self))
 
@@ -534,7 +536,7 @@ def QPBoxADMM(Q,C,lb,ub,ctrl=None):
 
 # Second-order cone programs
 # ==========================
-(SOCP_ADMM,SOCP_MEHROTRA)=(0,1)
+(SOCP_ADMM,SOCP_IPM)=(0,1)
 
 # Direct conic form
 # -----------------
@@ -543,12 +545,12 @@ lib.ElSOCPDirectCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class SOCPDirectCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_s)]
+              ("ipmCtrl",IPMCtrl_s)]
   def __init__(self):
     lib.ElSOCPDirectCtrlDefault_s(pointer(self))
 class SOCPDirectCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_d)]
+              ("ipmCtrl",IPMCtrl_d)]
   def __init__(self):
     lib.ElSOCPDirectCtrlDefault_d(pointer(self))
 
@@ -641,12 +643,12 @@ lib.ElSOCPAffineCtrlDefault_d.argtypes = \
   [c_void_p]
 class SOCPAffineCtrl_s(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_s)]
+              ("ipmCtrl",IPMCtrl_s)]
   def __init__(self):
     lib.ElSOCPAffineCtrlDefault_s(pointer(self))
 class SOCPAffineCtrl_d(ctypes.Structure):
   _fields_ = [("approach",c_uint),
-              ("mehrotraCtrl",MehrotraCtrl_d)]
+              ("ipmCtrl",IPMCtrl_d)]
   def __init__(self):
     lib.ElSOCPAffineCtrlDefault_d(pointer(self))
 

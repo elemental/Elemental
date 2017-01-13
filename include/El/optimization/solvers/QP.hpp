@@ -16,7 +16,7 @@ namespace El {
 namespace QPApproachNS {
 enum QPApproach {
   QP_ADMM,
-  QP_MEHROTRA
+  QP_IPM
 };
 } // namespace QPApproachNS
 using namespace QPApproachNS;
@@ -39,10 +39,10 @@ namespace direct {
 template<typename Real>
 struct Ctrl
 {
-    QPApproach approach=QP_MEHROTRA;
-    MehrotraCtrl<Real> mehrotraCtrl;
+    QPApproach approach=QP_IPM;
+    IPMCtrl<Real> ipmCtrl;
 
-    Ctrl() { mehrotraCtrl.system = AUGMENTED_KKT; }
+    Ctrl() { ipmCtrl.system = AUGMENTED_KKT; }
 };
 
 } // namespace direct
@@ -63,8 +63,8 @@ namespace affine {
 template<typename Real>
 struct Ctrl
 {
-    QPApproach approach=QP_MEHROTRA;
-    MehrotraCtrl<Real> mehrotraCtrl;
+    QPApproach approach=QP_IPM;
+    IPMCtrl<Real> ipmCtrl;
 };
 
 } // namespace affine
@@ -72,8 +72,7 @@ struct Ctrl
 namespace box {
 
 // Solve (a set of) quadratic programs of the form
-//   min (1/2) x' Q x + c' x, subject to l_b <= x <= u_b
-//    x
+//   min_x (1/2) x' Q x + c' x, subject to l_b <= x <= u_b
 
 // Alternating Direction Method of Multipliers
 // -------------------------------------------

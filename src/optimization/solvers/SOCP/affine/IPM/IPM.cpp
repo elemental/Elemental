@@ -10,32 +10,30 @@
 #include "./util.hpp"
 
 namespace El {
-namespace qp {
+namespace socp {
 namespace affine {
 
-// The following solves a pair of quadratic programs in "affine" conic form:
+// The following solves a pair of SOC programs in "affine" conic form:
 //
-//   min (1/2) x^T Q x + c^T x
-//   s.t. A x = b, G x + s = h, s >= 0,
+//   min c^T x
+//   s.t. A x = b, G x + s = h, s in K,
 //
-//   max (1/2) (A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c) - b^T y - h^T z
-//   s.t. A^T y + G^T z + c in range(Q), z >= 0,
+//   max -b^T y - h^T z
+//   s.t. A^T y + G^T z + c = 0, z in K,
 //
 // as opposed to the more specific "direct" conic form:
 //
-//   min (1/2) x^T Q x + c^T x
-//   s.t. A x = b, x >= 0,
+//   min c^T x
+//   s.t. A x = b, x in K,
 //
-//   max (1/2) (A^T y - z + c)^T pinv(Q) (A^T y - z + c) - b^T y
-//   s.t. A^T y - z + c in range(Q), z >= 0,
+//   max -b^T y
+//   s.t. A^T y - z + c = 0, z in K,
 //
-// which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
-// scheme.
+// which corresponds to G = -I and h = 0.
 //
 // We make use of the regularized Lagrangian
 //
-//   L(x,s;y,z) = (1/2) x^T Q x + c^T x + y^T (A x - b) + z^T (G x + s - h) +
-//                mu Phi(s) +
+//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) + mu Phi(s) +
 //                (1/2) gamma_x^2 || x ||_2^2 -
 //                (1/2) gamma_y^2 || y ||_2^2 -
 //                (1/2) gamma_z^2 || z ||_2^2,
@@ -47,56 +45,52 @@ namespace affine {
 //
 // The subsequent first-order optimality conditions for x, y, and z become
 //
-//   Delta_x L = Q x + c + A^T y + G^T z + gamma_x^2 x = 0,
+//   Delta_x L = c + A^T y + G^T z + gamma_x^2 x = 0,
 //   Delta_y L = A x - b - gamma_y^2 y = 0,
 //   Delta_z L = G x + s - h - gamma_z^2 z = 0.
 //
 // These can be arranged into the symmetric quasi-definite form
 //
-//   | Q + gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
-//   |        A,        -gamma_y^2 I,       0      | | y |   |  b  |
-//   |        G,              0,      -gamma_z^2 I | | z |   | h-s |.
+//   | gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
+//   |      A,      -gamma_y^2 I,       0      | | y |   |  b  |
+//   |      G,            0,      -gamma_z^2 I | | z |   | h-s |.
 //
 
 template<typename Real>
-void Mehrotra
-( const Matrix<Real>& QPre,
-  const Matrix<Real>& APre,
+void IPM
+( const Matrix<Real>& APre,
   const Matrix<Real>& GPre,
   const Matrix<Real>& bPre,
   const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real eps = limits::Epsilon<Real>();
 
-    // Equilibrate the QP by diagonally scaling [A;G]
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
     auto c = cPre;
     auto h = hPre;
-    auto Q = QPre;
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = k;
+    const Int degree = soc::Degree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.outerEquil )
     {
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        cone::GeomEquil
+        ( A, G, dRowA, dRowG, dCol, orders, firstInds, ctrl.print );
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        // TODO(poulson): Replace with SymmetricDiagonalSolve
-        {
-            DiagonalSolve( LEFT, NORMAL, dCol,  Q );
-            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-        }
         if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
@@ -120,81 +114,79 @@ void Mehrotra
     const Real hNrm2 = Nrm2( h );
     if( ctrl.print )
     {
-        const Real QNrm1 = HermitianOneNorm( LOWER, Q );
         const Real ANrm1 = OneNorm( A );
         const Real GNrm1 = OneNorm( G );
-        Output("|| Q ||_1 = ",QNrm1);
-        Output("|| c ||_2 = ",cNrm2);
         Output("|| A ||_1 = ",ANrm1);
-        Output("|| b ||_2 = ",bNrm2);
         Output("|| G ||_1 = ",GNrm1);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
         Output("|| h ||_2 = ",hNrm2);
     }
 
     Initialize
-    ( Q, A, G, b, c, h, x, y, z, s,
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     // TODO(poulson): Use dimacsErrorOld to early exit
 
-    Real dimacsError = 1;
+    Real relError = 1;
     Matrix<Real> J, d,
+                 w, wRoot, wRootInv,
+                 l, lInv,
                  rmu,   rc,    rb,    rh,
                  dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
+                 dx,    dy,    dz,    ds,
+                 dzAffScaled, dsAffScaled;
     Matrix<Real> dSub;
     Permutation p;
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, dmuError;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
-        if( sNumNonPos > 0 || zNumNonPos > 0 )
-            LogicError
-            (sNumNonPos," entries of s were nonpositive and ",
-             zNumNonPos," entries of z were nonpositive");
-
-        // Compute the duality measure
-        // ===========================
-        const Real mu = Dot(s,z) / k;
+        const Real minDist = eps;
+        soc::PushInto( s, orders, firstInds, minDist );
+        soc::PushInto( z, orders, firstInds, minDist );
+        soc::NesterovTodd( s, z, w, orders, firstInds );
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
-        Zeros( d, n, 1 );
-        Hemv( LOWER, Real(1), Q, x, Real(0), d );
-        const Real xTQx = Dot(x,d);
-        const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
+        // TODO(poulson): Adjust convergence criteria
+        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
+        // ---------------------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = -Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b; rb *= -1;
+        rb = b;
+        rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
+        // TODO(poulson): Axpy with -ctrl.yRegSmall y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
+        // TODO(poulson): Axpy with ctrl.xRegSmall x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h; rh *= -1;
+        rh = h;
+        rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
+        // TODO(poulson): Axpy with -ctrl.zRegSmall z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -214,28 +206,42 @@ void Mehrotra
              "  dual   = ",dualObj,"\n",Indent(),
              "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( dimacsError <= ctrl.targetTol )
+        if( relError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+        Real wMaxNorm = MaxNorm(w);
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+        if( wMaxNorm > wMaxNormLimit )
+        {
+            soc::PushPairInto( s, z, w, orders, firstInds, wMaxNormLimit );
+            soc::NesterovTodd( s, z, w, orders, firstInds );
+            wMaxNorm = MaxNorm(w);
+        }
+        soc::SquareRoot( w, wRoot, orders, firstInds );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds );
+        soc::Inverse( l, lInv, orders, firstInds );
+        const Real mu = Dot(s,z) / degree;
 
-        // r_mu := s o z
-        // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        // r_mu := l
+        // ---------
+        rmu = l;
 
-        // Construct the full KKT system
-        // -----------------------------
-        KKT( Q, A, G, s, z, J );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        // Construct the KKT system
+        // ------------------------
+        KKT( A, G, w, orders, firstInds, J );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
 
-        // Compute the proposed step from the KKT system
-        // ---------------------------------------------
+        // Solve for the direction
+        // -----------------------
         try
         {
             LDL( J, dSub, p, false );
@@ -243,13 +249,18 @@ void Mehrotra
         }
         catch(...)
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot, orders, firstInds,
+          dxAff, dyAff, dzAff, dsAff );
+        soc::ApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
+        soc::ApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
@@ -258,7 +269,6 @@ void Mehrotra
             const Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
-            Hemv( LOWER,     Real(1), Q, dxAff, Real(1), dyError );
             Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
             Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
             const Real dyErrorNrm2 = Nrm2( dyError );
@@ -268,7 +278,11 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO(poulson): dmuError
+            dmuError = dzAffScaled;
+            dmuError += dsAffScaled;
+            dmuError += l;
+            const Real rmuNrm2 = Nrm2( rmu );
+            const Real dmuErrorNrm2 = Nrm2( dmuError );
 
             Output
             ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
@@ -276,13 +290,15 @@ void Mehrotra
              "|| dyError ||_2 / (1 + || r_c ||_2) = ",
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-             dzErrorNrm2/(1+rhNrm2));
+             dzErrorNrm2/(1+rhNrm2),"\n",Indent(),
+             "|| dmuError ||_2 / (1 + || r_mu ||_2) = ",
+             dmuErrorNrm2/(1+rmuNrm2));
         }
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri = soc::MaxStep(s,dsAff,orders,firstInds,Real(1));
+        Real alphaAffDual = soc::MaxStep(z,dzAff,orders,firstInds,Real(1));
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -303,28 +319,46 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
-            // r_mu += dsAff o dzAff
-            // ---------------------
-            // NOTE: dz is used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            soc::Apply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
         }
 
         // Compute the proposed step from the KKT system
         // ---------------------------------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        KKTRHS( rc, rb, rh, rmu, wRoot, orders, firstInds, d );
+        try { ldl::SolveAfter( J, dSub, p, d, false ); }
+        catch(...)
+        {
+            if( relError <= ctrl.minTol )
+                break;
+            else
+                RuntimeError
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+        }
+        ExpandSolution
+        ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds );
+
         // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          soc::MaxStep( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
+        Real alphaDual =
+          soc::MaxStep( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -337,15 +371,15 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
         }
     }
     SetIndent( indent );
-
     if( ctrl.outerEquil )
     {
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -356,32 +390,34 @@ void Mehrotra
 }
 
 template<typename Real>
-void Mehrotra
-( const AbstractDistMatrix<Real>& QPre,
-  const AbstractDistMatrix<Real>& APre,
+void IPM
+( const AbstractDistMatrix<Real>& APre,
   const AbstractDistMatrix<Real>& GPre,
   const AbstractDistMatrix<Real>& bPre,
   const AbstractDistMatrix<Real>& cPre,
   const AbstractDistMatrix<Real>& hPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
         AbstractDistMatrix<Real>& xPre,
         AbstractDistMatrix<Real>& yPre,
         AbstractDistMatrix<Real>& zPre,
         AbstractDistMatrix<Real>& sPre,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real eps = limits::Epsilon<Real>();
+    const bool onlyLower = true;
+    const Int cutoffPar = 1000;
+
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
-    Timer timer;
 
     // Ensure that the inputs have the appropriate read/write properties
-    DistMatrix<Real> Q(grid), A(grid), G(grid), b(grid), c(grid), h(grid);
-    Q.Align(0,0);
+    DistMatrix<Real> A(grid), G(grid), b(grid), c(grid), h(grid);
     A.Align(0,0);
     G.Align(0,0);
     b.Align(0,0);
     c.Align(0,0);
-    Q = QPre;
     A = APre;
     G = GPre;
     b = bPre;
@@ -394,8 +430,8 @@ void Mehrotra
     control.colAlign = 0;
     control.rowAlign = 0;
 
-    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
     DistMatrixReadWriteProxy<Real,Real,MC,MR>
+    // NOTE: {x,s} do not need to be a read proxy when !ctrl.primalInit
       xProx( xPre, control ),
       sProx( sPre, control ),
     // NOTE: {y,z} do not need to be read proxies when !ctrl.dualInit
@@ -406,81 +442,60 @@ void Mehrotra
     auto& y = yProx.Get();
     auto& z = zProx.Get();
 
-    // Equilibrate the QP by diagonally scaling [A;G]
+    DistMatrixReadProxy<Int,Int,VC,STAR>
+      ordersProx( ordersPre ),
+      firstIndsProx( firstIndsPre );
+    auto& orders = ordersProx.GetLocked();
+    auto& firstInds = firstIndsProx.GetLocked();
+
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = k;
+    const Int degree = soc::Degree( firstInds );
     DistMatrix<Real,MC,STAR> dRowA(grid),
                              dRowG(grid);
     DistMatrix<Real,MR,STAR> dCol(grid);
-    if( ctrl.outerEquil )
-    {
-        if( ctrl.time && commRank == 0 )
-            timer.Start();
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
-        if( ctrl.time && commRank == 0 )
-            Output("RuizEquil: ",timer.Stop()," secs");
-        DiagonalSolve( LEFT, NORMAL, dRowA, b );
-        DiagonalSolve( LEFT, NORMAL, dRowG, h );
-        DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        // TODO(poulson): Replace with SymmetricDiagonalSolve
-        {
-            DiagonalSolve( LEFT, NORMAL, dCol,  Q );
-            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-        }
-        if( ctrl.primalInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dCol,  x );
-            DiagonalSolve( LEFT, NORMAL, dRowG, s );
-        }
-        if( ctrl.dualInit )
-        {
-            DiagonalScale( LEFT, NORMAL, dRowA, y );
-            DiagonalScale( LEFT, NORMAL, dRowG, z );
-        }
-    }
-    else
-    {
-        Ones( dRowA, m, 1 );
-        Ones( dRowG, k, 1 );
-        Ones( dCol,  n, 1 );
-    }
+    // TODO(poulson): Outer equilibration support
+    Ones( dRowA, m, 1 );
+    Ones( dRowG, k, 1 );
+    Ones( dCol,  n, 1 );
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
     if( ctrl.print )
     {
-        const Real QNrm1 = HermitianOneNorm( LOWER, Q );
         const Real ANrm1 = OneNorm( A );
         const Real GNrm1 = OneNorm( G );
         if( commRank == 0 )
         {
-            Output("|| Q ||_1 = ",QNrm1);
-            Output("|| c ||_2 = ",cNrm2);
             Output("|| A ||_1 = ",ANrm1);
-            Output("|| b ||_2 = ",bNrm2);
             Output("|| G ||_1 = ",GNrm1);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
             Output("|| h ||_2 = ",hNrm2);
         }
     }
 
-    if( ctrl.time && commRank == 0 )
-        timer.Start();
     Initialize
-    ( Q, A, G, b, c, h, x, y, z, s,
-      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
-    if( ctrl.time && commRank == 0 )
-        Output("Init time: ",timer.Stop()," secs");
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, cutoffPar );
 
     // TODO(poulson): Use dimacsErrorOld to early exit
 
-    Real dimacsError = 1;
+    Real relError = 1;
     DistMatrix<Real> J(grid),     d(grid),
+                     w(grid),     wRoot(grid), wRootInv(grid),
+                     l(grid),     lInv(grid),
                      rc(grid),    rb(grid),    rh(grid),    rmu(grid),
                      dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
-                     dx(grid),    dy(grid),    dz(grid),    ds(grid);
+                     dx(grid),    dy(grid),    dz(grid),    ds(grid),
+                     dsAffScaled(grid), dzAffScaled(grid);
+    w.AlignWith( s );
+    wRoot.AlignWith( s );
+    wRootInv.AlignWith( s );
+    l.AlignWith( s );
+    lInv.AlignWith( s );
     dsAff.AlignWith( s );
     dzAff.AlignWith( s );
     ds.AlignWith( s );
@@ -488,58 +503,52 @@ void Mehrotra
     rmu.AlignWith( s );
     DistMatrix<Real> dSub(grid);
     DistPermutation p(grid);
-    DistMatrix<Real> dxError(grid), dyError(grid), dzError(grid);
+    DistMatrix<Real>
+      dxError(grid), dyError(grid), dzError(grid), dmuError(grid);
     dzError.AlignWith( s );
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
-        if( sNumNonPos > 0 || zNumNonPos > 0 )
-            LogicError
-            (sNumNonPos," entries of s were nonpositive and ",
-             zNumNonPos," entries of z were nonpositive");
-
-        // Compute the duality measure
-        // ===========================
-        const Real mu = Dot(s,z) / k;
+        const Real minDist = eps;
+        soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
+        soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
+        soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
-        Zeros( d, n, 1 );
-        Hemv( LOWER, Real(1), Q, x, Real(0), d );
-        const Real xTQx = Dot(x,d);
-        const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
+        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
+        // ---------------------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = -Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b; rb *= -1;
+        rb = b;
+        rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h; rh *= -1;
+        rh = h;
+        rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -560,51 +569,65 @@ void Mehrotra
                  "  dual   = ",dualObj,"\n",Indent(),
                  "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( dimacsError <= ctrl.targetTol )
+        if( relError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
 
         // Compute the affine search direction
         // ===================================
+        Real wMaxNorm = MaxNorm(w);
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+        if( wMaxNorm > wMaxNormLimit )
+        {
+            soc::PushPairInto
+            ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
+            soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+            wMaxNorm = MaxNorm(w);
+        }
+        soc::SquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        soc::Inverse( l, lInv, orders, firstInds, cutoffPar );
+        const Real mu = Dot(s,z) / degree;
 
-        // r_mu := s o z
-        // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        // r_mu := l
+        // ---------
+        rmu = l;
 
         // Construct the KKT system
         // ------------------------
-        KKT( Q, A, G, s, z, J );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        KKT( A, G, w, orders, firstInds, J, onlyLower, cutoffPar );
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot, orders, firstInds, d, cutoffPar );
 
         // Solve for the direction
         // -----------------------
         try
         {
-            if( ctrl.time && commRank == 0 )
-                timer.Start();
             LDL( J, dSub, p, false );
-            if( ctrl.time && commRank == 0 )
-            {
-                Output("LDL: ",timer.Stop()," secs");
-                timer.Start();
-            }
             ldl::SolveAfter( J, dSub, p, d, false );
-            if( ctrl.time && commRank == 0 )
-                Output("Affine solve: ",timer.Stop()," secs");
         }
         catch(...)
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot, orders, firstInds,
+          dxAff, dyAff, dzAff, dsAff, cutoffPar );
+        soc::ApplyQuadratic
+        ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
+        soc::ApplyQuadratic
+        ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
@@ -613,7 +636,6 @@ void Mehrotra
             const Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
-            Hemv( LOWER,     Real(1), Q, dxAff, Real(1), dyError );
             Gemv( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
             Gemv( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
             const Real dyErrorNrm2 = Nrm2( dyError );
@@ -623,7 +645,11 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO(poulson): dmuError
+            dmuError = dzAffScaled;
+            dmuError += dsAffScaled;
+            dmuError += l;
+            const Real rmuNrm2 = Nrm2( rmu );
+            const Real dmuErrorNrm2 = Nrm2( dmuError );
 
             if( commRank == 0 )
                 Output
@@ -632,13 +658,17 @@ void Mehrotra
                  "|| dyError ||_2 / (1 + || r_c ||_2) = ",
                  dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-                 dzErrorNrm2/(1+rhNrm2));
+                 dzErrorNrm2/(1+rhNrm2),"\n",Indent(),
+                 "|| dmuError ||_2 / (1 + || r_mu ||_2) = ",
+                 dmuErrorNrm2/(1+rmuNrm2));
         }
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri =
+          soc::MaxStep( s, dsAff, orders, firstInds, Real(1), cutoffPar );
+        Real alphaAffDual =
+          soc::MaxStep( z, dzAff, orders, firstInds, Real(1), cutoffPar );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -659,45 +689,50 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
-            // r_mu += dsAff o dzAff
-            // ---------------------
-            // NOTE: dz is used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            soc::Apply
+            ( dsAffScaled, dzAffScaled, rmu, orders, firstInds, cutoffPar );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds, cutoffPar );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
         }
 
-        // Form the new KKT RHS
-        // --------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        // Solve for the new direction
-        // ---------------------------
-        try
-        {
-            if( ctrl.time && commRank == 0 )
-                timer.Start();
-            ldl::SolveAfter( J, dSub, p, d, false );
-            if( ctrl.time && commRank == 0 )
-                Output("Combined solve: ",timer.Stop()," secs");
-        }
+        // Compute the proposed step from the KKT system
+        // ---------------------------------------------
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot, orders, firstInds, d, cutoffPar );
+        try { ldl::SolveAfter( J, dSub, p, d, false ); }
         catch(...)
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Solve failed with rel. error ",relError,
+                 " which does not meet the minimum tolerance of ",ctrl.minTol);
         }
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds,
+          cutoffPar );
         // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          soc::MaxStep
+          ( s, ds, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
+        Real alphaDual =
+          soc::MaxStep
+          ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -710,15 +745,15 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError <= ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
         }
     }
     SetIndent( indent );
-
     if( ctrl.outerEquil )
     {
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -729,23 +764,26 @@ void Mehrotra
 }
 
 template<typename Real>
-void Mehrotra
-( const SparseMatrix<Real>& QPre,
-  const SparseMatrix<Real>& APre,
+void IPM
+( const SparseMatrix<Real>& APre,
   const SparseMatrix<Real>& GPre,
   const Matrix<Real>& bPre,
   const Matrix<Real>& cPre,
   const Matrix<Real>& hPre,
+  const Matrix<Int>& orders,
+  const Matrix<Int>& firstInds,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real eps = limits::Epsilon<Real>();
+    const bool onlyLower = false;
+    // TODO(poulson): Move into the control structure
+    const bool cutoffSparse = 64;
 
-    // Equilibrate the QP by diagonally scaling [A;G]
-    auto Q = QPre;
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
@@ -754,19 +792,16 @@ void Mehrotra
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = k;
+    const Int degree = soc::Degree( firstInds );
     Matrix<Real> dRowA, dRowG, dCol;
     if( ctrl.outerEquil )
     {
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        cone::RuizEquil
+        ( A, G, dRowA, dRowG, dCol, orders, firstInds, ctrl.print );
+
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        // TODO(poulson): Replace with SymmetricDiagonalSolve
-        {
-            DiagonalSolve( LEFT, NORMAL, dCol, Q );
-            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-        }
         if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
@@ -788,113 +823,138 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
-    const Real twoNormEstQ = HermitianTwoNormEstimate( Q, ctrl.basisSize );
-    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
-    const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
-    const Real origTwoNormEst = twoNormEstA + twoNormEstG + twoNormEstQ + 1;
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.twoNormKrylovBasisSize );
+    const Real twoNormEstG = TwoNormEstimate( G, ctrl.twoNormKrylovBasisSize );
+    const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
     {
-        Output("|| Q ||_2 estimate: ",twoNormEstQ);
-        Output("|| c ||_2 = ",cNrm2);
         Output("|| A ||_2 estimate: ",twoNormEstA);
-        Output("|| b ||_2 = ",bNrm2);
         Output("|| G ||_2 estimate: ",twoNormEstG);
+        Output("|| b ||_2 = ",bNrm2);
+        Output("|| c ||_2 = ",cNrm2);
         Output("|| h ||_2 = ",hNrm2);
     }
 
-    // TODO(poulson): Expose regularization rules to user
-    Matrix<Real> regLarge;
-    regLarge.Resize( n+m+k, 1 );
-    for( Int i=0; i<n+m+k; ++i )
-    {
-        if( i < n )        regLarge(i) =  ctrl.xRegLarge;
-        else if( i < n+m ) regLarge(i) = -ctrl.yRegLarge;
-        else               regLarge(i) = -ctrl.zRegLarge;
-    }
-    regLarge *= origTwoNormEst;
-
-    // Initialize the static portion of the KKT system
-    // ===============================================
-    SparseMatrix<Real> JStatic;
-    StaticKKT
-    ( Q, A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
-      JStatic, false );
-
-    SparseLDLFactorization<Real> sparseLDLFact;
-
     Initialize
-    ( JStatic, regLarge, b, c, h, x, y, z, s,
-      sparseLDLFact,
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
+
+    // Form the offsets for the sparse embedding of the barrier's Hessian
+    // ==================================================================
+    Matrix<Int>
+      origToSparseOrders,    sparseToOrigOrders,
+      origToSparseFirstInds, sparseToOrigFirstInds,
+      sparseOrders,          sparseFirstInds;
+    soc::EmbeddingMaps
+    ( orders, firstInds,
+      sparseOrders, sparseFirstInds,
+      origToSparseOrders, origToSparseFirstInds,
+      sparseToOrigOrders, sparseToOrigFirstInds, cutoffSparse );
+    const Int kSparse = sparseOrders.Height();
 
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> d,
-                 w,
+                 w,     wRoot, wRootInv,
+                 l,     lInv,
                  rc,    rb,    rh,    rmu,
                  dxAff, dyAff, dzAff, dsAff,
-                 dx,    dy,    dz,    ds;
+                 dx,    dy,    dz,    ds,
+                 dzAffScaled, dsAffScaled;
+
+    // TODO(poulson): Expose regularization rules to user
+    Matrix<Real> regLarge;
+    regLarge.Resize( n+m+kSparse, 1 );
+    for( Int i=0; i<n+m+kSparse; ++i )
+    {
+        if( i < n )
+        {
+            regLarge(i) = ctrl.xRegLarge;
+        }
+        else if( i < n+m )
+        {
+            regLarge(i) = -ctrl.yRegLarge;
+        }
+        else
+        {
+            const Int iCone = i-(n+m);
+            const Int firstInd = sparseFirstInds(iCone);
+            const Int order = sparseToOrigOrders(iCone);
+            const Int sparseOrder = sparseOrders(iCone);
+            const bool embedded = ( order != sparseOrder );
+
+            // TODO(poulson): Use different diagonal modification for the
+            // auxiliary variables? These diagonal entries are always +-1.
+            if( embedded && iCone == firstInd+sparseOrder-1 )
+                regLarge(i) = ctrl.zRegLarge;
+            else
+                regLarge(i) = -ctrl.zRegLarge;
+        }
+    }
+    regLarge *= origTwoNormEst;
+
+    // Form the static portion of the KKT system
+    // =========================================
+    SparseMatrix<Real> JStatic;
+    StaticKKT
+    ( A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+      orders, firstInds, origToSparseOrders, origToSparseFirstInds,
+      kSparse, JStatic, onlyLower );
+
+    // Analyze the nonzero pattern of the KKT systems
+    // ----------------------------------------------
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    SparseLDLFactorization<Real> sparseLDLFact;
+    sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
 
     // TODO(poulson): Use dimacsErrorOld to early exit
 
-    Real dimacsError = 1;
+    Real relError = 1;
     Matrix<Real> dInner;
-    Matrix<Real> dxError, dyError, dzError;
+    Matrix<Real> dxError, dyError, dzError, dmuError;
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
-        if( sNumNonPos > 0 || zNumNonPos > 0 )
-            LogicError
-            (sNumNonPos," entries of s were nonpositive and ",
-             zNumNonPos," entries of z were nonpositive");
-
-        // Compute the duality measure and scaling point
-        // =============================================
-        const Real mu = Dot(s,z) / k;
-        pos_orth::NesterovTodd( s, z, w );
-        //const Real wMaxNorm = MaxNorm( w );
+        const Real minDist = eps;
+        soc::PushInto( s, orders, firstInds, minDist );
+        soc::PushInto( z, orders, firstInds, minDist );
+        soc::NesterovTodd( s, z, w, orders, firstInds );
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
-        Zeros( d, n, 1 );
-        // NOTE: The following assumes that Q is explicitly symmetric
-        Multiply( NORMAL, Real(1), Q, x, Real(0), d );
-        const Real xTQx = Dot(x,d);
-        const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
+        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
+        // ---------------------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = -Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b; rb *= -1;
+        rb = b;
+        rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegSmall, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        Axpy( ctrl.xRegSmall, x, rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h; rh *= -1;
+        rh = h;
+        rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        Axpy( -ctrl.zRegSmall, z, rh );
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -914,57 +974,68 @@ void Mehrotra
              "  dual   = ",dualObj,"\n",Indent(),
              "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( dimacsError <= ctrl.targetTol )
+        if( relError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
+        Real wMaxNorm = MaxNorm(w);
+        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
+            break;
 
         // Compute the affine search direction
         // ===================================
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+        if( wMaxNorm > wMaxNormLimit )
+        {
+            soc::PushPairInto( s, z, w, orders, firstInds, wMaxNormLimit );
+            soc::NesterovTodd( s, z, w, orders, firstInds );
+            wMaxNorm = MaxNorm(w);
+        }
+        soc::SquareRoot( w, wRoot, orders, firstInds );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds );
+        soc::Inverse( l, lInv, orders, firstInds );
+        const Real mu = Dot(s,z) / degree;
 
-        // r_mu := s o z
-        // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        // r_mu := l
+        // ---------
+        rmu = l;
 
-        // Construct the KKT system
-        // ------------------------
+        // Form the KKT system
+        // -------------------
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        FinishKKT( m, n, s, z, JOrig );
-        KKTRHS( rc, rb, rh, rmu, z, d );
-
-        // Solve for the direction
-        // -----------------------
+        FinishKKT
+        ( m, n, w,
+          orders, firstInds,
+          origToSparseOrders, origToSparseFirstInds,
+          kSparse, JOrig, onlyLower );
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot,
+          orders, firstInds, origToSparseFirstInds, kSparse, d );
         J = JOrig;
         J.FreezeSparsity();
         UpdateDiagonal( J, Real(1), regLarge );
 
+        // Solve for the direction
+        // -----------------------
         /*
         if( wMaxNorm >= ctrl.ruizEquilTol )
             SymmetricRuizEquil( J, dInner, ctrl.ruizMaxIter, ctrl.print );
         else if( wMaxNorm >= ctrl.diagEquilTol )
             SymmetricDiagonalEquil( J, dInner, ctrl.print );
         else
-            Ones( dInner, n+m+k, 1 );
+            Ones( dInner, n+m+kSparse, 1 );
         */
-        Ones( dInner, n+m+k, 1 );
+        Ones( dInner, n+m+kSparse, 1 );
 
-        if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
-        {
-            const bool hermitian = true;
-            const BisectCtrl bisectCtrl;
-            sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
-        }
-        else
-        {
-            sparseLDLFact.ChangeNonzeroValues( J );
-        }
-
+        sparseLDLFact.ChangeNonzeroValues( J );
         sparseLDLFact.Factor();
-
+        // TODO(poulson): Make use of a better interface to these routines.
         RegSolveInfo<Real> solveInfo;
         if( ctrl.twoStage )
         {
@@ -980,14 +1051,23 @@ void Mehrotra
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( relError < ctrl.minTol )
                     break;
                 else
                     RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
             }
         }
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot,
+          orders, firstInds,
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
+          dxAff, dyAff, dzAff, dsAff );
+        soc::ApplyQuadratic( wRoot, dzAff, dzAffScaled, orders, firstInds );
+        soc::ApplyQuadratic( wRootInv, dsAff, dsAffScaled, orders, firstInds );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
@@ -996,7 +1076,6 @@ void Mehrotra
             const Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
-            Multiply( NORMAL,    Real(1), Q, dxAff, Real(1), dyError );
             Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
             Multiply( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
             const Real dyErrorNrm2 = Nrm2( dyError );
@@ -1006,7 +1085,11 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO(poulson): dmuError
+            dmuError = dzAffScaled;
+            dmuError += dsAffScaled;
+            dmuError += l;
+            const Real rmuNrm2 = Nrm2( rmu );
+            const Real dmuErrorNrm2 = Nrm2( dmuError );
             // TODO(poulson): Also compute and print the residuals with
             // regularization
 
@@ -1016,13 +1099,17 @@ void Mehrotra
              "|| dyError ||_2 / (1 + || r_c ||_2) = ",
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-             dzErrorNrm2/(1+rhNrm2));
+             dzErrorNrm2/(1+rhNrm2),"\n",Indent(),
+             "|| dmuError ||_2 / (1 + || r_mu ||_2) = ",
+             dmuErrorNrm2/(1+rmuNrm2));
         }
 
         // Compute a centrality parameter
         // ==============================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        Real alphaAffPri =
+          soc::MaxStep( s, dsAff, orders, firstInds, Real(1) );
+        Real alphaAffDual =
+          soc::MaxStep( z, dzAff, orders, firstInds, Real(1) );
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print )
@@ -1043,22 +1130,28 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Shift( rmu, -sigma*mu );
         if( ctrl.mehrotra )
         {
-            // r_mu += dsAff o dzAff
-            // ---------------------
-            // NOTE: dz is used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            soc::Apply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds );
+            rmu += l;
+        }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
         }
 
-        // Set up the new KKT RHS
-        // ----------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        // Solve for the new direction
-        // ---------------------------
+        // Compute the proposed step from the KKT system
+        // ---------------------------------------------
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot,
+          orders, firstInds, origToSparseFirstInds, kSparse, d );
+        // TODO(poulson): Make use of a better interface to these routines.
         solveInfo.metRequestedTol = false;
         if( ctrl.twoStage )
         {
@@ -1074,19 +1167,28 @@ void Mehrotra
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( relError < ctrl.minTol )
                     break;
                 else
                     RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
             }
         }
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        ExpandSolution
+        ( m, n, d, rmu, wRoot,
+          orders, firstInds,
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
+          dx, dy, dz, ds );
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        Real alphaPri =
+          soc::MaxStep( s, ds, orders, firstInds, 1/ctrl.maxStepRatio );
+        Real alphaDual =
+          soc::MaxStep( z, dz, orders, firstInds, 1/ctrl.maxStepRatio );
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -1099,15 +1201,15 @@ void Mehrotra
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError < ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
         }
     }
     SetIndent( indent );
-
     if( ctrl.outerEquil )
     {
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -1118,56 +1220,54 @@ void Mehrotra
 }
 
 template<typename Real>
-void Mehrotra
-( const DistSparseMatrix<Real>& QPre,
-  const DistSparseMatrix<Real>& APre,
+void IPM
+( const DistSparseMatrix<Real>& APre,
   const DistSparseMatrix<Real>& GPre,
   const DistMultiVec<Real>& bPre,
   const DistMultiVec<Real>& cPre,
   const DistMultiVec<Real>& hPre,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real eps = limits::Epsilon<Real>();
+    const bool onlyLower = false;
+    // TODO(poulson): Move these into the control structur
+    const Int cutoffSparse = 64;
+    const Int cutoffPar = 1000;
 
-    //const Real selInvTol = Pow(eps,Real(-0.25));
-    const Real selInvTol = 0;
-
-    const Grid& grid = APre.Grid();
-    const int commRank = grid.Rank();
-    Timer timer, iterTimer;
-
-    // Equilibrate the QP by diagonally scaling [A;G]
-    auto Q = QPre;
     auto A = APre;
     auto G = GPre;
     auto b = bPre;
     auto h = hPre;
     auto c = cPre;
+
     const Int m = A.Height();
     const Int k = G.Height();
     const Int n = A.Width();
-    const Int degree = k;
+    const Int degree = soc::Degree( firstInds );
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
+    Timer timer, iterTimer;
+
     DistMultiVec<Real> dRowA(grid), dRowG(grid), dCol(grid);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        StackedRuizEquil( A, G, dRowA, dRowG, dCol, ctrl.print );
+        cone::RuizEquil
+        ( A, G, dRowA, dRowG, dCol, orders, firstInds, cutoffPar, ctrl.print );
         if( commRank == 0 && ctrl.time )
-            Output("RuizEquil: ",timer.Stop()," secs");
+            Output("cone::RuizEquil: ",timer.Stop()," secs");
 
         DiagonalSolve( LEFT, NORMAL, dRowA, b );
         DiagonalSolve( LEFT, NORMAL, dRowG, h );
         DiagonalSolve( LEFT, NORMAL, dCol,  c );
-        // TODO(poulson): Replace with SymmetricDiagonalSolve
-        {
-            DiagonalSolve( LEFT, NORMAL, dCol, Q );
-            DiagonalSolve( RIGHT, NORMAL, dCol, Q );
-        }
         if( ctrl.primalInit )
         {
             DiagonalScale( LEFT, NORMAL, dCol,  x );
@@ -1189,31 +1289,68 @@ void Mehrotra
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
     const Real hNrm2 = Nrm2( h );
-    const Real twoNormEstQ = HermitianTwoNormEstimate( Q, ctrl.basisSize );
-    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
-    const Real twoNormEstG = TwoNormEstimate( G, ctrl.basisSize );
-    const Real origTwoNormEst = twoNormEstA + twoNormEstG + twoNormEstQ + 1;
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.twoNormKrylovBasisSize );
+    const Real twoNormEstG = TwoNormEstimate( G, ctrl.twoNormKrylovBasisSize );
+    const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
     {
-        const double imbalanceQ = Q.Imbalance();
         const double imbalanceA = A.Imbalance();
         const double imbalanceG = G.Imbalance();
         if( commRank == 0 )
         {
-            Output("|| Q ||_2 estimate: ",twoNormEstQ);
-            Output("|| c ||_2 = ",cNrm2);
             Output("|| A ||_2 estimate: ",twoNormEstA);
-            Output("|| b ||_2 = ",bNrm2);
             Output("|| G ||_2 estimate: ",twoNormEstG);
+            Output("|| b ||_2 = ",bNrm2);
+            Output("|| c ||_2 = ",cNrm2);
             Output("|| h ||_2 = ",hNrm2);
-            Output("Imbalance factor of Q: ",imbalanceQ);
             Output("Imbalance factor of A: ",imbalanceA);
             Output("Imbalance factor of G: ",imbalanceG);
         }
     }
 
+    if( commRank == 0 && ctrl.time )
+        timer.Start();
+    Initialize
+    ( A, G, b, c, h, orders, firstInds, x, y, z, s,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, cutoffPar,
+      ctrl.solveCtrl );
+    if( commRank == 0 && ctrl.time )
+        Output("Init: ",timer.Stop()," secs");
+
+    // Form the offsets for the sparse embedding of the barrier's Hessian
+    // ==================================================================
+    DistMultiVec<Int>
+      origToSparseOrders(grid),    sparseToOrigOrders(grid),
+      origToSparseFirstInds(grid), sparseToOrigFirstInds(grid),
+      sparseOrders(grid), sparseFirstInds(grid);
+    soc::EmbeddingMaps
+    ( orders, firstInds,
+      sparseOrders, sparseFirstInds,
+      origToSparseOrders, origToSparseFirstInds,
+      sparseToOrigOrders, sparseToOrigFirstInds,
+      cutoffSparse );
+    const Int kSparse = sparseFirstInds.Height();
+
+    auto& sparseOrdersLoc = sparseOrders.LockedMatrix();
+    auto& sparseFirstIndsLoc = sparseFirstInds.LockedMatrix();
+    auto& sparseToOrigOrdersLoc = sparseToOrigOrders.LockedMatrix();
+
+    DistGraphMultMeta metaOrig;
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
+    DistMultiVec<Real> d(grid),
+                       w(grid),     wRoot(grid), wRootInv(grid),
+                       l(grid),     lInv(grid),
+                       rc(grid),    rb(grid),    rh(grid),    rmu(grid),
+                       dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
+                       dx(grid),    dy(grid),    dz(grid),    ds(grid),
+                       dzAffScaled(grid), dsAffScaled(grid);
+
+    // Form the regularization vectors
+    // ===============================
     DistMultiVec<Real> regLarge(grid);
-    regLarge.Resize( n+m+k, 1 );
+    Zeros( regLarge, n+m+kSparse, 1 );
+    // Set the analytical part
+    // -----------------------
     for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
     {
         const Int i = regLarge.GlobalRow(iLoc);
@@ -1221,106 +1358,108 @@ void Mehrotra
           regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
         else if( i < n+m )
           regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
-        else
-          regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
+        else break;
+    }
+    // Perform the portion that requires remote updates
+    // ------------------------------------------------
+    {
+        const Int sparseLocalHeight = sparseFirstInds.LocalHeight();
+        regLarge.Reserve( sparseLocalHeight );
+        for( Int iLoc=0; iLoc<sparseLocalHeight; ++iLoc )
+        {
+            const Int iCone = sparseFirstInds.GlobalRow(iLoc);
+            const Int order = sparseToOrigOrdersLoc(iLoc);
+            const Int sparseOrder = sparseOrdersLoc(iLoc);
+            const bool embedded = ( order != sparseOrder );
+            const Int firstInd = sparseFirstIndsLoc(iLoc);
+            if( embedded && iCone == firstInd+sparseOrder-1 )
+                regLarge.QueueUpdate( n+m+iCone, 0, ctrl.zRegLarge );
+            else
+                regLarge.QueueUpdate( n+m+iCone, 0, -ctrl.zRegLarge );
+        }
+        regLarge.ProcessQueues();
     }
     regLarge *= origTwoNormEst;
 
-    // Compute the static portion of the KKT system
-    // ============================================
+    // Form the static portion of the KKT system
+    // =========================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( Q, A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
-      JStatic, false );
-    JStatic.InitializeMultMeta();
+    ( A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+      orders, firstInds, origToSparseOrders, origToSparseFirstInds,
+      kSparse, JStatic, onlyLower );
     if( ctrl.print )
     {
-        const double imbalanceJ = JStatic.Imbalance();
+        const Real imbalanceJ = JStatic.Imbalance();
         if( commRank == 0 )
             Output("Imbalance factor of J: ",imbalanceJ);
     }
 
+    auto meta = JStatic.InitializeMultMeta();
     if( commRank == 0 && ctrl.time )
         timer.Start();
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
     DistSparseLDLFactorization<Real> sparseLDLFact;
-    Initialize
-    ( JStatic, regLarge, b, c, h, x, y, z, s,
-      sparseLDLFact,
-      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
+    sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
     if( commRank == 0 && ctrl.time )
-        Output("Init: ",timer.Stop()," secs");
-
-    DistSparseMatrix<Real> J(grid), JOrig(grid);
-    DistMultiVec<Real> d(grid), w(grid),
-                       rc(grid),    rb(grid),    rh(grid),    rmu(grid),
-                       dxAff(grid), dyAff(grid), dzAff(grid), dsAff(grid),
-                       dx(grid),    dy(grid),    dz(grid),    ds(grid);
+        Output("Analysis: ",timer.Stop()," secs");
 
     // TODO(poulson): Use dimacsErrorOld to early exit
 
-    Real dimacsError = 1;
+    Real relError = 1;
     DistMultiVec<Real> dInner(grid);
-    DistMultiVec<Real> dxError(grid), dyError(grid), dzError(grid);
+    DistMultiVec<Real> dxError(grid), dyError(grid),
+                       dzError(grid), dmuError(grid);
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
         if( ctrl.time && commRank == 0 )
             iterTimer.Start();
-
         // Ensure that s and z are in the cone
         // ===================================
-        const Int sNumNonPos = pos_orth::NumOutside( s );
-        const Int zNumNonPos = pos_orth::NumOutside( z );
-        if( sNumNonPos > 0 || zNumNonPos > 0 )
-            LogicError
-            (sNumNonPos," entries of s were nonpositive and ",
-             zNumNonPos," entries of z were nonpositive");
-
-        // Compute the duality measure and scaling point
-        // =============================================
-        const Real mu = Dot(s,z) / k;
-        pos_orth::NesterovTodd( s, z, w );
-        const Real wMaxNorm = MaxNorm( w );
+        // TODO(poulson): Let this be a function of the relative error, etc.
+        const Real minDist = eps;
+        soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
+        soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
+        soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
-        Zeros( d, n, 1 );
-        // NOTE: The following assumes that Q is explicitly symmetric
-        Multiply( NORMAL, Real(1), Q, x, Real(0), d );
-        const Real xTQx = Dot(x,d);
-        const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
+        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
+        // ---------------------------------------------------
+        const Real primObj = Dot(c,x);
+        const Real dualObj = -Dot(b,y) - Dot(h,z);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
-        rb = b; rb *= -1;
+        rb = b;
+        rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
+        // TODO(poulson): Axpy with -ctrl.yRegSmall y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegSmall, y, rb );
         // || r_c ||_2 / (1 + || c ||_2) <= tol ?
         // --------------------------------------
         rc = c;
-        Multiply( NORMAL,    Real(1), Q, x, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        Axpy( ctrl.xRegSmall, x, rc );
+        // TODO(poulson): Axpy with ctrl.xRegSmall x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
         // || r_h ||_2 / (1 + || h ||_2) <= tol
         // ------------------------------------
-        rh = h; rh *= -1;
+        rh = h;
+        rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        Axpy( -ctrl.zRegSmall, z, rh );
+        // TODO(poulson): Axpy with -ctrl.zRegSmall z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
 
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -1341,36 +1480,76 @@ void Mehrotra
                  "  dual   = ",dualObj,"\n",Indent(),
                  "  |primal - dual| / (1 + |primal|) = ",objConv);
         }
-        if( dimacsError <= ctrl.targetTol )
+        if( relError <= ctrl.targetTol )
             break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
             RuntimeError
-            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without "
-             "achieving minTol=",ctrl.minTol);
+            ("Reached maximum number of iterations, ",ctrl.maxIts,
+             ", with rel. error ",relError," which does not meet the minimum ",
+             "tolerance of ",ctrl.minTol);
+        Real wMaxNorm = MaxNorm(w);
+        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
+            break;
 
         // Compute the affine search direction
         // ===================================
+        const Real wMaxNormLimit =
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+        if( ctrl.print && commRank == 0 )
+            Output
+            ("|| w ||_max = ",wMaxNorm,", limit is ",wMaxNormLimit);
+        if( wMaxNorm > wMaxNormLimit )
+        {
+            if( ctrl.print && commRank == 0 )
+                Output
+                ("|| w ||_max = ",wMaxNorm," was larger than ",wMaxNormLimit);
+            soc::PushPairInto
+            ( s, z, w, orders, firstInds, wMaxNormLimit, cutoffPar );
+            soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+            wMaxNorm = MaxNorm(w);
+            if( ctrl.print && commRank == 0 )
+                Output("New || w ||_max = ",wMaxNorm);
+        }
+        soc::SquareRoot( w, wRoot, orders, firstInds, cutoffPar );
+        soc::Inverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
+        soc::ApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
+        soc::Inverse( l, lInv, orders, firstInds, cutoffPar );
+        const Real mu = Dot(s,z) / degree;
 
-        // r_mu := s o z
-        // -------------
-        rmu = z;
-        DiagonalScale( LEFT, NORMAL, s, rmu );
+        // r_mu := l
+        // ---------
+        rmu = l;
 
         // Construct the KKT system
         // ------------------------
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
         JOrig = JStatic;
         JOrig.FreezeSparsity();
-        JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-        FinishKKT( m, n, s, z, JOrig );
-        KKTRHS( rc, rb, rh, rmu, z, d );
+        FinishKKT
+        ( m, n, w,
+          orders, firstInds,
+          origToSparseOrders, origToSparseFirstInds,
+          kSparse, JOrig, onlyLower, cutoffPar );
+        if( ctrl.time && commRank == 0 )
+            Output("KKT construction: ",timer.Stop()," secs");
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot,
+          orders, firstInds, origToSparseFirstInds, kSparse,
+          d, cutoffPar );
+        if( ctrl.time && commRank == 0 )
+            Output("KKTRHS construction: ",timer.Stop()," secs");
+        // Cache the metadata for the finalized JOrig
+        JOrig.LockedDistGraph().multMeta = meta;
+        J = JOrig;
+        J.FreezeSparsity();
+        UpdateDiagonal( J, Real(1), regLarge );
+        J.LockedDistGraph().multMeta = meta;
 
         // Solve for the direction
         // -----------------------
-        J = JOrig;
-        J.FreezeSparsity();
-        J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-        UpdateDiagonal( J, Real(1), regLarge );
-
         /*
         if( commRank == 0 && ctrl.time )
             timer.Start();
@@ -1379,34 +1558,27 @@ void Mehrotra
         else if( wMaxNorm >= ctrl.diagEquilTol )
             SymmetricDiagonalEquil( J, dInner, ctrl.print );
         else
-            Ones( dInner, n+m+k, 1 );
+            Ones( dInner, n+m+kSparse, 1 );
         if( commRank == 0 && ctrl.time )
             Output("Equilibration: ",timer.Stop()," secs");
         */
-        Ones( dInner, n+m+k, 1 );
+        Ones( dInner, n+m+kSparse, 1 );
 
-        if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
-        {
-            const bool hermitian = true;
-            const BisectCtrl bisectCtrl;
-            sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
-        }
-        else
-        {
-            sparseLDLFact.ChangeNonzeroValues( J );
-        }
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
+        sparseLDLFact.ChangeNonzeroValues( J );
+        if( ctrl.time && commRank == 0 )
+            Output("Front pull: ",timer.Stop()," secs");
 
         if( commRank == 0 && ctrl.time )
             timer.Start();
-        if( wMaxNorm >= selInvTol )
-            sparseLDLFact.Factor( LDL_2D );
-        else
-            sparseLDLFact.Factor( LDL_SELINV_2D );
+        sparseLDLFact.Factor( LDL_2D );
         if( commRank == 0 && ctrl.time )
             Output("LDL: ",timer.Stop()," secs");
 
         if( commRank == 0 && ctrl.time )
             timer.Start();
+        // TODO(poulson): Make use of a better interface to these routines.
         RegSolveInfo<Real> solveInfo;
         if( ctrl.twoStage )
         {
@@ -1422,25 +1594,37 @@ void Mehrotra
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( relError < ctrl.minTol )
                     break;
                 else
                     RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
             }
         }
         if( commRank == 0 && ctrl.time )
-            Output("Affine solve: ",timer.Stop()," secs");
-        ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
+            Output("Affine: ",timer.Stop()," secs");
+        ExpandSolution
+        ( m, n, d, rmu, wRoot,
+          orders, firstInds,
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
+          dxAff, dyAff, dzAff, dsAff, cutoffPar );
+        soc::ApplyQuadratic
+        ( wRoot, dzAff, dzAffScaled, orders, firstInds, cutoffPar );
+        soc::ApplyQuadratic
+        ( wRootInv, dsAff, dsAffScaled, orders, firstInds, cutoffPar );
 
         if( ctrl.checkResiduals && ctrl.print )
         {
+            if( ctrl.time && commRank == 0 )
+                timer.Start();
             dxError = rb;
             Multiply( NORMAL, Real(1), A, dxAff, Real(1), dxError );
             const Real dxErrorNrm2 = Nrm2( dxError );
 
             dyError = rc;
-            Multiply( NORMAL,    Real(1), Q, dxAff, Real(1), dyError );
             Multiply( TRANSPOSE, Real(1), A, dyAff, Real(1), dyError );
             Multiply( TRANSPOSE, Real(1), G, dzAff, Real(1), dyError );
             const Real dyErrorNrm2 = Nrm2( dyError );
@@ -1450,24 +1634,43 @@ void Mehrotra
             dzError += dsAff;
             const Real dzErrorNrm2 = Nrm2( dzError );
 
-            // TODO(poulson): dmuError
+            dmuError = dzAffScaled;
+            dmuError += dsAffScaled;
+            dmuError += l;
+            const Real rmuNrm2 = Nrm2( rmu );
+            const Real dmuErrorNrm2 = Nrm2( dmuError );
             // TODO(poulson): Also compute and print the residuals with
             // regularization
 
             if( commRank == 0 )
                 Output
-                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                ("||  r_mu    ||_2 = ",rmuNrm2,"\n",Indent(),
+                 "|| dxError  ||_2 = ",dxErrorNrm2,"\n",Indent(),
+                 "|| dyError  ||_2 = ",dyErrorNrm2,"\n",Indent(),
+                 "|| dzError  ||_2 = ",dzErrorNrm2,"\n",Indent(),
+                 "|| dmuError ||_2 = ",dmuErrorNrm2,"\n",Indent(),
+                 "|| dxError ||_2 / (1 + || r_b ||_2) = ",
                  dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
                  "|| dyError ||_2 / (1 + || r_c ||_2) = ",
                  dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-                 dzErrorNrm2/(1+rhNrm2));
+                 dzErrorNrm2/(1+rhNrm2),"\n",Indent(),
+                 "|| dmuError ||_2 / (1 + || r_mu ||_2) = ",
+                 dmuErrorNrm2/(1+rmuNrm2));
+            if( ctrl.time && commRank == 0 )
+                Output("residual check: ",timer.Stop()," secs");
         }
 
-        // Compute a centrality parameter using Mehrotra's formula
-        // =======================================================
-        Real alphaAffPri = pos_orth::MaxStep( s, dsAff, Real(1) );
-        Real alphaAffDual = pos_orth::MaxStep( z, dzAff, Real(1) );
+        // Compute a centrality parameter
+        // ==============================
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
+        Real alphaAffPri =
+          soc::MaxStep( s, dsAff, orders, firstInds, Real(1), cutoffPar );
+        Real alphaAffDual =
+          soc::MaxStep( z, dzAff, orders, firstInds, Real(1), cutoffPar );
+        if( ctrl.time && commRank == 0 )
+            Output("Affine line search: ",timer.Stop()," secs");
         if( ctrl.forceSameStep )
             alphaAffPri = alphaAffDual = Min(alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
@@ -1488,24 +1691,35 @@ void Mehrotra
 
         // Solve for the combined direction
         // ================================
-        Shift( rmu, -sigma*mu );
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
         if( ctrl.mehrotra )
         {
-            // r_mu += dsAff o dzAff
-            // ---------------------
-            // NOTE: dz is being used as a temporary
-            dz = dzAff;
-            DiagonalScale( LEFT, NORMAL, dsAff, dz );
-            rmu += dz;
+            // r_mu := l + inv(l) o ((inv(W)^T dsAff) o (W dzAff) - sigma*mu)
+            // --------------------------------------------------------------
+            soc::Apply( dsAffScaled, dzAffScaled, rmu, orders, firstInds );
+            soc::Shift( rmu, -sigma*mu, orders, firstInds );
+            soc::Apply( lInv, rmu, orders, firstInds );
+            rmu += l;
         }
+        else
+        {
+            // r_mu -= sigma*mu*inv(l)
+            // -----------------------
+            Axpy( -sigma*mu, lInv, rmu );
+        }
+        if( ctrl.time && commRank == 0 )
+            Output("r_mu formation: ",timer.Stop()," secs");
 
-        // Set up the new RHS
-        // ------------------
-        KKTRHS( rc, rb, rh, rmu, z, d );
-        // Compute the new direction
-        // -------------------------
+        // Compute the proposed step from the KKT system
+        // ---------------------------------------------
+        KKTRHS
+        ( rc, rb, rh, rmu, wRoot,
+          orders, firstInds, origToSparseFirstInds, kSparse,
+          d, cutoffPar );
         if( commRank == 0 && ctrl.time )
             timer.Start();
+        // TODO(poulson): Make use of a better interface to these routines.
         solveInfo.metRequestedTol = false;
         if( ctrl.twoStage )
         {
@@ -1521,21 +1735,40 @@ void Mehrotra
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( relError < ctrl.minTol )
                     break;
                 else
                     RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    ("Solve failed with rel. error ",relError,
+                     " which does not meet the minimum tolerance of ",
+                     ctrl.minTol);
             }
         }
         if( commRank == 0 && ctrl.time )
             Output("Corrector solver: ",timer.Stop()," secs");
-        ExpandSolution( m, n, d, rmu, s, z, dx, dy, dz, ds );
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
+        ExpandSolution
+        ( m, n, d, rmu, wRoot,
+          orders, firstInds,
+          sparseOrders, sparseFirstInds,
+          sparseToOrigOrders, sparseToOrigFirstInds,
+          dx, dy, dz, ds, cutoffPar );
+        if( ctrl.time && commRank == 0 )
+            Output("ExpandSolution: ",timer.Stop()," secs");
 
         // Update the current estimates
         // ============================
-        Real alphaPri = pos_orth::MaxStep( s, ds, 1/ctrl.maxStepRatio );
-        Real alphaDual = pos_orth::MaxStep( z, dz, 1/ctrl.maxStepRatio );
+        if( ctrl.time && commRank == 0 )
+            timer.Start();
+        Real alphaPri =
+          soc::MaxStep
+          ( s, ds, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
+        Real alphaDual =
+          soc::MaxStep
+          ( z, dz, orders, firstInds, 1/ctrl.maxStepRatio, cutoffPar );
+        if( ctrl.time && commRank == 0 )
+            Output("Combined line search: ",timer.Stop()," secs");
         alphaPri = Min(ctrl.maxStepRatio*alphaPri,Real(1));
         alphaDual = Min(ctrl.maxStepRatio*alphaDual,Real(1));
         if( ctrl.forceSameStep )
@@ -1547,18 +1780,18 @@ void Mehrotra
         Axpy( alphaDual, dy, y );
         Axpy( alphaDual, dz, z );
         if( ctrl.time && commRank == 0 )
-            Output("iteration: ",iterTimer.Stop()," secs");
+            Output("Iteration: ",iterTimer.Stop()," secs");
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( relError < ctrl.minTol )
                 break;
             else
                 RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                ("Zero step length computed before reaching minimum tolerance "
+                 "of ",ctrl.minTol);
         }
     }
     SetIndent( indent );
-
     if( ctrl.outerEquil )
     {
         DiagonalSolve( LEFT, NORMAL, dCol,  x );
@@ -1569,54 +1802,58 @@ void Mehrotra
 }
 
 #define PROTO(Real) \
-  template void Mehrotra \
-  ( const Matrix<Real>& Q, \
-    const Matrix<Real>& A, \
+  template void IPM \
+  ( const Matrix<Real>& A, \
     const Matrix<Real>& G, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
-  ( const AbstractDistMatrix<Real>& Q, \
-    const AbstractDistMatrix<Real>& A, \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
+  ( const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& G, \
     const AbstractDistMatrix<Real>& b, \
     const AbstractDistMatrix<Real>& c, \
     const AbstractDistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
           AbstractDistMatrix<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
-  ( const SparseMatrix<Real>& Q, \
-    const SparseMatrix<Real>& A, \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
+  ( const SparseMatrix<Real>& A, \
     const SparseMatrix<Real>& G, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
     const Matrix<Real>& h, \
+    const Matrix<Int>& orders, \
+    const Matrix<Int>& firstInds, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
-  ( const DistSparseMatrix<Real>& Q, \
-    const DistSparseMatrix<Real>& A, \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
+  ( const DistSparseMatrix<Real>& A, \
     const DistSparseMatrix<Real>& G, \
     const DistMultiVec<Real>& b, \
     const DistMultiVec<Real>& c, \
     const DistMultiVec<Real>& h, \
+    const DistMultiVec<Int>& orders, \
+    const DistMultiVec<Int>& firstInds, \
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const MehrotraCtrl<Real>& ctrl );
+    const IPMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO
@@ -1627,5 +1864,5 @@ void Mehrotra
 #include <El/macros/Instantiate.h>
 
 } // namespace affine
-} // namespace qp
+} // namespace socp
 } // namespace El

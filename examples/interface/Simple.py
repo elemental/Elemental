@@ -33,7 +33,7 @@ El.Display( b, "b" )
 El.Print( b, "b" )
 
 ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.progress = True
 
 startTV = El.mpi.Time()
 lambd = 1.

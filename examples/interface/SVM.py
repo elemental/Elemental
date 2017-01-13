@@ -88,7 +88,7 @@ if display:
   El.Display( d, "d" )
 
 ctrl = El.SVMCtrl_d()
-ctrl.ipmCtrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.ipmCtrl.progress = True
 
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)

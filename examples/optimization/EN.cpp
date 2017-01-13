@@ -69,10 +69,10 @@ int main( int argc, char* argv[] )
         }
 
         El::qp::affine::Ctrl<double> ctrl;
-        ctrl.mehrotraCtrl.print = prog;
-        ctrl.mehrotraCtrl.time = time;
-        ctrl.mehrotraCtrl.solveCtrl.progress = solveProg;
-        ctrl.mehrotraCtrl.solveCtrl.time = solveTime;
+        ctrl.ipmCtrl.print = prog;
+        ctrl.ipmCtrl.time = time;
+        ctrl.ipmCtrl.solveCtrl.progress = solveProg;
+        ctrl.ipmCtrl.solveCtrl.time = solveTime;
 
         El::DistMultiVec<double> x;
         El::Timer timer;

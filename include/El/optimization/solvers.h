@@ -19,7 +19,7 @@ typedef enum {
   EL_NORMAL_KKT
 } ElKKTSystem;
 
-/* Mehrotra Predictor-Corrector IPM
+/* Infeasible Interior Point Method
    ================================ */
 /* See the C++ structure for documentation of the members */
 typedef struct {
@@ -36,29 +36,31 @@ typedef struct {
   bool forceSameStep;
   ElRegSolveCtrl_s solveCtrl;
   bool outerEquil;
-  ElInt basisSize;
+  ElInt twoNormKrylovBasisSize;
   bool print;
   bool time;
   float wSafeMaxNorm;
+
+  /* Equilibration controls */
+  bool equilibrateIfSingleStage;
   float wMaxLimit;
   float ruizEquilTol;
   ElInt ruizMaxIter;
   float diagEquilTol;
+
   bool checkResiduals;
 
+  /* Regularization controls */
   float xRegSmall;
   float yRegSmall;
   float zRegSmall;
-
   float xRegLarge;
   float yRegLarge;
   float zRegLarge;
-
   bool twoStage;
-
   float regIncreaseFactor;
 
-} ElMehrotraCtrl_s;
+} ElIPMCtrl_s;
 
 typedef struct {
   bool primalInit, dualInit;
@@ -74,32 +76,34 @@ typedef struct {
   bool forceSameStep;
   ElRegSolveCtrl_d solveCtrl;
   bool outerEquil;
-  ElInt basisSize;
+  ElInt twoNormKrylovBasisSize;
   bool print;
   bool time;
   double wSafeMaxNorm;
+
+  /* Equilibration controls */
+  bool equilibrateIfSingleStage;
   double wMaxLimit;
   double ruizEquilTol;
   ElInt ruizMaxIter;
   double diagEquilTol;
+
   bool checkResiduals;
 
+  /* Regularization controls */
   double xRegSmall;
   double yRegSmall;
   double zRegSmall;
-
   double xRegLarge;
   double yRegLarge;
   double zRegLarge;
-
   bool twoStage;
-
   double regIncreaseFactor;
 
-} ElMehrotraCtrl_d;
+} ElIPMCtrl_d;
 
-EL_EXPORT ElError ElMehrotraCtrlDefault_s( ElMehrotraCtrl_s* ctrl );
-EL_EXPORT ElError ElMehrotraCtrlDefault_d( ElMehrotraCtrl_d* ctrl );
+EL_EXPORT ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl );
+EL_EXPORT ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl );
 
 /* Alternating Direction Method of Multipliers
    =========================================== */
@@ -130,7 +134,7 @@ EL_EXPORT ElError ElADMMCtrlDefault_d( ElADMMCtrl_d* ctrl );
    =============== */
 typedef enum {
   EL_LP_ADMM,
-  EL_LP_MEHROTRA
+  EL_LP_IPM
 } ElLPApproach;
 
 /* Direct conic form
@@ -200,12 +204,12 @@ EL_EXPORT ElError ElLPDirectDistSparse_d
 typedef struct {
   ElLPApproach approach; 
   ElADMMCtrl_s admmCtrl;
-  ElMehrotraCtrl_s mehrotraCtrl;
+  ElIPMCtrl_s ipmCtrl;
 } ElLPDirectCtrl_s;
 typedef struct {
   ElLPApproach approach; 
   ElADMMCtrl_d admmCtrl;
-  ElMehrotraCtrl_d mehrotraCtrl;
+  ElIPMCtrl_d ipmCtrl;
 } ElLPDirectCtrl_d;
 
 EL_EXPORT ElError ElLPDirectCtrlDefault_s
@@ -371,11 +375,11 @@ EL_EXPORT ElError ElLPAffineDistSparse_d
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   ElLPApproach approach; 
-  ElMehrotraCtrl_s mehrotraCtrl;
+  ElIPMCtrl_s ipmCtrl;
 } ElLPAffineCtrl_s;
 typedef struct {
   ElLPApproach approach; 
-  ElMehrotraCtrl_d mehrotraCtrl;
+  ElIPMCtrl_d ipmCtrl;
 } ElLPAffineCtrl_d;
 
 EL_EXPORT ElError ElLPAffineCtrlDefault_s( ElLPAffineCtrl_s* ctrl );
@@ -477,7 +481,7 @@ EL_EXPORT ElError ElLPAffineXDistSparse_d
    ================= */
 typedef enum {
   EL_QP_ADMM,
-  EL_QP_MEHROTRA
+  EL_QP_IPM
 } ElQPApproach;
 
 /* Direct conic form
@@ -554,11 +558,11 @@ EL_EXPORT ElError ElQPDirectDistSparse_d
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   ElQPApproach approach; 
-  ElMehrotraCtrl_s mehrotraCtrl;
+  ElIPMCtrl_s ipmCtrl;
 } ElQPDirectCtrl_s;
 typedef struct {
   ElQPApproach approach; 
-  ElMehrotraCtrl_d mehrotraCtrl;
+  ElIPMCtrl_d ipmCtrl;
 } ElQPDirectCtrl_d;
 
 EL_EXPORT ElError ElQPDirectCtrlDefault_s( ElQPDirectCtrl_s* ctrl );
@@ -738,11 +742,11 @@ EL_EXPORT ElError ElQPAffineDistSparse_d
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   ElQPApproach approach; 
-  ElMehrotraCtrl_s mehrotraCtrl;
+  ElIPMCtrl_s ipmCtrl;
 } ElQPAffineCtrl_s;
 typedef struct {
   ElQPApproach approach; 
-  ElMehrotraCtrl_d mehrotraCtrl;
+  ElIPMCtrl_d ipmCtrl;
 } ElQPAffineCtrl_d;
 
 EL_EXPORT ElError ElQPAffineCtrlDefault_s( ElQPAffineCtrl_s* ctrl );
@@ -915,7 +919,7 @@ EL_EXPORT ElError ElQPBoxADMMXDist_d
    ========================== */
 typedef enum {
   EL_SOCP_ADMM,
-  EL_SOCP_MEHROTRA
+  EL_SOCP_IPM
 } ElSOCPApproach;
 
 /* Direct conic form
@@ -1000,11 +1004,11 @@ EL_EXPORT ElError ElSOCPDirectDistSparse_d
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   ElSOCPApproach approach; 
-  ElMehrotraCtrl_s mehrotraCtrl;
+  ElIPMCtrl_s ipmCtrl;
 } ElSOCPDirectCtrl_s;
 typedef struct {
   ElSOCPApproach approach; 
-  ElMehrotraCtrl_d mehrotraCtrl;
+  ElIPMCtrl_d ipmCtrl;
 } ElSOCPDirectCtrl_d;
 
 EL_EXPORT ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl );
@@ -1200,11 +1204,11 @@ EL_EXPORT ElError ElSOCPAffineDistSparse_d
    ^^^^^^^^^^^^^^^ */
 typedef struct {
   ElSOCPApproach approach; 
-  ElMehrotraCtrl_s mehrotraCtrl;
+  ElIPMCtrl_s ipmCtrl;
 } ElSOCPAffineCtrl_s;
 typedef struct {
   ElSOCPApproach approach; 
-  ElMehrotraCtrl_d mehrotraCtrl;
+  ElIPMCtrl_d ipmCtrl;
 } ElSOCPAffineCtrl_d;
 
 EL_EXPORT ElError ElSOCPAffineCtrlDefault_s( ElSOCPAffineCtrl_s* ctrl );

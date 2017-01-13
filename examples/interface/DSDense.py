@@ -30,7 +30,7 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
+ctrl.ipmCtrl.progress = True
 
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)

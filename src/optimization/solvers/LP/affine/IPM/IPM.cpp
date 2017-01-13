@@ -56,8 +56,7 @@ namespace affine {
 //   max -b^T y
 //   s.t. A^T y - z + c = 0, z >= 0,
 //
-// which corresponds to G = -I and h = 0, using a Mehrotra Predictor-Corrector
-// scheme.
+// which corresponds to G = -I and h = 0.
 //
 // We make use of the regularized Lagrangian
 //
@@ -164,7 +163,7 @@ void Equilibrate
         AffineLPProblem<Matrix<Real>,Matrix<Real>>& equilibratedProblem,
         AffineLPSolution<Matrix<Real>>& equilibratedSolution,
         DenseAffineLPEquilibration<Real>& equilibration,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
 
@@ -239,7 +238,7 @@ void Equilibrate
         AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& equilibratedProblem,
         AffineLPSolution<DistMatrix<Real>>& equilibratedSolution,
         DistDenseAffineLPEquilibration<Real>& equilibration,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
 
@@ -314,7 +313,7 @@ void Equilibrate
         AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& equilibratedProblem,
         AffineLPSolution<Matrix<Real>>& equilibratedSolution,
         SparseAffineLPEquilibration<Real>& equilibration,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
 
@@ -390,7 +389,7 @@ void Equilibrate
           equilibratedProblem,
         AffineLPSolution<DistMultiVec<Real>>& equilibratedSolution,
         DistSparseAffineLPEquilibration<Real>& equilibration,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Grid& grid = problem.A.Grid();
@@ -534,10 +533,10 @@ void UndoEquilibration
 }
 
 template<typename Real>
-void EquilibratedMehrotra
+void EquilibratedIPM
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int m = problem.A.Height();
@@ -840,10 +839,10 @@ void EquilibratedMehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     if( ctrl.outerEquil )
@@ -855,20 +854,20 @@ void Mehrotra
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
     {
-        EquilibratedMehrotra( problem, solution, ctrl );
+        EquilibratedIPM( problem, solution, ctrl );
     }
 }
 
 template<typename Real>
-void EquilibratedMehrotra
+void EquilibratedIPM
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
 
@@ -1192,10 +1191,10 @@ void EquilibratedMehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Grid& grid = problem.A.Grid();
@@ -1210,7 +1209,7 @@ void Mehrotra
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
@@ -1218,14 +1217,14 @@ void Mehrotra
         // Avoid creating unnecessary copies where we can.
         if( SimpleAlignments(problem) && SimpleAlignments(solution) )
         {
-            EquilibratedMehrotra( problem, solution, ctrl );
+            EquilibratedIPM( problem, solution, ctrl );
         }
         else if( SimpleAlignments(problem) )
         {
             AffineLPSolution<DistMatrix<Real>> alignedSolution;
             ForceSimpleAlignments( alignedSolution, grid );
             alignedSolution = solution;
-            EquilibratedMehrotra( problem, alignedSolution, ctrl );
+            EquilibratedIPM( problem, alignedSolution, ctrl );
             solution = alignedSolution;
         }
         else if( SimpleAlignments(solution) )
@@ -1237,7 +1236,7 @@ void Mehrotra
             CopyOrViewHelper( problem.b, alignedProblem.b );
             CopyOrViewHelper( problem.G, alignedProblem.G );
             CopyOrViewHelper( problem.h, alignedProblem.h );
-            EquilibratedMehrotra( alignedProblem, solution, ctrl );
+            EquilibratedIPM( alignedProblem, solution, ctrl );
         }
         else
         {
@@ -1251,19 +1250,19 @@ void Mehrotra
             AffineLPSolution<DistMatrix<Real>> alignedSolution;
             ForceSimpleAlignments( alignedSolution, grid );
             alignedSolution = solution;
-            EquilibratedMehrotra( alignedProblem, alignedSolution, ctrl );
+            EquilibratedIPM( alignedProblem, alignedSolution, ctrl );
             solution = alignedSolution;
         }
     }
 }
 
 template<typename Real>
-void EquilibratedMehrotra
+void EquilibratedIPM
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
         SparseAffineLPEquilibration<Real>& equilibration,
         AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int m = problem.A.Height();
@@ -1278,8 +1277,10 @@ void EquilibratedMehrotra
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
-    const Real twoNormEstA = TwoNormEstimate( problem.A, ctrl.basisSize );
-    const Real twoNormEstG = TwoNormEstimate( problem.G, ctrl.basisSize );
+    const Real twoNormEstA =
+      TwoNormEstimate( problem.A, ctrl.twoNormKrylovBasisSize );
+    const Real twoNormEstG =
+      TwoNormEstimate( problem.G, ctrl.twoNormKrylovBasisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
     {
@@ -1347,9 +1348,6 @@ void EquilibratedMehrotra
     auto increaseRegularization = [&]() {
         if( twoStage )
         {
-            //if( ctrl.print )
-            //    Output("Falling back to single-stage strategy");
-            //twoStage = false;
             if( ctrl.print )
                 Output
                 ("Increasing regularization by a factor of ",
@@ -1383,17 +1381,11 @@ void EquilibratedMehrotra
         EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try
         {
-            // It seems that straight-forward equilibration can prevent the
-            // iterative solver from converging.
-            //
-            // TODO(poulson): Determine if equilibration is safe on pilot87
-            // if twoStage=false. (Yes, but adds a few more iterations.)
-            //
-            if( twoStage )
-            {
-                Ones( dInner, J.Height(), 1 );
-            }
-            else
+            // It seems that straight-forward equilibration in the two-stage
+            // scheme can prevent the iterative solver from converging
+            // (as small errors in the equilibrated scale can become enormous
+            // in the original scale).
+            if( !twoStage && ctrl.equilibrateIfSingleStage )
             {
                 if( wDynamicRange >= ctrl.ruizEquilTol )
                     SymmetricRuizEquil
@@ -1402,6 +1394,10 @@ void EquilibratedMehrotra
                     SymmetricDiagonalEquil( J, dInner, ctrl.print );
                 else
                     Ones( dInner, J.Height(), 1 );
+            }
+            else
+            {
+                Ones( dInner, J.Height(), 1 );
             }
 
             if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
@@ -1956,10 +1952,10 @@ void EquilibratedMehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     if( ctrl.outerEquil )
@@ -1971,7 +1967,7 @@ void Mehrotra
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedMehrotra
+        EquilibratedIPM
         ( problem, equilibration,
           equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
@@ -1986,7 +1982,7 @@ void Mehrotra
         equilibration.zScale = 1;
         auto equilibratedProblem = problem;
         auto equilibratedSolution = solution;
-        EquilibratedMehrotra
+        EquilibratedIPM
         ( problem, equilibration,
           equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
@@ -1994,10 +1990,10 @@ void Mehrotra
 }
 
 template<typename Real>
-void EquilibratedMehrotra
+void EquilibratedIPM
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int m = problem.A.Height();
@@ -2008,11 +2004,16 @@ void EquilibratedMehrotra
     const int commRank = grid.Rank();
     Timer timer;
 
+    if( ctrl.regIncreaseFactor <= Real(1) )
+        LogicError("Regularization increase factor must be at least 1");
+
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
-    const Real twoNormEstA = TwoNormEstimate( problem.A, ctrl.basisSize );
-    const Real twoNormEstG = TwoNormEstimate( problem.G, ctrl.basisSize );
+    const Real twoNormEstA =
+      TwoNormEstimate( problem.A, ctrl.twoNormKrylovBasisSize );
+    const Real twoNormEstG =
+      TwoNormEstimate( problem.G, ctrl.twoNormKrylovBasisSize );
     const Real origTwoNormEst = twoNormEstA + twoNormEstG + 1;
     if( ctrl.print )
     {
@@ -2429,10 +2430,10 @@ void EquilibratedMehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     if( ctrl.outerEquil )
@@ -2450,32 +2451,32 @@ void Mehrotra
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedMehrotra( equilibratedProblem, equilibratedSolution, ctrl );
+        EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
     {
-        EquilibratedMehrotra( problem, solution, ctrl );
+        EquilibratedIPM( problem, solution, ctrl );
     }
 }
 
 #define PROTO(Real) \
-  template void Mehrotra \
+  template void IPM \
   ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
           AffineLPSolution<Matrix<Real>>& solution, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
           AffineLPSolution<DistMatrix<Real>>& solution, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
           AffineLPSolution<Matrix<Real>>& solution, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
           AffineLPSolution<DistMultiVec<Real>>& solution, \
-    const MehrotraCtrl<Real>& ctrl );
+    const IPMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

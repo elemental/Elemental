@@ -13,25 +13,25 @@ namespace lp {
 namespace affine {
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 
 } // namespace affine
 } // namespace lp

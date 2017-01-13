@@ -60,14 +60,14 @@ if display:
 
 ctrl = El.BPCtrl_d(isSparse=True)
 ctrl.useSOCP = False
-ctrl.lpIPMCtrl.mehrotraCtrl.system = El.NORMAL_KKT
-#ctrl.lpIPMCtrl.mehrotraCtrl.system = El.AUGMENTED_KKT
-ctrl.lpIPMCtrl.mehrotraCtrl.time = True
-ctrl.lpIPMCtrl.mehrotraCtrl.progress = True
-ctrl.lpIPMCtrl.mehrotraCtrl.solveCtrl.progress = True
-ctrl.socpIPMCtrl.mehrotraCtrl.time = True
-ctrl.socpIPMCtrl.mehrotraCtrl.progress = True
-ctrl.socpIPMCtrl.mehrotraCtrl.solveCtrl.progress = True
+ctrl.lpIPMCtrl.ipmCtrl.system = El.NORMAL_KKT
+#ctrl.lpIPMCtrl.ipmCtrl.system = El.AUGMENTED_KKT
+ctrl.lpIPMCtrl.ipmCtrl.time = True
+ctrl.lpIPMCtrl.ipmCtrl.progress = True
+ctrl.lpIPMCtrl.ipmCtrl.solveCtrl.progress = True
+ctrl.socpIPMCtrl.ipmCtrl.time = True
+ctrl.socpIPMCtrl.ipmCtrl.progress = True
+ctrl.socpIPMCtrl.ipmCtrl.solveCtrl.progress = True
 startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
 endBP = El.mpi.Time()

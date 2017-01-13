@@ -20,8 +20,8 @@ enum KKTSystem {
 }
 using namespace KKTSystemNS;
 
-// Mehrotra's Predictor-Corrector Infeasible Interior Point Method
-// ===============================================================
+// Infeasible Interior Point Method
+// ================================
 template<typename Real>
 inline Real StepLengthCentrality
 ( Real mu, Real muAff, Real alphaAffPri, Real alphaAffDual )
@@ -33,7 +33,7 @@ inline Real MehrotraCentrality
 { return Min(Pow(muAff/mu,Real(3)),Real(1)); }
 
 template<typename Real>
-struct MehrotraCtrl
+struct IPMCtrl
 {
     // Mark whether or not the primal and/or dual variables were
     // user-initialized.
@@ -106,7 +106,7 @@ struct MehrotraCtrl
 
     // The size of the Krylov subspace used for loosely estimating two-norms of
     // sparse matrices.
-    Int basisSize = 6;
+    Int twoNormKrylovBasisSize = 6;
 
     // Print the progress of the Interior Point Method?
     bool print=false;
@@ -117,7 +117,15 @@ struct MehrotraCtrl
     // A lower bound on the maximum entry in the Nesterov-Todd scaling point
     // before ad-hoc procedures to enforce the cone constraints should be
     // employed.
+    //
+    // DEPRECATED for LP's and QP's
     Real wSafeMaxNorm=Pow(limits::Epsilon<Real>(),Real(-0.15));
+
+    // Equilibrating before factoring in the two-stage scheme can prevent the iterative
+    // solver from converging due to small errors in the equilibrated scale being very
+    // large (and of large rank) in the original scale. Further, equilibration in the
+    // single-stage scheme seems to lead to a few more iterations for PILOT87.
+    bool equilibrateIfSingleStage=false;
 
     // If the Nesterov-Todd scaling point has an entry of magnitude greater than
     // the following and the minimum tolerance has been achieved, simply stop

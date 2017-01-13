@@ -65,10 +65,10 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.LPAffineCtrl_d()
-ctrl.mehrotraCtrl.solveCtrl.progress = True
-ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.outerEquil = True
-ctrl.mehrotraCtrl.time = True
+ctrl.ipmCtrl.solveCtrl.progress = True
+ctrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.outerEquil = True
+ctrl.ipmCtrl.time = True
 startLAV = El.mpi.Time()
 x = El.LAV( A, b, ctrl )
 endLAV = El.mpi.Time()

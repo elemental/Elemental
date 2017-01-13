@@ -41,10 +41,10 @@ main( int argc, char* argv[] )
 
         El::NMFCtrl<Real> ctrl;
         ctrl.nnlsCtrl.approach = El::NNLS_QP;
-        ctrl.nnlsCtrl.qpCtrl.mehrotraCtrl.print = false;
-        ctrl.nnlsCtrl.qpCtrl.mehrotraCtrl.time = false;
-        ctrl.nnlsCtrl.socpCtrl.mehrotraCtrl.print = false;
-        ctrl.nnlsCtrl.socpCtrl.mehrotraCtrl.time = false;
+        ctrl.nnlsCtrl.qpCtrl.ipmCtrl.print = false;
+        ctrl.nnlsCtrl.qpCtrl.ipmCtrl.time = false;
+        ctrl.nnlsCtrl.socpCtrl.ipmCtrl.print = false;
+        ctrl.nnlsCtrl.socpCtrl.ipmCtrl.time = false;
         ctrl.maxIter = maxIter;
 
         El::Timer timer;

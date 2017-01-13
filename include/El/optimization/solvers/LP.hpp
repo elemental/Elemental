@@ -16,7 +16,7 @@ namespace El {
 namespace LPApproachNS {
 enum LPApproach {
   LP_ADMM,
-  LP_MEHROTRA
+  LP_IPM
 };
 } // namespace LPApproachNS
 using namespace LPApproachNS;
@@ -39,12 +39,12 @@ namespace direct {
 template<typename Real>
 struct Ctrl
 {
-    LPApproach approach=LP_MEHROTRA;
+    LPApproach approach=LP_IPM;
     ADMMCtrl<Real> admmCtrl;
-    MehrotraCtrl<Real> mehrotraCtrl;
+    IPMCtrl<Real> ipmCtrl;
 
     Ctrl( bool isSparse )
-    { mehrotraCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
+    { ipmCtrl.system = ( isSparse ? AUGMENTED_KKT : NORMAL_KKT ); }
 };
 
 } // namespace direct
@@ -65,8 +65,8 @@ namespace affine {
 template<typename Real>
 struct Ctrl
 {
-    LPApproach approach=LP_MEHROTRA;
-    MehrotraCtrl<Real> mehrotraCtrl;
+    LPApproach approach=LP_IPM;
+    IPMCtrl<Real> ipmCtrl;
 };
 
 } // namespace affine

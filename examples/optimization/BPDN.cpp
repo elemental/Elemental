@@ -79,7 +79,7 @@ main( int argc, char* argv[] )
 
         El::BPDNCtrl<Real> ctrl;
         ctrl.useIPM = useIPM;
-        ctrl.ipmCtrl.mehrotraCtrl.print = progress;
+        ctrl.ipmCtrl.ipmCtrl.print = progress;
         ctrl.admmCtrl.rho = rho;
         ctrl.admmCtrl.alpha = alpha;
         ctrl.admmCtrl.maxIter = maxIter;

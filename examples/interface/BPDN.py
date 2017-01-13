@@ -63,9 +63,9 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.BPDNCtrl_d()
-ctrl.ipmCtrl.mehrotraCtrl.time = True
-ctrl.ipmCtrl.mehrotraCtrl.progress = True
-ctrl.ipmCtrl.mehrotraCtrl.solveCtrl.progress = True
+ctrl.ipmCtrl.ipmCtrl.time = True
+ctrl.ipmCtrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.ipmCtrl.solveCtrl.progress = True
 
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)

@@ -41,12 +41,12 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.NNLSCtrl_d()
-ctrl.socpCtrl.mehrotraCtrl.progress = False
-ctrl.socpCtrl.mehrotraCtrl.time = False
-ctrl.socpCtrl.mehrotraCtrl.solveCtrl.progress = False
+ctrl.socpCtrl.ipmCtrl.progress = False
+ctrl.socpCtrl.ipmCtrl.time = False
+ctrl.socpCtrl.ipmCtrl.solveCtrl.progress = False
 
 # Solve *with* resolving the regularization
-ctrl.socpCtrl.mehrotraCtrl.twoStage = True
+ctrl.socpCtrl.ipmCtrl.twoStage = True
 startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()
@@ -56,7 +56,7 @@ if display:
   El.Display( x, "x" )
 
 # Solve without resolving the regularization
-ctrl.socpCtrl.mehrotraCtrl.twoStage = False
+ctrl.socpCtrl.ipmCtrl.twoStage = False
 startNNLS = El.mpi.Time()
 x = El.NNLS( A, b, ctrl )
 endNNLS = El.mpi.Time()

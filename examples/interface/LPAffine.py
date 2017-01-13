@@ -11,8 +11,7 @@ import El
 m = 2000
 n = 4000
 k = 3000
-testMehrotra = True
-testIPF = False
+testIPM = True
 manualInit = False
 display = False
 progress = True
@@ -98,55 +97,29 @@ y = El.DistMultiVec()
 z = El.DistMultiVec()
 s = El.DistMultiVec()
 
-if testMehrotra:
-  ctrl.approach = El.LP_MEHROTRA
-  ctrl.mehrotraCtrl.primalInit = manualInit
-  ctrl.mehrotraCtrl.dualInit = manualInit
-  ctrl.mehrotraCtrl.progress = progress
+if testIPM:
+  ctrl.approach = El.LP_IPM
+  ctrl.ipmCtrl.primalInit = manualInit
+  ctrl.ipmCtrl.dualInit = manualInit
+  ctrl.ipmCtrl.progress = progress
   El.Copy( xOrig, x )
   El.Copy( yOrig, y )
   El.Copy( zOrig, z )
   El.Copy( sOrig, s )
-  startMehrotra = El.mpi.Time()
+  startIPM = El.mpi.Time()
   El.LPAffine(A,G,b,c,h,x,y,z,s,ctrl)
-  endMehrotra = El.mpi.Time()
+  endIPM = El.mpi.Time()
   if worldRank == 0:
-    print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
+    print('IPM time: {} seconds'.format(endIPM-startIPM))
 
   if display:
-    El.Display( x, "x Mehrotra" )
-    El.Display( y, "y Mehrotra" )
-    El.Display( z, "z Mehrotra" )
-    El.Display( s, "s Mehrotra" )
+    El.Display( x, "x IPM" )
+    El.Display( y, "y IPM" )
+    El.Display( z, "z IPM" )
+    El.Display( s, "s IPM" )
 
   obj = El.Dot(c,x)
   if worldRank == 0:
-    print('Mehrotra c^T x = {}'.format(obj))
-
-if testIPF:
-  ctrl.approach = El.LP_IPF
-  ctrl.ipfCtrl.primalInit = manualInit
-  ctrl.ipfCtrl.dualInit = manualInit
-  ctrl.ipfCtrl.progress = progress
-  ctrl.ipfCtrl.lineSearchCtrl.progress = progress
-  El.Copy( xOrig, x )
-  El.Copy( yOrig, y )
-  El.Copy( zOrig, z )
-  El.Copy( sOrig, s )
-  startIPF = El.mpi.Time()
-  El.LPAffine(A,G,b,c,h,x,y,z,s,ctrl)
-  endIPF = El.mpi.Time()
-  if worldRank == 0:
-    print('IPF time: {} seconds'.format(endIPF-startIPF))
-
-  if display:
-    El.Display( x, "x IPF" )
-    El.Display( y, "y IPF" )
-    El.Display( z, "z IPF" )
-    El.Display( s, "s IPF" )
-
-  obj = El.Dot(c,x)
-  if worldRank == 0:
-    print('IPF c^T x = {}'.format(obj))
+    print('IPM c^T x = {}'.format(obj))
 
 El.Finalize()

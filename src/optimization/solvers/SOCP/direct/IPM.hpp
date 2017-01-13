@@ -13,7 +13,7 @@ namespace socp {
 namespace direct {
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -22,9 +22,9 @@ void Mehrotra
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AbstractDistMatrix<Real>& A,
   const AbstractDistMatrix<Real>& b,
   const AbstractDistMatrix<Real>& c,
@@ -33,9 +33,9 @@ void Mehrotra
         AbstractDistMatrix<Real>& x,
         AbstractDistMatrix<Real>& y,
         AbstractDistMatrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -44,9 +44,9 @@ void Mehrotra
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
@@ -55,7 +55,7 @@ void Mehrotra
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 
 } // namespace direct
 } // namespace socp

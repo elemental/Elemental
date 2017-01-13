@@ -25,9 +25,9 @@ void SOCP
   const socp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::direct::IPM
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -45,9 +45,9 @@ void SOCP
   const socp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::direct::IPM
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -65,9 +65,9 @@ void SOCP
   const socp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::direct::IPM
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -85,9 +85,9 @@ void SOCP
   const socp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::direct::Mehrotra
-        ( A, b, c, orders, firstInds, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::direct::IPM
+        ( A, b, c, orders, firstInds, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -108,10 +108,9 @@ void SOCP
   const socp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-          ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::affine::IPM
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -132,10 +131,9 @@ void SOCP
   const socp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-          ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::affine::IPM
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -156,10 +154,9 @@ void SOCP
   const socp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-          ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::affine::IPM
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -180,10 +177,9 @@ void SOCP
   const socp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == SOCP_MEHROTRA )
-        socp::affine::Mehrotra
-        ( A, G, b, c, h, orders, firstInds, x, y, z, s,
-          ctrl.mehrotraCtrl );
+    if( ctrl.approach == SOCP_IPM )
+        socp::affine::IPM
+        ( A, G, b, c, h, orders, firstInds, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }

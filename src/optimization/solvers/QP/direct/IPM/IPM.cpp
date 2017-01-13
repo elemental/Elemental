@@ -27,9 +27,7 @@ namespace direct {
 //   s.t. A x = b, G x + s = h, s >= 0,
 //
 //   max (1/2) (A^T y + G^T z + c)^T pinv(Q) (A^T y + G^T z + c) - b^T y - h^T z
-//   s.t. A^T y + G^T z + c in range(Q), z >= 0
-//
-// using a Mehrotra Predictor-Corrector scheme.
+//   s.t. A^T y + G^T z + c in range(Q), z >= 0.
 //
 // We make use of the regularized Lagrangian
 //
@@ -55,7 +53,7 @@ namespace direct {
 //
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const Matrix<Real>& QPre,
   const Matrix<Real>& APre,
   const Matrix<Real>& bPre,
@@ -63,7 +61,7 @@ void Mehrotra
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
 
@@ -394,7 +392,7 @@ void Mehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const AbstractDistMatrix<Real>& QPre,
   const AbstractDistMatrix<Real>& APre,
   const AbstractDistMatrix<Real>& bPre,
@@ -402,7 +400,7 @@ void Mehrotra
         AbstractDistMatrix<Real>& xPre,
         AbstractDistMatrix<Real>& yPre,
         AbstractDistMatrix<Real>& zPre,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Grid& grid = APre.Grid();
@@ -771,7 +769,7 @@ void Mehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const SparseMatrix<Real>& QPre,
   const SparseMatrix<Real>& APre,
   const Matrix<Real>& bPre,
@@ -779,7 +777,7 @@ void Mehrotra
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
 
@@ -819,8 +817,9 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
-    const Real twoNormEstQ = HermitianTwoNormEstimate( Q, ctrl.basisSize );
-    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
+    const Real twoNormEstQ =
+      HermitianTwoNormEstimate( Q, ctrl.twoNormKrylovBasisSize );
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.twoNormKrylovBasisSize );
     const Real origTwoNormEst = twoNormEstQ + twoNormEstA + 1;
     if( ctrl.print )
     {
@@ -1214,7 +1213,7 @@ void Mehrotra
 }
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DistSparseMatrix<Real>& QPre,
   const DistSparseMatrix<Real>& APre,
   const DistMultiVec<Real>& bPre,
@@ -1222,7 +1221,7 @@ void Mehrotra
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-  const MehrotraCtrl<Real>& ctrl )
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Grid& grid = APre.Grid();
@@ -1269,8 +1268,9 @@ void Mehrotra
 
     const Real bNrm2 = Nrm2( b );
     const Real cNrm2 = Nrm2( c );
-    const Real twoNormEstQ = HermitianTwoNormEstimate( Q, ctrl.basisSize );
-    const Real twoNormEstA = TwoNormEstimate( A, ctrl.basisSize );
+    const Real twoNormEstQ =
+      HermitianTwoNormEstimate( Q, ctrl.twoNormKrylovBasisSize );
+    const Real twoNormEstA = TwoNormEstimate( A, ctrl.twoNormKrylovBasisSize );
     const Real origTwoNormEst = twoNormEstQ + twoNormEstA + 1;
     if( ctrl.print )
     {
@@ -1718,7 +1718,7 @@ void Mehrotra
 }
 
 #define PROTO(Real) \
-  template void Mehrotra \
+  template void IPM \
   ( const Matrix<Real>& Q, \
     const Matrix<Real>& A, \
     const Matrix<Real>& b, \
@@ -1726,8 +1726,8 @@ void Mehrotra
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const AbstractDistMatrix<Real>& Q, \
     const AbstractDistMatrix<Real>& A, \
     const AbstractDistMatrix<Real>& b, \
@@ -1735,8 +1735,8 @@ void Mehrotra
           AbstractDistMatrix<Real>& x, \
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const SparseMatrix<Real>& Q, \
     const SparseMatrix<Real>& A, \
     const Matrix<Real>& b, \
@@ -1744,8 +1744,8 @@ void Mehrotra
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl ); \
-  template void Mehrotra \
+    const IPMCtrl<Real>& ctrl ); \
+  template void IPM \
   ( const DistSparseMatrix<Real>& Q, \
     const DistSparseMatrix<Real>& A, \
     const DistMultiVec<Real>& b, \
@@ -1753,7 +1753,7 @@ void Mehrotra
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
-    const MehrotraCtrl<Real>& ctrl );
+    const IPMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

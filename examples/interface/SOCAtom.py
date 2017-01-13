@@ -73,10 +73,10 @@ y = El.DistMultiVec()
 z = El.DistMultiVec()
 s = El.DistMultiVec()
 ctrl = El.SOCPAffineCtrl_d()
-ctrl.mehrotraCtrl.solveCtrl.progress = True
-ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.outerEquil = True
-ctrl.mehrotraCtrl.time = True
+ctrl.ipmCtrl.solveCtrl.progress = True
+ctrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.outerEquil = True
+ctrl.ipmCtrl.time = True
 El.SOCPAffine(A,G,b,c,h,orders,firstInds,x,y,z,s,ctrl)
 
 El.Finalize()

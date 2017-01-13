@@ -26,8 +26,8 @@ void QP
   const qp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::direct::IPM( Q, A, b, c, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -44,8 +44,8 @@ void QP
   const qp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::direct::IPM( Q, A, b, c, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -62,8 +62,8 @@ void QP
   const qp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::direct::IPM( Q, A, b, c, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -80,8 +80,8 @@ void QP
   const qp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::direct::Mehrotra( Q, A, b, c, x, y, z, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::direct::IPM( Q, A, b, c, x, y, z, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -103,8 +103,8 @@ void QP
   const qp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::affine::IPM( Q, A, G, b, c, h, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -124,8 +124,8 @@ void QP
   const qp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::affine::IPM( Q, A, G, b, c, h, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -145,8 +145,8 @@ void QP
   const qp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::affine::IPM( Q, A, G, b, c, h, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -166,8 +166,8 @@ void QP
   const qp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == QP_MEHROTRA )
-        qp::affine::Mehrotra( Q, A, G, b, c, h, x, y, z, s, ctrl.mehrotraCtrl );
+    if( ctrl.approach == QP_IPM )
+        qp::affine::IPM( Q, A, G, b, c, h, x, y, z, s, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }

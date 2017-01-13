@@ -62,13 +62,13 @@ if display:
   El.Display( c, "c" )
 
 ctrl = El.SOCPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.time = False
-ctrl.mehrotraCtrl.solveCtrl.progress = False
-ctrl.mehrotraCtrl.solveCtrl.time = False
+ctrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.time = False
+ctrl.ipmCtrl.solveCtrl.progress = False
+ctrl.ipmCtrl.solveCtrl.time = False
 
 # Solve *with* resolving the regularization
-ctrl.mehrotraCtrl.twoStage = True
+ctrl.ipmCtrl.twoStage = True
 startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
@@ -78,7 +78,7 @@ if display:
   El.Display( x, "x" )
 
 # Solve without resolving the regularization
-ctrl.mehrotraCtrl.twoStage = False
+ctrl.ipmCtrl.twoStage = False
 startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()

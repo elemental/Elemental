@@ -29,8 +29,8 @@ if display:
   El.Display( b, "b" )
 
 ctrl = El.QPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = True
-ctrl.mehrotraCtrl.time = True
+ctrl.ipmCtrl.progress = True
+ctrl.ipmCtrl.time = True
 
 if worldRank == 0:
   print('lambda1 = {}, lambda2 = {}'.format(lambda1,lambda2))

@@ -23,8 +23,8 @@ void LP
     if( ctrl.approach == LP_ADMM )
         lp::direct::ADMM
         ( problem.A, problem.b, problem.c, solution.x, ctrl.admmCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    else if( ctrl.approach == LP_IPM )
+        lp::direct::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -62,8 +62,8 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    if( ctrl.approach == LP_IPM )
+        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -111,8 +111,8 @@ void LP
     if( ctrl.approach == LP_ADMM )
         lp::direct::ADMM
         ( problem.A, problem.b, problem.c, solution.x, ctrl.admmCtrl );
-    else if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    else if( ctrl.approach == LP_IPM )
+        lp::direct::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -152,8 +152,8 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    if( ctrl.approach == LP_IPM )
+        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -200,8 +200,8 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    if( ctrl.approach == LP_IPM )
+        lp::direct::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -239,8 +239,8 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    if( ctrl.approach == LP_IPM )
+        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -285,8 +285,8 @@ void LP
   const lp::direct::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::direct::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    if( ctrl.approach == LP_IPM )
+        lp::direct::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }
@@ -329,8 +329,8 @@ void LP
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    if( ctrl.approach == LP_MEHROTRA )
-        lp::affine::Mehrotra( problem, solution, ctrl.mehrotraCtrl );
+    if( ctrl.approach == LP_IPM )
+        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
 }

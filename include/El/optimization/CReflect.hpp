@@ -18,11 +18,11 @@ inline ElKKTSystem CReflect( KKTSystem system )
 inline KKTSystem CReflect( ElKKTSystem system )
 { return static_cast<KKTSystem>(system); }
 
-/* Mehrotra's Predictor-Corrector IPM
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
-inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
+/* Infeasible IPM
+   ^^^^^^^^^^^^^^ */
+inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
 {
-    ElMehrotraCtrl_s ctrlC;
+    ElIPMCtrl_s ctrlC;
     ctrlC.primalInit    = ctrl.primalInit;
     ctrlC.dualInit      = ctrl.dualInit;
     ctrlC.minTol        = ctrl.minTol;
@@ -44,15 +44,19 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.forceSameStep     = ctrl.forceSameStep;
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.outerEquil        = ctrl.outerEquil;
-    ctrlC.basisSize         = ctrl.basisSize;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
-    ctrlC.wSafeMaxNorm      = ctrl.wSafeMaxNorm;
-    ctrlC.wMaxLimit         = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol      = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter       = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol      = ctrl.diagEquilTol;
-    ctrlC.checkResiduals    = ctrl.checkResiduals;
+
+    ctrlC.twoNormKrylovBasisSize = ctrl.twoNormKrylovBasisSize;
+
+    ctrlC.print  = ctrl.print;
+    ctrlC.time = ctrl.time;
+    ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
+
+    ctrlC.equilibrateIfSingleStage = ctrl.equilibrateIfSingleStage;
+    ctrlC.wMaxLimit = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol = ctrl.diagEquilTol;
+    ctrlC.checkResiduals = ctrl.checkResiduals;
 
     ctrlC.xRegSmall = ctrl.xRegSmall;
     ctrlC.yRegSmall = ctrl.yRegSmall;
@@ -67,9 +71,9 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
 
     return ctrlC;
 }
-inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
+inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
 {
-    ElMehrotraCtrl_d ctrlC;
+    ElIPMCtrl_d ctrlC;
     ctrlC.primalInit    = ctrl.primalInit;
     ctrlC.dualInit      = ctrl.dualInit;
     ctrlC.minTol        = ctrl.minTol;
@@ -91,15 +95,19 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.forceSameStep     = ctrl.forceSameStep;
     ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
     ctrlC.outerEquil        = ctrl.outerEquil;
-    ctrlC.basisSize         = ctrl.basisSize;
-    ctrlC.print             = ctrl.print;
-    ctrlC.time              = ctrl.time;
-    ctrlC.wSafeMaxNorm      = ctrl.wSafeMaxNorm;
-    ctrlC.wMaxLimit         = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol      = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter       = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol      = ctrl.diagEquilTol;
-    ctrlC.checkResiduals    = ctrl.checkResiduals;
+
+    ctrlC.twoNormKrylovBasisSize = ctrl.twoNormKrylovBasisSize;
+
+    ctrlC.print = ctrl.print;
+    ctrlC.time = ctrl.time;
+    ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
+
+    ctrlC.equilibrateIfSingleStage = ctrl.equilibrateIfSingleStage;
+    ctrlC.wMaxLimit = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol = ctrl.diagEquilTol;
+    ctrlC.checkResiduals = ctrl.checkResiduals;
 
     ctrlC.xRegSmall = ctrl.xRegSmall;
     ctrlC.yRegSmall = ctrl.yRegSmall;
@@ -114,9 +122,9 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
 
     return ctrlC;
 }
-inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
+inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
 {
-    MehrotraCtrl<float> ctrl;
+    IPMCtrl<float> ctrl;
     ctrl.primalInit        = ctrlC.primalInit;
     ctrl.dualInit          = ctrlC.dualInit;
     ctrl.minTol            = ctrlC.minTol;
@@ -131,15 +139,19 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
     ctrl.forceSameStep     = ctrlC.forceSameStep;
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.outerEquil        = ctrlC.outerEquil;
-    ctrl.basisSize         = ctrlC.basisSize;
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
-    ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
-    ctrl.wMaxLimit         = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol      = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter       = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol      = ctrlC.diagEquilTol;
-    ctrl.checkResiduals    = ctrlC.checkResiduals;
+
+    ctrl.twoNormKrylovBasisSize = ctrlC.twoNormKrylovBasisSize;
+
+    ctrl.print = ctrlC.print;
+    ctrl.time = ctrlC.time;
+    ctrl.wSafeMaxNorm = ctrlC.wSafeMaxNorm;
+
+    ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
+    ctrl.wMaxLimit = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol = ctrlC.diagEquilTol;
+    ctrl.checkResiduals = ctrlC.checkResiduals;
 
     ctrl.xRegSmall = ctrlC.xRegSmall;
     ctrl.yRegSmall = ctrlC.yRegSmall;
@@ -154,9 +166,9 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
 
     return ctrl;
 }
-inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
+inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
 {
-    MehrotraCtrl<double> ctrl;
+    IPMCtrl<double> ctrl;
     ctrl.primalInit        = ctrlC.primalInit;
     ctrl.dualInit          = ctrlC.dualInit;
     ctrl.minTol            = ctrlC.minTol;
@@ -171,15 +183,19 @@ inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
     ctrl.forceSameStep     = ctrlC.forceSameStep;
     ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
     ctrl.outerEquil        = ctrlC.outerEquil;
-    ctrl.basisSize         = ctrlC.basisSize;
+
+    ctrl.twoNormKrylovBasisSize = ctrlC.twoNormKrylovBasisSize;
+
     ctrl.print             = ctrlC.print;
     ctrl.time              = ctrlC.time;
     ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
-    ctrl.wMaxLimit         = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol      = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter       = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol      = ctrlC.diagEquilTol;
-    ctrl.checkResiduals    = ctrlC.checkResiduals;
+
+    ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
+    ctrl.wMaxLimit = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol = ctrlC.diagEquilTol;
+    ctrl.checkResiduals = ctrlC.checkResiduals;
 
     ctrl.xRegSmall = ctrlC.xRegSmall;
     ctrl.yRegSmall = ctrlC.yRegSmall;
@@ -258,33 +274,33 @@ inline LPApproach CReflect( ElLPApproach approach )
 inline ElLPDirectCtrl_s CReflect( const lp::direct::Ctrl<float>& ctrl )
 {
     ElLPDirectCtrl_s ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline ElLPDirectCtrl_d CReflect( const lp::direct::Ctrl<double>& ctrl )
 {
     ElLPDirectCtrl_d ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.admmCtrl     = CReflect(ctrl.admmCtrl);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.admmCtrl = CReflect(ctrl.admmCtrl);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline lp::direct::Ctrl<float> CReflect( const ElLPDirectCtrl_s& ctrlC )
 {
     lp::direct::Ctrl<float> ctrl(false);
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 inline lp::direct::Ctrl<double> CReflect( const ElLPDirectCtrl_d& ctrlC )
 {
     lp::direct::Ctrl<double> ctrl(false);
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.admmCtrl     = CReflect(ctrlC.admmCtrl);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.admmCtrl = CReflect(ctrlC.admmCtrl);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
@@ -293,29 +309,29 @@ inline lp::direct::Ctrl<double> CReflect( const ElLPDirectCtrl_d& ctrlC )
 inline ElLPAffineCtrl_s CReflect( const lp::affine::Ctrl<float>& ctrl )
 {
     ElLPAffineCtrl_s ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline ElLPAffineCtrl_d CReflect( const lp::affine::Ctrl<double>& ctrl )
 {
     ElLPAffineCtrl_d ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline lp::affine::Ctrl<float> CReflect( const ElLPAffineCtrl_s& ctrlC )
 {
     lp::affine::Ctrl<float> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 inline lp::affine::Ctrl<double> CReflect( const ElLPAffineCtrl_d& ctrlC )
 {
     lp::affine::Ctrl<double> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
@@ -331,29 +347,29 @@ inline QPApproach CReflect( ElQPApproach approach )
 inline ElQPDirectCtrl_s CReflect( const qp::direct::Ctrl<float>& ctrl )
 {
     ElQPDirectCtrl_s ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline ElQPDirectCtrl_d CReflect( const qp::direct::Ctrl<double>& ctrl )
 {
     ElQPDirectCtrl_d ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline qp::direct::Ctrl<float> CReflect( const ElQPDirectCtrl_s& ctrlC )
 {
     qp::direct::Ctrl<float> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 inline qp::direct::Ctrl<double> CReflect( const ElQPDirectCtrl_d& ctrlC )
 {
     qp::direct::Ctrl<double> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
@@ -362,29 +378,29 @@ inline qp::direct::Ctrl<double> CReflect( const ElQPDirectCtrl_d& ctrlC )
 inline ElQPAffineCtrl_s CReflect( const qp::affine::Ctrl<float>& ctrl )
 {
     ElQPAffineCtrl_s ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline ElQPAffineCtrl_d CReflect( const qp::affine::Ctrl<double>& ctrl )
 {
     ElQPAffineCtrl_d ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline qp::affine::Ctrl<float> CReflect( const ElQPAffineCtrl_s& ctrlC )
 {
     qp::affine::Ctrl<float> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 inline qp::affine::Ctrl<double> CReflect( const ElQPAffineCtrl_d& ctrlC )
 {
     qp::affine::Ctrl<double> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
@@ -400,29 +416,29 @@ inline SOCPApproach CReflect( ElSOCPApproach approach )
 inline ElSOCPDirectCtrl_s CReflect( const socp::direct::Ctrl<float>& ctrl )
 {
     ElSOCPDirectCtrl_s ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline ElSOCPDirectCtrl_d CReflect( const socp::direct::Ctrl<double>& ctrl )
 {
     ElSOCPDirectCtrl_d ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline socp::direct::Ctrl<float> CReflect( const ElSOCPDirectCtrl_s& ctrlC )
 {
     socp::direct::Ctrl<float> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 inline socp::direct::Ctrl<double> CReflect( const ElSOCPDirectCtrl_d& ctrlC )
 {
     socp::direct::Ctrl<double> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
@@ -431,29 +447,29 @@ inline socp::direct::Ctrl<double> CReflect( const ElSOCPDirectCtrl_d& ctrlC )
 inline ElSOCPAffineCtrl_s CReflect( const socp::affine::Ctrl<float>& ctrl )
 {
     ElSOCPAffineCtrl_s ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline ElSOCPAffineCtrl_d CReflect( const socp::affine::Ctrl<double>& ctrl )
 {
     ElSOCPAffineCtrl_d ctrlC;
-    ctrlC.approach     = CReflect(ctrl.approach);
-    ctrlC.mehrotraCtrl = CReflect(ctrl.mehrotraCtrl);
+    ctrlC.approach = CReflect(ctrl.approach);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 inline socp::affine::Ctrl<float> CReflect( const ElSOCPAffineCtrl_s& ctrlC )
 {
     socp::affine::Ctrl<float> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 inline socp::affine::Ctrl<double> CReflect( const ElSOCPAffineCtrl_d& ctrlC )
 {
     socp::affine::Ctrl<double> ctrl;
-    ctrl.approach     = CReflect(ctrlC.approach);
-    ctrl.mehrotraCtrl = CReflect(ctrlC.mehrotraCtrl);
+    ctrl.approach = CReflect(ctrlC.approach);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 

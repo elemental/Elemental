@@ -13,25 +13,25 @@ namespace lp {
 namespace direct {
 
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         DirectLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         DirectLPSolution<DistMatrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         DirectLPSolution<Matrix<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 template<typename Real>
-void Mehrotra
+void IPM
 ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         DirectLPSolution<DistMultiVec<Real>>& solution,
-  const MehrotraCtrl<Real>& ctrl=MehrotraCtrl<Real>() );
+  const IPMCtrl<Real>& ctrl=IPMCtrl<Real>() );
 
 // NOTE: This should be in a different header
 template<typename Real>

@@ -16,7 +16,7 @@ namespace El {
 namespace SOCPApproachNS {
 enum SOCPApproach {
   SOCP_ADMM,     // NOTE: Not yet supported
-  SOCP_MEHROTRA
+  SOCP_IPM
 };
 } // namespace SOCPApproachNS
 using namespace SOCPApproachNS;
@@ -40,14 +40,14 @@ namespace direct {
 template<typename Real>
 struct Ctrl
 {
-    SOCPApproach approach=SOCP_MEHROTRA;
-    MehrotraCtrl<Real> mehrotraCtrl;
+    SOCPApproach approach=SOCP_IPM;
+    IPMCtrl<Real> ipmCtrl;
 
     Ctrl()
     {
-        mehrotraCtrl.system = AUGMENTED_KKT;
-        mehrotraCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
-        mehrotraCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
+        ipmCtrl.system = AUGMENTED_KKT;
+        ipmCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
+        ipmCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
     }
 };
 
@@ -71,13 +71,13 @@ namespace affine {
 template<typename Real>
 struct Ctrl
 {
-    SOCPApproach approach=SOCP_MEHROTRA;
-    MehrotraCtrl<Real> mehrotraCtrl;
+    SOCPApproach approach=SOCP_IPM;
+    IPMCtrl<Real> ipmCtrl;
 
     Ctrl()
     {
-        mehrotraCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
-        mehrotraCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
+        ipmCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
+        ipmCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
     }
 };
 
