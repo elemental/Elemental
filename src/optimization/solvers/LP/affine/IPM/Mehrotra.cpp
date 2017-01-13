@@ -545,9 +545,6 @@ void EquilibratedMehrotra
     const Int k = problem.G.Height();
     const Int degree = k;
 
-    // TODO(poulson): Move this into the mehrotra control structure.
-    const Real minDimacsDecreaseRatio = Real(0.99);
-
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -686,7 +683,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
+            dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -894,9 +891,6 @@ void EquilibratedMehrotra
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
 
-    // TODO(poulson): Move this into the mehrotra control structure.
-    const Real minDimacsDecreaseRatio = Real(0.99);
-
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -1044,7 +1038,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
+            dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -1281,9 +1275,6 @@ void EquilibratedMehrotra
     if( ctrl.regIncreaseFactor <= Real(1) )
         LogicError("Regularization increase factor must be at least 1");
 
-    // TODO(poulson): Move this into the mehrotra control structure.
-    const Real minDimacsDecreaseRatio = Real(0.99);
-
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -1356,15 +1347,31 @@ void EquilibratedMehrotra
     auto increaseRegularization = [&]() {
         if( twoStage )
         {
+            //if( ctrl.print )
+            //    Output("Falling back to single-stage strategy");
+            //twoStage = false;
             if( ctrl.print )
-                Output("No longer attempting to resolve large regularization");
-            twoStage = false;
+                Output
+                ("Increasing regularization by a factor of ",
+             ctrl.regIncreaseFactor);
+
+            UpdateDiagonal( JStatic, ctrl.regIncreaseFactor-Real(1), regSmall );
+            regSmall *= ctrl.regIncreaseFactor;
+            xRegSmall *= ctrl.regIncreaseFactor;
+            yRegSmall *= ctrl.regIncreaseFactor;
+            zRegSmall *= ctrl.regIncreaseFactor;
+
+            regLarge *= ctrl.regIncreaseFactor;
+            xRegLarge *= ctrl.regIncreaseFactor;
+            yRegLarge *= ctrl.regIncreaseFactor;
+            zRegLarge *= ctrl.regIncreaseFactor;
         }
         else
         {
-            Output
-            ("Increasing regularization by a factor of ",
-             ctrl.regIncreaseFactor);
+            if( ctrl.print )
+                Output
+                ("Increasing regularization by a factor of ",
+                 ctrl.regIncreaseFactor);
             regLarge *= ctrl.regIncreaseFactor;
             xRegLarge *= ctrl.regIncreaseFactor;
             yRegLarge *= ctrl.regIncreaseFactor;
@@ -1450,7 +1457,7 @@ void EquilibratedMehrotra
             {
                 if( dimacsError > ctrl.minTol )
                     Output
-                    ("WARNING: Could not solve with two-stage regularization");
+                    ("Could not solve with current two-stage regularization");
                 return false;
             }
         }
@@ -1482,7 +1489,7 @@ void EquilibratedMehrotra
             {
                 if( dimacsError > ctrl.minTol )
                     Output
-                    ("WARNING: Could not solve with one-stage regularization");
+                    ("Could not solve with current one-stage regularization");
                 return false;
             }
         }
@@ -1689,7 +1696,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
+            dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError
@@ -2001,9 +2008,6 @@ void EquilibratedMehrotra
     const int commRank = grid.Rank();
     Timer timer;
 
-    // TODO(poulson): Move this into the mehrotra control structure.
-    const Real minDimacsDecreaseRatio = Real(0.99);
-
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -2260,7 +2264,7 @@ void EquilibratedMehrotra
             break;
         // Exit if progress has stalled and we are sufficiently accurate.
         if( dimacsError <= ctrl.minTol &&
-            dimacsError >= minDimacsDecreaseRatio*dimacsErrorOld )
+            dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
             break;
         if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
             RuntimeError

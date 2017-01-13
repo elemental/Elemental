@@ -53,6 +53,11 @@ struct MehrotraCtrl
     // Exit the Interior Point Methods if this tolerance has been achieved.
     Real targetTol=Pow(limits::Epsilon<Real>(),Real(0.5));
 
+    // If the minimum tolerance has already been achieved, then exit if the
+    // DIMACS error is multiplied by a factor larger than the following on any
+    // subsequent iteration.
+    Real minDimacsDecreaseRatio=Real(0.99);
+
     // The maximum number of iterations of the IPM. This should only be
     // activated in pathological circumstances, as even 100 iterations of an
     // IPM is excessive.
@@ -173,7 +178,7 @@ struct MehrotraCtrl
 
     // If it turns out that even the "large" regularization cannot be resolved,'
     // we will increase it by the following factor at each iteration.
-    Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(-0.01));
+    Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(-0.02));
 
     // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
     // replace the default, (muAff/mu)^3
