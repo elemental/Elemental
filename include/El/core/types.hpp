@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_TYPES_HPP
@@ -18,11 +18,14 @@ struct Range
     Range() : beg(0), end(0) { }
     Range( T begArg, T endArg ) : beg(begArg), end(endArg) { }
 
-    Range<T> operator+( T shift ) const 
+    Range<T> operator+( T shift ) const
     { return Range<T>(beg+shift,end+shift); }
 
-    Range<T> operator-( T shift ) const 
+    Range<T> operator-( T shift ) const
     { return Range<T>(beg-shift,end-shift); }
+
+    Range<T> operator*( T scale ) const
+    { return Range<T>(beg*scale,end*scale); }
 };
 
 static const Int END = -100;
@@ -35,18 +38,25 @@ struct Range<Int>
     Range( Int index ) : beg(index), end(index+1) { }
     Range( Int begArg, Int endArg ) : beg(begArg), end(endArg) { }
 
-    Range<Int> operator+( Int shift ) const 
-    { 
+    Range<Int> operator+( Int shift ) const
+    {
         if( end == END )
             throw std::logic_error("Unsupported shift");
-        return Range<Int>(beg+shift,end+shift); 
+        return Range<Int>(beg+shift,end+shift);
     }
 
-    Range<Int> operator-( Int shift ) const 
-    { 
+    Range<Int> operator-( Int shift ) const
+    {
         if( end == END )
             throw std::logic_error("Unsupported shift");
-        return Range<Int>(beg-shift,end-shift); 
+        return Range<Int>(beg-shift,end-shift);
+    }
+
+    Range<Int> operator*( Int scale ) const
+    {
+        if( end == END )
+            throw std::logic_error("Unsupported scale");
+        return Range<Int>(beg*scale,end*scale);
     }
 };
 typedef Range<Int> IR;
@@ -77,16 +87,16 @@ struct ValueInt<Complex<Real>>
 
     static bool Lesser
     ( const ValueInt<Complex<Real>>& a, const ValueInt<Complex<Real>>& b )
-    { 
+    {
         return RealPart(a.value) < RealPart(b.value) ||
-               (RealPart(a.value) == RealPart(b.value) && 
+               (RealPart(a.value) == RealPart(b.value) &&
                 ImagPart(a.value) < ImagPart(b.value));
     }
     static bool Greater
     ( const ValueInt<Complex<Real>>& a, const ValueInt<Complex<Real>>& b )
     {
         return RealPart(a.value) > RealPart(b.value) ||
-               (RealPart(a.value) == RealPart(b.value) && 
+               (RealPart(a.value) == RealPart(b.value) &&
                 ImagPart(a.value) > ImagPart(b.value));
     }
 };
@@ -108,24 +118,24 @@ struct Entry<Complex<Real>>
 {
     Int i, j;
     Complex<Real> value;
-    
+
     static bool Lesser
     ( const Entry<Complex<Real>>& a, const Entry<Complex<Real>>& b )
-    { 
+    {
         return RealPart(a.value) < RealPart(b.value) ||
-               (RealPart(a.value) == RealPart(b.value) && 
+               (RealPart(a.value) == RealPart(b.value) &&
                 ImagPart(a.value) < ImagPart(b.value));
     }
     static bool Greater
     ( const Entry<Complex<Real>>& a, const Entry<Complex<Real>>& b )
     {
         return RealPart(a.value) > RealPart(b.value) ||
-               (RealPart(a.value) == RealPart(b.value) && 
+               (RealPart(a.value) == RealPart(b.value) &&
                 ImagPart(a.value) > ImagPart(b.value));
     }
 };
 
-// For the safe computation of products. The result is given by 
+// For the safe computation of products. The result is given by
 //   product = rho * exp(kappa*n)
 // where rho lies in (usually on) the unit circle and kappa is real-valued.
 template<typename F>
@@ -153,7 +163,7 @@ enum MatrixClass
     GENERAL,
     HERMITIAN,
     HERMITIAN_LOWER,
-    HERMITIAN_UPPER, 
+    HERMITIAN_UPPER,
     SYMMETRIC,
     SYMMETRIC_LOWER,
     SYMMETRIC_UPPER,
@@ -234,7 +244,7 @@ template<> constexpr Dist DiagRow<MR,MC>() { return STAR; }
 // Runtime
 // -------
 inline Dist DiagCol( Dist U, Dist V ) EL_NO_EXCEPT
-{ 
+{
     if( U == MC && V == MR )
         return MD;
     else if( U == MR && V == MC )
@@ -292,8 +302,8 @@ template<>       constexpr Dist Partial<VR>() { return MR; }
 // Run-time
 // --------
 inline Dist Partial( Dist U ) EL_NO_EXCEPT
-{ 
-    if( U == VC ) 
+{
+    if( U == VC )
         return MC;
     else if( U == VR )
         return MR;
@@ -307,12 +317,12 @@ inline Dist Partial( Dist U ) EL_NO_EXCEPT
 // ------------
 template<Dist U,Dist V> constexpr Dist PartialUnionRow()          { return V;  }
 template<>              constexpr Dist PartialUnionRow<VC,STAR>() { return MR; }
-template<>              constexpr Dist PartialUnionRow<VR,STAR>() { return MC; }template<Dist U,Dist V> constexpr Dist PartialUnionCol() 
+template<>              constexpr Dist PartialUnionRow<VR,STAR>() { return MC; }template<Dist U,Dist V> constexpr Dist PartialUnionCol()
 { return PartialUnionRow<V,U>(); }
 // Run-time
 // --------
 inline Dist PartialUnionRow( Dist U, Dist V ) EL_NO_EXCEPT
-{ 
+{
     if( U == VC )
         return MR;
     else if( U == VR )
@@ -341,9 +351,9 @@ template<>              constexpr Dist ProductDist<STAR,VC  >() { return VC;   }
 template<>              constexpr Dist ProductDist<STAR,VR  >() { return VR;   }
 template<>              constexpr Dist ProductDist<VC,  STAR>() { return VC;   }
 template<>              constexpr Dist ProductDist<VR,  STAR>() { return VR;   }
-template<Dist U,Dist V> 
+template<Dist U,Dist V>
 constexpr Dist ProductDistPartner() { return STAR; }
-template<> 
+template<>
 constexpr Dist ProductDistPartner<CIRC,CIRC>() { return CIRC; }
 // Runtime
 // -------
