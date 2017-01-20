@@ -47,11 +47,32 @@ struct IPMCtrl
     //       trivial bug.
     bool primalInit=false, dualInit=false;
 
-    // Throw an exception if this tolerance could not be achieved.
-    Real minTol=Pow(limits::Epsilon<Real>(),Real(0.3));
+    // Demand that
+    //
+    //   max{ || A^T y + G^T z + c ||_2 / (1 + || c ||_2),
+    //        || A x - b ||_2 / (1 + || b ||_2),
+    //        || G x + s - h ||_2 / (1 + || h ||_2) }
+    //
+    // is less than this value.
+    Real infeasibilityTol=
+      Pow(limits::Epsilon<Real>(),Real(0.5));
 
-    // Exit the Interior Point Methods if this tolerance has been achieved.
-    Real targetTol=Pow(limits::Epsilon<Real>(),Real(0.5));
+    // Demand that
+    //
+    //   | primalObjective - dualObjective | /
+    //   (max{ |primalObjective|, |dualObjective| } + 1)
+    //
+    // is less than this value.
+    Real relativeObjectiveGapTol=
+      Pow(limits::Epsilon<Real>(),Real(0.3));
+
+    // Demand that 
+    //
+    //   s^T z / max{ -c^T x, -b^T y - h^T z }
+    //
+    // is less than this value.
+    Real relativeComplementarityGapTol=
+      Pow(limits::Epsilon<Real>(),Real(0.3));
 
     // If the minimum tolerance has already been achieved, then exit if the
     // DIMACS error is multiplied by a factor larger than the following on any
@@ -121,10 +142,11 @@ struct IPMCtrl
     // DEPRECATED for LP's and QP's
     Real wSafeMaxNorm=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
-    // Equilibrating before factoring in the two-stage scheme can prevent the iterative
-    // solver from converging due to small errors in the equilibrated scale being very
-    // large (and of large rank) in the original scale. Further, equilibration in the
-    // single-stage scheme seems to lead to a few more iterations for PILOT87.
+    // Equilibrating before factoring in the two-stage scheme can prevent the
+    // iterative solver from converging due to small errors in the equilibrated
+    // scale being very large (and of large rank) in the original scale.
+    // Further, equilibration in the single-stage scheme seems to lead to a few
+    // more iterations for PILOT87.
     bool equilibrateIfSingleStage=false;
 
     // If the Nesterov-Todd scaling point has an entry of magnitude greater than
@@ -154,28 +176,44 @@ struct IPMCtrl
     bool checkResiduals=true;
 #endif
 
-    // "Small" regularization for the primal, dual, and dual slack variables.
-    // Ideally solving a (scaled) problem with this regularization added in
-    // a form similar to
+    // Rather than solving the prescribed conic programs, we add in "small"
+    // amounts of permanent regularization for the primal and dual variables to
+    // yield an augmented Lagrangian of the form
     //
-    //   L(x,s;y,z) = c^T x + y^T (A x - b ) + z^T (G x + s - h) + mu Phi(s)
-    //                + (1/2) xRegSmall || x ||_2^2
-    //                - (1/2) yRegSmall || y ||_2^2
-    //                - (1/2) zRegSmall || z ||_2^2.
+    //   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) +
+    //                + (1/2) xRegSmall || x - x_0 ||_2^2
+    //                + (1/2) sRegSmall || s - s_0 ||_2^2
+    //                - (1/2) yRegSmall || y - y_0 ||_2^2
+    //                - (1/2) zRegSmall || z - z_0 ||_2^2
+    //                + mu Phi(s),
+    //
+    // where (x_0,y_0,z_0) will typically be set to the current estimate of the
+    // solution, but the choice of s_0 is less clear and might often be set
+    // to 0.
+    //
+    // The regularization of (x,y,z) ensures that the reduced KKT system
+    // is symmetric quasi-definite, whereas the regularization of s ensures
+    // that pivoting on the (s,s) block of the full KKT system divides by
+    // 'z + gamma_s s' rather than 'z', and the former should have a lower
+    // bound of roughly gamma_s.
     //
     // In an ideal world, these would correspond to Friedlander's notion of
     // "exact" regularization (TODO(poulson): Citation for said paper).
     //
-    Real xRegSmall = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real yRegSmall = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real zRegSmall = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real xRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
+    Real yRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
+    Real zRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
+    Real sRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
 
-    // "Large" regularization for the primal, dual, and dual slack variables
-    // that is ideally only used for preconditioning a problem involving the
-    // "small" regularization.
-    Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
-    Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
-    Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+    // "Large" regularization for the primal and dual variables is typically
+    // used in the preconditioning phase in order to help solve a system that
+    // only involves "small" amounts of regularization. But if we continue to
+    // fail to solve with "small" amounts of regularization, we fall back to
+    // solving with "large" amounts. 
+    Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real sRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
 
     // Initially attempt to solve with only the "small" regularization by
     // preconditioning with a factorization involving the "large"

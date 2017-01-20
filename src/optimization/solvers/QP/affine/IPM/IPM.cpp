@@ -10,6 +10,34 @@
 #include "./util.hpp"
 
 namespace El {
+
+// TODO(poulson): Move this into a central location.
+template<typename Real>
+Real RelativeComplementarityGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    Real relCompGap;
+    if( primalObj < Real(0) )
+        relCompGap = dualityProduct / -primalObj;
+    else if( dualObj > Real(0) )
+        relCompGap = dualityProduct / dualObj;
+    else
+        relCompGap = 2; // 200% error if the signs differ inadmissibly.
+    return relCompGap;
+}
+
+// TODO(poulson): Move this into a central location.
+template<typename Real>
+Real RelativeObjectiveGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    const Real relObjGap =
+      Abs(primalObj-dualObj) / (Max(Abs(primalObj),Abs(dualObj))+1);
+    return relObjGap;
+}
+
 namespace qp {
 namespace affine {
 
@@ -33,11 +61,12 @@ namespace affine {
 //
 // We make use of the regularized Lagrangian
 //
-//   L(x,s;y,z) = (1/2) x^T Q x + c^T x + y^T (A x - b) + z^T (G x + s - h) +
-//                mu Phi(s) +
-//                (1/2) gamma_x^2 || x ||_2^2 -
-//                (1/2) gamma_y^2 || y ||_2^2 -
-//                (1/2) gamma_z^2 || z ||_2^2,
+//   L(x,s;y,z) = (1/2) x^T Q x + c^T x + y^T (A x - b) + z^T (G x + s - h)
+//                + (1/2) gamma_x || x - x_0 ||_2^2
+//                + (1/2) gamma_s || s - s_0 ||_2^2
+//                - (1/2) gamma_y || y - y_0 ||_2^2
+//                - (1/2) gamma_z || z - z_0 ||_2^2
+//                + mu Phi(s).
 //
 // where we note that the two-norm regularization is positive for the primal
 // variable x and *negative* for the dual variables y and z. There is not yet
@@ -46,15 +75,15 @@ namespace affine {
 //
 // The subsequent first-order optimality conditions for x, y, and z become
 //
-//   Delta_x L = Q x + c + A^T y + G^T z + gamma_x^2 x = 0,
-//   Delta_y L = A x - b - gamma_y^2 y = 0,
-//   Delta_z L = G x + s - h - gamma_z^2 z = 0.
+//   Nabla_x L = Q x + c + A^T y + G^T z + gamma_x (x - x_0) = 0,
+//   Nabla_y L = A x - b - gamma_y (y - y_0) = 0,
+//   Nabla_z L = G x + s - h - gamma_z (z - z_0) = 0.
 //
 // These can be arranged into the symmetric quasi-definite form
 //
-//   | Q + gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
-//   |        A,        -gamma_y^2 I,       0      | | y |   |  b  |
-//   |        G,              0,      -gamma_z^2 I | | z |   | h-s |.
+//   | Q + gamma_x I,      A^T,      G^T     | | x | = | -c + gamma_x x_0  |
+//   |        A,      -gamma_y I,     0      | | y |   |  b - gamma_y y_0  |
+//   |        G,            0,    -gamma_z I | | z |   | h-s - gamma_z z_0 |.
 //
 
 template<typename Real>
@@ -134,9 +163,8 @@ void IPM
     ( Q, A, G, b, c, h, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
-    // TODO(poulson): Use dimacsErrorOld to early exit
-
-    Real dimacsError = 1;
+    Real infeasError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     Matrix<Real> J, d,
                  rmu,   rc,    rb,    rh,
                  dxAff, dyAff, dzAff, dsAff,
@@ -158,42 +186,55 @@ void IPM
 
         // Compute the duality measure
         // ===========================
-        const Real mu = Dot(s,z) / k;
+        const Real dualProd = Dot(s,z);
+        const Real mu = dualProd / k;
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
+
+        // Compute the relative duality gap
+        // --------------------------------
         Zeros( d, n, 1 );
         Hemv( LOWER, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         rb = b; rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || Q x + A^T y + G^T z + c ||_2 / (1 + || c ||_2)
+        // -------------------------------------------------
         rc = c;
         Hemv( LOWER,     Real(1), Q, x, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         rh = h; rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsErrorOld = dimacsError;
+        infeasError = Max(Max(rbConv,rcConv),rhConv);
+        dimacsError = Max(infeasError,maxRelGap);
+        // HERE
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );

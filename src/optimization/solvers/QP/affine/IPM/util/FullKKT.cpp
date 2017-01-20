@@ -16,7 +16,7 @@ namespace affine {
 //
 //   | Q A^T      G     | | x |   |        -c             |
 //   | A 0        0     | | y |   |         b             |,
-//   | G 0    -(z <> s) | | z | = | -z <> (s o z + tau e) |
+//   | G 0    -(z <> s) | | z | = | -z <> (s o z - tau e) |
 //
 // and the particular system solved is of the form
 //
@@ -703,7 +703,7 @@ void ExpandSolution
   const Matrix<Real>& d,
   const Matrix<Real>& rmu,
   const Matrix<Real>& s,
-  const Matrix<Real>& z,
+  const Matrix<Real>& zReg,
         Matrix<Real>& dx,
         Matrix<Real>& dy,
         Matrix<Real>& dz,
@@ -712,12 +712,12 @@ void ExpandSolution
     EL_DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
-    // ds := - z <> ( rmu + s o dz )
-    // =============================
+    // ds := - zReg <> ( rmu + s o dz )
+    // ================================
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
     ds += rmu;
-    DiagonalSolve( LEFT, NORMAL, z, ds );
+    DiagonalSolve( LEFT, NORMAL, zReg, ds );
     ds *= -1;
 }
 
@@ -727,7 +727,7 @@ void ExpandSolution
   const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& rmu,
   const ElementalMatrix<Real>& s,
-  const ElementalMatrix<Real>& z,
+  const ElementalMatrix<Real>& zReg,
         ElementalMatrix<Real>& dx,
         ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz,
@@ -736,12 +736,12 @@ void ExpandSolution
     EL_DEBUG_CSE
     const int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
-    // ds := - z <> ( rmu + s o dz )
-    // =============================
+    // ds := - zReg <> ( rmu + s o dz )
+    // ================================
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
     ds += rmu;
-    DiagonalSolve( LEFT, NORMAL, z, ds );
+    DiagonalSolve( LEFT, NORMAL, zReg, ds );
     ds *= -1;
 }
 
@@ -751,7 +751,7 @@ void ExpandSolution
   const DistMultiVec<Real>& d,
   const DistMultiVec<Real>& rmu,
   const DistMultiVec<Real>& s,
-  const DistMultiVec<Real>& z,
+  const DistMultiVec<Real>& zReg,
         DistMultiVec<Real>& dx,
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz,
@@ -760,12 +760,12 @@ void ExpandSolution
     EL_DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
-    // ds := - z <> ( rmu + s o dz )
-    // =============================
+    // ds := - zReg <> ( rmu + s o dz )
+    // ================================
     ds = dz;
     DiagonalScale( LEFT, NORMAL, s, ds );
     ds += rmu;
-    DiagonalSolve( LEFT, NORMAL, z, ds );
+    DiagonalSolve( LEFT, NORMAL, zReg, ds );
     ds *= -1;
 }
 
@@ -874,7 +874,7 @@ void ExpandSolution
     const Matrix<Real>& d, \
     const Matrix<Real>& rmu, \
     const Matrix<Real>& s, \
-    const Matrix<Real>& z, \
+    const Matrix<Real>& zReg, \
           Matrix<Real>& dx, \
           Matrix<Real>& dy, \
           Matrix<Real>& dz, \
@@ -884,7 +884,7 @@ void ExpandSolution
     const ElementalMatrix<Real>& d, \
     const ElementalMatrix<Real>& rmu, \
     const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& z, \
+    const ElementalMatrix<Real>& zReg, \
           ElementalMatrix<Real>& dx, \
           ElementalMatrix<Real>& dy, \
           ElementalMatrix<Real>& dz, \
@@ -894,7 +894,7 @@ void ExpandSolution
     const DistMultiVec<Real>& d, \
     const DistMultiVec<Real>& rmu, \
     const DistMultiVec<Real>& s, \
-    const DistMultiVec<Real>& z, \
+    const DistMultiVec<Real>& zReg, \
           DistMultiVec<Real>& dx, \
           DistMultiVec<Real>& dy, \
           DistMultiVec<Real>& dz, \

@@ -50,6 +50,34 @@ void Gemv
 }
 
 namespace lp {
+
+// TODO(poulson): Move this into a central location.
+template<typename Real>
+Real RelativeComplementarityGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    Real relCompGap;
+    if( primalObj < Real(0) )
+        relCompGap = dualityProduct / -primalObj;
+    else if( dualObj > Real(0) )
+        relCompGap = dualityProduct / dualObj;
+    else
+        relCompGap = 2; // 200% error if the signs differ inadmissibly.
+    return relCompGap;
+}
+
+// TODO(poulson): Move this into a central location.
+template<typename Real>
+Real RelativeObjectiveGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    const Real relObjGap =
+      Abs(primalObj-dualObj) / (Max(Abs(primalObj),Abs(dualObj))+1);
+    return relObjGap;
+}
+
 namespace direct {
 
 // The following solves the pair of linear programs in "direct" conic form:
@@ -70,10 +98,11 @@ namespace direct {
 //
 // We make use of the regularized Lagrangian
 //
-//   L(x;y,z) = c^T x + y^T (A x - b) - z^T x + mu Phi(x) +
-//              (1/2) gamma_x^2 || x ||_2^2 -
-//              (1/2) gamma_y^2 || y ||_2^2 -
-//              (1/2) gamma_z^2 || z ||_2^2,
+//   L(x;y,z) = c^T x + y^T (A x - b) - z^T x
+//              + (1/2) gamma_x || x - x_0 ||_2^2
+//              - (1/2) gamma_y || y - y_0 ||_2^2
+//              - (1/2) gamma_z || z - z_0 ||_2^2
+//              + mu Phi(z).
 //
 // where we note that the two-norm regularization is positive for the primal
 // variable x and *negative* for the dual variables y and z. NOTE: While z is
@@ -82,18 +111,28 @@ namespace direct {
 //
 // The subsequent first-order optimality conditions for x, y, and z become
 //
-//   Delta_x L = c + A^T y - z + gamma_x^2 x = 0,
-//   Delta_y L = A x - b - gamma_y^2 y = 0,
+//   Nabla_x L = c + A^T y - z + gamma_x (x - x_0) = 0,
+//   Nabla_y L = A x - b - gamma_y (y - y_0) = 0,
 //
 // These can be arranged into the symmetric quasi-definite form
 //
-//   | gamma_x^2 I,      A^T,    | | x | = | -c  |
-//   |      A,      -gamma_y^2 I | | y |   |  b  |
+//   | gamma_x I,      A^T,  | | x | = | -c + gamma_x x_0 |.
+//   |      A,    -gamma_y I | | y |   |  b - gamma_y y_0 |
+//
+// The regularization on z implies the optimality condition
+//
+//   Nabla_z L = -x - gamma_z (z - z_0) - mu inv(z) = 0,
+//
+// which simplifies to
+//
+//   - z o (x + gamma_z (z - z_0)) = mu e.
 //
 
 // TODO(poulson): Experiment with using the lagged factorization as a
 // preconditioner.
 
+// TODO(poulson): Make these variables consistent with the affine
+// implementation.
 template<typename Real>
 struct DenseDirectLPEquilibration
 {
@@ -454,7 +493,8 @@ struct DirectState<Real,Matrix<Real>,Matrix<Real>>
 
     Real primalObjective;
     Real dualObjective;
-    Real relativeGap;
+    Real relCompGap;
+    Real relObjGap;
 
     DirectLPResidual<Matrix<Real>> residual;
     Real primalEqualityNorm;
@@ -462,10 +502,13 @@ struct DirectState<Real,Matrix<Real>,Matrix<Real>>
     Real dualConicNorm;
     Real relativePrimalEqualityNorm;
     Real relativeDualEqualityNorm;
+    Real infeasError;
 
     Int numIts;
     Real dimacsError;
     Real dimacsErrorOld;
+
+    bool metTolerances;
 
     void Initialize
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
@@ -474,14 +517,14 @@ struct DirectState<Real,Matrix<Real>,Matrix<Real>>
     void Update
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
       const DirectLPSolution<Matrix<Real>>& solution,
-      const DirectRegularization<Real>& permReg,
+      const DirectRegularization<Real>& smallReg,
       const IPMCtrl<Real>& ctrl );
 
     void PrintResiduals
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
       const DirectLPSolution<Matrix<Real>>& solution,
       const DirectLPSolution<Matrix<Real>>& correction,
-      const DirectRegularization<Real>& permReg ) const;
+      const DirectRegularization<Real>& smallReg ) const;
 };
 
 template<typename Real>
@@ -493,8 +536,12 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Initialize
     bNorm = FrobeniusNorm( problem.b );
     cNorm = FrobeniusNorm( problem.c );
     barrierOld = 0.1;
+    infeasError = 1;
+    relCompGap = 1;
+    relObjGap = 1;
     dimacsError = 1;
     dimacsErrorOld = 1;
+    metTolerances = false;
     if( ctrl.print )
     {
         const Real ANrm1 = OneNorm( problem.A );
@@ -508,7 +555,7 @@ template<typename Real>
 void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const DirectLPSolution<Matrix<Real>>& solution,
-  const DirectRegularization<Real>& permReg,
+  const DirectRegularization<Real>& smallReg,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -516,7 +563,8 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
 
     // Compute the new barrier parameter
     // ---------------------------------
-    barrier = Dot(solution.x,solution.z) / degree;
+    const Real dualProd = Dot(solution.x,solution.z);
+    barrier = dualProd / degree;
     const Real compRatio = pos_orth::ComplementRatio( solution.x, solution.z );
     barrier = compRatio > ctrl.balanceTol ? barrierOld
       : Min(barrier,barrierOld);
@@ -525,7 +573,11 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     // Compute the objectives and relative duality gap
     primalObjective = Dot(problem.c,solution.x);
     dualObjective = -Dot(problem.b,solution.y);
-    relativeGap = Abs(primalObjective-dualObjective) / (1+Abs(primalObjective));
+    relCompGap =
+      RelativeComplementarityGap( primalObjective, dualObjective, dualProd );
+    relObjGap =
+      RelativeObjectiveGap( primalObjective, dualObjective, dualProd );
+    const Real maxRelGap = Max( relCompGap, relObjGap );
 
     // Compute the primal equality residual,
     //
@@ -539,7 +591,6 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
       Real(-1), residual.primalEquality );
     primalEqualityNorm = FrobeniusNorm(residual.primalEquality);
     relativePrimalEqualityNorm = primalEqualityNorm / (1 + bNorm);
-    Axpy( -permReg.primalEquality, solution.y, residual.primalEquality );
 
     // Compute the dual equality residual,
     //
@@ -554,7 +605,6 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     residual.dualEquality -= solution.z;
     dualEqualityNorm = FrobeniusNorm(residual.dualEquality);
     relativeDualEqualityNorm = dualEqualityNorm / (1 + cNorm);
-    Axpy( permReg.dualEquality, solution.x, residual.dualEquality );
 
     // Compute the complimentarity vector,
     //
@@ -569,8 +619,14 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     // Now check the pieces
     // --------------------
     dimacsErrorOld = dimacsError;
-    dimacsError =
-      Max(Max(relativePrimalEqualityNorm,relativeDualEqualityNorm),relativeGap);
+    infeasError = Max(relativePrimalEqualityNorm,relativeDualEqualityNorm);
+    dimacsError = Max(infeasError,maxRelGap);
+
+    metTolerances =
+      infeasError <= ctrl.infeasibilityTol &&
+      relCompGap <= ctrl.relativeComplementarityGapTol &&
+      relObjGap <= ctrl.relativeObjectiveGapTol;
+
     if( ctrl.print )
     {
         const Real xNrm2 = FrobeniusNorm( solution.x );
@@ -581,14 +637,13 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
          "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
          "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
          "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-         "  || r_b ||_2 / (1 + || b ||_2) = ",relativePrimalEqualityNorm,
-         "\n",Indent(),
-         "  || r_c ||_2 / (1 + || c ||_2) = ",relativeDualEqualityNorm,
-         "\n",Indent(),
+         "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+         relativePrimalEqualityNorm,"\n",Indent(),
+         "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+         relativeDualEqualityNorm,"\n",Indent(),
          "  primal = ",primalObjective,"\n",Indent(),
          "  dual   = ",dualObjective,"\n",Indent(),
-         "  |primal - dual| / (1 + |primal|) = ",relativeGap,
-         "\n",Indent(),
+         "  relative gap = ",maxRelGap,"\n",Indent(),
          "  DIMACS: ",dimacsError);
     }
 }
@@ -598,7 +653,7 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::PrintResiduals
 ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const DirectLPSolution<Matrix<Real>>& solution,
   const DirectLPSolution<Matrix<Real>>& correction,
-  const DirectRegularization<Real>& permReg ) const
+  const DirectRegularization<Real>& smallReg ) const
 {
     EL_DEBUG_CSE
     DirectLPResidual<Matrix<Real>> error;
@@ -609,14 +664,14 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::PrintResiduals
     ( NORMAL, Real(1), problem.A, correction.x,
       Real(1), error.primalEquality );
     Axpy
-    ( -permReg.primalEquality, correction.y, error.primalEquality );
+    ( -smallReg.primalEquality, correction.y, error.primalEquality );
     Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
     error.dualEquality = residual.dualEquality;
     Gemv
     ( TRANSPOSE, Real(1), problem.A, correction.y,
       Real(1), error.dualEquality );
-    Axpy( permReg.dualEquality, correction.x, error.dualEquality );
+    Axpy( smallReg.dualEquality, correction.x, error.dualEquality );
     error.dualEquality -= correction.z;
     Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -630,9 +685,9 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::PrintResiduals
     Real dzErrorNrm2 = FrobeniusNorm( error.dualConic );
 
     Output
-    ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+    ("|| dxError ||_2 / (1 + || primalInfeas ||_2) = ",
      dxErrorNrm2/(1+primalEqualityNorm),"\n",Indent(),
-     "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+     "|| dyError ||_2 / (1 + || dualInfeas   ||_2) = ",
      dyErrorNrm2/(1+dualEqualityNorm),"\n",Indent(),
      "|| dzError ||_2 / (1 + || r_h ||_2) = ",
      dzErrorNrm2/(1+dualConicNorm));
@@ -658,7 +713,7 @@ struct DirectKKTSolver<Real,Matrix<Real>,Matrix<Real>>
 
     void InitializeSystem
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
-      const DirectRegularization<Real>& permReg,
+      const DirectRegularization<Real>& smallReg,
       const DirectLPSolution<Matrix<Real>>& solution,
       KKTSystem system )
     {
@@ -673,15 +728,17 @@ struct DirectKKTSolver<Real,Matrix<Real>,Matrix<Real>>
         else if( system == NORMAL_KKT )
         {
             NormalKKT
-            ( problem.A, Sqrt(permReg.dualEquality),
-              Sqrt(permReg.primalEquality), solution.x, solution.z, kktSystem );
+            ( problem.A,
+              Sqrt(smallReg.dualEquality),
+              Sqrt(smallReg.primalEquality),
+              solution.x, solution.z, kktSystem );
         }
         Factor();
     }
 
     void SolveSystem
     ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
-      const DirectRegularization<Real>& permReg,
+      const DirectRegularization<Real>& smallReg,
       const DirectLPResidual<Matrix<Real>>& residual,
       const DirectLPSolution<Matrix<Real>>& solution,
             DirectLPSolution<Matrix<Real>>& correction,
@@ -713,14 +770,14 @@ struct DirectKKTSolver<Real,Matrix<Real>,Matrix<Real>>
         else if( system == NORMAL_KKT )
         {
             NormalKKTRHS
-            ( problem.A, Sqrt(permReg.dualEquality), solution.x, solution.z,
+            ( problem.A, Sqrt(smallReg.dualEquality), solution.x, solution.z,
               residual.dualEquality,
               residual.primalEquality,
               residual.dualConic,
               correction.y );
             Solve(correction.y);
             ExpandNormalSolution
-            ( problem, Sqrt(permReg.dualEquality), solution, residual,
+            ( problem, Sqrt(smallReg.dualEquality), solution, residual,
               correction );
         }
     }
@@ -738,9 +795,9 @@ void EquilibratedIPM
     const Int degree = n;
 
     // TODO(poulson): Implement nonzero regularization
-    DirectRegularization<Real> permReg;
-    permReg.primalEquality = 0;
-    permReg.dualEquality = 0;
+    DirectRegularization<Real> smallReg;
+    smallReg.primalEquality = 0;
+    smallReg.dualEquality = 0;
 
     DirectState<Real,Matrix<Real>,Matrix<Real>> state;
     state.Initialize( problem, ctrl );
@@ -763,30 +820,45 @@ void EquilibratedIPM
             (xNumNonPos," entries of x were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        state.Update( problem, solution, permReg, ctrl );
+        state.Update( problem, solution, smallReg, ctrl );
 
         // Check for convergence
         // =====================
-        if( state.dimacsError <= ctrl.targetTol )
-            break;
-        // Exit if progress has stalled and we are sufficiently accurate.
-        if( state.dimacsError <= ctrl.minTol &&
-            state.dimacsError >= Real(0.99)*state.dimacsErrorOld )
-            break;
+        if( state.metTolerances )
+        {
+            if( state.dimacsError >=
+                ctrl.minDimacsDecreaseRatio*state.dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( state.numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( state.numIts == ctrl.maxIts )
+        {
+            RuntimeError
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving tolerances");
+        }
 
         // Set up and factor the KKT matrix
         // ================================
-        solver.InitializeSystem( problem, permReg, solution, ctrl.system );
+        solver.InitializeSystem( problem, smallReg, solution, ctrl.system );
 
         // Compute the affine search direction
         // ===================================
         solver.SolveSystem
-        ( problem, permReg, state.residual, solution, affineCorrection,
+        ( problem, smallReg, state.residual, solution, affineCorrection,
           ctrl.system );
         if( ctrl.checkResiduals && ctrl.print )
         {
             state.PrintResiduals
-            ( problem, solution, affineCorrection, permReg );
+            ( problem, solution, affineCorrection, smallReg );
         }
 
         // Compute a centrality parameter
@@ -830,11 +902,11 @@ void EquilibratedIPM
             state.residual.dualConic += correction.z;
         }
         solver.SolveSystem
-        ( problem, permReg, state.residual, solution, correction,
+        ( problem, smallReg, state.residual, solution, correction,
           ctrl.system );
         if( ctrl.checkResiduals && ctrl.print )
         {
-            state.PrintResiduals( problem, solution, correction, permReg );
+            state.PrintResiduals( problem, solution, correction, smallReg );
         }
 
         // Update the current estimates
@@ -856,9 +928,8 @@ void EquilibratedIPM
             RuntimeError("Zero step size");
     }
     } catch(...) { }
-    if( state.dimacsError > ctrl.minTol )
-        RuntimeError
-        ("Unable to achieve minimum tolerance ",ctrl.minTol);
+    if( !state.metTolerances )
+        RuntimeError("Unable to achieve tolerances");
 
     SetIndent( indent );
 }
@@ -891,7 +962,13 @@ void IPM
     {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real dualProd = Dot(solution.x,solution.z);
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
         const Real xNrm2 = FrobeniusNorm( solution.x );
         const Real yNrm2 = FrobeniusNorm( solution.y );
         const Real zNrm2 = FrobeniusNorm( solution.z );
@@ -902,7 +979,7 @@ void IPM
          "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
          "  primal = ",primObj,"\n",Indent(),
          "  dual   = ",dualObj,"\n",Indent(),
-         "  |primal - dual| / (1 + |primal|) = ",objConv);
+         "  relativeDualityGap = ",maxRelGap);
     }
 }
 
@@ -963,6 +1040,7 @@ void EquilibratedIPM
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real muOld = 0.1;
+    Real infeasError = 1;
     Real dimacsError = 1, dimacsErrorOld = 1;
     DistMatrix<Real> J(grid), d(grid);
     DistMatrix<Real> dSub(grid);
@@ -970,25 +1048,13 @@ void EquilibratedIPM
     auto attemptToFactor = [&]()
       {
         try { LDL( J, dSub, p, false ); }
-        catch(...)
-        {
-            if( dimacsError > ctrl.minTol )
-                RuntimeError
-                ("Unable to achieve minimum tolerance ",ctrl.minTol);
-            return false;
-        }
+        catch(...) { return false; }
         return true;
       };
     auto attemptToSolve = [&]( DistMatrix<Real>& rhs )
       {
         try { ldl::SolveAfter( J, dSub, p, rhs, false ); }
-        catch(...)
-        {
-            if( dimacsError > ctrl.minTol )
-                RuntimeError
-                ("Unable to achieve minimum tolerance ",ctrl.minTol);
-            return false;
-        }
+        catch(...) { return false; }
         return true;
       };
 
@@ -1016,7 +1082,8 @@ void EquilibratedIPM
 
         // Compute the barrier parameter
         // =============================
-        Real mu = Dot(solution.x,solution.z) / degree;
+        const Real dualProd = Dot(solution.x,solution.z);
+        Real mu = dualProd / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
         mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
@@ -1024,22 +1091,28 @@ void EquilibratedIPM
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
+
+        // Check the duality gaps
+        // ----------------------
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         residual.primalEquality = problem.b;
         Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(-1), residual.primalEquality );
         const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y - z + c ||_2 / (1 + || c ||_2)
+        // ---------------------------------------
         residual.dualEquality = problem.c;
         Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -1047,10 +1120,11 @@ void EquilibratedIPM
         residual.dualEquality -= solution.z;
         const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(objConv,rbConv),rcConv);
+        infeasError = Max(rbConv,rcConv);
+        dimacsError = Max(maxRelGap,infeasError);
         if( ctrl.print )
         {
             const Real xNrm2 = FrobeniusNorm( solution.x );
@@ -1062,22 +1136,39 @@ void EquilibratedIPM
                  "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
-                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+                 "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+                 rbConv,"\n",Indent(),
+                 "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+                 rcConv,"\n",Indent(),
                  "  primal = ",primObj,"\n",Indent(),
                  "  dual   = ",dualObj,"\n",Indent(),
-                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+                 "  relative duality gap = ",maxRelGap);
         }
-        if( dimacsError <= ctrl.targetTol )
-            break;
-        // Exit if progress has stalled and we are sufficiently accurate.
-        if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
-            break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
@@ -1099,9 +1190,15 @@ void EquilibratedIPM
             // Solve for the direction
             // -----------------------
             if( !attemptToFactor() )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             if( !attemptToSolve(d) )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             ExpandSolution
             ( m, n, d,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
@@ -1118,9 +1215,15 @@ void EquilibratedIPM
             // Solve for the direction
             // -----------------------
             if( !attemptToFactor() )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             if( !attemptToSolve(d) )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             ExpandAugmentedSolution
             ( solution.x, solution.z, residual.dualConic, d,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
@@ -1140,9 +1243,15 @@ void EquilibratedIPM
             // Solve for the direction
             // -----------------------
             if( !attemptToFactor() )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             if( !attemptToSolve(affineCorrection.y) )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             ExpandNormalSolution
             ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
@@ -1178,9 +1287,9 @@ void EquilibratedIPM
 
             if( commRank == 0 )
                 Output
-                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                ("|| dxError ||_2 / (1 + || primalInfeas ||_2) = ",
                  dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-                 "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+                 "|| dyError ||_2 / (1 + || dualInfeas   ||_2) = ",
                  dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rmuNrm2));
@@ -1234,7 +1343,10 @@ void EquilibratedIPM
             // Solve for the direction
             // -----------------------
             if( !attemptToSolve(d) )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             ExpandSolution( m, n, d, correction.x, correction.y, correction.z );
         }
         else if( ctrl.system == AUGMENTED_KKT )
@@ -1248,7 +1360,10 @@ void EquilibratedIPM
             // Solve for the direction
             // -----------------------
             if( !attemptToSolve(d) )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             ExpandAugmentedSolution
             ( solution.x, solution.z, residual.dualConic, d,
               correction.x, correction.y, correction.z );
@@ -1265,7 +1380,10 @@ void EquilibratedIPM
             // Solve for the direction
             // -----------------------
             if( !attemptToSolve(correction.y) )
+            {
+                // TODO(poulson): Increase regularization and continue.
                 break;
+            }
             ExpandNormalSolution
             ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
@@ -1290,11 +1408,14 @@ void EquilibratedIPM
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            {
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );
@@ -1364,7 +1485,13 @@ void IPM
     {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real dualProd = Dot(solution.x,solution.z);
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
         const Real xNrm2 = FrobeniusNorm( solution.x );
         const Real yNrm2 = FrobeniusNorm( solution.y );
         const Real zNrm2 = FrobeniusNorm( solution.z );
@@ -1376,7 +1503,7 @@ void IPM
          "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
          "  primal = ",primObj,"\n",Indent(),
          "  dual   = ",dualObj,"\n",Indent(),
-         "  |primal - dual| / (1 + |primal|) = ",objConv);
+         "  relative duality gap = ",maxRelGap);
     }
 }
 
@@ -1481,6 +1608,7 @@ void EquilibratedIPM
     regLarge *= origTwoNormEst;
 
     Real muOld = 0.1;
+    Real infeasError = 1;
     Real dimacsError = 1, dimacsErrorOld = 1;
     SparseMatrix<Real> J, JOrig;
     Matrix<Real> d, w;
@@ -1505,22 +1633,29 @@ void EquilibratedIPM
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
+
+        // Check the duality gap
+        // ---------------------
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real dualProd = Dot(solution.x,solution.z);
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         residual.primalEquality = problem.b;
         Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(-1), residual.primalEquality );
         const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y - z + c ||_2 / (1 + || c ||_2)
+        // ---------------------------------------
         residual.dualEquality = problem.c;
         Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -1528,10 +1663,11 @@ void EquilibratedIPM
         residual.dualEquality -= solution.z;
         const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(objConv,rbConv),rcConv);
+        infeasError = Max(rbConv,rcConv);
+        dimacsError = Max(maxRelGap,infeasError);
 
         // Compute the scaling point
         // =========================
@@ -1557,23 +1693,38 @@ void EquilibratedIPM
              "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
              "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
              "  ||  w  ||_max = ",wMaxNorm,"\n",Indent(),
-             "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-             "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+             "  || primalInfeas ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
+             "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
              "  mu        = ",mu,"\n",Indent(),
              "  primal    = ",primObj,"\n",Indent(),
              "  dual      = ",dualObj,"\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv);
+             "  relative duality gap = ",maxRelGap);
         }
-        if( dimacsError <= ctrl.targetTol )
-            break;
-        // Exit if progress has stalled and we are sufficiently accurate.
-        if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
-            break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
@@ -1661,11 +1812,15 @@ void EquilibratedIPM
                   ctrl.solveCtrl.progress );
                 if( !solveInfo.metRequestedTol )
                 {
-                    if( dimacsError <= ctrl.minTol )
+                    if( metTolerances )
+                    {
                         break;
+                    }
                     else
-                        RuntimeError
-                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    {
+                        // TODO(poulson): Increase regularization and continue.
+                        RuntimeError("Could not achieve tolerances");
+                    }
                 }
             }
             if( ctrl.system == FULL_KKT )
@@ -1715,11 +1870,15 @@ void EquilibratedIPM
               ctrl.solveCtrl.time );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
             ExpandNormalSolution
             ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
@@ -1756,9 +1915,9 @@ void EquilibratedIPM
             Real dzErrorNrm2 = FrobeniusNorm( error.dualConic );
 
             Output
-            ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+            ("|| dxError ||_2 / (1 + || primalInfeas ||_2) = ",
              dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-             "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+             "|| dyError ||_2 / (1 + || dualInfeas   ||_2) = ",
              dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rmuNrm2));
@@ -1822,11 +1981,15 @@ void EquilibratedIPM
                   ctrl.solveCtrl.progress );
                 if( !solveInfo.metRequestedTol )
                 {
-                    if( dimacsError <= ctrl.minTol )
+                    if( metTolerances )
+                    {
                         break;
+                    }
                     else
-                        RuntimeError
-                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    {
+                        // TODO(poulson): Increase regularization and continue.
+                        RuntimeError("Could not achieve tolerances");
+                    }
                 }
             }
             ExpandSolution( m, n, d, correction.x, correction.y, correction.z );
@@ -1851,11 +2014,15 @@ void EquilibratedIPM
                   ctrl.solveCtrl.progress );
                 if( !solveInfo.metRequestedTol )
                 {
-                    if( dimacsError <= ctrl.minTol )
+                    if( metTolerances )
+                    {
                         break;
+                    }
                     else
-                        RuntimeError
-                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    {
+                        // TODO(poulson): Increase regularization and continue.
+                        RuntimeError("Could not achieve tolerances");
+                    }
                 }
             }
             ExpandAugmentedSolution
@@ -1877,11 +2044,15 @@ void EquilibratedIPM
               ctrl.solveCtrl.time );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
             ExpandNormalSolution
             ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
@@ -1907,11 +2078,15 @@ void EquilibratedIPM
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );
@@ -1943,7 +2118,13 @@ void IPM
     {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real dualProd = Dot(solution.x,solution.z);
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
         const Real xNrm2 = FrobeniusNorm( solution.x );
         const Real yNrm2 = FrobeniusNorm( solution.y );
         const Real zNrm2 = FrobeniusNorm( solution.z );
@@ -1954,7 +2135,7 @@ void IPM
          "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
          "  primal = ",primObj,"\n",Indent(),
          "  dual   = ",dualObj,"\n",Indent(),
-         "  |primal - dual| / (1 + |primal|) = ",objConv);
+         "  relative duality gap = ",maxRelGap);
     }
 }
 
@@ -2070,6 +2251,7 @@ void EquilibratedIPM
     regLarge *= origTwoNormEst;
 
     Real muOld = 0.1;
+    Real infeasError = 1;
     Real dimacsError = 1, dimacsErrorOld = 1;
 
     DistGraphMultMeta metaOrig, meta;
@@ -2111,22 +2293,29 @@ void EquilibratedIPM
 
         // Check for convergence
         // =====================
-        // |primal - dual| / (1 + |primal|) <= tol ?
-        // -----------------------------------------
+
+        // Check the duality gap
+        // ---------------------
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real dualProd = Dot(solution.x,solution.z);
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         residual.primalEquality = problem.b;
         Gemv
         ( NORMAL, Real(1), problem.A, solution.x,
           Real(-1), residual.primalEquality );
         const Real rbNrm2 = FrobeniusNorm( residual.primalEquality );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        Axpy( -ctrl.yRegSmall, solution.y, residual.primalEquality );
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y - z + c ||_2 / (1 + || c ||_2)
+        // ---------------------------------------
         residual.dualEquality = problem.c;
         Gemv
         ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -2134,10 +2323,11 @@ void EquilibratedIPM
         residual.dualEquality -= solution.z;
         const Real rcNrm2 = FrobeniusNorm( residual.dualEquality );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        Axpy( ctrl.xRegSmall, solution.x, residual.dualEquality );
+
         // Now check the pieces
         // --------------------
-        dimacsError = Max(Max(objConv,rbConv),rcConv);
+        infeasError = Max(rbConv,rcConv);
+        dimacsError = Max(maxRelGap,infeasError);
         if( ctrl.print )
         {
             const Real xNrm2 = FrobeniusNorm( solution.x );
@@ -2150,22 +2340,39 @@ void EquilibratedIPM
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
                  "  ||  w  ||_max = ",wMaxNorm,"\n",Indent(),
-                 "  || r_b ||_2 / (1 + || b ||_2) = ",rbConv,"\n",Indent(),
-                 "  || r_c ||_2 / (1 + || c ||_2) = ",rcConv,"\n",Indent(),
+                 "  || primalInfeas ||_2 / (1 + || b ||_2) = ",
+                 rbConv,"\n",Indent(),
+                 "  || dualInfeas   ||_2 / (1 + || c ||_2) = ",
+                 rcConv,"\n",Indent(),
                  "  primal = ",primObj,"\n",Indent(),
                  "  dual   = ",dualObj,"\n",Indent(),
-                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+                 "  relative duality gap = ",maxRelGap);
         }
-        if( dimacsError <= ctrl.targetTol )
-            break;
-        // Exit if progress has stalled and we are sufficiently accurate.
-        if( dimacsError <= ctrl.minTol &&
-            dimacsError >= Real(0.99)*dimacsErrorOld )
-            break;
-        if( numIts == ctrl.maxIts && dimacsError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
-             "achieving minTol=",ctrl.minTol);
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
@@ -2222,6 +2429,7 @@ void EquilibratedIPM
 
             // Solve for the direction
             // -----------------------
+            // TODO(poulson): Handle the equilibration consistently.
             /*
             if( commRank == 0 && ctrl.time )
                 timer.Start();
@@ -2283,11 +2491,15 @@ void EquilibratedIPM
                   ctrl.solveCtrl.progress );
                 if( !solveInfo.metRequestedTol )
                 {
-                    if( dimacsError <= ctrl.minTol )
+                    if( metTolerances )
+                    {
                         break;
+                    }
                     else
-                        RuntimeError
-                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    {
+                        // TODO(poulson): Increase regularization and continue.
+                        RuntimeError("Could not achieve tolerances");
+                    }
                 }
             }
             if( commRank == 0 && ctrl.time )
@@ -2361,11 +2573,15 @@ void EquilibratedIPM
               ctrl.solveCtrl.time );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
@@ -2404,9 +2620,9 @@ void EquilibratedIPM
 
             if( commRank == 0 )
                 Output
-                ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+                ("|| dxError ||_2 / (1 + || primalInfeas ||_2) = ",
                  dxErrorNrm2/(1+rbNrm2),"\n",Indent(),
-                 "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+                 "|| dyError ||_2 / (1 + || dualInfeas   ||_2) = ",
                  dyErrorNrm2/(1+rcNrm2),"\n",Indent(),
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rmuNrm2));
@@ -2471,11 +2687,15 @@ void EquilibratedIPM
                   ctrl.solveCtrl.progress );
                 if( !solveInfo.metRequestedTol )
                 {
-                    if( dimacsError <= ctrl.minTol )
+                    if( metTolerances )
+                    {
                         break;
+                    }
                     else
-                        RuntimeError
-                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    {
+                        // TODO(poulson): Increase regularization and continue.
+                        RuntimeError("Could not achieve tolerances");
+                    }
                 }
             }
             if( commRank == 0 && ctrl.time )
@@ -2504,11 +2724,15 @@ void EquilibratedIPM
                   ctrl.solveCtrl.progress );
                 if( !solveInfo.metRequestedTol )
                 {
-                    if( dimacsError <= ctrl.minTol )
+                    if( metTolerances )
+                    {
                         break;
+                    }
                     else
-                        RuntimeError
-                        ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                    {
+                        // TODO(poulson): Increase regularization and continue.
+                        RuntimeError("Could not achieve tolerances");
+                    }
                 }
             }
             if( commRank == 0 && ctrl.time )
@@ -2533,11 +2757,15 @@ void EquilibratedIPM
               ctrl.solveCtrl.time );
             if( !solveInfo.metRequestedTol )
             {
-                if( dimacsError <= ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Could not achieve minimum tolerance of ",ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
             if( commRank == 0 && ctrl.time )
                 Output("Corrector: ",timer.Stop()," secs");
@@ -2565,11 +2793,14 @@ void EquilibratedIPM
         Axpy( alphaDual, correction.z, solution.z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( dimacsError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Could not achieve minimum tolerance of ",ctrl.minTol);
+            {
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );
@@ -2602,7 +2833,13 @@ void IPM
     {
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
+        const Real dualProd = Dot(solution.x,solution.z);
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
         const Real xNrm2 = FrobeniusNorm( solution.x );
         const Real yNrm2 = FrobeniusNorm( solution.y );
         const Real zNrm2 = FrobeniusNorm( solution.z );
@@ -2614,7 +2851,7 @@ void IPM
          "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
          "  primal = ",primObj,"\n",Indent(),
          "  dual   = ",dualObj,"\n",Indent(),
-         "  |primal - dual| / (1 + |primal|) = ",objConv);
+         "  relative duality gap = ",maxRelGap);
     }
 }
 

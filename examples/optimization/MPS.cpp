@@ -16,6 +16,7 @@ void DenseLoadAndSolve
   bool keepNonnegativeWithZeroUpperBound,
   bool metadataSummary,
   bool print,
+  bool outerEquil,
   double minTolLogEps,
   double targetTolLogEps,
   double xRegSmallLogEps,
@@ -53,6 +54,7 @@ void DenseLoadAndSolve
     const Real eps = El::limits::Epsilon<Real>();
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = true;
+    ctrl.ipmCtrl.outerEquil = outerEquil;
     ctrl.ipmCtrl.mehrotra = mehrotra;
     ctrl.ipmCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
     ctrl.ipmCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
@@ -84,6 +86,7 @@ void SparseLoadAndSolve
   bool keepNonnegativeWithZeroUpperBound,
   bool metadataSummary,
   bool print,
+  bool outerEquil,
   double minTolLogEps,
   double targetTolLogEps,
   double xRegSmallLogEps,
@@ -123,6 +126,7 @@ void SparseLoadAndSolve
     const Real eps = El::limits::Epsilon<Real>();
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = true;
+    ctrl.ipmCtrl.outerEquil = outerEquil;
     ctrl.ipmCtrl.mehrotra = mehrotra;
     ctrl.ipmCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
     ctrl.ipmCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
@@ -133,6 +137,7 @@ void SparseLoadAndSolve
     ctrl.ipmCtrl.yRegSmall = El::Pow(eps,Real(yRegSmallLogEps));
     ctrl.ipmCtrl.zRegSmall = El::Pow(eps,Real(zRegSmallLogEps));
     ctrl.ipmCtrl.twoStage = twoStage;
+    ctrl.ipmCtrl.checkResiduals = true;
     ctrl.ipmCtrl.solveCtrl.progress = true;
     El::Output("minTol=",ctrl.ipmCtrl.minTol);
     El::Output("targetTol=",ctrl.ipmCtrl.targetTol);
@@ -179,6 +184,8 @@ int main( int argc, char* argv[] )
         const bool testDouble =
           El::Input("--testDouble","test double-precision?",true);
         const bool print = El::Input("--print","print matrices?",false);
+        const bool outerEquil =
+          El::Input("--outerEquil","outer equilibration?",true);
         const double minTolLogEps =
           El::Input("--minTolLogEps","log_eps(minTol)",0.3);
         const double targetTolLogEps =
@@ -207,7 +214,7 @@ int main( int argc, char* argv[] )
                 DenseLoadAndSolve<double>
                 ( filename, compressed,
                   minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-                  print,
+                  print, outerEquil,
                   minTolLogEps, targetTolLogEps,
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -216,7 +223,7 @@ int main( int argc, char* argv[] )
             DenseLoadAndSolve<El::DoubleDouble>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-              print,
+              print, outerEquil,
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -224,7 +231,7 @@ int main( int argc, char* argv[] )
             DenseLoadAndSolve<El::QuadDouble>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-              print,
+              print, outerEquil,
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -234,7 +241,7 @@ int main( int argc, char* argv[] )
             DenseLoadAndSolve<El::Quad>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-              print,
+              print, outerEquil,
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -246,7 +253,7 @@ int main( int argc, char* argv[] )
             SparseLoadAndSolve<double>
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-              print,
+              print, outerEquil,
               minTolLogEps, targetTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -255,7 +262,7 @@ int main( int argc, char* argv[] )
         SparseLoadAndSolve<El::DoubleDouble>
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-          print,
+          print, outerEquil,
           minTolLogEps, targetTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -263,7 +270,7 @@ int main( int argc, char* argv[] )
         SparseLoadAndSolve<El::QuadDouble>
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-          print,
+          print, outerEquil,
           minTolLogEps, targetTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
@@ -273,7 +280,7 @@ int main( int argc, char* argv[] )
         SparseLoadAndSolve<El::Quad>
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
-          print,
+          print, outerEquil,
           minTolLogEps, targetTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
