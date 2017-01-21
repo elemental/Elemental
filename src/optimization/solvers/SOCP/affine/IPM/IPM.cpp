@@ -10,6 +10,34 @@
 #include "./util.hpp"
 
 namespace El {
+
+// TODO(poulson): Move this into a central location.
+template<typename Real>
+Real RelativeComplementarityGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    Real relCompGap;
+    if( primalObj < Real(0) )
+        relCompGap = dualityProduct / -primalObj;
+    else if( dualObj > Real(0) )
+        relCompGap = dualityProduct / dualObj;
+    else
+        relCompGap = 2; // 200% error if the signs differ inadmissibly.
+    return relCompGap;
+}
+
+// TODO(poulson): Move this into a central location.
+template<typename Real>
+Real RelativeObjectiveGap
+( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
+{
+    EL_DEBUG_CSE
+    const Real relObjGap =
+      Abs(primalObj-dualObj) / (Max(Abs(primalObj),Abs(dualObj))+1);
+    return relObjGap;
+}
+
 namespace socp {
 namespace affine {
 
@@ -33,10 +61,12 @@ namespace affine {
 //
 // We make use of the regularized Lagrangian
 //
-//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) + mu Phi(s) +
-//                (1/2) gamma_x^2 || x ||_2^2 -
-//                (1/2) gamma_y^2 || y ||_2^2 -
-//                (1/2) gamma_z^2 || z ||_2^2,
+//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h)
+//                + (1/2) gamma_x || x - x_0 ||_2^2
+//                + (1/2) gamma_s || s - s_0 ||_2^2
+//                - (1/2) gamma_y || y - y_0 ||_2^2
+//                - (1/2) gamma_z || z - z_0 ||_2^2
+//                + mu Phi(s),
 //
 // where we note that the two-norm regularization is positive for the primal
 // variable x and *negative* for the dual variables y and z. There is not yet
@@ -45,15 +75,15 @@ namespace affine {
 //
 // The subsequent first-order optimality conditions for x, y, and z become
 //
-//   Delta_x L = c + A^T y + G^T z + gamma_x^2 x = 0,
-//   Delta_y L = A x - b - gamma_y^2 y = 0,
-//   Delta_z L = G x + s - h - gamma_z^2 z = 0.
+//   Nabla_x L = c + A^T y + G^T z + gamma_x (x - x_0) = 0,
+//   Nabla_y L = A x - b - gamma_y (y - y_0) = 0,
+//   Nabla_z L = G x + s - h - gamma_z (z - z_0) = 0.
 //
 // These can be arranged into the symmetric quasi-definite form
 //
-//   | gamma_x^2 I,      A^T,          G^T     | | x | = | -c  |
-//   |      A,      -gamma_y^2 I,       0      | | y |   |  b  |
-//   |      G,            0,      -gamma_z^2 I | | z |   | h-s |.
+//   | gamma_x I,      A^T,       G^T    | | x | = | -c + gamma_x x_0 |
+//   |      A,    -gamma_y I,      0     | | y |   |  b - gamma_y y_0 |
+//   |      G,          0,    -gamma_z I | | z |   | h-s - gamma_z z_0|.
 //
 
 template<typename Real>
@@ -127,9 +157,8 @@ void IPM
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
-    // TODO(poulson): Use dimacsErrorOld to early exit
-
-    Real relError = 1;
+    Real infeasError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     Matrix<Real> J, d,
                  w, wRoot, wRootInv,
                  l, lInv,
@@ -149,44 +178,51 @@ void IPM
         soc::PushInto( s, orders, firstInds, minDist );
         soc::PushInto( z, orders, firstInds, minDist );
         soc::NesterovTodd( s, z, w, orders, firstInds );
+        const Real dualProd = Dot(s,z);
 
         // Check for convergence
         // =====================
-        // TODO(poulson): Adjust convergence criteria
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
+
+        // Compute relative duality gap
+        // ----------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         rb = b;
         rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
-        // TODO(poulson): Axpy with -ctrl.yRegSmall y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y + G^T z + c ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        // TODO(poulson): Axpy with ctrl.xRegSmall x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         rh = h;
         rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        // TODO(poulson): Axpy with -ctrl.zRegSmall z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsErrorOld = dimacsError;
+        infeasError = Max(Max(rbConv,rcConv),rhConv);
+        dimacsError = Max(infeasError,maxRelGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -204,21 +240,39 @@ void IPM
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
              "  primal = ",primObj,"\n",Indent(),
              "  dual   = ",dualObj,"\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv);
+             "  relative duality gap = ",maxRelGap);
         }
-        if( relError <= ctrl.targetTol )
-            break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
-            ("Reached maximum number of iterations, ",ctrl.maxIts,
-             ", with rel. error ",relError," which does not meet the minimum ",
-             "tolerance of ",ctrl.minTol);
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
         Real wMaxNorm = MaxNorm(w);
         const Real wMaxNormLimit =
-          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),dimacsError));
         if( wMaxNorm > wMaxNormLimit )
         {
             soc::PushPairInto( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -229,7 +283,7 @@ void IPM
         soc::Inverse( wRoot, wRootInv, orders, firstInds );
         soc::ApplyQuadratic( wRoot, z, l, orders, firstInds );
         soc::Inverse( l, lInv, orders, firstInds );
-        const Real mu = Dot(s,z) / degree;
+        const Real mu = dualProd / degree;
 
         // r_mu := l
         // ---------
@@ -249,12 +303,15 @@ void IPM
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds,
@@ -341,12 +398,15 @@ void IPM
         try { ldl::SolveAfter( J, dSub, p, d, false ); }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds );
@@ -371,12 +431,15 @@ void IPM
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Zero step length computed before reaching minimum tolerance "
-                 "of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );
@@ -481,9 +544,8 @@ void IPM
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, cutoffPar );
 
-    // TODO(poulson): Use dimacsErrorOld to early exit
-
-    Real relError = 1;
+    Real infeasError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     DistMatrix<Real> J(grid),     d(grid),
                      w(grid),     wRoot(grid), wRootInv(grid),
                      l(grid),     lInv(grid),
@@ -515,30 +577,39 @@ void IPM
         soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
         soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
         soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        const Real dualProd = Dot(s,z);
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
+
+        // Compute relative duality gap
+        // ----------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         rb = b;
         rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y + G^T z + c ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         rc = c;
         Gemv( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Gemv( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         rh = h;
         rh *= -1;
         Gemv( NORMAL, Real(1), G, x, Real(1), rh );
@@ -548,7 +619,9 @@ void IPM
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsErrorOld = dimacsError;
+        infeasError = Max(Max(rbConv,rcConv),rhConv);
+        dimacsError = Max(infeasError,maxRelGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -567,21 +640,39 @@ void IPM
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
                  "  primal = ",primObj,"\n",Indent(),
                  "  dual   = ",dualObj,"\n",Indent(),
-                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+                 "  relative duality gap = ",maxRelGap);
         }
-        if( relError <= ctrl.targetTol )
-            break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
-            ("Reached maximum number of iterations, ",ctrl.maxIts,
-             ", with rel. error ",relError," which does not meet the minimum ",
-             "tolerance of ",ctrl.minTol);
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
         Real wMaxNorm = MaxNorm(w);
         const Real wMaxNormLimit =
-          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),dimacsError));
         if( wMaxNorm > wMaxNormLimit )
         {
             soc::PushPairInto
@@ -593,7 +684,7 @@ void IPM
         soc::Inverse( wRoot, wRootInv, orders, firstInds, cutoffPar );
         soc::ApplyQuadratic( wRoot, z, l, orders, firstInds, cutoffPar );
         soc::Inverse( l, lInv, orders, firstInds, cutoffPar );
-        const Real mu = Dot(s,z) / degree;
+        const Real mu = dualProd / degree;
 
         // r_mu := l
         // ---------
@@ -614,12 +705,15 @@ void IPM
         }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds,
@@ -713,12 +807,15 @@ void IPM
         try { ldl::SolveAfter( J, dSub, p, d, false ); }
         catch(...)
         {
-            if( relError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Solve failed with rel. error ",relError,
-                 " which does not meet the minimum tolerance of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
         ExpandSolution
         ( m, n, d, rmu, wRoot, orders, firstInds, dx, dy, dz, ds,
@@ -745,12 +842,15 @@ void IPM
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError <= ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Zero step length computed before reaching minimum tolerance "
-                 "of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );
@@ -907,9 +1007,8 @@ void IPM
     SparseLDLFactorization<Real> sparseLDLFact;
     sparseLDLFact.Initialize( JStatic, hermitian, bisectCtrl );
 
-    // TODO(poulson): Use dimacsErrorOld to early exit
-
-    Real relError = 1;
+    Real infeasError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     Matrix<Real> dInner;
     Matrix<Real> dxError, dyError, dzError, dmuError;
     const Int indent = PushIndent();
@@ -921,30 +1020,39 @@ void IPM
         soc::PushInto( s, orders, firstInds, minDist );
         soc::PushInto( z, orders, firstInds, minDist );
         soc::NesterovTodd( s, z, w, orders, firstInds );
+        const Real dualProd = Dot(s,z);
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
+
+        // Compute relative duality gap
+        // ----------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max(relObjGap,relCompGap);
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         rb = b;
         rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y + G^T z + c ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         rh = h;
         rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
@@ -954,7 +1062,9 @@ void IPM
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsErrorOld = dimacsError;
+        infeasError = Max(Max(rbConv,rcConv),rhConv);
+        dimacsError = Max(infeasError,maxRelGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -972,23 +1082,39 @@ void IPM
              "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
              "  primal = ",primObj,"\n",Indent(),
              "  dual   = ",dualObj,"\n",Indent(),
-             "  |primal - dual| / (1 + |primal|) = ",objConv);
+             "  relative duality gap = ",maxRelGap);
         }
-        if( relError <= ctrl.targetTol )
-            break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
-            ("Reached maximum number of iterations, ",ctrl.maxIts,
-             ", with rel. error ",relError," which does not meet the minimum ",
-             "tolerance of ",ctrl.minTol);
-        Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
-            break;
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
+        Real wMaxNorm = MaxNorm(w);
         const Real wMaxNormLimit =
-          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),dimacsError));
         if( wMaxNorm > wMaxNormLimit )
         {
             soc::PushPairInto( s, z, w, orders, firstInds, wMaxNormLimit );
@@ -999,7 +1125,7 @@ void IPM
         soc::Inverse( wRoot, wRootInv, orders, firstInds );
         soc::ApplyQuadratic( wRoot, z, l, orders, firstInds );
         soc::Inverse( l, lInv, orders, firstInds );
-        const Real mu = Dot(s,z) / degree;
+        const Real mu = dualProd / degree;
 
         // r_mu := l
         // ---------
@@ -1051,13 +1177,15 @@ void IPM
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( relError < ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Solve failed with rel. error ",relError,
-                     " which does not meet the minimum tolerance of ",
-                     ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
         }
         ExpandSolution
@@ -1167,13 +1295,15 @@ void IPM
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( relError < ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Solve failed with rel. error ",relError,
-                     " which does not meet the minimum tolerance of ",
-                     ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
         }
         ExpandSolution
@@ -1201,12 +1331,15 @@ void IPM
         Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError < ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Zero step length computed before reaching minimum tolerance "
-                 "of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );
@@ -1405,9 +1538,8 @@ void IPM
     if( commRank == 0 && ctrl.time )
         Output("Analysis: ",timer.Stop()," secs");
 
-    // TODO(poulson): Use dimacsErrorOld to early exit
-
-    Real relError = 1;
+    Real infeasError = 1;
+    Real dimacsError = 1, dimacsErrorOld = 1;
     DistMultiVec<Real> dInner(grid);
     DistMultiVec<Real> dxError(grid), dyError(grid),
                        dzError(grid), dmuError(grid);
@@ -1423,43 +1555,51 @@ void IPM
         soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
         soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
         soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
+        const Real dualProd = Dot(s,z);
 
         // Check for convergence
         // =====================
-        // |c^T x - (-b^T y - h^T z)| / (1 + |c^T x|) <= tol ?
-        // ---------------------------------------------------
+
+        // Compute relative duality gap
+        // ----------------------------
         const Real primObj = Dot(c,x);
         const Real dualObj = -Dot(b,y) - Dot(h,z);
-        const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
-        // || r_b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        const Real relObjGap =
+          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relCompGap =
+          RelativeComplementarityGap( primObj, dualObj, dualProd );
+        const Real maxRelGap = Max( relObjGap, relCompGap );
+
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         rb = b;
         rb *= -1;
         Multiply( NORMAL, Real(1), A, x, Real(1), rb );
-        // TODO(poulson): Axpy with -ctrl.yRegSmall y?
         const Real rbNrm2 = Nrm2( rb );
         const Real rbConv = rbNrm2 / (1+bNrm2);
-        // || r_c ||_2 / (1 + || c ||_2) <= tol ?
-        // --------------------------------------
+
+        // || A^T y + G^T z + c ||_2 / (1 + || c ||_2)
+        // -------------------------------------------
         rc = c;
         Multiply( TRANSPOSE, Real(1), A, y, Real(1), rc );
         Multiply( TRANSPOSE, Real(1), G, z, Real(1), rc );
-        // TODO(poulson): Axpy with ctrl.xRegSmall x?
         const Real rcNrm2 = Nrm2( rc );
         const Real rcConv = rcNrm2 / (1+cNrm2);
-        // || r_h ||_2 / (1 + || h ||_2) <= tol
-        // ------------------------------------
+
+        // || G x + s - h ||_2 / (1 + || h ||_2)
+        // -------------------------------------
         rh = h;
         rh *= -1;
         Multiply( NORMAL, Real(1), G, x, Real(1), rh );
         rh += s;
-        // TODO(poulson): Axpy with -ctrl.zRegSmall z?
         const Real rhNrm2 = Nrm2( rh );
         const Real rhConv = rhNrm2 / (1+hNrm2);
 
         // Now check the pieces
         // --------------------
-        relError = Max(Max(Max(objConv,rbConv),rcConv),rhConv);
+        dimacsErrorOld = dimacsError;
+        infeasError = Max(Max(rbConv,rcConv),rhConv);
+        dimacsError = Max(infeasError,maxRelGap);
         if( ctrl.print )
         {
             const Real xNrm2 = Nrm2( x );
@@ -1478,23 +1618,39 @@ void IPM
                  "  || r_h ||_2 / (1 + || h ||_2) = ",rhConv,"\n",Indent(),
                  "  primal = ",primObj,"\n",Indent(),
                  "  dual   = ",dualObj,"\n",Indent(),
-                 "  |primal - dual| / (1 + |primal|) = ",objConv);
+                 "  relative duality gap = ",maxRelGap);
         }
-        if( relError <= ctrl.targetTol )
-            break;
-        if( numIts == ctrl.maxIts && relError > ctrl.minTol )
+
+        const bool metTolerances =
+          infeasError <= ctrl.infeasibilityTol &&
+          relCompGap <= ctrl.relativeComplementarityGapTol &&
+          relObjGap <= ctrl.relativeObjectiveGapTol;
+        if( metTolerances )
+        {
+            if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
+            {
+                // We have met the tolerances and progress in the last iteration
+                // was not significant.
+                break;
+            }
+            else if( numIts == ctrl.maxIts )
+            {
+                // We have hit the iteration limit but can declare success.
+                break;
+            }
+        }
+        else if( numIts == ctrl.maxIts )
+        {
             RuntimeError
-            ("Reached maximum number of iterations, ",ctrl.maxIts,
-             ", with rel. error ",relError," which does not meet the minimum ",
-             "tolerance of ",ctrl.minTol);
-        Real wMaxNorm = MaxNorm(w);
-        if( wMaxNorm >= ctrl.wMaxLimit && relError <= ctrl.minTol )
-            break;
+            ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
+             "achieving tolerances");
+        }
 
         // Compute the affine search direction
         // ===================================
+        Real wMaxNorm = MaxNorm(w);
         const Real wMaxNormLimit =
-          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),relError));
+          Max(ctrl.wSafeMaxNorm,10/Min(Real(1),dimacsError));
         if( ctrl.print && commRank == 0 )
             Output
             ("|| w ||_max = ",wMaxNorm,", limit is ",wMaxNormLimit);
@@ -1594,13 +1750,15 @@ void IPM
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( relError < ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Solve failed with rel. error ",relError,
-                     " which does not meet the minimum tolerance of ",
-                     ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
         }
         if( commRank == 0 && ctrl.time )
@@ -1735,13 +1893,15 @@ void IPM
               ctrl.solveCtrl.progress );
             if( !solveInfo.metRequestedTol )
             {
-                if( relError < ctrl.minTol )
+                if( metTolerances )
+                {
                     break;
+                }
                 else
-                    RuntimeError
-                    ("Solve failed with rel. error ",relError,
-                     " which does not meet the minimum tolerance of ",
-                     ctrl.minTol);
+                {
+                    // TODO(poulson): Increase regularization and continue.
+                    RuntimeError("Could not achieve tolerances");
+                }
             }
         }
         if( commRank == 0 && ctrl.time )
@@ -1783,12 +1943,15 @@ void IPM
             Output("Iteration: ",iterTimer.Stop()," secs");
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
-            if( relError < ctrl.minTol )
+            if( metTolerances )
+            {
                 break;
+            }
             else
-                RuntimeError
-                ("Zero step length computed before reaching minimum tolerance "
-                 "of ",ctrl.minTol);
+            {
+                // TODO(poulson): Increase regularization and continue.
+                RuntimeError("Could not achieve tolerances");
+            }
         }
     }
     SetIndent( indent );

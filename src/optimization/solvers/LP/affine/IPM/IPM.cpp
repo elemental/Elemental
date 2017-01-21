@@ -1748,7 +1748,7 @@ void EquilibratedIPM
 
     // TODO(poulson): Push these into control structures.
     const Real maxComplementRatio = 1000;
-    const bool softTargets = true;
+    const bool softTargets = false;
     const Real lowerTargetRatioLogCompRatio = -0.25;
     const Real upperTargetRatioLogCompRatio =  0.25;
 

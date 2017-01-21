@@ -20,8 +20,12 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
 
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->minTol = 1e-2;
-    ctrl->targetTol = 1e-4;
+
+    ctrl->infeasibilityTol = Pow(eps,float(0.5));
+    ctrl->relativeObjectiveGapTol = Pow(eps,float(0.3));
+    ctrl->relativeComplementarityGapTol = Pow(eps,float(0.3));
+    ctrl->minDimacsDecreaseRatio = 0.99f;
+
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
@@ -64,8 +68,12 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
 
     ctrl->primalInit = false;
     ctrl->dualInit = false;
-    ctrl->minTol = 1e-5;
-    ctrl->targetTol = 1e-8;
+
+    ctrl->infeasibilityTol = Pow(eps,double(0.5));
+    ctrl->relativeObjectiveGapTol = Pow(eps,double(0.3));
+    ctrl->relativeComplementarityGapTol = Pow(eps,double(0.3));
+    ctrl->minDimacsDecreaseRatio = 0.99;
+
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
@@ -220,8 +228,9 @@ ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl )
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_s( &ctrl->ipmCtrl );
     ctrl->ipmCtrl.system = EL_AUGMENTED_KKT;
-    ctrl->ipmCtrl.minTol = 1e-2;
-    ctrl->ipmCtrl.targetTol = 1e-3;
+    ctrl->ipmCtrl.infeasibilityTol = 1e-4;
+    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-2;
+    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-2;
     return EL_SUCCESS;
 }
 
@@ -230,8 +239,9 @@ ElError ElSOCPDirectCtrlDefault_d( ElSOCPDirectCtrl_d* ctrl )
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_d( &ctrl->ipmCtrl );
     ctrl->ipmCtrl.system = EL_AUGMENTED_KKT;
-    ctrl->ipmCtrl.minTol = 1e-4;
-    ctrl->ipmCtrl.targetTol = 1e-8;
+    ctrl->ipmCtrl.infeasibilityTol = 1e-8;
+    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-4;
+    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-4;
     return EL_SUCCESS;
 }
 
@@ -241,8 +251,9 @@ ElError ElSOCPAffineCtrlDefault_s( ElSOCPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_s( &ctrl->ipmCtrl );
-    ctrl->ipmCtrl.minTol = 1e-2;
-    ctrl->ipmCtrl.targetTol = 1e-3;
+    ctrl->ipmCtrl.infeasibilityTol = 1e-4;
+    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-2;
+    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-2;
     return EL_SUCCESS;
 }
 
@@ -250,8 +261,9 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_d( &ctrl->ipmCtrl );
-    ctrl->ipmCtrl.minTol = 1e-4;
-    ctrl->ipmCtrl.targetTol = 1e-8;
+    ctrl->ipmCtrl.infeasibilityTol = 1e-8;
+    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-4;
+    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-4;
     return EL_SUCCESS;
 }
 

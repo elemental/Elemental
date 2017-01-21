@@ -21,7 +21,10 @@ lib.ElIPMCtrlDefault_d.argtypes = \
   [c_void_p,bType]
 class IPMCtrl_s(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("minTol",sType),("targetTol",sType),
+              ("infeasibilityTol",sType),
+              ("relativeObjectiveGapTol",sType),
+              ("relativeComplementarityGapTol",sType),
+              ("minDimacsDecreaseRatio",sType),
               ("maxIts",iType),
               ("maxStepRatio",sType),
               ("system",c_uint),
@@ -51,7 +54,10 @@ class IPMCtrl_s(ctypes.Structure):
     lib.ElIPMCtrlDefault_s(pointer(self))
 class IPMCtrl_d(ctypes.Structure):
   _fields_ = [("primalInit",bType),("dualInit",bType),
-              ("minTol",dType),("targetTol",dType),
+              ("infeasibilityTol",dType),
+              ("relativeObjectiveGapTol",dType),
+              ("relativeComplementarityGapTol",dType),
+              ("minDimacsDecreaseRatio",dType),
               ("maxIts",iType),
               ("maxStepRatio",dType),
               ("system",c_uint),

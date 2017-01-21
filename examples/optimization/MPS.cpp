@@ -17,8 +17,9 @@ void DenseLoadAndSolve
   bool metadataSummary,
   bool print,
   bool outerEquil,
-  double minTolLogEps,
-  double targetTolLogEps,
+  double infeasibilityTolLogEps,
+  double relativeObjectiveGapTolLogEps,
+  double relativeComplementarityGapTolLogEps,
   double xRegSmallLogEps,
   double yRegSmallLogEps,
   double zRegSmallLogEps,
@@ -56,8 +57,11 @@ void DenseLoadAndSolve
     ctrl.ipmCtrl.print = true;
     ctrl.ipmCtrl.outerEquil = outerEquil;
     ctrl.ipmCtrl.mehrotra = mehrotra;
-    ctrl.ipmCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
-    ctrl.ipmCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
+    ctrl.ipmCtrl.infeasibilityTol = El::Pow(eps,Real(infeasibilityTolLogEps));
+    ctrl.ipmCtrl.relativeObjectiveGapTol =
+      El::Pow(eps,Real(relativeObjectiveGapTolLogEps));
+    ctrl.ipmCtrl.relativeComplementarityGapTol =
+      El::Pow(eps,Real(relativeComplementarityGapTolLogEps));
     ctrl.ipmCtrl.xRegLarge = El::Pow(eps,Real(xRegLargeLogEps));
     ctrl.ipmCtrl.yRegLarge = El::Pow(eps,Real(yRegLargeLogEps));
     ctrl.ipmCtrl.zRegLarge = El::Pow(eps,Real(zRegLargeLogEps));
@@ -87,8 +91,9 @@ void SparseLoadAndSolve
   bool metadataSummary,
   bool print,
   bool outerEquil,
-  double minTolLogEps,
-  double targetTolLogEps,
+  double infeasibilityTolLogEps,
+  double relativeObjectiveGapTolLogEps,
+  double relativeComplementarityGapTolLogEps,
   double xRegSmallLogEps,
   double yRegSmallLogEps,
   double zRegSmallLogEps,
@@ -128,8 +133,11 @@ void SparseLoadAndSolve
     ctrl.ipmCtrl.print = true;
     ctrl.ipmCtrl.outerEquil = outerEquil;
     ctrl.ipmCtrl.mehrotra = mehrotra;
-    ctrl.ipmCtrl.minTol = El::Pow(eps,Real(minTolLogEps));
-    ctrl.ipmCtrl.targetTol = El::Pow(eps,Real(targetTolLogEps));
+    ctrl.ipmCtrl.infeasibilityTol = El::Pow(eps,Real(infeasibilityTolLogEps));
+    ctrl.ipmCtrl.relativeObjectiveGapTol =
+      El::Pow(eps,Real(relativeObjectiveGapTolLogEps));
+    ctrl.ipmCtrl.relativeComplementarityGapTol =
+      El::Pow(eps,Real(relativeComplementarityGapTolLogEps));
     ctrl.ipmCtrl.xRegLarge = El::Pow(eps,Real(xRegLargeLogEps));
     ctrl.ipmCtrl.yRegLarge = El::Pow(eps,Real(yRegLargeLogEps));
     ctrl.ipmCtrl.zRegLarge = El::Pow(eps,Real(zRegLargeLogEps));
@@ -139,8 +147,6 @@ void SparseLoadAndSolve
     ctrl.ipmCtrl.twoStage = twoStage;
     ctrl.ipmCtrl.checkResiduals = true;
     ctrl.ipmCtrl.solveCtrl.progress = true;
-    El::Output("minTol=",ctrl.ipmCtrl.minTol);
-    El::Output("targetTol=",ctrl.ipmCtrl.targetTol);
     El::Output("xRegLarge=",ctrl.ipmCtrl.xRegLarge);
     El::Output("yRegLarge=",ctrl.ipmCtrl.yRegLarge);
     El::Output("zRegLarge=",ctrl.ipmCtrl.zRegLarge);
@@ -186,10 +192,16 @@ int main( int argc, char* argv[] )
         const bool print = El::Input("--print","print matrices?",false);
         const bool outerEquil =
           El::Input("--outerEquil","outer equilibration?",true);
-        const double minTolLogEps =
-          El::Input("--minTolLogEps","log_eps(minTol)",0.3);
-        const double targetTolLogEps =
-          El::Input("--targetTolLogEps","log_eps(targetTol)",0.5);
+        const double infeasibilityTolLogEps =
+          El::Input("--infeasibilityTolLogEps","log_eps(infeasibilityTol)",0.5);
+        const double relativeObjectiveGapTolLogEps =
+          El::Input
+          ("--relativeObjectiveGapTolLogEps",
+           "log_eps(relativeObjectiveGapTol)",0.3);
+        const double relativeComplementarityGapTolLogEps =
+          El::Input
+          ("--relativeComplementarityGapTolLogEps",
+           "log_eps(relativeComplementarityGapTol)",0.3);
         const double xRegSmallLogEps =
           El::Input("--xRegSmallLogEps","log_eps(xRegSmall)",0.7);
         const double yRegSmallLogEps =
@@ -215,7 +227,9 @@ int main( int argc, char* argv[] )
                 ( filename, compressed,
                   minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
                   print, outerEquil,
-                  minTolLogEps, targetTolLogEps,
+                  infeasibilityTolLogEps,
+                  relativeObjectiveGapTolLogEps,
+                  relativeComplementarityGapTolLogEps,
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
                   twoStage, mehrotra );
@@ -224,7 +238,9 @@ int main( int argc, char* argv[] )
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
               print, outerEquil,
-              minTolLogEps, targetTolLogEps,
+              infeasibilityTolLogEps,
+              relativeObjectiveGapTolLogEps,
+              relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               twoStage, mehrotra );
@@ -232,7 +248,9 @@ int main( int argc, char* argv[] )
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
               print, outerEquil,
-              minTolLogEps, targetTolLogEps,
+              infeasibilityTolLogEps,
+              relativeObjectiveGapTolLogEps,
+              relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               twoStage, mehrotra );
@@ -242,7 +260,9 @@ int main( int argc, char* argv[] )
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
               print, outerEquil,
-              minTolLogEps, targetTolLogEps,
+              infeasibilityTolLogEps,
+              relativeObjectiveGapTolLogEps,
+              relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               twoStage, mehrotra );
@@ -254,7 +274,9 @@ int main( int argc, char* argv[] )
             ( filename, compressed,
               minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
               print, outerEquil,
-              minTolLogEps, targetTolLogEps,
+              infeasibilityTolLogEps,
+              relativeObjectiveGapTolLogEps,
+              relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               twoStage, mehrotra );
@@ -263,7 +285,9 @@ int main( int argc, char* argv[] )
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
           print, outerEquil,
-          minTolLogEps, targetTolLogEps,
+          infeasibilityTolLogEps,
+          relativeObjectiveGapTolLogEps,
+          relativeComplementarityGapTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           twoStage, mehrotra );
@@ -271,7 +295,9 @@ int main( int argc, char* argv[] )
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
           print, outerEquil,
-          minTolLogEps, targetTolLogEps,
+          infeasibilityTolLogEps,
+          relativeObjectiveGapTolLogEps,
+          relativeComplementarityGapTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           twoStage, mehrotra );
@@ -281,7 +307,9 @@ int main( int argc, char* argv[] )
         ( filename, compressed,
           minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
           print, outerEquil,
-          minTolLogEps, targetTolLogEps,
+          infeasibilityTolLogEps,
+          relativeObjectiveGapTolLogEps,
+          relativeComplementarityGapTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           twoStage, mehrotra );

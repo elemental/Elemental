@@ -24,8 +24,12 @@ typedef enum {
 /* See the C++ structure for documentation of the members */
 typedef struct {
   bool primalInit, dualInit;
-  float minTol;
-  float targetTol;
+
+  float infeasibilityTol;
+  float relativeObjectiveGapTol;
+  float relativeComplementarityGapTol;
+  float minDimacsDecreaseRatio;
+
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
@@ -64,8 +68,12 @@ typedef struct {
 
 typedef struct {
   bool primalInit, dualInit;
-  double minTol;
-  double targetTol;
+
+  double infeasibilityTol;
+  double relativeObjectiveGapTol;
+  double relativeComplementarityGapTol;
+  double minDimacsDecreaseRatio;
+
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;

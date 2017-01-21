@@ -46,8 +46,10 @@ struct Ctrl
     Ctrl()
     {
         ipmCtrl.system = AUGMENTED_KKT;
-        ipmCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
-        ipmCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
+        ipmCtrl.relativeObjectiveGapTol =
+          Pow(limits::Epsilon<Real>(),Real(0.25));
+        ipmCtrl.relativeComplementarityGapTol =
+          Pow(limits::Epsilon<Real>(),Real(0.25));
     }
 };
 
@@ -76,8 +78,10 @@ struct Ctrl
 
     Ctrl()
     {
-        ipmCtrl.minTol = Pow(limits::Epsilon<Real>(),Real(0.25));
-        ipmCtrl.targetTol = Pow(limits::Epsilon<Real>(),Real(0.5));
+        ipmCtrl.relativeObjectiveGapTol =
+          Pow(limits::Epsilon<Real>(),Real(0.25));
+        ipmCtrl.relativeComplementarityGapTol =
+          Pow(limits::Epsilon<Real>(),Real(0.25));
     }
 };
 

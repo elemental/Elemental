@@ -54,8 +54,9 @@ b = El.DistMultiVec(El.zTag)
 El.Ones( b, n0*n1, 1 )
 
 ctrl = El.BPCtrl_z()
-ctrl.ipmCtrl.ipmCtrl.minTol = 1e-4
-ctrl.ipmCtrl.ipmCtrl.targetTol = 1e-8
+ctrl.ipmCtrl.ipmCtrl.infeasibilityTol = 1e-5
+ctrl.ipmCtrl.ipmCtrl.relativeObjectiveGapTol = 1e-3
+ctrl.ipmCtrl.ipmCtrl.relativeComplementarityGapTol = 1e-3
 ctrl.ipmCtrl.ipmCtrl.time = True
 ctrl.ipmCtrl.ipmCtrl.progress = True
 ctrl.ipmCtrl.ipmCtrl.solveCtrl.progress = True

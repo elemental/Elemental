@@ -23,10 +23,14 @@ inline KKTSystem CReflect( ElKKTSystem system )
 inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
 {
     ElIPMCtrl_s ctrlC;
-    ctrlC.primalInit    = ctrl.primalInit;
-    ctrlC.dualInit      = ctrl.dualInit;
-    ctrlC.minTol        = ctrl.minTol;
-    ctrlC.targetTol     = ctrl.targetTol;
+    ctrlC.primalInit = ctrl.primalInit;
+    ctrlC.dualInit = ctrl.dualInit;
+
+    ctrlC.infeasibilityTol = ctrl.infeasibilityTol;
+    ctrlC.relativeObjectiveGapTol = ctrl.relativeObjectiveGapTol;
+    ctrlC.relativeComplementarityGapTol = ctrl.relativeComplementarityGapTol;
+    ctrlC.minDimacsDecreaseRatio = ctrl.minDimacsDecreaseRatio;
+
     ctrlC.maxIts        = ctrl.maxIts;
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system        = CReflect(ctrl.system);
@@ -74,10 +78,14 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
 inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
 {
     ElIPMCtrl_d ctrlC;
-    ctrlC.primalInit    = ctrl.primalInit;
-    ctrlC.dualInit      = ctrl.dualInit;
-    ctrlC.minTol        = ctrl.minTol;
-    ctrlC.targetTol     = ctrl.targetTol;
+    ctrlC.primalInit = ctrl.primalInit;
+    ctrlC.dualInit = ctrl.dualInit;
+
+    ctrlC.infeasibilityTol = ctrl.infeasibilityTol;
+    ctrlC.relativeObjectiveGapTol = ctrl.relativeObjectiveGapTol;
+    ctrlC.relativeComplementarityGapTol = ctrl.relativeComplementarityGapTol;
+    ctrlC.minDimacsDecreaseRatio = ctrl.minDimacsDecreaseRatio;
+
     ctrlC.maxIts        = ctrl.maxIts;
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system        = CReflect(ctrl.system);
@@ -125,10 +133,14 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
 inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
 {
     IPMCtrl<float> ctrl;
-    ctrl.primalInit        = ctrlC.primalInit;
-    ctrl.dualInit          = ctrlC.dualInit;
-    ctrl.minTol            = ctrlC.minTol;
-    ctrl.targetTol         = ctrlC.targetTol;
+    ctrl.primalInit = ctrlC.primalInit;
+    ctrl.dualInit = ctrlC.dualInit;
+
+    ctrl.infeasibilityTol = ctrlC.infeasibilityTol;
+    ctrl.relativeObjectiveGapTol = ctrlC.relativeObjectiveGapTol;
+    ctrl.relativeComplementarityGapTol = ctrlC.relativeComplementarityGapTol;
+    ctrl.minDimacsDecreaseRatio = ctrlC.minDimacsDecreaseRatio;
+
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.maxStepRatio      = ctrlC.maxStepRatio;
     ctrl.system            = CReflect(ctrlC.system);
@@ -169,10 +181,14 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
 inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
 {
     IPMCtrl<double> ctrl;
-    ctrl.primalInit        = ctrlC.primalInit;
-    ctrl.dualInit          = ctrlC.dualInit;
-    ctrl.minTol            = ctrlC.minTol;
-    ctrl.targetTol         = ctrlC.targetTol;
+    ctrl.primalInit = ctrlC.primalInit;
+    ctrl.dualInit = ctrlC.dualInit;
+
+    ctrl.infeasibilityTol = ctrlC.infeasibilityTol;
+    ctrl.relativeObjectiveGapTol = ctrlC.relativeObjectiveGapTol;
+    ctrl.relativeComplementarityGapTol = ctrlC.relativeComplementarityGapTol;
+    ctrl.minDimacsDecreaseRatio = ctrlC.minDimacsDecreaseRatio;
+
     ctrl.maxIts            = ctrlC.maxIts;
     ctrl.maxStepRatio      = ctrlC.maxStepRatio;
     ctrl.system            = CReflect(ctrlC.system);
