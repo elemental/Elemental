@@ -385,6 +385,7 @@ MPSReader::MPSReader
                              " for trivial equality row ",rowName_);
                             // We initialize at zero and overwrite if there is
                             // relevant RHS data.
+                            variableData.fixed = true;
                             variableData.fixedValue = 0;
                         }
                     }

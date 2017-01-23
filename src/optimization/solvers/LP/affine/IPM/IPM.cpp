@@ -1748,7 +1748,7 @@ void EquilibratedIPM
 
     // TODO(poulson): Push these into control structures.
     const Real maxComplementRatio = 1000;
-    const bool softTargets = false;
+    const bool softTargets = true;
     const Real lowerTargetRatioLogCompRatio = -0.25;
     const Real upperTargetRatioLogCompRatio =  0.25;
 
@@ -1916,13 +1916,12 @@ void EquilibratedIPM
 
         // Compute the regularized 'z' pivot.
         Matrix<Real> zPivot( solution.z );
-        // TODO(poulson): Make this more rigorous. It is equivalent to an
-        // ad-hoc choice of two-norm regularization.
         /*
         Axpy( sRegSmall, solution.s, zPivot );
         Axpy( -sRegSmall, s0, zPivot );
         */
-        const Real minPivotVal = Pow(limits::Epsilon<Real>(),Real(0.8));
+        //const Real minPivotVal = Pow(limits::Epsilon<Real>(),Real(0.9));
+        const Real minPivotVal = Pow(limits::Epsilon<Real>(),Real(1.0));
         for( Int i=0; i<k; ++i )
             zPivot(i) = Max( zPivot(i), minPivotVal );
 
@@ -1998,7 +1997,8 @@ void EquilibratedIPM
              conicInfeasNrm2Rel,"\n",Indent(),
              "  scaled primal = ",primObj,"\n",Indent(),
              "  scaled dual   = ",dualObj,"\n",Indent(),
-             "  scaled relative duality gap = ",maxRelGap,"\n",Indent(),
+             "  scaled rel obj gap = ",relObjGap,"\n",Indent(),
+             "  scaled rel comp gap = ",relCompGap,"\n",Indent(),
              "  scaled dimacs error = ",dimacsError);
 
             AffineLPSolution<Matrix<Real>> origSolution;
@@ -2217,16 +2217,21 @@ void EquilibratedIPM
               Pow(compRatio,lowerTargetRatioLogCompRatio);
             Real upperTargetRatio =
               Pow(compRatio,upperTargetRatioLogCompRatio);
+            Output
+            ("compRatio=",compRatio,", lowerTargetRatio=",lowerTargetRatio,
+             ", upperTargetRatio=",upperTargetRatio);
             lowerTargetRatio =
-              Min( lowerTargetRatio, Real(1)/Sqrt(maxComplementRatio) );
+              Max( lowerTargetRatio, Pow(maxComplementRatio,Real(-0.5)) );
             upperTargetRatio =
-              Max( upperTargetRatio, Sqrt(maxComplementRatio) );
+              Min( upperTargetRatio, Pow(maxComplementRatio,Real(0.5)) );
+            Output
+            ("lowerTargetRatio=",lowerTargetRatio,
+             ", upperTargetRatio=",upperTargetRatio);
             const Real lowerTarget = lowerTargetRatio*sigma*mu;
             const Real upperTarget = upperTargetRatio*sigma*mu;
-            Output("Using soft targets");
             for( Int i=0; i<k; ++i )
             {
-                const Real prod = solution.s(i)*solution.z(i);
+                const Real prod = solution.s(i)*zPivot(i);
                 if( prod < lowerTarget )
                 {
                     Output(i,": ",prod," was < lowerTarget=",lowerTarget);
