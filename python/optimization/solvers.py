@@ -31,7 +31,6 @@ class IPMCtrl_s(ctypes.Structure):
               ("mehrotra",bType),
               ("centralityRule",CFUNCTYPE(sType,sType,sType,sType,sType)),
               ("standardInitShift",bType),
-              ("balanceTol",sType),
               ("forceSameStep",bType),
               ("solveCtrl",RegSolveCtrl_s),
               ("resolveReg",bType),
@@ -45,11 +44,17 @@ class IPMCtrl_s(ctypes.Structure):
               ("ruizEquilTol",sType),
               ("ruizMaxIter",iType),
               ("diagEquilTol",sType),
+              ("dynamicallyRescale",bType),
               ("checkResiduals",bType),
               ("xRegSmall",sType),("yRegSmall",sType),("zRegSmall",sType),
+              ("zMinPivotValue",sType),
               ("xRegLarge",sType),("yRegLarge",sType),("zRegLarge",sType),
               ("twoStage",bType),
-              ("regIncreaseFactor",sType)]
+              ("regIncreaseFactor",sType),
+              ("maxComplementRatio",sType),
+              ("softDualityTargets",bType),
+              ("lowerTargetRatioLogCompRatio",sType),
+              ("upperTargetRatioLogCompRatio",sType)]
   def __init__(self):
     lib.ElIPMCtrlDefault_s(pointer(self))
 class IPMCtrl_d(ctypes.Structure):
@@ -64,7 +69,6 @@ class IPMCtrl_d(ctypes.Structure):
               ("mehrotra",bType),
               ("centralityRule",CFUNCTYPE(dType,dType,dType,dType,dType)),
               ("standardInitShift",bType),
-              ("balanceTol",dType),
               ("forceSameStep",bType),
               ("solveCtrl",RegSolveCtrl_d),
               ("resolveReg",bType),
@@ -78,11 +82,17 @@ class IPMCtrl_d(ctypes.Structure):
               ("ruizEquilTol",dType),
               ("ruizMaxIter",iType),
               ("diagEquilTol",dType),
+              ("dynamicallyRescale",bType),
               ("checkResiduals",bType),
               ("xRegSmall",dType),("yRegSmall",dType),("zRegSmall",dType),
+              ("zMinPivotValue",dType),
               ("xRegLarge",dType),("yRegLarge",dType),("zRegLarge",dType),
               ("twoStage",bType),
-              ("regIncreaseFactor",dType)]
+              ("regIncreaseFactor",dType),
+              ("maxComplementRatio",dType),
+              ("softDualityTargets",bType),
+              ("lowerTargetRatioLogCompRatio",dType),
+              ("upperTargetRatioLogCompRatio",dType)]
   def __init__(self):
     lib.ElIPMCtrlDefault_d(pointer(self))
 

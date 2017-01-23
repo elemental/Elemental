@@ -21,7 +21,7 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->primalInit = false;
     ctrl->dualInit = false;
 
-    ctrl->infeasibilityTol = Pow(eps,float(0.5));
+    ctrl->infeasibilityTol = Pow(eps,float(0.7));
     ctrl->relativeObjectiveGapTol = Pow(eps,float(0.3));
     ctrl->relativeComplementarityGapTol = Pow(eps,float(0.3));
     ctrl->minDimacsDecreaseRatio = 0.99f;
@@ -32,7 +32,6 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->mehrotra = true;
     ctrl->centralityRule = &StepLengthCentrality<float>;
     ctrl->standardInitShift = true;
-    ctrl->balanceTol = Pow(eps,float(-0.19));
     ctrl->forceSameStep = true;
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->outerEquil = true;
@@ -47,6 +46,7 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->ruizEquilTol = Pow(eps,float(-0.25));
     ctrl->ruizMaxIter = 3;
     ctrl->diagEquilTol = Pow(eps,float(-0.15));
+    ctrl->dynamicallyRescale = true;
 
 #ifdef EL_RELEASE
     ctrl->checkResiduals = false;
@@ -54,10 +54,16 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->checkResiduals = true;
 #endif
 
-    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,float(0.7));
-    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,float(0.6));
+    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,float(0.8));
+    ctrl->zMinPivotValue = eps;
+    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,float(0.7));
     ctrl->twoStage = true;
     ctrl->regIncreaseFactor = Pow(eps,float(0.01));
+
+    ctrl->maxComplementRatio = float(1000);
+    ctrl->softDualityTargets = true;
+    ctrl->lowerTargetRatioLogCompRatio = float(-0.25);
+    ctrl->upperTargetRatioLogCompRatio = float( 0.25);
 
     return EL_SUCCESS;
 }
@@ -80,7 +86,6 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->mehrotra = true;
     ctrl->centralityRule = &StepLengthCentrality<double>;
     ctrl->standardInitShift = true;
-    ctrl->balanceTol = Pow(eps,double(-0.19));
     ctrl->forceSameStep = true;
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->outerEquil = true;
@@ -95,6 +100,7 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->ruizEquilTol = Pow(eps,double(-0.25));
     ctrl->ruizMaxIter = 3;
     ctrl->diagEquilTol = Pow(eps,double(-0.15));
+    ctrl->dynamicallyRescale = true;
 
 #ifdef EL_RELEASE
     ctrl->checkResiduals = false;
@@ -102,10 +108,16 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->checkResiduals = true;
 #endif
 
-    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,double(0.7));
-    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,double(0.6));
+    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,double(0.8));
+    ctrl->zMinPivotValue = eps;
+    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,double(0.7));
     ctrl->twoStage = true;
     ctrl->regIncreaseFactor = Pow(eps,double(0.01));
+
+    ctrl->maxComplementRatio = double(1000);
+    ctrl->softDualityTargets = true;
+    ctrl->lowerTargetRatioLogCompRatio = double(-0.25);
+    ctrl->upperTargetRatioLogCompRatio = double( 0.25);
 
     return EL_SUCCESS;
 }

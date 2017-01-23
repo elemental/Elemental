@@ -31,10 +31,10 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
     ctrlC.relativeComplementarityGapTol = ctrl.relativeComplementarityGapTol;
     ctrlC.minDimacsDecreaseRatio = ctrl.minDimacsDecreaseRatio;
 
-    ctrlC.maxIts        = ctrl.maxIts;
+    ctrlC.maxIts = ctrl.maxIts;
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
-    ctrlC.system        = CReflect(ctrl.system);
-    ctrlC.mehrotra      = ctrl.mehrotra;
+    ctrlC.system = CReflect(ctrl.system);
+    ctrlC.mehrotra = ctrl.mehrotra;
 
     auto centralityRuleRes =
       ctrl.centralityRule.target<float(*)(float,float,float,float)>();
@@ -44,14 +44,13 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
         RuntimeError("Could not convert centralityRule to C function pointer");
 
     ctrlC.standardInitShift = ctrl.standardInitShift;
-    ctrlC.balanceTol        = ctrl.balanceTol;
-    ctrlC.forceSameStep     = ctrl.forceSameStep;
-    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
-    ctrlC.outerEquil        = ctrl.outerEquil;
+    ctrlC.forceSameStep = ctrl.forceSameStep;
+    ctrlC.solveCtrl = CReflect(ctrl.solveCtrl);
+    ctrlC.outerEquil = ctrl.outerEquil;
 
     ctrlC.twoNormKrylovBasisSize = ctrl.twoNormKrylovBasisSize;
 
-    ctrlC.print  = ctrl.print;
+    ctrlC.print = ctrl.print;
     ctrlC.time = ctrl.time;
     ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
 
@@ -60,11 +59,14 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
     ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
     ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol = ctrl.diagEquilTol;
+    ctrlC.dynamicallyRescale = ctrl.dynamicallyRescale;
+
     ctrlC.checkResiduals = ctrl.checkResiduals;
 
     ctrlC.xRegSmall = ctrl.xRegSmall;
     ctrlC.yRegSmall = ctrl.yRegSmall;
     ctrlC.zRegSmall = ctrl.zRegSmall;
+    ctrlC.zMinPivotValue = ctrl.zMinPivotValue;
 
     ctrlC.xRegLarge = ctrl.xRegLarge;
     ctrlC.yRegLarge = ctrl.yRegLarge;
@@ -72,6 +74,11 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
 
     ctrlC.twoStage = ctrl.twoStage;
     ctrlC.regIncreaseFactor = ctrl.regIncreaseFactor;
+
+    ctrlC.maxComplementRatio = ctrl.maxComplementRatio;
+    ctrlC.softDualityTargets = ctrl.softDualityTargets;
+    ctrlC.lowerTargetRatioLogCompRatio;
+    ctrlC.upperTargetRatioLogCompRatio;
 
     return ctrlC;
 }
@@ -86,10 +93,10 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
     ctrlC.relativeComplementarityGapTol = ctrl.relativeComplementarityGapTol;
     ctrlC.minDimacsDecreaseRatio = ctrl.minDimacsDecreaseRatio;
 
-    ctrlC.maxIts        = ctrl.maxIts;
-    ctrlC.maxStepRatio  = ctrl.maxStepRatio;
-    ctrlC.system        = CReflect(ctrl.system);
-    ctrlC.mehrotra      = ctrl.mehrotra;
+    ctrlC.maxIts = ctrl.maxIts;
+    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.system = CReflect(ctrl.system);
+    ctrlC.mehrotra = ctrl.mehrotra;
 
     auto centralityRuleRes =
       ctrl.centralityRule.target<double(*)(double,double,double,double)>();
@@ -99,10 +106,9 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
         RuntimeError("Could not convert centralityRule to C function pointer");
 
     ctrlC.standardInitShift = ctrl.standardInitShift;
-    ctrlC.balanceTol        = ctrl.balanceTol;
-    ctrlC.forceSameStep     = ctrl.forceSameStep;
-    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
-    ctrlC.outerEquil        = ctrl.outerEquil;
+    ctrlC.forceSameStep = ctrl.forceSameStep;
+    ctrlC.solveCtrl = CReflect(ctrl.solveCtrl);
+    ctrlC.outerEquil = ctrl.outerEquil;
 
     ctrlC.twoNormKrylovBasisSize = ctrl.twoNormKrylovBasisSize;
 
@@ -115,11 +121,14 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
     ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
     ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol = ctrl.diagEquilTol;
+    ctrlC.dynamicallyRescale = ctrl.dynamicallyRescale;
+
     ctrlC.checkResiduals = ctrl.checkResiduals;
 
     ctrlC.xRegSmall = ctrl.xRegSmall;
     ctrlC.yRegSmall = ctrl.yRegSmall;
     ctrlC.zRegSmall = ctrl.zRegSmall;
+    ctrlC.zMinPivotValue = ctrl.zMinPivotValue;
 
     ctrlC.xRegLarge = ctrl.xRegLarge;
     ctrlC.yRegLarge = ctrl.yRegLarge;
@@ -127,6 +136,11 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
 
     ctrlC.twoStage = ctrl.twoStage;
     ctrlC.regIncreaseFactor = ctrl.regIncreaseFactor;
+
+    ctrlC.maxComplementRatio = ctrl.maxComplementRatio;
+    ctrlC.softDualityTargets = ctrl.softDualityTargets;
+    ctrlC.lowerTargetRatioLogCompRatio;
+    ctrlC.upperTargetRatioLogCompRatio;
 
     return ctrlC;
 }
@@ -141,16 +155,15 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
     ctrl.relativeComplementarityGapTol = ctrlC.relativeComplementarityGapTol;
     ctrl.minDimacsDecreaseRatio = ctrlC.minDimacsDecreaseRatio;
 
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
-    ctrl.system            = CReflect(ctrlC.system);
-    ctrl.mehrotra          = ctrlC.mehrotra;
-    ctrl.centralityRule    = ctrlC.centralityRule;
+    ctrl.maxIts = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system = CReflect(ctrlC.system);
+    ctrl.mehrotra = ctrlC.mehrotra;
+    ctrl.centralityRule = ctrlC.centralityRule;
     ctrl.standardInitShift = ctrlC.standardInitShift;
-    ctrl.balanceTol        = ctrlC.balanceTol;
-    ctrl.forceSameStep     = ctrlC.forceSameStep;
-    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
-    ctrl.outerEquil        = ctrlC.outerEquil;
+    ctrl.forceSameStep = ctrlC.forceSameStep;
+    ctrl.solveCtrl = CReflect(ctrlC.solveCtrl);
+    ctrl.outerEquil = ctrlC.outerEquil;
 
     ctrl.twoNormKrylovBasisSize = ctrlC.twoNormKrylovBasisSize;
 
@@ -163,11 +176,14 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
     ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
     ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol = ctrlC.diagEquilTol;
+    ctrl.dynamicallyRescale = ctrlC.dynamicallyRescale;
+
     ctrl.checkResiduals = ctrlC.checkResiduals;
 
     ctrl.xRegSmall = ctrlC.xRegSmall;
     ctrl.yRegSmall = ctrlC.yRegSmall;
     ctrl.zRegSmall = ctrlC.zRegSmall;
+    ctrl.zMinPivotValue = ctrlC.zMinPivotValue;
 
     ctrl.xRegLarge = ctrlC.xRegLarge;
     ctrl.yRegLarge = ctrlC.yRegLarge;
@@ -175,6 +191,11 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
 
     ctrl.twoStage = ctrlC.twoStage;
     ctrl.regIncreaseFactor = ctrlC.regIncreaseFactor;
+
+    ctrl.maxComplementRatio = ctrlC.maxComplementRatio;
+    ctrl.softDualityTargets = ctrlC.softDualityTargets;
+    ctrl.lowerTargetRatioLogCompRatio = ctrlC.lowerTargetRatioLogCompRatio;
+    ctrl.upperTargetRatioLogCompRatio = ctrlC.upperTargetRatioLogCompRatio;
 
     return ctrl;
 }
@@ -189,33 +210,35 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
     ctrl.relativeComplementarityGapTol = ctrlC.relativeComplementarityGapTol;
     ctrl.minDimacsDecreaseRatio = ctrlC.minDimacsDecreaseRatio;
 
-    ctrl.maxIts            = ctrlC.maxIts;
-    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
-    ctrl.system            = CReflect(ctrlC.system);
-    ctrl.mehrotra          = ctrlC.mehrotra;
-    ctrl.centralityRule    = ctrlC.centralityRule;
+    ctrl.maxIts = ctrlC.maxIts;
+    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.system = CReflect(ctrlC.system);
+    ctrl.mehrotra = ctrlC.mehrotra;
+    ctrl.centralityRule = ctrlC.centralityRule;
     ctrl.standardInitShift = ctrlC.standardInitShift;
-    ctrl.balanceTol        = ctrlC.balanceTol;
-    ctrl.forceSameStep     = ctrlC.forceSameStep;
-    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
-    ctrl.outerEquil        = ctrlC.outerEquil;
+    ctrl.forceSameStep = ctrlC.forceSameStep;
+    ctrl.solveCtrl = CReflect(ctrlC.solveCtrl);
+    ctrl.outerEquil = ctrlC.outerEquil;
 
     ctrl.twoNormKrylovBasisSize = ctrlC.twoNormKrylovBasisSize;
 
-    ctrl.print             = ctrlC.print;
-    ctrl.time              = ctrlC.time;
-    ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
+    ctrl.print = ctrlC.print;
+    ctrl.time = ctrlC.time;
+    ctrl.wSafeMaxNorm = ctrlC.wSafeMaxNorm;
 
     ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
     ctrl.wMaxLimit = ctrlC.wMaxLimit;
     ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
     ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol = ctrlC.diagEquilTol;
+    ctrl.dynamicallyRescale = ctrlC.dynamicallyRescale;
+
     ctrl.checkResiduals = ctrlC.checkResiduals;
 
     ctrl.xRegSmall = ctrlC.xRegSmall;
     ctrl.yRegSmall = ctrlC.yRegSmall;
     ctrl.zRegSmall = ctrlC.zRegSmall;
+    ctrl.zMinPivotValue = ctrlC.zMinPivotValue;
 
     ctrl.xRegLarge = ctrlC.xRegLarge;
     ctrl.yRegLarge = ctrlC.yRegLarge;
@@ -223,6 +246,11 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
 
     ctrl.twoStage = ctrlC.twoStage;
     ctrl.regIncreaseFactor = ctrlC.regIncreaseFactor;
+
+    ctrl.maxComplementRatio = ctrlC.maxComplementRatio;
+    ctrl.softDualityTargets = ctrlC.softDualityTargets;
+    ctrl.lowerTargetRatioLogCompRatio = ctrlC.lowerTargetRatioLogCompRatio;
+    ctrl.upperTargetRatioLogCompRatio = ctrlC.upperTargetRatioLogCompRatio;
 
     return ctrl;
 }

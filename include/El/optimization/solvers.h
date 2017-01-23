@@ -36,7 +36,6 @@ typedef struct {
   bool mehrotra;
   float (*centralityRule)(float,float,float,float);
   bool standardInitShift;
-  float balanceTol;
   bool forceSameStep;
   ElRegSolveCtrl_s solveCtrl;
   bool outerEquil;
@@ -51,6 +50,7 @@ typedef struct {
   float ruizEquilTol;
   ElInt ruizMaxIter;
   float diagEquilTol;
+  bool dynamicallyRescale;
 
   bool checkResiduals;
 
@@ -58,11 +58,18 @@ typedef struct {
   float xRegSmall;
   float yRegSmall;
   float zRegSmall;
+  float zMinPivotValue;
   float xRegLarge;
   float yRegLarge;
   float zRegLarge;
   bool twoStage;
   float regIncreaseFactor;
+
+  /* Handling large complementary ratio */
+  float maxComplementRatio;
+  bool softDualityTargets;
+  float lowerTargetRatioLogCompRatio;
+  float upperTargetRatioLogCompRatio;
 
 } ElIPMCtrl_s;
 
@@ -80,7 +87,6 @@ typedef struct {
   bool mehrotra;
   double (*centralityRule)(double,double,double,double);
   bool standardInitShift;
-  double balanceTol;
   bool forceSameStep;
   ElRegSolveCtrl_d solveCtrl;
   bool outerEquil;
@@ -95,6 +101,7 @@ typedef struct {
   double ruizEquilTol;
   ElInt ruizMaxIter;
   double diagEquilTol;
+  bool dynamicallyRescale;
 
   bool checkResiduals;
 
@@ -102,11 +109,18 @@ typedef struct {
   double xRegSmall;
   double yRegSmall;
   double zRegSmall;
+  double zMinPivotValue;
   double xRegLarge;
   double yRegLarge;
   double zRegLarge;
   bool twoStage;
   double regIncreaseFactor;
+
+  /* Handling large complementary ratio */
+  double maxComplementRatio;
+  bool softDualityTargets;
+  double lowerTargetRatioLogCompRatio;
+  double upperTargetRatioLogCompRatio;
 
 } ElIPMCtrl_d;
 

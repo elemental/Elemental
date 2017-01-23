@@ -74,7 +74,7 @@ namespace affine {
 //
 //   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h)
 //                + (1/2) gamma_x || x - x_0 ||_2^2
-//                + (1/2) gamma_s || s - s_0 ||_2^2
+//                + (1/2)         || Sqrt(Gamma_s) (s - s_0) ||_2^2
 //                - (1/2) gamma_y || y - y_0 ||_2^2
 //                - (1/2) gamma_z || z - z_0 ||_2^2
 //                + mu Phi(s),
@@ -82,8 +82,10 @@ namespace affine {
 // where we note that the two-norm regularization is positive for the primal
 // variables x and s and *negative* for the dual variables y and z.
 // The centering points (x_0,y_0,z_0) are typically chosen as the current
-// estimates of the solution, whereas s_0 is a bit more arbitrary and is
-// typically set to zero.
+// estimates of the solution, whereas Gamma_s and s_0 are only implicitly
+// defined and serve to force
+//
+//   z + Gamma_s (s - s_0) = LowerClip( z, zMinPivotValue ).
 //
 // The subsequent first-order optimality conditions for x, y, and z become
 //
@@ -107,7 +109,7 @@ namespace affine {
 //   L(x',s';y',z') = (D_x c)^T x' + y'^T ((D_y A D_x) x' - (D_y b))
 //     + z'^T ((D_z G D_x) x' + D_z D_s s' - (D_z h))
 //     + (1/2) gamma_x || D_x x' - x_0 ||_2^2
-//     + (1/2) gamma_s || D_s s' - s_0 ||_2^2
+//     + (1/2)         || Gamma_s (D_s s' - s_0) ||_2^2
 //     - (1/2) gamma_y || D_y y' - y_0 ||_2^2
 //     - (1/2) gamma_z || D_z z' - z_0 ||_2^2
 //     + mu Phi(D_s s').
@@ -120,7 +122,7 @@ namespace affine {
 //   L(x',s';y',z') = (D_x c)^T x' + y'^T ((D_y A D_x) x' - (D_y b))
 //     + z'^T ((D_z G D_x) x' + s' - (D_z h))
 //     + (1/2) gamma_x ||    D_x   x' - x_0 ||_2^2
-//     + (1/2) gamma_s || inv(D_z) s' - s_0 ||_2^2
+//     + (1/2)         || Gamma_s (inv(D_z) s' - s_0) ||_2^2
 //     - (1/2) gamma_y ||    D_y   y' - y_0 ||_2^2
 //     - (1/2) gamma_z ||    D_z   z' - z_0 ||_2^2
 //     + mu Phi(inv(D_z) s').
@@ -156,7 +158,7 @@ namespace affine {
 //     + y~^T ((D_y A D_x) x~ - (D_y b / primalScale))
 //     + z~^T ((D_z G D_x) x~ + s~ - (D_z h / primalScale))
 //     + (1/2) gamma_x || primalScale D_x x~ - x_0 ||_2^2
-//     + (1/2) gamma_s || primalScale inv(D_z) s~ - s_0 ||_2^2
+//     + (1/2)         || Gamma_s (primalScale inv(D_z) s~ - s_0) ||_2^2
 //     - (1/2) gamma_y || dualScale D_y y~ - y_0 ||_2^2
 //     - (1/2) gamma_z || dualScale D_z z~ - z_0 ||_2^2
 //     + mu Phi(primalScale inv(D_z) s').
@@ -173,7 +175,7 @@ namespace affine {
 //
 //   L(x~,s~;y~,z~) = c~^T x~ + y~^T (A~ x~ - b~) + z~^T (G~ x~ + s~ - h~)
 //     + (1/2) gamma_x || primalScale D_x x~ - x_0 ||_2^2
-//     + (1/2) gamma_s || primalScale inv(D_z) s~ - s_0 ||_2^2
+//     + (1/2)         || Gamma_s (primalScale inv(D_z) s~ - s_0) ||_2^2
 //     - (1/2) gamma_y || dualScale D_y y~ - y_0 ||_2^2
 //     - (1/2) gamma_z || dualScale D_z z~ - z_0 ||_2^2
 //     + mu Phi(primalScale inv(D_z) s').
@@ -190,11 +192,11 @@ namespace affine {
 //
 // Lastly, the gradient of the Lagrangian with respect to s being zero implies
 //
-//   Nabla_s L = z + gamma_s (s - s_0) - mu inv(s) = 0.
+//   Nabla_s L = z + Gamma_s (s - s_0) - mu inv(s) = 0.
 //
 // This can easily be arranged into the form
 //
-//   s o z + gamma_s s o (s - s_0) = mu e,
+//   s o z + s o Gamma_s (s - s_0) = mu e,
 //
 // which implies that the 's' regularization about the point 's_0' modifies the
 // four-by-four KKT system
@@ -206,7 +208,7 @@ namespace affine {
 //
 // into
 //
-//   | Z + gamma_s (S - S_0), 0,  0,   S  | | s | = | mu e |.
+//   | Z + Gamma_s (S - S_0), 0,  0,   S  | | s | = | mu e |.
 //   |          0,            0, A^T, G^T | | x |   |  -c  |
 //   |          0,            A,  0,   0  | | y |   |   b  |
 //   |          I,            G,  0,   0  | | z |   |  h-s |
@@ -215,8 +217,7 @@ namespace affine {
 // and many entries of z quickly converge towards zero, the complementarity
 // condition implies that *either* 'z(i)' or 's(i)' is small, and so
 // regularization of 's' about 's_0' should stabilize the solve as long as
-// 's_0' is not exactly equal to 's_0'. A natural choice would be to only
-// set 's_0' to a value different from 's' for entries where 'z' is small.
+// 's_0' is not exactly equal to 's_0'. 
 //
 
 template<typename Real,class MatrixType,class VectorType>
@@ -1554,19 +1555,15 @@ void EquilibratedIPM
     }
 
     const Real xRegSmall0 = origTwoNormEst*ctrl.xRegSmall;
-    const Real sRegSmall0 = origTwoNormEst*ctrl.sRegSmall;
     const Real yRegSmall0 = origTwoNormEst*ctrl.yRegSmall;
     const Real zRegSmall0 = origTwoNormEst*ctrl.zRegSmall;
     const Real xRegLarge0 = origTwoNormEst*ctrl.xRegLarge;
-    const Real sRegLarge0 = origTwoNormEst*ctrl.sRegLarge;
     const Real yRegLarge0 = origTwoNormEst*ctrl.yRegLarge;
     const Real zRegLarge0 = origTwoNormEst*ctrl.zRegLarge;
     Real xRegLarge = xRegLarge0;
-    Real sRegLarge = sRegLarge0;
     Real yRegLarge = yRegLarge0;
     Real zRegLarge = zRegLarge0;
     Real xRegSmall = xRegSmall0;
-    Real sRegSmall = sRegSmall0;
     Real yRegSmall = yRegSmall0;
     Real zRegSmall = zRegSmall0;
 
@@ -1615,7 +1612,6 @@ void EquilibratedIPM
     auto increaseRegularization = [&]() {
         const bool smallRegTooClose =
           ctrl.regIncreaseFactor*xRegSmall > xRegLarge ||
-          ctrl.regIncreaseFactor*sRegSmall > sRegLarge ||
           ctrl.regIncreaseFactor*yRegSmall > yRegLarge ||
           ctrl.regIncreaseFactor*zRegSmall > zRegLarge;
         if( twoStage && smallRegTooClose )
@@ -1634,7 +1630,6 @@ void EquilibratedIPM
             UpdateDiagonal( JStatic, ctrl.regIncreaseFactor-Real(1), regSmall );
             regSmall *= ctrl.regIncreaseFactor;
             xRegSmall *= ctrl.regIncreaseFactor;
-            sRegSmall *= ctrl.regIncreaseFactor;
             yRegSmall *= ctrl.regIncreaseFactor;
             zRegSmall *= ctrl.regIncreaseFactor;
         }
@@ -1646,7 +1641,6 @@ void EquilibratedIPM
                  ctrl.regIncreaseFactor);
             regLarge *= ctrl.regIncreaseFactor;
             xRegLarge *= ctrl.regIncreaseFactor;
-            sRegLarge *= ctrl.regIncreaseFactor;
             yRegLarge *= ctrl.regIncreaseFactor;
             zRegLarge *= ctrl.regIncreaseFactor;
         }
@@ -1746,15 +1740,6 @@ void EquilibratedIPM
     AffineLPResidual<Matrix<Real>> residual, error;
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
 
-    // TODO(poulson): Push these into control structures.
-    const Real maxComplementRatio = 1000;
-    const bool softTargets = true;
-    const Real lowerTargetRatioLogCompRatio = -0.25;
-    const Real upperTargetRatioLogCompRatio =  0.25;
-
-    // TODO(poulson): Propagate this through more routines?
-    const bool dynamicallyRescale = true;
-
     // matrix(row,:) *= scale
     auto scaleRow =
       [&]( Int row, const Real& scale, Matrix<Real>& matrix ) {
@@ -1808,7 +1793,7 @@ void EquilibratedIPM
     const Int indent = PushIndent();
     for( ; numIts<=ctrl.maxIts; ++numIts, muOld=mu, dimacsErrorOld=dimacsError )
     {
-        if( dynamicallyRescale )
+        if( ctrl.dynamicallyRescale )
         {
             // Ensure that 0.01 <= || s ||_max <= 100
             const Real primalScaleNew = MaxNorm(solution.s);
@@ -1851,38 +1836,6 @@ void EquilibratedIPM
             (sNumNonPos," entries of s were nonpositive and ",
              zNumNonPos," entries of z were nonpositive");
 
-        // Rescale the problem to avoid s or z being too close to zero
-        // ===========================================================
-        /*
-        Matrix<Real> zScaleNew;
-        Ones( zScaleNew, k, 1 );
-        bool nontrivialRescale = false;
-        for( Int i=0; i<n; ++i )
-        {
-            if( solution.s(i) < Pow(limits::Epsilon<Real>(),Real(0.75)) )
-            {
-                Output("Rescaling s(",i,")=",solution.s(i));
-                zScaleNew(i) *= Real(10);
-                nontrivialRescale = true;
-            }
-            else if( solution.z(i) < Pow(limits::Epsilon<Real>(),Real(0.75)) )
-            {
-                Output("Rescaling z(",i,")=",solution.z(i));
-                zScaleNew(i) *= Real(1)/Real(10);
-                nontrivialRescale = true;
-            }
-        }
-        if( nontrivialRescale )
-        {
-            DiagonalScale( LEFT, NORMAL, zScaleNew, equilibration.zScale );
-            DiagonalScale( LEFT, NORMAL, zScaleNew, solution.s );
-            DiagonalSolve( LEFT, NORMAL, zScaleNew, solution.z );
-            DiagonalScale( LEFT, NORMAL, zScaleNew, problem.G );
-            DiagonalScale( LEFT, NORMAL, zScaleNew, problem.h );
-            symmetricScaleG( zScaleNew, JStatic );
-        }
-        */
-
         // Compute the scaling point
         // =========================
         pos_orth::NesterovTodd( solution.s, solution.z, w );
@@ -1906,24 +1859,10 @@ void EquilibratedIPM
         if( ctrl.print )
             Output("Complement ratio: ",compRatio);
 
-        // Choose the center point for the 's' two-norm regularization.
-        Matrix<Real> s0( solution.s );
-        for( Int i=0; i<k; ++i )
-        {
-            if( solution.z(i) < Sqrt(limits::Epsilon<Real>()) )
-                s0(i) = 0;
-        }
-
         // Compute the regularized 'z' pivot.
         Matrix<Real> zPivot( solution.z );
-        /*
-        Axpy( sRegSmall, solution.s, zPivot );
-        Axpy( -sRegSmall, s0, zPivot );
-        */
-        //const Real minPivotVal = Pow(limits::Epsilon<Real>(),Real(0.9));
-        const Real minPivotVal = Pow(limits::Epsilon<Real>(),Real(1.0));
         for( Int i=0; i<k; ++i )
-            zPivot(i) = Max( zPivot(i), minPivotVal );
+            zPivot(i) = Max( zPivot(i), ctrl.zMinPivotValue );
 
         // Check for convergence
         // =====================
@@ -2067,7 +2006,7 @@ void EquilibratedIPM
 
         // Compute the affine search direction
         // ===================================
-        const bool largeCompRatio = compRatio > maxComplementRatio;
+        const bool largeCompRatio = compRatio > ctrl.maxComplementRatio;
         const bool freezeBarrier = largeCompRatio || maxRelGap < equalityError;
         const Real muClassical = Dot(solution.s,solution.z) / k;
         if( freezeBarrier )
@@ -2209,21 +2148,21 @@ void EquilibratedIPM
 
         // Solve for the combined direction
         // ================================
-        if( largeCompRatio && softTargets )
+        if( largeCompRatio && ctrl.softDualityTargets )
         {
             // Attempt to correct s o z entrywise into
             // [lowerTargetRatio,upperTargetRatio]*sigma*mu.
             Real lowerTargetRatio =
-              Pow(compRatio,lowerTargetRatioLogCompRatio);
+              Pow(compRatio,ctrl.lowerTargetRatioLogCompRatio);
             Real upperTargetRatio =
-              Pow(compRatio,upperTargetRatioLogCompRatio);
+              Pow(compRatio,ctrl.upperTargetRatioLogCompRatio);
             Output
             ("compRatio=",compRatio,", lowerTargetRatio=",lowerTargetRatio,
              ", upperTargetRatio=",upperTargetRatio);
             lowerTargetRatio =
-              Max( lowerTargetRatio, Pow(maxComplementRatio,Real(-0.5)) );
+              Max( lowerTargetRatio, Pow(ctrl.maxComplementRatio,Real(-0.5)) );
             upperTargetRatio =
-              Min( upperTargetRatio, Pow(maxComplementRatio,Real(0.5)) );
+              Min( upperTargetRatio, Pow(ctrl.maxComplementRatio,Real(0.5)) );
             Output
             ("lowerTargetRatio=",lowerTargetRatio,
              ", upperTargetRatio=",upperTargetRatio);
@@ -2324,11 +2263,9 @@ void EquilibratedIPM
          "  xRegSmall: ",xRegSmall,"\n",Indent(),
          "  yRegSmall: ",yRegSmall,"\n",Indent(),
          "  zRegSmall: ",zRegSmall,"\n",Indent(),
-         "  sRegSmall: ",sRegSmall,"\n",Indent(),
          "  xRegLarge: ",xRegLarge,"\n",Indent(),
          "  yRegLarge: ",yRegLarge,"\n",Indent(),
-         "  zRegLarge: ",zRegLarge,"\n",Indent(),
-         "  sRegLarge: ",sRegLarge,"\n",Indent());
+         "  zRegLarge: ",zRegLarge,"\n",Indent());
     }
 }
 

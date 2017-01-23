@@ -55,7 +55,7 @@ struct IPMCtrl
     //
     // is less than this value.
     Real infeasibilityTol=
-      Pow(limits::Epsilon<Real>(),Real(0.5));
+      Pow(limits::Epsilon<Real>(),Real(0.7));
 
     // Demand that
     //
@@ -110,11 +110,6 @@ struct IPMCtrl
     // Use a simple shift for forcing cone membership during initialization?
     bool standardInitShift=true;
 
-    // If the maximum ratio between the primary and dual variables exceeds this
-    // value, the barrier parameter is kept at its previous value to attempt to
-    // increase the centrality.
-    Real balanceTol=Pow(limits::Epsilon<Real>(),Real(-0.19));
-
     // Force the primal and dual step lengths to be the same size?
     bool forceSameStep=true;
 
@@ -167,6 +162,9 @@ struct IPMCtrl
     // for solving the KKT system.
     Real diagEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
+    // TODO(poulson): Description.
+    bool dynamicallyRescale = true;
+
     // Whether or not additional matrix-vector multiplications should be
     // performed in order to check the accuracy of the solution to each
     // block row of the KKT system.
@@ -176,34 +174,31 @@ struct IPMCtrl
     bool checkResiduals=true;
 #endif
 
-    // Rather than solving the prescribed conic programs, we add in "small"
-    // amounts of permanent regularization for the primal and dual variables to
-    // yield an augmented Lagrangian of the form
+    // Rather than solving the prescribed conic programs, we could add in
+    // "small" amounts of permanent regularization for the primal and dual
+    // variables to yield an augmented Lagrangian of the form
     //
     //   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) +
     //                + (1/2) xRegSmall || x - x_0 ||_2^2
-    //                + (1/2) sRegSmall || s - s_0 ||_2^2
+    //                + (1/2)           || Sqrt(Gamma_s) (s - s_0) ||_2^2
     //                - (1/2) yRegSmall || y - y_0 ||_2^2
     //                - (1/2) zRegSmall || z - z_0 ||_2^2
     //                + mu Phi(s),
     //
     // where (x_0,y_0,z_0) will typically be set to the current estimate of the
-    // solution, but the choice of s_0 is less clear and might often be set
-    // to 0.
+    // solution, but Gamma_s and s_0 are only defined implicitly so that
+    // 'z + Gamma_s (s - s_0)' is entrywise at least as large as
+    // 'zMinPivotValue'.
     //
     // The regularization of (x,y,z) ensures that the reduced KKT system
     // is symmetric quasi-definite, whereas the regularization of s ensures
     // that pivoting on the (s,s) block of the full KKT system divides by
-    // 'z + gamma_s s' rather than 'z', and the former should have a lower
-    // bound of roughly gamma_s.
-    //
-    // In an ideal world, these would correspond to Friedlander's notion of
-    // "exact" regularization (TODO(poulson): Citation for said paper).
+    // 'z + Gamma_s (s - s_0)' rather than 'z'.
     //
     Real xRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
     Real yRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
     Real zRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
-    Real sRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
+    Real zMinPivotValue = Pow(limits::Epsilon<Real>(),Real(1.0));
 
     // "Large" regularization for the primal and dual variables is typically
     // used in the preconditioning phase in order to help solve a system that
@@ -213,7 +208,6 @@ struct IPMCtrl
     Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
     Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
     Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real sRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
 
     // Initially attempt to solve with only the "small" regularization by
     // preconditioning with a factorization involving the "large"
@@ -225,6 +219,15 @@ struct IPMCtrl
     // If it turns out that even the "large" regularization cannot be resolved,'
     // we will increase it by the following factor at each iteration.
     Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(-0.02));
+
+    // If the maximum ratio between the primary and dual variables exceeds this
+    // value, the barrier parameter is kept at its previous value to attempt to
+    // increase the centrality.
+    Real maxComplementRatio = Real(1000);
+
+    bool softDualityTargets = true;
+    Real lowerTargetRatioLogCompRatio = Real(-0.25);
+    Real upperTargetRatioLogCompRatio = Real( 0.25);
 
     // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
     // replace the default, (muAff/mu)^3

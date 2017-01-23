@@ -566,7 +566,7 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     const Real dualProd = Dot(solution.x,solution.z);
     barrier = dualProd / degree;
     const Real compRatio = pos_orth::ComplementRatio( solution.x, solution.z );
-    barrier = compRatio > ctrl.balanceTol ? barrierOld
+    barrier = compRatio > ctrl.maxComplementRatio ? barrierOld
       : Min(barrier,barrierOld);
     barrierOld = barrier;
 
@@ -1086,7 +1086,7 @@ void EquilibratedIPM
         Real mu = dualProd / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
-        mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
+        mu = compRatio > ctrl.maxComplementRatio ? muOld : Min(mu,muOld);
         muOld = mu;
 
         // Check for convergence
@@ -1679,7 +1679,7 @@ void EquilibratedIPM
         Real mu = Dot(solution.x,solution.z) / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
-        mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
+        mu = compRatio > ctrl.maxComplementRatio ? muOld : Min(mu,muOld);
         muOld = mu;
 
         if( ctrl.print )
@@ -2285,7 +2285,7 @@ void EquilibratedIPM
         Real mu = Dot(solution.x,solution.z) / degree;
         const Real compRatio =
           pos_orth::ComplementRatio( solution.x, solution.z );
-        mu = compRatio > ctrl.balanceTol ? muOld : Min(mu,muOld);
+        mu = compRatio > ctrl.maxComplementRatio ? muOld : Min(mu,muOld);
         muOld = mu;
 
         pos_orth::NesterovTodd( solution.x, solution.z, w );

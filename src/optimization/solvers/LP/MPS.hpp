@@ -736,7 +736,22 @@ MPSReader::MPSReader
         // Handle explicit upper and lower bounds.
         if( data.upperBounded )
         {
-            if( data.lowerBounded )
+            if( data.fixed )
+            {
+                if( data.fixedValue > data.upperBound )
+                {
+                    LogicError
+                    ("Incompatible fixed value of ",data.fixedValue,
+                     " and upper bound of ",data.upperBound);
+                }
+                else
+                {
+                    data.upperBounded = false;
+                    data.nonnegative = false;
+                    data.nonpositive = false;
+                }
+            }
+            else if( data.lowerBounded )
             {
                 if( data.lowerBound < data.upperBound )
                 {
@@ -820,16 +835,41 @@ MPSReader::MPSReader
         if( data.lowerBounded )
         {
             // Any conflicts with an upper bound are already resolved.
-            data.lowerBoundIndex = meta_.numLowerBounds++;
-            ++meta_.numInequalityEntries;
+            if( data.fixed )
+            {
+                if( data.fixedValue < data.lowerBound )
+                {
+                    LogicError
+                    ("Incompatible fixed value of ",data.fixedValue,
+                     " and lower bound of ",data.lowerBound);
+                }
+                else
+                {
+                    data.lowerBounded = false;
+                    data.nonnegative = false;
+                    data.nonpositive = false;
+                }
+            }
+            else
+            {
+                data.lowerBoundIndex = meta_.numLowerBounds++;
+                ++meta_.numInequalityEntries;
+            }
         }
 
         // Handle fixed values.
         if( data.fixed )
         {
-            if( data.upperBounded || data.lowerBounded || data.free ||
-                data.nonpositive || data.nonnegative )
-                LogicError("Invalid bound combination");
+            if( data.upperBounded )
+                LogicError("Tried to fix and upper bound ",entry.first);
+            if( data.lowerBounded )
+                LogicError("Tried to fix and lower bound ",entry.first);
+            if( data.free )
+                LogicError("Tried to fix and free ",entry.first);
+            if( data.nonpositive )
+                LogicError("Tried to fix and nonpositive ",entry.first);
+            if( data.nonnegative )
+                LogicError("Tried to fix and nonnegative ",entry.first);
             data.fixedIndex = meta_.numFixedBounds++;
             ++meta_.numEqualityEntries;
         }
@@ -837,10 +877,18 @@ MPSReader::MPSReader
         // Handle free values.
         if( data.free )
         {
-            if( data.upperBounded || data.lowerBounded ||
-                data.nonnegative || data.nonpositive ||
-                data.fixed )
-                LogicError("Invalid bound combination");
+            if( data.upperBounded )
+                LogicError("Tried to free and upper bound ",entry.first);
+            if( data.lowerBounded )
+                LogicError("Tried to free and lower bound ",entry.first);
+            if( data.nonnegative )
+                LogicError
+                ("Tried to free and make nonnegative bound ",entry.first);
+            if( data.nonpositive )
+                LogicError
+                ("Tried to free and make nonpositive bound ",entry.first);
+            if( data.fixed )
+                LogicError("Tried to free and fix bound ",entry.first);
             data.freeIndex = meta_.numFreeBounds++;
         }
 
