@@ -181,10 +181,14 @@ private:
 
     std::map<string,MPSRowData> rowDict_;
     std::map<string,MPSVariableData> variableDict_;
+
     // A map from the original MPS_EQUALITY_ROW row name to the trivial equality
     // struct, which stores the variable name and the floating-point value
     // of the single nonzero in the row (eventually).
     std::map<string,MPSTrivialEquality> trivialEqualityDict_;
+
+    std::set<string> emptyLesserRows_;
+    std::set<string> emptyGreaterRows_;
 
     vector<AffineLPEntry<double>> queuedEntries_;
 
@@ -280,19 +284,29 @@ MPSReader::MPSReader
                         else
                         {
                             if( iter->second.type == MPS_EQUALITY_ROW )
+                            {
                                 Output
                                 ("WARNING: Deleting empty equality row ",
                                  iter->first);
+                            }
                             else if( iter->second.type == MPS_GREATER_ROW )
+                            {
+                                emptyGreaterRows_.insert(iter->first);
                                 Output
                                 ("WARNING: Deleting empty greater row ",
                                  iter->first);
+                            }
                             else if( iter->second.type == MPS_LESSER_ROW )
+                            {
+                                emptyLesserRows_.insert(iter->first);
                                 Output
                                 ("WARNING: Deleting empty lesser row ",
                                  iter->first);
+                            }
                             else
+                            {
                                 LogicError("Unknown empty row type");
+                            }
                             // Delete this entry.
                             iter = rowDict_.erase(iter);
                         }
@@ -1169,10 +1183,47 @@ bool MPSReader::QueuedEntry()
                 auto rowIter = rowDict_.find( rowName_ );
                 if( rowIter == rowDict_.end() )
                 {
+                    if( emptyLesserRows_.count(rowName_) == 1 )
+                    {
+                        if( rhsValue < 0. )
+                        {
+                            LogicError
+                            ("Row ",rowName_,
+                             " has an invalid trivial upper bound of ",
+                             rhsValue);
+                        }
+                        else
+                        {
+                            Output
+                            ("WARNING: Skipping trivial lesser row ",rowName_,
+                             " which has upper bound ",rhsValue);
+                        }
+                        continue;
+                    }
+                    else if( emptyGreaterRows_.count(rowName_) == 1 )
+                    {
+                        if( rhsValue > 0. )
+                        {
+                            LogicError
+                            ("Row ",rowName_,
+                             " has an invalid trivial lower bound of ",
+                             rhsValue);
+                        }
+                        else
+                        {
+                            Output
+                            ("WARNING: Skipping trivial greater row ",rowName_,
+                             " which has lower bound ",rhsValue);
+                        }
+                        continue;
+                    }
+
                     auto trivialEqualityIter =
                       trivialEqualityDict_.find( rowName_ );
                     if( trivialEqualityIter == trivialEqualityDict_.end() )
+                    {
                         LogicError("Could not find trivial row ",rowName_);
+                    }
                     const auto& trivialData = trivialEqualityIter->second;
                     auto variableIter =
                       variableDict_.find( trivialData.variableName );
@@ -1289,12 +1340,6 @@ bool MPSReader::QueuedEntry()
         if( data.fixed )
         {
             const Int row = meta_.fixedOffset + data.fixedIndex;
-            if( data.fixedIndex == 0 )
-            {
-                Output("fixedIndex was zero");
-                Output("meta_.fixedOffset=",meta_.fixedOffset);
-                Output("row=",row,", column=",column);
-            }
 
             // A(row,column) = 1
             entry.type = AFFINE_LP_EQUALITY_MATRIX;
