@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -51,7 +51,7 @@ Int SparseInvCov
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap =
-          [ctrl](Real gamma)
+          [&](const Real& gamma)
           { return (gamma+Sqrt(gamma*gamma+4*ctrl.rho))/(2*ctrl.rho); };
         HermitianFunction( LOWER, X, MakeFunction(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
@@ -144,7 +144,7 @@ Int SparseInvCov
 
         // X := f(X), f(gamma) = (gamma+sqrt(gamma+4*rho)) / (2*rho)
         auto eigMap =
-          [ctrl](Real gamma)
+          [&](const Real& gamma)
           { return (gamma+Sqrt(gamma*gamma+4*ctrl.rho))/(2*ctrl.rho); };
         HermitianFunction( LOWER, X, MakeFunction(eigMap) );
         // Make X explicitly Hermitian since HermitianHilbertSchmidt is not
