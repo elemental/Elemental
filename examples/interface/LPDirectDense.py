@@ -11,7 +11,6 @@ import El
 m = 1000
 n = 2000
 testMehrotra = True
-testIPF = False
 testADMM = False
 manualInit = False
 display = False
@@ -84,30 +83,6 @@ if testMehrotra:
   obj = El.Dot(c,x)
   if worldRank == 0:
     print('Mehrotra c^T x = {}'.format(obj))
-
-if testIPF:
-  ctrl.approach = El.LP_IPF
-  ctrl.ipfCtrl.primalInit = manualInit
-  ctrl.ipfCtrl.dualInit = manualInit
-  ctrl.ipfCtrl.progress = progress
-  ctrl.ipfCtrl.lineSearchCtrl.progress = progress
-  El.Copy( xOrig, x )
-  El.Copy( yOrig, y )
-  El.Copy( zOrig, z )
-  startIPF = El.mpi.Time()
-  El.LPDirect(A,b,c,x,y,z,ctrl)
-  endIPF = El.mpi.Time()
-  if worldRank == 0:
-    print('IPF time: {} seconds'.format(endIPF-startIPF))
-
-  if display:
-    El.Display( x, "x IPF" )
-    El.Display( y, "y IPF" )
-    El.Display( z, "z IPF" )
-
-  obj = El.Dot(c,x)
-  if worldRank == 0:
-    print('IPF c^T x = {}'.format(obj))
 
 if testADMM:
   ctrl.approach = El.LP_ADMM
