@@ -11,8 +11,6 @@ import El
 m = 2000
 n = 4000
 k = 3000
-testMehrotra = True
-testIPF = False
 manualInit = False
 display = False
 progress = True
@@ -114,63 +112,33 @@ y = El.DistMultiVec()
 z = El.DistMultiVec()
 s = El.DistMultiVec()
 
-if testMehrotra:
-  ctrl.approach = El.QP_MEHROTRA
-  ctrl.mehrotraCtrl.solveCtrl.progress = progress
-  ctrl.mehrotraCtrl.primalInit = manualInit
-  ctrl.mehrotraCtrl.dualInit = manualInit
-  ctrl.mehrotraCtrl.progress = progress
-  ctrl.mehrotraCtrl.time = True
-  El.Copy( xOrig, x )
-  El.Copy( yOrig, y )
-  El.Copy( zOrig, z )
-  El.Copy( sOrig, s )
-  startMehrotra = El.mpi.Time()
-  El.QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl)
-  endMehrotra = El.mpi.Time()
-  if worldRank == 0:
-    print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
+ctrl.approach = El.QP_MEHROTRA
+ctrl.mehrotraCtrl.solveCtrl.progress = progress
+ctrl.mehrotraCtrl.primalInit = manualInit
+ctrl.mehrotraCtrl.dualInit = manualInit
+ctrl.mehrotraCtrl.progress = progress
+ctrl.mehrotraCtrl.time = True
+El.Copy( xOrig, x )
+El.Copy( yOrig, y )
+El.Copy( zOrig, z )
+El.Copy( sOrig, s )
+startMehrotra = El.mpi.Time()
+El.QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl)
+endMehrotra = El.mpi.Time()
+if worldRank == 0:
+  print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
 
-  if display:
-    El.Display( x, "x Mehrotra" )
-    El.Display( y, "y Mehrotra" )
-    El.Display( z, "z Mehrotra" )
-    El.Display( s, "s Mehrotra" )
+if display:
+  El.Display( x, "x Mehrotra" )
+  El.Display( y, "y Mehrotra" )
+  El.Display( z, "z Mehrotra" )
+  El.Display( s, "s Mehrotra" )
 
-  d = El.DistMultiVec()
-  El.Zeros( d, n, 1 )
-  El.Multiply( El.NORMAL, 1., Q, x, 0., d )
-  obj = El.Dot(x,d)/2 + El.Dot(c,x)
-  if worldRank == 0:
-    print('Mehrotra (1/2) x^T Q x + c^T x = {}'.format(obj))
-
-if testIPF:
-  ctrl.approach = El.QP_IPF
-  ctrl.ipfCtrl.primalInit = manualInit
-  ctrl.ipfCtrl.dualInit = manualInit
-  ctrl.ipfCtrl.progress = progress
-  ctrl.ipfCtrl.lineSearchCtrl.progress = progress
-  El.Copy( xOrig, x )
-  El.Copy( yOrig, y )
-  El.Copy( zOrig, z )
-  El.Copy( sOrig, s )
-  startIPF = El.mpi.Time()
-  El.QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl)
-  endIPF = El.mpi.Time()
-  if worldRank == 0:
-    print('IPF time: {}'.format(endIPF-startIPF))
-
-  if display:
-    El.Display( x, "x IPF" )
-    El.Display( y, "y IPF" )
-    El.Display( z, "z IPF" )
-    El.Display( s, "s IPF" )
-
-  d = El.DistMultiVec()
-  El.Zeros( d, n, 1 )
-  El.Multiply( El.NORMAL, 1., Q, x, 0., d )
-  obj = El.Dot(x,d)/2 + El.Dot(c,x)
-  if worldRank == 0:
-    print('IPF (1/2) x^T Q x + c^T x = {}'.format(obj))
+d = El.DistMultiVec()
+El.Zeros( d, n, 1 )
+El.Multiply( El.NORMAL, 1., Q, x, 0., d )
+obj = El.Dot(x,d)/2 + El.Dot(c,x)
+if worldRank == 0:
+  print('Mehrotra (1/2) x^T Q x + c^T x = {}'.format(obj))
 
 El.Finalize()

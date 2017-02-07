@@ -332,7 +332,7 @@ void Initialize
 {
     EL_DEBUG_CSE
     const Int m = b.Height();
-    const Int n = c.Width();
+    const Int n = c.Height();
     const Int k = h.Height();
     if( primalInit )
     {

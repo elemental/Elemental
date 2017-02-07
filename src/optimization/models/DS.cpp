@@ -378,7 +378,7 @@ void Var2
 
     // c := [1;1;0;0]
     // ==============
-    Zeros( c, 3*n, 1 );
+    Zeros( c, 3*n+m, 1 );
     auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, Real(1) );
 

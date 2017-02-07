@@ -12,7 +12,6 @@ m = 1000
 n = 2000
 k = 1500
 testMehrotra = True
-testIPF = False
 testADMM = False
 manualInit = False
 display = False
@@ -117,34 +116,5 @@ if testMehrotra:
   obj = El.Dot(x,d)/2 + El.Dot(c,x)
   if worldRank == 0:
     print('Mehrotra (1/2) x^T Q x + c^T x = {}'.format(obj))
-
-if testIPF:
-  ctrl.approach = El.QP_IPF
-  ctrl.ipfCtrl.primalInit = manualInit
-  ctrl.ipfCtrl.dualInit = manualInit
-  ctrl.ipfCtrl.progress = progress
-  ctrl.ipfCtrl.lineSearchCtrl.progress = progress
-  El.Copy( xOrig, x )
-  El.Copy( yOrig, y )
-  El.Copy( zOrig, z )
-  El.Copy( sOrig, s )
-  startIPF = El.mpi.Time()
-  El.QPAffine(Q,A,G,b,c,h,x,y,z,s,ctrl)
-  endIPF = El.mpi.Time()
-  if worldRank == 0:
-    print('IPF time: {} seconds'.format(endIPF-startIPF))
-
-  if display:
-    El.Display( x, "x IPF" )
-    El.Display( y, "y IPF" )
-    El.Display( z, "z IPF" )
-    El.Display( s, "s IPF" )
-
-  d = El.DistMatrix()
-  El.Zeros( d, n, 1 )
-  El.Hemv( El.LOWER, 1., Q, x, 0., d )
-  obj = El.Dot(x,d)/2 + El.Dot(c,x)
-  if worldRank == 0:
-    print('IPF c^T x = {}'.format(obj))
 
 El.Finalize()
