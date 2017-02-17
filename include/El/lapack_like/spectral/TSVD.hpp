@@ -58,12 +58,13 @@ template< typename F,
           typename AdjointOperator>
 BidiagInfo
 BidiagLanczos(
+    Int iter,
     Int m,
     Int n, 
     const ForwardOperator& A,
     const AdjointOperator& AAdj,
     Int steps,
-    Base<F> tau,
+    Base<F>& tau,
     Matrix<Base<F>>& mainDiag,
     Matrix<Base<F>>& superDiag,
     DistMatrix<F>& U,
@@ -78,7 +79,6 @@ BidiagLanczos(
 
     bool reorthB = ctrl.reorthIn;
     Int numVecsReorth = 0;
-    Int iter = mainDiag.size()-1;
     std::vector< Base<F>> maxMuList, maxNuList;
     maxMuList.reserve(steps);
     maxNuList.reserve(steps);
@@ -87,14 +87,18 @@ BidiagLanczos(
     DM u = U( ALL, IR(iter+1));
     DM vOld( v);
     DM uOld( u);
-    Real beta = superDiag[iter];
-    for( Int j = iter+1; j <= iter+steps; ++j)
+    Real beta = superDiag.Get(iter,0);
+    auto absComp = [](const Real& a, const Real& b){ return Abs(a) < Abs(b);  };
+    for( Int j = iter+1; j < iter+steps; ++j)
     {
         vOld = v;
         v = u;
         AAdj( v);
         Axpy( -beta, vOld, v);
         Real alpha = Nrm2(v);
+
+	       tau = Max(tau, eps*(alpha+beta));
+
         //run omega recurrence
         bool foundInaccurate = false;
         for(Int i = 0; i < j; ++i)
@@ -105,8 +109,10 @@ BidiagLanczos(
             foundInaccurate |= (Abs(nu) > ctrl.reorthogTol); 
             nuList[i] = nu;
         }
-        Real maxElt = *std::max_element( nuList.begin(), nuList.end(), Abs);
+        Real maxElt = *std::max_element( nuList.begin(), nuList.end(), absComp);
         maxNuList.emplace_back( maxElt);
+        
+        //Reorthogonalize if necessary.
         if( reorthB || foundInaccurate ){
             numVecsReorth += reorth( V, j, nuList, ctrl, v, mainDiag);
         }
@@ -118,7 +124,7 @@ BidiagLanczos(
         A(u);
         Axpy(-alpha, uOld, u);
         beta = Nrm2( u);
-
+        tau = Max(tau, eps*(alpha+beta));
         //compute omega recurrence
         foundInaccurate=false;
         for( Int i = 0; i <= j; ++i){
@@ -130,7 +136,7 @@ BidiagLanczos(
             foundInaccurate |= (Abs(mu) > ctrl.reorthogTol); 
             muList[ i] = mu;
         }
-        maxElt = *std::max_element( muList.begin(), muList.end(), Abs);
+        maxElt = *std::max_element( muList.begin(), muList.end(), absComp);
         maxMuList.emplace_back( maxElt);
         muList.emplace_back( 1);
         if( reorthB || foundInaccurate){
@@ -165,10 +171,10 @@ TSVD(
         typedef DistMatrix<F> DM;
         typedef Matrix<Base<F>> RealMatrix;
         typedef Base<F> Real;
+    	
+        const Real eps = limits::Epsilon<Real>();
         maxIter = Min(maxIter,Min(m,n));
         const Grid& g = initialVec.Grid();
-        //1) Compute nu, a tolerance for reorthoganlization
-        auto tau = InfinityNorm<F>(A, AAdj, g); 
         
         Real initNorm = Nrm2(initialVec);
         Scale(Real(1)/initNorm, initialVec);       
@@ -178,7 +184,6 @@ TSVD(
         AAdj( v); //v = A'initialVec;
         Real alpha = Nrm2(v); //record the norm, for reorth.
         Scale(Real(1)/alpha, v); //make v a unit vector
-        Real nu = 1 + tau/alpha; //think of nu = 1+\epsilon
         
         DM Utilde(m, maxIter, g);
         auto u0 = Utilde(ALL, 0);
@@ -189,59 +194,72 @@ TSVD(
         Axpy(-alpha, u0, u1);
         Real beta = Nrm2(u1);
         Scale(Real(1)/beta,u1);
-        Real mu = tau/beta;
+        
+       	auto tau = eps*(alpha+beta);
+	
+       //1) Compute nu, a tolerance for reorthoganlization
+       Real nu = 1 + tau/alpha; //think of nu = 1+\epsilon
+       Real mu = tau/beta;
 
 
-        RealMatrix mainDiag( maxIter+1, 1); 
-        RealMatrix superDiag( maxIter, 1);
-        std::vector<Base<F>> muList, nuList;
-        muList.reserve( maxIter);
-        nuList.reserve( maxIter);
-        muList.push_back( mu);
-        muList.push_back( 1);
-        nuList.push_back( 1);
+       RealMatrix mainDiag( maxIter+1, 1);
+       RealMatrix superDiag( maxIter, 1);
+       std::vector<Base<F>> muList, nuList;
+       muList.reserve( maxIter);
+       nuList.reserve( maxIter);
+       muList.push_back( mu);
+       muList.push_back( 1);
+       nuList.push_back( 1);
        
-        RealMatrix sOld( maxIter+1, 1);
-        Int blockSize = Max(nVals, 50);
-        for(Int i = 0; i < maxIter; i+=blockSize){
-            Int numSteps = Min( blockSize, maxIter-i); 
-            BidiagLanczos
-            ( m, n, A, AAdj, numSteps, 
-              tau, mainDiag, superDiag, Utilde, Vtilde, 
-              muList, nuList, ctrl);
-            auto s = mainDiag;
-            auto superDiagCopy = superDiag;
-            DM VTHat(i+numSteps,nVals, g);
-            DM UHat(nVals,i+numSteps, g);
-            lapack::BidiagSVDQRAlg
-            ( 'U', i+numSteps, nVals, nVals,
-              s.Buffer(), superDiagCopy.Buffer(), 
-              VTHat.Buffer(), VTHat.LDim(),
-              UHat.Buffer(), UHat.LDim());
-
-            Real beta = superDiag.Get(i+numSteps-1,0);
-            bool converged=true;
-            for(Int j = 0; j < nVals; ++j){
-                if( Abs(s.Get(j,0) - sOld.Get(j,0)) > ctrl.convValTol){
-                    converged = false;
-                }
-                if( beta*Abs(VTHat.Get(j, i+numSteps)) > ctrl.convVecTol){
-                    converged = false;
-                }
-                if( beta*Abs(UHat.Get(i+numSteps, j)) > ctrl.convVecTol){
-                    converged=false;
-                }
-            }
-            if( converged){ 
-                El::Gemm(El::NORMAL, El::ADJOINT, Real(1), Vtilde, VTHat, Real(0), V);
-                El::Gemm(El::NORMAL,  El::NORMAL, Real(1), Utilde,  UHat, Real(0), U);
-                DistMatrix<F,STAR,STAR> S_STAR_STAR( S.Grid());
-                S_STAR_STAR.LockedAttach( S.Height(), S.Width(), S.Grid(), S.ColAlign(), S.RowAlign(), S.Buffer(), S.LDim(), S.Root());
-                Copy(S_STAR_STAR, S);
-                return i+numSteps; 
-            }
-            sOld = s;
-        }
+       RealMatrix sOld( maxIter+1, 1);
+       Int blockSize = Max(nVals, 50);
+       for(Int i = 0; i < maxIter; i+=blockSize){
+           std::cout << "iter " << i << ": ";
+           Int numSteps = Min( blockSize, maxIter-i);
+           BidiagLanczos( i, m, n, A, AAdj, numSteps, tau, mainDiag, superDiag, Utilde, Vtilde, muList, nuList, ctrl);
+           auto s = mainDiag;
+           auto superDiagCopy = superDiag;
+           DM VTHat(i+numSteps,nVals, g);
+           DM UHat(nVals,i+numSteps, g);
+           lapack::BidiagSVDQRAlg
+           ( 'U', i+numSteps, nVals, nVals,
+             s.Buffer(), superDiagCopy.Buffer(),
+             VTHat.Buffer(), VTHat.LDim(),
+             UHat.Buffer(), UHat.LDim());
+           for(Int j = 0; j < nVals; ++j){
+             std::cout << s.Get(j,0) << " " << std::flush;
+           }
+           std::cout << std::endl << std::endl;
+           Real beta = superDiag.Get(i+numSteps-1,0);
+           bool converged=true;
+           for(Int j = 0; j < nVals; ++j){
+               if( Abs(s.Get(j,0) - sOld.Get(j,0)) > ctrl.convValTol){
+                   converged = false;
+                   break;
+               }
+               if( beta*Abs(VTHat.Get(j, i+numSteps)) > ctrl.convVecTol){
+                   converged = false;
+                   break;
+               }
+               if( beta*Abs(UHat.Get(i+numSteps, j)) > ctrl.convVecTol) {
+                 converged = false;
+                 break;
+               }
+           }
+           if( converged){
+               std::cout << "converged!" << std::endl;
+               El::Gemm(El::NORMAL, El::ADJOINT, Real(1), Vtilde, VTHat, Real(0), V);
+               El::Gemm(El::NORMAL,  El::NORMAL, Real(1), Utilde,  UHat, Real(0), U);
+               std::cout << "copying s" << std::endl;
+               DistMatrix<F,STAR,STAR> S_STAR_STAR( S.Grid());
+               S_STAR_STAR.LockedAttach( S.Height(), S.Width(), S.Grid(), S.ColAlign(), S.RowAlign(), s.Buffer(), s.LDim(), S.Root());
+               Copy(S_STAR_STAR, S);
+               return i+numSteps;
+           }
+           sOld = s;
+	          tau = eps*s.Get(0,0);
+       }
+	return Int(-1);
 }
 
 /**

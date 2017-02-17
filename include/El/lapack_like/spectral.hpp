@@ -2012,7 +2012,7 @@ DistMatrix<Int,VR,STAR> HessenbergSpectralCloud
 #include <El/lapack_like/spectral/Schur.hpp>
 #include <El/lapack_like/spectral/HermitianEig.hpp>
 #include <El/lapack_like/spectral/SVD.hpp>
-#include <El/lapack_like/spectral/TSVD.hpp>
+//#include <El/lapack_like/spectral/TSVD.hpp>
 #include <El/lapack_like/spectral/Lanczos.hpp>
 #include <El/lapack_like/spectral/ProductLanczos.hpp>
 

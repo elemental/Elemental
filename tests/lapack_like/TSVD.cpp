@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "El.hpp"
+#include <El/lapack_like/spectral/TSVD.hpp>
 using namespace El;
 
 template< typename Matrix>
@@ -46,6 +47,14 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
     DistMatrix<F> Uk( g), Sk( g), Vk( g);
     DistMatrix<F> U( g), V( g);
     DistMatrix<Base<F>, VR, STAR> S( g);
+    mpi::Barrier( g.Comm() );
+    if( g.Rank() == 0 )
+      Output("  Starting SVD factorization...");
+    SVD( A, U, S, V);
+    mpi::Barrier( g.Comm() );
+    std::cout << "Singular Values: " << std::flush;
+    Display(S, "Singular Values");
+    std::cout << std::endl;
     if( g.Rank() == 0 )
         Output("  Starting TSVD factorization...");
     const double startTime = mpi::Time();
@@ -55,11 +64,6 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
     TSVD( m, n, Aop, AAdjop, k, Uk, Sk, Vk);
     const double runTime = mpi::Time() - startTime;
     Output("TSVD Time = ",runTime);
-    mpi::Barrier( g.Comm() );
-    if( g.Rank() == 0 )
-        Output("  Starting SVD factorization..."); 
-    SVD( A, U, S, V);  
-    mpi::Barrier( g.Comm() );
     Real eps = limits::Epsilon<Real>();
     for( Int i = 0; i < k; ++i){
         std::cout <<  i << ": ";
@@ -96,8 +100,8 @@ main( int argc, char* argv[] )
     try
     {
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",10);
+        const Int n = Input("--width","width of matrix",10);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
