@@ -142,7 +142,6 @@ BidiagLanczos(
     return info;
 }
 
-
 /**
 * TSVD
 */
@@ -169,7 +168,7 @@ TSVD(
         maxIter = Min(maxIter,Min(m,n));
         const Grid& g = initialVec.Grid();
         //1) Compute nu, a tolerance for reorthoganlization
-        auto tau = InfinityNorm(A); //TODO: Impl this?
+        auto tau = InfinityNorm<F>(A, AAdj, g); 
         
         Real initNorm = Nrm2(initialVec);
         Scale(Real(1)/initNorm, initialVec);       
@@ -194,7 +193,7 @@ TSVD(
 
 
         RealMatrix mainDiag( maxIter+1, 1); 
-        RealMatrix superDiag( maxIter, 1, g); 
+        RealMatrix superDiag( maxIter, 1);
         std::vector<Base<F>> muList, nuList;
         muList.reserve( maxIter);
         nuList.reserve( maxIter);
@@ -212,8 +211,8 @@ TSVD(
               muList, nuList, ctrl);
             auto s = mainDiag;
             auto superDiagCopy = superDiag;
-            RealMatrix VTHat(i+numSteps,nVals);
-            RealMatrix UHat(nVals,i+numSteps);
+            DM VTHat(i+numSteps,nVals, g);
+            DM UHat(nVals,i+numSteps, g);
             lapack::BidiagSVDQRAlg
             ( 'U', i+numSteps, nVals, nVals,
               s.Buffer(), superDiagCopy.Buffer(), 
@@ -237,7 +236,7 @@ TSVD(
                 El::Gemm(El::NORMAL, El::ADJOINT, Real(1), Vtilde, VTHat, Real(0), V);
                 El::Gemm(El::NORMAL,  El::NORMAL, Real(1), Utilde,  UHat, Real(0), U);
                 DistMatrix<F,STAR,STAR> S_STAR_STAR( S.Grid());
-                S_STAR_STAR.LockedAttach( S.Height(), S.Width(), S.Buffer(), S.LDim() );
+                S_STAR_STAR.LockedAttach( S.Height(), S.Width(), S.Grid(), S.ColAlign(), S.RowAlign(), S.Buffer(), S.LDim(), S.Root());
                 Copy(S_STAR_STAR, S);
                 return i+numSteps; 
             }

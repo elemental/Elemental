@@ -60,14 +60,15 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
         Output("  Starting SVD factorization..."); 
     SVD( A, U, S, V);  
     mpi::Barrier( g.Comm() );
+    Real eps = limits::Epsilon<Real>();
     for( Int i = 0; i < k; ++i){
         std::cout <<  i << ": ";
         const Real& A = Sk.Get(i,0);
         const Real& B = S.Get(i,0);
         Output( "Sk = ", A, "SVD: S_k", B);
 	       auto eigenvalue_error = Abs(A - B);
-        if( eigenvalue_error > limits<Real>::Epsilon()){
-		          RuntimeError("Convergence Issue in TSVD.");
+        if( eigenvalue_error > eps){
+		          RuntimeError("Convergence Issue in TSVD. Eigenvalues are not close enough.");
 	       }
 	       F left_svec_error = F(0);
         F right_svec_error = F(0);
@@ -79,11 +80,8 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
         }
         left_svec_error = Sqrt(left_svec_error);
         right_svec_error = Sqrt(right_svec_error);
-	       if( left_svec_error > limits<Real>::Epsilon()){
-		          RuntimeError("Convergence Issue in TSVD.");
-	       }
-	       if( right_svec_error > limits<Real>::Epsilon()){
-		          RuntimeError("Convergence Issue in TSVD.");
+        if( left_svec_error > eps || right_svec_error > eps){
+		          RuntimeError("Convergence Issue in TSVD. Eigenvector Entries do not match.");
 	       }
     }
 }
