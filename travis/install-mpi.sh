@@ -2,7 +2,7 @@
 set -e
 case $1 in
   mpich) set -x;
-    sudo apt-get install -q mpich libmpich-dev;;
+    sudo apt-get install -q --force-yes mpich libmpich-dev;;
   openmpi) set -x;
     sudo apt-get install openmpi-bin openmpi-dev;;
   *)
