@@ -69,11 +69,19 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
         if( eigenvalue_error > limits<Real>::Epsilon()){
 		          RuntimeError("Convergence Issue in TSVD.");
 	       }
-        auto left_svec_error = Norm(Abs(Uk( ALL, IR(i))) - Abs(U( ALL, IR(i))));
+	       F left_svec_error = F(0);
+        F right_svec_error = F(0);
+        for (int j = 0; j <= m; ++j){
+	         auto t = Abs(Uk.Get( j, i)) - Abs(U.Get( j, i));
+	         left_svec_error += t*t;
+          auto s = Abs(Vk.Get( j, i)) - Abs(V.Get( j, i));
+	         right_svec_error += s*s;
+        }
+        left_svec_error = Sqrt(left_svec_error);
+        right_svec_error = Sqrt(right_svec_error);
 	       if( left_svec_error > limits<Real>::Epsilon()){
 		          RuntimeError("Convergence Issue in TSVD.");
 	       }
-        auto right_svec_error = Norm(Abs(Vk( ALL, IR(i))) - Abs(V( ALL, IR(i))));
 	       if( right_svec_error > limits<Real>::Epsilon()){
 		          RuntimeError("Convergence Issue in TSVD.");
 	       }
