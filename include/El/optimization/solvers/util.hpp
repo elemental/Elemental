@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -55,22 +55,37 @@ struct IPMCtrl
     //
     // is less than this value.
     Real infeasibilityTol=
-      Pow(limits::Epsilon<Real>(),Real(0.7));
+      Pow(limits::Epsilon<Real>(),Real(0.45));
 
     // Demand that
     //
     //   | primalObjective - dualObjective | /
     //   (max{ |primalObjective|, |dualObjective| } + 1)
     //
-    // is less than this value.
+    // is less than this value. Unfortunately, some of the LP_data examples
+    // (in particular, 80BAU3B) are challenging with symmetric indefinite KKT
+    // system solvers and it seems challenging to achieve more than two digits
+    // of accuracy in double precision with this metric. We therefore default
+    // to only demanding that the relative complementarity gap is nontrivial
+    // by default.
     Real relativeObjectiveGapTol=
-      Pow(limits::Epsilon<Real>(),Real(0.3));
+      Pow(limits::Epsilon<Real>(),Real(0.05));
 
-    // Demand that 
+    // Demand that
     //
     //   s^T z / max{ -c^T x, -b^T y - h^T z }
     //
-    // is less than this value.
+    // is less than this value. Note that this would be equivalent to the
+    // relative objective gap if the iterates were feasible, as 'A x = b' and
+    // 'G x + s = h' implies that
+    //
+    //   -b^T y - h^T z = -(A x)^T y - (G x + s)^T z
+    //                  = -x^T (A^T y + G^T z) - s^T z,
+    //
+    // and 'A^T y + G^T z + c = 0' further implies that
+    //
+    //   -b^T y - h^T z = c^T x - s^T z.
+    //
     Real relativeComplementarityGapTol=
       Pow(limits::Epsilon<Real>(),Real(0.3));
 
@@ -102,7 +117,7 @@ struct IPMCtrl
     // TODO(poulson): Add support for Gondzio's correctors
     bool mehrotra=true;
 
-    // For determining the ratio of the amount to balance the affine and 
+    // For determining the ratio of the amount to balance the affine and
     // correction updates. The other common option is 'MehrotraCentrality'.
     function<Real(Real,Real,Real,Real)>
       centralityRule=StepLengthCentrality<Real>;
@@ -204,7 +219,7 @@ struct IPMCtrl
     // used in the preconditioning phase in order to help solve a system that
     // only involves "small" amounts of regularization. But if we continue to
     // fail to solve with "small" amounts of regularization, we fall back to
-    // solving with "large" amounts. 
+    // solving with "large" amounts.
     Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
     Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
     Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));

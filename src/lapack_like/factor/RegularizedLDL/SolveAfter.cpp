@@ -47,6 +47,8 @@ RegularizedSolveAfterNoPromote
     return info;
 }
 
+// For the case where we have factored 'diag(d) A diag(d)' rather than 'A'
+// directly.
 template<typename Field>
 RegSolveInfo<Base<Field>>
 RegularizedSolveAfterNoPromote

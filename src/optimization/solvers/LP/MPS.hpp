@@ -10,6 +10,26 @@
 
 namespace El {
 
+namespace {
+
+const string invalidRowTokenString =
+  "Invalid token in a line of the 'ROWS' section.";
+const string tooFewRowTokensString =
+  "Too few tokens in a line of the 'ROWS' section.";
+const string tooManyRowTokensString =
+  "Too many tokens in a line of the 'ROWS' section: please check that your "
+  "variable names do not have spaces in them.";
+
+const string invalidColumnTokenString =
+  "Invalid token in a line of the 'COLUMNS' section.";
+const string tooFewColumnTokensString =
+  "Too few tokens in a line of the 'COLUMNS' section.";
+const string tooManyColumnTokensString =
+  "Too many tokens in a line of the 'COLUMNS' section: please check that your "
+  "variable names do not have spaces in them.";
+
+} // anonymous namespace
+
 enum MPSSection {
   MPS_NAME,
   MPS_ROWS,
@@ -369,19 +389,19 @@ MPSReader::MPSReader
                             continue;
                         auto variableIter = variableDict_.find( variableName_ );
                         if( variableIter == variableDict_.end() )
-                            LogicError("Invalid 'COLUMNS' section");
+                            LogicError(invalidColumnTokenString);
                         MPSVariableData& variableData = variableIter->second;
                         for( Int pair=0; pair<2; ++pair )
                         {
                             if( !(columnStream >> rowName_) )
                             {
                                 if( pair == 0 )
-                                    LogicError("Invalid 'COLUMNS' section");
+                                    LogicError(tooFewColumnTokensString);
                                 else
                                     break;
                             }
                             if( !(columnStream >> value_) )
-                                LogicError("Invalid 'COLUMNS' section");
+                                LogicError(tooManyColumnTokensString);
                             auto trivialEqualityIter =
                               trivialEqualityDict_.find( rowName_ );
                             if( trivialEqualityIter ==
@@ -396,7 +416,8 @@ MPSReader::MPSReader
                             trivialData.singleNonzero = value_;
                             Output
                             ("WARNING: Storing nonzero of ",value_,
-                             " for trivial equality row ",rowName_);
+                             " for ",variableName_," for trivial equality row ",
+                             rowName_);
                             // We initialize at zero and overwrite if there is
                             // relevant RHS data.
                             variableData.fixed = true;
@@ -465,9 +486,12 @@ MPSReader::MPSReader
         {
             std::stringstream rowStream( line_ );
             if( !(rowStream >> rowType_) )
-                LogicError("Invalid 'ROWS' section");
+                LogicError(tooFewRowTokensString);
             if( !(rowStream >> rowName_) )
-                LogicError("Invalid 'ROWS' section");
+                LogicError(tooFewRowTokensString);
+            if( rowStream >> token_ )
+                LogicError(tooManyRowTokensString);
+
             MPSRowData rowData;
             // We set the 'typeIndex' fields later since it is not uncommon
             // (e.g., see tuff.mps) for rows to be empty.
@@ -494,13 +518,13 @@ MPSReader::MPSReader
                     meta_.costName = rowName_;
             }
             else
-                LogicError("Invalid 'ROWS' section");
+                LogicError(invalidRowTokenString);
         }
         else if( section == MPS_COLUMNS )
         {
             std::stringstream columnStream( line_ );
             if( !(columnStream >> variableName_) )
-                LogicError("Invalid 'COLUMNS' section");
+                LogicError(tooFewColumnTokensString);
             auto variableIter = variableDict_.find( variableName_ );
             if( variableIter == variableDict_.end() )
             {
@@ -517,12 +541,12 @@ MPSReader::MPSReader
                 if( !(columnStream >> rowName_) )
                 {
                     if( pair == 0 )
-                        LogicError("Invalid 'COLUMNS' section");
+                        LogicError(tooFewColumnTokensString);
                     else
                         break;
                 }
                 if( !(columnStream >> value_) )
-                    LogicError("Invalid 'COLUMNS' section");
+                    LogicError(tooManyColumnTokensString);
                 ++variableData.numNonzeros;
 
                 auto rowIter = rowDict_.find( rowName_ );
@@ -879,7 +903,12 @@ MPSReader::MPSReader
             if( data.lowerBounded )
                 LogicError("Tried to fix and lower bound ",entry.first);
             if( data.free )
-                LogicError("Tried to fix and free ",entry.first);
+            {
+                Output
+                ("WARNING: Tried to fix and free ",entry.first,
+                 ", so we will only mark it as fixed");
+                data.free = false;
+            }
             if( data.nonpositive )
                 LogicError("Tried to fix and nonpositive ",entry.first);
             if( data.nonnegative )

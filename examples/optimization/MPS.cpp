@@ -100,6 +100,8 @@ void SparseLoadAndSolve
   double xRegLargeLogEps,
   double yRegLargeLogEps,
   double zRegLargeLogEps,
+  double lowerTargetRatioLogCompRatio,
+  double upperTargetRatioLogCompRatio,
   bool twoStage,
   bool mehrotra )
 {
@@ -144,9 +146,16 @@ void SparseLoadAndSolve
     ctrl.ipmCtrl.xRegSmall = El::Pow(eps,Real(xRegSmallLogEps));
     ctrl.ipmCtrl.yRegSmall = El::Pow(eps,Real(yRegSmallLogEps));
     ctrl.ipmCtrl.zRegSmall = El::Pow(eps,Real(zRegSmallLogEps));
+    ctrl.ipmCtrl.lowerTargetRatioLogCompRatio = lowerTargetRatioLogCompRatio;
+    ctrl.ipmCtrl.upperTargetRatioLogCompRatio = upperTargetRatioLogCompRatio;
     ctrl.ipmCtrl.twoStage = twoStage;
     ctrl.ipmCtrl.checkResiduals = true;
     ctrl.ipmCtrl.solveCtrl.progress = true;
+    ctrl.ipmCtrl.zMinPivotValue = El::Pow(eps,Real(1.5));
+    /*
+    El::Output("Forcing maxComplementRatio = 50");
+    ctrl.ipmCtrl.maxComplementRatio = 50;
+    */
     El::Output("xRegLarge=",ctrl.ipmCtrl.xRegLarge);
     El::Output("yRegLarge=",ctrl.ipmCtrl.yRegLarge);
     El::Output("zRegLarge=",ctrl.ipmCtrl.zRegLarge);
@@ -193,11 +202,12 @@ int main( int argc, char* argv[] )
         const bool outerEquil =
           El::Input("--outerEquil","outer equilibration?",true);
         const double infeasibilityTolLogEps =
-          El::Input("--infeasibilityTolLogEps","log_eps(infeasibilityTol)",0.5);
+          El::Input
+          ("--infeasibilityTolLogEps","log_eps(infeasibilityTol)",0.45);
         const double relativeObjectiveGapTolLogEps =
           El::Input
           ("--relativeObjectiveGapTolLogEps",
-           "log_eps(relativeObjectiveGapTol)",0.3);
+           "log_eps(relativeObjectiveGapTol)",0.05);
         const double relativeComplementarityGapTolLogEps =
           El::Input
           ("--relativeComplementarityGapTolLogEps",
@@ -214,6 +224,14 @@ int main( int argc, char* argv[] )
           El::Input("--yRegLargeLogEps","log_eps(yRegLarge)",0.6);
         const double zRegLargeLogEps =
           El::Input("--zRegLargeLogEps","log_eps(zRegLarge)",0.6);
+        const double lowerTargetRatioLogCompRatio =
+          El::Input
+          ("--lowerTargetRatioLogCompRatio","log_compratio(lowerTargetRatio)",
+           -0.25);
+        const double upperTargetRatioLogCompRatio =
+          El::Input
+          ("--upperTargetRatioLogCompRatio","log_compratio(upperTargetRatio)",
+           0.25);
         const bool twoStage = El::Input("--twoStage","two-stage solver?",false);
         const bool mehrotra =
           El::Input("--mehrotra","Mehrotra predictor-corrector?",true);
@@ -279,6 +297,7 @@ int main( int argc, char* argv[] )
               relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
+              lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
               twoStage, mehrotra );
 #ifdef EL_HAVE_QD
         SparseLoadAndSolve<El::DoubleDouble>
@@ -290,6 +309,7 @@ int main( int argc, char* argv[] )
           relativeComplementarityGapTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
+          lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
           twoStage, mehrotra );
         SparseLoadAndSolve<El::QuadDouble>
         ( filename, compressed,
@@ -300,6 +320,7 @@ int main( int argc, char* argv[] )
           relativeComplementarityGapTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
+          lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
           twoStage, mehrotra );
 #endif
 #ifdef EL_HAVE_QUAD
@@ -312,6 +333,7 @@ int main( int argc, char* argv[] )
           relativeComplementarityGapTolLogEps,
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
+          lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
           twoStage, mehrotra );
 #endif
     }
