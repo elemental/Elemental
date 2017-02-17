@@ -15,7 +15,7 @@ namespace El {
 template<typename F> 
 void MakeLegendre( Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     Zero( A );
@@ -33,7 +33,7 @@ void MakeLegendre( Matrix<F>& A )
 template<typename F>
 void MakeLegendre( AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
     Zero( A );
@@ -61,7 +61,7 @@ void MakeLegendre( AbstractDistMatrix<F>& A )
 template<typename F> 
 void Legendre( Matrix<F>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     A.Resize( n, n );
     MakeLegendre( A );
 }
@@ -69,7 +69,7 @@ void Legendre( Matrix<F>& A, Int n )
 template<typename F> 
 void Legendre( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     A.Resize( n, n );
     MakeLegendre( A );
 }

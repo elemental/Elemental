@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,22 +12,22 @@
 // Functions", which is currently available at:
 // http://eprints.ma.man.ac.uk/1451/01/covered/MIMS_ep2010_18.pdf
 //
-// TODO: Determine whether stopping criterion should be different than that of
-//       Sign
+// TODO(poulson): Determine whether stopping criterion should be different than
+// that of Sign
 
 namespace El {
 
 namespace square_root {
 
-template<typename F>
+template<typename Field>
 void
 NewtonStep
-( const Matrix<F>& A,
-  const Matrix<F>& X,
-        Matrix<F>& XNew,
-        Matrix<F>& XTmp )
+( const Matrix<Field>& A,
+  const Matrix<Field>& X,
+        Matrix<Field>& XNew,
+        Matrix<Field>& XTmp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     Permutation P;
@@ -36,19 +36,19 @@ NewtonStep
     lu::SolveAfter( NORMAL, XTmp, P, XNew );
 
     // XNew := 1/2 ( X + XNew )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     Axpy( Real(1)/Real(2), X, XNew );
 }
 
-template<typename F>
+template<typename Field>
 void
 NewtonStep
-( const DistMatrix<F>& A,
-  const DistMatrix<F>& X, 
-        DistMatrix<F>& XNew,
-        DistMatrix<F>& XTmp )
+( const DistMatrix<Field>& A,
+  const DistMatrix<Field>& X,
+        DistMatrix<Field>& XNew,
+        DistMatrix<Field>& XTmp )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // XNew := inv(X) A
     XTmp = X;
     DistPermutation P(X.Grid());
@@ -57,18 +57,18 @@ NewtonStep
     lu::SolveAfter( NORMAL, XTmp, P, XNew );
 
     // XNew := 1/2 ( X + XNew )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     Axpy( Real(1)/Real(2), X, XNew );
 }
 
-template<typename F>
+template<typename Field>
 int
-Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
+Newton( Matrix<Field>& A, const SquareRootCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    Matrix<F> B(A), C, XTmp;
-    Matrix<F> *X=&B, *XNew=&C;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    Matrix<Field> B(A), C, XTmp;
+    Matrix<Field> *X=&B, *XNew=&C;
 
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -101,19 +101,20 @@ Newton( Matrix<F>& A, const SquareRootCtrl<Base<F>>& ctrl )
     return numIts;
 }
 
-template<typename F>
+template<typename Field>
 int
-Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
+Newton
+( AbstractDistMatrix<Field>& APre, const SquareRootCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
-    DistMatrix<F> B(A), C(g), XTmp(g);
-    DistMatrix<F> *X=&B, *XNew=&C;
+    DistMatrix<Field> B(A), C(g), XTmp(g);
+    DistMatrix<Field> *X=&B, *XNew=&C;
 
     Real tol = ctrl.tol;
     if( tol == Real(0) )
@@ -148,17 +149,18 @@ Newton( ElementalMatrix<F>& APre, const SquareRootCtrl<Base<F>>& ctrl )
 
 } // namespace square_root
 
-template<typename F>
-void SquareRoot( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
+template<typename Field>
+void SquareRoot( Matrix<Field>& A, const SquareRootCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
-template<typename F>
-void SquareRoot( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
+template<typename Field>
+void SquareRoot
+( AbstractDistMatrix<Field>& A, const SquareRootCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     square_root::Newton( A, ctrl );
 }
 
@@ -167,18 +169,18 @@ void SquareRoot( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl )
 // TODO(poulson): Switch to Cholesky with full pivoting (and a threshold for
 // treating small negative values as zeros)
 
-template<typename F>
+template<typename Field>
 void HPSDSquareRoot
 ( UpperOrLower uplo,
-  Matrix<F>& A,
-  const HermitianEigCtrl<F>& ctrl )
+  Matrix<Field>& A,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Q;
+    Matrix<Field> Q;
     auto ctrlMod( ctrl );
     ctrlMod.tridiagEigCtrl.sort = UNSORTED;
     HermitianEig( uplo, A, w, Q, ctrlMod );
@@ -217,22 +219,22 @@ void HPSDSquareRoot
     HermitianFromEVD( uplo, A, w, Q );
 }
 
-template<typename F>
+template<typename Field>
 void HPSDSquareRoot
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre, 
-  const HermitianEigCtrl<F>& ctrl )
+  AbstractDistMatrix<Field>& APre,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     // Get the EVD of A
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Q(g);
+    DistMatrix<Field> Q(g);
     auto ctrlMod( ctrl );
     ctrlMod.tridiagEigCtrl.sort = UNSORTED;
     HermitianEig( uplo, A, w, Q, ctrlMod );
@@ -273,16 +275,17 @@ void HPSDSquareRoot
     HermitianFromEVD( uplo, A, w, Q );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void SquareRoot \
-  ( Matrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  ( Matrix<Field>& A, const SquareRootCtrl<Base<Field>> ctrl ); \
   template void SquareRoot \
-  ( ElementalMatrix<F>& A, const SquareRootCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<Field>& A, const SquareRootCtrl<Base<Field>> ctrl ); \
   template void HPSDSquareRoot \
-  ( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl ); \
+  ( UpperOrLower uplo, Matrix<Field>& A, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template void HPSDSquareRoot \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    const HermitianEigCtrl<F>& ctrl );
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, \
+    const HermitianEigCtrl<Field>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_AXPY_HPP
@@ -16,7 +16,7 @@ namespace El {
 template<typename T,typename S>
 void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
@@ -32,7 +32,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
         const Int XLength = ( nX==1 ? mX : nX );
         const Int XStride = ( nX==1 ? 1  : ldX );
         const Int YStride = ( nY==1 ? 1  : ldY );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int mY = Y.Height();
           const Int YLength = ( nY==1 ? mY : nY );
           if( XLength != YLength )
@@ -42,7 +42,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int mY = Y.Height();
           if( mX != mY || nX != nY )
               LogicError("Nonconformal Axpy");
@@ -59,7 +59,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
@@ -69,7 +69,7 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
     const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
         Y.Reserve( numEntries );
-    for( Int k=0; k<numEntries; ++k ) 
+    for( Int k=0; k<numEntries; ++k )
         Y.QueueUpdate( XRowBuf[k], XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessQueues();
 }
@@ -77,12 +77,12 @@ void Axpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( X, Y ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( X, Y ))
     const T alpha = T(alphaS);
 
-    const ElementalData XDistData = X.DistData();
-    const ElementalData YDistData = Y.DistData();
+    const DistData& XDistData = X.DistData();
+    const DistData& YDistData = Y.DistData();
 
     if( XDistData == YDistData )
     {
@@ -90,8 +90,9 @@ void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
     }
     else
     {
-        // TODO: Consider what happens if one is a row vector and the other
-        //       is a column vector...
+        // TODO(poulson):
+        // Consider what happens if one is a row vector and the other
+        // is a column vector...
         unique_ptr<ElementalMatrix<T>> XCopy( Y.Construct(Y.Grid(),Y.Root()) );
         XCopy->AlignWith( YDistData );
         Copy( X, *XCopy );
@@ -102,8 +103,8 @@ void Axpy( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const BlockMatrix<T>& X, BlockMatrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( X, Y ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( X, Y ))
     const T alpha = T(alphaS);
 
     const DistData XDistData = X.DistData();
@@ -126,8 +127,8 @@ void Axpy( S alphaS, const BlockMatrix<T>& X, BlockMatrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( X, Y ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( X, Y ))
     const T alpha = T(alphaS);
 
     if( X.Wrap() == ELEMENT && Y.Wrap() == ELEMENT )
@@ -167,10 +168,10 @@ void Axpy( S alphaS, const AbstractDistMatrix<T>& X, AbstractDistMatrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
-    if( X.Comm() != Y.Comm() )
+    if( X.Grid().Comm() != Y.Grid().Comm() )
         LogicError("X and Y must have the same communicator");
     const T alpha = T(alphaS);
     const Int numLocalEntries = X.NumLocalEntries();
@@ -180,7 +181,7 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
     const Int* XColBuf = X.LockedTargetBuffer();
     if( !Y.FrozenSparsity() )
         Y.Reserve( numLocalEntries );
-    for( Int k=0; k<numLocalEntries; ++k ) 
+    for( Int k=0; k<numLocalEntries; ++k )
         Y.QueueLocalUpdate
         ( XRowBuf[k]-firstLocalRow, XColBuf[k], alpha*XValBuf[k] );
     Y.ProcessLocalQueues();
@@ -189,9 +190,9 @@ void Axpy( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 template<typename T,typename S>
 void Axpy( S alpha, const DistMultiVec<T>& X, DistMultiVec<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( !mpi::Congruent( X.Comm(), Y.Comm() ) )
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( !mpi::Congruent( X.Grid().Comm(), Y.Grid().Comm() ) )
           LogicError("X and Y must have congruent communicators");
       if( X.Height() != Y.Height() )
           LogicError("X and Y must be the same height");

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_FACTOR_HPP
@@ -18,74 +18,74 @@ namespace El {
 
 // Cholesky
 // ========
-template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
+template<typename Field>
+void Cholesky( UpperOrLower uplo, Matrix<Field>& A );
+template<typename Field>
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack=false );
-template<typename F>
-void Cholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool scalapack=false );
+template<typename Field>
+void Cholesky( UpperOrLower uplo, DistMatrix<Field,STAR,STAR>& A );
 
-template<typename F>
-void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
-void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
-template<typename F>
-void ReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
+template<typename Field>
+void ReverseCholesky( UpperOrLower uplo, Matrix<Field>& A );
+template<typename Field>
+void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<Field>& A );
+template<typename Field>
+void ReverseCholesky( UpperOrLower uplo, DistMatrix<Field,STAR,STAR>& A );
 
-template<typename F>
-void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& P );
-template<typename F>
+template<typename Field>
+void Cholesky( UpperOrLower uplo, Matrix<Field>& A, Permutation& P );
+template<typename Field>
 void Cholesky
-( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& P );
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A, DistPermutation& P );
 
-template<typename F>
+template<typename Field>
 void CholeskyMod
 ( UpperOrLower uplo,
-  Matrix<F>& T,
-  Base<F> alpha,
-  Matrix<F>& V );
-template<typename F>
+  Matrix<Field>& T,
+  Base<Field> alpha,
+  Matrix<Field>& V );
+template<typename Field>
 void CholeskyMod
 ( UpperOrLower uplo,
-  AbstractDistMatrix<F>& T,
-  Base<F> alpha,
-  AbstractDistMatrix<F>& V );
+  AbstractDistMatrix<Field>& T,
+  Base<Field> alpha,
+  AbstractDistMatrix<Field>& V );
 
-template<typename F>
-void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
-void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A );
+template<typename Field>
+void HPSDCholesky( UpperOrLower uplo, Matrix<Field>& A );
+template<typename Field>
+void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<Field>& A );
 
 namespace cholesky {
 
-template<typename F>
-void SolveAfter
-( UpperOrLower uplo,
-  Orientation orientation, 
-  const Matrix<F>& A,
-        Matrix<F>& B );
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
-  const AbstractDistMatrix<F>& A,
-        AbstractDistMatrix<F>& B );
+  const Matrix<Field>& A,
+        Matrix<Field>& B );
+template<typename Field>
+void SolveAfter
+( UpperOrLower uplo,
+  Orientation orientation,
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B );
 
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
-  const Matrix<F>& A,
-  const Permutation& P, 
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Permutation& P,
+        Matrix<Field>& B );
+template<typename Field>
 void SolveAfter
 ( UpperOrLower uplo,
   Orientation orientation,
-  const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<Field>& A,
   const DistPermutation& P,
-        AbstractDistMatrix<F>& B );
+        AbstractDistMatrix<Field>& B );
 
 } // namespace cholesky
 
@@ -100,7 +100,7 @@ enum LDLPivotType
     BUNCH_KAUFMAN_BOUNDED,
     BUNCH_PARLETT,
     LDL_WITHOUT_PIVOTING
-    /* TODO: Diagonal pivoting? */
+    /* TODO(poulson): Diagonal pivoting? */
 };
 }
 using namespace LDLPivotTypeNS;
@@ -108,13 +108,13 @@ using namespace LDLPivotTypeNS;
 template<typename Real>
 Real LDLPivotConstant( LDLPivotType pivType )
 {
-    // TODO: Check that the Bunch-Parlett choice is optimal
+    // TODO(poulson): Check that the Bunch-Parlett choice is optimal
     switch( pivType )
     {
     case BUNCH_KAUFMAN_A:
     case BUNCH_PARLETT:   return (1+Sqrt(Real(17)))/8;
     case BUNCH_KAUFMAN_D: return Real(0.525);
-    default: 
+    default:
         LogicError("No default constant exists for this pivot type");
         return 0;
     }
@@ -131,155 +131,107 @@ struct LDLPivotCtrl {
   LDLPivotType pivotType;
   Real gamma;
 
-  LDLPivotCtrl( LDLPivotType piv=BUNCH_KAUFMAN_A ) 
+  LDLPivotCtrl( LDLPivotType piv=BUNCH_KAUFMAN_A )
   : pivotType(piv), gamma(LDLPivotConstant<Real>(piv)) { }
 };
 
 // Return the L (and D) from an LDL factorization of A (without pivoting)
 // ----------------------------------------------------------------------
-template<typename F>
-void LDL( Matrix<F>& A, bool conjugate );
-template<typename F>
-void LDL( ElementalMatrix<F>& A, bool conjugate );
-template<typename F>
-void LDL( DistMatrix<F,STAR,STAR>& A, bool conjugate );
+template<typename Field>
+void LDL( Matrix<Field>& A, bool conjugate );
+template<typename Field>
+void LDL( AbstractDistMatrix<Field>& A, bool conjugate );
+template<typename Field>
+void LDL( DistMatrix<Field,STAR,STAR>& A, bool conjugate );
 
 // Return an implicit representation of a pivoted LDL factorization of A
 // ---------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void LDL
-( Matrix<F>& A,
-  Matrix<F>& dSub,
+( Matrix<Field>& A,
+  Matrix<Field>& dSub,
   Permutation& P,
   bool conjugate,
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-template<typename F>
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
+template<typename Field>
 void LDL
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& dSub,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& dSub,
   DistPermutation& P,
   bool conjugate,
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-
-// All fronts of L are required to be initialized to the expansions of the 
-// original sparse matrix before calling LDL.
-template<typename F>
-void LDL
-( const ldl::NodeInfo& info,
-        ldl::Front<F>& L, 
-  LDLFrontType newType=LDL_2D );
-template<typename F>
-void LDL
-( const ldl::DistNodeInfo& info,
-        ldl::DistFront<F>& L, 
-  LDLFrontType newType=LDL_2D );
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
 
 namespace ldl {
 
 // Compute the inertia triplet of a Hermitian matrix's LDL^H factorization
 // -----------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 InertiaType Inertia
-( const Matrix<Base<F>>& d,
-  const Matrix<F>& dSub );
-template<typename F>
+( const Matrix<Base<Field>>& d,
+  const Matrix<Field>& dSub );
+template<typename Field>
 InertiaType Inertia
-( const ElementalMatrix<Base<F>>& d,
-  const ElementalMatrix<F>& dSub );
+( const AbstractDistMatrix<Base<Field>>& d,
+  const AbstractDistMatrix<Field>& dSub );
 
 // Multiply vectors using an implicit representation of an LDL factorization
 // -------------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void MultiplyAfter
-( const Matrix<F>& A,
-        Matrix<F>& B,
+( const Matrix<Field>& A,
+        Matrix<Field>& B,
   bool conjugated );
-template<typename F>
+template<typename Field>
 void MultiplyAfter
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
   bool conjugated );
 
 // Multiply vectors using an implicit representation of a pivoted LDL fact.
 // ------------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void MultiplyAfter
-( const Matrix<F>& A,
-  const Matrix<F>& dSub,
+( const Matrix<Field>& A,
+  const Matrix<Field>& dSub,
   const Permutation& P,
-        Matrix<F>& B,
+        Matrix<Field>& B,
   bool conjugated );
-template<typename F>
+template<typename Field>
 void MultiplyAfter
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& dSub,
+( const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& dSub,
   const DistPermutation& P,
-        ElementalMatrix<F>& B,
+        AbstractDistMatrix<Field>& B,
   bool conjugated );
 
 // Solve linear systems using an implicit LDL factorization
 // --------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
-( const Matrix<F>& A,
-        Matrix<F>& B,
+( const Matrix<Field>& A,
+        Matrix<Field>& B,
   bool conjugated );
-template<typename F>
+template<typename Field>
 void SolveAfter
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
   bool conjugated );
-
-template<typename F>
-void SolveAfter
-( const vector<Int>& invMap, const NodeInfo& info,
-  const Front<F>& front, Matrix<F>& X ); 
-template<typename F>
-void SolveAfter
-( const DistMap& invMap, const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVec<F>& X ); 
-
-template<typename F>
-void SolveAfter
-( const NodeInfo& info,
-  const Front<F>& front, MatrixNode<F>& X );
-template<typename F>
-void SolveAfter
-( const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVecNode<F>& X );
-template<typename F>
-void SolveAfter
-( const DistNodeInfo& info,
-  const DistFront<F>& front, DistMatrixNode<F>& X );
-
-template<typename F>
-Int SolveWithIterativeRefinement
-( const SparseMatrix<F>& A,
-  const vector<Int>& invMap, const NodeInfo& info,
-  const Front<F>& front, Matrix<F>& y,
-  Base<F> relTolRefine,      Int maxRefineIts );
-template<typename F>
-Int SolveWithIterativeRefinement
-( const DistSparseMatrix<F>& A,
-  const DistMap& invMap, const DistNodeInfo& info,
-  const DistFront<F>& front, DistMultiVec<F>& y,
-  Base<F> relTolRefine, Int maxRefineIts );
 
 // Solve linear system with the implicit representations of L, D, and P
 // --------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
-( const Matrix<F>& A,
-  const Matrix<F>& dSub,
+( const Matrix<Field>& A,
+  const Matrix<Field>& dSub,
   const Permutation& P,
-        Matrix<F>& B,
+        Matrix<Field>& B,
   bool conjugated );
-template<typename F>
+template<typename Field>
 void SolveAfter
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& dSub,
+( const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& dSub,
   const DistPermutation& P,
-        ElementalMatrix<F>& B, 
+        AbstractDistMatrix<Field>& B,
   bool conjugated );
 
 } // namespace ldl
@@ -306,7 +258,7 @@ struct RegSolveCtrl
 
     RegSolveCtrl()
     {
-        const Real eps = limits::Epsilon<Real>(); 
+        const Real eps = limits::Epsilon<Real>();
         relTol = Pow(eps,Real(0.5));
         relTolRefine = Pow(eps,Real(0.8));
     }
@@ -314,145 +266,81 @@ struct RegSolveCtrl
 
 namespace reg_ldl {
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,
-        Matrix<F>& B,
-        Base<F> relTolRefine,
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
+  const SparseLDLFactorization<Field>& sparseLDLFact,
+        Matrix<Field>& B,
+        Base<Field> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
         bool time=false );
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-        Base<F> relTolRefine,
-        Int maxRefineIts,
-        bool progress=false,
-        bool time=false );
-template<typename F>
-Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-        ldl::DistMultiVecNodeMeta& meta,
-        Base<F> relTolRefine,
+( const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Base<Field>>& reg,
+  const DistSparseLDLFactorization<Field>& sparseLDLFact,
+        DistMultiVec<Field>& B,
+        Base<Field> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
         bool time=false );
 
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,
-        Matrix<F>& B,
-        Base<F> relTolRefine,
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d,
+  const SparseLDLFactorization<Field>& sparseLDLFact,
+        Matrix<Field>& B,
+        Base<Field> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
         bool time=false );
-template<typename F>
+template<typename Field>
 Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-        Base<F> relTolRefine,
-        Int maxRefineIts,
-        bool progress=false,
-        bool time=false );
-template<typename F>
-Int RegularizedSolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-        ldl::DistMultiVecNodeMeta& meta,
-        Base<F> relTolRefine,
+( const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
+  const DistSparseLDLFactorization<Field>& sparseLDLFact,
+        DistMultiVec<Field>& B,
+        Base<Field> relTolRefine,
         Int maxRefineIts,
         bool progress=false,
         bool time=false );
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const vector<Int>& invMap,
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,
-        Matrix<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl );
-template<typename F>
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
+  const SparseLDLFactorization<Field>& sparseLDLFact,
+        Matrix<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl );
+template<typename Field>
 Int SolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl );
-template<typename F>
-Int SolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-        ldl::DistMultiVecNodeMeta& meta,
-  const RegSolveCtrl<Base<F>>& ctrl );
+( const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Base<Field>>& reg,
+  const DistSparseLDLFactorization<Field>& sparseLDLFact,
+        DistMultiVec<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl );
 
-template<typename F>
+template<typename Field>
 Int SolveAfter
-( const SparseMatrix<F>& A,
-  const Matrix<Base<F>>& reg,
-  const Matrix<Base<F>>& d,
-  const vector<Int>& invMap,
-  const ldl::NodeInfo& info,
-  const ldl::Front<F>& front,
-        Matrix<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl );
-template<typename F>
+( const SparseMatrix<Field>& A,
+  const Matrix<Base<Field>>& reg,
+  const Matrix<Base<Field>>& d,
+  const SparseLDLFactorization<Field>& sparseLDLFact,
+        Matrix<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl );
+template<typename Field>
 Int SolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-  const RegSolveCtrl<Base<F>>& ctrl );
-template<typename F>
-Int SolveAfter
-( const DistSparseMatrix<F>& A,
-  const DistMultiVec<Base<F>>& reg,
-  const DistMultiVec<Base<F>>& d,
-  const DistMap& invMap,
-  const ldl::DistNodeInfo& info,
-  const ldl::DistFront<F>& front,
-        DistMultiVec<F>& B,
-        ldl::DistMultiVecNodeMeta& meta,
-  const RegSolveCtrl<Base<F>>& ctrl );
+( const DistSparseMatrix<Field>& A,
+  const DistMultiVec<Base<Field>>& reg,
+  const DistMultiVec<Base<Field>>& d,
+  const DistSparseLDLFactorization<Field>& sparseLDLFact,
+        DistMultiVec<Field>& B,
+  const RegSolveCtrl<Base<Field>>& ctrl );
 
 } // namespace reg_ldl
 
@@ -465,7 +353,7 @@ Int SolveAfter
 namespace LUPivotTypeNS {
 enum LUPivotType
 {
-    LU_PARTIAL, 
+    LU_PARTIAL,
     LU_FULL,
     LU_ROOK, /* not yet supported */
     LU_WITHOUT_PIVOTING
@@ -475,99 +363,102 @@ using namespace LUPivotTypeNS;
 
 // LU without pivoting
 // -------------------
-template<typename F>
-void LU( Matrix<F>& A );
-template<typename F>
-void LU( ElementalMatrix<F>& A );
-template<typename F>
-void LU( DistMatrix<F,STAR,STAR>& A );
+template<typename Field>
+void LU( Matrix<Field>& A );
+template<typename Field>
+void LU( AbstractDistMatrix<Field>& A );
+template<typename Field>
+void LU( DistMatrix<Field,STAR,STAR>& A );
 
 // LU with partial pivoting
 // ------------------------
-template<typename F>
-void LU( Matrix<F>& A, Permutation& P );
-template<typename F>
-void LU( ElementalMatrix<F>& A, DistPermutation& P );
+template<typename Field>
+void LU( Matrix<Field>& A, Permutation& P );
+template<typename Field>
+void LU( AbstractDistMatrix<Field>& A, DistPermutation& P );
 
 // LU with full pivoting
 // ---------------------
 // P A Q^T = L U
-template<typename F>
+template<typename Field>
 void LU
-( Matrix<F>& A,
+( Matrix<Field>& A,
   Permutation& P,
   Permutation& Q );
-template<typename F>
+template<typename Field>
 void LU
-( ElementalMatrix<F>& A, 
+( AbstractDistMatrix<Field>& A,
   DistPermutation& P,
   DistPermutation& Q );
 
-// Rank-one modification of a partially-pivoted LU factorization
+// Low-rank modification of a partially-pivoted LU factorization
 // -------------------------------------------------------------
-template<typename F>
+// NOTE: This routine currently performs a sequence of rank-one updates
+// and will eventually be generalized to a (much faster) single-pass
+// algorithm.
+template<typename Field>
 void LUMod
-(       Matrix<F>& A,
+(       Matrix<Field>& A,
         Permutation& P,
-  const Matrix<F>& u,
-  const Matrix<F>& v,
+  const Matrix<Field>& U,
+  const Matrix<Field>& V,
   bool conjugate=true,
-  Base<F> tau=Base<F>(1)/Base<F>(10) );
-template<typename F>
+  Base<Field> tau=Base<Field>(1)/Base<Field>(10) );
+template<typename Field>
 void LUMod
-(       ElementalMatrix<F>& A,
+(       AbstractDistMatrix<Field>& A,
         DistPermutation& P,
-  const ElementalMatrix<F>& u,
-  const ElementalMatrix<F>& v, 
+  const AbstractDistMatrix<Field>& U,
+  const AbstractDistMatrix<Field>& V,
   bool conjugate=true,
-  Base<F> tau=Base<F>(1)/Base<F>(10) );
+  Base<Field> tau=Base<Field>(1)/Base<Field>(10) );
 
 namespace lu {
 
 // Solve linear systems using an implicit unpivoted LU factorization
 // -----------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+        Matrix<Field>& B );
+template<typename Field>
 void SolveAfter
-( Orientation orientation, 
-  const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B );
+( Orientation orientation,
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B );
 
 // Solve linear systems using an implicit partially-pivoted LU factorization
 // -------------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A,
+  const Matrix<Field>& A,
   const Permutation& P,
-        Matrix<F>& B );
-template<typename F>
+        Matrix<Field>& B );
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
+  const AbstractDistMatrix<Field>& A,
   const DistPermutation& P,
-        ElementalMatrix<F>& B );
+        AbstractDistMatrix<Field>& B );
 
 // Solve linear systems using an implicit fully-pivoted LU factorization
 // ---------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A,
+  const Matrix<Field>& A,
   const Permutation& P,
   const Permutation& Q,
-        Matrix<F>& B );
-template<typename F>
+        Matrix<Field>& B );
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
+  const AbstractDistMatrix<Field>& A,
   const DistPermutation& P,
   const DistPermutation& Q,
-        ElementalMatrix<F>& B );
+        AbstractDistMatrix<Field>& B );
 
 } // namespace lu
 
@@ -576,75 +467,75 @@ void SolveAfter
 
 // Overwrite A with both L and the scaled Householder vectors
 // ----------------------------------------------------------
-template<typename F>
+template<typename Field>
 void LQ
-( Matrix<F>& A,
-  Matrix<F>& phase,
-  Matrix<Base<F>>& signature );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalars,
+  Matrix<Base<Field>>& signature );
+template<typename Field>
 void LQ
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
-  ElementalMatrix<Base<F>>& signature );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars,
+  AbstractDistMatrix<Base<Field>>& signature );
 
 namespace lq {
 
 // Apply Q using its implicit representation
 // -----------------------------------------
-template<typename F>
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+  const AbstractDistMatrix<Base<Field>>& signature,
+        AbstractDistMatrix<Field>& B );
 
-// Solve a linear system with the implicit representations of L and Q 
+// Solve a linear system with the implicit representations of L and Q
 // ------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-  const Matrix<F>& B,
-        Matrix<F>& X );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+  const Matrix<Field>& B,
+        Matrix<Field>& X );
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B,
-        ElementalMatrix<F>& X );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+  const AbstractDistMatrix<Base<Field>>& signature,
+  const AbstractDistMatrix<Field>& B,
+        AbstractDistMatrix<Field>& X );
 
 // Overwrite A with L
 // ------------------
-template<typename F>
-void ExplicitTriang( Matrix<F>& A );
-template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A );
+template<typename Field>
+void ExplicitTriang( Matrix<Field>& A );
+template<typename Field>
+void ExplicitTriang( AbstractDistMatrix<Field>& A );
 
 // Overwrite A with Q
 // ------------------
-template<typename F>
-void ExplicitUnitary( Matrix<F>& A );
-template<typename F>
-void ExplicitUnitary( ElementalMatrix<F>& A );
+template<typename Field>
+void ExplicitUnitary( Matrix<Field>& A );
+template<typename Field>
+void ExplicitUnitary( AbstractDistMatrix<Field>& A );
 
 // Return both L and Q such that A = L Q
 // -------------------------------------
-template<typename F>
-void Explicit( Matrix<F>& L, Matrix<F>& A );
-template<typename F>
-void Explicit( ElementalMatrix<F>& L, ElementalMatrix<F>& A );
+template<typename Field>
+void Explicit( Matrix<Field>& L, Matrix<Field>& A );
+template<typename Field>
+void Explicit( AbstractDistMatrix<Field>& L, AbstractDistMatrix<Field>& A );
 
 } // namespace lq
 
@@ -675,219 +566,214 @@ struct QRCtrl
 
 // Return an implicit representation of Q and R such that A = Q R
 // --------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void QR
-( Matrix<F>& A,
-  Matrix<F>& phase,
-  Matrix<Base<F>>& signature );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalars,
+  Matrix<Base<Field>>& signature );
+template<typename Field>
 void QR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
-  ElementalMatrix<Base<F>>& signature );
-// NOTE: This is a ScaLAPACK wrapper, and ScaLAPACK uses a different convention
-//       for Householder transformations (that includes identity matrices,
-//       which are not representable as Householder transformations)
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
-void QR
-( DistMatrix<F,MC,MR,BLOCK>& A,
-  DistMatrix<F,MR,STAR,BLOCK>& phase );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars,
+  AbstractDistMatrix<Base<Field>>& signature );
 
 // Return an implicit representation of (Q,R,Omega) such that A Omega^T ~= Q R
 // ---------------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void QR
-( Matrix<F>& A,
-  Matrix<F>& phase, 
-  Matrix<Base<F>>& signature,
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalars,
+  Matrix<Base<Field>>& signature,
   Permutation& Omega,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void QR
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
-  ElementalMatrix<Base<F>>& signature,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars,
+  AbstractDistMatrix<Base<Field>>& signature,
   DistPermutation& Omega,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
 namespace qr {
 
 // Apply Q using its implicit representation
 // -----------------------------------------
-template<typename F>
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+  const AbstractDistMatrix<Base<Field>>& signature,
+        AbstractDistMatrix<Field>& B );
 
 // Solve a linear system with the implicit QR factorization
 // --------------------------------------------------------
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-  const Matrix<F>& B,
-        Matrix<F>& X );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+  const Matrix<Field>& B,
+        Matrix<Field>& X );
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B,
-        ElementalMatrix<F>& X );
-// TODO: Version which involves permutation matrix
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+  const AbstractDistMatrix<Base<Field>>& signature,
+  const AbstractDistMatrix<Field>& B,
+        AbstractDistMatrix<Field>& X );
+// TODO(poulson): Version which involves permutation matrix
 
 // Cholesky-based QR
 // -----------------
-template<typename F>
-void Cholesky( Matrix<F>& A, Matrix<F>& R );
-template<typename F>
-void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
+template<typename Field>
+void Cholesky( Matrix<Field>& A, Matrix<Field>& R );
+template<typename Field>
+void Cholesky( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& R );
 
 // Return R (with non-negative diagonal) such that A = Q R or A Omega^T = Q R
 // --------------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void ExplicitTriang
-( Matrix<F>& A,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+( Matrix<Field>& A,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void ExplicitTriang
-( ElementalMatrix<F>& A,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+( AbstractDistMatrix<Field>& A,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
 // Return Q such that either A = Q R or A Omega^T = Q R
 // ----------------------------------------------------
-template<typename F>
+template<typename Field>
 void ExplicitUnitary
-( Matrix<F>& A,
+( Matrix<Field>& A,
   bool thinQ=true,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void ExplicitUnitary
-( ElementalMatrix<F>& A,
+( AbstractDistMatrix<Field>& A,
   bool thinQ=true,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
 // Return both Q and R such that A = Q R or A Omega^T = Q R
 // --------------------------------------------------------
-template<typename F>
+template<typename Field>
 void Explicit
-( Matrix<F>& A,
-  Matrix<F>& R, 
+( Matrix<Field>& A,
+  Matrix<Field>& R,
   bool thinQ=true,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void Explicit
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& R, 
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& R,
   bool thinQ=true,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
 // Return (Q,R,Omega) such that A Omega^T = Q R
 // --------------------------------------------
-// NOTE: Column-pivoting is performed regardless of the value of ctrl.colPiv 
-template<typename F>
+// NOTE: Column-pivoting is performed regardless of the value of ctrl.colPiv
+template<typename Field>
 void Explicit
-( Matrix<F>& A,
-  Matrix<F>& R, 
+( Matrix<Field>& A,
+  Matrix<Field>& R,
   Matrix<Int>& Omega,
   bool thinQ=true,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void Explicit
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& R, 
-  ElementalMatrix<Int>& Omega,
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& R,
+  AbstractDistMatrix<Int>& Omega,
   bool thinQ=true,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
 // Swap neighboring columns (j,j+1) and update the QR factorization
 // ----------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void NeighborColSwap
-( Matrix<F>& Q,
-  Matrix<F>& R,
+( Matrix<Field>& Q,
+  Matrix<Field>& R,
   Int j );
 
 // Swap disjoint sets of neighboring columns and update the QR factorization
 // -------------------------------------------------------------------------
-template<typename F>
+template<typename Field>
 void DisjointNeighborColSwaps
-(       Matrix<F>& Q,
-        Matrix<F>& R,
+(       Matrix<Field>& Q,
+        Matrix<Field>& R,
   const Matrix<Int>& colSwaps );
 
-template<typename F>
+template<typename Field>
 struct TreeData
 {
-    Matrix<F> QR0, phase0;
-    Matrix<Base<F>> signature0;
-    vector<Matrix<F>> QRList;
-    vector<Matrix<F>> phaseList;
-    vector<Matrix<Base<F>>> signatureList;
+    Matrix<Field> QR0, householderScalars0;
+    Matrix<Base<Field>> signature0;
+    vector<Matrix<Field>> QRList;
+    vector<Matrix<Field>> householderScalarsList;
+    vector<Matrix<Base<Field>>> signatureList;
 
     TreeData( Int numStages=0 )
-    : QRList(numStages), phaseList(numStages), signatureList(numStages)
+    : QRList(numStages),
+      householderScalarsList(numStages),
+      signatureList(numStages)
     { }
 
-    TreeData( TreeData<F>&& treeData )
+    TreeData( TreeData<Field>&& treeData )
     : QR0(move(treeData.QR0)),
-      phase0(move(treeData.phase0)),
+      householderScalars0(move(treeData.householderScalars0)),
       signature0(move(treeData.signature0)),
       QRList(move(treeData.QRList)),
-      phaseList(move(treeData.phaseList)),
+      householderScalarsList(move(treeData.householderScalarsList)),
       signatureList(move(treeData.signatureList))
     { }
 
-    TreeData<F>& operator=( TreeData<F>&& treeData )
+    TreeData<Field>& operator=( TreeData<Field>&& treeData )
     {
         QR0 = move(treeData.QR0);
-        phase0 = move(treeData.phase0);
+        householderScalars0 = move(treeData.householderScalars0);
         signature0 = move(treeData.signature0);
         QRList = move(treeData.QRList);
-        phaseList = move(treeData.phaseList);
+        householderScalarsList = move(treeData.householderScalarsList);
         signatureList = move(treeData.signatureList);
         return *this;
     }
 };
 
 // Return an implicit tall-skinny QR factorization
-template<typename F>
-TreeData<F> TS( const ElementalMatrix<F>& A );
+template<typename Field>
+TreeData<Field> TS( const AbstractDistMatrix<Field>& A );
 
 // Return an explicit tall-skinny QR factorization
-template<typename F>
-void ExplicitTS( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
+template<typename Field>
+void ExplicitTS( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& R );
 
 namespace ts {
 
-template<typename F>
-Matrix<F>& RootQR
-( const ElementalMatrix<F>& A, TreeData<F>& treeData );
+template<typename Field>
+Matrix<Field>& RootQR
+( const AbstractDistMatrix<Field>& A, TreeData<Field>& treeData );
 
-template<typename F>
-const Matrix<F>& RootQR
-( const ElementalMatrix<F>& A, const TreeData<F>& treeData );
+template<typename Field>
+const Matrix<Field>& RootQR
+( const AbstractDistMatrix<Field>& A, const TreeData<Field>& treeData );
 
-template<typename F>
-void Reduce( const ElementalMatrix<F>& A, TreeData<F>& treeData );
+template<typename Field>
+void Reduce( const AbstractDistMatrix<Field>& A, TreeData<Field>& treeData );
 
-template<typename F>
-void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData );
+template<typename Field>
+void Scatter( AbstractDistMatrix<Field>& A, const TreeData<Field>& treeData );
 
 } // namespace ts
 
@@ -895,168 +781,171 @@ void Scatter( ElementalMatrix<F>& A, const TreeData<F>& treeData );
 
 // RQ
 // ==
-template<typename F>
+template<typename Field>
 void RQ
-( Matrix<F>& A,
-  Matrix<F>& phase,
-  Matrix<Base<F>>& signature );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalars,
+  Matrix<Base<Field>>& signature );
+template<typename Field>
 void RQ
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase, 
-  ElementalMatrix<Base<F>>& signature );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars,
+  AbstractDistMatrix<Base<Field>>& signature );
 
 namespace rq {
 
-template<typename F>
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side,
   Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+  const AbstractDistMatrix<Base<Field>>& signature,
+        AbstractDistMatrix<Field>& B );
 
-template<typename F>
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-  const Matrix<F>& B,
-        Matrix<F>& X );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+  const Matrix<Field>& B,
+        Matrix<Field>& X );
+template<typename Field>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-  const ElementalMatrix<Base<F>>& signature,
-  const ElementalMatrix<F>& B,
-        ElementalMatrix<F>& X );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+  const AbstractDistMatrix<Base<Field>>& signature,
+  const AbstractDistMatrix<Field>& B,
+        AbstractDistMatrix<Field>& X );
 
-// TODO: Think about ensuring this ordering is consistent with lq::Explicit
-template<typename F>
-void Cholesky( Matrix<F>& A, Matrix<F>& R );
-template<typename F>
-void Cholesky( ElementalMatrix<F>& A, ElementalMatrix<F>& R );
+// TODO(poulson): Think about ensuring this ordering is consistent with
+// lq::Explicit
+template<typename Field>
+void Cholesky( Matrix<Field>& A, Matrix<Field>& R );
+template<typename Field>
+void Cholesky( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& R );
 
-template<typename F>
-void ExplicitTriang( Matrix<F>& A );
-template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A );
+template<typename Field>
+void ExplicitTriang( Matrix<Field>& A );
+template<typename Field>
+void ExplicitTriang( AbstractDistMatrix<Field>& A );
 
 } // namespace rq
 
 // Generalized QR
 // ==============
-template<typename F>
+template<typename Field>
 void GQR
-( Matrix<F>& A,
-  Matrix<F>& phaseA,
-  Matrix<Base<F>>& signatureA,
-  Matrix<F>& B,
-  Matrix<F>& phaseB,
-  Matrix<Base<F>>& signatureB );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalarsA,
+  Matrix<Base<Field>>& signatureA,
+  Matrix<Field>& B,
+  Matrix<Field>& householderScalarsB,
+  Matrix<Base<Field>>& signatureB );
+template<typename Field>
 void GQR
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseA,
-  ElementalMatrix<Base<F>>& signatureA,
-  ElementalMatrix<F>& B, 
-  ElementalMatrix<F>& phaseB,
-  ElementalMatrix<Base<F>>& signatureB );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalarsA,
+  AbstractDistMatrix<Base<Field>>& signatureA,
+  AbstractDistMatrix<Field>& B,
+  AbstractDistMatrix<Field>& householderScalarsB,
+  AbstractDistMatrix<Base<Field>>& signatureB );
 
 namespace gqr {
 
-template<typename F>
-void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+template<typename Field>
+void ExplicitTriang( Matrix<Field>& A, Matrix<Field>& B );
+template<typename Field>
+void ExplicitTriang
+( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B );
 
 } // namespace gqr
 
 // Generalized RQ
 // ==============
-template<typename F>
+template<typename Field>
 void GRQ
-( Matrix<F>& A,
-  Matrix<F>& phaseA,
-  Matrix<Base<F>>& signatureA,
-  Matrix<F>& B,
-  Matrix<F>& phaseB,
-  Matrix<Base<F>>& signatureB );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalarsA,
+  Matrix<Base<Field>>& signatureA,
+  Matrix<Field>& B,
+  Matrix<Field>& householderScalarsB,
+  Matrix<Base<Field>>& signatureB );
+template<typename Field>
 void GRQ
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseA,
-  ElementalMatrix<Base<F>>& signatureA,
-  ElementalMatrix<F>& B, 
-  ElementalMatrix<F>& phaseB,
-  ElementalMatrix<Base<F>>& signatureB );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalarsA,
+  AbstractDistMatrix<Base<Field>>& signatureA,
+  AbstractDistMatrix<Field>& B,
+  AbstractDistMatrix<Field>& householderScalarsB,
+  AbstractDistMatrix<Base<Field>>& signatureB );
 
 namespace grq {
 
-template<typename F>
-void ExplicitTriang( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void ExplicitTriang( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+template<typename Field>
+void ExplicitTriang( Matrix<Field>& A, Matrix<Field>& B );
+template<typename Field>
+void ExplicitTriang
+( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B );
 
 } // namespace grq
 
 // Interpolative Decomposition
 // ===========================
-template<typename F>
+template<typename Field>
 void ID
-( const Matrix<F>& A,
-        Permutation& P, 
-        Matrix<F>& Z, 
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+( const Matrix<Field>& A,
+        Permutation& P,
+        Matrix<Field>& Z,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void ID
-( const ElementalMatrix<F>& A,
+( const AbstractDistMatrix<Field>& A,
         DistPermutation& P,
-        ElementalMatrix<F>& Z, 
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+        AbstractDistMatrix<Field>& Z,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
-template<typename F>
+template<typename Field>
 void ID
-( Matrix<F>& A,
-  Permutation& P, 
-  Matrix<F>& Z,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(), 
+( Matrix<Field>& A,
+  Permutation& P,
+  Matrix<Field>& Z,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>(),
   bool canOverwrite=false );
-template<typename F>
+template<typename Field>
 void ID
-( ElementalMatrix<F>& A,
+( AbstractDistMatrix<Field>& A,
   DistPermutation& P,
-  ElementalMatrix<F>& Z,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>(), 
+  AbstractDistMatrix<Field>& Z,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>(),
   bool canOverwrite=false );
 
 // Skeleton
 // ========
-template<typename F>
+template<typename Field>
 void Skeleton
-( const Matrix<F>& A,
+( const Matrix<Field>& A,
         Permutation& PR,
         Permutation& PC,
-        Matrix<F>& Z,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
-template<typename F>
+        Matrix<Field>& Z,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
+template<typename Field>
 void Skeleton
-( const ElementalMatrix<F>& A,
+( const AbstractDistMatrix<Field>& A,
         DistPermutation& PR,
         DistPermutation& PC,
-        ElementalMatrix<F>& Z,
-  const QRCtrl<Base<F>>& ctrl=QRCtrl<Base<F>>() );
+        AbstractDistMatrix<Field>& Z,
+  const QRCtrl<Base<Field>>& ctrl=QRCtrl<Base<Field>>() );
 
 } // namespace El
 

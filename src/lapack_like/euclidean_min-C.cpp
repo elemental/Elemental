@@ -2,28 +2,56 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
 #include <El/lapack_like/euclidean_min.hpp>
 #include <El-lite.h>
-#include <El/lapack_like/perm.h>
 #include <El/lapack_like/factor.h>
 #include <El/lapack_like/euclidean_min.h>
 using namespace El;
 
 extern "C" {
 
+ElError ElSQSDCtrlDefault_s( ElSQSDCtrl_s* ctrl )
+{
+    const float eps = limits::Epsilon<float>();
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
+    ctrl->canOverwrite = false;
+    ctrl->reg0Tmp = ctrl->reg1Tmp = Pow(eps,float(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,float(0.4));
+    ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
+    ctrl->equilibrate = false;
+    ctrl->progress = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
+ElError ElSQSDCtrlDefault_d( ElSQSDCtrl_d* ctrl )
+{
+    const double eps = limits::Epsilon<double>();
+    ctrl->scaleTwoNorm = true;
+    ctrl->basisSize = 15;
+    ctrl->canOverwrite = false;
+    ctrl->reg0Tmp = ctrl->reg1Tmp = Pow(eps,double(0.25));
+    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,double(0.4));
+    ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
+    ctrl->equilibrate = false;
+    ctrl->progress = false;
+    ctrl->time = false;
+    return EL_SUCCESS;
+}
+
 ElError ElLeastSquaresCtrlDefault_s( ElLeastSquaresCtrl_s* ctrl )
 {
     const float eps = limits::Epsilon<float>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
-    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->alpha = Pow(eps,float(0.25));
-    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,float(0.4));
-    ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
+    ctrl->alpha = Pow(eps,float(0.25));
+    ElSQSDCtrlDefault_s( &ctrl->sqsdCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;
@@ -35,9 +63,8 @@ ElError ElLeastSquaresCtrlDefault_d( ElLeastSquaresCtrl_d* ctrl )
     const double eps = limits::Epsilon<double>();
     ctrl->scaleTwoNorm = true;
     ctrl->basisSize = 15;
-    ctrl->reg0Tmp = ctrl->reg1Tmp = ctrl->alpha = Pow(eps,double(0.25));
-    ctrl->reg0Perm = ctrl->reg1Perm = Pow(eps,double(0.4));
-    ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
+    ctrl->alpha = Pow(eps,double(0.25));
+    ElSQSDCtrlDefault_d( &ctrl->sqsdCtrl );
     ctrl->equilibrate = false;
     ctrl->progress = false;
     ctrl->time = false;

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_SCATTER_HPP
@@ -17,7 +17,7 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int m = A.Height();
@@ -27,10 +27,10 @@ void Scatter
     B.Resize( m, n );
     if( B.CrossSize() != 1 || B.RedundantSize() != 1 )
     {
-        // TODO:
+        // TODO(poulson):
         // Broadcast over the redundant communicator and use mpi::Translate
         // rank to determine whether a process is the root of the broadcast.
-        GeneralPurpose( A, B ); 
+        GeneralPurpose( A, B );
         return;
     }
 
@@ -40,7 +40,7 @@ void Scatter
 
     // Translate the root of A into the DistComm of B (if possible)
     const Int root = A.Root();
-    const Int target = mpi::Translate( A.CrossComm(), root, B.DistComm() ); 
+    const Int target = mpi::Translate( A.CrossComm(), root, B.DistComm() );
     if( target == mpi::UNDEFINED )
         return;
 
@@ -93,46 +93,25 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC,BLOCK>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
+    // TODO(poulson): More efficient implementation
     GeneralPurpose( A, B );
 }
 
-// TODO: Find a way to combine this with the above
 template<typename T>
 void Scatter
 ( const DistMatrix<T,CIRC,CIRC>& A,
         DistMatrix<T,STAR,STAR>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
-
-    const Int height = A.Height();
-    const Int width = A.Width();
-    B.Resize( height, width );
-
+    B.Resize( A.Height(), A.Width() );
     if( B.Participating() )
     {
-        const Int pkgSize = mpi::Pad( height*width );
-        vector<T> buffer;
-        FastResize( buffer, pkgSize );
-
-        // Pack            
         if( A.Participating() )
-            util::InterleaveMatrix
-            ( height, width,
-              A.LockedBuffer(), 1, A.LDim(),
-              buffer.data(),    1, height );
-
-        // Broadcast from the process that packed
-        mpi::Broadcast( buffer.data(), pkgSize, A.Root(), A.CrossComm() );
-
-        // Unpack
-        util::InterleaveMatrix
-        ( height, width,
-          buffer.data(), 1, height,
-          B.Buffer(),    1, B.LDim() );
+            B.Matrix() = A.LockedMatrix();
+        El::Broadcast( B, A.CrossComm(), A.Root() );
     }
 }
 
@@ -141,10 +120,15 @@ void Scatter
 ( const DistMatrix<T,CIRC,CIRC,BLOCK>& A,
         DistMatrix<T,STAR,STAR,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
-    GeneralPurpose( A, B );
+    B.Resize( A.Height(), A.Width() );
+    if( B.Participating() )
+    {
+        if( A.Participating() )
+            B.Matrix() = A.LockedMatrix();
+        El::Broadcast( B, A.CrossComm(), A.Root() );
+    }
 }
 
 } // namespace copy

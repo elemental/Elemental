@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_READ_MATRIXMARKET_HPP
@@ -15,7 +15,7 @@ namespace read {
 template<typename T>
 void MatrixMarket( Matrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -30,10 +30,10 @@ void MatrixMarket( Matrix<T>& A, const string filename )
         RuntimeError("Could not extract header line");
     {
         std::stringstream lineStream( line );
-        lineStream >> stamp; 
+        lineStream >> stamp;
         if( stamp != string("%%MatrixMarket") )
             RuntimeError("Invalid Matrix Market stamp: ",stamp);
-        if( !(lineStream >> object) ) 
+        if( !(lineStream >> object) )
             RuntimeError("Missing Matrix Market object");
         if( !(lineStream >> format) )
             RuntimeError("Missing Matrix Market format");
@@ -56,8 +56,8 @@ void MatrixMarket( Matrix<T>& A, const string filename )
         RuntimeError("Invalid Matrix Market object: ",object);
     if( !isArray && format != string("coordinate") )
         RuntimeError("Invalid Matrix Market format: ",format);
-    if( !isComplex && !isPattern && 
-        field != string("real") && 
+    if( !isComplex && !isPattern &&
+        field != string("real") &&
         field != string("double") &&
         field != string("integer") )
         RuntimeError("Invalid Matrix Market field: ",field);
@@ -76,9 +76,9 @@ void MatrixMarket( Matrix<T>& A, const string filename )
 
     // Skip the comment lines
     // ======================
-    while( file.peek() == '%' ) 
+    while( file.peek() == '%' )
         std::getline( file, line );
-  
+
     int m, n;
     if( !std::getline( file, line ) )
         RuntimeError("Could not extract the size line");
@@ -219,7 +219,7 @@ void MatrixMarket( Matrix<T>& A, const string filename )
 template<typename T>
 void MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use a WriteProxy instead
     DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A.Grid() );
     if( A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root() )
@@ -235,7 +235,7 @@ void MatrixMarket( AbstractDistMatrix<T>& A, const string filename )
 template<typename T>
 void MatrixMarket( SparseMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -250,10 +250,10 @@ void MatrixMarket( SparseMatrix<T>& A, const string filename )
         RuntimeError("Could not extract header line");
     {
         std::stringstream lineStream( line );
-        lineStream >> stamp; 
+        lineStream >> stamp;
         if( stamp != string("%%MatrixMarket") )
             RuntimeError("Invalid Matrix Market stamp: ",stamp);
-        if( !(lineStream >> object) ) 
+        if( !(lineStream >> object) )
             RuntimeError("Missing Matrix Market object");
         if( !(lineStream >> format) )
             RuntimeError("Missing Matrix Market format");
@@ -276,8 +276,8 @@ void MatrixMarket( SparseMatrix<T>& A, const string filename )
         RuntimeError("Invalid Matrix Market object: ",object);
     if( !isArray && format != string("coordinate") )
         RuntimeError("Invalid Matrix Market format: ",format);
-    if( !isComplex && !isPattern && 
-        field != string("real") && 
+    if( !isComplex && !isPattern &&
+        field != string("real") &&
         field != string("double") &&
         field != string("integer") )
         RuntimeError("Invalid Matrix Market field: ",field);
@@ -302,9 +302,9 @@ void MatrixMarket( SparseMatrix<T>& A, const string filename )
 
     // Skip the comment lines
     // ======================
-    while( file.peek() == '%' ) 
+    while( file.peek() == '%' )
         std::getline( file, line );
-  
+
     int m, n;
     if( !std::getline( file, line ) )
         RuntimeError("Could not extract the size line");
@@ -406,7 +406,7 @@ void MatrixMarket( SparseMatrix<T>& A, const string filename )
 template<typename T>
 void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<T> Real;
     std::ifstream file( filename.c_str() );
     if( !file.is_open() )
@@ -421,10 +421,10 @@ void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
         RuntimeError("Could not extract header line");
     {
         std::stringstream lineStream( line );
-        lineStream >> stamp; 
+        lineStream >> stamp;
         if( stamp != string("%%MatrixMarket") )
             RuntimeError("Invalid Matrix Market stamp: ",stamp);
-        if( !(lineStream >> object) ) 
+        if( !(lineStream >> object) )
             RuntimeError("Missing Matrix Market object");
         if( !(lineStream >> format) )
             RuntimeError("Missing Matrix Market format");
@@ -447,8 +447,8 @@ void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
         RuntimeError("Invalid Matrix Market object: ",object);
     if( !isArray && format != string("coordinate") )
         RuntimeError("Invalid Matrix Market format: ",format);
-    if( !isComplex && !isPattern && 
-        field != string("real") && 
+    if( !isComplex && !isPattern &&
+        field != string("real") &&
         field != string("double") &&
         field != string("integer") )
         RuntimeError("Invalid Matrix Market field: ",field);
@@ -473,9 +473,9 @@ void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
 
     // Skip the comment lines
     // ======================
-    while( file.peek() == '%' ) 
+    while( file.peek() == '%' )
         std::getline( file, line );
-  
+
     int m, n;
     if( !std::getline( file, line ) )
         RuntimeError("Could not extract the size line");
@@ -512,7 +512,7 @@ void MatrixMarket( DistSparseMatrix<T>& A, const string filename )
     int i, j;
     Real realPart, imagPart;
     T value;
-    const int commSize = mpi::Size(A.Comm());
+    const int commSize = A.Grid().Size();
     A.Reserve( numNonzero/commSize ); // Assume an even nonzero distribution
     bool passive = true;
     for( Int k=0; k<numNonzero; ++k )

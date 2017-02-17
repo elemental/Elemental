@@ -22,7 +22,7 @@ namespace El {
 template<typename Real>
 void UniformHelmholtzGreens( Matrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;
@@ -77,7 +77,7 @@ template<typename Real>
 void UniformHelmholtzGreens
 ( ElementalMatrix<Complex<Real>>& A, Int n, Real lambda )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
     const Real k0 = 2*pi/lambda;

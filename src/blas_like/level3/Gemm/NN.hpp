@@ -18,7 +18,7 @@ void Cannon_NN
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = APre.Grid();
     if( g.Height() != g.Width() )
         LogicError("Process grid must be square for Cannon's");
@@ -96,7 +96,7 @@ void SUMMA_NNA
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -141,7 +141,7 @@ void SUMMA_NNB
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = CPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -183,7 +183,7 @@ void SUMMA_NNC
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -230,7 +230,7 @@ void SUMMA_NNDot
         AbstractDistMatrix<T>& CPre,
   Int blockSize=2000 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = CPre.Height();
     const Int n = CPre.Width();
     const Grid& g = APre.Grid();
@@ -277,8 +277,8 @@ void SUMMA_NN
         AbstractDistMatrix<T>& C,
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B, C );
       if( A.Height() != C.Height() || 
           B.Width() != C.Width() ||

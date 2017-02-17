@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_TRANSPOSEDIST_HPP
@@ -12,11 +12,11 @@
 namespace El {
 namespace copy {
 
-// TODO: Generalize the below implementation
+// TODO(poulson): Generalize the below implementation
 template<typename T,Dist U,Dist V>
-void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B ) 
+void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Grid& g = B.Grid();
@@ -28,7 +28,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
     const Int rowStrideA = A.RowStride();
     const Int distSize = A.DistSize();
 
-    if( A.DistSize() == 1 && B.DistSize() == 1 ) 
+    if( A.DistSize() == 1 && B.DistSize() == 1 )
     {
         Copy( A.LockedMatrix(), B.Matrix() );
     }
@@ -38,11 +38,11 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         const Int maxLocalHeight = MaxLength(height,distSize);
         const Int portionSize = mpi::Pad( maxLocalHeight );
 
-        const Int colDiff = Shift(A.DistRank(),A.ColAlign(),distSize) - 
+        const Int colDiff = Shift(A.DistRank(),A.ColAlign(),distSize) -
                             Shift(B.DistRank(),B.ColAlign(),distSize);
         const Int sendRankB = Mod( B.DistRank()+colDiff, distSize );
         const Int recvRankA = Mod( A.DistRank()-colDiff, distSize );
-        const Int recvRankB = 
+        const Int recvRankB =
             (recvRankA/colStrideA)+rowStrideA*(recvRankA%colStrideA);
 
         vector<T> buffer;
@@ -53,7 +53,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         if( A.RowRank() == A.RowAlign() )
         {
             // Pack
-            // TODO: Use kernel from copy::util
+            // TODO(poulson): Use kernel from copy::util
             const Int AColShift = A.ColShift();
             const T* ABuf = A.LockedBuffer();
             EL_PARALLEL_FOR
@@ -61,7 +61,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
             {
                 T* data = &recvBuf[k*portionSize];
 
-                const Int shift = 
+                const Int shift =
                   Shift_(A.ColRank()+colStrideA*k,A.ColAlign(),distSize);
                 const Int offset = (shift-AColShift) / colStrideA;
                 const Int thisLocalHeight = Length_(height,shift,distSize);
@@ -89,14 +89,14 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         if( B.RowRank() == B.RowAlign() )
         {
             // Unpack
-            // TODO: Use kernel from copy::util
+            // TODO(poulson): Use kernel from copy::util
             T* bufB = B.Buffer();
             EL_PARALLEL_FOR
             for( Int k=0; k<colStrideA; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
 
-                const Int shift = 
+                const Int shift =
                   Shift_(B.ColRank()+rowStrideA*k,B.ColAlign(),distSize);
                 const Int offset = (shift-B.ColShift()) / rowStrideA;
                 const Int thisLocalHeight = Length_(height,shift,distSize);
@@ -116,7 +116,7 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
                             Shift(A.DistRank(),B.RowAlign(),distSize);
         const Int sendRankA = Mod( A.DistRank()+rowDiff, distSize );
         const Int recvRankB = Mod( B.DistRank()-rowDiff, distSize );
-        const Int recvRankA = 
+        const Int recvRankA =
             (recvRankB/rowStrideA)+colStrideA*(recvRankB%rowStrideA);
 
         vector<T> buffer;
@@ -127,14 +127,14 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         if( A.ColRank() == A.ColAlign() )
         {
             // Pack
-            // TODO: Use kernel from copy::util
+            // TODO(poulson): Use kernel from copy::util
             const T* ABuf = A.LockedBuffer();
             EL_PARALLEL_FOR
             for( Int k=0; k<colStrideA; ++k )
             {
                 T* data = &recvBuf[k*portionSize];
 
-                const Int shift = 
+                const Int shift =
                   Shift_(A.RowRank()+rowStrideA*k,A.RowAlign(),distSize);
                 const Int offset = (shift-A.RowShift()) / rowStrideA;
                 const Int thisLocalWidth = Length_(width,shift,distSize);
@@ -162,14 +162,14 @@ void TransposeDist( const DistMatrix<T,U,V>& A, DistMatrix<T,V,U>& B )
         if( B.ColRank() == B.ColAlign() )
         {
             // Unpack
-            // TODO: Use kernel from copy::util
+            // TODO(poulson): Use kernel from copy::util
             T* bufB = B.Buffer();
             EL_PARALLEL_FOR
             for( Int k=0; k<rowStrideA; ++k )
             {
                 const T* data = &sendBuf[k*portionSize];
 
-                const Int shift = 
+                const Int shift =
                   Shift_(B.RowRank()+colStrideA*k,B.RowAlign(),distSize);
                 const Int offset = (shift-B.RowShift()) / colStrideA;
                 const Int thisLocalWidth = Length_(width,shift,distSize);

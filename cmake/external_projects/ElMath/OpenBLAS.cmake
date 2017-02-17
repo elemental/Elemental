@@ -24,12 +24,16 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
                      /usr/lib/openmpi/lib
                      /usr/lib/gcc/x86_64-linux-gnu/4.8
                      /usr/lib/gcc/x86_64-linux-gnu/4.9
+                     /usr/lib/gcc/x86_64-linux-gnu/5
+                     /usr/lib/gcc/x86_64-linux-gnu/6
                      /lib/x86_64-linux-gnu
                      /usr/lib/x86_64-linux-gnu
                      /usr/lib/openblas-base
                      /usr/lib64/openblas-base
                      /usr/local/lib/gcc/4.8
-                     /usr/local/lib/gcc/4.9)
+                     /usr/local/lib/gcc/4.9
+                     /usr/local/lib/gcc/5
+                     /usr/local/lib/gcc/6)
   if(NOT GFORTRAN_LIB)
     find_library(GFORTRAN_LIB NAMES gfortran PATHS ${GFORTRAN_PATHS})
     if(NOT GFORTRAN_LIB)

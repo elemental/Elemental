@@ -17,7 +17,7 @@ void UT_C
         AbstractDistMatrix<T>& CPre,
   bool conjugate=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int r = APre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -59,7 +59,7 @@ void UT_Dot
   const bool conjugate,
   Int blockSize=2000 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = CPre.Height();
     const Grid& g = APre.Grid();
 
@@ -106,8 +106,8 @@ void UT
         AbstractDistMatrix<T>& C,
   bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, C );
       if( A.Width() != C.Height() || A.Width() != C.Width() )
           LogicError

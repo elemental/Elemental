@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,26 +12,26 @@ namespace El {
 
 namespace lu {
 
-template<typename F>
-void Panel( Matrix<F>& APan, Permutation& P, Permutation& p1, Int offset );
+template<typename Field>
+void Panel( Matrix<Field>& APan, Permutation& P, Permutation& p1, Int offset );
 
-template<typename F>
+template<typename Field>
 void Panel
-( DistMatrix<F,  STAR,STAR>& A11,
-  DistMatrix<F,  MC,  STAR>& A21,
+( DistMatrix<Field,STAR,STAR>& A11,
+  DistMatrix<Field,MC,  STAR>& A21,
   DistPermutation& P,
   DistPermutation& PB,
   Int offset,
-  vector<F>& pivotBuf );
+  vector<Field>& pivotBuf );
 
 } // namespace lu
 
 // Short-circuited form of LU factorization with partial pivoting
-template<typename F> 
-void RowEchelon( Matrix<F>& A, Matrix<F>& B )
+template<typename Field>
+void RowEchelon( Matrix<Field>& A, Matrix<Field>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
     )
@@ -56,7 +56,7 @@ void RowEchelon( Matrix<F>& A, Matrix<F>& B )
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
         auto A21 = A( ind2, ind1 );
-        auto A22 = A( ind2, ind2 ); 
+        auto A22 = A( ind2, ind2 );
         auto AB1 = A( indB, ind1 );
         auto AB2 = A( indB, ind2 );
         auto B1  = B( ind1, ALL );
@@ -67,20 +67,20 @@ void RowEchelon( Matrix<F>& A, Matrix<F>& B )
         PB.PermuteRows( AB2 );
         PB.PermuteRows( BB );
 
-        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
-        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, Field(1), A11, A12 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, Field(1), A11, B1 );
 
-        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
-        Gemm( NORMAL, NORMAL, F(-1), A21, B1,  F(1), B2 );
+        Gemm( NORMAL, NORMAL, Field(-1), A21, A12, Field(1), A22 );
+        Gemm( NORMAL, NORMAL, Field(-1), A21, B1,  Field(1), B2 );
     }
 }
 
 // Short-circuited form of LU factorization with partial pivoting
-template<typename F> 
-void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
+template<typename Field>
+void RowEchelon( DistMatrix<Field>& A, DistMatrix<Field>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != B.Height() )
           LogicError("A and B must be the same height");
@@ -89,24 +89,24 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     const Int nA = A.Width();
     const Int minDimA = Min(mA,nA);
     const Int bsize = Blocksize();
-    const Grid& g = A.Grid();
+    const Grid& grid = A.Grid();
 
-    DistPermutation P(g);
+    DistPermutation P(grid);
     P.MakeIdentity( mA );
     P.ReserveSwaps( Min(mA,nA) );
 
-    DistPermutation PB(g);
+    DistPermutation PB(grid);
 
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,VR  > A12_STAR_VR(g), B1_STAR_VR(g);
-    DistMatrix<F,STAR,MR  > A12_STAR_MR(g), B1_STAR_MR(g);
-    DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
+    DistMatrix<Field,STAR,STAR> A11_STAR_STAR(grid);
+    DistMatrix<Field,STAR,VR  > A12_STAR_VR(grid), B1_STAR_VR(grid);
+    DistMatrix<Field,STAR,MR  > A12_STAR_MR(grid), B1_STAR_MR(grid);
+    DistMatrix<Field,MC,  STAR> A21_MC_STAR(grid);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
-    DistMatrix<F,MC,STAR> A21_MC_STAR_B(g);
+    DistMatrix<Field,MC,STAR> A21_MC_STAR_B(grid);
 
-    vector<F> panelBuf, pivotBuf;
+    vector<Field> panelBuf, pivotBuf;
     for( Int k=0; k<minDimA; k+=bsize )
     {
         const Int nb = Min(bsize,minDimA-k);
@@ -114,7 +114,7 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         auto A11 = A( ind1, ind1 );
         auto A12 = A( ind1, ind2 );
         auto A21 = A( ind2, ind1 );
-        auto A22 = A( ind2, ind2 ); 
+        auto A22 = A( ind2, ind2 );
         auto AB2 = A( indB, ind2 );
         auto B1  = B( ind1, ALL  );
         auto B2  = B( ind2, ALL  );
@@ -125,9 +125,10 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         const Int panelLDim = nb+A21LocHeight;
         FastResize( panelBuf, panelLDim*nb );
         A11_STAR_STAR.Attach
-        ( nb, nb, g, 0, 0, &panelBuf[0], panelLDim, 0 );
+        ( nb, nb, grid, 0, 0, &panelBuf[0], panelLDim, 0 );
         A21_MC_STAR.Attach
-        ( A21Height, nb, g, A21.ColAlign(), 0, &panelBuf[nb], panelLDim, 0 );
+        ( A21Height, nb, grid, A21.ColAlign(), 0,
+          &panelBuf[nb], panelLDim, 0 );
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
         lu::Panel( A11_STAR_STAR, A21_MC_STAR, P, PB, k, pivotBuf );
@@ -139,25 +140,29 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         B1_STAR_VR.AlignWith( B1 );
         B1_STAR_VR = B1;
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
-        LocalTrsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, B1_STAR_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, Field(1), A11_STAR_STAR, A12_STAR_VR );
+        LocalTrsm
+        ( LEFT, LOWER, NORMAL, UNIT, Field(1), A11_STAR_STAR, B1_STAR_VR );
 
         A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
         B1_STAR_MR.AlignWith( B1 );
         B1_STAR_MR = B1_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
+        LocalGemm
+        ( NORMAL, NORMAL, Field(-1), A21_MC_STAR, A12_STAR_MR, Field(1), A22 );
         if( BAligned )
         {
             LocalGemm
-            ( NORMAL, NORMAL, F(-1), A21_MC_STAR, B1_STAR_MR, F(1), B2 );
+            ( NORMAL, NORMAL,
+              Field(-1), A21_MC_STAR, B1_STAR_MR, Field(1), B2 );
         }
         else
         {
             A21_MC_STAR_B.AlignWith( B2 );
             A21_MC_STAR_B = A21_MC_STAR;
             LocalGemm
-            ( NORMAL, NORMAL, F(-1), A21_MC_STAR_B, B1_STAR_MR, F(1), B2 );
+            ( NORMAL, NORMAL,
+              Field(-1), A21_MC_STAR_B, B1_STAR_MR, Field(1), B2 );
         }
 
         A11 = A11_STAR_STAR;
@@ -168,26 +173,26 @@ void RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 
 namespace lin_solve {
 
-template<typename F> 
-void Overwrite( Matrix<F>& A, Matrix<F>& B )
+template<typename Field>
+void Overwrite( Matrix<Field>& A, Matrix<Field>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Perform Gaussian elimination
     RowEchelon( A, B );
-    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Field(1), A, B );
 }
 
-template<typename F> 
+template<typename Field>
 void Overwrite
-( ElementalMatrix<F>& APre, ElementalMatrix<F>& BPre )
+( AbstractDistMatrix<Field>& APre, AbstractDistMatrix<Field>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
-    const bool useFullLU = true; 
+    const bool useFullLU = true;
 
     if( useFullLU )
     {
@@ -198,36 +203,27 @@ void Overwrite
     else
     {
         RowEchelon( A, B );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Field(1), A, B );
     }
 }
 
 } // namespace lin_solve
 
-template<typename F> 
-void LinearSolve( const Matrix<F>& A, Matrix<F>& B )
+template<typename Field>
+void LinearSolve( const Matrix<Field>& A, Matrix<Field>& B )
 {
-    DEBUG_CSE
-    Matrix<F> ACopy( A );
-    lin_solve::Overwrite( ACopy, B );
-}
-
-template<typename F> 
-void LinearSolve
-( const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B )
-{
-    DEBUG_CSE
-    DistMatrix<F> ACopy( A );
+    EL_DEBUG_CSE
+    Matrix<Field> ACopy( A );
     lin_solve::Overwrite( ACopy, B );
 }
 
 namespace lin_solve {
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 void ScaLAPACKHelper
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& B )
+( const DistMatrix<Field,MC,MR,BLOCK>& A,
+        DistMatrix<Field,MC,MR,BLOCK>& B )
 {
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
@@ -239,82 +235,105 @@ void ScaLAPACKHelper
     auto ACopy = A;
     vector<int> ipiv(mLocal+mb);
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descB = FillDesc( B, context );
-
+    auto descA = FillDesc( A );
+    auto descB = FillDesc( B );
     scalapack::LinearSolve
     ( m, n,
       ACopy.Buffer(), descA.data(),
       ipiv.data(),
       B.Buffer(), descB.data() );
-
-    // TODO: Cache context, handle, and exit BLACS during El::Finalize()
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 void ScaLAPACKHelper
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& B )
+( const DistMatrix<Field,MC,MR,BLOCK>& A,
+        DistMatrix<Field,MC,MR,BLOCK>& B )
 {
-    LogicError("ScaLAPACK does not support this datatype");
+    LogicError("ScaLAPACK does not support ",TypeName<Field>());
 }
 
 } // namespace lin_solve
 
-template<typename F>
+template<typename Field>
 void LinearSolve
-( const DistMatrix<F,MC,MR,BLOCK>& A,
-        DistMatrix<F,MC,MR,BLOCK>& B )
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
+  bool scalapack )
 {
-    DEBUG_CSE
-    lin_solve::ScaLAPACKHelper( A, B );
+    EL_DEBUG_CSE
+    if( scalapack )
+    {
+#ifdef EL_HAVE_SCALAPACK
+        ProxyCtrl proxyCtrl;
+        proxyCtrl.colConstrain = true;
+        proxyCtrl.rowConstrain = true;
+        proxyCtrl.blockHeight = DefaultBlockHeight();
+        proxyCtrl.blockWidth = DefaultBlockWidth();
+        proxyCtrl.colAlign = 0;
+        proxyCtrl.rowAlign = 0;
+        proxyCtrl.colCut = 0;
+        proxyCtrl.rowCut = 0;
+        DistMatrixReadProxy<Field,Field,MC,MR,BLOCK> AProx( A, proxyCtrl );
+        DistMatrixReadWriteProxy<Field,Field,MC,MR,BLOCK> BProx( B, proxyCtrl );
+        auto& ABlock = AProx.GetLocked();
+        auto& BBlock = BProx.Get();
+        lin_solve::ScaLAPACKHelper( ABlock, BBlock );
+        return;
+#else
+        if( A.Grid().Rank() == 0 )
+            Output
+            ("WARNING: Requested a ScaLAPACK solve, "
+             "but ScaLAPACK was not available");
+#endif
+    }
+    DistMatrix<Field> ACopy( A );
+    lin_solve::Overwrite( ACopy, B );
 }
 
-template<typename F>
+template<typename Field>
 void LinearSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
-  const LeastSquaresCtrl<Base<F>>& ctrl )
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
+  const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    Matrix<F> X;
+    EL_DEBUG_CSE
+    Matrix<Field> X;
     LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
 }
 
-template<typename F>
+template<typename Field>
 void LinearSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
-  const LeastSquaresCtrl<Base<F>>& ctrl )
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
+  const LeastSquaresCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    DistMultiVec<F> X;
-    X.SetComm( B.Comm() );
+    EL_DEBUG_CSE
+    DistMultiVec<Field> X(B.Grid());
     LeastSquares( NORMAL, A, B, X, ctrl );
     B = X;
 }
 
-#define PROTO(F) \
-  template void lin_solve::Overwrite( Matrix<F>& A, Matrix<F>& B ); \
+#define PROTO(Field) \
+  template void lin_solve::Overwrite( Matrix<Field>& A, Matrix<Field>& B ); \
   template void lin_solve::Overwrite \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& B ); \
-  template void LinearSolve( const Matrix<F>& A, Matrix<F>& B ); \
+  ( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B ); \
+  template void LinearSolve( const Matrix<Field>& A, Matrix<Field>& B ); \
   template void LinearSolve \
-  ( const ElementalMatrix<F>& A, \
-          ElementalMatrix<F>& B ); \
+  ( const AbstractDistMatrix<Field>& A, \
+          AbstractDistMatrix<Field>& B, \
+    bool scalapack ); \
   template void LinearSolve \
-  ( const DistMatrix<F,MC,MR,BLOCK>& A, \
-          DistMatrix<F,MC,MR,BLOCK>& B ); \
+  ( const SparseMatrix<Field>& A, \
+          Matrix<Field>& B, \
+    const LeastSquaresCtrl<Base<Field>>& ctrl ); \
   template void LinearSolve \
-  ( const SparseMatrix<F>& A, Matrix<F>& B, \
-    const LeastSquaresCtrl<Base<F>>& ctrl ); \
-  template void LinearSolve \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, \
-    const LeastSquaresCtrl<Base<F>>& ctrl );
+  ( const DistSparseMatrix<Field>& A, \
+          DistMultiVec<Field>& B, \
+    const LeastSquaresCtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

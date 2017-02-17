@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_NRM2_HPP
@@ -20,8 +20,8 @@ Base<F> FrobeniusNorm( const DistMultiVec<F>& A );
 template<typename F>
 Base<F> Nrm2( const Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("Expected vector input");
     )
@@ -36,8 +36,8 @@ Base<F> Nrm2( const Matrix<F>& x )
 template<typename F>
 Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -47,8 +47,8 @@ Base<F> Nrm2( const AbstractDistMatrix<F>& x )
 template<typename F>
 Base<F> Nrm2( const DistMultiVec<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )

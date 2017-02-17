@@ -11,10 +11,11 @@
 
 namespace El {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Min( const Matrix<Real>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Real* ABuf = A.LockedBuffer();
@@ -27,11 +28,12 @@ Real Min( const Matrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Min( const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
@@ -53,11 +55,12 @@ Real Min( const AbstractDistMatrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -81,11 +84,12 @@ Real SymmetricMin( UpperOrLower uplo, const Matrix<Real>& A )
     return value;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SymmetricMin( UpperOrLower uplo, const AbstractDistMatrix<Real>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )

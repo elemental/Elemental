@@ -1,22 +1,19 @@
 /*
-   Copyright 2009-2011, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
-   Copyright 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_FACTOR_LDL_SPARSE_NUMERIC_HPP
@@ -24,6 +21,8 @@
 
 #define EL_SUITESPARSE_NO_SCALAR_FUNCS
 #include <ElSuiteSparse/ldl.hpp>
+
+#include <El/lapack_like/factor/ldl/sparse/symbolic.hpp>
 
 namespace El {
 
@@ -62,13 +61,24 @@ struct MatrixNode
     Matrix<T> matrix;
     Matrix<T> work;
 
-    MatrixNode<T>* parent;
-    vector<MatrixNode<T>*> children;
-    DistMatrixNode<T>* duplicateMat;
-    DistMultiVecNode<T>* duplicateMV;
+    // An observing pointer to the parent (should it exist).
+    MatrixNode<T>* parent=nullptr;
+
+    // An observing pointer to the equivalent (trivially) 2D distributed node
+    // (should it exist).
+    DistMatrixNode<T>* duplicateMat=nullptr;
+
+    // An observing pointer to the equivalent (trivially) 1D distributed node
+    // (should it exist).
+    DistMultiVecNode<T>* duplicateMV=nullptr;
+
+    // Unique pointers to the children.
+    vector<unique_ptr<MatrixNode<T>>> children;
 
     MatrixNode( MatrixNode<T>* parentNode=nullptr );
+
     MatrixNode( DistMatrixNode<T>* dupNode );
+
     MatrixNode( DistMultiVecNode<T>* dupNode );
 
     MatrixNode
@@ -127,15 +137,21 @@ struct DistMultiVecNodeMeta
 // of the elimination tree
 template<typename T>
 struct DistMultiVecNode
-{   
+{
     DistMatrix<T,VC,STAR> matrix;
     DistMatrix<T,VC,STAR> work;
 
-    DistMultiVecNode<T>* parent;
-    DistMultiVecNode<T>* child;
-    MatrixNode<T>* duplicate;
+    // An observing pointer to the parent (should it exist).
+    DistMultiVecNode<T>* parent=nullptr;
 
-    mutable MultiVecCommMeta commMeta; 
+    // A unique pointer to the equivalent sequential node (should it exist).
+    unique_ptr<MatrixNode<T>> duplicate;
+
+    // A unique pointer to the child node shared by this process
+    // (should it exist).
+    unique_ptr<DistMultiVecNode<T>> child;
+
+    mutable MultiVecCommMeta commMeta;
 
     DistMultiVecNode( DistMultiVecNode<T>* parentNode=nullptr );
 
@@ -193,11 +209,17 @@ struct DistMatrixNode
     DistMatrix<T> matrix;
     DistMatrix<T> work;
 
-    DistMatrixNode<T>* parent;
-    DistMatrixNode<T>* child;
-    MatrixNode<T>* duplicate;
+    // An observing pointer to the parent node (should it exist).
+    DistMatrixNode<T>* parent=nullptr;
 
-    mutable MatrixCommMeta commMeta; 
+    // A unique pointer to the equivalent sequential node (should it exist).
+    unique_ptr<MatrixNode<T>> duplicate;
+
+    // A unique pointer to the child node shared by this process
+    // (should it exist).
+    unique_ptr<DistMatrixNode<T>> child;
+
+    mutable MatrixCommMeta commMeta;
 
     DistMatrixNode( DistMatrixNode<T>* parentNode=nullptr );
 
@@ -225,58 +247,66 @@ struct DistMatrixNode
 // (with the bottom-right piece stored in workspace) since only the left side
 // needs to be kept after the factorization is complete.
 
-template<typename F>
+template<typename Field>
 struct DistFront;
 
-template<typename F>
+template<typename Field>
 struct Front
 {
     bool isHermitian;
-    bool sparseLeaf;
+    bool sparseLeaf=false;
     LDLFrontType type;
 
-    Matrix<F> LDense;
-    SparseMatrix<F> LSparse;
+    Matrix<Field> LDense;
+    SparseMatrix<Field> LSparse;
 
-    Matrix<F> diag;
-    Matrix<F> subdiag;
+    Matrix<Field> diag;
+    Matrix<Field> subdiag;
     Permutation p;
 
-    Matrix<F> workDense;
-    SparseMatrix<F> workSparse;
+    Matrix<Field> workDense;
+    SparseMatrix<Field> workSparse;
 
-    Front<F>* parent;
-    vector<Front<F>*> children;
-    DistFront<F>* duplicate;
+    // An observing pointer for the parent front (should it exist).
+    Front<Field>* parent=nullptr;
 
-    Front( Front<F>* parentNode=nullptr );
-    Front( DistFront<F>* dupNode );
+    // An observing pointer for the duplicate distributed front
+    // (should it exist).
+    DistFront<Field>* duplicate=nullptr;
+
+    // Unique pointers to the child fronts (should they exist).
+    vector<unique_ptr<Front<Field>>> children;
+
+    Front( Front<Field>* parentNode=nullptr );
+
+    Front( DistFront<Field>* dupNode );
+
     Front
-    ( const SparseMatrix<F>& A,
+    ( const SparseMatrix<Field>& A,
       const vector<Int>& reordering,
       const NodeInfo& rootInfo,
-      bool conjugate=true );
+      bool hermitian=true );
 
     ~Front();
 
     void Pull
-    ( const SparseMatrix<F>& A,
-      const vector<Int>& reordering, 
+    ( const SparseMatrix<Field>& A,
+      const vector<Int>& reordering,
       const NodeInfo& rootInfo,
-      bool conjugate=true );
+      bool hermitian=true );
     void PullUpdate
-    ( const SparseMatrix<F>& A,
-      const vector<Int>& reordering, 
+    ( const SparseMatrix<Field>& A,
+      const vector<Int>& reordering,
       const NodeInfo& rootInfo );
 
     void Push
-    (       SparseMatrix<F>& A,
-      const vector<Int>& reordering, 
+    (       SparseMatrix<Field>& A,
+      const vector<Int>& reordering,
       const NodeInfo& rootInfo ) const;
 
-    void Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const;
+    void Unpack( SparseMatrix<Field>& A, const NodeInfo& rootInfo ) const;
 
-    const Front<F>& operator=( const Front<F>& front );
+    const Front<Field>& operator=( const Front<Field>& front );
 
     Int Height() const;
     Int NumEntries() const;
@@ -304,7 +334,7 @@ struct FactorCommMeta
 };
 void ComputeFactRecvInds( const DistNodeInfo& info );
 
-template<typename F>
+template<typename Field>
 struct DistFront
 {
     bool isHermitian;
@@ -313,59 +343,65 @@ struct DistFront
     // Split each front into a left and right piece such that the right piece
     // is not needed after the factorization (and can be freed).
 
-    // When this node is a duplicate of a sequential node, L1D or L2D will be 
+    // When this node is a duplicate of a sequential node, L1D or L2D will be
     // attached to the sequential L matrix of the duplicate
 
-    DistMatrix<F,VC,STAR> L1D;
-    DistMatrix<F> L2D;
+    DistMatrix<Field,VC,STAR> L1D;
+    DistMatrix<Field> L2D;
 
-    DistMatrix<F,VC,STAR> diag;
-    DistMatrix<F,VC,STAR> subdiag;
+    DistMatrix<Field,VC,STAR> diag;
+    DistMatrix<Field,VC,STAR> subdiag;
     DistPermutation p;
 
-    DistMatrix<F> work;
+    DistMatrix<Field> work;
     mutable FactorCommMeta commMeta;
 
-    DistFront<F>* parent;
-    DistFront<F>* child;
-    Front<F>* duplicate;
+    // An observing pointer to the parent node (should it exist).
+    DistFront<Field>* parent=nullptr;
 
-    DistFront( DistFront<F>* parentNode=nullptr );
+    // A unique pointer to the sequential duplicate front (should it exist).
+    unique_ptr<Front<Field>> duplicate;
+
+    // A unique pointer to the distributed child front shared by this process
+    // (should it exist).
+    unique_ptr<DistFront<Field>> child;
+
+    DistFront( DistFront<Field>* parentNode=nullptr );
 
     DistFront
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
-      bool conjugate=false );
+      bool hermitian=false );
 
     ~DistFront();
 
     void Pull
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
-      bool conjugate=false );
+      bool hermitian=false );
     // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
     void Pull
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
             vector<Int>& mappedSources,
             vector<Int>& mappedTargets,
             vector<Int>& colOffs,
-      bool conjugate=false );
+      bool hermitian=false );
 
     void PullUpdate
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info );
     // Allow the reuse of mapped{Sources,Targets}, which are expensive to form
     void PullUpdate
-    ( const DistSparseMatrix<F>& A,
+    ( const DistSparseMatrix<Field>& A,
       const DistMap& reordering,
       const DistSeparator& rootSep,
       const DistNodeInfo& info,
@@ -375,14 +411,14 @@ struct DistFront
 
     // NOTE: This routine is not yet functioning
     void Push
-    ( DistSparseMatrix<F>& A, const DistMap& reordering, 
+    ( DistSparseMatrix<Field>& A, const DistMap& reordering,
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
 
     void Unpack
-    ( DistSparseMatrix<F>& A, 
+    ( DistSparseMatrix<Field>& A,
       const DistSeparator& rootSep, const DistNodeInfo& rootInfo ) const;
 
-    const DistFront<F>& operator=( const DistFront<F>& front );
+    const DistFront<Field>& operator=( const DistFront<Field>& front );
 
     Int NumLocalEntries() const;
     Int NumTopLeftLocalEntries() const;
@@ -395,59 +431,252 @@ struct DistFront
     ( const DistNodeInfo& info, bool computeRecvInds ) const;
 };
 
-template<typename F>
-void ChangeFrontType( Front<F>& front, LDLFrontType type, bool recurse=true );
-template<typename F>
-void ChangeFrontType
-( DistFront<F>& front, LDLFrontType type, bool recurse=true );
-
-template<typename F>
-void DiagonalScale
-( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X );
-template<typename F>
-void DiagonalScale
-( const DistNodeInfo& info, const DistFront<F>& L, DistMultiVecNode<F>& X );
-template<typename F>
-void DiagonalScale
-( const DistNodeInfo& info, const DistFront<F>& L, DistMatrixNode<F>& X );
-
-template<typename F>
-void DiagonalSolve
-( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X );
-template<typename F>
-void DiagonalSolve
-( const DistNodeInfo& info, const DistFront<F>& front, DistMultiVecNode<F>& X );
-template<typename F>
-void DiagonalSolve
-( const DistNodeInfo& info, const DistFront<F>& L, DistMatrixNode<F>& X );
-
-template<typename F>
-void LowerSolve
-( Orientation orientation, const NodeInfo& info,
-  const Front<F>& L, MatrixNode<F>& X );
-template<typename F>
-void LowerSolve
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMultiVecNode<F>& X );
-template<typename F>
-void LowerSolve
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMatrixNode<F>& X );
-
-template<typename F>
-void LowerMultiply
-( Orientation orientation, const NodeInfo& info,
-  const Front<F>& L, MatrixNode<F>& X );
-template<typename F>
-void LowerMultiply
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMultiVecNode<F>& X );
-template<typename F>
-void LowerMultiply
-( Orientation orientation, const DistNodeInfo& info,
-  const DistFront<F>& L, DistMatrixNode<F>& X );
-
 } // namespace ldl
+
+template<typename Field>
+class SparseLDLFactorization
+{
+public:
+    SparseLDLFactorization();
+
+    // Find a reordering and initialize the frontal tree.
+    void Initialize
+    ( const SparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    // Avoid explicit calls to a graph partitioner by making use of analytic
+    // bisections of a grid graph.
+    //
+    // NOTE: These routines should *only* be called on lexicographically-ordered
+    // grid graphs.
+    void Initialize2DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      const SparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+    void Initialize3DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      Int gridDim2,
+      const SparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    // Re-initialize the multifrontal tree with a new sparse matrix which has
+    // the same nonzero pattern. Usually this is called after having factored
+    // with a different matrix (e.g., within an Interior Point Method).
+    void ChangeNonzeroValues( const SparseMatrix<Field>& ANew );
+
+    // Factor the initialized multifrontal tree.
+    void Factor( LDLFrontType frontType=LDL_2D );
+
+    // Change the storage format of the multifrontal tree. This can be called
+    // either before or after factorization.
+    void ChangeFrontType( LDLFrontType frontType );
+
+    // Overwrite 'B' with the solution to 'A X = B'.
+    void Solve( Matrix<Field>& B ) const;
+    void Solve( ldl::MatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with the solution to 'A X = B' using Iterative Refinement.
+    void SolveWithIterativeRefinement
+    ( const SparseMatrix<Field>& A,
+            Matrix<Field>& B,
+      const Base<Field>& relTolRefine,
+      Int maxRefineIts ) const;
+
+    // Overwrite 'B' with 'inv(L) B', 'inv(L)^T B', or 'inv(L)^H B'.
+    void SolveAgainstL
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void SolveAgainstL
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'L B', 'L^T B', or 'L^H B'.
+    void MultiplyWithL
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'inv(D) B', 'inv(D)^T B', or 'inv(D)^H B'.
+    void SolveAgainstD
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void SolveAgainstD
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'D B', 'D^T B', or 'D^H B'.
+    void MultiplyWithD
+    ( Orientation orientation, Matrix<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, ldl::MatrixNode<Field>& B ) const;
+
+    // TODO(poulson): Apply permutation?
+
+    bool Factored() const;
+
+    Int NumEntries() const;
+    Int NumTopLeftEntries() const;
+    Int NumBottomLeftEntries() const;
+    double FactorGFlops() const;
+    double SolveGFlops( Int numRHS=1 ) const;
+
+    ldl::Front<Field>& Front();
+    const ldl::Front<Field>& Front() const;
+
+    ldl::NodeInfo& NodeInfo();
+    const ldl::NodeInfo& NodeInfo() const;
+
+    ldl::Separator& Separator();
+    const ldl::Separator& Separator() const;
+
+    vector<Int>& Map();
+    const vector<Int>& Map() const;
+
+    vector<Int>& InverseMap();
+    const vector<Int>& InverseMap() const;
+    
+private:
+    bool initialized_=false;
+    bool factored_=false;
+    unique_ptr<ldl::Front<Field>> front_;
+    unique_ptr<ldl::NodeInfo> info_;
+    unique_ptr<ldl::Separator> separator_;
+
+    vector<Int> map_, inverseMap_;
+};
+
+template<typename Field>
+class DistSparseLDLFactorization
+{
+public:
+    DistSparseLDLFactorization();
+
+    // Find a reordering and initialize the frontal tree.
+    void Initialize
+    ( const DistSparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    // Avoid explicit calls to a graph partitioner by making use of analytic
+    // bisections of a grid graph.
+    //
+    // NOTE: These routines should *only* be called on lexicographically-ordered
+    // grid graphs.
+    void Initialize2DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      const DistSparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+    void Initialize3DGridGraph
+    ( Int gridDim0,
+      Int gridDim1,
+      Int gridDim2,
+      const DistSparseMatrix<Field>& A,
+            bool hermitian=true,
+      const BisectCtrl& bisectCtrl=BisectCtrl() );
+
+    // Re-initialize the multifrontal tree with a new sparse matrix which has
+    // the same nonzero pattern. Usually this is called after having factored
+    // with a different matrix (e.g., within an Interior Point Method).
+    void ChangeNonzeroValues( const DistSparseMatrix<Field>& ANew );
+
+    // Factor the initialized multifrontal tree.
+    void Factor( LDLFrontType frontType=LDL_2D );
+
+    // Change the storage format of the multifrontal tree. This can be called
+    // either before or after factorization.
+    void ChangeFrontType( LDLFrontType frontType );
+
+    // Overwrite 'B' with the solution to 'A X = B'.
+    void Solve( DistMultiVec<Field>& B ) const;
+    void Solve( ldl::DistMultiVecNode<Field>& B ) const;
+    void Solve( ldl::DistMatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with the solution to 'A X = B' using Iterative Refinement.
+    void SolveWithIterativeRefinement
+    ( const DistSparseMatrix<Field>& A,
+            DistMultiVec<Field>& B,
+      const Base<Field>& relTolRefine,
+      Int maxRefineIts ) const;
+
+    // Overwrite 'B' with 'inv(L) B', 'inv(L)^T B', or 'inv(L)^H B'.
+    void SolveAgainstL
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void SolveAgainstL
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void SolveAgainstL
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'L B', 'L^T B', or 'L^H B'.
+    void MultiplyWithL
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void MultiplyWithL
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'inv(D) B', 'inv(D)^T B', or 'inv(D)^H B'.
+    void SolveAgainstD
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void SolveAgainstD
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void SolveAgainstD
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // Overwrite 'B' with 'D B', 'D^T B', or 'D^H B'.
+    void MultiplyWithD
+    ( Orientation orientation, DistMultiVec<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, ldl::DistMultiVecNode<Field>& B ) const;
+    void MultiplyWithD
+    ( Orientation orientation, ldl::DistMatrixNode<Field>& B ) const;
+
+    // TODO(poulson): Apply permutation?
+
+    bool Factored() const;
+
+    Int NumLocalEntries() const;
+    Int NumTopLeftLocalEntries() const;
+    Int NumBottomLeftLocalEntries() const;
+    double LocalFactorGFlops( bool selInv=false ) const;
+    double LocalSolveGFlops( Int numRHS=1 ) const;
+
+    ldl::DistFront<Field>& Front();
+    const ldl::DistFront<Field>& Front() const;
+
+    ldl::DistNodeInfo& NodeInfo();
+    const ldl::DistNodeInfo& NodeInfo() const;
+
+    ldl::DistSeparator& Separator();
+    const ldl::DistSeparator& Separator() const;
+
+    DistMap& Map();
+    const DistMap& Map() const;
+
+    DistMap& InverseMap();
+    const DistMap& InverseMap() const;
+
+    ldl::DistMultiVecNodeMeta& DistMultiVecNodeMeta() const;
+
+private:
+    bool initialized_=false;
+    bool factored_=false;
+    unique_ptr<ldl::DistFront<Field>> front_;
+    unique_ptr<ldl::DistNodeInfo> info_;
+    unique_ptr<ldl::DistSeparator> separator_;
+
+    DistMap map_, inverseMap_;
+
+    // Metadata for repeated calls to DistFront<Field>::Pull
+    mutable bool formedPullMetadata_=false;
+    mutable vector<Int> mappedSources_, mappedTargets_, columnOffsets_;
+
+    // Metadata for future use.
+    mutable ldl::DistMultiVecNodeMeta dmvMeta_;
+};
+
 } // namespace El
 
 #endif // ifndef EL_FACTOR_LDL_SPARSE_NUMERIC_HPP

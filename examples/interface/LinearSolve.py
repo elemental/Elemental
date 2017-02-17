@@ -57,7 +57,7 @@ if output:
 
 yNrm = El.Nrm2(y)
 if worldRank == 0:
-  print "|| y ||_2 =", yNrm
+  print('|| y ||_2 = {}'.format(yNrm))
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.scaleTwoNorm = True
@@ -65,23 +65,23 @@ ctrl.basisSize = 15
 ctrl.alpha = 1e-5
 ctrl.equilibrate = True
 ctrl.progress = True
-ctrl.solveCtrl.alg = El.REG_REFINE_FGMRES
-ctrl.solveCtrl.relTol = 1e-12
-ctrl.solveCtrl.relTolRefine = 1e-18
-ctrl.solveCtrl.progress = True
+ctrl.sqsdCtrl.solveCtrl.alg = El.REG_SOLVE_FGMRES
+ctrl.sqsdCtrl.solveCtrl.relTol = 1e-12
+ctrl.sqsdCtrl.solveCtrl.relTolRefine = 1e-18
+ctrl.sqsdCtrl.solveCtrl.progress = True
 
 solveStart = El.mpi.Time()
 El.LinearSolve(A,x,ctrl)
 solveStop = El.mpi.Time()
 if worldRank == 0:
-  print "LinearSolve time:", solveStop-solveStart, "seconds"
+  print('LinearSolve time: {} seconds'.format(solveStop-solveStart))
 if display:
   El.Display( x, "x" )
 if output:
   El.Print( x, "x" )
 xNrm = El.Nrm2(x)
 if worldRank == 0:
-  print "|| x ||_2 =", xNrm
+  print('|| x ||_2 = {}'.format(xNrm))
 
 El.Multiply(El.NORMAL,-1.,A,x,1.,y)
 if display:
@@ -90,10 +90,7 @@ if output:
   El.Print( y, "A x - y" )
 eNrm = El.Nrm2(y)
 if worldRank == 0:
-  print "|| y ||_2 =", yNrm
-  print "|| A x - y ||_2 / || y ||_2 =", eNrm/yNrm
+  print('|| y ||_2 = {}'.format(yNrm))
+  print('|| A x - y ||_2 / || y ||_2 = {}'.format(eNrm/yNrm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

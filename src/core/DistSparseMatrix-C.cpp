@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -14,8 +14,8 @@ extern "C" {
 
 #define C_PROTO(SIG,SIGBASE,T) \
   ElError ElDistSparseMatrixCreate_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG * A, MPI_Comm comm ) \
-  { EL_TRY( *A = CReflect( new DistSparseMatrix<T>(mpi::Comm(comm)) ) ) } \
+  ( ElDistSparseMatrix_ ## SIG * A, ElConstGrid grid ) \
+  { EL_TRY( *A = CReflect( new DistSparseMatrix<T>(*CReflect(grid)) ) ) } \
   ElError ElDistSparseMatrixDestroy_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A ) \
   { EL_TRY( delete CReflect(A) ) } \
@@ -24,9 +24,9 @@ extern "C" {
   ElError ElDistSparseMatrixResize_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, ElInt height, ElInt width ) \
   { EL_TRY( CReflect(A)->Resize(height,width) ) } \
-  ElError ElDistSparseMatrixSetComm_ ## SIG \
-  ( ElDistSparseMatrix_ ## SIG A, MPI_Comm comm ) \
-  { EL_TRY( CReflect(A)->SetComm(mpi::Comm(comm)) ) } \
+  ElError ElDistSparseMatrixSetGrid_ ## SIG \
+  ( ElDistSparseMatrix_ ## SIG A, ElConstGrid grid ) \
+  { EL_TRY( CReflect(A)->SetGrid(*CReflect(grid)) ) } \
   ElError ElDistSparseMatrixReserve_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, \
     ElInt numLocalEntries, ElInt numRemoteEntries ) \
@@ -92,9 +92,9 @@ extern "C" {
   ElError ElDistSparseMatrixLocallyConsistent_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, bool* consistent ) \
   { EL_TRY( *consistent = CReflect(A)->LocallyConsistent() ) } \
-  ElError ElDistSparseMatrixComm_ ## SIG \
-  ( ElConstDistSparseMatrix_ ## SIG A, MPI_Comm* comm ) \
-  { EL_TRY( *comm = CReflect(A)->Comm().comm ) } \
+  ElError ElDistSparseMatrixGrid_ ## SIG \
+  ( ElConstDistSparseMatrix_ ## SIG A, ElConstGrid* grid ) \
+  { EL_TRY( *grid = CReflect(&CReflect(A)->Grid()) ) } \
   ElError ElDistSparseMatrixBlocksize_ ## SIG \
   ( ElConstDistSparseMatrix_ ## SIG A, ElInt* blocksize ) \
   { EL_TRY( *blocksize = CReflect(A)->Blocksize() ) } \

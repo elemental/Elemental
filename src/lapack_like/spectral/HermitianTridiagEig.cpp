@@ -59,7 +59,7 @@ template<typename Real>
 void SortAndFilter
 ( AbstractDistMatrix<Real>& wPre, const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
     auto& w = wProx.Get();
@@ -164,7 +164,7 @@ void SortAndFilter
   AbstractDistMatrix<F>& QPre,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
@@ -237,7 +237,7 @@ void RemovePhase
 ( const Matrix<Complex<Real>>& dSub,
         Matrix<Real>& dSubReal )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = dSub.Height() + 1;
     dSubReal.Resize( n-1, 1 );
     Complex<Real> phaseLast(1);
@@ -258,7 +258,7 @@ void RemovePhase
 ( const DistMatrix<Complex<Real>,STAR,STAR>& dSub,
         DistMatrix<Real,STAR,STAR>& dSubReal )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = dSub.Height() + 1;
     const Grid& g = dSub.Grid();
     dSubReal.SetGrid( g );
@@ -272,7 +272,7 @@ void RemovePhase
         Matrix<Real>& dSubReal,
         Matrix<Complex<Real>>& phase )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = dSub.Height() + 1;
     dSubReal.Resize( n-1, 1 );
     phase.Resize( n, 1 );
@@ -295,7 +295,7 @@ void RemovePhase
         DistMatrix<Real,STAR,STAR>& dSubReal,
         DistMatrix<Complex<Real>,STAR,STAR>& phase )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = dSub.Height() + 1;
     const Grid& g = dSub.Grid();
     dSubReal.SetGrid( g );
@@ -313,7 +313,7 @@ QRHelper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     w = d;    
     info.qrInfo = QRAlg( w, dSub, ctrl );
@@ -329,7 +329,7 @@ DCHelper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     auto ctrlMod( ctrl );
     ctrlMod.wantEigVecs = false;
@@ -347,7 +347,7 @@ LAPACKHelper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     HermitianTridiagEigInfo info;
 
@@ -384,7 +384,7 @@ Helper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         // Only dSub needs to be modifiable
@@ -411,7 +411,7 @@ Helper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         // Only dSub needs to be modifiable
@@ -434,7 +434,7 @@ Helper
         Matrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Avoid making another copy of dSubReal later
     Matrix<Real> dSubReal;
     RemovePhase( dSub, dSubReal );
@@ -451,7 +451,7 @@ HermitianTridiagEig
         Matrix<Base<F>>& w,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return herm_tridiag_eig::Helper( d, dSub, w, ctrl );
 }
 
@@ -465,7 +465,7 @@ QRHelper
         AbstractDistMatrix<Real>& w, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
     info.qrInfo = QRAlg( d_STAR_STAR, dSub_STAR_STAR, ctrl );
@@ -482,7 +482,7 @@ QRHelper
         AbstractDistMatrix<Real         >& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     const Grid& g = d.Grid();
 
@@ -507,7 +507,7 @@ DCHelper
         AbstractDistMatrix<Real>& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
 
@@ -532,7 +532,7 @@ DCHelper
         AbstractDistMatrix<Real         >& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     const Grid& g = d.Grid();
 
@@ -563,7 +563,7 @@ MRRRHelper
         AbstractDistMatrix<Real>& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
 
     ElementalProxyCtrl wCtrl;
@@ -614,7 +614,7 @@ Helper
         AbstractDistMatrix<Real>& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, wPre, ctrl );
@@ -637,7 +637,7 @@ Helper
         AbstractDistMatrix<Real>& w, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, ctrl );
@@ -656,7 +656,7 @@ MRRRHelper
         AbstractDistMatrix<Real         >& wPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
 
     ElementalProxyCtrl wCtrl;
@@ -719,7 +719,7 @@ Helper
         AbstractDistMatrix<Real         >& wPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, wPre, ctrl );
@@ -742,7 +742,7 @@ Helper
         AbstractDistMatrix<Real         >& w, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, ctrl );
@@ -763,7 +763,7 @@ HermitianTridiagEig
         AbstractDistMatrix<Base<F>>& w, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return herm_tridiag_eig::Helper( d, dSub, w, ctrl );
 }
 
@@ -781,7 +781,7 @@ QRHelper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     w = d;    
     info.qrInfo = QRAlg( w, dSub, Q, ctrl );
@@ -798,7 +798,7 @@ DCHelper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     if( ctrl.accumulateEigVecs )
     {
@@ -821,7 +821,7 @@ LAPACKHelper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.accumulateEigVecs )
         LogicError("Accumulation not yet supported for LAPACK wrapper");
     const Int n = d.Height();
@@ -872,7 +872,7 @@ Helper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         // Only dSub needs to be modified
@@ -903,7 +903,7 @@ Helper
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         // Only dSub needs to be modified
@@ -956,7 +956,7 @@ HermitianTridiagEig
         Matrix<F>& Q, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return herm_tridiag_eig::Helper( d, dSub, w, Q, ctrl );
 }
 
@@ -971,7 +971,7 @@ QRHelper
         AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
 
@@ -1004,7 +1004,7 @@ QRHelper
         AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> F;
     const Grid& g = d.Grid();
     HermitianTridiagEigInfo info;
@@ -1052,7 +1052,7 @@ DCHelper
         AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     DistMatrix<Real,STAR,STAR> d_STAR_STAR(d), dSub_STAR_STAR(dSub);
 
@@ -1084,7 +1084,7 @@ DCHelper
         AbstractDistMatrix<Complex<Real>>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> F;
     const Grid& g = d.Grid();
     HermitianTridiagEigInfo info;
@@ -1102,7 +1102,6 @@ DCHelper
     }
     else
     {
-        const Int n = d.Height();
         DistMatrix<Real,MC,MR> QReal(g);
 
         DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
@@ -1129,7 +1128,7 @@ MRRRHelper
         AbstractDistMatrix<Real>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: The computation forces double-precision due to PMRRR limitations
     const Int n = d.Height();
     const Grid& g = d.Grid();
@@ -1209,7 +1208,7 @@ MRRRHelper
         AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: The computation forces double-precision due to PMRRR limitations
     const Int n = d.Height();
     const Grid& g = d.Grid();
@@ -1302,7 +1301,7 @@ Helper
         AbstractDistMatrix<Real>& Q, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, Q, ctrl );
@@ -1326,7 +1325,7 @@ Helper
         AbstractDistMatrix<Real>& Q, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, Q, ctrl );
@@ -1346,7 +1345,7 @@ Helper
         AbstractDistMatrix<Complex<Real>>& Q, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, Q, ctrl );
@@ -1370,7 +1369,7 @@ Helper
         AbstractDistMatrix<Complex<Real>>& QPre, 
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.alg == HERM_TRIDIAG_EIG_QR )
     {
         return QRHelper( d, dSub, w, QPre, ctrl );
@@ -1392,7 +1391,7 @@ HermitianTridiagEig
         AbstractDistMatrix<F>& Q, 
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return herm_tridiag_eig::Helper( d, dSub, w, Q, ctrl );
 }
 
@@ -1406,7 +1405,7 @@ Int MRRREstimateHelper
         Real vl,
         Real vu )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     DistMatrix<double,STAR,STAR> d_STAR_STAR( d.Grid() );
     DistMatrix<double,STAR,STAR> dSub_STAR_STAR( d.Grid() );
@@ -1430,7 +1429,7 @@ Int MRRREstimateHelper
         Real vl,
         Real vu )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("MRRREstimate not yet supported for nonstandard datatypes");
     return 0;
 }
@@ -1447,7 +1446,7 @@ MRRRPostEstimateHelper
         Real vl,
         Real vu )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
 
     ElementalProxyCtrl wCtrl, QCtrl;
@@ -1500,7 +1499,7 @@ MRRRPostEstimateHelper
         Real vl,
         Real vu )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError
     ("HermitianTridiagEigEstimate not yet supported for nonstandard datatypes");
     HermitianTridiagEigInfo info;
@@ -1515,7 +1514,7 @@ Int MRRREstimate
         Real vl,
         Real vu )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return MRRREstimateHelper( d, dSub, wColComm, vl, vu );
 }
 
@@ -1531,7 +1530,7 @@ MRRRPostEstimate
         Real vl,
         Real vu )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return MRRRPostEstimateHelper( d, dSub, w, Q, sort, vl, vu );
 }
 

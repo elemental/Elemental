@@ -24,8 +24,8 @@ void Symv
         Matrix<T>& y,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -67,8 +67,8 @@ void Symv
   bool conjugate,
   const SymvCtrl<T>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, x, yPre );
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");

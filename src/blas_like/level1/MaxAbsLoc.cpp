@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -11,21 +11,21 @@
 
 namespace El {
 
-// TODO: Add options for OneAbs instead of Abs
+// TODO(poulson): Add options for OneAbs instead of Abs
 
-template<typename T>
-ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
+template<typename Ring>
+ValueInt<Base<Ring>> VectorMaxAbsLoc( const Matrix<Ring>& x )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
     )
 
-    ValueInt<Real> pivot;
+    ValueInt<RealRing> pivot;
     if( Min(m,n) == 0 )
     {
         pivot.value = 0;
@@ -39,7 +39,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real absVal = Abs(x.Get(i,0));
+            const RealRing absVal = Abs(x(i));
             if( absVal > pivot.value )
             {
                 pivot.index = i;
@@ -51,7 +51,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
     {
         for( Int j=0; j<n; ++j )
         {
-            const Real absVal = Abs(x.Get(0,j));
+            const RealRing absVal = Abs(x(0,j));
             if( absVal > pivot.value )
             {
                 pivot.index = j;
@@ -62,20 +62,20 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const Matrix<T>& x )
     return pivot;
 }
 
-template<typename T>
-ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
+template<typename Ring>
+ValueInt<Base<Ring>> VectorMaxAbsLoc( const AbstractDistMatrix<Ring>& x )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         if( m != 1 && n != 1 )
             LogicError("Input should have been a vector");
         if( !x.Grid().InGrid() )
             LogicError("Viewing processes are not allowed");
     )
-    ValueInt<Real> pivot;
+    ValueInt<RealRing> pivot;
     if( Min(m,n) == 0 )
     {
         pivot.index = -1;
@@ -85,7 +85,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
 
     if( x.Participating() )
     {
-        ValueInt<Real> localPivot;
+        ValueInt<RealRing> localPivot;
         localPivot.index = 0;
         localPivot.value = 0;
         if( n == 1 )
@@ -95,7 +95,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
                 const Int mLocal = x.LocalHeight();
                 for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                 {
-                    const Real absVal = Abs(x.GetLocal(iLoc,0));
+                    const RealRing absVal = Abs(x.GetLocal(iLoc,0));
                     if( absVal > localPivot.value )
                     {
                         localPivot.index = x.GlobalRow(iLoc);
@@ -111,7 +111,7 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
                 const Int nLocal = x.LocalWidth();
                 for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                 {
-                    const Real absVal = Abs(x.GetLocal(0,jLoc));
+                    const RealRing absVal = Abs(x.GetLocal(0,jLoc));
                     if( absVal > localPivot.value )
                     {
                         localPivot.index = x.GlobalCol(jLoc);
@@ -121,21 +121,21 @@ ValueInt<Base<T>> VectorMaxAbsLoc( const AbstractDistMatrix<T>& x )
             }
         }
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MaxLocOp<Real>(), x.DistComm() );
+                ( localPivot, mpi::MaxLocOp<RealRing>(), x.DistComm() );
     }
     mpi::Broadcast( pivot, x.Root(), x.CrossComm() );
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> MaxAbsLoc( const Matrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> MaxAbsLoc( const Matrix<Ring>& A )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     const Int m = A.Height();
     const Int n = A.Width();
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( Min(m,n) == 0 )
     {
         pivot.i = -1;
@@ -151,7 +151,7 @@ Entry<Base<T>> MaxAbsLoc( const Matrix<T>& A )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real absVal = Abs(A.Get(i,j));
+            const RealRing absVal = Abs(A(i,j));
             if( absVal > pivot.value )
             {
                 pivot.i = i;
@@ -163,16 +163,16 @@ Entry<Base<T>> MaxAbsLoc( const Matrix<T>& A )
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> MaxAbsLoc( const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    typedef Base<T> Real;
-    Entry<Real> pivot;
+    typedef Base<Ring> RealRing;
+    Entry<RealRing> pivot;
     if( A.Height() == 0 )
     {
         pivot.i = -1;
@@ -184,7 +184,7 @@ Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
     if( A.Participating() )
     {
         // Store the index/value of the local pivot candidate
-        Entry<Real> localPivot;
+        Entry<RealRing> localPivot;
         localPivot.i = 0;
         localPivot.j = 0;
         localPivot.value = 0;
@@ -195,7 +195,7 @@ Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
             const Int j = A.GlobalCol(jLoc);
             for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
-                const Real value = Abs(A.GetLocal(iLoc,jLoc));
+                const RealRing value = Abs(A.GetLocal(iLoc,jLoc));
                 if( value > localPivot.value )
                 {
                     const Int i = A.GlobalRow(iLoc);
@@ -208,19 +208,19 @@ Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& A )
 
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
+                ( localPivot, mpi::MaxLocPairOp<RealRing>(), A.DistComm() );
     }
     mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> MaxAbsLoc( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( A.Height() == 0 || A.Width() == 0 )
     {
         pivot.i = -1;
@@ -237,7 +237,7 @@ Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& A )
     {
         const Int i = A.Row(e);
         const Int j = A.Col(e);
-        const Real absVal = Abs(A.Value(e));
+        const RealRing absVal = Abs(A.Value(e));
         if( absVal > pivot.value )
         {
             pivot.i = i;
@@ -248,13 +248,13 @@ Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& A )
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> MaxAbsLoc( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( A.Height() == 0 || A.Width() == 0 )
     {
         pivot.i = -1;
@@ -271,7 +271,7 @@ Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& A )
     {
         const Int i = A.Row( e );
         const Int j = A.Col( e );
-        const Real absVal = Abs(A.Value( e ));
+        const RealRing absVal = Abs(A.Value( e ));
         if( absVal > pivot.value )
         {
             pivot.i = i;
@@ -279,21 +279,22 @@ Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& A )
             pivot.value = absVal;
         }
     }
-    return mpi::AllReduce( pivot, mpi::MaxLocPairOp<Real>(), A.Comm() );
+    return mpi::AllReduce
+      ( pivot, mpi::MaxLocPairOp<RealRing>(), A.Grid().Comm() );
 }
 
-template<typename T>
-Entry<Base<T>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
-    typedef Base<T> Real;
+    typedef Base<Ring> RealRing;
     const Int n = A.Width();
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( n == 0 )
     {
         pivot.i = -1;
@@ -311,7 +312,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<T>& A )
         {
             for( Int i=j; i<n; ++i )
             {
-                const Real absVal = Abs(A.Get(i,j));
+                const RealRing absVal = Abs(A(i,j));
                 if( absVal > pivot.value )
                 {
                     pivot.i = i;
@@ -324,7 +325,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<T>& A )
         {
             for( Int i=0; i<=j; ++i )
             {
-                const Real absVal = Abs(A.Get(i,j));
+                const RealRing absVal = Abs(A(i,j));
                 if( absVal > pivot.value )
                 {
                     pivot.i = i;
@@ -337,22 +338,22 @@ Entry<Base<T>> SymmetricMaxAbsLoc( UpperOrLower uplo, const Matrix<T>& A )
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> SymmetricMaxAbsLoc
-( UpperOrLower uplo, const AbstractDistMatrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> SymmetricMaxAbsLoc
+( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    typedef Base<T> Real;
+    typedef Base<Ring> RealRing;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( A.Height() == 0 )
     {
         pivot.i = -1;
@@ -363,7 +364,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc
 
     if( A.Participating() )
     {
-        Entry<Real> localPivot;
+        Entry<RealRing> localPivot;
         localPivot.i = 0;
         localPivot.j = 0;
         localPivot.value = 0;
@@ -376,7 +377,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc
                 const Int mLocBefore = A.LocalRowOffset(j);
                 for( Int iLoc=mLocBefore; iLoc<mLocal; ++iLoc )
                 {
-                    const Real absVal = Abs(A.GetLocal(iLoc,jLoc));
+                    const RealRing absVal = Abs(A.GetLocal(iLoc,jLoc));
                     if( absVal > localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
@@ -391,7 +392,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc
                 const Int mLocBefore = A.LocalRowOffset(j+1);
                 for( Int iLoc=0; iLoc<mLocBefore; ++iLoc )
                 {
-                    const Real absVal = Abs(A.GetLocal(iLoc,jLoc));
+                    const RealRing absVal = Abs(A.GetLocal(iLoc,jLoc));
                     if( absVal > localPivot.value )
                     {
                         const Int i = A.GlobalRow(iLoc);
@@ -405,20 +406,20 @@ Entry<Base<T>> SymmetricMaxAbsLoc
 
         // Compute and store the location of the new pivot
         pivot = mpi::AllReduce
-                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
+                ( localPivot, mpi::MaxLocPairOp<RealRing>(), A.DistComm() );
     }
     mpi::Broadcast( pivot, A.Root(), A.CrossComm() );
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> SymmetricMaxAbsLoc
-( UpperOrLower uplo, const SparseMatrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> SymmetricMaxAbsLoc
+( UpperOrLower uplo, const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( A.Height() == 0 || A.Width() == 0 )
     {
         pivot.i = -1;
@@ -435,7 +436,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc
     {
         const Int i = A.Row( e );
         const Int j = A.Col( e );
-        const Real absVal = Abs(A.Value( e ));
+        const RealRing absVal = Abs(A.Value( e ));
         const bool valid = ( uplo==LOWER ? i>=j : i<=j );
         if( valid && absVal > pivot.value )
         {
@@ -447,14 +448,14 @@ Entry<Base<T>> SymmetricMaxAbsLoc
     return pivot;
 }
 
-template<typename T>
-Entry<Base<T>> SymmetricMaxAbsLoc
-( UpperOrLower uplo, const DistSparseMatrix<T>& A )
+template<typename Ring>
+Entry<Base<Ring>> SymmetricMaxAbsLoc
+( UpperOrLower uplo, const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    typedef Base<T> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
 
-    Entry<Real> pivot;
+    Entry<RealRing> pivot;
     if( A.Height() == 0 || A.Width() == 0 )
     {
         pivot.i = -1;
@@ -471,7 +472,7 @@ Entry<Base<T>> SymmetricMaxAbsLoc
     {
         const Int i = A.Row( e );
         const Int j = A.Col( e );
-        const Real absVal = Abs(A.Value( e ));
+        const RealRing absVal = Abs(A.Value( e ));
         const bool valid = ( uplo==LOWER ? i>=j : i<=j );
         if( valid && absVal > pivot.value )
         {
@@ -480,26 +481,27 @@ Entry<Base<T>> SymmetricMaxAbsLoc
             pivot.value = absVal;
         }
     }
-    return mpi::AllReduce( pivot, mpi::MaxLocPairOp<Real>(), A.Comm() );
+    return mpi::AllReduce
+      ( pivot, mpi::MaxLocPairOp<RealRing>(), A.Grid().Comm() );
 }
 
-#define PROTO(T) \
-  template ValueInt<Base<T>> VectorMaxAbsLoc \
-  ( const Matrix<T>& x ); \
-  template ValueInt<Base<T>> VectorMaxAbsLoc \
-  ( const AbstractDistMatrix<T>& x ); \
-  template Entry<Base<T>> MaxAbsLoc( const Matrix<T>& x ); \
-  template Entry<Base<T>> MaxAbsLoc( const AbstractDistMatrix<T>& x ); \
-  template Entry<Base<T>> MaxAbsLoc( const SparseMatrix<T>& x ); \
-  template Entry<Base<T>> MaxAbsLoc( const DistSparseMatrix<T>& x ); \
-  template Entry<Base<T>> SymmetricMaxAbsLoc \
-  ( UpperOrLower uplo, const Matrix<T>& A ); \
-  template Entry<Base<T>> SymmetricMaxAbsLoc \
-  ( UpperOrLower uplo, const AbstractDistMatrix<T>& A ); \
-  template Entry<Base<T>> SymmetricMaxAbsLoc \
-  ( UpperOrLower uplo, const SparseMatrix<T>& x ); \
-  template Entry<Base<T>> SymmetricMaxAbsLoc \
-  ( UpperOrLower uplo, const DistSparseMatrix<T>& x );
+#define PROTO(Ring) \
+  template ValueInt<Base<Ring>> VectorMaxAbsLoc \
+  ( const Matrix<Ring>& x ); \
+  template ValueInt<Base<Ring>> VectorMaxAbsLoc \
+  ( const AbstractDistMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> MaxAbsLoc( const Matrix<Ring>& x ); \
+  template Entry<Base<Ring>> MaxAbsLoc( const AbstractDistMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> MaxAbsLoc( const SparseMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> MaxAbsLoc( const DistSparseMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> SymmetricMaxAbsLoc \
+  ( UpperOrLower uplo, const Matrix<Ring>& A ); \
+  template Entry<Base<Ring>> SymmetricMaxAbsLoc \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A ); \
+  template Entry<Base<Ring>> SymmetricMaxAbsLoc \
+  ( UpperOrLower uplo, const SparseMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> SymmetricMaxAbsLoc \
+  ( UpperOrLower uplo, const DistSparseMatrix<Ring>& x );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

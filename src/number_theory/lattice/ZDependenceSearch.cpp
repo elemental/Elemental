@@ -1,24 +1,27 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   Copyright (c) 2016, Ron Estrin
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
+template<typename Field>
 Int ZDependenceSearch
-( const Matrix<F>& z,
-        Base<F> NSqrt,
-        Matrix<F>& B,
-        Matrix<F>& U,
-  const LLLCtrl<Base<F>>& ctrl )
+( const Matrix<Field>& z,
+        Base<Field> NSqrt,
+        Matrix<Field>& B,
+        Matrix<Field>& U,
+  const LLLCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( z.Width() != 1 )
         LogicError("z was assumed to be a column vector");
 
@@ -30,19 +33,19 @@ Int ZDependenceSearch
     Transpose( z, bLastRow );
     Scale( NSqrt, bLastRow );
 
-    Matrix<F> R;
+    Matrix<Field> R;
     auto info = LLL( B, U, R, ctrl );
 
     return info.nullity;
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template Int ZDependenceSearch \
-  ( const Matrix<F>& z, \
-          Base<F> NSqrt, \
-          Matrix<F>& B, \
-          Matrix<F>& U, \
-    const LLLCtrl<Base<F>>& ctrl );
+  ( const Matrix<Field>& z, \
+          Base<Field> NSqrt, \
+          Matrix<Field>& B, \
+          Matrix<Field>& U, \
+    const LLLCtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

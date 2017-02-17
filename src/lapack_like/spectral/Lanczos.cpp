@@ -2,118 +2,118 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
+template<typename Field>
 void Lanczos
-( const SparseMatrix<F>& A,
-        Matrix<Base<F>>& T,
+( const SparseMatrix<Field>& A,
+        Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
-    
+
     auto applyA =
-      [&]( const Matrix<F>& X, Matrix<F>& Y )
+      [&]( const Matrix<Field>& X, Matrix<Field>& Y )
       {
           Zeros( Y, n, X.Width() );
-          Multiply( NORMAL, F(1), A, X, F(0), Y );
+          Multiply( NORMAL, Field(1), A, X, Field(0), Y );
       };
-    Lanczos<F>( n, applyA, T, basisSize );
+    Lanczos<Field>( n, applyA, T, basisSize );
 }
 
-template<typename F>
-Base<F> LanczosDecomp
-( const SparseMatrix<F>& A,
-        Matrix<F>& V, 
-        Matrix<Base<F>>& T,
-        Matrix<F>& v,
+template<typename Field>
+Base<Field> LanczosDecomp
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& V,
+        Matrix<Base<Field>>& T,
+        Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
 
     auto applyA =
-      [&]( const Matrix<F>& X, Matrix<F>& Y )
+      [&]( const Matrix<Field>& X, Matrix<Field>& Y )
       {
           Zeros( Y, n, X.Width() );
-          Multiply( NORMAL, F(1), A, X, F(0), Y );
+          Multiply( NORMAL, Field(1), A, X, Field(0), Y );
       };
     return LanczosDecomp( n, applyA, V, T, v, basisSize );
 }
 
-template<typename F>
+template<typename Field>
 void Lanczos
-( const DistSparseMatrix<F>& A,
-        ElementalMatrix<Base<F>>& T,
+( const DistSparseMatrix<Field>& A,
+        AbstractDistMatrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
 
     auto applyA =
-      [&]( const DistMultiVec<F>& X, DistMultiVec<F>& Y )
+      [&]( const DistMultiVec<Field>& X, DistMultiVec<Field>& Y )
       {
           Zeros( Y, n, X.Width() );
-          Multiply( NORMAL, F(1), A, X, F(0), Y );
+          Multiply( NORMAL, Field(1), A, X, Field(0), Y );
       };
-    Lanczos<F>( n, applyA, T, basisSize );
+    Lanczos<Field>( n, applyA, T, basisSize );
 }
 
-template<typename F>
-Base<F> LanczosDecomp
-( const DistSparseMatrix<F>& A,
-        DistMultiVec<F>& V, 
-        ElementalMatrix<Base<F>>& T,
-        DistMultiVec<F>& v,
+template<typename Field>
+Base<Field> LanczosDecomp
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& V,
+        AbstractDistMatrix<Base<Field>>& T,
+        DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Height();
     if( n != A.Width() )
         LogicError("A was not square");
 
     auto applyA =
-      [&]( const DistMultiVec<F>& X, DistMultiVec<F>& Y )
+      [&]( const DistMultiVec<Field>& X, DistMultiVec<Field>& Y )
       {
           Zeros( Y, n, X.Width() );
-          Multiply( NORMAL, F(1), A, X, F(0), Y );
+          Multiply( NORMAL, Field(1), A, X, Field(0), Y );
       };
     return LanczosDecomp( n, applyA, V, T, v, basisSize );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void Lanczos \
-  ( const SparseMatrix<F>& A, \
-          Matrix<Base<F>>& T, \
+  ( const SparseMatrix<Field>& A, \
+          Matrix<Base<Field>>& T, \
           Int basisSize ); \
   template void Lanczos \
-  ( const DistSparseMatrix<F>& A, \
-          ElementalMatrix<Base<F>>& T, \
+  ( const DistSparseMatrix<Field>& A, \
+          AbstractDistMatrix<Base<Field>>& T, \
           Int basisSize ); \
-  template Base<F> LanczosDecomp \
-  ( const SparseMatrix<F>& A, \
-          Matrix<F>& V, \
-          Matrix<Base<F>>& T, \
-          Matrix<F>& v, \
+  template Base<Field> LanczosDecomp \
+  ( const SparseMatrix<Field>& A, \
+          Matrix<Field>& V, \
+          Matrix<Base<Field>>& T, \
+          Matrix<Field>& v, \
           Int basisSize ); \
-  template Base<F> LanczosDecomp \
-  ( const DistSparseMatrix<F>& A, \
-          DistMultiVec<F>& V, \
-          ElementalMatrix<Base<F>>& T, \
-          DistMultiVec<F>& v, \
+  template Base<Field> LanczosDecomp \
+  ( const DistSparseMatrix<Field>& A, \
+          DistMultiVec<Field>& V, \
+          AbstractDistMatrix<Base<Field>>& T, \
+          DistMultiVec<Field>& v, \
           Int basisSize );
 
 #define EL_NO_INT_PROTO

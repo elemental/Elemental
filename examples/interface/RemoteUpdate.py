@@ -79,7 +79,7 @@ startCP = El.mpi.Time()
 x = El.CP( A, b, ctrl )
 endCP = El.mpi.Time()
 if worldRank == 0:
-  print "CP time:", endCP-startCP, "seconds"
+  print('CP time: {} seconds'.format(endCP-startCP))
 if display:
   El.Display( x, "x" )
 
@@ -93,16 +93,16 @@ if display:
 rTwoNorm = El.Nrm2( r )
 rInfNorm = El.MaxNorm( r )
 if worldRank == 0:
-  print "|| b ||_2        =", bTwoNorm
-  print "|| b ||_oo       =", bInfNorm
-  print "|| A x - b ||_2  =", rTwoNorm
-  print "|| A x - b ||_oo =", rInfNorm
+  print('|| b ||_2        = {}'.format(bTwoNorm))
+  print('|| b ||_oo       = {}'.format(bInfNorm))
+  print('|| A x - b ||_2  = {}'.format(rTwoNorm))
+  print('|| A x - b ||_oo = {}'.format(rInfNorm))
 
 startLS = El.mpi.Time()
 xLS = El.LeastSquares(A,b)
 endLS = El.mpi.Time()
 if worldRank == 0:
-  print "LS time:", endLS-startLS, "seconds"
+  print('LS time: {} seconds'.format(endLS-startLS))
 if display:
   El.Display( xLS, "x_{LS}" )
 rLS = El.DistMatrix()
@@ -113,10 +113,7 @@ if display:
 rLSTwoNorm = El.Nrm2(rLS)
 rLSInfNorm = El.MaxNorm(rLS)
 if worldRank == 0:
-  print "|| A x_{LS} - b ||_2  =", rLSTwoNorm
-  print "|| A x_{LS} - b ||_oo =", rLSInfNorm
+  print('|| A x_{{LS}} - b ||_2  = {}'.format(rLSTwoNorm))
+  print('|| A x_{{LS}} - b ||_oo = {}'.format(rLSInfNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

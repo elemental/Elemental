@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_BUSINGERGOLUB_HPP
@@ -15,7 +15,7 @@ namespace qr {
 template<typename F>
 Base<F> ColNorms( const Matrix<F>& A, vector<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -35,7 +35,7 @@ ValueInt<Real> FindPivot
         Int col,
         Compare compare=std::less<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( norms.size()-col <= 0 )
     {
         ValueInt<Real> pivot;
@@ -51,15 +51,15 @@ ValueInt<Real> FindPivot
     return pivot;
 }
 
-template<typename F> 
+template<typename F>
 void BusingerGolub
 (       Matrix<F>& A,
-        Matrix<F>& phase,
+        Matrix<F>& householderScalars,
         Matrix<Base<F>>& signature,
         Permutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Real zero(0), one(1);
     const F zeroF(0), oneF(1);
@@ -67,13 +67,13 @@ void BusingerGolub
     const Int n = A.Width();
     const Int minDim = Min(m,n);
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    phase.Resize( maxSteps, 1 );
+    householderScalars.Resize( maxSteps, 1 );
     signature.Resize( maxSteps, 1 );
 
     Matrix<F> z21;
 
     // Initialize two copies of the column norms, one will be consistently
-    // updated, but the original copy will be kept to determine when the 
+    // updated, but the original copy will be kept to determine when the
     // updated quantities are no longer accurate.
     vector<Real> origNorms;
     const Real maxOrigNorm = ColNorms( A, origNorms );
@@ -108,7 +108,7 @@ void BusingerGolub
                 break;
         }
         Omega.Swap( k, pivot.index );
- 
+
         // Perform the swap
         const Int jPiv = pivot.index;
         if( jPiv != k )
@@ -122,7 +122,7 @@ void BusingerGolub
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        phase(k) = tau;
+        householderScalars(k) = tau;
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -164,11 +164,11 @@ void BusingerGolub
     auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,signature);
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
 
     // Ensure that t is the correct length
-    phase.Resize( k, 1 );
+    householderScalars.Resize( k, 1 );
 }
 
 // TODO: Implement lambda op which is registered to MPI but can easily
@@ -183,7 +183,7 @@ FindColPivot
         Int col,
         bool smallestFirst=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int localColsBefore = A.LocalColOffset(col);
     ValueInt<Real> localPivot;
@@ -206,7 +206,7 @@ FindColPivot
 template<typename F>
 Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -215,14 +215,14 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
     mpi::Comm rowComm = A.Grid().RowComm();
 
     // Carefully perform the local portion of the computation
-    vector<Real> localScales(localWidth,0), 
+    vector<Real> localScales(localWidth,0),
                  localScaledSquares(localWidth,1);
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare
             ( ALoc(iLoc,jLoc), localScales[jLoc], localScaledSquares[jLoc] );
 
-    // Find the maximum relative scales 
+    // Find the maximum relative scales
     vector<Real> scales(localWidth);
     mpi::AllReduce
     ( localScales.data(), scales.data(), localWidth, mpi::MAX, colComm );
@@ -238,7 +238,7 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
     }
 
     // Now sum the local contributions (can ignore results where scale is 0)
-    vector<Real> scaledSquares(localWidth); 
+    vector<Real> scaledSquares(localWidth);
     mpi::AllReduce
     ( localScaledSquares.data(), scaledSquares.data(), localWidth, colComm );
 
@@ -259,11 +259,11 @@ Base<F> ColNorms( const DistMatrix<F>& A, vector<Base<F>>& norms )
 template<typename F>
 void ReplaceColNorms
 ( const DistMatrix<F>& A,
-        vector<Int>& inaccurateNorms, 
+        vector<Int>& inaccurateNorms,
         vector<Base<F>>& norms,
         vector<Base<F>>& origNorms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int localHeight = A.LocalHeight();
     const Int numInaccurate = inaccurateNorms.size();
@@ -271,15 +271,15 @@ void ReplaceColNorms
     mpi::Comm colComm = A.Grid().ColComm();
 
     // Carefully perform the local portion of the computation
-    vector<Real> localScales(numInaccurate,0), 
+    vector<Real> localScales(numInaccurate,0),
                  localScaledSquares(numInaccurate,1);
     for( Int s=0; s<numInaccurate; ++s )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare
-            ( ALoc(iLoc,inaccurateNorms[s]), 
+            ( ALoc(iLoc,inaccurateNorms[s]),
               localScales[s], localScaledSquares[s] );
 
-    // Find the maximum relative scales 
+    // Find the maximum relative scales
     vector<Real> scales(numInaccurate);
     mpi::AllReduce
     ( localScales.data(), scales.data(), numInaccurate, mpi::MAX, colComm );
@@ -295,7 +295,7 @@ void ReplaceColNorms
     }
 
     // Now sum the local contributions (can ignore results where scale is 0)
-    vector<Real> scaledSquares(numInaccurate); 
+    vector<Real> scaledSquares(numInaccurate);
     mpi::AllReduce
     ( localScaledSquares.data(), scaledSquares.data(), numInaccurate, colComm );
 
@@ -313,14 +313,14 @@ void ReplaceColNorms
 
 template<typename F>
 void BusingerGolub
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& phase, 
-  ElementalMatrix<Base<F>>& signature,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& householderScalars,
+  AbstractDistMatrix<Base<F>>& signature,
   DistPermutation& Omega,
   const QRCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( APre, phase, signature ))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( APre, householderScalars, signature ))
     typedef Base<F> Real;
     const Real zero(0), one(1);
 
@@ -332,11 +332,11 @@ void BusingerGolub
     const Int minDim = Min(m,n);
     const Int mLocal = A.LocalHeight();
     const Int maxSteps = ( ctrl.boundRank ? Min(ctrl.maxRank,minDim) : minDim );
-    phase.Resize( maxSteps, 1 );
+    householderScalars.Resize( maxSteps, 1 );
     signature.Resize( maxSteps, 1 );
 
     // Initialize two copies of the column norms, one will be consistently
-    // updated, but the original copy will be kept to determine when the 
+    // updated, but the original copy will be kept to determine when the
     // updated quantities are no longer accurate.
     vector<Real> origNorms( A.LocalWidth() );
     const Real maxOrigNorm = ColNorms( A, origNorms );
@@ -407,7 +407,7 @@ void BusingerGolub
             {
                 const Int jPivLoc = A.LocalCol(jPiv);
                 mpi::SendRecv
-                ( A.Buffer(0,jPivLoc), mLocal, 
+                ( A.Buffer(0,jPivLoc), mLocal,
                   curOwner, curOwner, g.RowComm() );
                 norms[jPivLoc] = mpi::Recv<Real>( curOwner, g.RowComm() );
             }
@@ -417,7 +417,7 @@ void BusingerGolub
         //  / I - tau | 1 | | 1, u^H | \ | alpha11 | = | beta |
         //  \         | u |            / |     a21 | = |    0 |
         const F tau = LeftReflector( alpha11, a21 );
-        phase.Set( k, 0, tau );
+        householderScalars.Set( k, 0, tau );
 
         // Temporarily set aB1 = | 1 |
         //                       | u |
@@ -476,16 +476,14 @@ void BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColNorms( A(ind2,ALL), inaccurateNorms, norms, origNorms );
     }
+    householderScalars.Resize( k, 1 );
 
     // Form d and rescale R
     auto R = A( IR(0,k), ALL );
     GetRealPartOfDiagonal(R,signature);
     auto sgn = [&]( const Real& delta ) { return delta >= zero ? one : -one; };
-    EntrywiseMap( signature, function<Real(Real)>(sgn) );
+    EntrywiseMap( signature, MakeFunction(sgn) );
     DiagonalScaleTrapezoid( LEFT, UPPER, NORMAL, signature, R );
-
-    // Ensure that t is the correct length
-    phase.Resize( k, 1 );
 }
 
 } // namespace qr

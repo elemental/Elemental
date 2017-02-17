@@ -14,7 +14,7 @@ namespace El {
 template<typename Real>
 void NTRUAttack( Matrix<Real>& A, const Matrix<Real>& h, Real alpha, Real q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = h.Height();
     Zeros( A, 2*n, 2*n ); 
     auto ATL = A( IR(0,n), IR(0,n) );

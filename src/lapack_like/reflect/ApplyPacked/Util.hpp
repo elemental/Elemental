@@ -13,35 +13,37 @@ namespace El {
 
 template<typename F> 
 void FixDiagonal
-( Conjugation conjugation, const Matrix<F>& t, Matrix<F>& SInv )
+( Conjugation conjugation,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& SInv )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     for( Int j=0; j<SInv.Height(); ++j )
     {
-        const F value = t(j);
+        const F value = householderScalars(j);
         if( conjugation == CONJUGATED )
-            SInv(j,j) = F(1)/Conj(value);
+            SInv(j,j) = F(1) / Conj(value);
         else
-            SInv(j,j) = F(1)/value;
+            SInv(j,j) = F(1) / value;
     }
 }
 
 template<typename F> 
 void FixDiagonal
 ( Conjugation conjugation,
-  const DistMatrix<F,STAR,STAR>& t,
+  const DistMatrix<F,STAR,STAR>& householderScalars,
         DistMatrix<F,STAR,STAR>& SInv )
 {
-    DEBUG_CSE
-    auto& tLoc = t.LockedMatrix();
+    EL_DEBUG_CSE
+    auto& householderScalarsLoc = householderScalars.LockedMatrix();
     auto& SInvLoc = SInv.Matrix();
     for( Int j=0; j<SInv.Height(); ++j )
     {
-        const F value = tLoc(j);
+        const F value = householderScalarsLoc(j);
         if( conjugation == CONJUGATED )
-            SInvLoc(j,j) = F(1)/Conj(value);
+            SInvLoc(j,j) = F(1) / Conj(value);
         else
-            SInvLoc(j,j) = F(1)/value;
+            SInvLoc(j,j) = F(1) / value;
     }
 }
 

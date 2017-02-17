@@ -2,14 +2,15 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
-from ..blas_like import Copy, EntrywiseMap
-from ..io import ProcessEvents
+from ..blas_like import Copy, EntrywiseMap, RealPart, ImagPart
+from ..io import *
 import ctypes
+from ctypes import CFUNCTYPE
 
 # Cubic secular
 # =============
@@ -93,6 +94,16 @@ class HermitianTridiagEigDCCtrl_d(ctypes.Structure):
               ("exploitStructure",bType)]
   def __init__(self):
     lib.ElHermitianTridiagEigDCCtrlDefault_d(pointer(self))
+
+class HermitianTridiagEigQRCtrl(ctypes.Structure):
+  _fields_ = [("maxIterPerEig",iType),
+              ("demandConverged",bType),
+              ("fullAccuracyTwoByTwo",bType),
+              ("broadcast",bType)]
+  def __init__(self):
+    lib.ElHermitianTridiagEigQRCtrlDefault(pointer(self))
+
+# TODO(poulson): HermitianTridiagEigCtrl
 
 lib.ElHermitianTridiagEig_s.argtypes = \
 lib.ElHermitianTridiagEig_d.argtypes = \
@@ -379,7 +390,7 @@ def HermitianSVD(uplo,A,vectors=True):
       elif A.tag == cTag: lib.ElHermitianSVD_c(*args)
       elif A.tag == zTag: lib.ElHermitianSVD_z(*args)
       else: DataExcept()
-      return U, s, V 
+      return U, s, V
     else:
       args = [uplo,A.obj,s.obj]
       if   A.tag == sTag: lib.ElHermitianSingularValues_s(*args)
@@ -399,7 +410,7 @@ def HermitianSVD(uplo,A,vectors=True):
       elif A.tag == cTag: lib.ElHermitianSVDDist_c(*args)
       elif A.tag == zTag: lib.ElHermitianSVDDist_z(*args)
       else: DataExcept()
-      return U, s, V 
+      return U, s, V
     else:
       args = [uplo,A.obj,s.obj]
       if   A.tag == sTag: lib.ElHermitianSingularValuesDist_s(*args)
@@ -550,12 +561,32 @@ class SignCtrl_d(ctypes.Structure):
   def __init__(self):
     lib.ElSignCtrlDefault_d(pointer(self))
 
-lib.ElHessQRCtrlDefault.argtypes = [c_void_p]
-class HessQRCtrl(ctypes.Structure):
-  _fields_ = [("distAED",bType),
-              ("blockHeight",iType),("blockWidth",iType)]
+(HESSENBERG_SCHUR_AED,HESSENBERG_SCHUR_MULTIBULGE,HESSENBERG_SCHUR_SIMPLE)= \
+(0,1,2)
+
+lib.ElHessenbergSchurCtrlDefault.argtypes = [c_void_p]
+class HessenbergSchurCtrl(ctypes.Structure):
+  _fields_ = [("winBeg",iType),
+              ("winEnd",iType),
+              ("fullTriangle",bType),
+              ("wantSchurVecs",bType),
+              ("accumulateSchurVecs",bType),
+              ("demandConverged",bType),
+              ("alg",c_uint),
+              ("recursiveAED",bType),
+              ("accumulateReflections",bType),
+              ("sortShifts",bType),
+              ("progress",bType),
+              ("minMultiBulgeSize",iType),
+              ("minDistMultiBulgeSize",iType),
+              ("numShifts",CFUNCTYPE(iType,iType,iType)),
+              ("deflationSize",CFUNCTYPE(iType,iType,iType,iType)),
+              ("sufficientDeflation",CFUNCTYPE(iType,iType)),
+              ("scalapack",bType),
+              ("blockHeight",iType),
+              ("numBulgesPerBlock",CFUNCTYPE(iType,iType))]
   def __init__(self):
-    lib.ElHessQRCtrlDefault(pointer(self))
+    lib.ElHessenbergSchurCtrlDefault(pointer(self))
 
 lib.ElSDCCtrlDefault_s.argtypes = [c_void_p]
 class SDCCtrl_s(ctypes.Structure):
@@ -584,7 +615,7 @@ class SDCCtrl_d(ctypes.Structure):
 lib.ElSchurCtrlDefault_s.argtypes = [c_void_p]
 class SchurCtrl_s(ctypes.Structure):
   _fields_ = [("useSDC",bType),
-              ("qrCtrl",HessQRCtrl),
+              ("hessSchurCtrl",HessenbergSchurCtrl),
               ("sdcCtrl",SDCCtrl_s),
               ("time",bType)]
   def __init__(self):
@@ -593,7 +624,7 @@ class SchurCtrl_s(ctypes.Structure):
 lib.ElSchurCtrlDefault_d.argtypes = [c_void_p]
 class SchurCtrl_d(ctypes.Structure):
   _fields_ = [("useSDC",bType),
-              ("qrCtrl",HessQRCtrl),
+              ("hessSchurCtrl",HessenbergSchurCtrl),
               ("sdcCtrl",SDCCtrl_d),
               ("time",bType)]
   def __init__(self):
@@ -744,7 +775,8 @@ class BidiagSVDQRCtrl(ctypes.Structure):
               ("demandConverged",bType),
               ("looseMinSingValEst",bType),
               ("useFLAME",bType),
-              ("useLAPACK",bType)]
+              ("useLAPACK",bType),
+              ("broadcast",bType)]
   def __init__(self):
     lib.ElBidiagSVDQRCtrlDefault(pointer(self))
 
@@ -934,13 +966,13 @@ def SVD(A,ctrl=None):
     if   A.tag == sTag:
       if ctrl==None: lib.ElSVDDist_s(*args)
       else:          lib.ElSVDXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl==None: lib.ElSVDDist_d(*args)
       else:          lib.ElSVDXDist_d(*argsCtrl)
     elif A.tag == cTag:
       if ctrl==None: lib.ElSVDDist_c(*args)
       else:          lib.ElSVDXDist_c(*argsCtrl)
-    elif A.tag == zTag: 
+    elif A.tag == zTag:
       if ctrl==None: lib.ElSVDDist_z(*args)
       else:          lib.ElSVDXDist_z(*argsCtrl)
     else: DataExcept()
@@ -988,8 +1020,7 @@ def ProductLanczos(A,basisSize=20):
     elif A.tag == zTag: lib.ElProductLanczosSparse_z(*args)
     else: DataExcept()
   elif type(A) is DistSparseMatrix:
-    grid = Grid(A.Comm())
-    T = DistMatrix(Base(A.tag),STAR,STAR,grid)
+    T = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
     args = [A.obj,T.obj,basisSize]
     if   A.tag == sTag: lib.ElProductLanczosDistSparse_s(*args)
     elif A.tag == dTag: lib.ElProductLanczosDistSparse_d(*args)
@@ -1024,10 +1055,9 @@ def ProductLanczosDecomp(A,basisSize=20):
     else: DataExcept()
     return V, T, v, beta.value
   elif type(A) is DistSparseMatrix:
-    grid = Grid(A.Comm())
-    T = DistMatrix(Base(A.tag),STAR,STAR,grid)
-    V = DistMultiVec(A.tag,A.Comm())
-    v = DistMultiVec(A.tag,A.Comm())
+    T = DistMatrix(Base(A.tag),STAR,STAR,A.Grid())
+    V = DistMultiVec(A.tag,A.Grid())
+    v = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,V.obj,T.obj,v.obj,pointer(beta),basisSize]
     if   A.tag == sTag: lib.ElProductLanczosDecompDistSparse_s(*args)
     elif A.tag == dTag: lib.ElProductLanczosDecompDistSparse_d(*args)
@@ -1152,66 +1182,86 @@ class SpectralBox_d(ctypes.Structure):
               ("realWidth",dType),
               ("imagWidth",dType)]
 
-def DisplayPortrait(portrait,box,title='',tryPython=True):
+def DisplayPortrait(portrait,box,title='',tryPython=True,eigvals=None):
   import math
-  if tryPython:
+  if tryPython and havePyPlot:
     if type(portrait) is Matrix:
-      EntrywiseMap(portrait,math.log10)
-      try:
-        import numpy as np
-        import matplotlib as mpl
-        import matplotlib.pyplot as plt
-        isInline = 'inline' in mpl.get_backend()
-        isVec = min(portrait.Height(),portrait.Width()) == 1
-        fig = plt.figure()
-        axis = fig.add_axes([0.1,0.1,0.8,0.8])
-        if isVec:
-          axis.plot(np.squeeze(portrait.ToNumPy()),'bo-')
-        else:
-          lBound = box.center.real - box.realWidth/2
-          rBound = box.center.real + box.realWidth/2 
-          bBound = box.center.imag - box.imagWidth/2
-          tBound = box.center.imag + box.imagWidth/2
-          im = axis.imshow(portrait.ToNumPy(),
-                           extent=[lBound,rBound,bBound,tBound])
-          fig.colorbar(im,ax=axis)
-        plt.title(title)
-        plt.draw()
-        if not isInline:
-            plt.show(block=False)
-        return
-      except:
-        print 'Could not import matplotlib.pyplot'
+      portraitLog10 = Matrix(portrait.tag)
+      Copy(portrait,portraitLog10)
+      EntrywiseMap(portraitLog10,math.log10)
+      isVec = min(portrait.Height(),portrait.Width()) == 1
+      fig = plt.figure()
+      axis = fig.add_axes([0.1,0.1,0.8,0.8])
+      if isVec:
+        axis.plot(io.np.squeeze(portraitLog10.ToNumPy()),'bo-')
+      else:
+        lBound = box.center.real - box.realWidth/2
+        rBound = box.center.real + box.realWidth/2
+        bBound = box.center.imag - box.imagWidth/2
+        tBound = box.center.imag + box.imagWidth/2
+        im = axis.imshow(portraitLog10.ToNumPy(),
+                         extent=[lBound,rBound,bBound,tBound])
+        fig.colorbar(im,ax=axis)
+        if type(eigvals) is Matrix:
+          eigvalsReal = Matrix(portrait.tag)
+          eigvalsImag = Matrix(portrait.tag)
+          RealPart(eigvals,eigvalsReal)
+          ImagPart(eigvals,eigvalsImag)
+          plt.scatter(np.squeeze(eigvalsReal.ToNumPy()),
+                      np.squeeze(eigvalsImag.ToNumPy()))
+      plt.title(title)
+      plt.draw()
+      isInline = 'inline' in mpl.get_backend()
+      if not isInline:
+        plt.show(block=False)
+      return fig
     elif type(portrait) is DistMatrix:
       portrait_CIRC_CIRC = DistMatrix(portrait.tag,CIRC,CIRC,portrait.Grid())
       Copy(portrait,portrait_CIRC_CIRC)
+      if type(eigvals) is DistMatrix:
+        eigvalsFull = DistMatrix(eigvals.tag,STAR,STAR,eigvals.Grid())
+        Copy(eigvals,eigvalsFull)
       if portrait_CIRC_CIRC.CrossRank() == portrait_CIRC_CIRC.Root():
-        DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,True)
-      return
+        if eigvals is None:
+          return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
+                                 tryPython=True)
+        elif type(eigvals) is Matrix:
+          return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
+                                 tryPython=True,eigvals=eigvals)
+        elif type(eigvals) is DistMatrix:
+          return DisplayPortrait(portrait_CIRC_CIRC.Matrix(),box,title,
+                                 tryPython=True,eigvals=eigvalsFull.Matrix())
+      return None
 
   # Fall back to the built-in Display if we have not succeeded
-  if not tryPython or type(portrait) is not Matrix:
-    EntrywiseMap(portrait,math.log10)
-  args = [portrait.obj,title]
   numMsExtra = 200
   if type(portrait) is Matrix:
+    portraitLog10 = Matrix(portrait.tag)
+    EntrywiseMap(portrait,math.log10)
+    args = [portraitLog10.obj,title]
     if   portrait.tag == sTag: lib.ElDisplay_s(*args)
     elif portrait.tag == dTag: lib.ElDisplay_d(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
   elif type(portrait) is DistMatrix:
+    portraitLog10 = DistMatrix(portrait.tag,MC,MR,portrait.Grid())
+    EntrywiseMap(portrait,math.log10)
+    args = [portraitLog10.obj,title]
     if   portrait.tag == sTag: lib.ElDisplayDist_s(*args)
     elif portrait.tag == dTag: lib.ElDisplayDist_d(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
   else: TypeExcept()
+  return None
 
 # (Pseudo-)Spectral portrait
 # --------------------------
 # The choice is based upon a few different norms of the Schur factor, as simply
-# using the spectral radius would be insufficient for highly non-normal 
+# using the spectral radius would be insufficient for highly non-normal
 # matrices, e.g., a Jordan block with eigenvalue zero
 
+# General
+# ^^^^^^^
 lib.ElSpectralPortrait_s.argtypes = \
 lib.ElSpectralPortrait_c.argtypes = \
 lib.ElSpectralPortraitDist_s.argtypes = \
@@ -1291,6 +1341,59 @@ def SpectralPortrait(A,realSize=200,imagSize=200,ctrl=None):
       argsCtrl = [A.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
       if ctrl == None: lib.ElSpectralPortraitDist_z(*args)
       else:            lib.ElSpectralPortraitXDist_z(*argsCtrl)
+    else: DataExcept()
+    return invNormMap, box
+  else: TypeExcept()
+
+# Triangular
+# ^^^^^^^^^^
+lib.ElTriangularSpectralPortrait_c.argtypes = \
+lib.ElTriangularSpectralPortraitDist_c.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_s)]
+
+lib.ElTriangularSpectralPortrait_z.argtypes = \
+lib.ElTriangularSpectralPortraitDist_z.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_d)]
+
+lib.ElTriangularSpectralPortraitX_c.argtypes = \
+lib.ElTriangularSpectralPortraitXDist_c.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_s),PseudospecCtrl_s]
+
+lib.ElTriangularSpectralPortraitX_z.argtypes = \
+lib.ElTriangularSpectralPortraitXDist_z.argtypes = \
+  [c_void_p,c_void_p,iType,iType,POINTER(SpectralBox_d),PseudospecCtrl_d]
+
+def TriangularSpectralPortrait(U,realSize=200,imagSize=200,ctrl=None):
+  if type(U) is Matrix:
+    invNormMap = Matrix(Base(U.tag))
+    if U.tag == cTag:
+      box = SpectralBox_s()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortrait_c(*args)
+      else:            lib.ElTriangularSpectralPortraitX_c(*argsCtrl)
+    elif U.tag == zTag:
+      box = SpectralBox_d()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortrait_z(*args)
+      else:            lib.ElTriangularSpectralPortraitX_z(*argsCtrl)
+    else: DataExcept()
+    return invNormMap, box
+  elif type(U) is DistMatrix:
+    invNormMap = DistMatrix(Base(U.tag),MC,MR,U.Grid())
+    if U.tag == cTag:
+      box = SpectralBox_s()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortraitDist_c(*args)
+      else:            lib.ElTriangularSpectralPortraitXDist_c(*argsCtrl)
+    elif U.tag == zTag:
+      box = SpectralBox_d()
+      args = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box)]
+      argsCtrl = [U.obj,invNormMap.obj,realSize,imagSize,pointer(box),ctrl]
+      if ctrl == None: lib.ElTriangularSpectralPortraitDist_z(*args)
+      else:            lib.ElTriangularSpectralPortraitXDist_z(*argsCtrl)
     else: DataExcept()
     return invNormMap, box
   else: TypeExcept()

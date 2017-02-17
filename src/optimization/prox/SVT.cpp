@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -15,73 +15,82 @@
 
 namespace El {
 
-template<typename F>
-Int SVT( Matrix<F>& A, Base<F> tau, bool relative )
+template<typename Field>
+Int SVT( Matrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return svt::Normal( A, tau, relative );
 }
 
-template<typename F>
-Int SVT( ElementalMatrix<F>& A, Base<F> tau, bool relative )
+template<typename Field>
+Int SVT( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // NOTE: This should be less accurate (but faster) than svt::Normal
     return svt::Cross( A, tau, relative );
 }
 
-template<typename F>
-Int SVT( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
+template<typename Field>
+Int SVT
+( Matrix<Field>& A, const Base<Field>& tau, Int relaxedRank, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
 
-template<typename F>
-Int SVT( ElementalMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative )
+template<typename Field>
+Int SVT
+( AbstractDistMatrix<Field>& A, const Base<Field>& tau,
+  Int relaxedRank, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Preprocess with numSteps iterations of pivoted QR factorization
     return svt::PivotedQR( A, tau, relaxedRank, relative );
 }
 
 // Singular-value soft-thresholding based on TSQR
-template<typename F,Dist U>
-Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative )
+template<typename Field,Dist U>
+Int SVT( DistMatrix<Field,U,STAR>& A, const Base<Field>& tau, bool relative )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return svt::TSQR( A, tau, relative );
 }
 
-#define PROTO_DIST(F,U) \
-  template Int SVT( DistMatrix<F,U,STAR>& A, Base<F> tau, bool relative );
+#define PROTO_DIST(Field,U) \
+  template Int SVT \
+  ( DistMatrix<Field,U,STAR>& A, const Base<Field>& tau, bool relative );
 
-#define PROTO(F) \
-  template Int SVT( Matrix<F>& A, Base<F> tau, bool relative ); \
-  template Int SVT( ElementalMatrix<F>& A, Base<F> tau, bool relative ); \
+#define PROTO(Field) \
   template Int SVT \
-  ( Matrix<F>& A, Base<F> tau, Int relaxedRank, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int SVT \
-  ( ElementalMatrix<F>& A, Base<F> tau, Int relaxedRank, bool relative ); \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative ); \
+  template Int SVT \
+  ( Matrix<Field>& A, const Base<Field>& tau, \
+    Int relaxedRank, bool relative ); \
+  template Int SVT \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, \
+    Int relaxedRank, bool relative ); \
   template Int svt::Cross \
-  ( Matrix<F>& A, Base<F> tau, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int svt::Cross \
-  ( ElementalMatrix<F>& A, Base<F> tau, bool relative ); \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative ); \
   template Int svt::Cross \
-  ( DistMatrix<F,VC,STAR>& A, Base<F> tau, bool relative ); \
+  ( DistMatrix<Field,VC,STAR>& A, const Base<Field>& tau, bool relative ); \
   template Int svt::PivotedQR \
-  ( Matrix<F>& A, Base<F> tau, Int numSteps, bool relative ); \
+  ( Matrix<Field>& A, const Base<Field>& tau, Int numSteps, bool relative ); \
   template Int svt::PivotedQR \
-  ( ElementalMatrix<F>& A, Base<F> tau, Int numSteps, bool relative ); \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, Int numSteps, \
+    bool relative ); \
   template Int svt::TSQR \
-  ( ElementalMatrix<F>& A, Base<F> tau, bool relative ); \
-  PROTO_DIST(F,MC  ) \
-  PROTO_DIST(F,MD  ) \
-  PROTO_DIST(F,MR  ) \
-  PROTO_DIST(F,STAR) \
-  PROTO_DIST(F,VC  ) \
-  PROTO_DIST(F,VR  )
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau, bool relative ); \
+  PROTO_DIST(Field,MC  ) \
+  PROTO_DIST(Field,MD  ) \
+  PROTO_DIST(Field,MR  ) \
+  PROTO_DIST(Field,STAR) \
+  PROTO_DIST(Field,VC  ) \
+  PROTO_DIST(Field,VR  )
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

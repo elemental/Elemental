@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_FILLDIAGONAL_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void FillDiagonal( Matrix<T>& A, T alpha, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -28,7 +28,7 @@ void FillDiagonal( Matrix<T>& A, T alpha, Int offset )
 template<typename T>
 void FillDiagonal( AbstractDistMatrix<T>& A, T alpha, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )

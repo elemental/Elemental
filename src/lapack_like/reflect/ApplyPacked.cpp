@@ -33,32 +33,43 @@ void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
-  Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
+  Int offset,
+  const Matrix<F>& H,
+  const Matrix<F>& householderScalars,
+        Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LLVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::LLVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::LLHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::LLHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHB
+                ( conjugation, offset, H, householderScalars, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LUVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::LUVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::LUHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::LUHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHB
+                ( conjugation, offset, H, householderScalars, A );
         }
     }
     else
@@ -66,61 +77,78 @@ void ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RLVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::RLVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::RLHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::RLHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHB
+                ( conjugation, offset, H, householderScalars, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RUVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::RUVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::RUHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::RUHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHB
+                ( conjugation, offset, H, householderScalars, A );
         }
     }
 }
 
 template<typename F> 
 void ApplyPackedReflectors
-( LeftOrRight side, UpperOrLower uplo, 
-  VerticalOrHorizontal dir, ForwardOrBackward order, 
+( LeftOrRight side, UpperOrLower uplo,
+  VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation,
   Int offset,
-  const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, 
-        ElementalMatrix<F>& A )
+  const AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars,
+        AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( side == LEFT )
     {
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LLVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::LLVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::LLHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::LLHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHB
+                ( conjugation, offset, H, householderScalars, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LUVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::LUVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::LUHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::LUHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHB
+                ( conjugation, offset, H, householderScalars, A );
         }
     }
     else
@@ -128,24 +156,32 @@ void ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RLVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::RLVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::RLHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::RLHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHB
+                ( conjugation, offset, H, householderScalars, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RUVF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVF
+                ( conjugation, offset, H, householderScalars, A );
             else if( dir == VERTICAL )
-                apply_packed_reflectors::RUVB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVB
+                ( conjugation, offset, H, householderScalars, A );
             else if( order == FORWARD )
-                apply_packed_reflectors::RUHF( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHF
+                ( conjugation, offset, H, householderScalars, A );
             else
-                apply_packed_reflectors::RUHB( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHB
+                ( conjugation, offset, H, householderScalars, A );
         }
     }
 }
@@ -155,14 +191,16 @@ void ApplyPackedReflectors
   ( LeftOrRight side, UpperOrLower uplo, \
     VerticalOrHorizontal dir, ForwardOrBackward order, \
     Conjugation conjugation, Int offset, \
-    const Matrix<F>& H, const Matrix<F>& t, \
+    const Matrix<F>& H, \
+    const Matrix<F>& householderScalars, \
           Matrix<F>& A ); \
   template void ApplyPackedReflectors \
   ( LeftOrRight side, UpperOrLower uplo, \
     VerticalOrHorizontal dir, ForwardOrBackward order, \
     Conjugation conjugation, Int offset, \
-    const ElementalMatrix<F>& H, const ElementalMatrix<F>& t, \
-          ElementalMatrix<F>& A );
+    const AbstractDistMatrix<F>& H, \
+    const AbstractDistMatrix<F>& householderScalars, \
+          AbstractDistMatrix<F>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

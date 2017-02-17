@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,35 +12,35 @@
 
 namespace El {
 
-template<typename F> 
-void Inverse( Matrix<F>& A )
+template<typename Field>
+void Inverse( Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     inverse::LUPartialPiv( A );
 }
 
-template<typename F> 
-void Inverse( ElementalMatrix<F>& A )
+template<typename Field>
+void Inverse( AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     inverse::LUPartialPiv( A );
 }
 
-template<typename F>
-void LocalInverse( DistMatrix<F,STAR,STAR>& A )
+template<typename Field>
+void LocalInverse( DistMatrix<Field,STAR,STAR>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Inverse( A.Matrix() );
 }
 
-#define PROTO(F) \
-  template void Inverse( Matrix<F>& A ); \
-  template void Inverse( ElementalMatrix<F>& A ); \
-  template void LocalInverse( DistMatrix<F,STAR,STAR>& A ); \
+#define PROTO(Field) \
+  template void Inverse( Matrix<Field>& A ); \
+  template void Inverse( AbstractDistMatrix<Field>& A ); \
+  template void LocalInverse( DistMatrix<Field,STAR,STAR>& A ); \
   template void inverse::AfterLUPartialPiv \
-  ( Matrix<F>& A, const Permutation& P ); \
+  ( Matrix<Field>& A, const Permutation& P ); \
   template void inverse::AfterLUPartialPiv \
-  ( ElementalMatrix<F>& A, const DistPermutation& P ); 
+  ( AbstractDistMatrix<Field>& A, const DistPermutation& P );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

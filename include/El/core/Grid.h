@@ -18,8 +18,12 @@ typedef       struct ElGridDummy* ElGrid;
 typedef const struct ElGridDummy* ElConstGrid;
 
 /* const Grid& Grid::Default() 
-   ------------------------- */
+   -------------------------- */
 EL_EXPORT ElError ElDefaultGrid( ElConstGrid* grid );
+
+/* const Grid& Grid::Trivial()
+   --------------------------- */
+EL_EXPORT ElError ElTrivialGrid( ElConstGrid* grid );
 
 /* Grid::Grid( mpi::Comm comm, GridOrder order ) 
    --------------------------------------------- */
@@ -188,9 +192,9 @@ EL_EXPORT ElError ElGridDiagRank( ElConstGrid grid, int VCRank, int* diagRank );
 EL_EXPORT ElError ElGridVCToViewing
 ( ElConstGrid grid, int VCRank, int* viewingRank );
 
-/* static int Grid::FindFactor( int p )
-   ------------------------------------ */
-EL_EXPORT ElError ElGridFindFactor( int p, int* factor );
+/* static int Grid::DefaultGridHeight( int gridSize )
+   -------------------------------------------------- */
+EL_EXPORT ElError ElGridDefaultHeight( int gridSize, int* gridHeight );
 
 #ifdef __cplusplus
 } // extern "C"

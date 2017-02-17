@@ -22,8 +22,8 @@ void TrrkNT
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( CPre.Height() != CPre.Width() || APre.Height() != CPre.Height() || 
           BPre.Height() != CPre.Width() || APre.Width() != BPre.Width() )
           LogicError("Nonconformal TrrkNT");

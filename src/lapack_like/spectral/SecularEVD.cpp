@@ -8,6 +8,18 @@
 */
 #include <El.hpp>
 
+// As discussed in FP_Consistency_070816.pdf, which is linked from
+//
+// <https://software.intel.com/en-us/articles/consistency-of-floating-point-results-using-the-intel-compiler>,
+//
+// the Intel compilers do not preserve evaluation order by default and may issue
+// an FMA that ignores parentheses. The following pragmas avoid this behavior.
+//
+#ifdef __INTEL_COMPILER
+#pragma float_control (precise, on)
+#pragma float_control (source, on)
+#endif
+
 #include "./SecularEVD/TwoByTwo.hpp"
 
 namespace El {
@@ -91,7 +103,7 @@ void EvaluateSecular
         State<Real>& state,
   bool penalizeDerivative=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Int n = z.Height();
     const Int origin = state.origin;
@@ -154,7 +166,7 @@ void EvaluateSecularLast
         LastState<Real>& state,
   bool penalizeDerivative=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Int n = z.Height();
     const Int origin = n-1;
@@ -200,7 +212,7 @@ void SecularInitialGuess
         State<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1);
     const Int k = whichValue;
     const Int n = d.Height();
@@ -213,11 +225,9 @@ void SecularInitialGuess
     //
     //   center = (d(k) + d(k+1))/2.
     //
-    const Real center = (d(k) + d(k+1)) / 2; 
-
     // Follow LAPACK's {s,d}laed4's [CITATION] lead in carefully computing
     //
-    //   shiftedCenter = center - d(k).
+    //   shiftedCenter = (d(k) + d(k+1))/2 - d(k) = (d(k+1) - d(k))/2.
     //
     const Real shiftedCenter = state.diagDiff / 2;
 
@@ -225,9 +235,7 @@ void SecularInitialGuess
     // diagonal entries minus the center roots be computed in a safe
     // (but somewhat obscured) manner.
     for( Int j=0; j<n; ++j ) 
-    {
         state.dMinusShift(j) = (d(j) - d(k)) - shiftedCenter;
-    }
 
     // Given the partition of the secular equation as
     //
@@ -319,9 +327,7 @@ void SecularInitialGuess
 
     state.rootEst = state.rootRelEst + d(state.origin);
     for( Int j=0; j<n; ++j ) 
-    {
         state.dMinusShift(j) = (d(j) - d(state.origin)) - state.rootRelEst;
-    }
 
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
 }
@@ -338,7 +344,7 @@ void SecularInitialGuessLast
         LastState<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     const Real zero(0), one(1);
     const Real rhoInv = one / rho;
@@ -430,9 +436,7 @@ void SecularInitialGuessLast
 
     state.rootEst = state.rootRelEst + d(origin);
     for( Int j=0; j<n; ++j ) 
-    {
         state.dMinusShift(j) = (d(j) - d(origin)) - state.rootRelEst;
-    }
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
@@ -447,7 +451,7 @@ void SecularUpdate
         SecularEVDInfo& info,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = d.Height();
     const Int k = whichValue;
@@ -800,9 +804,7 @@ void SecularUpdate
     state.rootRelEst += eta;
     state.secularOld = state.secular;
     for( Int j=0; j<n; ++j )
-    {
         state.dMinusShift(j) -= eta;
-    }
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
 }
 
@@ -814,7 +816,7 @@ void SecularUpdateLast
         LastState<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = state.dMinusShift.Height();
     const Int origin = n-1;
@@ -911,9 +913,7 @@ void SecularUpdateLast
     state.rootRelEst += eta;
     state.secularOld = state.secular;
     for( Int j=0; j<n; ++j )
-    {
         state.dMinusShift(j) -= eta;
-    }
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
@@ -927,12 +927,12 @@ SecularInner
         State<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( k == n-1 )
           LogicError("SecularInner meant for inner eigenvalues");
       if( n <= 2 )
@@ -983,7 +983,7 @@ SecularInner
     initialize = false;
     while( true )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( !limits::IsFinite(state.rootEst) )
           {
               RuntimeError("Produced non-finite rootEst=",state.rootEst);
@@ -1026,11 +1026,11 @@ SecularLast
         LastState<Real>& state,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( k != n-1 )
           LogicError("SecularLast meant for largest eigenvalue");
       if( n <= 2 )
@@ -1099,10 +1099,10 @@ SecularEigenvalue
         Real& eigenvalue,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
           LogicError("Invalid eigenvalue request");
@@ -1155,10 +1155,10 @@ SecularEigenvalue
         Matrix<Real>& dMinusShift,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
           LogicError("Invalid eigenvalue request");
@@ -1217,7 +1217,7 @@ SecularEVD
         Matrix<Real>& Q,
   const SecularEVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     SecularEVDInfo info;
 

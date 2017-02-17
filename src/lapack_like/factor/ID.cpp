@@ -2,15 +2,15 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 // TODO: Add detailed references to Tygert et al.'s ID package and the papers
-//       "Randomized algorithms for the low-rank approximation of matrices", 
-//       "A randomized algorithm for principal component analysis", and 
+//       "Randomized algorithms for the low-rank approximation of matrices",
+//       "A randomized algorithm for principal component analysis", and
 //       "On the compression of low-rank matrices"
 
 namespace El {
@@ -18,10 +18,10 @@ namespace El {
 namespace id {
 
 // On output, the matrix Z contains the non-trivial portion of the interpolation
-// matrix, and p contains the pivots used during the iterations of 
+// matrix, and p contains the pivots used during the iterations of
 // pivoted QR. The input matrix A is unchanged.
 
-template<typename F> 
+template<typename F>
 inline void
 BusingerGolub
 ( Matrix<F>& A,
@@ -29,7 +29,7 @@ BusingerGolub
   Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     auto ctrlCopy = ctrl;
@@ -39,7 +39,7 @@ BusingerGolub
     // Demand that we will be able to apply inv(R_L) to R_R by ensuring that
     // the minimum singular value is sufficiently (relatively) large
     ctrlCopy.adaptive = true;
-    if( ctrl.boundRank ) 
+    if( ctrl.boundRank )
     {
         ctrlCopy.tol = Max(ctrl.tol,eps*ctrl.maxRank);
     }
@@ -49,10 +49,10 @@ BusingerGolub
     }
 
     // Perform the pivoted QR factorization
-    Matrix<F> phase;
+    Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
-    QR( A, phase, signature, Omega, ctrlCopy );
-    const Int numSteps = phase.Height();
+    QR( A, householderScalars, signature, Omega, ctrlCopy );
+    const Int numSteps = householderScalars.Height();
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
@@ -61,15 +61,15 @@ BusingerGolub
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), RL, Z );
 }
 
-template<typename F> 
+template<typename F>
 inline void
 BusingerGolub
-( ElementalMatrix<F>& APre,
+( AbstractDistMatrix<F>& APre,
   DistPermutation& Omega,
-  ElementalMatrix<F>& Z,
+  AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
@@ -82,7 +82,7 @@ BusingerGolub
     // Demand that we will be able to apply inv(R_L) to R_R by ensuring that
     // the minimum singular value is sufficiently (relatively) large
     ctrlCopy.adaptive = true;
-    if( ctrl.boundRank ) 
+    if( ctrl.boundRank )
     {
         ctrlCopy.tol = Max(ctrl.tol,eps*ctrl.maxRank);
     }
@@ -92,10 +92,10 @@ BusingerGolub
     }
 
     // Perform an adaptive pivoted QR factorization
-    DistMatrix<F,MD,STAR> phase(A.Grid());
+    DistMatrix<F,MD,STAR> householderScalars(A.Grid());
     DistMatrix<Base<F>,MD,STAR> signature(A.Grid());
-    QR( A, phase, signature, Omega, ctrlCopy );
-    const Int numSteps = phase.Height();
+    QR( A, householderScalars, signature, Omega, ctrlCopy );
+    const Int numSteps = householderScalars.Height();
 
     auto RL = A( IR(0,numSteps), IR(0,numSteps) );
     auto RR = A( IR(0,numSteps), IR(numSteps,n) );
@@ -105,19 +105,19 @@ BusingerGolub
 
 } // namespace id
 
-template<typename F> 
+template<typename F>
 void ID
 ( const Matrix<F>& A,
         Permutation& Omega,
         Matrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> B( A );
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void ID
 (       Matrix<F>& A,
         Permutation& Omega,
@@ -125,7 +125,7 @@ void ID
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
@@ -134,27 +134,27 @@ void ID
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void ID
-( const ElementalMatrix<F>& A,
+( const AbstractDistMatrix<F>& A,
         DistPermutation& Omega,
-        ElementalMatrix<F>& Z,
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> B( A );
     id::BusingerGolub( B, Omega, Z, ctrl );
 }
 
-template<typename F> 
+template<typename F>
 void ID
-(       ElementalMatrix<F>& A,
+(       AbstractDistMatrix<F>& A,
         DistPermutation& Omega,
-        ElementalMatrix<F>& Z,
+        AbstractDistMatrix<F>& Z,
   const QRCtrl<Base<F>>& ctrl,
         bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
         id::BusingerGolub( A, Omega, Z, ctrl );
@@ -173,9 +173,9 @@ void ID
           Matrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void ID \
-  ( const ElementalMatrix<F>& A, \
+  ( const AbstractDistMatrix<F>& A, \
           DistPermutation& Omega, \
-          ElementalMatrix<F>& Z, \
+          AbstractDistMatrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl ); \
   template void ID \
   ( Matrix<F>& A, \
@@ -184,11 +184,11 @@ void ID
     const QRCtrl<Base<F>>& ctrl, \
     bool canOverwrite ); \
   template void ID \
-  ( ElementalMatrix<F>& A, \
+  ( AbstractDistMatrix<F>& A, \
     DistPermutation& Omega, \
-    ElementalMatrix<F>& Z, \
+    AbstractDistMatrix<F>& Z, \
     const QRCtrl<Base<F>>& ctrl, \
-    bool canOverwrite ); 
+    bool canOverwrite );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

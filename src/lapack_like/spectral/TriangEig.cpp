@@ -5,8 +5,8 @@
    Copyright (c) 2015-2016, Tim Moon
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,22 +14,24 @@
 
 namespace El {
 
-template<typename F>
-void TriangEig( Matrix<F>& U, Matrix<F>& X ) 
+template<typename Field>
+void TriangEig( Matrix<Field>& U, Matrix<Field>& X )
 {
-  
-    DEBUG_CSE
+
+    EL_DEBUG_CSE
     const Int m = U.Height();
 
     // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
-    Scale( F(-1), X );
+    Scale( Field(-1), X );
 
     // Solve multi-shift triangular system
-    Matrix<F> shifts, scales;
+    Matrix<Field> shifts, scales;
     GetDiagonal( U, shifts );
-    //SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    // The following is a specialized alternative to
+    //  SafeMultiShiftTrsm
+    //  ( LEFT, UPPER, NORMAL, Field(1), U, shifts, X, scales );
     triang_eig::MultiShiftSolve( U, shifts, X, scales );
     SetDiagonal( X, scales );
 
@@ -40,46 +42,48 @@ void TriangEig( Matrix<F>& U, Matrix<F>& X )
         Scale( 1/Nrm2(xj), xj );
     }
 }
-  
-template<typename F>
+
+template<typename Field>
 void TriangEig
-( const ElementalMatrix<F>& UPre, 
-        ElementalMatrix<F>& XPre ) 
+( const AbstractDistMatrix<Field>& UPre,
+        AbstractDistMatrix<Field>& XPre )
 {
-    DEBUG_CSE
-      
-    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
+    EL_DEBUG_CSE
+
+    DistMatrixReadProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> XProx( XPre );
     auto& U = UProx.GetLocked();
     auto& X = XProx.Get();
 
     // Make X the negative of the strictly upper triangle of  U
     X = U;
     MakeTrapezoidal( UPPER, X, 1 );
-    Scale( F(-1), X );
+    Scale( Field(-1), X );
 
     // Solve multi-shift triangular system
     const Grid& g = U.Grid();
-    DistMatrix<F,VR,STAR> shifts(g), scales(g);
+    DistMatrix<Field,VR,STAR> shifts(g), scales(g);
     GetDiagonal( U, shifts );
-    //SafeMultiShiftTrsm( LEFT, UPPER, NORMAL, F(1), U, shifts, X, scales );
+    // The following is a specialized alternative to
+    //  SafeMultiShiftTrsm
+    //  ( LEFT, UPPER, NORMAL, Field(1), U, shifts, X, scales );
     triang_eig::MultiShiftSolve( U, shifts, X, scales );
     SetDiagonal( X, scales );
 
     // Normalize eigenvectors
-    // TODO: Exploit the upper-triangular structure
-    DistMatrix<Base<F>,MR,STAR> colNorms(g);
+    // TODO(poulson): Exploit the upper-triangular structure
+    DistMatrix<Base<Field>,MR,STAR> colNorms(g);
     ColumnTwoNorms( X, colNorms );
     DiagonalSolve( RIGHT, NORMAL, colNorms, X );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void TriangEig \
-  (       Matrix<F>& T, \
-          Matrix<F>& X ); \
+  (       Matrix<Field>& T, \
+          Matrix<Field>& X ); \
   template void TriangEig \
-  ( const ElementalMatrix<F>& T, \
-          ElementalMatrix<F>& X );
+  ( const AbstractDistMatrix<Field>& T, \
+          AbstractDistMatrix<Field>& X );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

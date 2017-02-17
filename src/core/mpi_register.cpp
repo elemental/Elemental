@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -16,20 +16,9 @@ namespace mpi {
 // Datatypes
 // =========
 
-// Provide default datatypes (though they should not end up being used)
-
+// Provide default datatype (it should not end up being used)
 template<typename T>
-Datatype Types<T>::type = MPI_UNSIGNED_CHAR;
-
-template<typename T> Op Types<T>::sumOp = MPI_SUM;
-template<typename T> Op Types<T>::prodOp = MPI_PROD;
-template<typename T> Op Types<T>::maxOp = MPI_MAX;
-template<typename T> Op Types<T>::minOp = MPI_MIN;
-template<typename T> Op Types<T>::userOp = MPI_SUM;
-template<typename T> Op Types<T>::userCommOp = MPI_SUM;
-
-template<typename T> function<T(const T&,const T&)> Types<T>::userFunc;
-template<typename T> function<T(const T&,const T&)> Types<T>::userCommFunc;
+Datatype Types<T>::type = MPI_DATATYPE_NULL;
 
 template<> Datatype Types<byte>::type = MPI_UNSIGNED_CHAR;
 template<> Datatype Types<short>::type = MPI_SHORT;
@@ -44,13 +33,13 @@ template<> Datatype Types<unsigned long long>::type = MPI_UNSIGNED_LONG_LONG;
 template<> Datatype Types<float>::type = MPI_FLOAT;
 template<> Datatype Types<double>::type = MPI_DOUBLE;
 /* I'm not sure of whether it is better to manually implement these
-   or not. MPI_COMPLEX and MPI_DOUBLE_COMPLEX are dangerous since it 
-   appears that recent versions of MPICH leave them as NULL when 
-   compiling with Clang. 
+   or not. MPI_COMPLEX and MPI_DOUBLE_COMPLEX are dangerous since it
+   appears that recent versions of MPICH leave them as NULL when
+   compiling with Clang.
 
-   It also appears that certain versions of OpenMPI do not support 
+   It also appears that certain versions of OpenMPI do not support
    MPI_C_FLOAT_COMPLEX and MPI_C_DOUBLE_COMPLEX, and so we will, for now,
-   use these by default and fall back to MPI_COMPLEX and 
+   use these by default and fall back to MPI_COMPLEX and
    MPI_DOUBLE_COMPLEX otherwise. */
 #ifdef EL_HAVE_MPI_C_COMPLEX
 template<> Datatype Types<Complex<float>>::type = MPI_C_FLOAT_COMPLEX;
@@ -59,6 +48,58 @@ template<> Datatype Types<Complex<double>>::type = MPI_C_DOUBLE_COMPLEX;
 template<> Datatype Types<Complex<float>>::type = MPI_COMPLEX;
 template<> Datatype Types<Complex<double>>::type = MPI_DOUBLE_COMPLEX;
 #endif
+
+template<typename T>
+bool Types<T>::createdTypeBeforeResize = false;
+template<typename T>
+Datatype Types<T>::typeBeforeResize = MPI_DATATYPE_NULL;
+template<typename T>
+bool Types<T>::createdType = false;
+
+template<typename T>
+bool Types<T>::haveSumOp = true;
+template<typename T>
+bool Types<T>::createdSumOp = false;
+template<typename T>
+Op Types<T>::sumOp = MPI_SUM;
+
+template<typename T>
+bool Types<T>::haveProdOp = true;
+template<typename T>
+bool Types<T>::createdProdOp = false;
+template<typename T>
+Op Types<T>::prodOp = MPI_PROD;
+
+template<typename T>
+bool Types<T>::haveMaxOp = true;
+template<typename T>
+bool Types<T>::createdMaxOp = false;
+template<typename T>
+Op Types<T>::maxOp = MPI_MAX;
+
+template<typename T>
+bool Types<T>::haveMinOp = true;
+template<typename T>
+bool Types<T>::createdMinOp = false;
+template<typename T>
+Op Types<T>::minOp = MPI_MIN;
+
+template<typename T>
+bool Types<T>::haveUserOp = true;
+template<typename T>
+bool Types<T>::createdUserOp = false;
+template<typename T>
+Op Types<T>::userOp = MPI_SUM;
+
+template<typename T>
+bool Types<T>::haveUserCommOp = true;
+template<typename T>
+bool Types<T>::createdUserCommOp = false;
+template<typename T>
+Op Types<T>::userCommOp = MPI_SUM;
+
+template<typename T> function<T(const T&,const T&)> Types<T>::userFunc;
+template<typename T> function<T(const T&,const T&)> Types<T>::userCommFunc;
 
 template struct Types<byte>;
 template struct Types<short>;
@@ -87,55 +128,155 @@ template struct Types<long long int>; // Avoid conflict with Int
 #define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 
-// TODO: ValueInt<Real> user functions and ops
-// TODO: ValueIntPair<Real> user functions and ops
+// TODO(poulson): ValueInt<Real> user functions and ops
+// TODO(poulson): ValueIntPair<Real> user functions and ops
+
+template<typename T>
+void Types<T>::Destroy()
+{
+    if( createdUserCommOp )
+    {
+        Free( userCommOp );
+        haveUserCommOp = false;
+        createdUserCommOp = false;
+    }
+    if( createdUserOp )
+    {
+        Free( userOp );
+        haveUserOp = false;
+        createdUserOp = false;
+    }
+    if( createdMaxOp )
+    {
+        Free( maxOp );
+        haveMaxOp = false;
+        createdMaxOp = false;
+    }
+    if( createdMinOp )
+    {
+        Free( minOp );
+        haveMinOp = false;
+        createdMinOp = false;
+    }
+    if( createdProdOp )
+    {
+        Free( prodOp );
+        haveProdOp = false;
+        createdProdOp = false;
+    }
+    if( createdSumOp )
+    {
+        Free( sumOp );
+        haveSumOp = false;
+        createdSumOp = false;
+    }
+    if( createdType )
+    {
+        EL_DEBUG_ONLY(
+          if( type == MPI_DATATYPE_NULL )
+              LogicError
+              ("Types<",TypeName<T>(),">::type == MPI_DATATYPE_NULL in Free");
+        )
+        Free( type );
+        createdType = false;
+    }
+    if( createdTypeBeforeResize )
+    {
+        EL_DEBUG_ONLY(
+          if( typeBeforeResize == MPI_DATATYPE_NULL )
+              LogicError
+              ("Types<",TypeName<T>(),
+               ">::typeBeforeResize == MPI_DATATYPE_NULL in Free");
+        )
+        Free( typeBeforeResize );
+        createdTypeBeforeResize = false;
+    }
+}
 
 namespace {
 
 // The first stage; to be finalized via 'CreateResized'.
-// TODO: Decide whether the intermediate type (i.e., 'newType') needs to be
-//       committed and/or freed.
+template<typename T>
 void CreateStruct
 ( int numItems,
   int* blockLengths,
   MPI_Aint* displs,
-  Datatype* typeList,
-  Datatype& newType )
+  Datatype* typeList )
 {
     int err =
       MPI_Type_create_struct
-      ( numItems, blockLengths, displs, typeList, &newType );
+      ( numItems, blockLengths, displs, typeList, &Types<T>::typeBeforeResize );
     if( err != MPI_SUCCESS )
         RuntimeError("MPI_Type_create_struct returned with err=",err);
+    Types<T>::createdTypeBeforeResize = true;
 }
 
-void CreateResized
-( Datatype& type,
-  MPI_Aint lowerBound,
-  MPI_Aint extent,
-  Datatype& newType )
+template<typename T>
+void Commit()
 {
-    int err = MPI_Type_create_resized( type, 0, extent, &newType );
+    // Ensure that we can communicate using this datatype
+    int err = MPI_Type_commit( &Types<T>::type );
+    if( err != MPI_SUCCESS )
+        RuntimeError("MPI_Type_commit returned with err=",err);
+}
+
+template<typename T>
+void CreateResized( MPI_Aint lowerBound, MPI_Aint extent )
+{
+    int err =
+      MPI_Type_create_resized
+      ( Types<T>::typeBeforeResize, 0, extent, &Types<T>::type );
     if( err != MPI_SUCCESS )
         RuntimeError("MPI_Type_create_resized returned with err=",err);
-
-    err = MPI_Type_commit( &newType );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+    Types<T>::createdType = true;
+    Commit<T>();
 }
 
-void CreateContiguous
-( int numItems,
-  Datatype type,
-  Datatype& newType )
+template<typename T>
+void CreateContiguous( int numItems, Datatype type )
 {
-    int err = MPI_Type_contiguous( numItems, type, &newType );
+    int err = MPI_Type_contiguous( numItems, type, &Types<T>::type );
     if( err != MPI_SUCCESS )
         RuntimeError("MPI_Type_contiguous returned with err=",err);
+    Types<T>::createdType = true;
+    Commit<T>();
+}
 
-    err = MPI_Type_commit( &newType );
-    if( err != MPI_SUCCESS )
-        RuntimeError("MPI_Type_commit returned with err=",err);
+template<typename T>
+void FreeResized()
+{
+    if( Types<T>::createdType )
+    {
+        if( Types<T>::type == MPI_DATATYPE_NULL )
+            LogicError
+            ("Types<",TypeName<T>(),">::type == MPI_DATATYPE_NULL in Free");
+        Free( Types<T>::type );
+        Types<T>::createdType = false;
+    }
+    if( Types<T>::createdTypeBeforeResize )
+    {
+        if( Types<T>::typeBeforeResize == MPI_DATATYPE_NULL )
+            LogicError
+            ("Types<",TypeName<T>(),
+             ">::typeBeforeResize == MPI_DATATYPE_NULL in Free");
+        Free( Types<T>::typeBeforeResize );
+        Types<T>::createdTypeBeforeResize = false;
+    }
+}
+
+template<typename T>
+void FreeResizedFamily()
+{
+    FreeResized<Entry<T>>();
+    FreeResized<ValueInt<T>>();
+    FreeResized<T>();
+}
+
+template<typename Real>
+void FreeResizedScalarFamily()
+{
+    FreeResizedFamily<Complex<Real>>();
+    FreeResizedFamily<Real>();
 }
 
 } // anonymous namespace
@@ -151,7 +292,7 @@ void CreateBigIntType()
     Datatype typeList[2];
     typeList[0] = TypeMap<int>();
     typeList[1] = TypeMap<mp_limb_t>();
-    
+
     int blockLengths[2];
     blockLengths[0] = 1;
     blockLengths[1] = numLimbs;
@@ -159,10 +300,9 @@ void CreateBigIntType()
     MPI_Aint displs[2];
     displs[0] = 0;
     displs[1] = sizeof(int);
-     
-    MPI_Datatype tempType;
-    CreateStruct( 2, blockLengths, displs, typeList, tempType );
-    CreateResized( tempType, 0, packedSize, TypeMap<BigInt>() );
+
+    CreateStruct<BigInt>( 2, blockLengths, displs, typeList );
+    CreateResized<BigInt>( 0, packedSize );
 }
 
 void CreateBigFloatType()
@@ -176,10 +316,10 @@ void CreateBigFloatType()
     typeList[1] = TypeMap<mpfr_sign_t>();
     typeList[2] = TypeMap<mpfr_exp_t>();
     typeList[3] = TypeMap<mp_limb_t>();
-    
+
     int blockLengths[4];
     blockLengths[0] = 1;
-    blockLengths[1] = 1; 
+    blockLengths[1] = 1;
     blockLengths[2] = 1;
     blockLengths[3] = numLimbs;
 
@@ -188,20 +328,11 @@ void CreateBigFloatType()
     displs[1] = sizeof(mpfr_prec_t);
     displs[2] = sizeof(mpfr_prec_t) + sizeof(mpfr_sign_t);
     displs[3] = sizeof(mpfr_prec_t) + sizeof(mpfr_sign_t) + sizeof(mpfr_exp_t);
-    
-    MPI_Datatype tempType;
-    CreateStruct( 4, blockLengths, displs, typeList, tempType );
-    CreateResized( tempType, 0, packedSize, TypeMap<BigFloat>() );
+
+    CreateStruct<BigFloat>( 4, blockLengths, displs, typeList );
+    CreateResized<BigFloat>( 0, packedSize );
 }
 #endif // ifdef EL_HAVE_MPC
-
-// TODO: Expose hooks for these routines so that the user could run
-//
-//  AllReduce
-//  ( value,
-//    []( const T& alpha, const T& beta ) { return Min(alpha,beta); }
-//    comm )
-//
 
 template<typename T,typename=EnableIf<IsPacked<T>>>
 static void
@@ -233,7 +364,7 @@ EL_NO_EXCEPT
         b.Deserialize(outData);
 
         b = func(a,b);
-        outData = b.Serialize(outData); 
+        outData = b.Serialize(outData);
     }
 }
 
@@ -267,7 +398,7 @@ EL_NO_EXCEPT
         b.Deserialize(outData);
 
         b = func(a,b);
-        outData = b.Serialize(outData); 
+        outData = b.Serialize(outData);
     }
 }
 
@@ -365,7 +496,7 @@ EL_NO_EXCEPT
         b.Deserialize(outData);
 
         b += a;
-        outData = b.Serialize(outData); 
+        outData = b.Serialize(outData);
     }
 }
 
@@ -395,7 +526,7 @@ EL_NO_EXCEPT
         b.Deserialize(outData);
 
         b *= a;
-        outData = b.Serialize(outData); 
+        outData = b.Serialize(outData);
     }
 }
 
@@ -403,7 +534,7 @@ template<typename T,typename=EnableIf<IsPacked<T>>>
 static void
 MaxLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
-{           
+{
     auto inData  = static_cast<const ValueInt<T>*>(inVoid);
     auto outData = static_cast<      ValueInt<T>*>(outVoid);
     const int length = *lengthPtr;
@@ -412,7 +543,7 @@ EL_NO_EXCEPT
         const T inVal = inData[j].value;
         const T outVal = outData[j].value;
         const Int inInd = inData[j].index;
-        const Int outInd = outData[j].index; 
+        const Int outInd = outData[j].index;
         if( inVal > outVal || (inVal == outVal && inInd < outInd) )
             outData[j] = inData[j];
     }
@@ -442,7 +573,7 @@ template<typename T,typename=EnableIf<IsPacked<T>>>
 static void
 MinLocFunc( void* inVoid, void* outVoid, int* lengthPtr, Datatype* datatype )
 EL_NO_EXCEPT
-{           
+{
     auto inData  = static_cast<const ValueInt<T>*>(inVoid);
     auto outData = static_cast<      ValueInt<T>*>(outVoid);
     const int length = *lengthPtr;
@@ -451,7 +582,7 @@ EL_NO_EXCEPT
         const T inVal = inData[j].value;
         const T outVal = outData[j].value;
         const Int inInd = inData[j].index;
-        const Int outInd = outData[j].index; 
+        const Int outInd = outData[j].index;
         if( inVal < outVal || (inVal == outVal && inInd < outInd) )
             outData[j] = inData[j];
     }
@@ -562,15 +693,15 @@ EL_NO_EXCEPT
 template<typename T,typename=EnableIf<IsPacked<T>>>
 static void CreateValueIntType() EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
     typeList[1] = TypeMap<Int>();
-    
+
     int blockLengths[2];
     blockLengths[0] = 1;
-    blockLengths[1] = 1; 
+    blockLengths[1] = 1;
 
     ValueInt<T> v;
     MPI_Aint startAddr, valueAddr, indexAddr;
@@ -582,25 +713,24 @@ static void CreateValueIntType() EL_NO_EXCEPT
     displs[0] = valueAddr - startAddr;
     displs[1] = indexAddr - startAddr;
 
-    Datatype tempType;
-    CreateStruct( 2, blockLengths, displs, typeList, tempType );
-
     MPI_Aint extent = sizeof(v);
-    CreateResized( tempType, 0, extent, TypeMap<ValueInt<T>>() );
+
+    CreateStruct<ValueInt<T>>( 2, blockLengths, displs, typeList );
+    CreateResized<ValueInt<T>>( 0, extent );
 }
 
 template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void CreateValueIntType() EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
     typeList[1] = TypeMap<Int>();
-    
+
     int blockLengths[2];
     blockLengths[0] = 1;
-    blockLengths[1] = 1; 
+    blockLengths[1] = 1;
 
     T alpha;
     const size_t packedSize = alpha.SerializedSize();
@@ -609,27 +739,26 @@ void CreateValueIntType() EL_NO_EXCEPT
     displs[0] = 0;
     displs[1] = packedSize;
 
-    Datatype tempType;
-    CreateStruct( 2, blockLengths, displs, typeList, tempType );
-
     MPI_Aint extent = packedSize + sizeof(Int);
-    CreateResized( tempType, 0, extent, TypeMap<ValueInt<T>>() );
+
+    CreateStruct<ValueInt<T>>( 2, blockLengths, displs, typeList );
+    CreateResized<ValueInt<T>>( 0, extent );
 }
 
 template<typename T,typename=EnableIf<IsPacked<T>>>
 static void CreateEntryType() EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();
     typeList[2] = TypeMap<T>();
-    
+
     int blockLengths[3];
     blockLengths[0] = 1;
-    blockLengths[1] = 1; 
-    blockLengths[2] = 1; 
+    blockLengths[1] = 1;
+    blockLengths[2] = 1;
 
     Entry<T> v;
     MPI_Aint startAddr, iAddr, jAddr, valueAddr;
@@ -643,41 +772,38 @@ static void CreateEntryType() EL_NO_EXCEPT
     displs[1] = jAddr - startAddr;
     displs[2] = valueAddr - startAddr;
 
-    Datatype tempType;
-    CreateStruct( 3, blockLengths, displs, typeList, tempType );
-
     MPI_Aint extent = sizeof(v);
-    CreateResized( tempType, 0, extent, TypeMap<Entry<T>>() );
+
+    CreateStruct<Entry<T>>( 3, blockLengths, displs, typeList );
+    CreateResized<Entry<T>>( 0, extent );
 }
 
 template<typename T,typename=DisableIf<IsPacked<T>>,typename=void>
 void CreateEntryType() EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Datatype typeList[3];
     typeList[0] = TypeMap<Int>();
     typeList[1] = TypeMap<Int>();
     typeList[2] = TypeMap<T>();
-    
+
     int blockLengths[3];
     blockLengths[0] = 1;
-    blockLengths[1] = 1; 
-    blockLengths[2] = 1; 
+    blockLengths[1] = 1;
+    blockLengths[2] = 1;
 
     MPI_Aint displs[3];
     displs[0] = 0;
     displs[1] = sizeof(Int);
     displs[2] = 2*sizeof(Int);
 
-    Datatype tempType;
-    CreateStruct( 3, blockLengths, displs, typeList, tempType );
-
     T alpha;
     const auto packedSize = alpha.SerializedSize();
-
     MPI_Aint extent = 2*sizeof(Int) + packedSize;
-    CreateResized( tempType, 0, extent, TypeMap<Entry<T>>() );
+
+    CreateStruct<Entry<T>>( 3, blockLengths, displs, typeList );
+    CreateResized<Entry<T>>( 0, extent );
 }
 
 #ifdef EL_HAVE_MPC
@@ -691,8 +817,7 @@ void CreateBigIntFamily()
 void CreateBigFloatFamily()
 {
     CreateBigFloatType();
-    CreateContiguous
-    ( 2, Types<BigFloat>::type, Types<Complex<BigFloat>>::type );
+    CreateContiguous<Complex<BigFloat>>( 2, Types<BigFloat>::type );
 
     CreateValueIntType<BigFloat>();
     CreateValueIntType<Complex<BigFloat>>();
@@ -703,21 +828,12 @@ void CreateBigFloatFamily()
 
 void DestroyBigIntFamily()
 {
-    Free( Types<Entry<BigInt>>::type );
-    Free( Types<ValueInt<BigInt>>::type );
-    Free( Types<BigInt>::type );
+    FreeResizedFamily<BigInt>();
 }
 
 void DestroyBigFloatFamily()
 {
-
-    Free( Types<Entry<Complex<BigFloat>>>::type );
-    Free( Types<ValueInt<Complex<BigFloat>>>::type );
-    Free( Types<Complex<BigFloat>>::type );
-
-    Free( Types<Entry<BigFloat>>::type );
-    Free( Types<ValueInt<BigFloat>>::type );
-    Free( Types<BigFloat>::type );
+    FreeResizedScalarFamily<BigFloat>();
 }
 #endif
 
@@ -726,372 +842,246 @@ void CreateUserOps()
 {
     Create( (UserFunction*)UserReduce<T>, false, UserOp<T>() );
     Create( (UserFunction*)UserReduceComm<T>, true, UserCommOp<T>() );
+    Types<T>::createdUserOp = true;
+    Types<T>::createdUserCommOp = true;
 }
 
 template<typename T>
 void CreateSumOp()
 {
     Create( (UserFunction*)SumFunc<T>, true, SumOp<T>() );
+    Types<T>::createdSumOp = true;
 }
 template<typename T>
 void CreateProdOp()
 {
     Create( (UserFunction*)ProdFunc<T>, true, ProdOp<T>() );
+    Types<T>::createdProdOp = true;
 }
 template<typename T>
 void CreateMaxOp()
 {
     Create( (UserFunction*)MaxFunc<T>, true, MaxOp<T>() );
+    Types<T>::createdMaxOp = true;
 }
 template<typename T>
 void CreateMinOp()
 {
     Create( (UserFunction*)MinFunc<T>, true, MinOp<T>() );
+    Types<T>::createdMinOp = true;
 }
 
 template<typename T>
 void CreateMaxLocOp()
 {
     Create( (UserFunction*)MaxLocFunc<T>, true, MaxLocOp<T>() );
+    Types<ValueInt<T>>::createdMaxOp = true;
 }
 template<typename T>
 void CreateMinLocOp()
 {
     Create( (UserFunction*)MinLocFunc<T>, true, MinLocOp<T>() );
+    Types<ValueInt<T>>::createdMinOp = true;
 }
 
 template<typename T>
 void CreateMaxLocPairOp()
 {
     Create( (UserFunction*)MaxLocPairFunc<T>, true, MaxLocPairOp<T>() );
+    Types<Entry<T>>::createdMaxOp = true;
 }
 template<typename T>
 void CreateMinLocPairOp()
 {
     Create( (UserFunction*)MinLocPairFunc<T>, true, MinLocPairOp<T>() );
+    Types<Entry<T>>::createdMinOp = true;
 }
 
 void CreateCustom() EL_NO_RELEASE_EXCEPT
 {
-    // Create the necessary types
-    // ==========================
-#ifdef EL_HAVE_QD
-    CreateContiguous( 2, MPI_DOUBLE, TypeMap<DoubleDouble>() );
-    CreateContiguous( 4, MPI_DOUBLE, TypeMap<QuadDouble>() );
-    CreateContiguous
-    ( 2, TypeMap<DoubleDouble>(), TypeMap<Complex<DoubleDouble>>() );
-    CreateContiguous
-    ( 2, TypeMap<QuadDouble>(), TypeMap<Complex<QuadDouble>>() );
-#endif
-#ifdef EL_HAVE_QUAD
-    CreateContiguous( 2, MPI_DOUBLE, TypeMap<Quad>() );
-    CreateContiguous( 4, MPI_DOUBLE, TypeMap<Complex<Quad>>() );
-#endif
-    // NOTE: The BigFloat types are created by mpfr::SetPrecision previously
-    //       within El::Initialize
-
-    // A value and an integer
-    // ----------------------
+    // Int
+    // ===
     CreateValueIntType<Int>();
+    CreateEntryType<Int>();
+    CreateUserOps<Int>();
+    CreateMaxLocOp<Int>();
+    CreateMinLocOp<Int>();
+    CreateMaxLocPairOp<Int>();
+    CreateMinLocPairOp<Int>();
+
+    // float
+    // =====
 #ifdef EL_USE_64BIT_INTS
     CreateValueIntType<float>();
-    CreateValueIntType<double>();
 #else
     TypeMap<ValueInt<float>>() = MPI_FLOAT_INT;
-    TypeMap<ValueInt<double>>() = MPI_DOUBLE_INT;
 #endif
     CreateValueIntType<Complex<float>>();
-    CreateValueIntType<Complex<double>>();
-#ifdef EL_HAVE_QD
-    CreateValueIntType<DoubleDouble>();
-    CreateValueIntType<QuadDouble>();
-    CreateValueIntType<Complex<DoubleDouble>>();
-    CreateValueIntType<Complex<QuadDouble>>();
-#endif
-#ifdef EL_HAVE_QUAD
-    CreateValueIntType<Quad>();
-    CreateValueIntType<Complex<Quad>>();
-#endif
-
-    // A triplet of a value and a pair of integers
-    // -------------------------------------------
-    CreateEntryType<Int>();
     CreateEntryType<float>();
-    CreateEntryType<double>();
     CreateEntryType<Complex<float>>();
-    CreateEntryType<Complex<double>>();
-#ifdef EL_HAVE_QD
-    CreateEntryType<DoubleDouble>();
-    CreateEntryType<QuadDouble>();
-    CreateEntryType<Complex<DoubleDouble>>();
-    CreateEntryType<Complex<QuadDouble>>();
-#endif
-#ifdef EL_HAVE_QUAD
-    CreateEntryType<Quad>();
-    CreateEntryType<Complex<Quad>>();
-#endif
-
-    // Create the necessary MPI operations
-    // ===================================
-    // Functions for user-defined ops
-    // ------------------------------
-    CreateUserOps<Int>();
     CreateUserOps<float>();
-    CreateUserOps<double>();
     CreateUserOps<Complex<float>>();
+#ifdef EL_USE_64BIT_INTS
+    CreateMaxLocOp<float>();
+    CreateMinLocOp<float>();
+#else
+    MaxLocOp<float>() = MAXLOC;
+    MinLocOp<float>() = MINLOC;
+#endif
+    CreateMaxLocPairOp<float>();
+    CreateMinLocPairOp<float>();
+
+    // double
+    // ======
+#ifdef EL_USE_64BIT_INTS
+    CreateValueIntType<double>();
+#else
+    TypeMap<ValueInt<double>>() = MPI_DOUBLE_INT;
+#endif
+    CreateValueIntType<Complex<double>>();
+    CreateEntryType<double>();
+    CreateEntryType<Complex<double>>();
+    CreateUserOps<double>();
     CreateUserOps<Complex<double>>();
+#ifdef EL_USE_64BIT_INTS
+    CreateMaxLocOp<double>();
+    CreateMinLocOp<double>();
+#else
+    MaxLocOp<double>() = MAXLOC;
+    MinLocOp<double>() = MINLOC;
+#endif
+    CreateMaxLocPairOp<double>();
+    CreateMinLocPairOp<double>();
+
 #ifdef EL_HAVE_QD
+    // DoubleDouble
+    // ============
+    CreateContiguous<DoubleDouble>( 2, MPI_DOUBLE );
+    CreateContiguous<Complex<DoubleDouble>>( 2, TypeMap<DoubleDouble>() );
+    CreateValueIntType<DoubleDouble>();
+    CreateValueIntType<Complex<DoubleDouble>>();
+    CreateEntryType<DoubleDouble>();
+    CreateEntryType<Complex<DoubleDouble>>();
     CreateUserOps<DoubleDouble>();
-    CreateUserOps<QuadDouble>();
     CreateUserOps<Complex<DoubleDouble>>();
-    CreateUserOps<Complex<QuadDouble>>();
-#endif
-#ifdef EL_HAVE_QUAD
-    CreateUserOps<Quad>();
-    CreateUserOps<Complex<Quad>>();
-#endif
-#ifdef EL_HAVE_MPC
-    CreateUserOps<BigInt>();
-    CreateUserOps<BigFloat>();
-    CreateUserOps<Complex<BigFloat>>();
-#endif
-   
-    // Functions for scalar types
-    // --------------------------
-#ifdef EL_HAVE_QD
     CreateMaxOp<DoubleDouble>();
     CreateMinOp<DoubleDouble>();
     CreateSumOp<DoubleDouble>();
     CreateProdOp<DoubleDouble>();
+    CreateSumOp<Complex<DoubleDouble>>();
+    CreateProdOp<Complex<DoubleDouble>>();
+    CreateMaxLocOp<DoubleDouble>();
+    CreateMinLocOp<DoubleDouble>();
+    CreateMaxLocPairOp<DoubleDouble>();
+    CreateMinLocPairOp<DoubleDouble>();
 
+    // QuadDouble
+    // ==========
+    CreateContiguous<QuadDouble>( 4, MPI_DOUBLE );
+    CreateContiguous<Complex<QuadDouble>>( 2, TypeMap<QuadDouble>() );
+    CreateValueIntType<QuadDouble>();
+    CreateValueIntType<Complex<QuadDouble>>();
+    CreateEntryType<QuadDouble>();
+    CreateEntryType<Complex<QuadDouble>>();
+    CreateUserOps<QuadDouble>();
+    CreateUserOps<Complex<QuadDouble>>();
     CreateMaxOp<QuadDouble>();
     CreateMinOp<QuadDouble>();
     CreateSumOp<QuadDouble>();
     CreateProdOp<QuadDouble>();
-
-    CreateSumOp<Complex<DoubleDouble>>();
     CreateSumOp<Complex<QuadDouble>>();
-    CreateProdOp<Complex<DoubleDouble>>();
     CreateProdOp<Complex<QuadDouble>>();
+    CreateMaxLocOp<QuadDouble>();
+    CreateMinLocOp<QuadDouble>();
+    CreateMaxLocPairOp<QuadDouble>();
+    CreateMinLocPairOp<QuadDouble>();
 #endif
+
 #ifdef EL_HAVE_QUAD
+    // Quad
+    // ====
+    CreateContiguous<Quad>( 2, MPI_DOUBLE );
+    CreateContiguous<Complex<Quad>>( 2, TypeMap<Quad>() );
+    CreateValueIntType<Quad>();
+    CreateValueIntType<Complex<Quad>>();
+    CreateEntryType<Quad>();
+    CreateEntryType<Complex<Quad>>();
+    CreateUserOps<Quad>();
+    CreateUserOps<Complex<Quad>>();
     CreateMaxOp<Quad>();
     CreateMinOp<Quad>();
     CreateSumOp<Quad>();
     CreateProdOp<Quad>();
-
     CreateSumOp<Complex<Quad>>();
     CreateProdOp<Complex<Quad>>();
+    CreateMaxLocOp<Quad>();
+    CreateMinLocOp<Quad>();
+    CreateMaxLocPairOp<Quad>();
+    CreateMinLocPairOp<Quad>();
 #endif
-#ifdef EL_HAVE_MPC
-    CreateMaxOp<BigInt>();
-    CreateMinOp<BigInt>();
-    CreateSumOp<BigInt>();
-    CreateProdOp<BigInt>();
 
+#ifdef EL_HAVE_MPC
+    // BigFloat
+    // ========
+    // NOTE: The BigFloat types are created by mpfr::SetPrecision previously
+    //       within El::Initialize
+    CreateUserOps<BigFloat>();
+    CreateUserOps<Complex<BigFloat>>();
     CreateMaxOp<BigFloat>();
     CreateMinOp<BigFloat>();
     CreateSumOp<BigFloat>();
     CreateProdOp<BigFloat>();
-
     CreateSumOp<Complex<BigFloat>>();
     CreateProdOp<Complex<BigFloat>>();
-#endif
-    // Functions for the value and integer
-    // -----------------------------------
-    CreateMaxLocOp<Int>();
-    CreateMinLocOp<Int>();
-#ifdef EL_USE_64BIT_INTS
-    CreateMaxLocOp<float>();
-    CreateMinLocOp<float>();
-
-    CreateMaxLocOp<double>();
-    CreateMinLocOp<double>();
-#else
-    MaxLocOp<float>() = MAXLOC;
-    MinLocOp<float>() = MINLOC;
-
-    MaxLocOp<double>() = MAXLOC;
-    MinLocOp<double>() = MINLOC;
-#endif
-#ifdef EL_HAVE_QD
-    CreateMaxLocOp<DoubleDouble>();
-    CreateMinLocOp<DoubleDouble>();
-
-    CreateMaxLocOp<QuadDouble>();
-    CreateMinLocOp<QuadDouble>();
-#endif
-#ifdef EL_HAVE_QUAD
-    CreateMaxLocOp<Quad>();
-    CreateMinLocOp<Quad>();
-#endif
-#ifdef EL_HAVE_MPC
-    CreateMaxLocOp<BigInt>();
-    CreateMinLocOp<BigInt>();
-
     CreateMaxLocOp<BigFloat>();
     CreateMinLocOp<BigFloat>();
-#endif
-
-    // Functions for the triplet of a value and a pair of integers
-    // -----------------------------------------------------------
-    CreateMaxLocPairOp<Int>();
-    CreateMinLocPairOp<Int>();
-
-    CreateMaxLocPairOp<float>();
-    CreateMinLocPairOp<float>();
-
-    CreateMaxLocPairOp<double>();
-    CreateMinLocPairOp<double>();
-#ifdef EL_HAVE_QD
-    CreateMaxLocPairOp<DoubleDouble>();
-    CreateMinLocPairOp<DoubleDouble>();
-
-    CreateMaxLocPairOp<QuadDouble>();
-    CreateMinLocPairOp<QuadDouble>();
-#endif
-#ifdef EL_HAVE_QUAD
-    CreateMaxLocPairOp<Quad>();
-    CreateMinLocPairOp<Quad>();
-#endif
-#ifdef EL_HAVE_MPC
-    CreateMaxLocPairOp<BigInt>();
-    CreateMinLocPairOp<BigInt>();
-
     CreateMaxLocPairOp<BigFloat>();
     CreateMinLocPairOp<BigFloat>();
+
+    // BigInt
+    // ======
+    CreateUserOps<BigInt>();
+    CreateMaxOp<BigInt>();
+    CreateMinOp<BigInt>();
+    CreateSumOp<BigInt>();
+    CreateProdOp<BigInt>();
+    CreateMaxLocOp<BigInt>();
+    CreateMinLocOp<BigInt>();
+    CreateMaxLocPairOp<BigInt>();
+    CreateMinLocPairOp<BigInt>();
 #endif
 }
 
 template<typename T>
-void FreeUserOps()
+void DestroyFamily()
 {
-    Free( Types<T>::userOp );
-    Free( Types<T>::userCommOp );
+    Types<Entry<T>>::Destroy();
+    Types<ValueInt<T>>::Destroy();
+    Types<T>::Destroy();
 }
 
 template<typename T>
-void FreeMaxMinOps()
+void DestroyScalarFamily()
 {
-    Free( Types<T>::maxOp );
-    Free( Types<T>::minOp );
-}
-
-template<typename T>
-void FreeScalarOps()
-{
-    if( IsReal<T>::value )
-    {
-        FreeMaxMinOps<T>();
-        FreeMaxMinOps<ValueInt<T>>();
-        FreeMaxMinOps<Entry<T>>();
-    }
-    Free( Types<T>::sumOp );
-    Free( Types<T>::prodOp );
+    DestroyFamily<Complex<T>>();
+    DestroyFamily<T>();
 }
 
 void DestroyCustom() EL_NO_RELEASE_EXCEPT
 {
-    // Destroy the created operations
-    // ==============================
-
-    // User-defined operations
-    // -----------------------
-    FreeUserOps<Int>();
-    FreeUserOps<float>();
-    FreeUserOps<double>();
-    FreeUserOps<Complex<float>>();
-    FreeUserOps<Complex<double>>();
+    DestroyFamily<Int>();
+    DestroyScalarFamily<float>();
+    DestroyScalarFamily<double>();
 #ifdef EL_HAVE_QD
-    FreeUserOps<DoubleDouble>();
-    FreeUserOps<QuadDouble>();
-    FreeUserOps<Complex<DoubleDouble>>();
-    FreeUserOps<Complex<QuadDouble>>();
+    DestroyScalarFamily<DoubleDouble>();
+    DestroyScalarFamily<QuadDouble>();
 #endif
 #ifdef EL_HAVE_QUAD
-    FreeUserOps<Quad>();
-    FreeUserOps<Complex<Quad>>();
+    DestroyScalarFamily<Quad>();
 #endif
 #ifdef EL_HAVE_MPC
-    FreeUserOps<BigInt>();
-    FreeUserOps<BigFloat>();
-    FreeUserOps<Complex<BigFloat>>();
-#endif
-
-#ifdef EL_HAVE_QD
-    FreeScalarOps<DoubleDouble>();
-    FreeScalarOps<QuadDouble>();
-    FreeScalarOps<Complex<DoubleDouble>>();
-    FreeScalarOps<Complex<QuadDouble>>();
-#endif
-#ifdef EL_HAVE_QUAD
-    FreeScalarOps<Quad>();
-    FreeScalarOps<Complex<Quad>>();
-#endif
-#ifdef EL_HAVE_MPC
-    FreeScalarOps<BigInt>();
-    FreeScalarOps<BigFloat>();
-    FreeScalarOps<Complex<BigFloat>>();
-#endif
-
-    FreeMaxMinOps<ValueInt<Int>>();
-#ifdef EL_USE_64BIT_INTS
-    FreeMaxMinOps<ValueInt<float>>();
-    FreeMaxMinOps<ValueInt<double>>();
-#endif
-    FreeMaxMinOps<Entry<Int>>();
-    FreeMaxMinOps<Entry<float>>();
-    FreeMaxMinOps<Entry<double>>();
-
-    // Destroy the created types
-    // =========================
-    Free( Types<Entry<Int>>::type );
-    Free( Types<Entry<float>>::type );
-    Free( Types<Entry<double>>::type );
-    Free( Types<Entry<Complex<float>>>::type );
-    Free( Types<Entry<Complex<double>>>::type );
-#ifdef EL_HAVE_QD
-    Free( Types<Entry<DoubleDouble>>::type );
-    Free( Types<Entry<QuadDouble>>::type );
-    Free( Types<Entry<Complex<DoubleDouble>>>::type );
-    Free( Types<Entry<Complex<QuadDouble>>>::type );
-#endif
-#ifdef EL_HAVE_QUAD
-    Free( Types<Entry<Quad>>::type );
-    Free( Types<Entry<Complex<Quad>>>::type );
-#endif
-
-    Free( Types<ValueInt<Int>>::type );
-#ifdef EL_USE_64BIT_INTS
-    Free( Types<ValueInt<float>>::type );
-    Free( Types<ValueInt<double>>::type );
-#endif
-    Free( Types<ValueInt<Complex<float>>>::type );
-    Free( Types<ValueInt<Complex<double>>>::type );
-#ifdef EL_HAVE_QD
-    Free( Types<ValueInt<DoubleDouble>>::type );
-    Free( Types<ValueInt<QuadDouble>>::type );
-    Free( Types<ValueInt<Complex<DoubleDouble>>>::type );
-    Free( Types<ValueInt<Complex<QuadDouble>>>::type );
-#endif
-#ifdef EL_HAVE_QUAD
-    Free( Types<ValueInt<Quad>>::type );
-    Free( Types<ValueInt<Complex<Quad>>>::type );
-#endif
-
-#ifdef EL_HAVE_QD
-    Free( Types<Complex<DoubleDouble>>::type );
-    Free( Types<Complex<QuadDouble>>::type );
-    Free( Types<DoubleDouble>::type );
-    Free( Types<QuadDouble>::type );
-#endif
-#ifdef EL_HAVE_QUAD
-    Free( Types<Complex<Quad>>::type );
-    Free( Types<Quad>::type );
-#endif
-#ifdef EL_HAVE_MPC
-    DestroyBigIntFamily();
-    DestroyBigFloatFamily();
+    DestroyScalarFamily<BigFloat>();
+    DestroyFamily<BigInt>();
 #endif
 }
 

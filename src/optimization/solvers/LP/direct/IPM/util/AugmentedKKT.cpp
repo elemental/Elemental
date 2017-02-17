@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,12 +13,12 @@ namespace El {
 namespace lp {
 namespace direct {
 
-// Form 
+// Form
 //
 //    | (x <> z)  A^T | | dx | = | -r_c - x <> r_mu |,
 //    |    A       0  | | dy |   | -r_b             |
 //
-// where 
+// where
 //
 //    r_b  = A x - b,
 //    r_c  = A^T y - z + c,
@@ -31,13 +31,13 @@ namespace direct {
 
 template<typename Real>
 void AugmentedKKT
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -55,13 +55,13 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre, 
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& x,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& JPre,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -82,7 +82,7 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
         Real gamma,
         Real delta,
   const Matrix<Real>& x,
@@ -90,7 +90,7 @@ void AugmentedKKT
         SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Zeros( Q, n, n );
@@ -107,9 +107,9 @@ void AugmentedKKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
-    DistSparseMatrix<Real> Q(A.Comm());
+    DistSparseMatrix<Real> Q(A.Grid());
     Zeros( Q, n, n );
     qp::direct::AugmentedKKT( Q, A, gamma, delta, x, z, J, onlyLower );
 }
@@ -122,10 +122,10 @@ void AugmentedKKT
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& J, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& x, \
+    const DistMatrix<Real>& z, \
+          DistMatrix<Real>& J, \
     bool onlyLower ); \
   template void AugmentedKKT \
   ( const SparseMatrix<Real>& A, \

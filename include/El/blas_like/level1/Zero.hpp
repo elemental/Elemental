@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_ZERO_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Zero( Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     EL_PARALLEL_FOR
@@ -25,14 +25,14 @@ void Zero( Matrix<T>& A )
 template<typename T>
 void Zero( AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zero( A.Matrix() );
 }
 
 template<typename T>
 void Zero( SparseMatrix<T>& A, bool clearMemory )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Empty( clearMemory );
@@ -42,7 +42,7 @@ void Zero( SparseMatrix<T>& A, bool clearMemory )
 template<typename T>
 void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Empty( clearMemory );
@@ -52,7 +52,7 @@ void Zero( DistSparseMatrix<T>& A, bool clearMemory )
 template<typename T>
 void Zero( DistMultiVec<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zero( X.Matrix() );
 }
 

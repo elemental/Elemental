@@ -2,15 +2,15 @@
    Copyright (c) 2009-2016, Jack Poulson and Tim Moon
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
-void GrcarSchurFactor( Matrix<F>& A, Int m )
+template<typename Field>
+void GrcarSchurFactor( Matrix<Field>& A, Int m )
 {
     LogicError("Only complex Grcar is allowed for these tests");
 }
@@ -24,8 +24,8 @@ void GrcarSchurFactor( Matrix<Complex<Real>>& A, Int m )
     MakeTrapezoidal( UPPER, A, -1 );
 }
 
-template<typename F>
-void GrcarSchurFactor( ElementalMatrix<F>& A, Int m )
+template<typename Field>
+void GrcarSchurFactor( ElementalMatrix<Field>& A, Int m )
 {
     LogicError("Only complex Grcar is allowed for these tests");
 }
@@ -39,8 +39,8 @@ void GrcarSchurFactor( ElementalMatrix<Complex<Real>>& A, Int m )
     MakeTrapezoidal( UPPER, A, -1 );
 }
 
-template<typename F>
-void FoxLiSchurFactor( Matrix<F>& A, Int m )
+template<typename Field>
+void FoxLiSchurFactor( Matrix<Field>& A, Int m )
 {
     LogicError("Fox-Li matrix is complex");
 }
@@ -56,8 +56,8 @@ void FoxLiSchurFactor( Matrix<Complex<Real>>& A, Int m )
     A = B;
 }
 
-template<typename F>
-void FoxLiSchurFactor( ElementalMatrix<F>& A, Int m )
+template<typename Field>
+void FoxLiSchurFactor( ElementalMatrix<Field>& A, Int m )
 {
     LogicError("Fox-Li matrix is complex");
 }
@@ -65,31 +65,31 @@ void FoxLiSchurFactor( ElementalMatrix<F>& A, Int m )
 template<typename Real>
 void FoxLiSchurFactor( ElementalMatrix<Complex<Real>>& A, Int m )
 {
-    const Grid& g = A.Grid();
-    DistMatrix<Complex<Real>> B(g);
-    DistMatrix<Complex<Real>> w(g);
+    const Grid& grid = A.Grid();
+    DistMatrix<Complex<Real>> B(grid);
+    DistMatrix<Complex<Real>> w(grid);
     FoxLi( B, m, Real(-0.179) );
     Schur( B, w );
     MakeTrapezoidal( UPPER, B, 0 );
     A = B;
 }
 
-template<typename F>
+template<typename Field>
 void TestCorrectness
-( const Matrix<F>& A,
-  const Matrix<F>& X,
+( const Matrix<Field>& A,
+  const Matrix<Field>& X,
         bool print )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = A.Height();
     const Real eps = limits::Epsilon<Real>();
     const Real oneNormA = OneNorm( A );
 
     // Find the residual R = AX-XW
-    Matrix<F> R( X );
-    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, R );
-    Matrix<F> XW( X );
-    Matrix<F> w;
+    Matrix<Field> R( X );
+    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Field(1), A, R );
+    Matrix<Field> XW( X );
+    Matrix<Field> w;
     GetDiagonal( A, w );
     DiagonalScale( RIGHT, NORMAL, w, XW );
     R -= XW;
@@ -97,51 +97,52 @@ void TestCorrectness
     const Real relError = infError / (eps*n*oneNormA);
     Output("||A X - X W||_oo / (eps n ||A||_1) = ",relError);
 
-    // TODO: More rigorous failure condition
+    // TODO(poulson): More rigorous failure condition
     if( relError > Real(10) || !limits::IsFinite(relError) )
         LogicError("Unacceptably large relative error");
 }
 
-template<typename F>
+template<typename Field>
 void TestCorrectness
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& X,
+( const ElementalMatrix<Field>& A,
+  const ElementalMatrix<Field>& X,
         bool print )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = A.Height();
-    const Grid& g = A.Grid();
+    const Grid& grid = A.Grid();
     const Real eps = limits::Epsilon<Real>();
     const Real oneNormA = OneNorm( A );
 
     // Find the residual R = AX-XW
-    DistMatrix<F> R( X );
-    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, R );
-    DistMatrix<F> XW( X );
-    DistMatrix<F> w( g );
+    DistMatrix<Field> R( X );
+    Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Field(1), A, R );
+    DistMatrix<Field> XW( X );
+    DistMatrix<Field> w( grid );
     GetDiagonal( A, w );
     DiagonalScale( RIGHT, NORMAL, w, XW );
     R -= XW;
     const Real infError = InfinityNorm( R );
     const Real relError = infError / (eps*n*oneNormA);
     OutputFromRoot
-    (g.Comm(),"||A X - X W||_oo / (eps n ||A||_1) = ",relError);
-    // TODO: More rigorous failure condition
+    (grid.Comm(),"||A X - X W||_oo / (eps n ||A||_1) = ",relError);
+    // TODO(poulson): More rigorous failure condition
     if( relError > Real(10) || !limits::IsFinite(relError) )
         LogicError("Unacceptably large relative error");
 }
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,
+         typename=EnableIf<IsBlasScalar<Field>>>
 void TestTriangEig
 ( Int m,
   bool correctness,
   bool print,
   Int whichMatrix )
 {
-    Matrix<F> A, AOrig, X;
-    Matrix<F> w;
+    Matrix<Field> A, AOrig, X;
+    Matrix<Field> w;
 
-    Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<Field>());
     PushIndent();
 
     // Generate test matrix
@@ -150,7 +151,7 @@ void TestTriangEig
     case 0:
         {
             // LU factorization of Gaussian matrix
-            Matrix<F> B;
+            Matrix<Field> B;
             Gaussian( B, m, m );
             LU( B );
             Transpose( B, A );
@@ -170,11 +171,11 @@ void TestTriangEig
             break;
         }
     case 3:
-        Jordan( A, m, F(7) );
+        Jordan( A, m, Field(7) );
         break;
     default: LogicError("Unknown test matrix");
     }
-    
+
     if( correctness )
     {
         AOrig = A;
@@ -198,17 +199,19 @@ void TestTriangEig
     PopIndent();
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 void TestTriangEig
 ( Int m,
   bool correctness,
   bool print,
   Int whichMatrix )
 {
-    Matrix<F> A, AOrig, X;
-    Matrix<F> w;
+    Matrix<Field> A, AOrig, X;
+    Matrix<Field> w;
 
-    Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<Field>());
     PushIndent();
 
     // Generate test matrix
@@ -217,7 +220,7 @@ void TestTriangEig
     case 0:
         {
             // LU factorization of Gaussian matrix
-            Matrix<F> B;
+            Matrix<Field> B;
             Gaussian( B, m, m );
             LU( B );
             Transpose( B, A );
@@ -225,11 +228,11 @@ void TestTriangEig
             break;
         }
     case 3:
-        Jordan( A, m, F(7) );
+        Jordan( A, m, Field(7) );
         break;
     default: LogicError("Schur factorization not supported for non-BLAS types");
     }
-    
+
     if( correctness )
     {
         AOrig = A;
@@ -253,19 +256,19 @@ void TestTriangEig
     PopIndent();
 }
 
-template<typename F,Dist U=MC,Dist V=MR,Dist S=MC,
-         typename=EnableIf<IsBlasScalar<F>>>
+template<typename Field,Dist U=MC,Dist V=MR,Dist S=MC,
+         typename=EnableIf<IsBlasScalar<Field>>>
 void TestTriangEig
-( const Grid& g,
+( const Grid& grid,
   Int m,
   bool correctness,
   bool print,
   Int whichMatrix )
 {
-    DistMatrix<F,U,V> A(g), AOrig(g), X(g);
-    DistMatrix<F,S,STAR> w(g);
+    DistMatrix<Field,U,V> A(grid), AOrig(grid), X(grid);
+    DistMatrix<Field,S,STAR> w(grid);
 
-    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
     PushIndent();
 
     // Generate test matrix
@@ -274,7 +277,7 @@ void TestTriangEig
     case 0:
         {
             // LU factorization of Gaussian matrix
-            DistMatrix<F> B(g);
+            DistMatrix<Field> B(grid);
             Gaussian( B, m, m );
             LU( B );
             Transpose( B, A );
@@ -294,11 +297,11 @@ void TestTriangEig
             break;
         }
     case 3:
-        Jordan( A, m, F(7) );
+        Jordan( A, m, Field(7) );
         break;
     default: LogicError("Unknown test matrix");
     }
-    
+
     if( correctness )
     {
         AOrig = A;
@@ -307,11 +310,11 @@ void TestTriangEig
     if( print )
         Print( A, "A" );
 
-    OutputFromRoot(g.Comm(),"Starting triangular eigensolver...");
+    OutputFromRoot(grid.Comm(),"Starting triangular eigensolver...");
     Timer timer;
     timer.Start();
     TriangEig( A, X );
-    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    OutputFromRoot(grid.Comm(),"Time = ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -322,19 +325,20 @@ void TestTriangEig
     PopIndent();
 }
 
-template<typename F,Dist U=MC,Dist V=MR,Dist S=MC,
-         typename=DisableIf<IsBlasScalar<F>>,typename=void>
+template<typename Field,Dist U=MC,Dist V=MR,Dist S=MC,
+         typename=DisableIf<IsBlasScalar<Field>>,
+         typename=void>
 void TestTriangEig
-( const Grid& g,
+( const Grid& grid,
   Int m,
   bool correctness,
   bool print,
   Int whichMatrix )
 {
-    DistMatrix<F,U,V> A(g), AOrig(g), X(g);
-    DistMatrix<F,S,STAR> w(g);
+    DistMatrix<Field,U,V> A(grid), AOrig(grid), X(grid);
+    DistMatrix<Field,S,STAR> w(grid);
 
-    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
     PushIndent();
 
     // Generate test matrix
@@ -343,7 +347,7 @@ void TestTriangEig
     case 0:
         {
             // LU factorization of Gaussian matrix
-            DistMatrix<F> B(g);
+            DistMatrix<Field> B(grid);
             Gaussian( B, m, m );
             LU( B );
             Transpose( B, A );
@@ -351,11 +355,11 @@ void TestTriangEig
             break;
         }
     case 3:
-        Jordan( A, m, F(7) );
+        Jordan( A, m, Field(7) );
         break;
     default: LogicError("Schur factorization not supported for non-BLAS types");
     }
-    
+
     if( correctness )
     {
         AOrig = A;
@@ -364,11 +368,11 @@ void TestTriangEig
     if( print )
         Print( A, "A" );
 
-    OutputFromRoot(g.Comm(),"Starting triangular eigensolver...");
+    OutputFromRoot(grid.Comm(),"Starting triangular eigensolver...");
     Timer timer;
     timer.Start();
     TriangEig( A, X );
-    OutputFromRoot(g.Comm(),"Time = ",timer.Stop()," seconds");
+    OutputFromRoot(grid.Comm(),"Time = ",timer.Stop()," seconds");
     if( print )
     {
         Print( w, "eigenvalues:" );
@@ -379,7 +383,7 @@ void TestTriangEig
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -411,14 +415,14 @@ main( int argc, char* argv[] )
         }
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, gridHeight, order );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
+        const Grid grid( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 
         // Test with default distributions
-        OutputFromRoot(g.Comm(),"Normal algorithms:");
+        OutputFromRoot(grid.Comm(),"Normal algorithms:");
 
         if( sequential && mpi::Rank() == 0 )
         {
@@ -487,44 +491,44 @@ main( int argc, char* argv[] )
 
         if( testReal )
             TestTriangEig<double>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
         if( testCpx )
             TestTriangEig<Complex<double>>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
 
 #ifdef EL_HAVE_QUAD
         if( testReal && testNonstandard )
             TestTriangEig<Quad>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
         if( testCpx && testNonstandard )
             TestTriangEig<Complex<Quad>>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
 #endif
 
 #ifdef EL_HAVE_QD
         if( testReal && testNonstandard )
         {
             TestTriangEig<DoubleDouble>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
             TestTriangEig<QuadDouble>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
         }
         if( testCpx && testNonstandard )
         {
             TestTriangEig<Complex<DoubleDouble>>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
             TestTriangEig<Complex<QuadDouble>>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
         }
 #endif
 
 #ifdef EL_HAVE_MPC
         if( testReal && testNonstandard )
             TestTriangEig<BigFloat>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
         if( testCpx && testNonstandard )
             TestTriangEig<Complex<BigFloat>>
-            ( g, n, correctness, print, whichMatrix );
+            ( grid, n, correctness, print, whichMatrix );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

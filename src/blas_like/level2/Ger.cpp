@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -18,8 +18,8 @@ void Ger
   const Matrix<T>& y,
         Matrix<T>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( ( x.Height() != 1 && x.Width() != 1 ) ||
           ( y.Height() != 1 && y.Width() != 1 ) )
           LogicError("x and y must be vectors");
@@ -42,12 +42,12 @@ void Ger
 template<typename T>
 void Ger
 ( T alpha,
-  const AbstractDistMatrix<T>& x, 
+  const AbstractDistMatrix<T>& x,
   const AbstractDistMatrix<T>& y,
         AbstractDistMatrix<T>& APre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, x, y );
       if( ( x.Width() != 1 && x.Height() != 1 ) ||
           ( y.Width() != 1 && y.Height() != 1 )   )
@@ -130,12 +130,12 @@ void Ger
 template<typename T>
 void LocalGer
 ( T alpha,
-  const AbstractDistMatrix<T>& x, 
+  const AbstractDistMatrix<T>& x,
   const AbstractDistMatrix<T>& y,
         AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
-    // TODO: Add error checking here
+    EL_DEBUG_CSE
+    // TODO(poulson): Add error checking here
     Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
 }
 

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -17,7 +17,7 @@
 // This ADMM attempts to solve the quadratic programs:
 //     minimize    (1/2) x' Q x + c' x
 //     subject to  lb <= x <= ub
-// where c and x are corresponding columns of the matrices C and X, 
+// where c and x are corresponding columns of the matrices C and X,
 // respectively.
 //
 
@@ -25,17 +25,18 @@ namespace El {
 namespace qp {
 namespace box {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Int
 ADMM
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& C, 
+  const Matrix<Real>& C,
         Real lb,
         Real ub,
-        Matrix<Real>& Z, 
+        Matrix<Real>& Z,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = Q.Height();
     const Int k = C.Width();
 
@@ -131,21 +132,22 @@ ADMM
         ++numIter;
     }
     if( ctrl.maxIter == numIter )
-        Output("ADMM failed to converge");
+        RuntimeError("ADMM failed to converge");
     return numIter;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Int
 ADMM
-( const ElementalMatrix<Real>& QPre,
-  const ElementalMatrix<Real>& CPre, 
+( const AbstractDistMatrix<Real>& QPre,
+  const AbstractDistMatrix<Real>& CPre,
         Real lb,
         Real ub,
-        ElementalMatrix<Real>& ZPre, 
+        AbstractDistMatrix<Real>& ZPre,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       QProx( QPre ),
@@ -252,8 +254,8 @@ ADMM
             break;
         ++numIter;
     }
-    if( ctrl.maxIter == numIter && grid.Rank() == 0 )
-        Output("ADMM failed to converge");
+    if( ctrl.maxIter == numIter )
+        RuntimeError("ADMM failed to converge");
     return numIter;
 }
 
@@ -266,11 +268,11 @@ ADMM
           Matrix<Real>& Z, \
     const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
-  ( const ElementalMatrix<Real>& Q, \
-    const ElementalMatrix<Real>& C, \
+  ( const AbstractDistMatrix<Real>& Q, \
+    const AbstractDistMatrix<Real>& C, \
           Real lb, \
           Real ub, \
-          ElementalMatrix<Real>& Z, \
+          AbstractDistMatrix<Real>& Z, \
     const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

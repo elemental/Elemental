@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_DIAGONALSCALETRAPEZOID_HPP
@@ -15,13 +15,13 @@ template<typename TDiag,typename T>
 void DiagonalScaleTrapezoid
 ( LeftOrRight side,
   UpperOrLower uplo,
-  Orientation orientation, 
+  Orientation orientation,
   const Matrix<TDiag>& d,
         Matrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( side==LEFT && (d.Height()!=A.Height() || d.Width()!=1) )
           LogicError("d should have been a vector of the height of A");
       if( side==RIGHT && (d.Height()!=A.Width() || d.Width()!=1) )
@@ -90,11 +90,11 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side,
   UpperOrLower uplo,
   Orientation orientation,
-  const ElementalMatrix<TDiag>& dPre,
+  const AbstractDistMatrix<TDiag>& dPre,
         DistMatrix<T,U,V>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -122,7 +122,7 @@ void DiagonalScaleTrapezoid
         if( uplo == LOWER )
         {
             // Scale from the left up to the diagonal
-            for( Int iLoc=0; iLoc<mLoc; ++iLoc )            
+            for( Int iLoc=0; iLoc<mLoc; ++iLoc )
             {
                 const Int i = A.GlobalRow(iLoc);
                 if( i >= iOff )
@@ -131,7 +131,7 @@ void DiagonalScaleTrapezoid
                     const Int j = k+jOff;
                     const Int width = Min(j+1,n);
                     const Int localWidth = A.LocalColOffset(width);
-                    const TDiag alpha = 
+                    const TDiag alpha =
                         ( conjugate ? Conj(d.GetLocal(iLoc,0))
                                     :      d.GetLocal(iLoc,0) );
                     blas::Scal( localWidth, alpha, &ABuf[iLoc], ldim );
@@ -150,14 +150,14 @@ void DiagonalScaleTrapezoid
                     const Int j = k+jOff;
                     const Int jLeft = Max(j,0);
                     const Int jLeftLoc = A.LocalColOffset(jLeft);
-                    const TDiag alpha = 
+                    const TDiag alpha =
                         ( conjugate ? Conj(d.GetLocal(iLoc,0))
                                     :      d.GetLocal(iLoc,0) );
                     blas::Scal
                     ( nLoc-jLeftLoc, alpha, &ABuf[iLoc+jLeftLoc*ldim], ldim );
                 }
             }
-        }    
+        }
     }
     else
     {
@@ -166,7 +166,7 @@ void DiagonalScaleTrapezoid
         ctrl.colConstrain = true;
         ctrl.root = A.Root();
         ctrl.colAlign = A.RowAlign();
-        
+
         DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>()> dProx( dPre, ctrl );
         auto& d = dProx.GetLocked();
 
@@ -182,7 +182,7 @@ void DiagonalScaleTrapezoid
                     const Int i = k+iOff;
                     const Int iTop = Max(i,0);
                     const Int iTopLoc = A.LocalRowOffset(iTop);
-                    const TDiag alpha = 
+                    const TDiag alpha =
                         ( conjugate ? Conj(d.GetLocal(jLoc,0))
                                     :      d.GetLocal(jLoc,0) );
                     blas::Scal
@@ -190,7 +190,7 @@ void DiagonalScaleTrapezoid
                 }
             }
         }
-        else 
+        else
         {
             // Scale downward to the diagonal
             for( Int jLoc=0; jLoc<nLoc; ++jLoc )
@@ -202,7 +202,140 @@ void DiagonalScaleTrapezoid
                     const Int i = k+iOff;
                     const Int height = Min(i+1,m);
                     const Int localHeight = A.LocalRowOffset(height);
-                    const TDiag alpha = 
+                    const TDiag alpha =
+                        ( conjugate ? Conj(d.GetLocal(jLoc,0))
+                                    :      d.GetLocal(jLoc,0) );
+                    blas::Scal( localHeight, alpha, &ABuf[jLoc*ldim], 1 );
+                }
+            }
+        }
+    }
+}
+
+template<typename TDiag,typename T,Dist U,Dist V>
+void DiagonalScaleTrapezoid
+( LeftOrRight side,
+  UpperOrLower uplo,
+  Orientation orientation,
+  const AbstractDistMatrix<TDiag>& dPre,
+        DistMatrix<T,U,V,BLOCK>& A,
+  Int offset )
+{
+    EL_DEBUG_CSE
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int mLoc = A.LocalHeight();
+    const Int nLoc = A.LocalWidth();
+    const bool conjugate = ( orientation==ADJOINT );
+
+    const Int diagLength = A.DiagonalLength(offset);
+    const Int ldim = A.LDim();
+    T* ABuf = A.Buffer();
+
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    if( side == LEFT )
+    {
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.ColAlign();
+        ctrl.blockHeight = A.BlockHeight();
+        ctrl.colCut = A.ColCut();
+
+        DistMatrixReadProxy<TDiag,TDiag,U,Collect<V>(),BLOCK>
+          dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
+        if( uplo == LOWER )
+        {
+            // Scale from the left up to the diagonal
+            for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+            {
+                const Int i = A.GlobalRow(iLoc);
+                if( i >= iOff )
+                {
+                    const Int k = i-iOff;
+                    const Int j = k+jOff;
+                    const Int width = Min(j+1,n);
+                    const Int localWidth = A.LocalColOffset(width);
+                    const TDiag alpha =
+                        ( conjugate ? Conj(d.GetLocal(iLoc,0))
+                                    :      d.GetLocal(iLoc,0) );
+                    blas::Scal( localWidth, alpha, &ABuf[iLoc], ldim );
+                }
+            }
+        }
+        else
+        {
+            // Scale from the diagonal to the right
+            for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+            {
+                const Int i = A.GlobalRow(iLoc);
+                if( i < iOff+diagLength )
+                {
+                    const Int k = i-iOff;
+                    const Int j = k+jOff;
+                    const Int jLeft = Max(j,0);
+                    const Int jLeftLoc = A.LocalColOffset(jLeft);
+                    const TDiag alpha =
+                        ( conjugate ? Conj(d.GetLocal(iLoc,0))
+                                    :      d.GetLocal(iLoc,0) );
+                    blas::Scal
+                    ( nLoc-jLeftLoc, alpha, &ABuf[iLoc+jLeftLoc*ldim], ldim );
+                }
+            }
+        }
+    }
+    else
+    {
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.RowAlign();
+        ctrl.blockHeight = A.BlockWidth();
+        ctrl.colCut = A.RowCut();
+
+        DistMatrixReadProxy<TDiag,TDiag,V,Collect<U>(),BLOCK>
+          dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
+        if( uplo == LOWER )
+        {
+            // Scale from the diagonal downwards
+            for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+            {
+                const Int j = A.GlobalCol(jLoc);
+                if( j < jOff+diagLength )
+                {
+                    const Int k = j-jOff;
+                    const Int i = k+iOff;
+                    const Int iTop = Max(i,0);
+                    const Int iTopLoc = A.LocalRowOffset(iTop);
+                    const TDiag alpha =
+                        ( conjugate ? Conj(d.GetLocal(jLoc,0))
+                                    :      d.GetLocal(jLoc,0) );
+                    blas::Scal
+                    ( mLoc-iTopLoc, alpha, &ABuf[iTopLoc+jLoc*ldim], 1 );
+                }
+            }
+        }
+        else
+        {
+            // Scale downward to the diagonal
+            for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+            {
+                const Int j = A.GlobalCol(jLoc);
+                if( j >= jOff )
+                {
+                    const Int k = j-jOff;
+                    const Int i = k+iOff;
+                    const Int height = Min(i+1,m);
+                    const Int localHeight = A.LocalRowOffset(height);
+                    const TDiag alpha =
                         ( conjugate ? Conj(d.GetLocal(jLoc,0))
                                     :      d.GetLocal(jLoc,0) );
                     blas::Scal( localHeight, alpha, &ABuf[jLoc*ldim], 1 );
@@ -217,14 +350,15 @@ void DiagonalScaleTrapezoid
 ( LeftOrRight side,
   UpperOrLower uplo,
   Orientation orientation,
-  const ElementalMatrix<TDiag>& d,
-        ElementalMatrix<T>& A,
+  const AbstractDistMatrix<TDiag>& d,
+        AbstractDistMatrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
-    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
         DiagonalScaleTrapezoid( side, uplo, orientation, d, ACast, offset );
     #include <El/macros/GuardAndPayload.h>
 }
@@ -238,7 +372,7 @@ void DiagonalScaleTrapezoid
         SparseMatrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -251,7 +385,7 @@ void DiagonalScaleTrapezoid
         DistSparseMatrix<T>& A,
   Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet written");
 }
 
@@ -273,8 +407,8 @@ void DiagonalScaleTrapezoid
   ( LeftOrRight side, \
     UpperOrLower uplo, \
     Orientation orientation, \
-    const ElementalMatrix<T>& d, \
-          ElementalMatrix<T>& A, \
+    const AbstractDistMatrix<T>& d, \
+          AbstractDistMatrix<T>& A, \
     Int offset ); \
   EL_EXTERN template void DiagonalScaleTrapezoid \
   ( LeftOrRight side, \

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -39,19 +39,11 @@ void Mehrotra
   const Matrix<Real>& bPre,
   const Matrix<Real>& cPre,
         Matrix<Real>& x,
-        Matrix<Real>& y, 
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-
-    const bool stepLengthSigma = true;
-    const bool standardShift = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
+    EL_DEBUG_CSE
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -68,7 +60,7 @@ void Mehrotra
 
         DiagonalSolve( LEFT, NORMAL, dRow, b );
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        // TODO: Replace with SymmetricDiagonalSolve
+        // TODO(poulson): Replace with SymmetricDiagonalSolve
         {
             DiagonalSolve( LEFT, NORMAL, dCol, Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
@@ -100,10 +92,11 @@ void Mehrotra
     }
 
     Initialize
-    ( Q, A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
+    ( Q, A, b, c, x, y, z,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real relError = 1;
-    Matrix<Real> J, d, 
+    Matrix<Real> J, d,
                  rb,    rc,    rmu,
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
@@ -134,7 +127,7 @@ void Mehrotra
         Hemv( LOWER, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y); 
+        const Real dualObj = -xTQx/2 - Dot(b,y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -286,7 +279,8 @@ void Mehrotra
         const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -345,7 +339,7 @@ void Mehrotra
         }
         else
             LogicError("Invalid KKT system choice");
-        // TODO: Residual checks
+        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -359,7 +353,7 @@ void Mehrotra
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z ); 
+        Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -381,25 +375,16 @@ void Mehrotra
 
 template<typename Real>
 void Mehrotra
-( const ElementalMatrix<Real>& QPre,
-  const ElementalMatrix<Real>& APre, 
-  const ElementalMatrix<Real>& bPre,
-  const ElementalMatrix<Real>& cPre,
-        ElementalMatrix<Real>& xPre,
-        ElementalMatrix<Real>& yPre,
-        ElementalMatrix<Real>& zPre,
+( const AbstractDistMatrix<Real>& QPre,
+  const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& bPre,
+  const AbstractDistMatrix<Real>& cPre,
+        AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& yPre,
+        AbstractDistMatrix<Real>& zPre,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-
-    const bool stepLengthSigma = true;
-    const bool standardShift = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-
+    EL_DEBUG_CSE
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
 
@@ -442,7 +427,7 @@ void Mehrotra
 
         DiagonalSolve( LEFT, NORMAL, dRow, b );
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        // TODO: Replace with SymmetricDiagonalSolve
+        // TODO(poulson): Replace with SymmetricDiagonalSolve
         {
             DiagonalSolve( LEFT, NORMAL, dCol, Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
@@ -477,12 +462,13 @@ void Mehrotra
     }
 
     Initialize
-    ( Q, A, b, c, x, y, z, ctrl.primalInit, ctrl.dualInit, standardShift ); 
+    ( Q, A, b, c, x, y, z,
+      ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift );
 
     Real relError = 1;
-    DistMatrix<Real> 
-        J(grid), d(grid), 
-        rc(grid),    rb(grid),    rmu(grid), 
+    DistMatrix<Real>
+        J(grid), d(grid),
+        rc(grid),    rb(grid),    rmu(grid),
         dxAff(grid), dyAff(grid), dzAff(grid),
         dx(grid),    dy(grid),    dz(grid);
     dx.AlignWith( x );
@@ -518,7 +504,7 @@ void Mehrotra
         Hemv( LOWER, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y); 
+        const Real dualObj = -xTQx/2 - Dot(b,y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -672,7 +658,8 @@ void Mehrotra
         const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print && commRank == 0 )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print && commRank == 0 )
             Output("sigma=",sigma);
 
@@ -731,7 +718,7 @@ void Mehrotra
         }
         else
             LogicError("Invalid KKT system choice");
-        // TODO: Residual checks
+        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -745,7 +732,7 @@ void Mehrotra
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z ); 
+        Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -768,23 +755,15 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const SparseMatrix<Real>& QPre,
-  const SparseMatrix<Real>& APre, 
+  const SparseMatrix<Real>& APre,
   const Matrix<Real>& bPre,
   const Matrix<Real>& cPre,
         Matrix<Real>& x,
-        Matrix<Real>& y, 
+        Matrix<Real>& y,
         Matrix<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
+    EL_DEBUG_CSE
 
     // Equilibrate the QP by diagonally scaling A
     auto Q = QPre;
@@ -801,7 +780,7 @@ void Mehrotra
 
         DiagonalSolve( LEFT, NORMAL, dRow, b );
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        // TODO: Replace with SymmetricDiagonalSolve
+        // TODO(poulson): Replace with SymmetricDiagonalSolve
         {
             DiagonalSolve( LEFT, NORMAL, dCol, Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
@@ -833,27 +812,27 @@ void Mehrotra
         Output("|| c ||_2 = ",cNrm2);
     }
 
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
+    SparseLDLFactorization<Real> sparseLDLFact;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
-    // TODO: Add permanent regularization and cache J metadata
+    // TODO(poulson): Add permanent regularization and cache J metadata
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
-    }  
+        ( Q, A, b, c, x, y, z,
+          sparseLDLFact,
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
+    }
     else
     {
-        vector<Int> augMap, augInvMap;
-        ldl::NodeInfo augInfo;
-        ldl::Separator augRootSep;
+        SparseLDLFactorization<Real> augmentedSparseLDLFact;
         Initialize
-        ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+        ( Q, A, b, c, x, y, z,
+          augmentedSparseLDLFact,
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
     }
 
     Matrix<Real> regTmp;
@@ -879,10 +858,9 @@ void Mehrotra
     regTmp *= origTwoNormEst;
 
     SparseMatrix<Real> J, JOrig;
-    ldl::Front<Real> JFront;
-    Matrix<Real> d, 
+    Matrix<Real> d,
                  w,
-                 rc,    rb,    rmu, 
+                 rc,    rb,    rmu,
                  dxAff, dyAff, dzAff,
                  dx,    dy,    dz;
 
@@ -916,7 +894,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y); 
+        const Real dualObj = -xTQx/2 - Dot(b,y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -968,7 +946,7 @@ void Mehrotra
 
         // r_mu := x o z
         // -------------
-        rmu = z; 
+        rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
 
         if( ctrl.system == FULL_KKT || ctrl.system == AUGMENTED_KKT )
@@ -986,17 +964,16 @@ void Mehrotra
             {
                 AugmentedKKT
                 ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, x, z, JOrig, false );
-                // TODO: Incorporate ctrl.reg2Perm?
+                // TODO(poulson): Incorporate ctrl.reg2Perm?
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
 
             // Solve for the direction
             // -----------------------
             try
             {
-                J = JOrig;
-
-                UpdateDiagonal( J, Real(1), regTmp );
                 if( wMaxNorm >= ctrl.ruizEquilTol )
                     SymmetricRuizEquil
                     ( J, dInner, ctrl.ruizMaxIter, ctrl.print );
@@ -1005,24 +982,28 @@ void Mehrotra
                 else
                     Ones( dInner, J.Height(), 1 );
 
-                if( numIts == 0 && 
-                    (ctrl.system == FULL_KKT || 
+                if( numIts == 0 &&
+                    (ctrl.system != AUGMENTED_KKT ||
                      (ctrl.primalInit && ctrl.dualInit) ) )
                 {
-                    NestedDissection( J.LockedGraph(), map, rootSep, info );
-                    InvertMap( map, invMap );
+                    const bool hermitian = true;
+                    const BisectCtrl bisectCtrl;
+                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
                 }
-                JFront.Pull( J, map, info );
+                else
+                {
+                    sparseLDLFact.ChangeNonzeroValues( J );
+                }
 
-                LDL( info, JFront, LDL_2D );
+                sparseLDLFact.Factor( LDL_2D );
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, 
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
             }
             catch(...)
@@ -1089,7 +1070,8 @@ void Mehrotra
         const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -1119,12 +1101,12 @@ void Mehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
             }
             catch(...)
@@ -1148,14 +1130,13 @@ void Mehrotra
             {
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl ); 
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
-
             }
             catch(...)
             {
@@ -1169,7 +1150,7 @@ void Mehrotra
         }
         else
             LogicError("Invalid KKT system choice");
-        // TODO: Residual checks
+        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -1183,7 +1164,7 @@ void Mehrotra
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z ); 
+        Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -1206,26 +1187,17 @@ void Mehrotra
 template<typename Real>
 void Mehrotra
 ( const DistSparseMatrix<Real>& QPre,
-  const DistSparseMatrix<Real>& APre, 
+  const DistSparseMatrix<Real>& APre,
   const DistMultiVec<Real>& bPre,
   const DistMultiVec<Real>& cPre,
         DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y, 
+        DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
   const MehrotraCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-
-    const bool stepLengthSigma = true;
-    function<Real(Real,Real,Real,Real)> centralityRule;
-    if( stepLengthSigma )
-        centralityRule = StepLengthCentrality<Real>;
-    else
-        centralityRule = MehrotraCentrality<Real>;
-    const bool standardShift = true;
-
-    mpi::Comm comm = APre.Comm();
-    const int commRank = mpi::Rank(comm);
+    EL_DEBUG_CSE
+    const Grid& grid = APre.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
 
     // Equilibrate the QP by diagonally scaling A
@@ -1236,7 +1208,7 @@ void Mehrotra
     const Int m = A.Height();
     const Int n = A.Width();
     const Int degree = n;
-    DistMultiVec<Real> dRow(comm), dCol(comm);
+    DistMultiVec<Real> dRow(grid), dCol(grid);
     if( ctrl.outerEquil )
     {
         if( commRank == 0 && ctrl.time )
@@ -1247,7 +1219,7 @@ void Mehrotra
 
         DiagonalSolve( LEFT, NORMAL, dRow, b );
         DiagonalSolve( LEFT, NORMAL, dCol, c );
-        // TODO: Replace with SymmetricDiagonalSolve
+        // TODO(poulson): Replace with SymmetricDiagonalSolve
         {
             DiagonalSolve( LEFT, NORMAL, dCol, Q );
             DiagonalSolve( RIGHT, NORMAL, dCol, Q );
@@ -1286,38 +1258,34 @@ void Mehrotra
         }
     }
 
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    vector<Int> mappedSources, mappedTargets, colOffs;
+    DistSparseLDLFactorization<Real> sparseLDLFact;
     // The initialization involves an augmented KKT system, and so we can
     // only reuse the factorization metadata if the this IPM is using the
     // augmented formulation
-    // TODO: Add permanent regularization and cache J metadata
+    // TODO(poulson): Add permanent regularization and cache J metadata
     if( commRank == 0 && ctrl.time )
         timer.Start();
     if( ctrl.system == AUGMENTED_KKT )
     {
         Initialize
-        ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
-          mappedSources, mappedTargets, colOffs,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl ); 
-    }  
+        ( Q, A, b, c, x, y, z,
+          sparseLDLFact,
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
+    }
     else
     {
-        DistMap augMap, augInvMap;
-        ldl::DistNodeInfo augInfo;
-        ldl::DistSeparator augRootSep;
-        vector<Int> augMappedSources, augMappedTargets, augColOffs;
+        DistSparseLDLFactorization<Real> augmentedSparseLDLFact;
         Initialize
-        ( Q, A, b, c, x, y, z, augMap, augInvMap, augRootSep, augInfo,
-          augMappedSources, augMappedTargets, augColOffs,
-          ctrl.primalInit, ctrl.dualInit, standardShift, ctrl.solveCtrl );
+        ( Q, A, b, c, x, y, z,
+          augmentedSparseLDLFact,
+          ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift,
+          ctrl.solveCtrl );
     }
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    DistMultiVec<Real> regTmp(comm);
+    DistMultiVec<Real> regTmp(grid);
     if( ctrl.system == FULL_KKT )
     {
         regTmp.Resize( m+2*n, 1 );
@@ -1345,18 +1313,15 @@ void Mehrotra
     regTmp *= origTwoNormEst;
 
     DistGraphMultMeta metaOrig, meta;
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    ldl::DistFront<Real> JFront;
-    DistMultiVec<Real> d(comm), 
-                       w(comm),
-                       rc(comm),    rb(comm),    rmu(comm), 
-                       dxAff(comm), dyAff(comm), dzAff(comm),
-                       dx(comm),    dy(comm),    dz(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
+    DistMultiVec<Real> d(grid), w(grid),
+                       rc(grid),    rb(grid),    rmu(grid),
+                       dxAff(grid), dyAff(grid), dzAff(grid),
+                       dx(grid),    dy(grid),    dz(grid);
 
     Real relError = 1;
-    DistMultiVec<Real> dInner(comm);
-    DistMultiVec<Real> dxError(comm), dyError(comm), dzError(comm), prod(comm);
-    ldl::DistMultiVecNodeMeta dmvMeta;
+    DistMultiVec<Real> dInner(grid);
+    DistMultiVec<Real> dxError(grid), dyError(grid), dzError(grid), prod(grid);
     const Int indent = PushIndent();
     for( Int numIts=0; numIts<=ctrl.maxIts; ++numIts )
     {
@@ -1384,7 +1349,7 @@ void Mehrotra
         Multiply( NORMAL, Real(1), Q, x, Real(0), d );
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
-        const Real dualObj = -xTQx/2 - Dot(b,y); 
+        const Real dualObj = -xTQx/2 - Dot(b,y);
         const Real objConv = Abs(primObj-dualObj) / (1+Abs(primObj));
         // || r_b ||_2 / (1 + || b ||_2) <= tol ?
         // --------------------------------------
@@ -1435,7 +1400,7 @@ void Mehrotra
 
         // r_mu := x o z
         // -------------
-        rmu = z; 
+        rmu = z;
         DiagonalScale( LEFT, NORMAL, x, rmu );
 
         if( ctrl.system == FULL_KKT || ctrl.system == AUGMENTED_KKT )
@@ -1455,45 +1420,29 @@ void Mehrotra
                 ( Q, A, ctrl.reg0Perm, ctrl.reg1Perm, x, z, JOrig, false );
                 AugmentedKKTRHS( x, rc, rb, rmu, d );
             }
+            J = JOrig;
+            UpdateDiagonal( J, Real(1), regTmp );
+            if( numIts == 0 )
+            {
+                if( ctrl.print )
+                {
+                    const double imbalanceJ = J.Imbalance();
+                    if( commRank == 0 )
+                        Output("Imbalance factor of J: ",imbalanceJ);
+                }
+                metaOrig = JOrig.InitializeMultMeta();
+                meta = J.InitializeMultMeta();
+            }
+            else
+            {
+                JOrig.LockedDistGraph().multMeta = metaOrig;
+                J.LockedDistGraph().multMeta = meta;
+            }
 
             // Solve for the direction
             // -----------------------
             try
             {
-                // Cache the metadata for the finalized JOrig
-                if( numIts == 0 )
-                    metaOrig = JOrig.InitializeMultMeta();
-                else
-                    JOrig.LockedDistGraph().multMeta = metaOrig;
-                J = JOrig;
-
-                UpdateDiagonal( J, Real(1), regTmp );
-                // Cache the metadata for the finalized J
-                if( numIts == 0 )
-                {
-                    if( ctrl.print )
-                    {
-                        const double imbalanceJ = J.Imbalance();
-                        if( commRank == 0 )
-                            Output("Imbalance factor of J: ",imbalanceJ);
-                    }
-
-                    meta = J.InitializeMultMeta();
-                    if( ctrl.system == FULL_KKT || 
-                        (ctrl.primalInit && ctrl.dualInit) )
-                    {
-                        if( commRank == 0 && ctrl.time )
-                            timer.Start();
-                        NestedDissection
-                        ( J.LockedDistGraph(), map, rootSep, info );
-                        if( commRank == 0 && ctrl.time )
-                            Output("ND: ",timer.Stop()," secs");
-                        InvertMap( map, invMap );
-                    }
-                }
-                else
-                    J.LockedDistGraph().multMeta = meta;
-
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
                 if( wMaxNorm >= ctrl.ruizEquilTol )
@@ -1506,13 +1455,24 @@ void Mehrotra
                 if( commRank == 0 && ctrl.time )
                     Output("Equilibration: ",timer.Stop()," secs");
 
-                JFront.Pull
-                ( J, map, rootSep, info, 
-                  mappedSources, mappedTargets, colOffs );
+                if( numIts == 0 &&
+                    (ctrl.system != AUGMENTED_KKT ||
+                     (ctrl.primalInit && ctrl.dualInit)) )
+                {
+                    if( commRank == 0 && ctrl.time )
+                        timer.Start();
+                    const bool hermitian = true;
+                    const BisectCtrl bisectCtrl;
+                    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+                    if( commRank == 0 && ctrl.time )
+                        Output("Analysis: ",timer.Stop()," secs");
+                }
+                else
+                    sparseLDLFact.ChangeNonzeroValues( J );
 
                 if( commRank == 0 && ctrl.time )
                     timer.Start();
-                LDL( info, JFront, LDL_2D );
+                sparseLDLFact.Factor( LDL_2D );
                 if( commRank == 0 && ctrl.time )
                     Output("LDL: ",timer.Stop()," secs");
 
@@ -1520,12 +1480,12 @@ void Mehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Affine: ",timer.Stop()," secs");
@@ -1595,7 +1555,8 @@ void Mehrotra
         const Real muAff = Dot(dx,dz) / degree;
         if( ctrl.print )
             Output("muAff = ",muAff,", mu = ",mu);
-        const Real sigma = centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
+        const Real sigma =
+          ctrl.centralityRule(mu,muAff,alphaAffPri,alphaAffDual);
         if( ctrl.print )
             Output("sigma=",sigma);
 
@@ -1627,12 +1588,12 @@ void Mehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
@@ -1660,12 +1621,12 @@ void Mehrotra
                     timer.Start();
                 if( ctrl.resolveReg )
                     reg_ldl::SolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl );
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d, ctrl.solveCtrl );
                 else
                     reg_ldl::RegularizedSolveAfter
-                    ( JOrig, regTmp, dInner, invMap, info, JFront, d, dmvMeta,
-                      ctrl.solveCtrl.relTol, ctrl.solveCtrl.maxRefineIts,
+                    ( JOrig, regTmp, dInner, sparseLDLFact, d,
+                      ctrl.solveCtrl.relTol,
+                      ctrl.solveCtrl.maxRefineIts,
                       ctrl.solveCtrl.progress );
                 if( commRank == 0 && ctrl.time )
                     Output("Corrector: ",timer.Stop()," secs");
@@ -1682,7 +1643,7 @@ void Mehrotra
         }
         else
             LogicError("Invalid KKT system choice");
-        // TODO: Residual checks
+        // TODO(poulson): Residual checks
 
         // Update the current estimates
         // ============================
@@ -1696,7 +1657,7 @@ void Mehrotra
             Output("alphaPri = ",alphaPri,", alphaDual = ",alphaDual);
         Axpy( alphaPri,  dx, x );
         Axpy( alphaDual, dy, y );
-        Axpy( alphaDual, dz, z ); 
+        Axpy( alphaDual, dz, z );
         if( alphaPri == Real(0) && alphaDual == Real(0) )
         {
             if( relError <= ctrl.minTol )
@@ -1727,13 +1688,13 @@ void Mehrotra
           Matrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
-  ( const ElementalMatrix<Real>& Q, \
-    const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-          ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
+  ( const AbstractDistMatrix<Real>& Q, \
+    const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
     const MehrotraCtrl<Real>& ctrl ); \
   template void Mehrotra \
   ( const SparseMatrix<Real>& Q, \

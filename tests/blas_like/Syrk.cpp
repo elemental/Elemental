@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -19,7 +19,7 @@ void TestAssociativity
            const DistMatrix<T>& C,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // This routine assumes that C and COrig are explicitly symmetric/Hermitian
 
@@ -40,9 +40,9 @@ void TestAssociativity
     {
         // (alpha A A' + beta COrig) X = alpha A (A' X) + beta COrig X
         if( conjugate )
-            Gemm( ADJOINT, NORMAL, T(1), A, X, Z );    
+            Gemm( ADJOINT, NORMAL, T(1), A, X, Z );
         else
-            Gemm( TRANSPOSE, NORMAL, T(1), A, X, Z );    
+            Gemm( TRANSPOSE, NORMAL, T(1), A, X, Z );
         Gemm( NORMAL, NORMAL, alpha, A, Z, Y );
         Gemm( NORMAL, NORMAL, beta, COrig, X, T(1), Y );
         if( print )
@@ -161,7 +161,7 @@ void TestSyrk
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -190,7 +190,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );

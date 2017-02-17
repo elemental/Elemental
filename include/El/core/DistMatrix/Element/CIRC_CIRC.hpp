@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_DISTMATRIX_ELEMENTAL_CIRC_CIRC_HPP
@@ -14,36 +14,36 @@ namespace El {
 // Partial specialization to A[o,o].
 //
 // The entire matrix is only stored on a single process.
-template<typename T>
-class DistMatrix<T,CIRC,CIRC> : public ElementalMatrix<T>
+template<typename Ring>
+class DistMatrix<Ring,CIRC,CIRC> : public ElementalMatrix<Ring>
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<T> absType;
-    typedef ElementalMatrix<T> elemType;
-    typedef DistMatrix<T,CIRC,CIRC> type;
-    typedef DistMatrix<T,CIRC,CIRC> transType;
-    typedef DistMatrix<T,CIRC,CIRC> diagType;
+    typedef AbstractDistMatrix<Ring> absType;
+    typedef ElementalMatrix<Ring> elemType;
+    typedef DistMatrix<Ring,CIRC,CIRC> type;
+    typedef DistMatrix<Ring,CIRC,CIRC> transType;
+    typedef DistMatrix<Ring,CIRC,CIRC> diagType;
 
     // Constructors and destructors
     // ============================
 
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const El::Grid& g=Grid::Default(), int root=0 );
+    DistMatrix( const El::Grid& grid=Grid::Default(), int root=0 );
 
     // Create a height x width distributed matrix
     DistMatrix
-    ( Int height, Int width, const El::Grid& g=Grid::Default(), int root=0 );
+    ( Int height, Int width, const El::Grid& grid=Grid::Default(), int root=0 );
 
     // Create a direct copy (redistributing if necessary)
     DistMatrix( const type& A );
     DistMatrix( const absType& A );
     DistMatrix( const elemType& A );
     template<Dist colDist,Dist rowDist>
-    DistMatrix( const DistMatrix<T,colDist,rowDist>& A );
+    DistMatrix( const DistMatrix<Ring,colDist,rowDist>& A );
     template<Dist colDist,Dist rowDist>
-    DistMatrix( const DistMatrix<T,colDist,rowDist,BLOCK>& A );
+    DistMatrix( const DistMatrix<Ring,colDist,rowDist,BLOCK>& A );
 
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
@@ -52,9 +52,12 @@ public:
     ~DistMatrix();
 
     type* Copy() const override;
-    type* Construct( const El::Grid& g, int root ) const override;
-    transType* ConstructTranspose( const El::Grid& g, int root ) const override;
-    diagType* ConstructDiagonal( const El::Grid& g, int root ) const override;
+    type* Construct
+    ( const El::Grid& grid, int root ) const override;
+    transType* ConstructTranspose
+    ( const El::Grid& grid, int root ) const override;
+    diagType* ConstructDiagonal
+    ( const El::Grid& grid, int root ) const override;
 
     // Operator overloading
     // ====================
@@ -66,7 +69,7 @@ public:
 
     // Return a copy of a (generally non-contiguous) submatrix
     // -------------------------------------------------------
-    type operator()( Range<Int> I, const vector<Int>& J ) const; 
+    type operator()( Range<Int> I, const vector<Int>& J ) const;
     type operator()( const vector<Int>& I, Range<Int> J ) const;
     type operator()( const vector<Int>& I, const vector<Int>& J ) const;
 
@@ -76,7 +79,7 @@ public:
     type& operator=( const absType& A );
     type& operator=( const elemType& A );
     template<Dist colDist,Dist rowDist>
-    type& operator=( const DistMatrix<T,colDist,rowDist,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,colDist,rowDist,BLOCK>& A );
 
     // Move assignment
     // ---------------
@@ -84,7 +87,7 @@ public:
 
     // Rescaling
     // ---------
-    const type& operator*=( T alpha );
+    const type& operator*=( Ring alpha );
 
     // Addition/subtraction
     // --------------------
@@ -95,8 +98,6 @@ public:
 
     // Basic queries
     // =============
-    ElementalData DistData() const override;
-
     Dist ColDist()             const EL_NO_EXCEPT override;
     Dist RowDist()             const EL_NO_EXCEPT override;
     Dist PartialColDist()      const EL_NO_EXCEPT override;
@@ -136,7 +137,6 @@ public:
     int PartialUnionColRank() const EL_NO_EXCEPT override;
     int PartialUnionRowRank() const EL_NO_EXCEPT override;
 
-private:
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
 };
 

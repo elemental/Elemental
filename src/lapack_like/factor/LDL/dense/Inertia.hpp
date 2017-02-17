@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_INERTIA_HPP
@@ -12,11 +12,11 @@
 // See Bunch and Kaufman's "Some Stable Methods for Calculating Inertia and
 // Solving Symmetric Linear Systems", Mathematics of Computation, 1977.
 //
-// The main insight for computing the inertia is that all 2x2 pivot blocks 
-// produced by Bunch-Kaufman pivoting have both a negative and positive 
+// The main insight for computing the inertia is that all 2x2 pivot blocks
+// produced by Bunch-Kaufman pivoting have both a negative and positive
 // eigenvalue (since the off-diagonal value is larger in magnitude than the two
 // diagonal values), and so, if the 1x1 portion of D has a positive, b negative,
-// and c zero values, and there are q 2x2 pivots, then the inertia is 
+// and c zero values, and there are q 2x2 pivots, then the inertia is
 // (a+q,b+q,c).
 
 namespace El {
@@ -25,10 +25,10 @@ namespace ldl {
 template<typename F>
 InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( n != 0 && dSub.Height() != n-1 )
           LogicError("dSub was the wrong length");
     )
@@ -43,12 +43,12 @@ InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
         {
             const Real delta = d(k);
             if( delta > Real(0) )
-                ++inertia.numPositive; 
+                ++inertia.numPositive;
             else if( delta < Real(0) )
                 ++inertia.numNegative;
             else
                 ++inertia.numZero;
-        } 
+        }
         else
         {
             ++inertia.numPositive;
@@ -64,16 +64,16 @@ InertiaType Inertia( const Matrix<Base<F>>& d, const Matrix<F>& dSub )
 template<typename F>
 InertiaType
 Inertia
-( const DistMatrix<Base<F>,MC,STAR>& d, 
-  const DistMatrix<Base<F>,MC,STAR>& dPrev, 
-  const DistMatrix<F,MC,STAR>& dSub, 
+( const DistMatrix<Base<F>,MC,STAR>& d,
+  const DistMatrix<Base<F>,MC,STAR>& dPrev,
+  const DistMatrix<F,MC,STAR>& dSub,
   const DistMatrix<F,MC,STAR>& dSubPrev )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         if( dPrev.Height() != n )
             LogicError("dPrev was the wrong length");
         if( n != 0 )
@@ -84,7 +84,7 @@ Inertia
     )
 
     const Int colStride = d.ColStride();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
         const Int colAlign = d.ColAlign();
         const Int colAlignPrev = (colAlign+1) % colStride;
         if( dSub.ColAlign() != colAlign )
@@ -143,9 +143,9 @@ Inertia
 
 template<typename F>
 InertiaType Inertia
-( const ElementalMatrix<Base<F>>& d, const ElementalMatrix<F>& dSub )
+( const AbstractDistMatrix<Base<F>>& d, const AbstractDistMatrix<F>& dSub )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Grid& g = d.Grid();
 
@@ -168,7 +168,7 @@ InertiaType Inertia
     dSubPrev_MC_STAR.AlignCols( colAlignPrev );
     dPrev_MC_STAR = d;
     dSubPrev_MC_STAR = dSub;
-  
+
     return Inertia( d_MC_STAR, dPrev_MC_STAR, dSub_MC_STAR, dSubPrev_MC_STAR );
 }
 

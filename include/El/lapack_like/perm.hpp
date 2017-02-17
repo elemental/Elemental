@@ -9,9 +9,6 @@
 #ifndef EL_PERM_HPP
 #define EL_PERM_HPP
 
-#include <El/lapack_like/perm/Permutation.hpp>
-#include <El/lapack_like/perm/DistPermutation.hpp>
-
 namespace El {
 
 // Convert a pivot sequence to a partial permutation vector

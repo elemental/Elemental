@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
+// TODO(poulson): Lower-level access
 
 void EmbeddingMaps
 ( const Matrix<Int>& orders,
@@ -24,7 +24,7 @@ void EmbeddingMaps
         Matrix<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = orders.Height();
 
     // Form the metadata for the original index domain
@@ -93,10 +93,10 @@ void EmbeddingMaps
         DistMultiVec<Int>& sparseToOrigFirstInds,
   Int cutoffSparse )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = orders.Height();
-    mpi::Comm comm = orders.Comm();
-    const int commSize = mpi::Size( comm );
+    const Grid& grid = orders.Grid();
+    const int commSize = grid.Size();
 
     const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
@@ -104,7 +104,7 @@ void EmbeddingMaps
 
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    // TODO: Send triplets instead?
+    // TODO(poulson): Send triplets instead?
     vector<Int> sendOrders, sendRoots;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
@@ -119,7 +119,7 @@ void EmbeddingMaps
     }
     const int numSendRoots = sendRoots.size();
     vector<int> numRecvRoots(commSize);
-    mpi::AllGather( &numSendRoots, 1, numRecvRoots.data(), 1, comm );
+    mpi::AllGather( &numSendRoots, 1, numRecvRoots.data(), 1, grid.Comm() );
     vector<int> recvOffs;
     const int numRoots = Scan( numRecvRoots, recvOffs );
     // Receive the roots
@@ -127,17 +127,17 @@ void EmbeddingMaps
     vector<Int> recvRoots(numRoots);
     mpi::AllGather
     ( sendRoots.data(), numSendRoots,
-      recvRoots.data(), numRecvRoots.data(), recvOffs.data(), comm );
+      recvRoots.data(), numRecvRoots.data(), recvOffs.data(), grid.Comm() );
     SwapClear( sendRoots );
     // Receive the orders
     // ^^^^^^^^^^^^^^^^^^
     vector<Int> recvOrders(numRoots);
     mpi::AllGather
     ( sendOrders.data(), numSendRoots,
-      recvOrders.data(), numRecvRoots.data(), recvOffs.data(), comm );
+      recvOrders.data(), numRecvRoots.data(), recvOffs.data(), grid.Comm() );
     SwapClear( sendOrders );
 
-    // TODO: Sort based upon the roots. The current distribution
+    // TODO(poulson): Sort based upon the roots. The current distribution
     //       guarantees that they are already sorted.
 
     // Form the metadata for the original domain

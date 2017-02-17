@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace affine {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2]:
 //
 // 1) Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -35,7 +35,7 @@ namespace affine {
 //
 //    where 'u' is an unused dummy variable.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min(s), and
 //      alpha_d := -min(z).
@@ -45,12 +45,12 @@ namespace affine {
 //      s := ( alpha_p > -sqrt(eps)*Max(1,||s||_2) ? s + (1+alpha_p)e : s )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision, 'e' is a vector of all ones 
-//    (for more general conic optimization problems, it is the product of 
-//    identity elements from the Jordan algebras whose squares yield the 
+//    where 'eps' is the machine precision, 'e' is a vector of all ones
+//    (for more general conic optimization problems, it is the product of
+//    identity elements from the Jordan algebras whose squares yield the
 //    relevant cone.
 //
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we also provide
 //    the ability to instead use an entrywise lower clip.
 //
@@ -66,7 +66,7 @@ namespace affine {
 template<typename Real>
 void Initialize
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, 
+  const Matrix<Real>& A,
   const Matrix<Real>& G,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
@@ -79,7 +79,7 @@ void Initialize
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -99,7 +99,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -202,7 +202,7 @@ void Initialize
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -223,7 +223,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -321,18 +321,15 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const vector<Int>& map,
-  const vector<Int>& invMap, 
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
   bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = b.Height();
-    const Int n = c.Width();
+    const Int n = c.Height();
     const Int k = h.Height();
     if( primalInit )
     {
@@ -350,7 +347,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -365,11 +362,15 @@ void Initialize
     J.FreezeSparsity();
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
+    // Analyze the sparsity pattern of the KKT system
+    // ==============================================
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+
     // (Approximately) factor the KKT matrix
     // =====================================
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront, LDL_2D );
+    sparseLDLFact.Factor();
 
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
@@ -392,7 +393,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
+        ( JOrig, regTmp, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
@@ -413,7 +414,7 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
+        ( JOrig, regTmp, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
@@ -463,23 +464,17 @@ void Initialize
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMap& map,
-  const DistMap& invMap, 
-  const ldl::DistSeparator& rootSep,
-  const ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
-  bool standardShift, 
+  bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = b.Height();
     const Int n = c.Height();
     const Int k = h.Height();
-    mpi::Comm comm = JStatic.Comm();
+    const Grid& grid = JStatic.Grid();
     if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
@@ -496,17 +491,17 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
+    DistSparseMatrix<Real> JOrig(grid);
     JOrig = JStatic;
     JOrig.FreezeSparsity();
     JOrig.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
-    DistMultiVec<Real> ones(comm);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, k, 1 );
     FinishKKT( m, n, ones, ones, JOrig );
     auto J = JOrig;
@@ -514,16 +509,19 @@ void Initialize
     J.LockedDistGraph().multMeta = JStatic.LockedDistGraph().multMeta;
     UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
+    // Analyze the nonzero pattern
+    // ===========================
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+
     // (Approximately) factor the KKT matrix
     // =====================================
-    // TODO: Use PullUpdate just on the identity (or avoid it entirely?)
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
-    // TODO: Consider selective inversion
-    LDL( info, JFront, LDL_2D );
+    // TODO(poulson): Consider selective inversion
+    sparseLDLFact.Factor( LDL_2D );
 
-    DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
-                       d(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
+                       d(grid);
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
@@ -542,8 +540,10 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
-          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+        ( JOrig, regTmp, sparseLDLFact, d,
+          solveCtrl.relTol,
+          solveCtrl.maxRefineIts,
+          solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -563,8 +563,10 @@ void Initialize
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, regTmp, invMap, info, JFront, d,
-          solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
+        ( JOrig, regTmp, sparseLDLFact, d,
+          solveCtrl.relTol,
+          solveCtrl.maxRefineIts,
+          solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -637,10 +639,7 @@ void Initialize
           Matrix<Real>& y, \
           Matrix<Real>& z, \
           Matrix<Real>& s, \
-    const vector<Int>& map, \
-    const vector<Int>& invMap, \
-    const ldl::Separator& rootSep, \
-    const ldl::NodeInfo& info, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
@@ -653,13 +652,7 @@ void Initialize
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
           DistMultiVec<Real>& s, \
-    const DistMap& map, \
-    const DistMap& invMap, \
-    const ldl::DistSeparator& rootSep, \
-    const ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

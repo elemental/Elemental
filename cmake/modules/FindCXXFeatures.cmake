@@ -7,6 +7,7 @@
 # When found it will set the following variables::
 #
 #  CXX11_COMPILER_FLAGS                      - the compiler flags needed to get C++11 features
+#  CXX14_COMPILER_FLAGS                      - the compiler flags needed to get C++14 features
 #
 #  CXXFeatures_auto_FOUND                    - auto keyword
 #  CXXFeatures_class_override_final_FOUND    - override and final keywords for classes and methods
@@ -30,102 +31,136 @@
 # Copyright 2011-2013 Rolf Eike Beer <eike@sf-mail.de>
 # Copyright 2012 Andreas Weis
 # Copyright 2013 Jan KundrÃ¡t
+# Copyright 2016 Jack Poulson <jack.poulson@gmail.com>
 #
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
+#   - Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+#
+#   - Redistributions in binary form must reproduce the above copyright notice,
+#     this list of conditions and the following disclaimer in the documentation
+#     and/or other materials provided with the distribution.
+#
+#   - Neither the name of the owner nor the names of its contributors
+#     may be used to endorse or promote products derived from this software
+#     without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
 
-if (NOT CMAKE_CXX_COMPILER_LOADED)
-    message(FATAL_ERROR "CXXFeatures modules only works if language CXX is enabled")
-endif ()
+if(NOT CMAKE_CXX_COMPILER_LOADED)
+  message(FATAL_ERROR
+    "CXXFeatures modules only works if language CXX is enabled")
+endif()
 
-#
-### Check for needed compiler flags
-#
+# Check for needed compiler flags
 include(CheckCXXCompilerFlag)
 
-function(test_set_flag FLAG NAME)
-    check_cxx_compiler_flag("${FLAG}" _HAS_${NAME}_FLAG)
-    if (_HAS_${NAME}_FLAG)
-        set(CXX11_COMPILER_FLAGS "${FLAG}" PARENT_SCOPE)
-    endif ()
+function(test_11_flags FLAG NAME)
+  check_cxx_compiler_flag("${FLAG}" _HAS_${NAME}_FLAG)
+  if(_HAS_${NAME}_FLAG)
+    set(CXX11_COMPILER_FLAGS "${FLAG}" PARENT_SCOPE)
+  endif()
 endfunction()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "XL")
-    test_set_flag("-qlanglvl=extended0x" CXX0x)
+function(test_14_flags FLAG NAME)
+  check_cxx_compiler_flag("${FLAG}" _HAS_${NAME}_FLAG)
+  if(_HAS_${NAME}_FLAG)
+    set(CXX14_COMPILER_FLAGS "${FLAG}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+  test_11_flags("-qlanglvl=extended0x" CXX11)
+  test_14_flags("-qlanglvl=extended1y" CXX14)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "(Borland|Watcom)")
-    # No C++11 flag for those compilers, but check_cxx_compiler_flag()
-    # can't detect because they either will not always complain (Borland)
-    # or will hang (Watcom).
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND WIN32)
-    # The Intel compiler on Windows may use these flags.
-    test_set_flag("/Qstd=c++11" CXX11)
-    if (NOT CXX11_COMPILER_FLAGS)
-        test_set_flag("/Qstd=c++0x" CXX0x)
-    endif ()
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    # GCC needs -std=gnu++11 for the libquadmath literals; Intel does not
-    test_set_flag("-std=gnu++11" CXX11) 
-    if (NOT CXX11_COMPILER_FLAGS)
-        message(FATAL_ERROR "Could not use -std=gnu++11 with GCC")
-    endif()
-else ()
-    test_set_flag("-std=c++11" CXX11)
-    if (NOT CXX11_COMPILER_FLAGS)
-        test_set_flag("-std=c++0x" CXX0x)
-    endif ()
-endif ()
+  # No C++11 or C++14 flag for those compilers, but check_cxx_compiler_flag()
+  # can't detect because they either will not always complain (Borland)
+  # or will hang (Watcom).
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Cray")
+  test_11_flags("-h std=c++11" CXX11)
+  test_14_flags("-h std=c++14" CXX14)
+  if(NOT CXX14_COMPILER_FLAGS)
+    message(FATAL_ERROR "Could not use -h std=c++14 with Cray C/C++")
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND WIN32)
+  # The Intel compiler on Windows may use these flags.
+  test_11_flags("/Qstd=c++11" CXX11)
+  test_14_flags("/Qstd=c++14" CXX14)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  # GCC needs -std=gnu++11 or -std=gnu++14 for the libquadmath literals;
+  # Intel does not
+  test_11_flags("-std=gnu++11" CXX11)
+  test_14_flags("-std=gnu++14" CXX14)
+  if(NOT CXX14_COMPILER_FLAGS)
+    message(FATAL_ERROR "Could not use -std=gnu++14 with GCC")
+  endif()
+else()
+  test_11_flags("-std=c++11" CXX11)
+  test_14_flags("-std=c++14" CXX14)
+  if(NOT CXX14_COMPILER_FLAGS)
+    message(FATAL_ERROR "Could not use -std=c++14 with unknown compiler")
+  endif()
+endif()
 
+# TODO(poulson): Extend to test C++14 features such as [[deprecated]]
 function(cxx_check_feature FEATURE_NAME)
-    set(RESULT_VAR "CXXFeatures_${FEATURE_NAME}_FOUND")
-    if (DEFINED ${RESULT_VAR})
-        return()
-    endif()
+  set(RESULT_VAR "CXXFeatures_${FEATURE_NAME}_FOUND")
+  if(DEFINED ${RESULT_VAR})
+    return()
+  endif()
 
-    set(_bindir "${CMAKE_CURRENT_BINARY_DIR}/cxx_${FEATURE_NAME}")
+  set(_bindir "${CMAKE_CURRENT_BINARY_DIR}/cxx_${FEATURE_NAME}")
 
-    set(_SRCFILE_BASE ${CMAKE_CURRENT_LIST_DIR}/FindCXXFeatures/cxx11-${FEATURE_NAME})
-    set(_LOG_NAME "\"${FEATURE_NAME}\"")
-    message(STATUS "Checking C++ support for ${_LOG_NAME}")
+  set(_SRCFILE_BASE ${CMAKE_CURRENT_LIST_DIR}/FindCXXFeatures/cxx11-${FEATURE_NAME})
+  set(_LOG_NAME "\"${FEATURE_NAME}\"")
+  message(STATUS "Checking C++ support for ${_LOG_NAME}")
 
-    set(_SRCFILE "${_SRCFILE_BASE}.cxx")
-    set(_SRCFILE_FAIL_COMPILE "${_SRCFILE_BASE}_fail_compile.cxx")
+  set(_SRCFILE "${_SRCFILE_BASE}.cxx")
+  set(_SRCFILE_FAIL_COMPILE "${_SRCFILE_BASE}_fail_compile.cxx")
 
-    try_compile(${RESULT_VAR} "${_bindir}" "${_SRCFILE}"
+  try_compile(${RESULT_VAR} "${_bindir}" "${_SRCFILE}"
+              COMPILE_DEFINITIONS "${CXX11_COMPILER_FLAGS}"
+              OUTPUT_VARIABLE _SRCFILE_COMPILE_PASS_OUTPUT)
+
+  if(${RESULT_VAR} AND EXISTS ${_SRCFILE_FAIL_COMPILE})
+    try_compile(_TMP_RESULT "${_bindir}_fail_compile" "${_SRCFILE_FAIL_COMPILE}"
                 COMPILE_DEFINITIONS "${CXX11_COMPILER_FLAGS}"
-                OUTPUT_VARIABLE _SRCFILE_COMPILE_PASS_OUTPUT)
+                OUTPUT_VARIABLE _SRCFILE_COMPILE_FAIL_OUTPUT)
+    if(_TMP_RESULT)
+      set(${RESULT_VAR} FALSE)
+    else()
+      set(${RESULT_VAR} TRUE)
+    endif()
+  endif()
 
-    if (${RESULT_VAR} AND EXISTS ${_SRCFILE_FAIL_COMPILE})
-        try_compile(_TMP_RESULT "${_bindir}_fail_compile" "${_SRCFILE_FAIL_COMPILE}"
-                    COMPILE_DEFINITIONS "${CXX11_COMPILER_FLAGS}"
-                    OUTPUT_VARIABLE _SRCFILE_COMPILE_FAIL_OUTPUT)
-        if (_TMP_RESULT)
-            set(${RESULT_VAR} FALSE)
-        else ()
-            set(${RESULT_VAR} TRUE)
-        endif ()
-    endif ()
-
-    if (${RESULT_VAR})
-        message(STATUS "Checking C++ support for ${_LOG_NAME}: works")
-        file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
-          "Checking C++ support for ${_LOG_NAME} passed.\n"
-          "Compile pass output:\n${_SRCFILE_COMPILE_PASS_OUTPUT}\n"
-          "Compile fail output:\n${_SRCFILE_COMPILE_FAIL_OUTPUT}\n")
-    else ()
-        message(STATUS "Checking C++ support for ${_LOG_NAME}: not supported")
-        file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
-          "Checking C++ support for ${_LOG_NAME} failed.\n"
-          "Compile pass output:\n${_SRCFILE_COMPILE_PASS_OUTPUT}\n"
-          "Compile fail output:\n${_SRCFILE_COMPILE_FAIL_OUTPUT}\n")
-    endif ()
-    set(${RESULT_VAR} "${${RESULT_VAR}}" CACHE INTERNAL "C++ support for ${_LOG_NAME}")
+  if(${RESULT_VAR})
+    message(STATUS "Checking C++ support for ${_LOG_NAME}: works")
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+      "Checking C++ support for ${_LOG_NAME} passed.\n"
+      "Compile pass output:\n${_SRCFILE_COMPILE_PASS_OUTPUT}\n"
+      "Compile fail output:\n${_SRCFILE_COMPILE_FAIL_OUTPUT}\n")
+  else()
+    message(STATUS "Checking C++ support for ${_LOG_NAME}: not supported")
+    file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+      "Checking C++ support for ${_LOG_NAME} failed.\n"
+      "Compile pass output:\n${_SRCFILE_COMPILE_PASS_OUTPUT}\n"
+      "Compile fail output:\n${_SRCFILE_COMPILE_FAIL_OUTPUT}\n")
+  endif()
+  set(${RESULT_VAR} "${${RESULT_VAR}}" CACHE INTERNAL
+    "C++ support for ${_LOG_NAME}")
 endfunction(cxx_check_feature)
 
 set(_CXX_ALL_FEATURES
@@ -149,19 +184,19 @@ set(_CXX_ALL_FEATURES
 )
 
 if (CXXFeatures_FIND_COMPONENTS)
-    foreach (_cxx_feature IN LISTS CXXFeatures_FIND_COMPONENTS)
-        list(FIND _CXX_ALL_FEATURES "${_cxx_feature}" _feature_index)
-        if (_feature_index EQUAL -1)
-            message(FATAL_ERROR "Unknown component: '${_cxx_feature}'")
-        endif ()
-    endforeach ()
-    unset(_feature_index)
+  foreach (_cxx_feature IN LISTS CXXFeatures_FIND_COMPONENTS)
+    list(FIND _CXX_ALL_FEATURES "${_cxx_feature}" _feature_index)
+    if (_feature_index EQUAL -1)
+      message(FATAL_ERROR "Unknown component: '${_cxx_feature}'")
+    endif ()
+  endforeach ()
+  unset(_feature_index)
 else ()
-    set(CXXFEATURES_FIND_COMPONENTS ${_CXX_ALL_FEATURES})
+  set(CXXFEATURES_FIND_COMPONENTS ${_CXX_ALL_FEATURES})
 endif ()
 
 foreach (_cxx_feature IN LISTS CXXFEATURES_FIND_COMPONENTS)
-    cxx_check_feature(${_cxx_feature} ${FEATURE_NAME})
+  cxx_check_feature(${_cxx_feature} ${FEATURE_NAME})
 endforeach (_cxx_feature)
 
 include(FindPackageHandleStandardArgs)

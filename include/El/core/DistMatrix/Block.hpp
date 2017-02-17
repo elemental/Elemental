@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_DISTMATRIX_BLOCK_HPP
@@ -11,19 +11,19 @@
 
 namespace El {
 
-Int DefaultBlockHeight(); 
+Int DefaultBlockHeight();
 Int DefaultBlockWidth();
 void SetDefaultBlockHeight( Int blockHeight );
 void SetDefaultBlockWidth( Int blockWidth );
 
-template<typename T> 
-class BlockMatrix : public AbstractDistMatrix<T>
+template<typename Ring>
+class BlockMatrix : public AbstractDistMatrix<Ring>
 {
 public:
     // Typedefs
     // ========
-    typedef BlockMatrix<T> type;
-    typedef AbstractDistMatrix<T> absType;
+    typedef BlockMatrix<Ring> type;
+    typedef AbstractDistMatrix<Ring> absType;
 
     // Constructors and destructors
     // ============================
@@ -33,11 +33,12 @@ public:
     virtual ~BlockMatrix();
 
     virtual type* Copy() const override = 0;
-    virtual type* Construct( const El::Grid& g, int root ) const override = 0;
-    virtual type* ConstructTranspose( const El::Grid& g, int root ) const
-      override = 0;
-    virtual type* ConstructDiagonal( const El::Grid& g, int root ) const
-      override = 0;
+    virtual type* Construct
+    ( const El::Grid& grid, int root ) const override = 0;
+    virtual type* ConstructTranspose
+    ( const El::Grid& grid, int root ) const override = 0;
+    virtual type* ConstructDiagonal
+    ( const El::Grid& grid, int root ) const override = 0;
 
     // Assignment and reconfiguration
     // ==============================
@@ -50,8 +51,8 @@ public:
     // Realignment
     // -----------
     void Align
-    ( Int blockHeight, Int blockWidth, 
-      int colAlign, int rowAlign, Int colCut=0, Int rowCut=0, 
+    ( Int blockHeight, Int blockWidth,
+      int colAlign, int rowAlign, Int colCut=0, Int rowCut=0,
       bool constrain=true );
     void AlignCols
     ( Int blockHeight, int colAlign, Int colCut=0, bool constrain=true );
@@ -68,41 +69,41 @@ public:
     ( const El::DistData& data,
       bool constrain=true, bool allowMismatch=false ) override;
 
-    // TODO: The interface for these routines could be improved
+    // TODO(poulson): The interface for these routines could be improved
     void AlignAndResize
-    ( Int blockHeight, Int blockWidth, 
-      int colAlign, int rowAlign, Int colCut, Int rowCut, 
+    ( Int blockHeight, Int blockWidth,
+      int colAlign, int rowAlign, Int colCut, Int rowCut,
       Int height, Int width, bool force=false, bool constrain=true );
     void AlignColsAndResize
-    ( Int blockHeight, int colAlign, Int colCut, Int height, Int width, 
+    ( Int blockHeight, int colAlign, Int colCut, Int height, Int width,
       bool force=false, bool constrain=true );
     void AlignRowsAndResize
-    ( Int blockWidth, int rowAlign, Int rowCut, Int height, Int width, 
+    ( Int blockWidth, int rowAlign, Int rowCut, Int height, Int width,
       bool force=false, bool constrain=true );
 
     // Buffer attachment
     // -----------------
     // (Immutable) view of a distributed matrix's buffer
     void Attach
-    ( Int height, Int width, const El::Grid& g, 
+    ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
       int colAlign, int rowAlign, Int colCut, Int rowCut,
-      T* buffer, Int ldim, int root=0 );
+      Ring* buffer, Int ldim, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
       int colAlign, int rowAlign, Int colCut, Int rowCut,
-      const T* buffer, Int ldim, int root=0 );
+      const Ring* buffer, Int ldim, int root=0 );
     void Attach
     ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
       int colAlign, int rowAlign, Int colCut, Int rowCut,
-      El::Matrix<T>& A, int root=0 );
+      El::Matrix<Ring>& A, int root=0 );
     void LockedAttach
     ( Int height, Int width, const El::Grid& g,
       Int blockHeight, Int blockWidth,
       int colAlign, int rowAlign, Int colCut, Int rowCut,
-      const El::Matrix<T>& A, int root=0 );
+      const El::Matrix<Ring>& A, int root=0 );
 
     // Operator overloading
     // ====================
@@ -114,7 +115,7 @@ public:
 
     // Rescaling
     // ---------
-    const type& operator*=( T alpha );
+    const type& operator*=( Ring alpha );
 
     // Addition/subtraction
     // --------------------
@@ -130,7 +131,6 @@ public:
     // Basic queries
     // =============
     DistWrap Wrap() const override EL_NO_EXCEPT { return BLOCK; }
-    virtual El::DistData DistData() const = 0;
 
     // Distribution information
     // ------------------------
@@ -138,6 +138,8 @@ public:
     Int BlockWidth()  const override EL_NO_EXCEPT;
     Int ColCut()      const override EL_NO_EXCEPT;
     Int RowCut()      const override EL_NO_EXCEPT;
+    // TODO(poulson): Add specialization of ColCut() and RowCut() that return
+    // the cuts at arbitrary row/column indices
 
     int RowOwner( Int i )       const override EL_NO_EXCEPT;
     int ColOwner( Int j )       const override EL_NO_EXCEPT;
@@ -186,22 +188,22 @@ private:
     template<typename S> friend class BlockMatrix;
 };
 
-template<typename T>
+template<typename Ring>
 void AssertConforming1x2
-( const BlockMatrix<T>& AL,
-  const BlockMatrix<T>& AR );
+( const BlockMatrix<Ring>& AL,
+  const BlockMatrix<Ring>& AR );
 
-template<typename T>
+template<typename Ring>
 void AssertConforming2x1
-( const BlockMatrix<T>& AT,
-  const BlockMatrix<T>& AB );
+( const BlockMatrix<Ring>& AT,
+  const BlockMatrix<Ring>& AB );
 
-template<typename T>
+template<typename Ring>
 void AssertConforming2x2
-( const BlockMatrix<T>& ATL, 
-  const BlockMatrix<T>& ATR,
-  const BlockMatrix<T>& ABL, 
-  const BlockMatrix<T>& ABR );
+( const BlockMatrix<Ring>& ATL,
+  const BlockMatrix<Ring>& ATR,
+  const BlockMatrix<Ring>& ABL,
+  const BlockMatrix<Ring>& ABR );
 
 } // namespace El
 

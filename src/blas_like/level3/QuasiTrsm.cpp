@@ -28,8 +28,8 @@ void QuasiTrsm
                  AbstractDistMatrix<F>& B,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -123,8 +123,8 @@ void LocalQuasiTrsm
                  AbstractDistMatrix<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( (side == LEFT && X.ColDist() != STAR) ||
           (side == RIGHT && X.RowDist() != STAR) )
           LogicError
@@ -142,8 +142,8 @@ void QuasiTrsm
                  Matrix<F>& B,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( side == LEFT )

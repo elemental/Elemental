@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_UPDATESUBMATRIX_HPP
@@ -13,13 +13,13 @@ namespace El {
 
 template<typename T>
 void UpdateSubmatrix
-(       Matrix<T>& A, 
-  const vector<Int>& I, 
-  const vector<Int>& J, 
-        T alpha, 
+(       Matrix<T>& A,
+  const vector<Int>& I,
+  const vector<Int>& J,
+        T alpha,
   const Matrix<T>& ASub )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = I.size();
     const Int n = J.size();
 
@@ -35,17 +35,17 @@ void UpdateSubmatrix
     }
 }
 
-// TODO: Adopt the same approach as GetSubmatrix
+// TODO(poulson): Adopt the same approach as GetSubmatrix
 template<typename T>
 void UpdateSubmatrix
-(       AbstractDistMatrix<T>& A, 
+(       AbstractDistMatrix<T>& A,
   const vector<Int>& I,
-  const vector<Int>& J, 
+  const vector<Int>& J,
         T alpha,
   const AbstractDistMatrix<T>& ASub )
 {
-    DEBUG_CSE
-    // TODO: Intelligently pick the redundant rank to pack from?
+    EL_DEBUG_CSE
+    // TODO(poulson): Intelligently pick the redundant rank to pack from?
     if( ASub.RedundantRank() == 0 )
     {
         const Int ASubLocalHeight = ASub.LocalHeight();

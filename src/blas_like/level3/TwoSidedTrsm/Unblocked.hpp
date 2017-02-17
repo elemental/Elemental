@@ -15,7 +15,7 @@ namespace twotrsm {
 template<typename F>
 void LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Use the Variant 4 algorithm
     const Int n = A.Height();
     const Int lda = A.LDim();
@@ -67,7 +67,7 @@ void LUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 template<typename F>
 void UUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
     const Int n = A.Height();

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -20,7 +20,7 @@ void TestAssociativity
            const DistMatrix<T>& C,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // This routine assumes that C and COrig are explicitly symmetric/Hermitian
 
@@ -163,7 +163,7 @@ void TestSyr2k
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -187,8 +187,8 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
         const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const Orientation orientation = CharToOrientation( transChar );
@@ -202,7 +202,7 @@ main( int argc, char* argv[] )
           float(3), float(4),
           g, print, correctness, nbLocal );
         TestSyr2k<Complex<float>>
-        ( conjugate, uplo, orientation, m, k, 
+        ( conjugate, uplo, orientation, m, k,
           Complex<float>(3), Complex<float>(4),
           g, print, correctness, nbLocal );
 
@@ -211,7 +211,7 @@ main( int argc, char* argv[] )
           double(3), double(4),
           g, print, correctness, nbLocal );
         TestSyr2k<Complex<double>>
-        ( conjugate, uplo, orientation, m, k, 
+        ( conjugate, uplo, orientation, m, k,
           Complex<double>(3), Complex<double>(4),
           g, print, correctness, nbLocal );
 
@@ -241,7 +241,7 @@ main( int argc, char* argv[] )
           Quad(3), Quad(4),
           g, print, correctness, nbLocal );
         TestSyr2k<Complex<Quad>>
-        ( conjugate, uplo, orientation, m, k, 
+        ( conjugate, uplo, orientation, m, k,
           Complex<Quad>(3), Complex<Quad>(4),
           g, print, correctness, nbLocal );
 #endif

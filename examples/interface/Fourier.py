@@ -23,9 +23,4 @@ El.Display(A[1,:],"Second row")
 portrait, box = El.SpectralPortrait(A,realRes,imagRes)
 El.DisplayPortrait(portrait,box,"spectral portrait of Fourier matrix")
 
-# Require the user to press a button before the figures are closed
-worldSize = El.mpi.WorldSize()
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')
-

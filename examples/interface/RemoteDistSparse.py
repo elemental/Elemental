@@ -60,7 +60,4 @@ if display:
 if output:
   El.Print( A, "A" )
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

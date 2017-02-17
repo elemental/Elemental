@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,7 +14,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Matrix<Real> T;
     ProductLanczos( A, T, basisSize );
@@ -25,10 +25,10 @@ ExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
     Matrix<Real> d, dSub;
     d = GetDiagonal( T );
     dSub = GetDiagonal( T, -1 );
-    
+
     Matrix<Real> w;
     HermitianTridiagEig( d, dSub, w );
-    
+
     pair<Real,Real> extremal;
     extremal.first = Sqrt( Max(w(0),Real(0)) );
     extremal.second = Sqrt( Max(w(k-1),Real(0)) );
@@ -39,9 +39,9 @@ template<typename F>
 pair<Base<F>,Base<F>>
 ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
-    Grid grid( A.Comm() );
+    const Grid& grid = A.Grid();
     DistMatrix<Real,STAR,STAR> T(grid);
     ProductLanczos( A, T, basisSize );
     const Int k = T.Height();
@@ -50,10 +50,10 @@ ExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 
     auto d = GetDiagonal( T.Matrix() );
     auto dSub = GetDiagonal( T.Matrix(), -1 );
-    
+
     Matrix<Real> w;
     HermitianTridiagEig( d, dSub, w );
-    
+
     pair<Real,Real> extremal;
     extremal.first = Sqrt( Max(w(0),Real(0)) );
     extremal.second = Sqrt( Max(w(k-1),Real(0)) );
@@ -64,7 +64,7 @@ template<typename F>
 pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     Matrix<Real> T;
     Lanczos( A, T, basisSize );
@@ -75,10 +75,10 @@ HermitianExtremalSingValEst( const SparseMatrix<F>& A, Int basisSize )
     Matrix<Real> d, dSub;
     d = GetDiagonal( T );
     dSub = GetDiagonal( T, -1 );
-    
+
     Matrix<Real> w;
     HermitianTridiagEig( d, dSub, w );
-    
+
     pair<Real,Real> extremal;
     extremal.second = MaxNorm(w);
     extremal.first = extremal.second;
@@ -91,9 +91,9 @@ template<typename F>
 pair<Base<F>,Base<F>>
 HermitianExtremalSingValEst( const DistSparseMatrix<F>& A, Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
-    Grid grid( A.Comm() );
+    const Grid& grid = A.Grid();
 
     DistMatrix<Real,STAR,STAR> T(grid);
     Lanczos( A, T, basisSize );

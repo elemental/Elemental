@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPECTRAL_PRODUCT_LANCZOS_HPP
@@ -11,56 +11,56 @@
 
 namespace El {
 
-template<typename F,class ApplyAType,class ApplyAAdjType>
-inline void ProductLanczos
+template<typename Field,class ApplyAType,class ApplyAAdjType>
+void ProductLanczos
 (       Int m,
         Int n,
   const ApplyAType& applyA,
   const ApplyAAdjType& applyAAdj,
-        Matrix<Base<F>>& T,
+        Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
-    Matrix<F> s;
+    EL_DEBUG_CSE
+    Matrix<Field> s;
     if( m >= n )
     {
         auto applyAProd =
-          [&]( const Matrix<F>& x, Matrix<F>& y )
+          [&]( const Matrix<Field>& x, Matrix<Field>& y )
           {
               applyA( x, s );
               applyAAdj( s, y );
           };
-        Lanczos<F>( n, applyAProd, T, basisSize );
+        Lanczos<Field>( n, applyAProd, T, basisSize );
     }
     else
     {
         auto applyAProd =
-          [&]( const Matrix<F>& x, Matrix<F>& y )
+          [&]( const Matrix<Field>& x, Matrix<Field>& y )
           {
               applyAAdj( x, s );
               applyA( s, y );
           };
-        Lanczos<F>( m, applyAProd, T, basisSize );
+        Lanczos<Field>( m, applyAProd, T, basisSize );
     }
 }
 
-template<typename F,class ApplyAType,class ApplyAAdjType>
-inline Base<F> ProductLanczosDecomp
+template<typename Field,class ApplyAType,class ApplyAAdjType>
+Base<Field> ProductLanczosDecomp
 (       Int m,
         Int n,
   const ApplyAType& applyA,
   const ApplyAAdjType& applyAAdj,
-        Matrix<F>& V, 
-        Matrix<Base<F>>& T,
-        Matrix<F>& v,
+        Matrix<Field>& V,
+        Matrix<Base<Field>>& T,
+        Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
-    Matrix<F> s;
+    EL_DEBUG_CSE
+    Matrix<Field> s;
     if( m >= n )
     {
         auto applyAProd =
-          [&]( const Matrix<F>& x, Matrix<F>& y )
+          [&]( const Matrix<Field>& x, Matrix<Field>& y )
           {
               applyA( x, s );
               applyAAdj( s, y );
@@ -70,67 +70,67 @@ inline Base<F> ProductLanczosDecomp
     else
     {
         auto applyAProd =
-          [&]( const Matrix<F>& x, Matrix<F>& y )
+          [&]( const Matrix<Field>& x, Matrix<Field>& y )
           {
               applyAAdj( x, s );
-              applyA( s, y ); 
+              applyA( s, y );
           };
         return LanczosDecomp( m, applyAProd, V, T, v, basisSize );
     }
 }
 
-template<typename F,class ApplyAType,class ApplyAAdjType>
-inline void ProductLanczos
+template<typename Field,class ApplyAType,class ApplyAAdjType>
+void ProductLanczos
 (       Int m,
         Int n,
   const ApplyAType& applyA,
   const ApplyAAdjType& applyAAdj,
-        ElementalMatrix<Base<F>>& T,
+        AbstractDistMatrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
-    DistMultiVec<F> s(comm);
+    DistMultiVec<Field> s(comm);
     if( m >= n )
     {
         auto applyAProd =
-          [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+          [&]( const DistMultiVec<Field>& x, DistMultiVec<Field>& y )
           {
               applyA( x, s );
               applyAAdj( s, y );
           };
-        Lanczos<F>( n, applyAProd, T, basisSize );
+        Lanczos<Field>( n, applyAProd, T, basisSize );
     }
     else
     {
         auto applyAProd =
-          [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+          [&]( const DistMultiVec<Field>& x, DistMultiVec<Field>& y )
           {
               applyAAdj( x, s );
               applyA( s, y );
           };
-        Lanczos<F>( m, applyAProd, T, basisSize );
+        Lanczos<Field>( m, applyAProd, T, basisSize );
     }
 }
 
-template<typename F,class ApplyAType,class ApplyAAdjType>
-inline Base<F> ProductLanczosDecomp
+template<typename Field,class ApplyAType,class ApplyAAdjType>
+Base<Field> ProductLanczosDecomp
 (       Int m,
         Int n,
   const ApplyAType& applyA,
   const ApplyAAdjType& applyAAdj,
-        DistMultiVec<F>& V, 
-        ElementalMatrix<Base<F>>& T,
-        DistMultiVec<F>& v,
+        DistMultiVec<Field>& V,
+        AbstractDistMatrix<Base<Field>>& T,
+        DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     mpi::Comm comm = T.Grid().Comm();
-    DistMultiVec<F> s(comm);
+    DistMultiVec<Field> s(comm);
     if( m >= n )
     {
         auto applyAProd =
-          [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+          [&]( const DistMultiVec<Field>& x, DistMultiVec<Field>& y )
           {
               applyA( x, s );
               applyAAdj( s, y );
@@ -140,7 +140,7 @@ inline Base<F> ProductLanczosDecomp
     else
     {
         auto applyAProd =
-          [&]( const DistMultiVec<F>& x, DistMultiVec<F>& y )
+          [&]( const DistMultiVec<Field>& x, DistMultiVec<Field>& y )
           {
               applyAAdj( x, s );
               applyA( s, y );

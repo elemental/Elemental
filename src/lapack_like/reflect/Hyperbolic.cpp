@@ -21,8 +21,8 @@ namespace El {
 template<typename F>
 F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
     )
@@ -37,8 +37,8 @@ F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
       if( ImagPart(chi) != Base<F>(0) )
@@ -81,10 +81,10 @@ F LeftHyperbolicReflector( F& chi, Matrix<F>& x )
 
 template<typename F>
 F LeftHyperbolicReflector
-( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
+( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -105,10 +105,10 @@ F LeftHyperbolicReflector
 }
 
 template<typename F>
-F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
+F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
     )
@@ -131,7 +131,7 @@ F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const F tau = LeftHyperbolicReflector( chi, x );
     Conjugate( x );
     return tau;
@@ -140,7 +140,7 @@ F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightHyperbolicReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const F tau = LeftHyperbolicReflector( chi, x );
     Conjugate( x );
     return tau;
@@ -148,10 +148,10 @@ F RightHyperbolicReflector( F& chi, Matrix<F>& x )
 
 template<typename F>
 F RightHyperbolicReflector
-( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
+( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -172,10 +172,10 @@ F RightHyperbolicReflector
 }
 
 template<typename F>
-F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
+F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
     )
@@ -192,21 +192,21 @@ F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x )
 
 #define PROTO(F) \
   template F LeftHyperbolicReflector( F& chi, Matrix<F>& x ); \
-  template F LeftHyperbolicReflector( F& chi, ElementalMatrix<F>& x ); \
+  template F LeftHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x ); \
   template F LeftHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
   template F LeftHyperbolicReflector \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
   template F RightHyperbolicReflector( F& chi, Matrix<F>& x ); \
-  template F RightHyperbolicReflector( F& chi, ElementalMatrix<F>& x ); \
+  template F RightHyperbolicReflector( F& chi, AbstractDistMatrix<F>& x ); \
   template F RightHyperbolicReflector( Matrix<F>& chi, Matrix<F>& x ); \
   template F RightHyperbolicReflector \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
-  template F hyp_reflector::Col( F& chi, ElementalMatrix<F>& x ); \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  template F hyp_reflector::Col( F& chi, AbstractDistMatrix<F>& x ); \
   template F hyp_reflector::Col \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
-  template F hyp_reflector::Row( F& chi, ElementalMatrix<F>& x ); \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  template F hyp_reflector::Row( F& chi, AbstractDistMatrix<F>& x ); \
   template F hyp_reflector::Row \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

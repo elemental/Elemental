@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SOLVE_HPP
@@ -16,159 +16,235 @@ namespace El {
 
 // Linear
 // ======
-template<typename F>
-void LinearSolve( const Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void LinearSolve( const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
-template<typename F>
+template<typename Field>
 void LinearSolve
-( const DistMatrix<F,MC,MR,BLOCK>& A, DistMatrix<F,MC,MR,BLOCK>& B );
+( const Matrix<Field>& A,
+        Matrix<Field>& B );
+template<typename Field>
+void LinearSolve
+( const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
+  bool scalapack=false );
 
-template<typename F>
+template<typename Field>
 void LinearSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
-template<typename F>
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
+template<typename Field>
 void LinearSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
-  const LeastSquaresCtrl<Base<F>>& ctrl=LeastSquaresCtrl<Base<F>>() );
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
+  const LeastSquaresCtrl<Base<Field>>& ctrl=LeastSquaresCtrl<Base<Field>>() );
 
 namespace lin_solve {
 
-template<typename F>
-void Overwrite( Matrix<F>& A, Matrix<F>& B );
-template<typename F>
-void Overwrite( ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+template<typename Field>
+void Overwrite( Matrix<Field>& A, Matrix<Field>& B );
+template<typename Field>
+void Overwrite( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& B );
 
 } // namespace lin_solve
 
 // Hermitian
 // =========
-template<typename F>
-void HermitianSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-template<typename F>
+template<typename Field>
 void HermitianSolve
 ( UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-
-template<typename F>
+  const Matrix<Field>& A,
+        Matrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
+template<typename Field>
 void HermitianSolve
-( const SparseMatrix<F>& A, Matrix<F>& B,
+( UpperOrLower uplo, Orientation orientation,
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
+
+template<typename Field>
+void HermitianSolve
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
   bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
-template<typename F>
+template<typename Field>
 void HermitianSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B,
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
   bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 
 namespace herm_solve {
 
-template<typename F>
-void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-template<typename F>
+template<typename Field>
 void Overwrite
 ( UpperOrLower uplo, Orientation orientation,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+  Matrix<Field>& A,
+  Matrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
+template<typename Field>
+void Overwrite
+( UpperOrLower uplo, Orientation orientation,
+  AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
 
 } // namespace herm_solve
 
 // Symmetric
 // =========
-template<typename F>
+template<typename Field>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B, 
-  bool conjugate=false, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-template<typename F>
+( UpperOrLower uplo,
+  Orientation orientation,
+  const Matrix<Field>& A,
+        Matrix<Field>& B,
+  bool conjugate=false,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
+template<typename Field>
 void SymmetricSolve
-( UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
-  bool conjugate=false, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+( UpperOrLower uplo,
+  Orientation orientation,
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
+  bool conjugate=false,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
 
-template<typename F>
+template<typename Field>
 void SymmetricSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
-  bool conjugate=false, bool tryLDL=false,
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
+  bool conjugate=false,
+  bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
-template<typename F>
+template<typename Field>
 void SymmetricSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
-  bool conjugate=false, bool tryLDL=false,
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
+  bool conjugate=false,
+  bool tryLDL=false,
   const BisectCtrl& ctrl=BisectCtrl() );
 
 namespace symm_solve {
 
-template<typename F>
+template<typename Field>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B, 
-  bool conjugate=false, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
-template<typename F>
+( UpperOrLower uplo,
+  Orientation orientation,
+  Matrix<Field>& A,
+  Matrix<Field>& B,
+  bool conjugate=false,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
+template<typename Field>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B, 
-  bool conjugate=false, 
-  const LDLPivotCtrl<Base<F>>& ctrl=LDLPivotCtrl<Base<F>>() );
+( UpperOrLower uplo,
+  Orientation orientation,
+  AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B,
+  bool conjugate=false,
+  const LDLPivotCtrl<Base<Field>>& ctrl=LDLPivotCtrl<Base<Field>>() );
 
 } // namespace symm_solve
 
+// Symmetric Quasi Semi-Definite (SQSD)
+// ====================================
+// Solve J X = B, where
+//
+//   J = | F,    A |,
+//       | A^T, -G |
+//
+// and F and G are Symmetric Positive Semi-Definite (and F is n0 x n0).
+//
+// Dense matrices need only be explicitly filled in either their upper or
+// lower triangle, but sparse matrices must be explicitly symmetric.
+//
+template<typename Field>
+void SQSDSolve
+( Int n0,
+  UpperOrLower uplo,
+  const Matrix<Field>& J,
+        Matrix<Field>& B );
+template<typename Field>
+void SQSDSolve
+( Int n0,
+  UpperOrLower uplo,
+  const AbstractDistMatrix<Field>& J,
+        AbstractDistMatrix<Field>& B );
+
+template<typename Field>
+void SQSDSolve
+( Int n0,
+  const SparseMatrix<Field>& J,
+        Matrix<Field>& B,
+  const SQSDCtrl<Base<Field>>& ctrl=SQSDCtrl<Base<Field>>() );
+template<typename Field>
+void SQSDSolve
+( Int n0,
+  const DistSparseMatrix<Field>& J,
+        DistMultiVec<Field>& B,
+  const SQSDCtrl<Base<Field>>& ctrl=SQSDCtrl<Base<Field>>() );
+
 // Hermitian Positive-Definite
 // ===========================
-template<typename F>
+template<typename Field>
 void HPDSolve
-( UpperOrLower uplo, Orientation orientation, 
-  const Matrix<F>& A, Matrix<F>& B );
-template<typename F>
+( UpperOrLower uplo,
+  Orientation orientation,
+  const Matrix<Field>& A,
+        Matrix<Field>& B );
+template<typename Field>
 void HPDSolve
-( UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+( UpperOrLower uplo,
+  Orientation orientation,
+  const AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B );
 
-template<typename F>
+template<typename Field>
 void HPDSolve
-( const SparseMatrix<F>& A, Matrix<F>& B, 
+( const SparseMatrix<Field>& A,
+        Matrix<Field>& B,
   const BisectCtrl& ctrl=BisectCtrl() );
-template<typename F>
+template<typename Field>
 void HPDSolve
-( const DistSparseMatrix<F>& A, DistMultiVec<F>& B, 
+( const DistSparseMatrix<Field>& A,
+        DistMultiVec<Field>& B,
   const BisectCtrl& ctrl=BisectCtrl() );
 
 namespace hpd_solve {
 
-template<typename F>
+template<typename Field>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation, 
-  Matrix<F>& A, Matrix<F>& B );
-template<typename F>
+( UpperOrLower uplo,
+  Orientation orientation,
+  Matrix<Field>& A,
+  Matrix<Field>& B );
+template<typename Field>
 void Overwrite
-( UpperOrLower uplo, Orientation orientation,
-  ElementalMatrix<F>& A, ElementalMatrix<F>& B );
+( UpperOrLower uplo,
+  Orientation orientation,
+  AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& B );
 
 } // namespace hpd_solve
 
 // Multi-shift Hessenberg
 // ======================
-template<typename F>
+template<typename Field>
 void MultiShiftHessSolve
-( UpperOrLower uplo, Orientation orientation,
-  F alpha, const Matrix<F>& H, const Matrix<F>& shifts,
-  Matrix<F>& X );
-template<typename F>
+( UpperOrLower uplo,
+  Orientation orientation,
+  Field alpha,
+  const Matrix<Field>& H,
+  const Matrix<Field>& shifts,
+        Matrix<Field>& X );
+template<typename Field>
 void MultiShiftHessSolve
-( UpperOrLower uplo, Orientation orientation,
-  F alpha, const ElementalMatrix<F>& H, const ElementalMatrix<F>& shifts,
-  ElementalMatrix<F>& X );
+( UpperOrLower uplo,
+  Orientation orientation,
+  Field alpha,
+  const AbstractDistMatrix<Field>& H,
+  const AbstractDistMatrix<Field>& shifts,
+        AbstractDistMatrix<Field>& X );
 
 } // namespace El
 

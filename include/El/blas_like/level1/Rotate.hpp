@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_ROTATE_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename F>
 void Rotate( Base<F> c, F s, Matrix<F>& a1, Matrix<F>& a2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m1 = a1.Height();
     const Int n1 = a1.Width();
     const Int n2 = a2.Width();
@@ -30,7 +30,7 @@ template<typename F>
 void Rotate
 ( Base<F> c, F s, AbstractDistMatrix<F>& a1, AbstractDistMatrix<F>& a2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,STAR,STAR> G(2,2,a1.Grid());
     G.Set(0,0,c);
     G.Set(0,1,s);
@@ -42,7 +42,7 @@ void Rotate
 template<typename F>
 void RotateRows( Base<F> c, F s, Matrix<F>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> G(2,2);
     G.Set(0,0,c);
     G.Set(0,1,s);
@@ -54,7 +54,7 @@ void RotateRows( Base<F> c, F s, Matrix<F>& A, Int i1, Int i2 )
 template<typename F>
 void RotateRows( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,STAR,STAR> G(2,2,A.Grid());
     G.Set(0,0,c);
     G.Set(0,1,s);
@@ -66,7 +66,7 @@ void RotateRows( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 )
 template<typename F>
 void RotateCols( Base<F> c, F s, Matrix<F>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> G(2,2);
     G.Set(0,0,c);
     G.Set(0,1,s);
@@ -78,7 +78,7 @@ void RotateCols( Base<F> c, F s, Matrix<F>& A, Int i1, Int i2 )
 template<typename F>
 void RotateCols( Base<F> c, F s, AbstractDistMatrix<F>& A, Int i1, Int i2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F,STAR,STAR> G(2,2,A.Grid());
     G.Set(0,0,c);
     G.Set(0,1,s);

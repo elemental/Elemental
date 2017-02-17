@@ -2,18 +2,18 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
-// Least Absolute Value (LAV) regression minimizes the one norm of the 
+// Least Absolute Value (LAV) regression minimizes the one norm of the
 // residual of a system of equations, i.e.,
 //
 //   min || A x - b ||_1.
 //
-// Real instances of the problem are expressable as a Linear Program [1] via 
+// Real instances of the problem are expressable as a Linear Program [1] via
 //
 //   min 1^T (u + v)
 //   s.t. [A, I, -I] [x; u; v] = b, u, v >= 0
@@ -25,7 +25,7 @@
 //                   | u |      | 0  0 -I | | u |    | 0 |
 //                   | v |                  | v |
 //
-// [1] 
+// [1]
 //   A. Charnes, W. W. Cooper, and R. O. Ferguson,
 //   "Optimal estimation of executive compensation by linear programming",
 //   Management Science, Vol. 1, No. 2, pp. 138--151, 1955.
@@ -36,16 +36,16 @@ namespace El {
 template<typename Real>
 void LAV
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
     Matrix<Real> c, AHat, G, h;
-    
+
     // c := [0;1;1]
     // ============
     Zeros( c, n+2*m, 1 );
@@ -86,12 +86,16 @@ void LAV
 
 template<typename Real>
 void LAV
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
-        ElementalMatrix<Real>& x,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -139,17 +143,17 @@ void LAV
 template<typename Real>
 void LAV
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
     SparseMatrix<Real> AHat, G;
     Matrix<Real> c, h;
-    
+
     // c := [0;1;1]
     // ============
     Zeros( c, n+2*m, 1 );
@@ -197,16 +201,17 @@ void LAV
 template<typename Real>
 void LAV
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), h(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), h(grid);
 
     // c := [0;1;1]
     // ============
@@ -246,7 +251,7 @@ void LAV
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     LP( AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // Extract x
@@ -261,9 +266,9 @@ void LAV
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
-          ElementalMatrix<Real>& x, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
+          AbstractDistMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void LAV \
   ( const SparseMatrix<Real>& A, \

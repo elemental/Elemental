@@ -26,9 +26,11 @@ namespace expand_packed_reflectors {
 // which has an upper-triangular center matrix, say S, we will form S as 
 // the inverse of a matrix T, which can easily be formed as
 // 
-//   triu(T) = triu( U^H U ),  diag(T) = 1/t or 1/conj(t),
+//   triu(T,1) = triu( U^H U ),
+//   diag(T) = 1/householderScalars or 1/conj(householderScalars),
 //
-// where U is the matrix of Householder vectors and t is the vector of scalars.
+// where U is the matrix of Householder vectors and householderScalars is the
+// vector of Householder reflection coefficients.
 //
 
 template<typename F>
@@ -37,14 +39,15 @@ LV
 ( Conjugation conjugation,
   Int offset,
         Matrix<F>& H,
-  const Matrix<F>& t )
+  const Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( offset > 0 || offset < -H.Height() )
           LogicError("Transforms out of bounds");
-      if( t.Height() != H.DiagonalLength( offset ) )
-          LogicError("t must be the same length as H's offset diag");
+      if( householderScalars.Height() != H.DiagonalLength( offset ) )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
     )
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
@@ -90,12 +93,13 @@ LV
         PartitionUp
         ( HEffectedOld, HEffectedOldT, HEffectedOldB, oldEffectedHeight );
 
-        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), ALL );
+        auto householderScalars1 =
+          householderScalars( IR(k-tOff,k-tOff+HPanWidth), ALL );
 
         Z.Resize( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         Herk( UPPER, ADJOINT, Base<F>(1), HPan, SInv );
-        FixDiagonal( conjugation, t1, SInv );
+        FixDiagonal( conjugation, householderScalars1, SInv );
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
@@ -121,22 +125,24 @@ void
 LV
 ( Conjugation conjugation,
   Int offset, 
-        ElementalMatrix<F>& HPre,
-  const ElementalMatrix<F>& tPre )
+        AbstractDistMatrix<F>& HPre,
+  const AbstractDistMatrix<F>& householderScalarsPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      AssertSameGrids( HPre, tPre );
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      AssertSameGrids( HPre, householderScalarsPre );
       if( offset > 0 || offset < -HPre.Height() )
           LogicError("Transforms out of bounds");
-      if( tPre.Height() != HPre.DiagonalLength( offset ) )
-          LogicError("t must be the same length as H's offset diag");
+      if( householderScalarsPre.Height() != HPre.DiagonalLength( offset ) )
+          LogicError
+          ("householderScalars must be the same length as H's offset diag");
     )
 
-    DistMatrixReadWriteProxy<F,F,MC,MR  > HProx( HPre );
-    DistMatrixReadProxy<F,F,MC,STAR> tProx( tPre );
+    DistMatrixReadWriteProxy<F,F,MC,MR> HProx( HPre );
+    DistMatrixReadProxy<F,F,MC,STAR>
+      householderScalarsProx( householderScalarsPre );
     auto& H = HProx.Get();
-    auto& t = tProx.GetLocked();
+    auto& householderScalars = householderScalarsProx.GetLocked();
 
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
@@ -154,14 +160,11 @@ LV
                   HEffectedOldT(g), HEffectedOldB(g);
 
     DistMatrix<F,VC,STAR> HPan_VC_STAR(g);
-    DistMatrix<F,MC,STAR> HPan_MC_STAR(g), HPanT_MC_STAR(g),
-                                           HPanB_MC_STAR(g);
+    DistMatrix<F,MC,STAR> HPan_MC_STAR(g), HPanT_MC_STAR(g), HPanB_MC_STAR(g);
 
-    DistMatrix<F,STAR,MR> Z_STAR_MR(g),
-                          ZNew_STAR_MR(g), ZOld_STAR_MR(g);
-    DistMatrix<F,STAR,VR> Z_STAR_VR(g),
-                          ZNew_STAR_VR(g), ZOld_STAR_VR(g);
-    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g), SInv_STAR_STAR(g);
+    DistMatrix<F,STAR,MR> Z_STAR_MR(g), ZNew_STAR_MR(g), ZOld_STAR_MR(g);
+    DistMatrix<F,STAR,VR> Z_STAR_VR(g), ZNew_STAR_VR(g), ZOld_STAR_VR(g);
+    DistMatrix<F,STAR,STAR> householderScalars1_STAR_STAR(g), SInv_STAR_STAR(g);
 
     Int oldEffectedHeight=mRem;
 
@@ -189,7 +192,8 @@ LV
         ( HEffectedOld, HEffectedOldT,
                         HEffectedOldB, oldEffectedHeight );
 
-        auto t1 = t( IR(k-tOff,k-tOff+HPanWidth), ALL );
+        auto householderScalars1 =
+          householderScalars( IR(k-tOff,k-tOff+HPanWidth), ALL );
 
         Z_STAR_MR.AlignWith( HEffected );
         Z_STAR_MR.Resize( HPanWidth, effectedWidth );
@@ -208,8 +212,9 @@ LV
           Base<F>(1), HPan_VC_STAR.LockedMatrix(), 
           Base<F>(0), SInv_STAR_STAR.Matrix() );
         El::AllReduce( SInv_STAR_STAR, HPan_VC_STAR.ColComm() );
-        t1_STAR_STAR = t1;
-        FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
+        householderScalars1_STAR_STAR = householderScalars1;
+        FixDiagonal
+        ( conjugation, householderScalars1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_MC_STAR.AlignWith( HEffected );
         HPan_MC_STAR = HPan;

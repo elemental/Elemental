@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_SHIFTDIAGONAL_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T,typename S>
 void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
 
@@ -32,7 +32,7 @@ void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
 template<typename T,typename S>
 void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
 
@@ -55,7 +55,7 @@ template<typename T,typename S>
 void ShiftDiagonal
 ( SparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T alpha = T(alphaPre);
@@ -66,7 +66,7 @@ void ShiftDiagonal
         {
             const Int e = A.Offset( i, i+offset );
             valBuf[e] += alpha;
-        } 
+        }
     }
     else
     {
@@ -82,11 +82,11 @@ template<typename T,typename S>
 void ShiftDiagonal
 ( DistSparseMatrix<T>& A, S alphaPre, Int offset, bool existingDiag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int mLocal = A.LocalHeight();
     const Int n = A.Width();
     const T alpha = T(alphaPre);
-    if( existingDiag ) 
+    if( existingDiag )
     {
         T* valBuf = A.ValueBuffer();
         for( Int iLoc=0; iLoc<mLocal; ++iLoc )
@@ -94,7 +94,7 @@ void ShiftDiagonal
             const Int i = A.GlobalRow(iLoc);
             const Int e = A.Offset( iLoc, i+offset );
             valBuf[e] += alpha;
-        } 
+        }
     }
     else
     {

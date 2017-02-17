@@ -1,22 +1,19 @@
 /*
-   Copyright 2009-2011, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
-   Copyright 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -27,15 +24,19 @@ namespace ldl {
 inline void PairwiseExchangeLowerStruct
 ( Int& theirSize, vector<Int>& theirLowerStruct, const DistNodeInfo& node )
 {
+    EL_DEBUG_CSE
+    const Grid& grid = node.Grid();
+    const Grid& childGrid = node.child->Grid();
+
     // Determine our partner's rank for this exchange in node's communicator
-    const int teamRank = mpi::Rank( node.comm );
-    const int teamSize = mpi::Size( node.comm );
-    const int childTeamRank = mpi::Rank( node.child->comm );
-    const int myTeamSize = mpi::Size( node.child->comm );
+    const int teamRank = grid.Rank();
+    const int teamSize = grid.Size();
+    const int childTeamRank = childGrid.Rank();
+    const int myTeamSize = childGrid.Size();
     const int otherTeamSize = teamSize - myTeamSize;
     const bool inFirstTeam = ( teamRank == childTeamRank );
     const int partner =
-        ( inFirstTeam ? teamRank+myTeamSize : teamRank-otherTeamSize );
+      inFirstTeam ? teamRank+myTeamSize : teamRank-otherTeamSize;
 
     // SendRecv the message lengths
     const Int mySize = node.child->size;
@@ -44,7 +45,7 @@ inline void PairwiseExchangeLowerStruct
     Int initialRecvs[2];
     mpi::SendRecv
     ( initialSends, 2, partner,
-      initialRecvs, 2, partner, node.comm );
+      initialRecvs, 2, partner, grid.Comm() );
     theirSize = initialRecvs[0];
     const Int theirLowerStructSize = initialRecvs[1];
 
@@ -52,24 +53,28 @@ inline void PairwiseExchangeLowerStruct
     theirLowerStruct.resize( theirLowerStructSize );
     mpi::SendRecv
     ( &node.child->lowerStruct[0], myLowerStructSize, partner,
-      &theirLowerStruct[0], theirLowerStructSize, partner, node.comm );
+      &theirLowerStruct[0], theirLowerStructSize, partner, grid.Comm() );
 }
 
 inline void BroadcastLowerStruct
 ( Int& theirSize, vector<Int>& theirLowerStruct, const DistNodeInfo& node )
 {
+    EL_DEBUG_CSE
+    const Grid& grid = node.Grid();
+    const Grid& childGrid = node.child->Grid();
+
     // Determine our partner's rank for this exchange in node's communicator
-    const int teamRank = mpi::Rank( node.comm );
-    const int teamSize = mpi::Size( node.comm );
-    const int childTeamRank = mpi::Rank( node.child->comm );
-    const int myTeamSize = mpi::Size( node.child->comm );
+    const int teamRank = grid.Rank();
+    const int teamSize = grid.Size();
+    const int childTeamRank = childGrid.Rank();
+    const int myTeamSize = childGrid.Size();
     const int otherTeamSize = teamSize - myTeamSize;
     const bool inFirstTeam = ( teamRank == childTeamRank );
 
     if( childTeamRank == 0 )
     {
         const int partner =
-            ( inFirstTeam ? teamRank+myTeamSize : teamRank-otherTeamSize );
+          inFirstTeam ? teamRank+myTeamSize : teamRank-otherTeamSize;
 
         // SendRecv the message lengths
         const Int mySize = node.child->size;
@@ -77,8 +82,8 @@ inline void BroadcastLowerStruct
         const Int initialSends[2] = { mySize, myLowerStructSize };
         Int initialRecvs[2];
         mpi::SendRecv
-        ( initialSends, 2, partner, 
-          initialRecvs, 2, partner, node.comm );
+        ( initialSends, 2, partner,
+          initialRecvs, 2, partner, grid.Comm() );
         theirSize = initialRecvs[0];
         const Int theirLowerStructSize = initialRecvs[1];
 
@@ -86,37 +91,42 @@ inline void BroadcastLowerStruct
         theirLowerStruct.resize( theirLowerStructSize );
         mpi::SendRecv
         ( &node.child->lowerStruct[0], myLowerStructSize, partner,
-          &theirLowerStruct[0], theirLowerStructSize, partner, node.comm );
+          &theirLowerStruct[0], theirLowerStructSize, partner,
+          grid.Comm() );
 
         // Broadcast the other team's child's sizes
-        mpi::Broadcast( initialRecvs, 2, 0, node.child->comm );
+        mpi::Broadcast( initialRecvs, 2, 0, childGrid.Comm() );
 
         // Broadcast the other team's child's lower struct
         mpi::Broadcast
-        ( &theirLowerStruct[0], theirLowerStructSize, 0, node.child->comm );
-    } 
+        ( &theirLowerStruct[0], theirLowerStructSize, 0, childGrid.Comm() );
+    }
     else
     {
         // Receive the other team's child's sizes
         Int initialRecvs[2];
-        mpi::Broadcast( initialRecvs, 2, 0, node.child->comm );
+        mpi::Broadcast( initialRecvs, 2, 0, childGrid.Comm() );
         theirSize = initialRecvs[0];
         const Int theirLowerStructSize = initialRecvs[1];
 
         // Receive the other team's child's lower struct
         theirLowerStruct.resize( theirLowerStructSize );
         mpi::Broadcast
-        ( &theirLowerStruct[0], theirLowerStructSize, 0, node.child->comm );
+        ( &theirLowerStruct[0], theirLowerStructSize, 0, childGrid.Comm() );
     }
 }
 
 inline void GetLowerStruct
 ( Int& theirSize, vector<Int>& theirLowerStruct, const DistNodeInfo& node )
 {
-    const int teamSize = mpi::Size( node.comm );
-    const int childTeamSize = mpi::Size( node.child->comm );
+    EL_DEBUG_CSE
+    const Grid& grid = node.Grid();
+    const Grid& childGrid = node.child->Grid();
+
+    const int teamSize = grid.Size();
+    const int childTeamSize = childGrid.Size();
     const int leftTeamSize =
-        ( node.child->onLeft ? childTeamSize : teamSize-childTeamSize );
+      node.child->onLeft ? childTeamSize : teamSize-childTeamSize;
     const int rightTeamSize = teamSize - leftTeamSize;
     if( leftTeamSize == rightTeamSize )
         PairwiseExchangeLowerStruct( theirSize, theirLowerStruct, node );
@@ -127,8 +137,9 @@ inline void GetLowerStruct
 inline void ComputeStructAndRelInds
 ( Int theirSize, const vector<Int>& theirLowerStruct, DistNodeInfo& node )
 {
+    EL_DEBUG_CSE
     const auto& myLowerStruct = node.child->lowerStruct;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !IsStrictlySorted(myLowerStruct) )
       {
           if( IsSorted(myLowerStruct) )
@@ -190,12 +201,13 @@ inline void ComputeStructAndRelInds
     node.lowerStruct.resize( lowerStructSize );
     for( Int i=0; i<lowerStructSize; ++i )
         node.lowerStruct[i] = fullStruct[node.size+i];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
+        const Grid& grid = node.Grid();
         // Ensure that the root process computed a lowerStruct of the same size
         Int rootLowerStructSize;
-        if( mpi::Rank(node.comm) == 0 )
+        if( grid.Rank() == 0 )
             rootLowerStructSize = lowerStructSize;
-        mpi::Broadcast( &rootLowerStructSize, 1, 0, node.comm );
+        mpi::Broadcast( &rootLowerStructSize, 1, 0, grid.Comm() );
         if( rootLowerStructSize != lowerStructSize )
             RuntimeError("Root has different lower struct size");
     )
@@ -203,7 +215,7 @@ inline void ComputeStructAndRelInds
 
 Int Analysis( NodeInfo& node, Int myOff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Recurse on the children
     // NOTE: Cleanup of existing info children should be added
@@ -214,8 +226,8 @@ Int Analysis( NodeInfo& node, Int myOff )
             LogicError("Node child ",c," was nullptr");
         myOff = Analysis( *node.children[c], myOff );
     }
-    
-    DEBUG_ONLY(
+
+    EL_DEBUG_ONLY(
       if( !IsStrictlySorted(node.origLowerStruct) )
       {
           if( IsSorted(node.origLowerStruct) )
@@ -229,9 +241,9 @@ Int Analysis( NodeInfo& node, Int myOff )
     {
         // Union the structures of the children with the original structure
         auto fullStruct = node.origLowerStruct;
-        for( NodeInfo* child : node.children )
+        for( const auto& child : node.children )
         {
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
                 if( !IsStrictlySorted(child->lowerStruct) )
                 {
                     if( IsSorted(child->lowerStruct) )
@@ -252,13 +264,13 @@ Int Analysis( NodeInfo& node, Int myOff )
         fullStruct = Union( fullStruct, nodeInds );
 
         // Construct the relative indices of the original lower structure
-        node.origLowerRelInds = 
+        node.origLowerRelInds =
           RelativeIndices( node.origLowerStruct, fullStruct );
 
         // Construct the relative indices of the children
         node.childRelInds.resize( numChildren );
         for( Int c=0; c<numChildren; ++c )
-            node.childRelInds[c] = 
+            node.childRelInds[c] =
                 RelativeIndices( node.children[c]->lowerStruct, fullStruct );
 
         // Form lower struct of this node by removing node indices
@@ -284,16 +296,13 @@ Int Analysis( NodeInfo& node, Int myOff )
 
 //
 // This is the part of the analysis that requires fine-grain parallelism.
-// For now, we will assume that the distributed part of the elimination 
+// For now, we will assume that the distributed part of the elimination
 // tree is binary.
 //
 
 void Analysis( DistNodeInfo& node, bool computeFactRecvInds )
 {
-    DEBUG_CSE
-
-    node.grid = new Grid( node.comm );
-
+    EL_DEBUG_CSE
     if( node.duplicate != nullptr )
     {
         Int myOff = 0;

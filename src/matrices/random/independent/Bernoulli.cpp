@@ -15,7 +15,7 @@ namespace El {
 template<typename T>
 void Bernoulli( Matrix<T>& A, Int m, Int n, double p )
 { 
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( p < 0. || p > 1. )
         LogicError
         ("Invalid choice of parameter p for Bernoulli distribution: ",p);
@@ -33,7 +33,7 @@ void Bernoulli( Matrix<T>& A, Int m, Int n, double p )
 template<typename T>
 void Bernoulli( AbstractDistMatrix<T>& A, Int m, Int n, double p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( p < 0. || p > 1. )
         LogicError
         ("Invalid choice of parameter p for Bernoulli distribution: ",p);

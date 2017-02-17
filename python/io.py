@@ -2,12 +2,36 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from El.core import *
 from El.blas_like import Copy, CopyFromRoot, CopyFromNonRoot, RealPart, ImagPart
+
+# Attempt to import matplotlib.pyplot and save whether or not this succeeded
+global havePyPlot
+global isInlinePyPlot
+try:
+  import numpy as np
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  havePyPlot=True
+  isInlinePyPlot = 'inline' in mpl.get_backend()
+except:
+  havePyPlot=False
+  isInlinePyPlot=False
+  print 'Could not import matplotlib.pyplot'
+
+if havePyPlot:
+  try:
+    import networkx as nx
+    haveNetworkX = True
+  except:
+    haveNetworkX = False
+    print 'Could not import networkx'
+else:
+  haveNetworkX = False
 
 # Input/Output
 # ************
@@ -82,6 +106,10 @@ def Print(A,title=''):
     elif A.tag == cTag: lib.ElPrintDistSparse_c(*args)
     elif A.tag == zTag: lib.ElPrintDistSparse_z(*args)
     else: DataExcept()
+  elif type(A) is Permutation:
+    Print(A.ExplicitVector(),title)
+  elif type(A) is DistPermutation:
+    Print(A.ExplicitVector(),title)
   else: TypeExcept()
 
 lib.ElSetColorMap.argtypes = [c_uint]
@@ -138,7 +166,6 @@ lib.ElDisplayDistSparse_z.argtypes = \
   [c_void_p,c_char_p]
 
 def DisplayPyPlot(A,title=''):
-  isInline = 'inline' in mpl.get_backend()
   isVec = min(A.Height(),A.Width()) == 1
   if A.tag == cTag or A.tag == zTag:
     AReal = Matrix(Base(A.tag))
@@ -168,11 +195,12 @@ def DisplayPyPlot(A,title=''):
       fig.colorbar(im,ax=axis)
     plt.title(title)
   plt.draw()
-  if not isInline:
+  if not isInlinePyPlot:
     plt.show(block=False)
+  return fig
 
 def DisplayNetworkX(A,title=''):
-  numEdges = A.NumEdges() 
+  numEdges = A.NumEdges()
   G = nx.DiGraph()
   for edge in xrange(numEdges):
     source = A.Source(edge)
@@ -182,8 +210,9 @@ def DisplayNetworkX(A,title=''):
   plt.title(title)
   nx.draw(G)
   plt.draw()
-  if not isInline:
+  if not isInlinePyPlot:
     plt.show(block=False)
+  return fig
 
 def DisplayCxx(A,title=''):
   args = [A.obj,title]
@@ -234,54 +263,59 @@ def DisplayCxx(A,title=''):
     elif A.tag == zTag: lib.ElDisplayDistSparse_z(*args)
     else: DataExcept()
     ProcessEvents(numMsExtra)
+  elif type(A) is Permutation:
+    DisplayCxx(A.ExplicitVector(),title)
+  elif type(A) is DistPermutation:
+    DisplayCxx(A.ExplicitVector(),title)
   else: TypeExcept()
+  return None
 
 def Display(A,title='',tryPython=True):
-  if tryPython: 
+  if tryPython:
     if type(A) is Matrix:
       if havePyPlot:
-        DisplayPyPlot(A,title)
-        return
+        return DisplayPyPlot(A,title)
     elif type(A) is DistMatrix:
       A_CIRC_CIRC = DistMatrix(A.tag,CIRC,CIRC,A.Grid())
       Copy(A,A_CIRC_CIRC)
       if A_CIRC_CIRC.CrossRank() == A_CIRC_CIRC.Root():
-        Display(A_CIRC_CIRC.Matrix(),title,True)
-      return
+        return Display(A_CIRC_CIRC.Matrix(),title,True)
+      return None
     elif type(A) is DistMultiVec:
-      if mpi.Rank(A.Comm()) == 0:
+      if A.Grid().Rank() == 0:
         ASeq = Matrix(A.tag)
         CopyFromRoot(A,ASeq)
-        Display(ASeq,title,True)
+        return Display(ASeq,title,True)
       else:
         CopyFromNonRoot(A)
-      return
+        return None
     elif type(A) is Graph:
       if haveNetworkX:
-        DisplayNetworkX(A,title)
-        return
+        return DisplayNetworkX(A,title)
     elif type(A) is DistGraph:
-      if mpi.Rank(A.Comm()) == 0:
+      if A.Grid().Rank() == 0:
         ASeq = Graph()
         CopyFromRoot(A,ASeq)
-        Display(ASeq,title,True)
+        return Display(ASeq,title,True)
       else:
         CopyFromNonRoot(A)
-      return
+        return None
     elif type(A) is SparseMatrix:
       ADense = Matrix(A.tag)
       Copy(A,ADense)
-      Display(ADense,title,True)
-      return
+      return Display(ADense,title,True)
     elif type(A) is DistSparseMatrix:
-      grid = Grid(A.Comm())
-      ADense = DistMatrix(A.tag,MC,MR,grid)
+      ADense = DistMatrix(A.tag,MC,MR,A.Grid())
       Copy(A,ADense)
-      Display(ADense,title,True)
-      return
+      return Display(ADense,title,True)
+    elif type(A) is Permutation:
+      return Display(A.ExplicitVector(),title,True)
+    elif type(A) is DistPermutation:
+      return Display(A.ExplicitVector(),title,True)
 
   # Fall back to the internal Display routine
   DisplayCxx(A,title)
+  return None
 
 lib.ElSpy_i.argtypes = \
 lib.ElSpyDist_i.argtypes = \
@@ -322,16 +356,27 @@ lib.ElRead_s.argtypes = \
 lib.ElRead_d.argtypes = \
 lib.ElRead_c.argtypes = \
 lib.ElRead_z.argtypes = \
+lib.ElReadSparse_i.argtypes = \
+lib.ElReadSparse_s.argtypes = \
+lib.ElReadSparse_d.argtypes = \
+lib.ElReadSparse_c.argtypes = \
+lib.ElReadSparse_z.argtypes = \
+lib.ElReadDistSparse_i.argtypes = \
+lib.ElReadDistSparse_s.argtypes = \
+lib.ElReadDistSparse_d.argtypes = \
+lib.ElReadDistSparse_c.argtypes = \
+lib.ElReadDistSparse_z.argtypes = \
+  [c_void_p,c_char_p,c_uint]
 lib.ElReadDist_i.argtypes = \
 lib.ElReadDist_s.argtypes = \
 lib.ElReadDist_d.argtypes = \
 lib.ElReadDist_c.argtypes = \
 lib.ElReadDist_z.argtypes = \
-  [c_void_p,c_char_p,c_uint]
+  [c_void_p,c_char_p,c_uint,bType]
 
-def Read(A,filename,fileFormat=AUTO):
-  args = [A.obj,filename,fileFormat]
+def Read(A,filename,fileFormat=AUTO,sequential=False):
   if type(A) is Matrix:
+    args = [A.obj,filename,fileFormat]
     if   A.tag == iTag: lib.ElRead_i(*args)
     elif A.tag == sTag: lib.ElRead_s(*args)
     elif A.tag == dTag: lib.ElRead_d(*args)
@@ -339,11 +384,28 @@ def Read(A,filename,fileFormat=AUTO):
     elif A.tag == zTag: lib.ElRead_z(*args)
     else: DataExcept()
   elif type(A) is DistMatrix:
+    args = [A.obj,filename,fileFormat,sequential]
     if   A.tag == iTag: lib.ElReadDist_i(*args)
     elif A.tag == sTag: lib.ElReadDist_s(*args)
     elif A.tag == dTag: lib.ElReadDist_d(*args)
     elif A.tag == cTag: lib.ElReadDist_c(*args)
     elif A.tag == zTag: lib.ElReadDist_z(*args)
+    else: DataExcept()
+  elif type(A) is SparseMatrix:
+    args = [A.obj,filename,fileFormat]
+    if   A.tag == iTag: lib.ElReadSparse_i(*args)
+    elif A.tag == sTag: lib.ElReadSparse_s(*args)
+    elif A.tag == dTag: lib.ElReadSparse_d(*args)
+    elif A.tag == cTag: lib.ElReadSparse_c(*args)
+    elif A.tag == zTag: lib.ElReadSparse_z(*args)
+    else: DataExcept()
+  elif type(A) is DistSparseMatrix:
+    args = [A.obj,filename,fileFormat]
+    if   A.tag == iTag: lib.ElReadDistSparse_i(*args)
+    elif A.tag == sTag: lib.ElReadDistSparse_s(*args)
+    elif A.tag == dTag: lib.ElReadDistSparse_d(*args)
+    elif A.tag == cTag: lib.ElReadDistSparse_c(*args)
+    elif A.tag == zTag: lib.ElReadDistSparse_z(*args)
     else: DataExcept()
   else: TypeExcept()
 
@@ -375,4 +437,8 @@ def Write(A,basename,fileFormat,title=''):
     elif A.tag == cTag: lib.ElWriteDist_c(*args)
     elif A.tag == zTag: lib.ElWriteDist_z(*args)
     else: DataExcept()
+  elif type(A) is Permutation:
+    Write(A.ExplicitVector(),basename,fileFormat,title)
+  elif type(A) is DistPermutation:
+    Write(A.ExplicitVector(),basename,fileFormat,title)
   else: TypeExcept()

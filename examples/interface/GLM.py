@@ -80,14 +80,14 @@ ctrl = El.LeastSquaresCtrl_d()
 ctrl.alpha = baseAlpha
 ctrl.progress = True
 ctrl.equilibrate = True
-ctrl.solveCtrl.relTol = 1e-10
-ctrl.solveCtrl.relTolRefine = 1e-12
-ctrl.solveCtrl.progress = True
+ctrl.sqsdCtrl.solveCtrl.relTol = 1e-10
+ctrl.sqsdCtrl.solveCtrl.relTolRefine = 1e-12
+ctrl.sqsdCtrl.solveCtrl.progress = True
 startGLM = El.mpi.Time()
 X,Y = El.GLM(A,B,D,ctrl)
 endGLM = El.mpi.Time()
 if worldRank == 0:
-  print "GLM time:", endGLM-startGLM, "seconds"
+  print('GLM time: {} seconds'.format(endGLM-startGLM))
 if display:
   El.Display( X, "X" )
   El.Display( Y, "Y" )
@@ -97,7 +97,7 @@ if output:
 
 YNorm = El.FrobeniusNorm( Y )
 if worldRank == 0:
-  print "|| Y ||_F =", YNorm
+  print('|| Y ||_F = {}'.format(YNorm))
 
 E = El.DistMultiVec()
 El.Copy( D, E )
@@ -109,7 +109,7 @@ if display:
 if output:
   El.Print( E, "D - A X - B Y" )
 if worldRank == 0:
-  print "|| D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm
+  print('|| D - A X - B Y ||_F / || D ||_F = {}'.format(residNorm/DNorm))
 
 # Now try solving a weighted least squares problem
 # (as lambda -> infinity, the exact solution converges to that of LSE)
@@ -125,7 +125,7 @@ def SolveWeighted(A,B,D,lambd):
 
   ctrl.alpha = baseAlpha
   if worldRank == 0:
-    print "lambda=", lambd, ": ctrl.alpha=", ctrl.alpha
+    print('lambda={}: ctrl.alpha={}'.format(lambd,ctrl.alpha))
   XEmb=El.LeastSquares(AEmb,D,ctrl)
 
   X = XEmb[0:n0*n1,0:numRHS]
@@ -134,14 +134,15 @@ def SolveWeighted(A,B,D,lambd):
 
   YNorm = El.FrobeniusNorm( Y )
   if worldRank == 0:
-    print "lambda=", lambd, ": || Y ||_F =", YNorm
+    print('lambda={} : || Y ||_F = {}'.format(lambd,YNorm))
 
   El.Copy( D, E )
   El.Multiply( El.NORMAL, -1., A, X, 1., E )
   El.Multiply( El.NORMAL, -1., B, Y, 1., E )
   residNorm = El.FrobeniusNorm( E )
   if worldRank == 0:
-    print "lambda=", lambd, ": || D - A X - B Y ||_F / || D ||_F =", residNorm/DNorm
+    print('lambda={}: || D - A X - B Y ||_F / || D ||_F = {}'.format( \
+      lambd,residNorm/DNorm))
 
 SolveWeighted(A,B,D,1)
 SolveWeighted(A,B,D,10)
@@ -150,7 +151,4 @@ SolveWeighted(A,B,D,1000)
 SolveWeighted(A,B,D,10000)
 SolveWeighted(A,B,D,100000)
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

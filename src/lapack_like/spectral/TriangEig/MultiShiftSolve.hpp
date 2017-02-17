@@ -5,8 +5,8 @@
    Copyright (c) 2015-2016, Tim Moon
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 
@@ -17,23 +17,22 @@ namespace triang_eig {
 // NOTE: The following are nearly trivial modifications of mstrsm::LUN
 //       which exploit the structure of the eigenvectors
 
-// TODO: "Naive" versions for academic accuracy and performance experiments
+// TODO(poulson): "Naive" versions for academic accuracy and performance
+// experiments
 
-/*   Note: See "Robust Triangular Solves for Use in Condition
- *   Estimation" by Edward Anderson for notation and bounds.
- *   Entries in U are assumed to be less (in magnitude) than 
- *   bigNum.
- */
-template<typename F>
+// See "Robust Triangular Solves for Use in Condition
+// Estimation" by Edward Anderson for notation and bounds.
+// Entries in U are assumed to be less (in magnitude) than bigNum.
+template<typename Field>
 void MultiShiftDiagonalBlockSolve
-(       Matrix<F>& U,
-  const Matrix<F>& shifts,
-        Matrix<F>& X,
-        Matrix<F>& scales )
+(       Matrix<Field>& U,
+  const Matrix<Field>& shifts,
+        Matrix<Field>& X,
+        Matrix<Field>& scales )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -50,13 +49,13 @@ void MultiShiftDiagonalBlockSolve
     const Real ulp = limits::Precision<Real>();
     const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
     const Real bigNum = Real(1)/smallNum;
-    
+
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
     // Default scale is 1
     Ones( scales, numShifts, 1 );
-    
+
     // Compute infinity norms of columns of U (excluding diagonal)
     Matrix<Real> cNorm( n, 1 );
     cNorm(0) = 0;
@@ -74,14 +73,14 @@ void MultiShiftDiagonalBlockSolve
         const Int xHeight = Min(n,j);
 
         // Initialize triangular system
-        // TODO: Only modify the first xHeight entries of the diagonal
+        // TODO(poulson): Only modify the first xHeight entries of the diagonal
         SetDiagonal( U, diag );
-        const F shift = shifts(j);
+        const Field shift = shifts(j);
         const Real smallDiag = Max( ulp*OneAbs(shift), smallNum );
         for( Int k=0; k<xHeight; ++k )
         {
             U(k,k) -= shift;
-            // TODO: Perhaps preserve phase in complex plane
+            // TODO(poulson): Perhaps preserve phase in complex plane
             if( OneAbs(U(k,k)) < smallDiag )
                 U(k,k) = smallDiag;
         }
@@ -134,9 +133,9 @@ void MultiShiftDiagonalBlockSolve
             for( Int i=xHeight-1; i>=0; --i )
             {
                 // Perform division and check for overflow
-                const F Uii = U(i,i);
+                const Field Uii = U(i,i);
                 const Real absUii = SafeAbs( Uii );
-                F Xij = xj(i);
+                Field Xij = xj(i);
                 Real absXij = SafeAbs( Xij );
                 if( absUii > smallNum )
                 {
@@ -166,18 +165,18 @@ void MultiShiftDiagonalBlockSolve
                 }
                 else
                 {
-                    // TODO: maybe this tolerance should be loosened to
+                    // TODO(poulson): maybe this tolerance should be loosened to
                     //   | Xij | >= || A || * eps
                     if( absXij >= smallNum )
                     {
-                        Xij = F(1);
+                        Xij = Field(1);
                         Zero( xj );
                         xjMax = Real(0);
                         scales_j = Real(0);
                     }
                 }
                 xj(i) = Xij;
-                
+
                 if( i > 0 )
                 {
 
@@ -219,16 +218,16 @@ void MultiShiftDiagonalBlockSolve
     SetDiagonal( U, diag );
 }
 
-template<typename F>
+template<typename Field>
 void MultiShiftDiagonalBlockSolve
-(       DistMatrix<F,STAR,STAR>& U,
-  const DistMatrix<F,VR,STAR>& shifts,
-        DistMatrix<F,STAR,VR>& X,
-        DistMatrix<F,VR,STAR>& scales )
+(       DistMatrix<Field,STAR,STAR>& U,
+  const DistMatrix<Field,VR,STAR>& shifts,
+        DistMatrix<Field,STAR,VR>& X,
+        DistMatrix<Field,VR,STAR>& scales )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -238,10 +237,10 @@ void MultiShiftDiagonalBlockSolve
       AssertSameGrids( U, shifts, X, scales );
     )
 
-          Matrix<F>& ULoc = U.Matrix();
-    const Matrix<F>& shiftsLoc = shifts.LockedMatrix();
-          Matrix<F>& XLoc = X.Matrix();
-          Matrix<F>& scalesLoc = scales.Matrix();
+          Matrix<Field>& ULoc = U.Matrix();
+    const Matrix<Field>& shiftsLoc = shifts.LockedMatrix();
+          Matrix<Field>& XLoc = X.Matrix();
+          Matrix<Field>& scalesLoc = scales.Matrix();
 
     auto diag = GetDiagonal(ULoc);
     const Int n = U.Height();
@@ -251,14 +250,14 @@ void MultiShiftDiagonalBlockSolve
     const Real ulp = limits::Precision<Real>();
     const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
     const Real bigNum = Real(1)/smallNum;
-    
+
     const Real oneHalf = Real(1)/Real(2);
     const Real oneQuarter = Real(1)/Real(4);
 
     // Default scale is 1
     const Int numShifts = shifts.Height();
     Ones( scales, numShifts, 1 );
-    
+
     // Compute infinity norms of columns of U (excluding diagonal)
     Matrix<Real> cNorm( n, 1 );
     cNorm(0) = 0;
@@ -280,14 +279,14 @@ void MultiShiftDiagonalBlockSolve
         const Int xHeight = Min(n,j);
 
         // Initialize triangular system
-        // TODO: Only modify the first xHeight entries of the diagonal
+        // TODO(poulson): Only modify the first xHeight entries of the diagonal
         SetDiagonal( ULoc, diag );
-        const F shift = shiftsLoc(jLoc);
+        const Field shift = shiftsLoc(jLoc);
         const Real smallDiag = Max( ulp*OneAbs(shift), smallNum );
         for( Int k=0; k<xHeight; ++k )
         {
             ULoc(k,k) -= shift;
-            // TODO: Perhaps preserve phase in complex plane
+            // TODO(poulson): Perhaps preserve phase in complex plane
             if( OneAbs(ULoc(k,k)) < smallDiag )
                 ULoc(k,k) = smallDiag;
         }
@@ -341,9 +340,9 @@ void MultiShiftDiagonalBlockSolve
             for( Int i=xHeight-1; i>=0; --i )
             {
                 // Perform division and check for overflow
-                const F Uii = ULoc(i,i);
+                const Field Uii = ULoc(i,i);
                 const Real absUii = SafeAbs( Uii );
-                F Xij = xj(i);
+                Field Xij = xj(i);
                 Real absXij = SafeAbs( Xij );
                 if( absUii > smallNum )
                 {
@@ -373,18 +372,18 @@ void MultiShiftDiagonalBlockSolve
                 }
                 else
                 {
-                    // TODO: maybe this tolerance should be loosened to
+                    // TODO(poulson): maybe this tolerance should be loosened to
                     //   | Xij | >= || A || * eps
                     if( absXij >= smallNum )
                     {
-                        Xij = F(1);
+                        Xij = Field(1);
                         Zero( xj );
                         xjMax = Real(0);
                         scales_j = Real(0);
                     }
                 }
                 xj(i) = Xij;
-                
+
                 if( i > 0 )
                 {
 
@@ -426,22 +425,17 @@ void MultiShiftDiagonalBlockSolve
     SetDiagonal( ULoc, diag );
 }
 
-/*   Note: See "Robust Triangular Solves for Use in Condition
- *   Estimation" by Edward Anderson for notation and bounds.
- *   Entries in U are assumed to be less (in magnitude) than 
- *   bigNum.
- */
-template<typename F>
+template<typename Field>
 void MultiShiftSolve
-(       Matrix<F>& U,
-  const Matrix<F>& shifts,
-        Matrix<F>& X,
-        Matrix<F>& scales ) 
+(       Matrix<Field>& U,
+  const Matrix<Field>& shifts,
+        Matrix<Field>& X,
+        Matrix<Field>& scales )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("Triangular matrix must be square");
       if( U.Width() != X.Height() )
@@ -462,13 +456,13 @@ void MultiShiftSolve
     const Real smallNum = Max( underflow/ulp, Real(1)/(overflow*ulp) );
     const Real bigNum = Real(1)/smallNum;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( MaxNorm(U) >= bigNum )
           LogicError("Entries in matrix are too large");
     )
-    
+
     Ones( scales, n, 1 );
-    Matrix<F> scalesUpdate( n, 1 );
+    Matrix<Field> scalesUpdate( n, 1 );
 
     // Determine largest entry of each RHS
     Matrix<Real> XMax( n, 1 );
@@ -486,7 +480,7 @@ void MultiShiftSolve
         xjMax = Max( xjMax, 2*smallNum );
         XMax(j) = xjMax;
     }
-        
+
     // Perform block triangular solve
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -499,7 +493,8 @@ void MultiShiftSolve
         auto U01 = U( ind0, ind1 );
         auto U11 = U( ind1, ind1 );
 
-        // TODO: More descriptive names given exploiting upper-triangular struct
+        // TODO(poulson): More descriptive names given exploiting
+        // upper-triangular struct
         auto X0 = X( ind0, IR(k,END) );
         auto X1 = X( ind1, IR(k,END) );
         auto X2 = X( ind2, IR(k,END) );
@@ -542,7 +537,7 @@ void MultiShiftSolve
             for( Int jActive=0; jActive<nActive; ++jActive )
             {
                 const Int j = jActive + k;
-                // TODO: Skip first column?
+                // TODO(poulson): Skip first column?
                 auto xj = X( IR(0,j), IR(j) );
                 Real xjMax = XMax(j);
                 Real X1Max = MaxNorm( X1(ALL,IR(jActive)) );
@@ -569,22 +564,22 @@ void MultiShiftSolve
             }
 
             // Update RHS with GEMM
-            Gemm( NORMAL, NORMAL, F(-1), U01, X1, F(1), X0 );
+            Gemm( NORMAL, NORMAL, Field(-1), U01, X1, Field(1), X0 );
         }
     }
 }
 
-template<typename F>
+template<typename Field>
 void MultiShiftSolve
-( const ElementalMatrix<F>& UPre, 
-  const ElementalMatrix<F>& shiftsPre,
-        ElementalMatrix<F>& XPre,
-        ElementalMatrix<F>& scalesPre ) 
+( const AbstractDistMatrix<Field>& UPre,
+  const AbstractDistMatrix<Field>& shiftsPre,
+        AbstractDistMatrix<Field>& XPre,
+        AbstractDistMatrix<Field>& scalesPre )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-  
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+
+    EL_DEBUG_ONLY(
       if( UPre.Height() != UPre.Width() )
           LogicError("Triangular matrix must be square");
       if( UPre.Width() != XPre.Height() )
@@ -598,28 +593,28 @@ void MultiShiftSolve
     const Int bsize = Blocksize();
     const Int kLast = LastOffset( m, bsize );
 
-    DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
-    DistMatrixReadProxy<F,F,VR,STAR> shiftsProx( shiftsPre );
-    DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
-    DistMatrixWriteProxy<F,F,VR,STAR> scalesProx( scalesPre );
+    DistMatrixReadProxy<Field,Field,MC,MR> UProx( UPre );
+    DistMatrixReadProxy<Field,Field,VR,STAR> shiftsProx( shiftsPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> XProx( XPre );
+    DistMatrixWriteProxy<Field,Field,VR,STAR> scalesProx( scalesPre );
     auto& U = UProx.GetLocked();
     auto& shifts = shiftsProx.GetLocked();
     auto& X = XProx.Get();
     auto& scales = scalesProx.Get();
-    
+
     const Grid& g = U.Grid();
-    DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,STAR,MR  > X1_STAR_MR(g);
-    DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
-    DistMatrix<F,VR,  STAR> scalesUpdate_VR_STAR(g);
-    DistMatrix<F,MR,  STAR> scalesUpdate_MR_STAR(g);
+    DistMatrix<Field,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<Field,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<Field,STAR,MR  > X1_STAR_MR(g);
+    DistMatrix<Field,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<Field,VR,  STAR> scalesUpdate_VR_STAR(g);
+    DistMatrix<Field,MR,  STAR> scalesUpdate_MR_STAR(g);
 
     Ones( scales, n, 1 );
     scalesUpdate_VR_STAR.Resize( n, 1 );
 
-    // TODO: Intitialize XMax with the largest entry of each RHS
-    // TODO: Rescale X if any of the columns are too large
+    // TODO(poulson): Intitialize XMax with the largest entry of each RHS
+    // TODO(poulson): Rescale X if any of the columns are too large
 
     for( Int k=kLast; k>=0; k-=bsize )
     {
@@ -668,13 +663,13 @@ void MultiShiftSolve
                 blas::Scal
                 ( X2.LocalHeight(), sigma, X2.Buffer(0,jActiveLoc), 1 );
 
-                // TODO: Update XMax
+                // TODO(poulson): Update XMax
             }
             else
             {
                 // Force the value to one so the diagonal scale does not
                 // have an effect. This is somewhat of a hack.
-                scalesUpdateLoc(jActiveLoc) = F(1);
+                scalesUpdateLoc(jActiveLoc) = Field(1);
             }
         }
         auto scalesActive = scales(IR(k,END),ALL);
@@ -682,18 +677,19 @@ void MultiShiftSolve
 
         if( k > 0 )
         {
-            // TODO: Compute infinity norms of columns in U01
-            // TODO: Check for possible overflows in GEMM
+            // TODO(poulson): Compute infinity norms of columns in U01
+            // TODO(poulson): Check for possible overflows in GEMM
 
             // Update RHS with GEMM
             // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
             U01_MC_STAR.AlignWith( X0 );
             U01_MC_STAR = U01; // U01[MC,* ] <- U01[MC,MR]
             LocalGemm
-            ( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
+            ( NORMAL, NORMAL,
+              Field(-1), U01_MC_STAR, X1_STAR_MR, Field(1), X0 );
         }
     }
 }
-  
+
 } // namespace triang_eig
 } // namespace El

@@ -1,0 +1,59 @@
+# version format
+version: 1.0.{build}
+
+# Build worker image (VM template)
+image: Visual Studio 2015
+
+configuration: Release
+platform: x86
+
+matrix:
+  fast_finish: true
+  allow_failures:
+      - platform: x64
+        configuration: Release
+
+notifications:
+  - provider: Email
+    on_build_success: false
+    on_build_failure: false
+    on_build_status_changed: false
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+# clone directory
+clone_folder: c:\projects\elemental
+
+environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    WITH_ENV: "cmd /E:ON /V:ON /C .ci\\run_with_env.cmd"
+
+# scripts that run after cloning repository
+install:
+  # Download MPI
+  # Microsoft MPI
+  - "powershell ci\\install-msmpi.ps1"
+  - ps: nuget install OpenBLAS -o "${env:APPVEYOR_BUILD_FOLDER}"
+
+before_build:
+  - SetEnvMPI.cmd
+  - mkdir build
+  - cd build
+  - cmake -G "Visual Studio 14 2015 Win64" -DEL_DISABLE_PMRRR=ON -DMATH_LIBS="c:\\projects\\elemental\\OpenBLAS.0.2.14.1\\lib\\native\\lib\\x64\\libopenblas.dll.a" -DBUILD_METIS=OFF -DEL_DISABLE_PARMETIS=ON -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release ..
+  
+build:
+        parallel: true                  # enable MSBuild parallel builds
+
+build_script:
+        - cmake --build . -- /m 
+
+test_script: 
+  - ps: ctest --output-on-failure
+
+cache:
+      - C:\Downloads\MSMPI    -> ci\\install-msmpi.ps1    

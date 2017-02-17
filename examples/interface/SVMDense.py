@@ -64,7 +64,7 @@ El.Print( d, "d" )
 if display:
   El.Display( wGen, "wGen" )
   if worldRank == 0:
-    print "offset =", offset
+    print('offset = {}'.format(offset))
   El.Display( A, "A" )
   El.Display( d, "d" )
 
@@ -74,13 +74,13 @@ ctrl.ipmCtrl.mehrotraCtrl.progress = True
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)
   if worldRank == 0:
-    print "lambda =", lambd
+    print('lambda = {}'.format(lambd))
 
   startSVM = El.mpi.Time()
   x = El.SVM( A, d, lambd, ctrl )
   endSVM = El.mpi.Time()
   if worldRank == 0:
-    print "SVM time: ", endSVM-startSVM
+    print('SVM time: {}'.format(endSVM-startSVM))
 
   w = x[0:n,0]
   beta = x.Get(n,0)
@@ -88,7 +88,7 @@ for j in xrange(0,numLambdas):
   if display:
     El.Display( w, "w" )
     if worldRank==0:
-      print "beta=", beta
+      print('beta = {}'.format(beta))
     El.Display( z, "z" )
 
   e = El.DistMatrix()
@@ -100,9 +100,6 @@ for j in xrange(0,numLambdas):
     El.Display( e, "diag(d)*(A w + beta)" )
   eTwoNorm = El.Nrm2( e )
   if worldRank == 0:
-    print "|| A w + beta - d ||_2 =", eTwoNorm
+    print('|| A w + beta - d ||_2 = {}'.format(eTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

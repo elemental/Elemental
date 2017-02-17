@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,15 +16,15 @@ namespace El {
 
 namespace sign {
 
-template<typename F>
+template<typename Field>
 void
 NewtonStep
-( const Matrix<F>& X,
-        Matrix<F>& XNew,
+( const Matrix<Field>& X,
+        Matrix<Field>& XNew,
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     // Calculate mu while forming XNew := inv(X)
     Real mu=1;
@@ -33,7 +33,7 @@ NewtonStep
     LU( XNew, P );
     if( scaling == SIGN_SCALE_DET )
     {
-        SafeProduct<F> det = det::AfterLUPartialPiv( XNew, P );
+        SafeProduct<Field> det = det::AfterLUPartialPiv( XNew, P );
         mu = Real(1)/Exp(det.kappa);
     }
     inverse::AfterLUPartialPiv( XNew, P );
@@ -42,20 +42,20 @@ NewtonStep
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
-    const Real halfMuInv = Real(1)/(2*mu); 
+    const Real halfMuInv = Real(1)/(2*mu);
     XNew *= halfMuInv;
     Axpy( halfMu, X, XNew );
 }
 
-template<typename F>
+template<typename Field>
 void
 NewtonStep
-( const DistMatrix<F>& X,
-        DistMatrix<F>& XNew, 
+( const DistMatrix<Field>& X,
+        DistMatrix<Field>& XNew,
   SignScaling scaling=SIGN_SCALE_FROB )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     // Calculate mu while forming B := inv(X)
     Real mu=1;
@@ -64,7 +64,7 @@ NewtonStep
     LU( XNew, P );
     if( scaling == SIGN_SCALE_DET )
     {
-        SafeProduct<F> det = det::AfterLUPartialPiv( XNew, P );
+        SafeProduct<Field> det = det::AfterLUPartialPiv( XNew, P );
         mu = Real(1)/Exp(det.kappa);
     }
     inverse::AfterLUPartialPiv( XNew, P );
@@ -73,39 +73,20 @@ NewtonStep
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
-    const Real halfMuInv = Real(1)/(2*mu); 
+    const Real halfMuInv = Real(1)/(2*mu);
     XNew *= halfMuInv;
     Axpy( halfMu, X, XNew );
 }
 
-template<typename F>
+template<typename Field>
 void
 NewtonSchulzStep
-( const Matrix<F>& X,
-        Matrix<F>& XTmp,
-        Matrix<F>& XNew )
+( const Matrix<Field>& X,
+        Matrix<Field>& XTmp,
+        Matrix<Field>& XNew )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    const Int n = X.Height();
- 
-    // XTmp := 3I - X^2
-    Identity( XTmp, n, n );
-    Gemm( NORMAL, NORMAL, Real(-1), X, X, Real(3), XTmp );
-
-    // XNew := 1/2 X XTmp
-    Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
-}
-
-template<typename F>
-void
-NewtonSchulzStep
-( const DistMatrix<F>& X,
-        DistMatrix<F>& XTmp,
-        DistMatrix<F>& XNew )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = X.Height();
 
     // XTmp := 3I - X^2
@@ -116,22 +97,41 @@ NewtonSchulzStep
     Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
 }
 
-// Please see Chapter 5 of Higham's 
+template<typename Field>
+void
+NewtonSchulzStep
+( const DistMatrix<Field>& X,
+        DistMatrix<Field>& XTmp,
+        DistMatrix<Field>& XNew )
+{
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    const Int n = X.Height();
+
+    // XTmp := 3I - X^2
+    Identity( XTmp, n, n );
+    Gemm( NORMAL, NORMAL, Real(-1), X, X, Real(3), XTmp );
+
+    // XNew := 1/2 X XTmp
+    Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
+}
+
+// Please see Chapter 5 of Higham's
 // "Functions of Matrices: Theory and Computation" for motivation behind
 // the different choices of p, which are usually in {0,1,2}
-template<typename F>
+template<typename Field>
 Int
-Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
+Newton( Matrix<Field>& A, const SignCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = A.Height()*limits::Epsilon<Real>();
 
     Int numIts=0;
-    Matrix<F> B;
-    Matrix<F> *X=&A, *XNew=&B;
+    Matrix<Field> B;
+    Matrix<Field> *X=&A, *XNew=&B;
     while( numIts < ctrl.maxIts )
     {
         // Overwrite XNew with the new iterate
@@ -146,9 +146,9 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
         ++numIts;
         std::swap( X, XNew );
         if( ctrl.progress )
-            cout << "after " << numIts << " Newton iter's: " 
-                 << "oneDiff=" << oneDiff << ", oneNew=" << oneNew 
-                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
+            cout << "after " << numIts << " Newton iter's: "
+                 << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
+                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
                  << tol << endl;
         if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
@@ -158,19 +158,19 @@ Newton( Matrix<F>& A, const SignCtrl<Base<F>>& ctrl )
     return numIts;
 }
 
-template<typename F>
+template<typename Field>
 Int
-Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
+Newton( DistMatrix<Field>& A, const SignCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real tol = ctrl.tol;
     if( tol == Real(0) )
         tol = A.Height()*limits::Epsilon<Real>();
 
     Int numIts=0;
-    DistMatrix<F> B( A.Grid() );
-    DistMatrix<F> *X=&A, *XNew=&B;
+    DistMatrix<Field> B( A.Grid() );
+    DistMatrix<Field> *X=&A, *XNew=&B;
     while( numIts < ctrl.maxIts )
     {
         // Overwrite XNew with the new iterate
@@ -187,7 +187,7 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
         if( ctrl.progress && A.Grid().Rank() == 0 )
             cout << "after " << numIts << " Newton iter's: "
                  << "oneDiff=" << oneDiff << ", oneNew=" << oneNew
-                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol=" 
+                 << ", oneDiff/oneNew=" << oneDiff/oneNew << ", tol="
                  << tol << endl;
         if( oneDiff/oneNew <= Pow(oneNew,ctrl.power)*tol )
             break;
@@ -201,49 +201,50 @@ Newton( DistMatrix<F>& A, const SignCtrl<Base<F>>& ctrl )
 
 } // namespace sign
 
-template<typename F>
-void Sign( Matrix<F>& A, const SignCtrl<Base<F>> ctrl )
+template<typename Field>
+void Sign( Matrix<Field>& A, const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     sign::Newton( A, ctrl );
 }
 
-template<typename F>
-void Sign( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl )
+template<typename Field>
+void Sign
+( Matrix<Field>& A, Matrix<Field>& N, const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
-    Matrix<F> ACopy( A );
+    EL_DEBUG_CSE
+    Matrix<Field> ACopy( A );
     sign::Newton( A, ctrl );
-    Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
+    Gemm( NORMAL, NORMAL, Field(1), A, ACopy, N );
 }
 
-template<typename F>
-void Sign( ElementalMatrix<F>& APre, const SignCtrl<Base<F>> ctrl )
+template<typename Field>
+void Sign( AbstractDistMatrix<Field>& APre, const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     sign::Newton( A, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 void Sign
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& NPre, 
-  const SignCtrl<Base<F>> ctrl )
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& NPre,
+  const SignCtrl<Base<Field>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> NProx( NPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> NProx( NPre );
     auto& A = AProx.Get();
     auto& N = NProx.Get();
 
-    DistMatrix<F> ACopy( A );
+    DistMatrix<Field> ACopy( A );
     sign::Newton( A, ctrl );
-    Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
+    Gemm( NORMAL, NORMAL, Field(1), A, ACopy, N );
 }
 
 // The Hermitian sign decomposition is equivalent to the Hermitian polar
@@ -254,16 +255,16 @@ void Sign
 // from the right so that the sign decomposition of a singular Hermitian matrix
 // is a polar decomposition (which always exists).
 
-template<typename F>
+template<typename Field>
 void HermitianSign
-( UpperOrLower uplo, Matrix<F>& A, const HermitianEigCtrl<F>& ctrl )
+( UpperOrLower uplo, Matrix<Field>& A, const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Q;
+    Matrix<Field> Q;
     auto ctrlMod( ctrl );
     ctrlMod.tridiagEigCtrl.sort = UNSORTED;
     HermitianEig( uplo, A, w, Q, ctrlMod );
@@ -282,19 +283,19 @@ void HermitianSign
     HermitianFromEVD( uplo, A, w, Q );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianSign
 ( UpperOrLower uplo,
-  Matrix<F>& A,
-  Matrix<F>& N, 
-  const HermitianEigCtrl<F>& ctrl )
+  Matrix<Field>& A,
+  Matrix<Field>& N,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Q;
+    Matrix<Field> Q;
     auto ctrlMod( ctrl );
     ctrlMod.tridiagEigCtrl.sort = UNSORTED;
     HermitianEig( uplo, A, w, Q, ctrlMod );
@@ -321,22 +322,22 @@ void HermitianSign
     HermitianFromEVD( uplo, N, wAbs, Q );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianSign
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre, 
-  const HermitianEigCtrl<F>& ctrl )
+  AbstractDistMatrix<Field>& APre,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     // Get the EVD of A
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Q(g);
+    DistMatrix<Field> Q(g);
     auto ctrlMod( ctrl );
     ctrlMod.tridiagEigCtrl.sort = UNSORTED;
     HermitianEig( uplo, A, w, Q, ctrlMod );
@@ -355,25 +356,25 @@ void HermitianSign
     HermitianFromEVD( uplo, A, w, Q );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianSign
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& NPre,
-  const HermitianEigCtrl<F>& ctrl )
+  AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& NPre,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
-    DistMatrixWriteProxy<F,F,MC,MR> NProx( NPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> NProx( NPre );
     auto& A = AProx.Get();
     auto& N = NProx.Get();
 
     // Get the EVD of A
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Q(g);
+    DistMatrix<Field> Q(g);
     auto ctrlMod( ctrl );
     ctrlMod.tridiagEigCtrl.sort = UNSORTED;
     HermitianEig( uplo, A, w, Q, ctrlMod );
@@ -405,28 +406,29 @@ void HermitianSign
     HermitianFromEVD( uplo, N, wAbs, Q );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void Sign \
-  ( Matrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
+  ( Matrix<Field>& A, const SignCtrl<Base<Field>> ctrl ); \
   template void Sign \
-  ( ElementalMatrix<F>& A, const SignCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<Field>& A, const SignCtrl<Base<Field>> ctrl ); \
   template void Sign \
-  ( Matrix<F>& A, Matrix<F>& N, const SignCtrl<Base<F>> ctrl ); \
+  ( Matrix<Field>& A, Matrix<Field>& N, const SignCtrl<Base<Field>> ctrl ); \
   template void Sign \
-  ( ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
-    const SignCtrl<Base<F>> ctrl ); \
+  ( AbstractDistMatrix<Field>& A, AbstractDistMatrix<Field>& N, \
+    const SignCtrl<Base<Field>> ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, Matrix<F>& A, \
-    const HermitianEigCtrl<F>& ctrl ); \
+  ( UpperOrLower uplo, Matrix<Field>& A, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, \
-    const HermitianEigCtrl<F>& ctrl ); \
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N, \
-    const HermitianEigCtrl<F>& ctrl ); \
+  ( UpperOrLower uplo, Matrix<Field>& A, Matrix<Field>& N, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template void HermitianSign \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& N, \
-    const HermitianEigCtrl<F>& ctrl );
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Field>& N, \
+    const HermitianEigCtrl<Field>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

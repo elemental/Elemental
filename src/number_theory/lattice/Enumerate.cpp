@@ -1,9 +1,12 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, 2016, Ron Estrin
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   Copyright (c) 2016, Ron Estrin
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,24 +15,24 @@ namespace El {
 
 namespace svp {
 
-template<typename RealLower,typename F>
-pair<bool,Base<F>> TryLowerPrecisionShort
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-        Base<F> normUpperBound,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl,
+template<typename RealLower,typename Field>
+pair<bool,Base<Field>> TryLowerPrecisionShort
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Base<Field> normUpperBound,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl,
         unsigned neededPrec )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     pair<bool,Real> result{ false, Real(0) };
     if( MantissaIsLonger<Real,RealLower>::value &&
         MantissaBits<RealLower>::value >= neededPrec )
     {
-        typedef ConvertBase<F,RealLower> FLower;
+        typedef ConvertBase<Field,RealLower> FieldLower;
         try
         {
-            Matrix<FLower> BLower, RLower, vLower;
+            Matrix<FieldLower> BLower, RLower, vLower;
             Copy( B, BLower );
             Copy( R, RLower );
             EnumCtrl<RealLower> ctrlLower = ctrl;
@@ -48,24 +51,24 @@ pair<bool,Base<F>> TryLowerPrecisionShort
     return result;
 }
 
-template<typename RealLower,typename F>
-pair<bool,Base<F>> TryLowerPrecisionShortest
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-        Base<F> normUpperBound,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl,
+template<typename RealLower,typename Field>
+pair<bool,Base<Field>> TryLowerPrecisionShortest
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Base<Field> normUpperBound,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl,
         unsigned neededPrec )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     pair<bool,Real> result{ false, Real(0) };
     if( MantissaIsLonger<Real,RealLower>::value &&
         MantissaBits<RealLower>::value >= neededPrec )
     {
-        typedef ConvertBase<F,RealLower> FLower;
+        typedef ConvertBase<Field,RealLower> FieldLower;
         try
         {
-            Matrix<FLower> BLower, RLower, vLower;
+            Matrix<FieldLower> BLower, RLower, vLower;
             Copy( B, BLower );
             Copy( R, RLower );
             EnumCtrl<RealLower> ctrlLower = ctrl;
@@ -84,25 +87,25 @@ pair<bool,Base<F>> TryLowerPrecisionShortest
     return result;
 }
 
-template<typename RealLower,typename F>
-std::tuple<bool,Base<F>,Int>
+template<typename RealLower,typename Field>
+std::tuple<bool,Base<Field>,Int>
 TryLowerPrecisionMultiShort
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-  const Matrix<Base<F>>& normUpperBounds,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl,
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+  const Matrix<Base<Field>>& normUpperBounds,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl,
         unsigned neededPrec )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     std::tuple<bool,Real,Int> result{ false, Real(0), 0 };
     if( MantissaIsLonger<Real,RealLower>::value &&
         MantissaBits<RealLower>::value >= neededPrec )
     {
-        typedef ConvertBase<F,RealLower> FLower;
+        typedef ConvertBase<Field,RealLower> FieldLower;
         try
         {
-            Matrix<FLower> BLower, RLower, vLower;
+            Matrix<FieldLower> BLower, RLower, vLower;
             Matrix<RealLower> normUpperBoundsLower;
             Copy( B, BLower );
             Copy( R, RLower );
@@ -124,25 +127,25 @@ TryLowerPrecisionMultiShort
     return result;
 }
 
-template<typename RealLower,typename F>
-std::tuple<bool,Base<F>,Int>
+template<typename RealLower,typename Field>
+std::tuple<bool,Base<Field>,Int>
 TryLowerPrecisionMultiShortest
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-  const Matrix<Base<F>>& normUpperBounds,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl,
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+  const Matrix<Base<Field>>& normUpperBounds,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl,
         unsigned neededPrec )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     std::tuple<bool,Real,Int> result{ false, Real(0), 0 };
     if( MantissaIsLonger<Real,RealLower>::value &&
         MantissaBits<RealLower>::value >= neededPrec )
     {
-        typedef ConvertBase<F,RealLower> FLower;
+        typedef ConvertBase<Field,RealLower> FieldLower;
         try
         {
-            Matrix<FLower> BLower, RLower, vLower;
+            Matrix<FieldLower> BLower, RLower, vLower;
             Matrix<RealLower> normUpperBoundsLower;
             Copy( B, BLower );
             Copy( R, RLower );
@@ -212,7 +215,7 @@ Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
         const Int floorIndex = Int(Floor(realIndex));
         const Int ceilIndex = Int(Ceil(realIndex));
         const Real indexFrac = realIndex-floorIndex;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( ceilIndex >= numPoints )
               LogicError("Invalid ceiling index of ",ceilIndex);
         )
@@ -228,16 +231,16 @@ Matrix<Real> PrunedUpperBounds( Int n, Real normUpperBound, bool linear )
 } // namespace svp
 
 // NOTE: This norm upper bound is *non-inclusive*
-template<typename F>
-Base<F> ShortVectorEnumeration
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-        Base<F> normUpperBound,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortVectorEnumeration
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Base<Field> normUpperBound,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
@@ -281,8 +284,8 @@ Base<F> ShortVectorEnumeration
     if( b0ProjNorm < normUpperBound )
     {
         Zeros( v, n, 1 );
-        v(0) = F(1);
-        return b0ProjNorm; 
+        v(0) = Field(1);
+        return b0ProjNorm;
     }
     Timer timer;
 
@@ -301,7 +304,7 @@ Base<F> ShortVectorEnumeration
         // different paths, we must keep track of the unimodular matrix so that
         //  'v' can be returned relative to the original lattice basis
         auto RNew( R );
-        Matrix<F> BNew, U;
+        Matrix<Field> BNew, U;
 
         for( Int trial=0; trial<ctrl.numTrials; ++trial )
         {
@@ -342,7 +345,7 @@ Base<F> ShortVectorEnumeration
                     Output("  Fix-up BKZ: ",timer.Stop()," seconds");
             }
             RNew = BNew;
-            qr::ExplicitTriang( RNew ); 
+            qr::ExplicitTriang( RNew );
 
             auto dNew = GetRealPartOfDiagonal( RNew );
             auto NNew( RNew );
@@ -366,18 +369,18 @@ Base<F> ShortVectorEnumeration
                     if( ctrl.progress )
                     {
                         Print( v, "vInner" );
-                        Matrix<F> y;
+                        Matrix<Field> y;
                         svp::CoordinatesToSparse( NNew, v, y );
                         Print( y, "y" );
                     }
                     auto vCopy( v );
-                    Gemv( NORMAL, F(1), U, vCopy, F(0), v );
+                    Gemv( NORMAL, Field(1), U, vCopy, Field(0), v );
                 }
                 if( ctrl.progress )
                 {
-                    Matrix<F> b;
+                    Matrix<Field> b;
                     Zeros( b, m, 1 );
-                    Gemv( NORMAL, F(1), B, v, F(0), b );
+                    Gemv( NORMAL, Field(1), B, v, Field(0), b );
                     Print( v, "v" );
                     Print( b, "b" );
                 }
@@ -438,17 +441,17 @@ Base<F> ShortVectorEnumeration
     }
 }
 
-template<typename F>
-pair<Base<F>,Int>
+template<typename Field>
+pair<Base<Field>,Int>
 MultiShortVectorEnumeration
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-  const Matrix<Base<F>>& normUpperBounds,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+  const Matrix<Base<Field>>& normUpperBounds,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = B.Height();
     const Int n = B.Width();
     const Int minDim = Min(m,n);
@@ -517,7 +520,7 @@ MultiShortVectorEnumeration
         // different paths, we must keep track of the unimodular matrix so that
         //  'v' can be returned relative to the original lattice basis
         auto RNew( R );
-        Matrix<F> BNew, U;
+        Matrix<Field> BNew, U;
 
         for( Int trial=0; trial<ctrl.numTrials; ++trial )
         {
@@ -558,7 +561,7 @@ MultiShortVectorEnumeration
                     Output("  Fix-up BKZ: ",timer.Stop()," seconds");
             }
             RNew = BNew;
-            qr::ExplicitTriang( RNew ); 
+            qr::ExplicitTriang( RNew );
 
             auto dNew = GetRealPartOfDiagonal( RNew );
             auto NNew( RNew );
@@ -582,18 +585,18 @@ MultiShortVectorEnumeration
                     if( ctrl.progress )
                     {
                         Print( v, "vInner" );
-                        Matrix<F> y;
+                        Matrix<Field> y;
                         svp::CoordinatesToSparse( NNew, v, y );
                         Print( y, "y" );
                     }
                     auto vCopy( v );
-                    Gemv( NORMAL, F(1), U, vCopy, F(0), v );
+                    Gemv( NORMAL, Field(1), U, vCopy, Field(0), v );
                 }
                 if( ctrl.progress )
                 {
-                    Matrix<F> b;
+                    Matrix<Field> b;
                     Zeros( b, m, 1 );
-                    Gemv( NORMAL, F(1), B, v, F(0), b );
+                    Gemv( NORMAL, Field(1), B, v, Field(0), b );
                     Print( v, "v" );
                     Print( b, "b" );
                 }
@@ -605,7 +608,7 @@ MultiShortVectorEnumeration
             if( modNormUpperBounds(j) < normUpperBounds(j) )
             {
                 Zeros( v, n-j, 1 );
-                v(0) = F(1);
+                v(0) = Field(1);
                 return pair<Real,Int>(modNormUpperBounds(j),j);
             }
         }
@@ -638,7 +641,7 @@ MultiShortVectorEnumeration
         if( ctrl.time )
             timer.Start();
         auto result = svp::PhaseEnumeration
-          ( B, d, N, modNormUpperBounds, 
+          ( B, d, N, modNormUpperBounds,
             startIndex, phaseLength, ctrl.enqueueProb,
             minInfNorms, maxInfNorms,
             minOneNorms, maxOneNorms,
@@ -674,7 +677,7 @@ MultiShortVectorEnumeration
                 if( modNormUpperBounds(j) < normUpperBounds(j) )
                 {
                     Zeros( v, n-j, 1 );
-                    v(0) = F(1);
+                    v(0) = Field(1);
                     return pair<Real,Int>(modNormUpperBounds(j),j);
                 }
             }
@@ -683,15 +686,15 @@ MultiShortVectorEnumeration
     }
 }
 
-template<typename F>
-Base<F> ShortestVectorEnumeration
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortestVectorEnumeration
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -701,15 +704,15 @@ Base<F> ShortestVectorEnumeration
     return ShortestVectorEnumeration( B, R, normUpperBound, v, ctrl );
 }
 
-template<typename F>
-Base<F> ShortestVectorEnrichment
-(       Matrix<F>& B,
-  const Matrix<F>& R,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortestVectorEnrichment
+(       Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -719,16 +722,16 @@ Base<F> ShortestVectorEnrichment
     return ShortestVectorEnrichment( B, R, normUpperBound, v, ctrl );
 }
 
-template<typename F>
-Base<F> ShortestVectorEnrichment
-(       Matrix<F>& B,
-        Matrix<F>& U,
-  const Matrix<F>& R,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortestVectorEnrichment
+(       Matrix<Field>& B,
+        Matrix<Field>& U,
+  const Matrix<Field>& R,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -740,16 +743,16 @@ Base<F> ShortestVectorEnrichment
 
 // NOTE: This norm upper bound is *inclusive* so that setting it to || b_0 ||_2
 //       is always sufficient for guaranteeing a solution
-template<typename F>
-Base<F> ShortestVectorEnumeration
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-        Base<F> normUpperBound,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortestVectorEnumeration
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Base<Field> normUpperBound,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -786,14 +789,14 @@ Base<F> ShortestVectorEnumeration
 
     const Real b0Norm = RealPart(R(0,0));
     Zeros( v, n, 1 );
-    v(0) = F(1);
+    v(0) = Field(1);
 
     bool satisfiedBound = ( b0Norm <= normUpperBound ? true : false );
     Real targetNorm = Min(normUpperBound,b0Norm);
 
     while( true )
     {
-        Matrix<F> vCand;
+        Matrix<Field> vCand;
         Real result =
           ShortVectorEnumeration( B, R, targetNorm, vCand, ctrl );
         if( result < targetNorm )
@@ -802,7 +805,7 @@ Base<F> ShortestVectorEnumeration
             targetNorm = result;
             satisfiedBound = true;
             // Y-sparse enumeration does not benefit from repetition
-            if( ctrl.enumType == YSPARSE_ENUM ) 
+            if( ctrl.enumType == YSPARSE_ENUM )
                 return result;
         }
         else if( satisfiedBound )
@@ -810,23 +813,23 @@ Base<F> ShortestVectorEnumeration
         else
         {
             Zeros( v, n, 1 );
-            v(0) = F(1);
+            v(0) = Field(1);
             return b0Norm;
         }
     }
 }
 
-template<typename F>
-pair<Base<F>,Int>
+template<typename Field>
+pair<Base<Field>,Int>
 MultiShortestVectorEnumeration
-( const Matrix<F>& B,
-  const Matrix<F>& R,
-  const Matrix<Base<F>>& normUpperBounds,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+( const Matrix<Field>& B,
+  const Matrix<Field>& R,
+  const Matrix<Base<Field>>& normUpperBounds,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -863,7 +866,7 @@ MultiShortestVectorEnumeration
 
     const Int numNested = normUpperBounds.Height();
     Matrix<Real> targetNorms( normUpperBounds );
-  
+
     bool satisfiedBound = false;
     Int satisfiedIndex = -1;
     for( Int j=0; j<numNested; ++j )
@@ -875,7 +878,7 @@ MultiShortestVectorEnumeration
             targetNorms(j) = RealPart(R(j,j));
 
             Zeros( v, n-satisfiedIndex, 1 );
-            v(0) = F(1);
+            v(0) = Field(1);
 
             break;
         }
@@ -883,7 +886,7 @@ MultiShortestVectorEnumeration
 
     while( true )
     {
-        Matrix<F> vCand;
+        Matrix<Field> vCand;
         auto result =
           MultiShortVectorEnumeration( B, R, targetNorms, vCand, ctrl );
         const Real normCand = result.first;
@@ -896,7 +899,7 @@ MultiShortestVectorEnumeration
             satisfiedBound = true;
             satisfiedIndex = indexCand;
             // Y-sparse enumeration does not benefit from repetition
-            if( ctrl.enumType == YSPARSE_ENUM ) 
+            if( ctrl.enumType == YSPARSE_ENUM )
                 return result;
         }
         else if( satisfiedBound )
@@ -907,22 +910,22 @@ MultiShortestVectorEnumeration
         else
         {
             Zeros( v, n, 1 );
-            v(0) = F(1);
+            v(0) = Field(1);
             return pair<Real,Int>(RealPart(R(0,0)),0);
         }
     }
 }
 
-template<typename F>
-Base<F> ShortestVectorEnrichment
-(       Matrix<F>& B,
-  const Matrix<F>& R,
-        Base<F> normUpperBound,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortestVectorEnrichment
+(       Matrix<Field>& B,
+  const Matrix<Field>& R,
+        Base<Field> normUpperBound,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -934,17 +937,17 @@ Base<F> ShortestVectorEnrichment
     return retNorm;
 }
 
-template<typename F>
-pair<Base<F>,Int>
+template<typename Field>
+pair<Base<Field>,Int>
 MultiShortestVectorEnrichment
-(       Matrix<F>& B,
-  const Matrix<F>& R,
-  const Matrix<Base<F>>& normUpperBounds,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+(       Matrix<Field>& B,
+  const Matrix<Field>& R,
+  const Matrix<Base<Field>>& normUpperBounds,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -963,17 +966,17 @@ MultiShortestVectorEnrichment
     return ret;
 }
 
-template<typename F>
-Base<F> ShortestVectorEnrichment
-(       Matrix<F>& B,
-        Matrix<F>& U,
-  const Matrix<F>& R,
-        Base<F> normUpperBound,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+template<typename Field>
+Base<Field> ShortestVectorEnrichment
+(       Matrix<Field>& B,
+        Matrix<Field>& U,
+  const Matrix<Field>& R,
+        Base<Field> normUpperBound,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -985,18 +988,18 @@ Base<F> ShortestVectorEnrichment
     return retNorm;
 }
 
-template<typename F>
-pair<Base<F>,Int>
+template<typename Field>
+pair<Base<Field>,Int>
 MultiShortestVectorEnrichment
-(       Matrix<F>& B,
-        Matrix<F>& U,
-  const Matrix<F>& R,
-  const Matrix<Base<F>>& normUpperBounds,
-        Matrix<F>& v,
-  const EnumCtrl<Base<F>>& ctrl )
+(       Matrix<Field>& B,
+        Matrix<Field>& U,
+  const Matrix<Field>& R,
+  const Matrix<Base<Field>>& normUpperBounds,
+        Matrix<Field>& v,
+  const EnumCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = B.Width();
     v.Resize( n, 1 );
     if( n == 0 )
@@ -1018,73 +1021,73 @@ MultiShortestVectorEnrichment
 }
 
 // TODO: Instantiate batched variants?
-#define PROTO(F) \
-  template Base<F> ShortVectorEnumeration \
-  ( const Matrix<F>& B, \
-    const Matrix<F>& R, \
-          Base<F> normUpperBound, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template pair<Base<F>,Int> MultiShortVectorEnumeration \
-  ( const Matrix<F>& B, \
-    const Matrix<F>& R, \
-    const Matrix<Base<F>>& normUpperBounds, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template Base<F> ShortestVectorEnumeration \
-  ( const Matrix<F>& B, \
-    const Matrix<F>& R, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template Base<F> ShortestVectorEnumeration \
-  ( const Matrix<F>& B, \
-    const Matrix<F>& R, \
-          Base<F> normUpperBound, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template pair<Base<F>,Int> MultiShortestVectorEnumeration \
-  ( const Matrix<F>& B, \
-    const Matrix<F>& R, \
-    const Matrix<Base<F>>& normUpperBounds, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template Base<F> ShortestVectorEnrichment \
-  (       Matrix<F>& B, \
-    const Matrix<F>& R, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template Base<F> ShortestVectorEnrichment \
-  (       Matrix<F>& B, \
-          Matrix<F>& U, \
-    const Matrix<F>& R, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template Base<F> ShortestVectorEnrichment \
-  (       Matrix<F>& B, \
-    const Matrix<F>& R, \
-          Base<F> normUpperBound, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template pair<Base<F>,Int> MultiShortestVectorEnrichment \
-  (       Matrix<F>& B, \
-    const Matrix<F>& R, \
-    const Matrix<Base<F>>& normUpperBounds, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template Base<F> ShortestVectorEnrichment \
-  (       Matrix<F>& B, \
-          Matrix<F>& U, \
-    const Matrix<F>& R, \
-          Base<F> normUpperBound, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl ); \
-  template pair<Base<F>,Int> MultiShortestVectorEnrichment \
-  (       Matrix<F>& B, \
-          Matrix<F>& U, \
-    const Matrix<F>& R, \
-    const Matrix<Base<F>>& normUpperBounds, \
-          Matrix<F>& v, \
-    const EnumCtrl<Base<F>>& ctrl );
+#define PROTO(Field) \
+  template Base<Field> ShortVectorEnumeration \
+  ( const Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+          Base<Field> normUpperBound, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template pair<Base<Field>,Int> MultiShortVectorEnumeration \
+  ( const Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+    const Matrix<Base<Field>>& normUpperBounds, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template Base<Field> ShortestVectorEnumeration \
+  ( const Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template Base<Field> ShortestVectorEnumeration \
+  ( const Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+          Base<Field> normUpperBound, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template pair<Base<Field>,Int> MultiShortestVectorEnumeration \
+  ( const Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+    const Matrix<Base<Field>>& normUpperBounds, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template Base<Field> ShortestVectorEnrichment \
+  (       Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template Base<Field> ShortestVectorEnrichment \
+  (       Matrix<Field>& B, \
+          Matrix<Field>& U, \
+    const Matrix<Field>& R, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template Base<Field> ShortestVectorEnrichment \
+  (       Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+          Base<Field> normUpperBound, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template pair<Base<Field>,Int> MultiShortestVectorEnrichment \
+  (       Matrix<Field>& B, \
+    const Matrix<Field>& R, \
+    const Matrix<Base<Field>>& normUpperBounds, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template Base<Field> ShortestVectorEnrichment \
+  (       Matrix<Field>& B, \
+          Matrix<Field>& U, \
+    const Matrix<Field>& R, \
+          Base<Field> normUpperBound, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl ); \
+  template pair<Base<Field>,Int> MultiShortestVectorEnrichment \
+  (       Matrix<Field>& B, \
+          Matrix<Field>& U, \
+    const Matrix<Field>& R, \
+    const Matrix<Base<Field>>& normUpperBounds, \
+          Matrix<Field>& v, \
+    const EnumCtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

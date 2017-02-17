@@ -2,47 +2,49 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
-void Covariance( const Matrix<F>& D, Matrix<F>& S )
+template<typename Field>
+void Covariance( const Matrix<Field>& D, Matrix<Field>& S )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numObs = D.Height();
     const Int n = D.Width();
 
     // Compute the average column
-    Matrix<F> ones, xMean;
+    Matrix<Field> ones, xMean;
     Ones( ones, numObs, 1 );
-    Gemv( TRANSPOSE, F(1)/F(numObs), D, ones, xMean );
+    Gemv( TRANSPOSE, Field(1)/Field(numObs), D, ones, xMean );
 
     // Subtract the mean from each column of D
-    Matrix<F> DDev( D );
+    Matrix<Field> DDev( D );
     for( Int i=0; i<numObs; ++i )
         blas::Axpy
-        ( n, F(-1), xMean.LockedBuffer(), 1, DDev.Buffer(i,0), DDev.LDim() );
+        ( n, Field(-1),
+          xMean.LockedBuffer(), 1,
+          DDev.Buffer(i,0), DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
-    Herk( LOWER, ADJOINT, Base<F>(1)/Base<F>(numObs-1), DDev, S );
+    Herk( LOWER, ADJOINT, Base<Field>(1)/Base<Field>(numObs-1), DDev, S );
     Conjugate( S );
     MakeHermitian( LOWER, S );
 }
 
-template<typename F>
+template<typename Field>
 void Covariance
-( const ElementalMatrix<F>& DPre, ElementalMatrix<F>& SPre )
+( const AbstractDistMatrix<Field>& DPre, AbstractDistMatrix<Field>& SPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadProxy<F,F,MC,MR>
+    DistMatrixReadProxy<Field,Field,MC,MR>
       DProx( DPre );
-    DistMatrixWriteProxy<F,F,MC,MR>
+    DistMatrixWriteProxy<Field,Field,MC,MR>
       SProx( SPre );
     auto& D = DProx.GetLocked();
     auto& S = SProx.Get();
@@ -51,31 +53,31 @@ void Covariance
     const Int numObs = D.Height();
 
     // Compute the average column
-    DistMatrix<F> ones(g), xMean(g);
+    DistMatrix<Field> ones(g), xMean(g);
     Ones( ones, numObs, 1 );
-    Gemv( TRANSPOSE, F(1)/F(numObs), D, ones, xMean );
-    DistMatrix<F,MR,STAR> xMean_MR(g);
+    Gemv( TRANSPOSE, Field(1)/Field(numObs), D, ones, xMean );
+    DistMatrix<Field,MR,STAR> xMean_MR(g);
     xMean_MR.AlignWith( D );
     xMean_MR = xMean;
 
     // Subtract the mean from each column of D
-    DistMatrix<F> DDev( D );
+    DistMatrix<Field> DDev( D );
     for( Int iLoc=0; iLoc<DDev.LocalHeight(); ++iLoc )
         blas::Axpy
-        ( DDev.LocalWidth(), F(-1), 
-          xMean_MR.LockedBuffer(), 1, 
+        ( DDev.LocalWidth(), Field(-1),
+          xMean_MR.LockedBuffer(), 1,
           DDev.Buffer(iLoc,0),     DDev.LDim() );
 
     // Form S := 1/(numObs-1) DDev DDev'
-    Herk( LOWER, ADJOINT, Base<F>(1)/Base<F>(numObs-1), DDev, S );
+    Herk( LOWER, ADJOINT, Base<Field>(1)/Base<Field>(numObs-1), DDev, S );
     Conjugate( S );
     MakeHermitian( LOWER, S );
 }
 
-#define PROTO(F) \
-  template void Covariance( const Matrix<F>& D, Matrix<F>& S ); \
+#define PROTO(Field) \
+  template void Covariance( const Matrix<Field>& D, Matrix<Field>& S ); \
   template void Covariance \
-  ( const ElementalMatrix<F>& D, ElementalMatrix<F>& S );
+  ( const AbstractDistMatrix<Field>& D, AbstractDistMatrix<Field>& S );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

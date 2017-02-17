@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_PARTIALROWALLGATHER_HPP
@@ -15,12 +15,12 @@ namespace copy {
 // (U,V) |-> (U,Partial(V))
 template<typename T>
 void PartialRowAllGather
-( const ElementalMatrix<T>& A, ElementalMatrix<T>& B ) 
+( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( B.ColDist() != A.ColDist() ||
-          B.RowDist() != Partial(A.RowDist()) ) 
+          B.RowDist() != Partial(A.RowDist()) )
           LogicError("Incompatible distributions");
     )
     AssertSameGrids( A, B );
@@ -32,7 +32,7 @@ void PartialRowAllGather
     if( !A.Participating() )
         return;
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.LocalHeight() != height )
           LogicError("This routine assumes columns are not distributed");
     )
@@ -57,7 +57,7 @@ void PartialRowAllGather
             FastResize( buffer, (rowStrideUnion+1)*portionSize );
             T* firstBuf = &buffer[0];
             T* secondBuf = &buffer[portionSize];
-   
+
             // Pack
             util::InterleaveMatrix
             ( height, A.LocalWidth(),
@@ -119,12 +119,12 @@ void PartialRowAllGather
 
 template<typename T>
 void PartialRowAllGather
-( const BlockMatrix<T>& A, 
-        BlockMatrix<T>& B ) 
+( const BlockMatrix<T>& A,
+        BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
-    // TODO: More efficient implementation
+    // TODO(poulson): More efficient implementation
     GeneralPurpose( A, B );
 }
 

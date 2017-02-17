@@ -14,8 +14,18 @@ namespace El {
 namespace flame {
 
 void BidiagSVD
+( BlasInt k, BlasInt mU, BlasInt mV, float* d, float* e, 
+  float* U, BlasInt ldu, float* V, BlasInt ldv, 
+  BlasInt numAccum=32, BlasInt maxNumIts=30, BlasInt bAlg=512 );
+
+void BidiagSVD
 ( BlasInt k, BlasInt mU, BlasInt mV, double* d, double* e, 
   double* U, BlasInt ldu, double* V, BlasInt ldv, 
+  BlasInt numAccum=32, BlasInt maxNumIts=30, BlasInt bAlg=512 );
+
+void BidiagSVD
+( BlasInt k, BlasInt mU, BlasInt mV, float* d, float* e, 
+  Complex<float>* U, BlasInt ldu, Complex<float>* V, BlasInt ldv, 
   BlasInt numAccum=32, BlasInt maxNumIts=30, BlasInt bAlg=512 );
 
 void BidiagSVD

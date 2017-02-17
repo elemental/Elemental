@@ -2,118 +2,109 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
 
 typedef double Real;
 
-int 
+int
 main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
+    El::Environment env( argc, argv );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
 
     try
     {
-        const Int m = Input("--numExamples","number of examples",200);
-        const Int n = Input("--numFeatures","number of features",100);
-        const bool useIPM = Input("--useIPM","use Interior Point?",true);
-        const Int maxIter = Input("--maxIter","maximum # of iter's",500);
-        const Real gamma = Input("--gamma","two-norm coefficient",1.);
-        const Real rho = Input("--rho","augmented Lagrangian param.",1.);
-        const bool inv = Input("--inv","use explicit inverse",true);
-        const bool progress = Input("--progress","print progress?",true);
-        const bool display = Input("--display","display matrices?",false);
-        const bool print = Input("--print","print matrices",false);
-        ProcessInput();
-        PrintInputReport();
+        const El::Int m = El::Input("--numExamples","number of examples",200);
+        const El::Int n = El::Input("--numFeatures","number of features",100);
+        const double gamma = El::Input("--gamma","hinge-loss penalty",1.0);
+        const bool display = El::Input("--display","display matrices?",false);
+        const bool print = El::Input("--print","print matrices",false);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        // Define a random (affine) hyperplane 
-        DistMatrix<Real> w;
-        Gaussian( w, n, 1 );
+        // Define a random (affine) hyperplane
+        El::DistMatrix<Real> w;
+        El::Gaussian( w, n, 1 );
         {
-            const Real wNorm = FrobeniusNorm( w );
+            const Real wNorm = El::FrobeniusNorm( w );
             w *= 1/wNorm;
         }
-        Real offset = SampleNormal();
-        mpi::Broadcast( offset, 0, comm );
+        Real offset = El::SampleNormal();
+        El::mpi::Broadcast( offset, 0, comm );
 
         // Draw each example (row) from a Gaussian perturbation of a point
         // lying on the hyperplane
-        DistMatrix<Real> G;
-        Gaussian( G, m, n );
-        DistMatrix<Real,MR,STAR> w_MR_STAR;
+        El::DistMatrix<Real> G;
+        El::Gaussian( G, m, n );
+        El::DistMatrix<Real,El::MR,El::STAR> w_MR_STAR;
         w_MR_STAR.AlignWith( G );
         w_MR_STAR = w;
-        for( Int jLoc=0; jLoc<G.LocalWidth(); ++jLoc )
-            for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
-                G.UpdateLocal( iLoc, jLoc, w_MR_STAR.GetLocal(jLoc,0)*offset );
-        
-        // Label each example based upon its location relative to the hyperplane
-        DistMatrix<Real> q;
-        Ones( q, m, 1 );
-        Gemv( NORMAL, Real(1), G, w, -offset, q );
-        auto sgnMap = []( Real alpha ) 
-                      { return alpha >= 0 ? Real(1) : Real(-1); }; 
-        EntrywiseMap( q, function<Real(Real)>(sgnMap) );
+        for( El::Int jLoc=0; jLoc<G.LocalWidth(); ++jLoc )
+            for( El::Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
+                G.UpdateLocal
+                ( iLoc, jLoc, w_MR_STAR.GetLocal(jLoc,0)*offset );
 
-        if( mpi::Rank(comm) == 0 )
-            Output("offset=",offset);
+        // Label each example
+        El::DistMatrix<Real> q;
+        El::Ones( q, m, 1 );
+        El::Gemv( El::NORMAL, Real(1), G, w, -offset, q );
+        auto sgnMap = []( const Real& alpha )
+                      { return alpha >= 0 ? Real(1) : Real(-1); };
+        El::EntrywiseMap( q, El::MakeFunction(sgnMap) );
+
+        if( El::mpi::Rank(comm) == 0 )
+            El::Output("offset=",offset);
         if( print )
         {
-            Print( w, "w" );
-            Print( G, "G" );
-            Print( q, "q" );
+            El::Print( w, "w" );
+            El::Print( G, "G" );
+            El::Print( q, "q" );
         }
         if( display )
-            Display( G, "G" );
+            El::Display( G, "G" );
 
-        SVMCtrl<Real> ctrl;
-        ctrl.useIPM = useIPM;
-        ctrl.modelFitCtrl.rho = rho;
-        ctrl.modelFitCtrl.maxIter = maxIter;
-        ctrl.modelFitCtrl.inv = inv;
-        ctrl.modelFitCtrl.progress = progress;
+        El::SVMCtrl<Real> ctrl;
+        // TODO(poulson): Add support for configuring the IPM
 
-        Timer timer;
-        DistMatrix<Real> wHatSVM;
-        if( mpi::Rank() == 0 )
+        El::Timer timer;
+        El::DistMatrix<Real> wHatSVM;
+        if( El::mpi::Rank() == 0 )
             timer.Start();
-        SVM( G, q, gamma, wHatSVM, ctrl );
-        if( mpi::Rank() == 0 )
+        El::SVM( G, q, gamma, wHatSVM, ctrl );
+        if( El::mpi::Rank() == 0 )
             timer.Stop();
-        auto wSVM = View( wHatSVM, 0, 0, n, 1 );
+        auto wSVM = wHatSVM( El::IR(0,n), El::IR(0,1) );
         const Real offsetSVM = -wHatSVM.Get(n,0);
-        const Real wSVMNorm = FrobeniusNorm( wSVM );
-        if( mpi::Rank() == 0 )
+        const Real wSVMNorm = El::FrobeniusNorm( wSVM );
+        if( El::mpi::Rank() == 0 )
         {
-            Output("SVM time: ",timer.Total()," secs");
-            Output
+            El::Output("SVM time: ",timer.Total()," secs");
+            El::Output
             ("|| wSVM ||_2=",wSVMNorm,"\n",
              "margin      =",Real(2)/wSVMNorm,"\n",
              "offsetSVM   =",offsetSVM,"\n",
              "offsetSVM / || wSVM ||_2=",offsetSVM/wSVMNorm);
         }
         if( print )
-            Print( wSVM, "wSVM" );
+            El::Print( wSVM, "wSVM" );
 
         // Report the classification percentage using the returned hyperplane
-        DistMatrix<Real> qSVM;
-        Ones( qSVM, m, 1 );
-        Gemv( NORMAL, Real(1), G, wSVM, -offsetSVM, qSVM );
-        EntrywiseMap( qSVM, function<Real(Real)>(sgnMap) );
+        El::DistMatrix<Real> qSVM;
+        El::Ones( qSVM, m, 1 );
+        El::Gemv( El::NORMAL, Real(1), G, wSVM, -offsetSVM, qSVM );
+        El::EntrywiseMap( qSVM, El::MakeFunction(sgnMap) );
         if( print )
-            Print( qSVM, "qSVM" );
+            El::Print( qSVM, "qSVM" );
         qSVM -= q;
-        const Real numWrong = OneNorm(qSVM) / Real(2);
-        if( mpi::Rank(comm) == 0 )
-            Output("ratio misclassified: ",numWrong,"/",m);
+        const Real numWrong = El::OneNorm(qSVM) / Real(2);
+        if( El::mpi::Rank(comm) == 0 )
+            El::Output("ratio misclassified: ",numWrong,"/",m);
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

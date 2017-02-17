@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPARSEMATRIX_IMPL_HPP
@@ -19,41 +27,41 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-template<typename T>
-SparseMatrix<T>::SparseMatrix() { }
+template<typename Ring>
+SparseMatrix<Ring>::SparseMatrix() { }
 
-template<typename T>
-SparseMatrix<T>::SparseMatrix( Int height, Int width )
+template<typename Ring>
+SparseMatrix<Ring>::SparseMatrix( Int height, Int width )
 : graph_(height,width)
 { }
 
-template<typename T>
-SparseMatrix<T>::SparseMatrix( const SparseMatrix<T>& A )
-{ 
-    DEBUG_CSE
+template<typename Ring>
+SparseMatrix<Ring>::SparseMatrix( const SparseMatrix<Ring>& A )
+{
+    EL_DEBUG_CSE
     if( &A != this )
         *this = A;
     else
         LogicError("Tried to construct sparse matrix with itself");
 }
 
-template<typename T>
-SparseMatrix<T>::SparseMatrix( const DistSparseMatrix<T>& A )
-{ 
-    DEBUG_CSE
+template<typename Ring>
+SparseMatrix<Ring>::SparseMatrix( const DistSparseMatrix<Ring>& A )
+{
+    EL_DEBUG_CSE
     *this = A;
 }
 
-template<typename T>
-SparseMatrix<T>::~SparseMatrix() { }
+template<typename Ring>
+SparseMatrix<Ring>::~SparseMatrix() { }
 
 // Assignment and reconfiguration
 // ==============================
 
 // Change the size of the matrix
 // -----------------------------
-template<typename T>
-void SparseMatrix<T>::Empty( bool clearMemory )
+template<typename Ring>
+void SparseMatrix<Ring>::Empty( bool clearMemory )
 {
     graph_.Empty( clearMemory );
     if( clearMemory )
@@ -62,10 +70,10 @@ void SparseMatrix<T>::Empty( bool clearMemory )
         vals_.resize( 0 );
 }
 
-template<typename T>
-void SparseMatrix<T>::Resize( Int height, Int width )
+template<typename Ring>
+void SparseMatrix<Ring>::Resize( Int height, Int width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( Height() == height && Width() == width )
         return;
     graph_.Resize( height, width );
@@ -74,49 +82,49 @@ void SparseMatrix<T>::Resize( Int height, Int width )
 
 // Assembly
 // --------
-template<typename T>
-void SparseMatrix<T>::Reserve( Int numEntries )
-{ 
+template<typename Ring>
+void SparseMatrix<Ring>::Reserve( Int numEntries )
+{
     const Int currSize = vals_.size();
     graph_.Reserve( numEntries );
     vals_.reserve( currSize+numEntries );
 }
 
-template<typename T>
-void SparseMatrix<T>::FreezeSparsity() EL_NO_EXCEPT
+template<typename Ring>
+void SparseMatrix<Ring>::FreezeSparsity() EL_NO_EXCEPT
 { graph_.frozenSparsity_ = true; }
-template<typename T>
-void SparseMatrix<T>::UnfreezeSparsity() EL_NO_EXCEPT
+template<typename Ring>
+void SparseMatrix<Ring>::UnfreezeSparsity() EL_NO_EXCEPT
 { graph_.frozenSparsity_ = false; }
-template<typename T>
-bool SparseMatrix<T>::FrozenSparsity() const EL_NO_EXCEPT
+template<typename Ring>
+bool SparseMatrix<Ring>::FrozenSparsity() const EL_NO_EXCEPT
 { return graph_.frozenSparsity_; }
 
-template<typename T>
-void SparseMatrix<T>::Update( Int row, Int col, T value )
+template<typename Ring>
+void SparseMatrix<Ring>::Update( Int row, Int col, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueUpdate( row, col, value );
     ProcessQueues();
 }
 
-template<typename T>
-void SparseMatrix<T>::Update( const Entry<T>& entry )
+template<typename Ring>
+void SparseMatrix<Ring>::Update( const Entry<Ring>& entry )
 { Update( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void SparseMatrix<T>::Zero( Int row, Int col )
+template<typename Ring>
+void SparseMatrix<Ring>::Zero( Int row, Int col )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueZero( row, col );
     ProcessQueues();
 }
 
-template<typename T>
-void SparseMatrix<T>::QueueUpdate( Int row, Int col, T value )
+template<typename Ring>
+void SparseMatrix<Ring>::QueueUpdate( Int row, Int col, const Ring& value )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = Offset( row, col );
@@ -129,16 +137,16 @@ EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename T>
-void SparseMatrix<T>::QueueUpdate( const Entry<T>& entry )
+template<typename Ring>
+void SparseMatrix<Ring>::QueueUpdate( const Entry<Ring>& entry )
 EL_NO_RELEASE_EXCEPT
 { QueueUpdate( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void SparseMatrix<T>::QueueZero( Int row, Int col )
+template<typename Ring>
+void SparseMatrix<Ring>::QueueZero( Int row, Int col )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = Offset( row, col );
@@ -155,23 +163,21 @@ EL_NO_RELEASE_EXCEPT
 
 // Make a copy
 // -----------
-template<typename T>
-const SparseMatrix<T>& SparseMatrix<T>::operator=( const SparseMatrix<T>& A )
+template<typename Ring>
+const SparseMatrix<Ring>& SparseMatrix<Ring>::operator=( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     graph_ = A.graph_;
     vals_ = A.vals_;
     return *this;
 }
 
-template<typename T>
-const SparseMatrix<T>&
-SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
+template<typename Ring>
+const SparseMatrix<Ring>&
+SparseMatrix<Ring>::operator=( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    if( commSize != 1 )
+    EL_DEBUG_CSE
+    if( A.Grid().Size() != 1 )
         LogicError("Can not yet construct from distributed sparse matrix");
 
     graph_ = A.distGraph_;
@@ -181,71 +187,73 @@ SparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 
 // Make a copy of a submatrix
 // --------------------------
-template<typename T>
-SparseMatrix<T>
-SparseMatrix<T>::operator()( Range<Int> I, Range<Int> J ) const
+template<typename Ring>
+SparseMatrix<Ring>
+SparseMatrix<Ring>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
-    SparseMatrix<T> ASub;
+    EL_DEBUG_CSE
+    SparseMatrix<Ring> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-SparseMatrix<T>
-SparseMatrix<T>::operator()( const vector<Int>& I, Range<Int> J ) const
+template<typename Ring>
+SparseMatrix<Ring>
+SparseMatrix<Ring>::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
-    SparseMatrix<T> ASub;
+    EL_DEBUG_CSE
+    SparseMatrix<Ring> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-SparseMatrix<T>
-SparseMatrix<T>::operator()( Range<Int> I, const vector<Int>& J ) const
+template<typename Ring>
+SparseMatrix<Ring>
+SparseMatrix<Ring>::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
-    SparseMatrix<T> ASub;
+    EL_DEBUG_CSE
+    SparseMatrix<Ring> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-SparseMatrix<T>
-SparseMatrix<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
+template<typename Ring>
+SparseMatrix<Ring>
+SparseMatrix<Ring>::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
-    SparseMatrix<T> ASub;
+    EL_DEBUG_CSE
+    SparseMatrix<Ring> ASub;
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
 // Rescaling
 // ---------
-template<typename T>
-const SparseMatrix<T>& SparseMatrix<T>::operator*=( T alpha )
+template<typename Ring>
+const SparseMatrix<Ring>& SparseMatrix<Ring>::operator*=( const Ring& alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
 
 // Addition/subtraction
 // --------------------
-template<typename T>
-const SparseMatrix<T>& SparseMatrix<T>::operator+=( const SparseMatrix<T>& A )
+template<typename Ring>
+const SparseMatrix<Ring>& SparseMatrix<Ring>::operator+=
+( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    Axpy( T(1), A, *this );
+    EL_DEBUG_CSE
+    Axpy( Ring(1), A, *this );
     return *this;
 }
 
-template<typename T>
-const SparseMatrix<T>& SparseMatrix<T>::operator-=( const SparseMatrix<T>& A )
+template<typename Ring>
+const SparseMatrix<Ring>& SparseMatrix<Ring>::operator-=
+( const SparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    Axpy( T(-1), A, *this );
+    EL_DEBUG_CSE
+    Axpy( Ring(-1), A, *this );
     return *this;
 }
 
@@ -254,107 +262,108 @@ const SparseMatrix<T>& SparseMatrix<T>::operator-=( const SparseMatrix<T>& A )
 
 // High-level information
 // ----------------------
-template<typename T>
-Int SparseMatrix<T>::Height() const EL_NO_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::Height() const EL_NO_EXCEPT
 { return graph_.NumSources(); }
-template<typename T>
-Int SparseMatrix<T>::Width() const EL_NO_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::Width() const EL_NO_EXCEPT
 { return graph_.NumTargets(); }
 
-template<typename T>
-Int SparseMatrix<T>::NumEntries() const EL_NO_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::NumEntries() const EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return graph_.NumEdges();
 }
 
-template<typename T>
-Int SparseMatrix<T>::Capacity() const EL_NO_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::Capacity() const EL_NO_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return graph_.Capacity();
 }
 
-template<typename T>
-bool SparseMatrix<T>::Consistent() const EL_NO_EXCEPT
+template<typename Ring>
+bool SparseMatrix<Ring>::Consistent() const EL_NO_EXCEPT
 { return graph_.Consistent(); }
 
-template<typename T>
-El::Graph& SparseMatrix<T>::Graph() EL_NO_EXCEPT
+template<typename Ring>
+El::Graph& SparseMatrix<Ring>::Graph() EL_NO_EXCEPT
 { return graph_; }
-template<typename T>
-const El::Graph& SparseMatrix<T>::LockedGraph() const EL_NO_EXCEPT
+template<typename Ring>
+const El::Graph& SparseMatrix<Ring>::LockedGraph() const EL_NO_EXCEPT
 { return graph_; }
 
 // Entrywise information
 // ---------------------
-template<typename T>
-Int SparseMatrix<T>::Row( Int index ) const EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
+template<typename Ring>
+Int SparseMatrix<Ring>::Row( Int index ) const EL_NO_RELEASE_EXCEPT
+{
+    EL_DEBUG_CSE
     return graph_.Source( index );
 }
 
-template<typename T>
-Int SparseMatrix<T>::Col( Int index ) const EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
+template<typename Ring>
+Int SparseMatrix<Ring>::Col( Int index ) const EL_NO_RELEASE_EXCEPT
+{
+    EL_DEBUG_CSE
     return graph_.Target( index );
 }
 
-template<typename T>
-Int SparseMatrix<T>::RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return graph_.SourceOffset( row );
 }
 
-template<typename T>
-Int SparseMatrix<T>::Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return graph_.Offset( row, col );
 }
 
-template<typename T>
-Int SparseMatrix<T>::NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT
+template<typename Ring>
+Int SparseMatrix<Ring>::NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return graph_.NumConnections( row );
 }
 
-template<typename T>
-T SparseMatrix<T>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
-    DEBUG_ONLY(
+template<typename Ring>
+Ring SparseMatrix<Ring>::Value( Int index ) const EL_NO_RELEASE_EXCEPT
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( index < 0 || index >= Int(vals_.size()) )
           LogicError("Entry number out of bounds");
     )
     return vals_[index];
 }
 
-template< typename T>
-T SparseMatrix<T>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
+template< typename Ring>
+Ring SparseMatrix<Ring>::Get( Int row, Int col) const EL_NO_RELEASE_EXCEPT
 {
     if( row == END ) row = graph_.numSources_ - 1;
-    if( col == END ) col = graph_.numTargets_ - 1; 
+    if( col == END ) col = graph_.numTargets_ - 1;
     Int index = Offset( row, col );
     if( Row(index) != row || Col(index) != col )
-        return T(0); 
+        return Ring(0);
     else
         return Value( index );
 }
 
-template< typename T>
-void SparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
+template< typename Ring>
+void SparseMatrix<Ring>::Set
+( Int row, Int col, const Ring& val) EL_NO_RELEASE_EXCEPT
 {
     if( row == END ) row = graph_.numSources_ - 1;
-    if( col == END ) col = graph_.numTargets_ - 1; 
-    Int index = Offset( row, col );  
+    if( col == END ) col = graph_.numTargets_ - 1;
+    Int index = Offset( row, col );
     if( Row(index) == row && Col(index) == col )
     {
-        vals_[index] = val; 
+        vals_[index] = val;
     }
     else
     {
@@ -363,53 +372,53 @@ void SparseMatrix<T>::Set( Int row, Int col, T val) EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename T>
-Int* SparseMatrix<T>::SourceBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Int* SparseMatrix<Ring>::SourceBuffer() EL_NO_EXCEPT
 { return graph_.SourceBuffer(); }
-template<typename T>
-Int* SparseMatrix<T>::TargetBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Int* SparseMatrix<Ring>::TargetBuffer() EL_NO_EXCEPT
 { return graph_.TargetBuffer(); }
-template<typename T>
-Int* SparseMatrix<T>::OffsetBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Int* SparseMatrix<Ring>::OffsetBuffer() EL_NO_EXCEPT
 { return graph_.OffsetBuffer(); }
-template<typename T>
-T* SparseMatrix<T>::ValueBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Ring* SparseMatrix<Ring>::ValueBuffer() EL_NO_EXCEPT
 { return vals_.data(); }
 
-template<typename T>
-const Int* SparseMatrix<T>::LockedSourceBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Int* SparseMatrix<Ring>::LockedSourceBuffer() const EL_NO_EXCEPT
 { return graph_.LockedSourceBuffer(); }
-template<typename T>
-const Int* SparseMatrix<T>::LockedTargetBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Int* SparseMatrix<Ring>::LockedTargetBuffer() const EL_NO_EXCEPT
 { return graph_.LockedTargetBuffer(); }
-template<typename T>
-const Int* SparseMatrix<T>::LockedOffsetBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Int* SparseMatrix<Ring>::LockedOffsetBuffer() const EL_NO_EXCEPT
 { return graph_.LockedOffsetBuffer(); }
-template<typename T>
-const T* SparseMatrix<T>::LockedValueBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Ring* SparseMatrix<Ring>::LockedValueBuffer() const EL_NO_EXCEPT
 { return vals_.data(); }
 
-template<typename T>
-void SparseMatrix<T>::ForceNumEntries( Int numEntries )
+template<typename Ring>
+void SparseMatrix<Ring>::ForceNumEntries( Int numEntries )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     graph_.ForceNumEdges( numEntries );
     vals_.resize( numEntries );
 }
 
-template<typename T>
-void SparseMatrix<T>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
+template<typename Ring>
+void SparseMatrix<Ring>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
 { graph_.ForceConsistency( consistent ); }
 
 // Auxiliary routines
 // ==================
 
-template<typename T>
-void SparseMatrix<T>::ProcessQueues()
+template<typename Ring>
+void SparseMatrix<Ring>::ProcessQueues()
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( graph_.sources_.size() != graph_.targets_.size() || 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( graph_.sources_.size() != graph_.targets_.size() ||
           graph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
@@ -418,13 +427,13 @@ void SparseMatrix<T>::ProcessQueues()
 
     Int numRemoved = 0;
     const Int numEntries = vals_.size();
-    vector<Entry<T>> entries( numEntries );
+    vector<Entry<Ring>> entries( numEntries );
     if( graph_.markedForRemoval_.size() != 0 )
     {
         for( Int s=0; s<numEntries; ++s )
         {
             pair<Int,Int> candidate(graph_.sources_[s],graph_.targets_[s]);
-            if( graph_.markedForRemoval_.find(candidate) == 
+            if( graph_.markedForRemoval_.find(candidate) ==
                 graph_.markedForRemoval_.end() )
             {
                 entries[s-numRemoved].i = graph_.sources_[s];
@@ -442,8 +451,8 @@ void SparseMatrix<T>::ProcessQueues()
     else
     {
         for( Int s=0; s<numEntries; ++s )
-            entries[s] = 
-              Entry<T>{graph_.sources_[s],graph_.targets_[s],vals_[s]};
+            entries[s] =
+              Entry<Ring>{graph_.sources_[s],graph_.targets_[s],vals_[s]};
     }
     CompareEntriesFunctor comparer;
     std::sort( entries.begin(), entries.end(), comparer );
@@ -476,8 +485,8 @@ void SparseMatrix<T>::ProcessQueues()
     graph_.consistent_ = true;
 }
 
-template<typename T>
-void SparseMatrix<T>::AssertConsistent() const
+template<typename Ring>
+void SparseMatrix<Ring>::AssertConsistent() const
 { graph_.AssertConsistent(); }
 
 #ifdef EL_INSTANTIATE_CORE
@@ -486,7 +495,7 @@ void SparseMatrix<T>::AssertConsistent() const
 # define EL_EXTERN extern
 #endif
 
-#define PROTO(T) EL_EXTERN template class SparseMatrix<T>;
+#define PROTO(Ring) EL_EXTERN template class SparseMatrix<Ring>;
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD

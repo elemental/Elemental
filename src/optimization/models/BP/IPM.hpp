@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,7 +14,7 @@
 //   min || x ||_1
 //   s.t. A x = b.
 //
-// Real instances of the problem are expressable as a Linear Program [1] via 
+// Real instances of the problem are expressable as a Linear Program [1] via
 // decomposing x into its positive and negative parts, say (u,v), and posing
 //
 //   min 1^T [u;v]
@@ -28,20 +28,20 @@
 //     "Atomic Decomposition by Basis Pursuit",
 //     SIAM Review, Vol. 43, No. 1, pp. 129--159, 2001
 
-// TODO: Extend the existing LP control parameters
-// TODO: Extend the SOCP control parameters
+// TODO(poulson): Extend the existing LP control parameters
+// TODO(poulson): Extend the SOCP control parameters
 
 namespace El {
 namespace bp {
 
 template<typename Real>
 void LPIPM
-( const Matrix<Real>& A, 
-  const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -72,12 +72,19 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& b, 
-        ElementalMatrix<Real>& x,
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& xPre,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+
+    DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
+    const auto& A = AProx.GetLocked();
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -109,12 +116,12 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n);
@@ -150,17 +157,17 @@ void LPIPM
 
 template<typename Real>
 void LPIPM
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
   const lp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm);
-    DistMultiVec<Real> c(comm);
+    const Grid& grid = A.Grid();
+    DistSparseMatrix<Real> AHat(grid);
+    DistMultiVec<Real> c(grid);
 
     // c := ones(2*n,1)
     // ================
@@ -182,7 +189,7 @@ void LPIPM
 
     // Solve the direct LP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
     LP( AHat, b, c, xHat, y, z, ctrl );
 
     // x := u - v
@@ -205,7 +212,7 @@ void LPIPM
 //
 //   min_x || x ||_1 s.t. A x = b
 //
-// can be reformulated as the Second-Order 
+// can be reformulated as the Second-Order
 //
 //   min_x e^T xHat s.t. (A E) xHat = b, xHat in K,
 //
@@ -215,12 +222,12 @@ void LPIPM
 
 template<typename Real>
 void SOCPIPM
-( const Matrix<Real>& A, 
-  const Matrix<Real>& b, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -230,7 +237,7 @@ void SOCPIPM
     for( Int i=0; i<orders.Height(); ++i )
     {
         orders.Set( i, 0, 2 );
-        firstInds.Set( i, 0, i-(i%2) ); 
+        firstInds.Set( i, 0, i-(i%2) );
     }
 
     Matrix<Real> c;
@@ -239,7 +246,7 @@ void SOCPIPM
     // \hat A := A E
     // =============
     Matrix<Real> AHat;
-    Zeros( AHat, m, 2*n ); 
+    Zeros( AHat, m, 2*n );
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             AHat(i,2*j+1) = A(i,j);
@@ -259,12 +266,12 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& b,
         Matrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -274,7 +281,7 @@ void SOCPIPM
     for( Int i=0; i<orders.Height(); ++i )
     {
         orders(i) = 2;
-        firstInds(i) = i-(i%2); 
+        firstInds(i) = i-(i%2);
     }
 
     Matrix<Real> c;
@@ -283,7 +290,7 @@ void SOCPIPM
     // \hat A := A E
     // =============
     SparseMatrix<Real> AHat;
-    Zeros( AHat, m, 2*n ); 
+    Zeros( AHat, m, 2*n );
     const Int numEntriesA = A.NumEntries();
     AHat.Reserve( numEntriesA );
     for( Int e=0; e<numEntriesA; ++e )
@@ -305,12 +312,12 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& b, 
-        ElementalMatrix<Real>& x,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
+        AbstractDistMatrix<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -324,7 +331,7 @@ void SOCPIPM
     {
         const Int i = orders.GlobalRow(iLoc);
         ordersLoc(iLoc) = 2;
-        firstIndsLoc(iLoc) = i-(i%2); 
+        firstIndsLoc(iLoc) = i-(i%2);
     }
 
     DistMatrix<Real> c(grid);
@@ -332,7 +339,7 @@ void SOCPIPM
 
     // \hat A := A E
     DistMatrix<Real> AHat(grid);
-    Zeros( AHat, m, 2*n ); 
+    Zeros( AHat, m, 2*n );
     auto& ALoc = A.LockedMatrix();
     if( A.RedundantRank() == 0 )
     {
@@ -368,17 +375,17 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& b,
         DistMultiVec<Real>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm);
+    DistMultiVec<Int> orders(grid), firstInds(grid);
     Zeros( orders,    2*n, 1 );
     Zeros( firstInds, 2*n, 1 );
     auto& ordersLoc = orders.Matrix();
@@ -390,15 +397,15 @@ void SOCPIPM
         firstIndsLoc(iLoc) = i-(i%2);
     }
 
-    DistMultiVec<Real> c(comm);
+    DistMultiVec<Real> c(grid);
     soc::Identity( c, orders, firstInds );
-    
+
     // \hat A := A E
     // =============
     // NOTE: Since A and \hat A are the same height and each distributed within
     //       columns, it is possible to form \hat A from A without communication
-    DistSparseMatrix<Real> AHat(comm);
-    Zeros( AHat, m, 2*n ); 
+    DistSparseMatrix<Real> AHat(grid);
+    Zeros( AHat, m, 2*n );
     const Int numLocalEntriesA = A.NumLocalEntries();
     AHat.Reserve( numLocalEntriesA );
     for( Int e=0; e<numLocalEntriesA; ++e )
@@ -407,7 +414,7 @@ void SOCPIPM
 
     // Solve the direct SOCP
     // =====================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
     SOCP( AHat, b, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E xHat
@@ -429,26 +436,26 @@ void SOCPIPM
 //
 //   min_x || x ||_1 s.t. A x = b
 //
-// can be reformulated as the Second-Order 
+// can be reformulated as the Second-Order
 //
-//   min_x e^T xHat 
+//   min_x e^T xHat
 //   s.t. | Real(A) E_R, -Imag(A) E_I | xHat = | Real(b) |, xHat in K,
 //        | Imag(A) E_R,  Real(A) E_I |        | Imag(b) |
 //
 // where K is a product of n second-order cones of dimension 3. The operator
-// E_R extracts the real components by selecting every integer which is 
-// equal to 1 modulo 3, while E_I extracts the imaginary components by 
+// E_R extracts the real components by selecting every integer which is
+// equal to 1 modulo 3, while E_I extracts the imaginary components by
 // selecting indices which are equal to 2 modulo 3.
 //
 
 template<typename Real>
 void SOCPIPM
-( const Matrix<Complex<Real>>& A, 
-  const Matrix<Complex<Real>>& b, 
+( const Matrix<Complex<Real>>& A,
+  const Matrix<Complex<Real>>& b,
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -468,7 +475,7 @@ void SOCPIPM
     //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     Matrix<Real> AHat;
-    Zeros( AHat, 2*m, 3*n ); 
+    Zeros( AHat, 2*m, 3*n );
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -512,12 +519,12 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const SparseMatrix<Complex<Real>>& A, 
-  const Matrix<Complex<Real>>& b, 
+( const SparseMatrix<Complex<Real>>& A,
+  const Matrix<Complex<Real>>& b,
         Matrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -537,7 +544,7 @@ void SOCPIPM
     //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     SparseMatrix<Real> AHat;
-    Zeros( AHat, 2*m, 3*n ); 
+    Zeros( AHat, 2*m, 3*n );
     const Int numEntriesA = A.NumEntries();
     AHat.Reserve( 4*numEntriesA );
     for( Int e=0; e<numEntriesA; ++e )
@@ -583,12 +590,12 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const ElementalMatrix<Complex<Real>>& A, 
-  const ElementalMatrix<Complex<Real>>& b, 
-        ElementalMatrix<Complex<Real>>& x,
+( const AbstractDistMatrix<Complex<Real>>& A,
+  const AbstractDistMatrix<Complex<Real>>& b,
+        AbstractDistMatrix<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
@@ -612,7 +619,7 @@ void SOCPIPM
     //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
     DistMatrix<Real> AHat(grid);
-    Zeros( AHat, 2*m, 3*n ); 
+    Zeros( AHat, 2*m, 3*n );
     auto& ALoc = A.LockedMatrix();
     const Int ALocHeight = A.LocalHeight();
     const Int ALocWidth = A.LocalWidth();
@@ -674,17 +681,17 @@ void SOCPIPM
 
 template<typename Real>
 void SOCPIPM
-( const DistSparseMatrix<Complex<Real>>& A, 
-  const DistMultiVec<Complex<Real>>& b, 
+( const DistSparseMatrix<Complex<Real>>& A,
+  const DistMultiVec<Complex<Real>>& b,
         DistMultiVec<Complex<Real>>& x,
   const socp::direct::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
+    const Grid& grid = A.Grid();
 
-    DistMultiVec<Int> orders(comm), firstInds(comm);
+    DistMultiVec<Int> orders(grid), firstInds(grid);
     Zeros( orders,    3*n, 1 );
     Zeros( firstInds, 3*n, 1 );
     auto& ordersLoc = orders.Matrix();
@@ -696,15 +703,15 @@ void SOCPIPM
         firstIndsLoc(iLoc) = i-(i%3);
     }
 
-    DistMultiVec<Real> c(comm);
+    DistMultiVec<Real> c(grid);
     soc::Identity( c, orders, firstInds );
-    
+
     // \hat A := |  Real(A) E_R - Imag(A) E_I |
     //           |  Imag(A) E_R + Real(A) E_I |
     // ========================================
-    DistSparseMatrix<Real> AHat(comm);
+    DistSparseMatrix<Real> AHat(grid);
     const Int numLocalEntriesA = A.NumLocalEntries();
-    Zeros( AHat, 2*m, 3*n ); 
+    Zeros( AHat, 2*m, 3*n );
     AHat.Reserve( 4*numLocalEntriesA, 4*numLocalEntriesA );
     for( Int e=0; e<numLocalEntriesA; ++e )
     {
@@ -722,7 +729,7 @@ void SOCPIPM
     // \hat b := | Real(b) |
     //           | Imag(b) |
     // =====================
-    DistMultiVec<Real> bHat(comm);
+    DistMultiVec<Real> bHat(grid);
     Zeros( bHat, 2*m, 1 );
     bHat.Reserve( 2*b.LocalHeight() );
     auto& bLoc = b.LockedMatrix();
@@ -736,7 +743,7 @@ void SOCPIPM
 
     // Solve the direct SOCP
     // =====================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid);
     SOCP( AHat, bHat, c, orders, firstInds, xHat, y, z, ctrl );
 
     // x := E_R xHat + i E_I xHat

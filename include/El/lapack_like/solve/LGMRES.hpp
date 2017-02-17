@@ -2,46 +2,59 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SOLVE_LGMRES_HPP
 #define EL_SOLVE_LGMRES_HPP
 
-// TODO: Add support for promotion?
+// TODO(poulson): Add support for promotion?
 
 namespace El {
 
 namespace lgmres {
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// In what follows, 'applyA' should be a function of the form
+//
+//   void applyA
+//   ( Field alpha, const Matrix<Field>& x, Field beta, Matrix<Field>& y )
+//
+// and overwrite y := alpha A x + beta y. However, 'precond' should have the
+// form
+//
+//   void precond( Matrix<Field>& b )
+//
+// and overwrite b with an approximation of inv(A) b.
+//
+
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        Matrix<F>& b,
-        Base<F> relTol,
+        Matrix<Field>& b,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = b.Height();
 
     // x := 0
     // ======
-    Matrix<F> x;
+    Matrix<Field> x;
     Zeros( x, n, 1 );
 
     // w := b (= b - A x_0)
     // ====================
-    Matrix<F> w;
+    Matrix<Field> w;
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( origResidNorm == Real(0) )
@@ -50,8 +63,8 @@ Int Single
     Int iter=0;
     bool converged = false;
     Matrix<Real> cs;
-    Matrix<F> sn, H, t;
-    Matrix<F> x0, q, V;
+    Matrix<Field> sn, H, t;
+    Matrix<Field> x0, q, V;
     while( !converged )
     {
         if( progress )
@@ -96,7 +109,7 @@ Int Single
 
             // w := A v_j
             // ----------
-            applyA( F(1), V(ALL,IR(j)), F(0), w );
+            applyA( Field(1), V(ALL,IR(j)), Field(0), w );
 
             // w := inv(M) w
             // -------------
@@ -134,10 +147,10 @@ Int Single
             for( Int i=0; i<j; ++i )
             {
                 const Real& c = cs(i);
-                const F& s = sn(i);
-                const F sConj = Conj(s);
-                const F eta_i_j = H(i,j);
-                const F eta_ip1_j = H(i+1,j);
+                const Field& s = sn(i);
+                const Field sConj = Conj(s);
+                const Field eta_i_j = H(i,j);
+                const Field eta_ip1_j = H(i+1,j);
                 H(i,  j) =  c    *eta_i_j + s*eta_ip1_j;
                 H(i+1,j) = -sConj*eta_i_j + c*eta_ip1_j;
             }
@@ -145,16 +158,16 @@ Int Single
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            const F eta_j_j = H(j,j);
-            const F eta_jp1_j = delta;
+            const Field eta_j_j = H(j,j);
+            const Field eta_jp1_j = delta;
             if( !limits::IsFinite(RealPart(eta_j_j))   ||
                 !limits::IsFinite(ImagPart(eta_j_j))   ||
                 !limits::IsFinite(RealPart(eta_jp1_j)) ||
                 !limits::IsFinite(ImagPart(eta_jp1_j)) )
                 RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
-            F s;
-            F rho = Givens( eta_j_j, eta_jp1_j, c, s );
+            Field s;
+            Field rho = Givens( eta_j_j, eta_jp1_j, c, s );
             if( !limits::IsFinite(c) ||
                 !limits::IsFinite(RealPart(s)) ||
                 !limits::IsFinite(ImagPart(s)) ||
@@ -166,9 +179,9 @@ Int Single
             sn(j) = s;
             // Apply the rotation to the rotated beta*e_0 vector
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            const F sConj = Conj(s);
-            const F tau_j = t(j);
-            const F tau_jp1 = t(j+1);
+            const Field sConj = Conj(s);
+            const Field tau_j = t(j);
+            const Field tau_jp1 = t(j+1);
             t(j)   =  c    *tau_j + s*tau_jp1;
             t(j+1) = -sConj*tau_j + c*tau_jp1;
             // Minimize the residual
@@ -188,7 +201,7 @@ Int Single
             // w := b - A x
             // ------------
             w = b;
-            applyA( F(-1), x, F(1), w ); 
+            applyA( Field(-1), x, Field(1), w );
 
             // Residual checks
             // ---------------
@@ -224,18 +237,18 @@ Int Single
 
 } // namespace lgmres
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int LGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int mostIts = 0;
     const Int width = B.Width();
     for( Int j=0; j<width; ++j )
@@ -251,35 +264,35 @@ Int LGMRES
 
 namespace lgmres {
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int Single
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        DistMultiVec<F>& b,
-        Base<F> relTol,
+        DistMultiVec<Field>& b,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = b.Height();
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
 
     // x := 0
     // ======
-    DistMultiVec<F> x(comm);
+    DistMultiVec<Field> x(grid);
     Zeros( x, n, 1 );
 
     // w := b (= b - A x_0)
     // ====================
-    DistMultiVec<F> w(comm);
+    DistMultiVec<Field> w(grid);
     w = b;
     const Real origResidNorm = Nrm2( w );
     if( origResidNorm == Real(0) )
@@ -288,8 +301,8 @@ Int Single
     Int iter=0;
     bool converged = false;
     Matrix<Real> cs;
-    Matrix<F> sn, H, t;
-    DistMultiVec<F> x0(comm), q(comm), V(comm);
+    Matrix<Field> sn, H, t;
+    DistMultiVec<Field> x0(grid), q(grid), V(grid);
     while( !converged )
     {
         if( progress && commRank == 0 )
@@ -340,7 +353,7 @@ Int Single
             // w := A v_j
             // ----------
             q.Matrix() = VLoc( ALL, IR(j) );
-            applyA( F(1), q, F(0), w );
+            applyA( Field(1), q, Field(0), w );
 
             // w := inv(M) w
             // -------------
@@ -378,10 +391,10 @@ Int Single
             for( Int i=0; i<j; ++i )
             {
                 const Real& c = cs(i);
-                const F& s = sn(i);
-                const F sConj = Conj(s);
-                const F eta_i_j = H(i,j);
-                const F eta_ip1_j = H(i+1,j);
+                const Field& s = sn(i);
+                const Field sConj = Conj(s);
+                const Field eta_i_j = H(i,j);
+                const Field eta_ip1_j = H(i+1,j);
                 H(i,  j) =  c    *eta_i_j + s*eta_ip1_j;
                 H(i+1,j) = -sConj*eta_i_j + c*eta_ip1_j;
             }
@@ -389,16 +402,16 @@ Int Single
             // Generate and apply a new rotation to both H and the rotated
             // beta*e_0 vector, t, then solve the minimum residual problem
             // -----------------------------------------------------------
-            const F eta_j_j = H(j,j);
-            const F eta_jp1_j = delta;
+            const Field eta_j_j = H(j,j);
+            const Field eta_jp1_j = delta;
             if( !limits::IsFinite(RealPart(eta_j_j))   ||
                 !limits::IsFinite(ImagPart(eta_j_j))   ||
                 !limits::IsFinite(RealPart(eta_jp1_j)) ||
                 !limits::IsFinite(ImagPart(eta_jp1_j)) )
                 RuntimeError("Either H(j,j) or H(j+1,j) was not finite");
             Real c;
-            F s;
-            F rho = Givens( eta_j_j, eta_jp1_j, c, s );
+            Field s;
+            Field rho = Givens( eta_j_j, eta_jp1_j, c, s );
             if( !limits::IsFinite(c) ||
                 !limits::IsFinite(RealPart(s)) ||
                 !limits::IsFinite(ImagPart(s)) ||
@@ -410,9 +423,9 @@ Int Single
             sn(j) = s;
             // Apply the rotation to the rotated beta*e_0 vector
             // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            const F sConj = Conj(s);
-            const F tau_j = t(j);
-            const F tau_jp1 = t(j+1);
+            const Field sConj = Conj(s);
+            const Field tau_j = t(j);
+            const Field tau_jp1 = t(j+1);
             t(j)   =  c    *tau_j + s*tau_jp1;
             t(j+1) = -sConj*tau_j + c*tau_jp1;
             // Minimize the residual
@@ -432,7 +445,7 @@ Int Single
             // w := b - A x
             // ------------
             w = b;
-            applyA( F(-1), x, F(1), w );
+            applyA( Field(-1), x, Field(1), w );
 
             // Residual checks
             // ---------------
@@ -468,23 +481,23 @@ Int Single
 
 } // namespace lgmres
 
-// TODO: Add support for an initial guess
-template<typename F,class ApplyAType,class PrecondType>
+// TODO(poulson): Add support for an initial guess
+template<typename Field,class ApplyAType,class PrecondType>
 Int LGMRES
 ( const ApplyAType& applyA,
   const PrecondType& precond,
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int restart,
         Int maxIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = B.Height();
     const Int width = B.Width();
 
     Int mostIts = 0;
-    DistMultiVec<F> u(B.Comm());
+    DistMultiVec<Field> u(B.Grid());
     Zeros( u, height, 1 );
     auto& BLoc = B.Matrix();
     auto& uLoc = u.Matrix();

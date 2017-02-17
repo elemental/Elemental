@@ -2,31 +2,31 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-// Modify the eigenvalues of A with the real-valued function f, which will 
+// Modify the eigenvalues of A with the real-valued function f, which will
 // therefore result in a Hermitian matrix, which we store in-place.
 
-template<typename F>
+template<typename Field>
 void HermitianFunction
 ( UpperOrLower uplo,
-  Matrix<F>& A,
-  function<Base<F>(Base<F>)> func )
+  Matrix<Field>& A,
+  function<Base<Field>(const Base<Field>&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     // Get the EVD of A
     Matrix<Real> w;
-    Matrix<F> Z;
+    Matrix<Field> Z;
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
@@ -36,46 +36,46 @@ void HermitianFunction
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianFunction
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& APre,
-  function<Base<F>(Base<F>)> func )
+  AbstractDistMatrix<Field>& APre,
+  function<Base<Field>(const Base<Field>&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
+    DistMatrix<Field> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
     EntrywiseMap( w, func );
 
     // A := Z f(Omega) Z^H
-    HermitianFromEVD( uplo, A, w, Z ); 
+    HermitianFromEVD( uplo, A, w, Z );
 }
 
 // Modify the eigenvalues of A with the complex-valued function f, which will
-// therefore result in a normal (in general, non-Hermitian) matrix, which we 
+// therefore result in a normal (in general, non-Hermitian) matrix, which we
 // store in-place. At some point a version will be written which takes a real
 // symmetric matrix as input and produces a complex normal matrix.
 
 template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo,
-  Matrix<Complex<Real>>& A, 
-  function<Complex<Real>(Real)> func )
+  Matrix<Complex<Real>>& A,
+  function<Complex<Real>(const Real&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     typedef Complex<Real> C;
@@ -98,10 +98,10 @@ void HermitianFunction
 template<typename Real>
 void HermitianFunction
 ( UpperOrLower uplo,
-  ElementalMatrix<Complex<Real>>& APre, 
-  function<Complex<Real>(Real)> func )
+  AbstractDistMatrix<Complex<Real>>& APre,
+  function<Complex<Real>(const Real&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixReadWriteProxy<C,C,MC,MR> AProx( APre );
@@ -131,26 +131,26 @@ void HermitianFunction
     NormalFromEVD( A, fw, Z );
 }
 
-#define PROTO_COMPLEX(F) \
+#define PROTO_COMPLEX(Field) \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
-    Matrix<F>& A, \
-    function<Base<F>(Base<F>)> func ); \
+    Matrix<Field>& A, \
+    function<Base<Field>(const Base<Field>&)> func ); \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
-    ElementalMatrix<F>& A, \
-    function<Base<F>(Base<F>)> func );
+    AbstractDistMatrix<Field>& A, \
+    function<Base<Field>(const Base<Field>&)> func );
 
 #define PROTO_REAL(Real) \
   PROTO_COMPLEX(Real) \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
     Matrix<Complex<Real>>& A, \
-    function<Complex<Real>(Real)> func ); \
+    function<Complex<Real>(const Real&)> func ); \
   template void HermitianFunction \
   ( UpperOrLower uplo, \
-    ElementalMatrix<Complex<Real>>& A, \
-    function<Complex<Real>(Real)> func );
+    AbstractDistMatrix<Complex<Real>>& A, \
+    function<Complex<Real>(const Real&)> func );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

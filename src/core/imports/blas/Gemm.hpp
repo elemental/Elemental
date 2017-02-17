@@ -356,8 +356,8 @@ void Gemm
   const float& beta,
         float* C, BlasInt CLDim )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( std::toupper(transA) == 'N' )
       {
           if( ALDim < Max(m,1) )
@@ -399,8 +399,8 @@ void Gemm
   const double& beta,
         double* C, BlasInt CLDim )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( std::toupper(transA) == 'N' )
       {
           if( ALDim < Max(m,1) )
@@ -441,8 +441,8 @@ void Gemm
   const scomplex& beta,
         scomplex* C, BlasInt CLDim )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( std::toupper(transA) == 'N' )
       {
           if( ALDim < Max(m,1) )
@@ -481,8 +481,8 @@ void Gemm
   const dcomplex& beta,
         dcomplex* C, BlasInt CLDim )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( std::toupper(transA) == 'N' )
       {
           if( ALDim < Max(m,1) )

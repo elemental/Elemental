@@ -2,21 +2,21 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 #include "El/core/FlamePart.hpp"
 
-// This file implements both dense and sparse-direct solutions of 
+// This file implements both dense and sparse-direct solutions of
 // Equality-constrained Least Squares (LSE):
 //
 //     min_x || A x - c ||_2 subject to B x = d.
 //
 // For dense instances of the problem, a Generalized RQ factorization can be
-// employed as long as A is m x n, B is p x n, and p <= n <= m+p. It is 
+// employed as long as A is m x n, B is p x n, and p <= n <= m+p. It is
 // assumed that B has full row rank, p, and [A;B] has full column rank, n.
 //
 // A Generalized RQ factorization of (B,A),
@@ -27,8 +27,8 @@
 //     T Q x = d,
 // as
 //     | 0 T12 | | y1 | = d,
-//               | y2 |   
-// where y = Q x, which only requires the solution of the upper-triangular 
+//               | y2 |
+// where y = Q x, which only requires the solution of the upper-triangular
 // system
 //     T12 y2 = d.
 //
@@ -41,9 +41,9 @@
 // Since y2 is fixed by the constraint, the norm is minimized by setting the
 // top term to zero, which involves solving the upper-triangular system
 //     R11 y1 = g1 - R12 y2.
-//       
-// On exit of the internal dense implementation, A and B are overwritten with 
-// their implicit Generalized RQ factorization of (B,A), and, optionally, C is 
+//
+// On exit of the internal dense implementation, A and B are overwritten with
+// their implicit Generalized RQ factorization of (B,A), and, optionally, C is
 // overwritten with the rotated residual matrix
 //     Z^H (A X - C) = (R Q X - Z^H C) = |           0 |,
 //                                       | R22 Y2 - G1 |
@@ -68,15 +68,15 @@ namespace El {
 
 namespace lse {
 
-template<typename F> 
+template<typename F>
 void Overwrite
 ( Matrix<F>& A,
-  Matrix<F>& B, 
+  Matrix<F>& B,
   Matrix<F>& C,
-  Matrix<F>& D, 
+  Matrix<F>& D,
   Matrix<F>& X, bool computeResidual )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Height();
@@ -117,7 +117,7 @@ void Overwrite
     auto G2 = C( ind2, ALL );
 
     // Solve T12 Y2 = D
-    Y2 = D; 
+    Y2 = D;
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), T12, Y2, checkIfSingular );
 
     // G1 := G1 - R12 Y2
@@ -130,10 +130,10 @@ void Overwrite
     if( computeResidual )
     {
         // R22 is upper-trapezoidal, and so it is best to decompose it in terms
-        // of its upper-left triangular block and either its bottom zero 
+        // of its upper-left triangular block and either its bottom zero
         // block or right non-zero block. Putting k=Min(p,m-(n-p)), then
         // the k x k upper-left block is upper-triangular. If m >= n, the
-        // bottom m-(n-p) - k = m-n rows are zero, otherwise the right 
+        // bottom m-(n-p) - k = m-n rows are zero, otherwise the right
         // p - k = n-m.columns are nonzero.
         if( m < n )
         {
@@ -161,16 +161,16 @@ void Overwrite
     rq::ApplyQ( LEFT, ADJOINT, B, tB, dB, X );
 }
 
-template<typename F> 
+template<typename F>
 void Overwrite
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre, 
-  ElementalMatrix<F>& CPre,
-  ElementalMatrix<F>& DPre, 
-  ElementalMatrix<F>& XPre,
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre,
+  AbstractDistMatrix<F>& CPre,
+  AbstractDistMatrix<F>& DPre,
+  AbstractDistMatrix<F>& XPre,
   bool computeResidual )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -225,7 +225,7 @@ void Overwrite
     PartitionDown( C, G1, G2, n-p );
 
     // Solve T12 Y2 = D
-    Y2 = D; 
+    Y2 = D;
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), T12, Y2, checkIfSingular );
 
     // G1 := G1 - R12 Y2
@@ -238,10 +238,10 @@ void Overwrite
     if( computeResidual )
     {
         // R22 is upper-trapezoidal, and so it is best to decompose it in terms
-        // of its upper-left triangular block and either its bottom zero 
+        // of its upper-left triangular block and either its bottom zero
         // block or right non-zero block. Putting k=Min(p,m-(n-p)), then
         // the k x k upper-left block is upper-triangular. If m >= n, the
-        // bottom m-(n-p) - k = m-n rows are zero, otherwise the right 
+        // bottom m-(n-p) - k = m-n rows are zero, otherwise the right
         // p - k = n-m.columns are nonzero.
         if( m < n )
         {
@@ -271,42 +271,42 @@ void Overwrite
 
 } // namespace lse
 
-template<typename F> 
+template<typename F>
 void LSE
 ( const Matrix<F>& A,
-  const Matrix<F>& B, 
+  const Matrix<F>& B,
   const Matrix<F>& C,
-  const Matrix<F>& D, 
+  const Matrix<F>& D,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
 
-template<typename F> 
+template<typename F>
 void LSE
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& B, 
-  const ElementalMatrix<F>& C,
-  const ElementalMatrix<F>& D, 
-        ElementalMatrix<F>& X )
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B,
+  const AbstractDistMatrix<F>& C,
+  const AbstractDistMatrix<F>& D,
+        AbstractDistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B ), CCopy( C ), DCopy( D );
     lse::Overwrite( ACopy, BCopy, CCopy, DCopy, X );
 }
 
-template<typename F> 
+template<typename F>
 void LSE
 ( const SparseMatrix<F>& A,
-  const SparseMatrix<F>& B, 
+  const SparseMatrix<F>& B,
   const Matrix<F>& C,
-  const Matrix<F>& D, 
+  const Matrix<F>& D,
         Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();
@@ -322,9 +322,9 @@ void LSE
     if( ctrl.equilibrate )
     {
         ColumnTwoNorms( W, dC );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dC, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dC, MakeFunction(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
     else
@@ -361,9 +361,9 @@ void LSE
     //         | B      0      0  |
     //
     const Int numEntriesW = W.NumEntries();
-    SparseMatrix<F> J; 
+    SparseMatrix<F> J;
     Zeros( J, n+m+k, n+m+k );
-    J.Reserve( 2*numEntriesW+m ); 
+    J.Reserve( 2*numEntriesW+m );
     for( Int e=0; e<numEntriesW; ++e )
     {
         J.QueueUpdate( W.Row(e)+n, W.Col(e),        W.Value(e)  );
@@ -372,41 +372,10 @@ void LSE
     for( Int e=0; e<m; ++e )
         J.QueueUpdate( e+n, e+n, -ctrl.alpha );
     J.ProcessQueues();
-    
-    // Add the a priori regularization
-    // ===============================
-    Matrix<Real> regTmp, regPerm;
-    Zeros( regTmp, n+m+k, 1 );
-    Zeros( regPerm, n+m+k, 1 );
-    for( Int i=0; i<n; ++i )
-    {
-        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
-        regPerm(i) = ctrl.reg0Perm*ctrl.reg0Perm;
-    }
-    for( Int i=n; i<n+m+k; ++i )
-    {
-        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
-        regPerm(i) = -ctrl.reg1Perm*ctrl.reg1Perm;
-    }
-    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
-    SparseMatrix<F> JOrig;
-    JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
 
-    // Factor the regularized system
-    // =============================
-    vector<Int> map, invMap; 
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    ldl::NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-    ldl::Front<F> JFront( J, map, info );
-    LDL( info, JFront );    
-
-    // Solve the linear systems
-    // ========================
-    reg_ldl::SolveAfter
-    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
+    // Solve the Symmetric Quasi-SemiDefinite system
+    // =============================================
+    SQSDSolve( n, J, G, ctrl.sqsdCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -414,36 +383,36 @@ void LSE
     DiagonalSolve( LEFT, NORMAL, dC, X );
 }
 
-template<typename F> 
+template<typename F>
 void LSE
 ( const DistSparseMatrix<F>& A,
-  const DistSparseMatrix<F>& B, 
+  const DistSparseMatrix<F>& B,
   const DistMultiVec<F>& C,
-  const DistMultiVec<F>& D, 
+  const DistMultiVec<F>& D,
         DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Height();
     const Int numRHS = C.Width();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
 
     // Rescale W = [ A; B ]
     // ====================
-    DistMultiVec<Real> dC(comm);
-    DistSparseMatrix<F> W(comm);
+    DistMultiVec<Real> dC(grid);
+    DistSparseMatrix<F> W(grid);
     VCat( A, B, W );
     if( ctrl.equilibrate )
     {
         ColumnTwoNorms( W, dC );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dC, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dC, MakeFunction(normMap) );
         DiagonalSolve( RIGHT, NORMAL, dC, W );
     }
     else
@@ -463,7 +432,7 @@ void LSE
     // Form the augmented RHS
     // ======================
     //   G = [ 0; C; D ]
-    DistMultiVec<F> G(comm);
+    DistMultiVec<F> G(grid);
     Zeros( G, n+m+k, numRHS );
     {
         const Int CLocalHeight = C.LocalHeight();
@@ -493,7 +462,7 @@ void LSE
     //         | B      0      0  |
     //
     const Int numEntriesW = W.NumLocalEntries();
-    DistSparseMatrix<F> J(comm); 
+    DistSparseMatrix<F> J(grid);
     Zeros( J, n+m+k, n+m+k );
     {
         const Int JLocalHeight = J.LocalHeight();
@@ -516,7 +485,7 @@ void LSE
             const F value = W.Value(e);
 
             J.QueueUpdate( i+n, j, value );
-            J.QueueUpdate( j, i+n, Conj(value) );            
+            J.QueueUpdate( j, i+n, Conj(value) );
         }
         for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
         {
@@ -530,45 +499,9 @@ void LSE
         J.ProcessQueues();
     }
 
-    // Add the a priori regularization
-    // ===============================
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
-    Zeros( regTmp, n+m+k, 1 );
-    Zeros( regPerm, n+m+k, 1 );
-    const Int regLocalHeight = regTmp.LocalHeight();
-    for( Int iLoc=0; iLoc<regLocalHeight; ++iLoc )
-    {
-        const Int i = regTmp.GlobalRow(iLoc);
-        if( i < n )
-        {
-            regTmp.Set( i, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
-            regPerm.Set( i, 0, ctrl.reg0Perm*ctrl.reg0Perm );
-        }
-        else
-        {
-            regTmp.Set( i, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
-            regPerm.Set( i, 0, -ctrl.reg1Perm*ctrl.reg1Perm );
-        }
-    }
-    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
-    DistSparseMatrix<F> JOrig(comm);
-    JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-
-    // Factor the regularized system
-    // =============================
-    DistMap map, invMap; 
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    ldl::NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-    ldl::DistFront<F> JFront( J, map, rootSep, info );
-    LDL( info, JFront );    
-
-    // Solve the linear systems
-    // ========================
-    reg_ldl::SolveAfter
-    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
+    // Solve the Symmetric Quasi-SemiDefinite system
+    // =============================================
+    SQSDSolve( n, J, G, ctrl.sqsdCtrl );
 
     // Extract X from G = [ Dc*X; -R/alpha; Y/alpha ]
     // ==============================================
@@ -584,11 +517,11 @@ void LSE
     Matrix<F>& D, \
     Matrix<F>& X, bool computeResidual ); \
   template void lse::Overwrite \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& B, \
-    ElementalMatrix<F>& C, \
-    ElementalMatrix<F>& D, \
-    ElementalMatrix<F>& X, bool computeResidual ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& C, \
+    AbstractDistMatrix<F>& D, \
+    AbstractDistMatrix<F>& X, bool computeResidual ); \
   template void LSE \
   ( const Matrix<F>& A, \
     const Matrix<F>& B, \
@@ -596,11 +529,11 @@ void LSE
     const Matrix<F>& D, \
           Matrix<F>& X ); \
   template void LSE \
-  ( const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& B, \
-    const ElementalMatrix<F>& C, \
-    const ElementalMatrix<F>& D, \
-          ElementalMatrix<F>& X ); \
+  ( const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& C, \
+    const AbstractDistMatrix<F>& D, \
+          AbstractDistMatrix<F>& X ); \
   template void LSE \
   ( const SparseMatrix<F>& A, \
     const SparseMatrix<F>& B, \

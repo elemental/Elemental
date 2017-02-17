@@ -12,14 +12,14 @@ using namespace El;
 
 extern "C" {
 
-#define C_PROTO(SIG,SIGBASE,F) \
+#define C_PROTO(SIG,SIGBASE,Field) \
   /* Coherence
      --------- */ \
   ElError ElCoherence_ ## SIG \
-  ( ElConstMatrix_ ## SIG A, Base<F>* coherence ) \
+  ( ElConstMatrix_ ## SIG A, Base<Field>* coherence ) \
   { EL_TRY( *coherence = Coherence(*CReflect(A)) ) } \
   ElError ElCoherenceDist_ ## SIG \
-  ( ElConstDistMatrix_ ## SIG A, Base<F>* coherence ) \
+  ( ElConstDistMatrix_ ## SIG A, Base<Field>* coherence ) \
   { EL_TRY( *coherence = Coherence(*CReflect(A)) ) } \
   /* Covariance
      ---------- */ \
@@ -32,20 +32,20 @@ extern "C" {
   /* Log barrier
      ----------- */ \
   ElError ElLogBarrier_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<F>* barrier ) \
+  ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, Base<Field>* barrier ) \
   { EL_TRY( *barrier = LogBarrier( CReflect(uplo), *CReflect(A) ) ) } \
   ElError ElLogBarrierDist_ ## SIG \
-  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<F>* barrier ) \
+  ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, Base<Field>* barrier ) \
   { EL_TRY( *barrier = LogBarrier( CReflect(uplo), *CReflect(A) ) ) } \
   /* Log-det divergence
      ------------------ */ \
   ElError ElLogDetDiv_ ## SIG \
   ( ElUpperOrLower uplo, ElConstMatrix_ ## SIG A, \
-    ElConstMatrix_ ## SIG B, Base<F>* div ) \
+    ElConstMatrix_ ## SIG B, Base<Field>* div ) \
   { EL_TRY( *div = LogDetDiv( CReflect(uplo), *CReflect(A), *CReflect(B) ) ) } \
   ElError ElLogDetDivDist_ ## SIG \
   ( ElUpperOrLower uplo, ElConstDistMatrix_ ## SIG A, \
-    ElConstDistMatrix_ ## SIG B, Base<F>* div ) \
+    ElConstDistMatrix_ ## SIG B, Base<Field>* div ) \
   { EL_TRY( *div = LogDetDiv( CReflect(uplo), *CReflect(A), *CReflect(B) ) ) }
 
 #define C_PROTO_REAL(SIG,REAL) \

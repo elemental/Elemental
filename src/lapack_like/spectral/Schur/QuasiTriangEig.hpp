@@ -19,7 +19,7 @@ void QuasiTriangEig
   const Matrix<F>& dSup,
   Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = dMain.Height();
     Matrix<F> H11(2,2);
     w.Resize( n, 1 );
@@ -38,7 +38,8 @@ void QuasiTriangEig
             H11(1,0) = dSub(j);
             H11(0,1) = dSup(j);
             H11(1,1) = dMain(j+1);
-            lapack::HessenbergEig( 2, H11.Buffer(), H11.LDim(), w.Buffer(j,0) );
+            auto w1 = w( IR(j,j+2), ALL );
+            HessenbergSchur( H11, w1 );
             j += 2;
         }
     }
@@ -47,7 +48,7 @@ void QuasiTriangEig
 template<typename F>
 void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto dMain = GetDiagonal(U);
     auto dSub = GetDiagonal(U,-1);
     auto dSup = GetDiagonal(U,+1);
@@ -57,7 +58,7 @@ void QuasiTriangEig( const Matrix<F>& U, Matrix<Complex<Base<F>>>& w )
 template<typename F>
 Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Complex<Base<F>>> w;
     QuasiTriangEig( U, w );
     return w;
@@ -65,31 +66,32 @@ Matrix<Complex<Base<F>>> QuasiTriangEig( const Matrix<F>& U )
 
 template<typename F>
 void QuasiTriangEig
-( const ElementalMatrix<F>& UPre,
-        ElementalMatrix<Complex<Base<F>>>& w )
+( const AbstractDistMatrix<F>& UPre,
+        AbstractDistMatrix<Complex<Base<F>>>& wPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+    typedef Base<F> Real;
 
     DistMatrixReadProxy<F,F,MC,MR> UProx( UPre );
     auto& U = UProx.GetLocked();
 
+    DistMatrixWriteProxy<Complex<Real>,Complex<Real>,STAR,STAR> wProx( wPre );
+    auto& w = wProx.Get();
+
     const Grid& g = U.Grid();
     DistMatrix<F,STAR,STAR> dMain(g), dSub(g), dSup(g);
-    DistMatrix<Complex<Base<F>>,STAR,STAR> w_STAR_STAR(g);
     dMain = GetDiagonal(U);
     dSub = GetDiagonal(U,-1);
     dSup = GetDiagonal(U,+1);
-    w_STAR_STAR.Resize( U.Height(), 1 );
-    QuasiTriangEig
-    ( dMain.Matrix(), dSub.Matrix(), dSup.Matrix(), w_STAR_STAR.Matrix() );
-    Copy( w_STAR_STAR, w );
+    w.Resize( U.Height(), 1 );
+    QuasiTriangEig( dMain.Matrix(), dSub.Matrix(), dSup.Matrix(), w.Matrix() );
 }
 
 template<typename F>
 DistMatrix<Complex<Base<F>>,VR,STAR> 
-QuasiTriangEig( const ElementalMatrix<F>& U )
+QuasiTriangEig( const AbstractDistMatrix<F>& U )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<Complex<Base<F>>,VR,STAR> w(U.Grid());
     QuasiTriangEig( U, w );
     return w;

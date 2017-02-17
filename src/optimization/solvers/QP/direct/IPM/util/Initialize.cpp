@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace direct {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2], which, in the case that G = -I and h = 0,
 //
 // 1) Minimize || x ||^2, s.t. A x = b  by solving
@@ -37,13 +37,13 @@ namespace direct {
 //    | A  0   0 | | y | = |  0 |,
 //    |-I  0  -I | | z |   |  0 |
 //
-//    where 'u = -z' is an unused dummy variable. A Schur-complement 
+//    where 'u = -z' is an unused dummy variable. A Schur-complement
 //    manipulation yields
 //
 //    | Q+I A^T | | -z |   | -c |
 //    | A    0  | |  y | = |  0 |.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min(x), and
 //      alpha_d := -min(z).
@@ -53,12 +53,12 @@ namespace direct {
 //      x := ( alpha_p > -sqrt(eps)*Max(1,||x||_2) ? x + (1+alpha_p)e : x )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision, 'e' is a vector of all ones 
-//    (for more general conic optimization problems, it is the product of 
-//    identity elements from the Jordan algebras whose squares yield the 
+//    where 'eps' is the machine precision, 'e' is a vector of all ones
+//    (for more general conic optimization problems, it is the product of
+//    identity elements from the Jordan algebras whose squares yield the
 //    relevant cone.
 //
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we also provide
 //    the ability to instead use an entrywise lower clip.
 //
@@ -74,7 +74,7 @@ namespace direct {
 template<typename Real>
 void Initialize
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, 
+  const Matrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
@@ -82,7 +82,7 @@ void Initialize
         Matrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( primalInit )
@@ -97,7 +97,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -131,7 +131,7 @@ void Initialize
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -181,7 +181,7 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& A,
   const ElementalMatrix<Real>& b,
   const ElementalMatrix<Real>& c,
         ElementalMatrix<Real>& x,
@@ -189,7 +189,7 @@ void Initialize
         ElementalMatrix<Real>& z,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -205,7 +205,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -239,7 +239,7 @@ void Initialize
         ldl::SolveAfter( J, dSub, p, d, false );
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -289,20 +289,17 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
         Matrix<Real>& x,
         Matrix<Real>& y,
         Matrix<Real>& z,
-        vector<Int>& map,
-        vector<Int>& invMap, 
-        ldl::Separator& rootSep,
-        ldl::NodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, 
+        SparseLDLFactorization<Real>& sparseLDLFact,
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -324,7 +321,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -343,18 +340,16 @@ void Initialize
     for( Int i=0; i<n+m; ++i )
     {
         if( i < n )
-            reg.Set( i, 0, gammaTmp*gammaTmp );
+            reg(i) = gammaTmp*gammaTmp;
         else
-            reg.Set( i, 0, -deltaTmp*deltaTmp );
+            reg(i) = -deltaTmp*deltaTmp;
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront, LDL_2D );
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor( LDL_2D );
 
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
@@ -375,12 +370,12 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -391,7 +386,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
@@ -434,25 +429,20 @@ void Initialize
 template<typename Real>
 void Initialize
 ( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A, 
+  const DistSparseMatrix<Real>& A,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
         DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-        DistMap& map,
-        DistMap& invMap, 
-        ldl::DistSeparator& rootSep,
-        ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
-  bool primalInit, bool dualInit, bool standardShift, 
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
+    const Grid& grid = A.Grid();
 
     const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
@@ -460,7 +450,6 @@ void Initialize
     const Real gammaTmp = 0;
     const Real deltaTmp = 0;
 
-    mpi::Comm comm = A.Comm();
     if( primalInit )
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -473,21 +462,21 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> J(comm), JOrig(comm);
-    DistMultiVec<Real> ones(comm);
+    DistSparseMatrix<Real> J(grid), JOrig(grid);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, n, 1 );
     AugmentedKKT( Q, A, gamma, delta, ones, ones, JOrig, false );
     J = JOrig;
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> reg(comm);
+    DistMultiVec<Real> reg(grid);
     reg.Resize( n+m, 1 );
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
@@ -499,16 +488,14 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info, mappedSources, mappedTargets, colOffs );
-    LDL( info, JFront, LDL_2D );
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor( LDL_2D );
 
     // Compute the proposed step from the KKT system
     // ---------------------------------------------
-    DistMultiVec<Real> rc(comm), rb(comm), rmu(comm), d(comm), u(comm), v(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rmu(grid), d(grid), u(grid), v(grid);
     Zeros( rmu, n, 1 );
     if( !primalInit )
     {
@@ -525,12 +512,12 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c in range(Q) by solving
         //
@@ -541,7 +528,7 @@ void Initialize
         AugmentedKKTRHS( ones, rc, rb, rmu, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
@@ -608,10 +595,7 @@ void Initialize
           Matrix<Real>& x, \
           Matrix<Real>& y, \
           Matrix<Real>& z, \
-          vector<Int>& map, \
-          vector<Int>& invMap, \
-          ldl::Separator& rootSep, \
-          ldl::NodeInfo& info, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
@@ -622,13 +606,7 @@ void Initialize
           DistMultiVec<Real>& x, \
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
-          DistMap& map, \
-          DistMap& invMap, \
-          ldl::DistSeparator& rootSep, \
-          ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, bool dualInit, bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl );
 

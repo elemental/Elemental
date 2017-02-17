@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BIDIAG_SVD_DC_HPP
@@ -17,7 +17,7 @@ namespace El {
 namespace bidiag_svd {
 
 // The following is analogous to LAPACK's {s,d}lasd{1,2,3} [CITATION] but does
-// not accept initial sorting permutations for s0 and s1, nor does it enforce 
+// not accept initial sorting permutations for s0 and s1, nor does it enforce
 // any ordering on the resulting singular values. Several bugs in said LAPACK
 // routines were found and reported to
 // https://github.com/Reference-LAPACK/lapack/issues/34.
@@ -67,13 +67,13 @@ Merge
   Matrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m0 = s0.Height();
     const Int m1 = s1.Height();
     const Int n0 = m0 + 1;
     const Int n1 = n - n0;
     const bool square = ( m1 == n1 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
@@ -98,7 +98,7 @@ Merge
         View( V1, V, IR(1), IR(n0,END) );
     }
 
-    // Before permutation, 
+    // Before permutation,
     //
     //   r = [ alpha*V0(m0,:), beta*V1(0,:) ],
     //
@@ -171,13 +171,13 @@ Merge
     // Form r(m) if B has one more column than row and then compute the cosine
     // and sine defining the Givens rotation for rotating it into r(0). Then
     // ensure that |r(0)| >= deflationTol. The Givens rotation is such that
-    // 
+    //
     //   | r(0), rhoExtra | | cExtra,  -sExtra | = | gamma, 0 |.
     //                      | sExtra,   cExtra |
-    Real rhoExtra=0, cExtra=1, sExtra=0;
     if( n == m+1 )
     {
-        rhoExtra = beta*V1(0,m1);
+        Real cExtra=1, sExtra=0;
+        Real rhoExtra = beta*V1(0,m1);
         const Real gamma = SafeNorm( r(0), rhoExtra );
         if( gamma <= deflationTol )
         {
@@ -291,7 +291,7 @@ Merge
         if( d(j) <= deflationTol )
         {
             // We can deflate due to d(0)=0 being close to d(j). We rotate r(j)
-            // into r(0) (Cf. the discussion surrounding Eq. (4.3) of 
+            // into r(0) (Cf. the discussion surrounding Eq. (4.3) of
             // Gu/Eisenstat's TR [CITATION]).
             //
             // In particular, we want
@@ -299,7 +299,7 @@ Merge
             //   | r(0), r(j) | | c -s | = | gamma, 0 |,
             //                  | s  c |
             //
-            // where gamma = || r(0); r(j) ||_2. Putting 
+            // where gamma = || r(0); r(j) ||_2. Putting
             //
             //   c = r(0) / gamma,
             //   s = r(j) / gamma,
@@ -384,7 +384,7 @@ Merge
             //   | r(j), r(revivalCandidate) | | c -s | = | gamma, 0 |,
             //                                 | s  c |
             //
-            // where gamma = || r(revivalCandidate); r(j) ||_2. Putting 
+            // where gamma = || r(revivalCandidate); r(j) ||_2. Putting
             //
             //   c = r(j)                / gamma,
             //   s = r(revivalCandidate) / gamma,
@@ -479,7 +479,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<m; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -712,14 +712,14 @@ Merge
     // Overwrite the first 'numUndeflated' columns of U with the updated left
     // singular vectors by exploiting the partitioning of Z = UPacked as,
     //
-    //   Z = | Z_{0,0} |    0    | Z_{0,2} |, 
+    //   Z = | Z_{0,0} |    0    | Z_{0,2} |,
     //       |---------|---------|---------|
     //       |    0    |    0    | z_{1,2} |
     //       |---------|---------|---------|
     //       |    0    | Z_{2,1} | Z_{2,2} |
     //
     // where the first, second, and third block rows are respectively of heights
-    // m0, 1, and m1, and the first, second, and third block columns 
+    // m0, 1, and m1, and the first, second, and third block columns
     // respectively have widths packingCounts[0], packingCounts[1], and
     // packingCounts[2].
     //
@@ -898,7 +898,7 @@ Merge
   DistMatrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = s0.Grid();
     const bool amRoot = ( g.Rank() == 0 );
     const Int m0 = s0.Height();
@@ -906,7 +906,7 @@ Merge
     const Int n0 = m0 + 1;
     const Int n1 = n - n0;
     const bool square = ( m1 == n1 );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( !square && n1 != m1+1 )
           LogicError("B1 has to be square or one column wider than tall");
     )
@@ -934,7 +934,7 @@ Merge
         View( V1, V, IR(1), IR(n0,END) );
     }
 
-    // Before permutation, 
+    // Before permutation,
     //
     //   r = [ alpha*V0(m0,:), beta*V1(0,:) ],
     //
@@ -993,7 +993,7 @@ Merge
 
     // Get a full copy of the last row of V0 and the first row of V1.
     const Int lastRowOfV0 = ( ctrl.wantV ? m0 : 0 );
-    DistMatrix<Real,STAR,STAR> v0Last( V0(IR(lastRowOfV0),ALL) ), 
+    DistMatrix<Real,STAR,STAR> v0Last( V0(IR(lastRowOfV0),ALL) ),
       v1First( V1(IR(0),ALL) );
     const auto& v0LastLoc = v0Last.LockedMatrix();
     const auto& v1FirstLoc = v1First.LockedMatrix();
@@ -1022,13 +1022,13 @@ Merge
     // Form r(m) if B has one more column than row and then compute the cosine
     // and sine defining the Givens rotation for rotating it into r(0). Then
     // ensure that |r(0)| >= deflationTol. The Givens rotation is such that
-    // 
+    //
     //   | r(0), rhoExtra | | cExtra,  -sExtra | = | gamma, 0 |.
     //                      | sExtra,   cExtra |
-    Real rhoExtra=0, cExtra=1, sExtra=0;
     if( n == m+1 )
     {
-        rhoExtra = beta*v1FirstLoc(0,m1);
+        Real cExtra=1, sExtra=0;
+        Real rhoExtra = beta*v1FirstLoc(0,m1);
         const Real gamma = SafeNorm( r(0), rhoExtra );
         if( gamma <= deflationTol )
         {
@@ -1088,6 +1088,9 @@ Merge
                     }
                 }
             }
+            auto vNull_VC_STAR = V_VC_STAR( ALL, IR(m) );
+            auto vNull = V( ALL, IR(m) );
+            vNull = vNull_VC_STAR;
             // V(:,m) should now lie in the null space of the inner matrix.
         }
     }
@@ -1159,7 +1162,7 @@ Merge
         if( dLoc(j) <= deflationTol )
         {
             // We can deflate due to d(0)=0 being close to d(j). We rotate r(j)
-            // into r(0) (Cf. the discussion surrounding Eq. (4.3) of 
+            // into r(0) (Cf. the discussion surrounding Eq. (4.3) of
             // Gu/Eisenstat's TR [CITATION]).
             //
             // In particular, we want
@@ -1167,7 +1170,7 @@ Merge
             //   | r(0), r(j) | | c -s | = | gamma, 0 |,
             //                  | s  c |
             //
-            // where gamma = || r(0); r(j) ||_2. Putting 
+            // where gamma = || r(0); r(j) ||_2. Putting
             //
             //   c = r(0) / gamma,
             //   s = r(j) / gamma,
@@ -1253,7 +1256,7 @@ Merge
             //   | r(j), r(revivalCandidate) | | c -s | = | gamma, 0 |,
             //                                 | s  c |
             //
-            // where gamma = || r(revivalCandidate); r(j) ||_2. Putting 
+            // where gamma = || r(revivalCandidate); r(j) ||_2. Putting
             //
             //   c = r(j)                / gamma,
             //   s = r(revivalCandidate) / gamma,
@@ -1348,7 +1351,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<m; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -1575,14 +1578,14 @@ Merge
     // Overwrite the first 'numUndeflated' columns of U with the updated left
     // singular vectors by exploiting the partitioning of Z = UPacked as,
     //
-    //   Z = | Z_{0,0} |    0    | Z_{0,2} |, 
+    //   Z = | Z_{0,0} |    0    | Z_{0,2} |,
     //       |---------|---------|---------|
     //       |    0    |    0    | z_{1,2} |
     //       |---------|---------|---------|
     //       |    0    | Z_{2,1} | Z_{2,2} |
     //
     // where the first, second, and third block rows are respectively of heights
-    // m0, 1, and m1, and the first, second, and third block columns 
+    // m0, 1, and m1, and the first, second, and third block columns
     // respectively have widths packingCounts[0], packingCounts[1], and
     // packingCounts[2].
     //
@@ -1725,7 +1728,7 @@ DivideAndConquer
         Matrix<Real>& V,
   const BidiagSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = mainDiag.Height();
     const Int n = superDiag.Height() + 1;
     const auto& dcCtrl = ctrl.dcCtrl;
@@ -1757,7 +1760,7 @@ DivideAndConquer
         return info;
     }
 
-    // TODO(poulson): A more intelligent split point. Perhaps the row near 
+    // TODO(poulson): A more intelligent split point. Perhaps the row near
     // m/2 with smallest norm should be chosen to encourage small entry
     // deflation (which tends to be vastly more common).
     const Int split = m/2;
@@ -1850,27 +1853,47 @@ DivideAndConquer
   const BidiagSVDCtrl<Real>& ctrl,
   bool topLevel=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = U.Grid();
     const Int m = mainDiag.Height();
     const Int n = superDiag.Height() + 1;
     const auto& dcCtrl = ctrl.dcCtrl;
-
     DCInfo info;
 
     if( m <= Max(dcCtrl.cutoff,3) )
     {
-        // Run the problem redundantly locally
+        // Run the problem locally
         auto ctrlMod( ctrl );
         ctrlMod.useQR = true;
         ctrlMod.approach = FULL_SVD; // We need any null space of V as well
         Matrix<Real> ULoc, sLoc, VLoc;
         if( ctrl.wantV )
         {
-
             ctrlMod.accumulateU = false;
             ctrlMod.accumulateV = false;
-            BidiagSVD( UPPER, mainDiag, superDiag, ULoc, sLoc, VLoc, ctrlMod );
+            if( ctrl.qrCtrl.broadcast )
+            {
+                if( grid.VCRank() == 0 )
+                {
+                    BidiagSVD
+                    ( UPPER, mainDiag, superDiag, ULoc, sLoc, VLoc, ctrlMod );
+                }
+                if( ctrl.wantU )
+                {
+                    ULoc.Resize( m, m );
+                    El::Broadcast( ULoc, grid.VCComm(), 0 );
+                }
+                sLoc.Resize( m, 1 );
+                El::Broadcast( sLoc, grid.VCComm(), 0 );
+                VLoc.Resize( n, n );
+                El::Broadcast( VLoc, grid.VCComm(), 0 );
+            }
+            else
+            {
+                // Let's cross our fingers and ignore the forward instability
+                BidiagSVD
+                ( UPPER, mainDiag, superDiag, ULoc, sLoc, VLoc, ctrlMod );
+            }
         }
         else
         {
@@ -1880,7 +1903,28 @@ DivideAndConquer
             Zeros( VLoc, 2, n );
             VLoc(0,0) = 1;
             VLoc(1,n-1) = 1;
-            BidiagSVD( UPPER, mainDiag, superDiag, ULoc, sLoc, VLoc, ctrlMod );
+            if( ctrl.qrCtrl.broadcast )
+            {
+                if( grid.VCRank() == 0 )
+                {
+                    BidiagSVD
+                    ( UPPER, mainDiag, superDiag, ULoc, sLoc, VLoc, ctrlMod );
+                }
+                if( ctrl.wantU )
+                {
+                    ULoc.Resize( m, m );
+                    El::Broadcast( ULoc, grid.VCComm(), 0 );
+                }
+                sLoc.Resize( m, 1 );
+                El::Broadcast( sLoc, grid.VCComm(), 0 );
+                El::Broadcast( VLoc, grid.VCComm(), 0 );
+            }
+            else
+            {
+                // Let's cross our fingers and ignore the forward instability
+                BidiagSVD
+                ( UPPER, mainDiag, superDiag, ULoc, sLoc, VLoc, ctrlMod );
+            }
         }
 
         s.Resize( m, 1 );
@@ -1939,7 +1983,7 @@ DivideAndConquer
         return info;
     }
 
-    // TODO(poulson): A more intelligent split point. Perhaps the row near 
+    // TODO(poulson): A more intelligent split point. Perhaps the row near
     // m/2 with smallest norm should be chosen to encourage small entry
     // deflation (which tends to be vastly more common).
     const Int split = m/2;

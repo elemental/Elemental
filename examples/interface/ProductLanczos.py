@@ -83,9 +83,6 @@ if output:
   El.Print( T, "T" )
   El.Print( v, "v" )
   if worldRank == 0:
-    print "beta=", beta
+    print('beta = {}'.format(beta))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

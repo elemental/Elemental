@@ -223,9 +223,21 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
     message(FATAL_ERROR 
       "Attempted custom LAPACK but not custom BLAS ScaLAPACK build")
   endif()
+
+  # Convert various MPI lists (delimted with ';') to use a '^^' delimiter
+  # (following the advice from
+  # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
+  # due to running into build problems within ScaLAPACK's linking of OpenMPI 
+  # Fortran libraries.
+  string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
+  string(REPLACE ";" "^^" MPI_Fortran_INCSTRING "${MPI_Fortran_INCLUDE_PATH}")
+  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBRARIES}")
+  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBRARIES}")
+  string(REPLACE ";" "^^" MATH_LIBS_AT_CONFIG_STRING "${MATH_LIBS_AT_CONFIG}")
+
   if(MATH_LIBS_AT_CONFIG AND 
      NOT CUSTOM_BLAS_SUFFIX AND NOT CUSTOM_LAPACK_SUFFIX)
-    set(LAPACK_COMMAND -D LAPACK_LIBRARIES=${MATH_LIBS_AT_CONFIG})
+    set(LAPACK_COMMAND -D LAPACK_LIBRARIES=${MATH_LIBS_AT_CONFIG_STRING})
   elseif(EL_HAVE_VECLIB AND 
          NOT EL_PREFER_OPENBLAS AND NOT EL_PREFER_BLIS_LAPACK)
     set(LAPACK_COMMAND -D LAPACK_LIBRARIES:STRING=-framework\ vecLib) 
@@ -252,15 +264,6 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
     endif()
   endif()
 
-  # Convert various MPI lists (delimted with ';') to use a '^^' delimiter
-  # (following the advice from
-  # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html)
-  # due to running into build problems within ScaLAPACK's linking of OpenMPI 
-  # Fortran libraries.
-  string(REPLACE ";" "^^" MPI_C_INCSTRING "${MPI_C_INCLUDE_PATH}")
-  string(REPLACE ";" "^^" MPI_Fortran_INCSTRING "${MPI_Fortran_INCLUDE_PATH}")
-  string(REPLACE ";" "^^" MPI_C_LIBSTRING "${MPI_C_LIBRARIES}")
-  string(REPLACE ";" "^^" MPI_Fortran_LIBSTRING "${MPI_Fortran_LIBRARIES}")
   if(GFORTRAN_LIB)
     set(GFORTRAN_COMMAND -D GFORTRAN_LIB=${GFORTRAN_LIB})
   else()
@@ -368,7 +371,7 @@ elseif(EL_HAVE_F90_INTERFACE AND EL_HAVE_MPI_FORTRAN AND
     set_property(TARGET libblis PROPERTY IMPORTED_LOCATION ${BLIS_LIB})
 
     set(EL_BUILT_BLIS_LAPACK TRUE)
-    set(SCALAPACK_LIBS ${SCALAPACK_BASE} ${LAPACK_LIBS} ${BLIS_LIB})
+    set(SCALAPACK_LIBS ${SCALAPACK_BASE} ${LAPACK_LIB} ${BLIS_LIB})
   endif()
 
   set(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SCALAPACK_LIBS})

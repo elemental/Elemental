@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_ELEMENT_IMPL_HPP
@@ -58,7 +58,7 @@ istream& operator>>( istream& is, Complex<Real>& alpha )
         substream << substring;
         substream >> imagPart;
     }
-    
+
     alpha = Complex<Real>(realPart,imagPart);
 
     return is;
@@ -66,110 +66,128 @@ istream& operator>>( istream& is, Complex<Real>& alpha )
 
 // Return the real/imaginary part of an element
 // --------------------------------------------
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real RealPart( const Real& alpha ) EL_NO_EXCEPT
 { return alpha; }
-template<typename Real,typename>
+template<typename Real>
 Real RealPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.real(); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void RealPart( const Real& alpha, Real& alphaReal ) EL_NO_EXCEPT
 { alphaReal = alpha; }
-template<typename Real,typename>
+template<typename Real>
 void RealPart( const Complex<Real>& alpha, Real& alphaReal ) EL_NO_EXCEPT
 { alphaReal = alpha.real(); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real ImagPart( const Real& alpha ) EL_NO_EXCEPT
 { return 0; }
-template<typename Real,typename>
+template<typename Real>
 Real ImagPart( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return alpha.imag(); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void ImagPart( const Real& alpha, Real& alphaImag ) EL_NO_EXCEPT
 { alphaImag = 0; }
-template<typename Real,typename>
+template<typename Real>
 void ImagPart( const Complex<Real>& alpha, Real& alphaImag ) EL_NO_EXCEPT
 { alphaImag = alpha.imag(); }
 
 // Set the real/imaginary part of an element
 // -----------------------------------------
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void SetRealPart( Real& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha = beta; }
-template<typename Real,typename>
+template<typename Real>
 void SetRealPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha.real(beta); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void SetImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("Nonsensical assignment");
 }
-template<typename Real,typename>
+template<typename Real>
 void SetImagPart( Complex<Real>& alpha, const Real& beta ) EL_NO_EXCEPT
 { alpha.imag(beta); }
 
 // Update the real/imaginary part of an element
 // --------------------------------------------
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void UpdateRealPart( Real& alpha, const Real& beta )
 EL_NO_EXCEPT
 { alpha += beta; }
-template<typename Real,typename>
+template<typename Real>
 void UpdateRealPart( Complex<Real>& alpha, const Real& beta )
 EL_NO_EXCEPT
 { alpha.real( alpha.real()+beta ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void UpdateImagPart( Real& alpha, const Real& beta )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("Nonsensical update");
 }
-template<typename Real,typename>
+template<typename Real>
 void UpdateImagPart( Complex<Real>& alpha, const Real& beta )
 EL_NO_EXCEPT
 { alpha.imag( alpha.imag()+beta ); }
 
 // Conjugate an element
 // --------------------
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Conj( const Real& alpha ) EL_NO_EXCEPT { return alpha; }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsStdScalar<Real>>*/>
 Complex<Real> Conj( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Complex<Real>(alpha.real(),-alpha.imag()); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Conj( const Real& alpha, Real& alphaConj ) EL_NO_EXCEPT
 { alphaConj = alpha; }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsStdScalar<Real>>*/>
 void Conj( const Complex<Real>& alpha, Complex<Real>& alphaConj ) EL_NO_EXCEPT
 {  alphaConj = std::conj(alpha); }
 
 // Return the complex argument
 // ---------------------------
-template<typename F,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/>
 Base<F> Arg( const F& alpha )
 { return Atan2( ImagPart(alpha), RealPart(alpha) ); }
 
 // Construct a complex number from its polar coordinates
 // -----------------------------------------------------
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=EnableIf<IsStdField<Real>>*/>
 Complex<Real> ComplexFromPolar( const Real& r, const Real& theta )
 { return std::polar(r,theta); }
 
 // Magnitude and sign
 // ==================
-template<typename T,typename>
+template<typename T,
+         typename/*=EnableIf<IsStdScalar<T>>*/>
 Base<T> Abs( const T& alpha ) EL_NO_EXCEPT { return std::abs(alpha); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=EnableIf<IsField<Real>>*/>
 Real SafeNormAbs( const Real& chi0Abs, const Real& chi1Abs )
 {
     const Real maxAbs = Max( chi0Abs, chi1Abs );
@@ -185,16 +203,20 @@ Real SafeNormAbs( const Real& chi0Abs, const Real& chi1Abs )
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=EnableIf<IsField<Real>>*/>
 Real SafeNorm( const Real& chi0, const Real& chi1 )
 {
     return SafeNormAbs( Abs(chi0), Abs(chi1) );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=EnableIf<IsField<Real>>*/>
 Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
 {
-    const Real chi0Abs = Abs(chi0); 
+    const Real chi0Abs = Abs(chi0);
     const Real chi1Abs = Abs(chi1);
     const Real chi2Abs = Abs(chi2);
     const Real maxAbs = Max( Max( chi0Abs, chi1Abs ), chi2Abs );
@@ -213,11 +235,13 @@ Real SafeNorm( const Real& chi0, const Real& chi1, const Real& chi2 )
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=EnableIf<IsField<Real>>*/>
 Real SafeNorm
 ( const Real& chi0, const Real& chi1, const Real& chi2, const Real& chi3 )
 {
-    const Real chi0Abs = Abs(chi0); 
+    const Real chi0Abs = Abs(chi0);
     const Real chi1Abs = Abs(chi1);
     const Real chi2Abs = Abs(chi2);
     const Real chi3Abs = Abs(chi3);
@@ -251,30 +275,34 @@ template<typename Real>
 Real SafeNorm( const Complex<Real>& chi0, const Complex<Real>& chi1 )
 { return SafeNorm( chi0.real(), chi0.imag(), chi1.real(), chi1.imag() ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SafeAbs( const Real& alpha ) EL_NO_EXCEPT { return Abs(alpha); }
 
-template<typename Real,typename>
+template<typename Real>
 Real SafeAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return SafeNorm( alpha.real(), alpha.imag() ); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real OneAbs( const Real& alpha ) EL_NO_EXCEPT
 { return Abs(alpha); }
 
-template<typename Real,typename>
+template<typename Real>
 Real OneAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Abs(RealPart(alpha)) + Abs(ImagPart(alpha)); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxAbs( const Real& alpha ) EL_NO_EXCEPT
 { return Abs(alpha); }
 
-template<typename Real,typename>
+template<typename Real>
 Real MaxAbs( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return Max(Abs(RealPart(alpha)),Abs(ImagPart(alpha))); }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 {
     if( alpha < 0 )
@@ -285,9 +313,11 @@ Real Sgn( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
         return Real(0);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Phase( const Real& alpha, bool symmetric ) EL_NO_EXCEPT
 { return Sgn( alpha, symmetric ); }
+
 template<typename Real>
 Complex<Real> Phase( const Complex<Real>& alpha, bool symmetric ) EL_NO_EXCEPT
 {
@@ -300,28 +330,60 @@ Complex<Real> Phase( const Complex<Real>& alpha, bool symmetric ) EL_NO_EXCEPT
 
 // Exponentiation
 // ==============
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/,
+         typename/*=EnableIf<IsStdScalar<F>>*/>
 F Exp( const F& alpha ) EL_NO_EXCEPT
 { return std::exp(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsField<Real>>*/,
+         typename/*=DisableIf<IsStdScalar<Real>>*/,
+         typename/*=void*/>
 Complex<Real> Exp( const Complex<Real>& alpha ) EL_NO_EXCEPT
 { return ComplexFromPolar( Exp(RealPart(alpha)), ImagPart(alpha) ); }
 
-template<typename F,typename T,typename,typename>
-F Pow( const F& alpha, const T& beta )
-{ return std::pow(alpha,beta); }
+template<typename FBase,typename TExp,
+         typename/*=EnableIf<IsStdField<FBase>>*/,
+         typename/*=EnableIf<IsStdField<TExp>>*/>
+FBase Pow( const FBase& alpha, const TExp& beta )
+{ return std::pow( alpha, beta ); }
 
-template<typename F,typename T,typename,typename,typename>
-F Pow( const F& alpha, const T& beta )
-{ return Pow(alpha,Base<F>(beta)); }
+template<typename FBase,typename TExp,
+         typename/*=EnableIf<IsStdField<FBase>>*/,
+         typename/*=EnableIf<IsIntegral<TExp>>*/,
+         typename/*=void*/>
+FBase Pow( const FBase& alpha, const TExp& beta )
+{ return Pow(alpha,Base<FBase>(beta)); }
 
-template<typename Real,typename,typename>
+template<typename TBase,typename TExp,
+         typename/*=EnableIf<IsIntegral<TBase>>*/,
+         typename/*=EnableIf<IsIntegral<TExp>>*/,
+         typename/*=void*/,
+         typename/*=void*/>
+TBase Pow( const TBase& alpha, const TExp& beta )
+{
+    if( beta < static_cast<TExp>(0) )
+        LogicError("Negative integral powers are not supported");
+    // Decompose beta = 2*halfEven + remainder
+    const TExp halfEven = beta / static_cast<TExp>(2);
+    const TBase alpha_to_even =
+      ( halfEven == static_cast<TExp>(0) ? 1 : Pow( alpha*alpha, halfEven ) );
+    if( beta == 2*halfEven )
+        return alpha_to_even; 
+    else
+        return alpha_to_even*alpha;
+}
+
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Pow( const Complex<Real>& alpha, const Complex<Real>& beta )
 {
     return alpha == Complex<Real>(0) ? Complex<Real>(0) : Exp(beta*Log(alpha));
 }
-template<typename Real,typename,typename>
+
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Pow( const Complex<Real>& alpha, const Real& beta )
 {
     if( alpha.imag() == Real(0) && alpha.real() > Real(0) )
@@ -330,53 +392,72 @@ Complex<Real> Pow( const Complex<Real>& alpha, const Real& beta )
     return ComplexFromPolar( Exp(beta*tau.real()), beta*tau.imag() );
 }
 
-// NOTE: What about an integer to a floating-point power? Switch to auto 
+// NOTE: What about an integer to a floating-point power? Switch to auto
 //       return type inherited from std::pow?
 
 // Inverse exponentiation
 // ----------------------
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Log( const F& alpha )
 { return std::log(alpha); }
 
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Log( const Complex<Real>& alpha )
 { return Complex<Real>( Log(Abs(alpha)), Arg(alpha) ); }
 
-template<typename Integer,typename,typename>
+template<typename Integer,
+         typename/*=EnableIf<IsIntegral<Integer>>*/,
+         typename/*=void*/>
 double Log( const Integer& alpha )
 { return std::log(alpha); }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Log2( const F& alpha )
 { return std::log2(alpha); }
 
-template<typename F,typename,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/,
+         typename/*=DisableIf<IsStdField<F>>*/>
 F Log2( const F& alpha )
 { return Log(alpha) / Log(Base<F>(2)); }
 
-template<typename Integer,typename,typename>
+template<typename Integer,
+         typename/*=EnableIf<IsIntegral<Integer>>*/,
+         typename/*=void*/,
+         typename/*=void*/>
 double Log2( const Integer& alpha )
 { return std::log2(alpha); }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Log10( const F& alpha )
 { return std::log10(alpha); }
 
-template<typename F,typename,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/,
+         typename/*=DisableIf<IsStdField<F>>*/>
 F Log10( const F& alpha )
 { return Log(alpha) / Log(Base<F>(10)); }
 
-template<typename Integer,typename,typename>
+template<typename Integer,
+         typename/*=EnableIf<IsIntegral<Integer>>*/,
+         typename/*=void*/,
+         typename/*=void*/>
 double Log10( const Integer& alpha )
 { return std::log10(alpha); }
 
-template<typename F,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdScalar<F>>*/>
 F Sqrt( const F& alpha )
 { return std::sqrt(alpha); }
 
 // Use a branch cut on the negative real axis
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/,
+         typename/*=void*/>
 Complex<Real> Sqrt( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -391,7 +472,7 @@ Complex<Real> Sqrt( const Complex<Real>& alpha )
     }
     else
     {
-        const Real tau = Sqrt( 2*(Abs(alpha)+Abs(realPart)) ); 
+        const Real tau = Sqrt( 2*(Abs(alpha)+Abs(realPart)) );
         const Real ups = tau / 2;
         if( realPart > Real(0) )
         {
@@ -411,11 +492,13 @@ Complex<Real> Sqrt( const Complex<Real>& alpha )
     }
 }
 
-template<typename F,typename>
+template<typename F,
+         typename/*=EnableIf<IsScalar<F>>*/>
 void Sqrt( const F& alpha, F& alphaSqrt )
 { alphaSqrt = Sqrt(alpha); }
 
-template<typename Integer,typename>
+template<typename Integer,
+         typename/*=EnableIf<IsIntegral<Integer>>*/>
 Integer ISqrt( const Integer& alpha )
 {
     if( alpha == 0 )
@@ -436,11 +519,13 @@ Integer ISqrt( const Integer& alpha )
 
 // Trigonometric
 // =============
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Cos( const F& alpha )
 { return std::cos(alpha); }
 
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Cos( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -451,11 +536,13 @@ Complex<Real> Cos( const Complex<Real>& alpha )
         -Sin(realPart)*Sinh(imagPart) );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Sin( const F& alpha )
 { return std::sin(alpha); }
 
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Sin( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -466,19 +553,23 @@ Complex<Real> Sin( const Complex<Real>& alpha )
         Cos(realPart)*Sinh(imagPart) );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Tan( const F& alpha ) { return std::tan(alpha); }
 
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Tan( const Complex<Real>& alpha )
 { return Sin(alpha) / Cos(alpha); }
 
 // Inverse trigonometric
 // ---------------------
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Acos( const F& alpha ) { return std::acos(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Acos( const Complex<Real>& alpha )
 {
     Complex<Real> tau = Asin(alpha);
@@ -486,20 +577,24 @@ Complex<Real> Acos( const Complex<Real>& alpha )
     return Complex<Real>( piOver2-tau.real(), -tau.imag() );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Asin( const F& alpha ) { return std::asin(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Asin( const Complex<Real>& alpha )
 {
     Complex<Real> tau = Asinh( Complex<Real>(-alpha.imag(),alpha.real()) );
     return Complex<Real>( tau.imag(), -tau.real() );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Atan( const F& alpha ) { return std::atan(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Atan( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -520,11 +615,16 @@ Complex<Real> Atan( const Complex<Real>& alpha )
         Log(numerator/denominator)/Real(4) );
 }
 
-template<typename Real,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=EnableIf<IsStdField<Real>>*/>
 Real Atan2( const Real& y, const Real& x )
 { return std::atan2( y, x ); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/,
+         typename/*=DisableIf<IsStdField<Real>>*/,
+         typename/*=void*/>
 Real Atan2( const Real& y, const Real& x )
 {
     LogicError("General Atan2 not yet implemented");
@@ -532,11 +632,14 @@ Real Atan2( const Real& y, const Real& x )
 
 // Hyperbolic
 // ==========
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Cosh( const F& alpha )
 { return std::cosh(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsField<Real>>*/,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Cosh( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -547,11 +650,14 @@ Complex<Real> Cosh( const Complex<Real>& alpha )
         Sinh(realPart)*Sin(imagPart) );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Sinh( const F& alpha )
 { return std::sinh(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsField<Real>>*/,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Sinh( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -562,31 +668,40 @@ Complex<Real> Sinh( const Complex<Real>& alpha )
         Cosh(realPart)*Sin(imagPart) );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Tanh( const F& alpha )
 { return std::tanh(alpha); }
 
-template<typename F,typename,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/,
+         typename/*=DisableIf<IsStdField<F>>*/>
 F Tanh( const F& alpha )
 { return Sinh(alpha) / Cosh(alpha); }
 
 // Inverse hyperbolic
 // ------------------
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Acosh( const F& alpha )
 { return std::acosh(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsField<Real>>*/,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Acosh( const Complex<Real>& alpha )
 {
     return Real(2)*Log( Sqrt((alpha+Real(1))/2) + Sqrt((alpha-Real(1))/2) );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Asinh( const F& alpha )
 { return std::asinh(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsField<Real>>*/,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Asinh( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -598,11 +713,14 @@ Complex<Real> Asinh( const Complex<Real>& alpha )
     return Log( tau + alpha );
 }
 
-template<typename F,typename,typename>
+template<typename F,
+         typename/*=EnableIf<IsStdField<F>>*/>
 F Atanh( const F& alpha )
 { return std::atanh(alpha); }
 
-template<typename Real,typename,typename,typename>
+template<typename Real,
+         typename/*=EnableIf<IsField<Real>>*/,
+         typename/*=DisableIf<IsStdField<Real>>*/>
 Complex<Real> Atanh( const Complex<Real>& alpha )
 {
     const Real realPart = alpha.real();
@@ -613,11 +731,11 @@ Complex<Real> Atanh( const Complex<Real>& alpha )
 
     Real numerator = Real(1) + realPart;
     Real denominator = Real(1) - realPart;
-    numerator = imagSquare + numerator*numerator; 
+    numerator = imagSquare + numerator*numerator;
     denominator = imagSquare + denominator*denominator;
 
     return Complex<Real>
-      ( (Log(numerator)-Log(denominator))/Real(4), 
+      ( (Log(numerator)-Log(denominator))/Real(4),
         Atan2(Real(2)*imagPart,x)/Real(2) );
 }
 
@@ -626,37 +744,41 @@ Complex<Real> Atanh( const Complex<Real>& alpha )
 
 // Round to the nearest integer
 // ----------------------------
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Round( const Real& alpha )
 { return std::round(alpha); }
 
-template<typename Real,typename>
+template<typename Real>
 Complex<Real> Round( const Complex<Real>& alpha )
 { return Complex<Real>(Round(alpha.real()),Round(alpha.imag())); }
 
 // Ceiling
 // -------
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Ceil( const Real& alpha )
 { return std::ceil(alpha); }
 
-template<typename Real,typename>
+template<typename Real>
 Complex<Real> Ceil( const Complex<Real>& alpha )
 { return Complex<Real>(Ceil(alpha.real()),Ceil(alpha.imag())); }
 
 // Floor
 // -----
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Floor( const Real& alpha )
 { return std::floor(alpha); }
 
-template<typename Real,typename>
+template<typename Real>
 Complex<Real> Floor( const Complex<Real>& alpha )
 { return Complex<Real>(Floor(alpha.real()),Floor(alpha.imag())); }
 
 // Two-norm formation
 // ==================
-template<typename F,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/>
 void UpdateScaledSquare
 ( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_EXCEPT
 {
@@ -678,7 +800,8 @@ void UpdateScaledSquare
     }
 }
 
-template<typename F,typename>
+template<typename F,
+         typename/*=EnableIf<IsField<F>>*/>
 void DowndateScaledSquare
 ( const F& alpha, Base<F>& scale, Base<F>& scaledSquare ) EL_NO_RELEASE_EXCEPT
 {
@@ -686,13 +809,13 @@ void DowndateScaledSquare
     Real alphaAbs = Abs(alpha);
     if( alphaAbs != Real(0) )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( alphaAbs > scale )
               LogicError("Tried to downdate with too large of a value");
         )
         const Real relScale = alphaAbs/scale;
         scaledSquare -= relScale*relScale;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( scaledSquare < Real(0) )
               LogicError("Downdate produced a negative value");
         )
@@ -703,14 +826,15 @@ void DowndateScaledSquare
 // ==========================
 
 // Carefully solve the '+' branch of a x^2 - bNeg x + c x = 0
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SolveQuadraticPlus
 ( const Real& a, const Real& bNeg, const Real& c, FlipOrClip negativeFix )
 {
     const Real zero(0);
     // TODO(poulson): Avoid temporaries?
 
-    Real discrim = bNeg*bNeg - (4*a)*c; 
+    Real discrim = bNeg*bNeg - (4*a)*c;
     if( negativeFix == CLIP_NEGATIVES )
         discrim = Max( discrim, zero );
     else
@@ -739,14 +863,15 @@ Real SolveQuadraticPlus
 }
 
 // Carefully solve the '-' branch of a x^2 - bNeg x + c x = 0
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SolveQuadraticMinus
 ( const Real& a, const Real& bNeg, const Real& c, FlipOrClip negativeFix )
 {
     const Real zero(0);
     // TODO(poulson): Avoid temporaries?
 
-    Real discrim = bNeg*bNeg - (4*a)*c; 
+    Real discrim = bNeg*bNeg - (4*a)*c;
     if( negativeFix == CLIP_NEGATIVES )
         discrim = Max( discrim, zero );
     else
@@ -775,7 +900,8 @@ Real SolveQuadraticMinus
 }
 
 // Carefully solve the '+' branch of x^2 - bNeg x + c x = 0
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SolveQuadraticPlus
 ( const Real& bNeg, const Real& c, FlipOrClip negativeFix )
 {
@@ -803,7 +929,8 @@ Real SolveQuadraticPlus
 }
 
 // Carefully solve the '-' branch of x^2 - bNeg x + c x = 0
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real SolveQuadraticMinus
 ( const Real& bNeg, const Real& c, FlipOrClip negativeFix )
 {
@@ -832,14 +959,18 @@ Real SolveQuadraticMinus
 
 // Pi
 // ==
+// Specializations will be called unless Real is in
+// {float, double, long double}.
 template<typename Real>
 Real Pi() { return Real(3.141592653589793238462643383279502884L); }
 
 // Gamma
 // =====
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real Gamma( const Real& alpha ) { return std::tgamma(alpha); }
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real LogGamma( const Real& alpha ) { return std::lgamma(alpha); }
 
 } // namespace El

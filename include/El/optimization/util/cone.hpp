@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_OPTIMIZATION_UTIL_CONE_HPP
@@ -15,132 +15,132 @@ namespace cone {
 // Broadcast
 // =========
 // Replicate the entry in the root position in each cone over the entire cone
-template<typename F>
+template<typename Field>
 void Broadcast
-(       Matrix<F>& x, 
-  const Matrix<Int>& orders, 
+(       Matrix<Field>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds );
-template<typename F>
+template<typename Field>
 void Broadcast
-(       ElementalMatrix<F>& x, 
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds, Int cutoff=1000 );
-template<typename F>
+(       AbstractDistMatrix<Field>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds, Int cutoff=1000 );
+template<typename Field>
 void Broadcast
-(       DistMultiVec<F>& x,
+(       DistMultiVec<Field>& x,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff=1000 );
 
 // AllReduce
 // =========
 // Fill each subcone with the reduction over each cone
-template<typename F>
+template<typename Field>
 void AllReduce
-(       Matrix<F>& x, 
-  const Matrix<Int>& orders, 
+(       Matrix<Field>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   mpi::Op op=mpi::SUM );
-template<typename F>
+template<typename Field>
 void AllReduce
-(       ElementalMatrix<F>& x, 
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds, 
+(       AbstractDistMatrix<Field>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
   mpi::Op op=mpi::SUM, Int cutoff=1000 );
-template<typename F>
+template<typename Field>
 void AllReduce
-(       DistMultiVec<F>& x,
+(       DistMultiVec<Field>& x,
   const DistMultiVec<Int>& orders,
-  const DistMultiVec<Int>& firstInds, 
+  const DistMultiVec<Int>& firstInds,
   mpi::Op op=mpi::SUM, Int cutoff=1000 );
 
 // A specialization of Ruiz scaling which respects a product of cones
 // ==================================================================
-template<typename F>
+template<typename Field>
 void RuizEquil
-(       Matrix<F>& A,
-        Matrix<F>& B,
-        Matrix<Base<F>>& dRowA,
-        Matrix<Base<F>>& dRowB,
-        Matrix<Base<F>>& dCol,
+(       Matrix<Field>& A,
+        Matrix<Field>& B,
+        Matrix<Base<Field>>& dRowA,
+        Matrix<Base<Field>>& dRowB,
+        Matrix<Base<Field>>& dCol,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-(       ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B,
-        ElementalMatrix<Base<F>>& dRowA,
-        ElementalMatrix<Base<F>>& dRowB,
-        ElementalMatrix<Base<F>>& dCol,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
+(       AbstractDistMatrix<Field>& A,
+        AbstractDistMatrix<Field>& B,
+        AbstractDistMatrix<Base<Field>>& dRowA,
+        AbstractDistMatrix<Base<Field>>& dRowB,
+        AbstractDistMatrix<Base<Field>>& dCol,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
   Int cutoff=1000, bool progress=false );
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-(       SparseMatrix<F>& A,
-        SparseMatrix<F>& B,
-        Matrix<Base<F>>& dRowA,
-        Matrix<Base<F>>& dRowB,
-        Matrix<Base<F>>& dCol,
+(       SparseMatrix<Field>& A,
+        SparseMatrix<Field>& B,
+        Matrix<Base<Field>>& dRowA,
+        Matrix<Base<Field>>& dRowB,
+        Matrix<Base<Field>>& dCol,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void RuizEquil
-(       DistSparseMatrix<F>& A,
-        DistSparseMatrix<F>& B,
-        DistMultiVec<Base<F>>& dRowA,
-        DistMultiVec<Base<F>>& dRowB,
-        DistMultiVec<Base<F>>& dCol,
+(       DistSparseMatrix<Field>& A,
+        DistSparseMatrix<Field>& B,
+        DistMultiVec<Base<Field>>& dRowA,
+        DistMultiVec<Base<Field>>& dRowB,
+        DistMultiVec<Base<Field>>& dCol,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff=1000, bool progress=false );
 
 // A specialization of GeomEquil which respects a product of cones
 // ===============================================================
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       Matrix<F>& A,
-        Matrix<F>& B,
-        Matrix<Base<F>>& dRowA,
-        Matrix<Base<F>>& dRowB,
-        Matrix<Base<F>>& dCol,
+(       Matrix<Field>& A,
+        Matrix<Field>& B,
+        Matrix<Base<Field>>& dRowA,
+        Matrix<Base<Field>>& dRowB,
+        Matrix<Base<Field>>& dCol,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       ElementalMatrix<F>& APre,
-        ElementalMatrix<F>& BPre,
-        ElementalMatrix<Base<F>>& dRowAPre,
-        ElementalMatrix<Base<F>>& dRowBPre,
-        ElementalMatrix<Base<F>>& dColPre,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
+(       AbstractDistMatrix<Field>& APre,
+        AbstractDistMatrix<Field>& BPre,
+        AbstractDistMatrix<Base<Field>>& dRowAPre,
+        AbstractDistMatrix<Base<Field>>& dRowBPre,
+        AbstractDistMatrix<Base<Field>>& dColPre,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
   Int cutoff=1000, bool progress=false );
 
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       SparseMatrix<F>& A,
-        SparseMatrix<F>& B,
-        Matrix<Base<F>>& dRowA,
-        Matrix<Base<F>>& dRowB,
-        Matrix<Base<F>>& dCol,
+(       SparseMatrix<Field>& A,
+        SparseMatrix<Field>& B,
+        Matrix<Base<Field>>& dRowA,
+        Matrix<Base<Field>>& dRowB,
+        Matrix<Base<Field>>& dCol,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   bool progress=false );
 
-template<typename F>
+template<typename Field>
 void GeomEquil
-(       DistSparseMatrix<F>& A,
-        DistSparseMatrix<F>& B,
-        DistMultiVec<Base<F>>& dRowA,
-        DistMultiVec<Base<F>>& dRowB,
-        DistMultiVec<Base<F>>& dCol,
+(       DistSparseMatrix<Field>& A,
+        DistSparseMatrix<Field>& B,
+        DistMultiVec<Base<Field>>& dRowA,
+        DistMultiVec<Base<Field>>& dRowB,
+        DistMultiVec<Base<Field>>& dCol,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff=1000, bool progress=false );

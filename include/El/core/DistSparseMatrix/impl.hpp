@@ -1,22 +1,19 @@
 /*
-   Copyright 2009-2011, Jack Poulson.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
-   Copyright 2013, Jack Poulson, Lexing Ying, and Stanford University.
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright 2013-2014, Jack Poulson and The Georgia Institute of Technology.
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
    All rights reserved.
 
-   Copyright 2014-2015, Jack Poulson and Stanford University.
-   All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_DISTSPARSEMATRIX_IMPL_HPP
@@ -30,33 +27,34 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-template<typename T>
-DistSparseMatrix<T>::DistSparseMatrix( mpi::Comm comm )
-: distGraph_(comm)
+template<typename Ring>
+DistSparseMatrix<Ring>::DistSparseMatrix( const El::Grid& grid )
+: distGraph_(grid)
 { }
 
-template<typename T>
-DistSparseMatrix<T>::DistSparseMatrix( Int height, Int width, mpi::Comm comm )
-: distGraph_(height,width,comm)
+template<typename Ring>
+DistSparseMatrix<Ring>::DistSparseMatrix
+( Int height, Int width, const El::Grid& grid )
+: distGraph_(height,width,grid)
 { }
 
-template<typename T>
-DistSparseMatrix<T>::DistSparseMatrix( const DistSparseMatrix<T>& A )
+template<typename Ring>
+DistSparseMatrix<Ring>::DistSparseMatrix( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     distGraph_.numSources_ = -1;
     distGraph_.numTargets_ = -1;
-    distGraph_.comm_ = mpi::COMM_WORLD;
+    distGraph_.grid_ = &A.Grid();
     if( &A != this )
         *this = A;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Tried to construct DistMultiVec via itself");
     )
 }
 
-template<typename T>
-DistSparseMatrix<T>::~DistSparseMatrix()
+template<typename Ring>
+DistSparseMatrix<Ring>::~DistSparseMatrix()
 { }
 
 // Assignment and reconfiguration
@@ -64,9 +62,10 @@ DistSparseMatrix<T>::~DistSparseMatrix()
 
 // Change the matrix size
 // ----------------------
-template<typename T>
-void DistSparseMatrix<T>::Empty( bool freeMemory )
+template<typename Ring>
+void DistSparseMatrix<Ring>::Empty( bool freeMemory )
 {
+    EL_DEBUG_CSE
     distGraph_.Empty( freeMemory );
     if( freeMemory )
         SwapClear( vals_ );
@@ -77,33 +76,33 @@ void DistSparseMatrix<T>::Empty( bool freeMemory )
     SwapClear( remoteVals_ );
 }
 
-template<typename T>
-void DistSparseMatrix<T>::Resize( Int height, Int width )
+template<typename Ring>
+void DistSparseMatrix<Ring>::Resize( Int height, Int width )
 {
+    EL_DEBUG_CSE
     distGraph_.Resize( height, width );
     vals_.resize( 0 );
-
     SwapClear( remoteVals_ );
 }
 
 // Change the distribution
 // -----------------------
-template<typename T>
-void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
-{ 
-    if( Comm() == comm )
+template<typename Ring>
+void DistSparseMatrix<Ring>::SetGrid( const El::Grid& grid )
+{
+    EL_DEBUG_CSE
+    if( distGraph_.grid_ == &grid )
         return;
-    distGraph_.SetComm( comm ); 
+    distGraph_.SetGrid( grid );
     vals_.resize( 0 );
-
     SwapClear( remoteVals_ );
 }
 
 // Assembly
 // --------
-template<typename T>
-void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
-{ 
+template<typename Ring>
+void DistSparseMatrix<Ring>::Reserve( Int numLocalEntries, Int numRemoteEntries )
+{
     const Int currSize = vals_.size();
     const Int currRemoteSize = remoteVals_.size();
 
@@ -112,62 +111,64 @@ void DistSparseMatrix<T>::Reserve( Int numLocalEntries, Int numRemoteEntries )
     remoteVals_.reserve( currRemoteSize+numRemoteEntries );
 }
 
-template<typename T>
-void DistSparseMatrix<T>::FreezeSparsity() EL_NO_EXCEPT
+template<typename Ring>
+void DistSparseMatrix<Ring>::FreezeSparsity() EL_NO_EXCEPT
 { distGraph_.frozenSparsity_ = true; }
-template<typename T>
-void DistSparseMatrix<T>::UnfreezeSparsity() EL_NO_EXCEPT
+template<typename Ring>
+void DistSparseMatrix<Ring>::UnfreezeSparsity() EL_NO_EXCEPT
 { distGraph_.frozenSparsity_ = false; }
-template<typename T>
-bool DistSparseMatrix<T>::FrozenSparsity() const EL_NO_EXCEPT
+template<typename Ring>
+bool DistSparseMatrix<Ring>::FrozenSparsity() const EL_NO_EXCEPT
 { return distGraph_.frozenSparsity_; }
 
-template<typename T>
-void DistSparseMatrix<T>::Update( Int row, Int col, T value )
+template<typename Ring>
+void DistSparseMatrix<Ring>::Update( Int row, Int col, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueUpdate( row, col, value, true );
     ProcessLocalQueues();
 }
 
-template<typename T>
-void DistSparseMatrix<T>::Update( const Entry<T>& entry )
+template<typename Ring>
+void DistSparseMatrix<Ring>::Update( const Entry<Ring>& entry )
 { Update( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void DistSparseMatrix<T>::UpdateLocal( Int localRow, Int col, T value )
+template<typename Ring>
+void DistSparseMatrix<Ring>::UpdateLocal
+( Int localRow, Int col, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueLocalUpdate( localRow, col, value );
     ProcessLocalQueues();
 }
 
-template<typename T>
-void DistSparseMatrix<T>::UpdateLocal( const Entry<T>& localEntry )
+template<typename Ring>
+void DistSparseMatrix<Ring>::UpdateLocal( const Entry<Ring>& localEntry )
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
-void DistSparseMatrix<T>::Zero( Int row, Int col )
+template<typename Ring>
+void DistSparseMatrix<Ring>::Zero( Int row, Int col )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueZero( row, col, true );
     ProcessLocalQueues();
 }
 
-template<typename T>
-void DistSparseMatrix<T>::ZeroLocal( Int localRow, Int col )
+template<typename Ring>
+void DistSparseMatrix<Ring>::ZeroLocal( Int localRow, Int col )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     QueueLocalZero( localRow, col );
     ProcessLocalQueues();
 }
 
-template<typename T>
-void DistSparseMatrix<T>::QueueUpdate( Int row, Int col, T value, bool passive )
+template<typename Ring>
+void DistSparseMatrix<Ring>::QueueUpdate
+( Int row, Int col, const Ring& value, bool passive )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    // TODO: Use FrozenSparsity()
+    EL_DEBUG_CSE
+    // TODO(poulson): Use FrozenSparsity()
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
@@ -176,22 +177,23 @@ EL_NO_RELEASE_EXCEPT
     }
     else if( !passive )
     {
-        distGraph_.remoteSources_.push_back( row ); 
+        distGraph_.remoteSources_.push_back( row );
         distGraph_.remoteTargets_.push_back( col );
         remoteVals_.push_back( value );
     }
 }
 
-template<typename T>
-void DistSparseMatrix<T>::QueueUpdate( const Entry<T>& entry, bool passive )
+template<typename Ring>
+void DistSparseMatrix<Ring>::QueueUpdate
+( const Entry<Ring>& entry, bool passive )
 EL_NO_RELEASE_EXCEPT
 { QueueUpdate( entry.i, entry.j, entry.value, passive ); }
 
-template<typename T>
-void DistSparseMatrix<T>::QueueLocalUpdate( Int localRow, Int col, T value )
-EL_NO_RELEASE_EXCEPT
+template<typename Ring>
+void DistSparseMatrix<Ring>::QueueLocalUpdate
+( Int localRow, Int col, const Ring& value ) EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = distGraph_.Offset( localRow, col );
@@ -205,16 +207,16 @@ EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename T>
-void DistSparseMatrix<T>::QueueLocalUpdate( const Entry<T>& localEntry )
+template<typename Ring>
+void DistSparseMatrix<Ring>::QueueLocalUpdate( const Entry<Ring>& localEntry )
 EL_NO_RELEASE_EXCEPT
 { QueueLocalUpdate( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
-void DistSparseMatrix<T>::QueueZero( Int row, Int col, bool passive )
+template<typename Ring>
+void DistSparseMatrix<Ring>::QueueZero( Int row, Int col, bool passive )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( row == END ) row = Height() - 1;
     if( col == END ) col = Width() - 1;
     if( row >= FirstLocalRow() && row < FirstLocalRow()+LocalHeight() )
@@ -223,11 +225,11 @@ EL_NO_RELEASE_EXCEPT
         distGraph_.remoteRemovals_.push_back( pair<Int,Int>(row,col) );
 }
 
-template<typename T>
-void DistSparseMatrix<T>::QueueLocalZero( Int localRow, Int col )
+template<typename Ring>
+void DistSparseMatrix<Ring>::QueueLocalZero( Int localRow, Int col )
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( FrozenSparsity() )
     {
         const Int offset = distGraph_.Offset( localRow, col );
@@ -240,19 +242,20 @@ EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename T>
-void DistSparseMatrix<T>::ProcessQueues()
+template<typename Ring>
+void DistSparseMatrix<Ring>::ProcessQueues()
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( distGraph_.sources_.size() != distGraph_.targets_.size() || 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( distGraph_.sources_.size() != distGraph_.targets_.size() ||
           distGraph_.targets_.size() != vals_.size() )
           LogicError("Inconsistent sparse matrix buffer sizes");
     )
 
     // Send the remote updates
     // =======================
-    const int commSize = distGraph_.commSize_;
+    mpi::Comm comm = distGraph_.grid_->Comm();
+    const int commSize = distGraph_.grid_->Size();
     {
         // Compute the send counts
         // -----------------------
@@ -265,12 +268,12 @@ void DistSparseMatrix<T>::ProcessQueues()
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
         auto offs = sendOffs;
-        vector<Entry<T>> sendBuf(totalSend);
+        vector<Entry<Ring>> sendBuf(totalSend);
         for( Int i=0; i<totalSend; ++i )
         {
             const int owner = RowOwner(distGraph_.remoteSources_[i]);
-            sendBuf[offs[owner]++] = 
-                Entry<T>
+            sendBuf[offs[owner]++] =
+                Entry<Ring>
                 { distGraph_.remoteSources_[i],
                   distGraph_.remoteTargets_[i], remoteVals_[i] };
         }
@@ -279,8 +282,7 @@ void DistSparseMatrix<T>::ProcessQueues()
         SwapClear( remoteVals_ );
         // Exchange and unpack
         // -------------------
-        auto recvBuf=
-          mpi::AllToAll( sendBuf, sendCounts, sendOffs, distGraph_.comm_ );
+        auto recvBuf = mpi::AllToAll( sendBuf, sendCounts, sendOffs, comm );
         if( !FrozenSparsity() )
             Reserve( NumLocalEntries()+recvBuf.size() );
         for( auto& entry : recvBuf )
@@ -312,10 +314,8 @@ void DistSparseMatrix<T>::ProcessQueues()
         SwapClear( distGraph_.remoteRemovals_ );
         // Exchange and unpack
         // -------------------
-        auto recvRows = 
-          mpi::AllToAll(sendRows,sendCounts,sendOffs,distGraph_.comm_);
-        auto recvCols = 
-          mpi::AllToAll(sendCols,sendCounts,sendOffs,distGraph_.comm_);
+        auto recvRows = mpi::AllToAll(sendRows,sendCounts,sendOffs,comm);
+        auto recvCols = mpi::AllToAll(sendCols,sendCounts,sendOffs,comm);
         const Int totalRecv = recvRows.size();
         for( Int i=0; i<totalRecv; ++i )
             QueueZero( recvRows[i], recvCols[i] );
@@ -326,16 +326,16 @@ void DistSparseMatrix<T>::ProcessQueues()
     ProcessLocalQueues();
 }
 
-template<typename T>
-void DistSparseMatrix<T>::ProcessLocalQueues()
+template<typename Ring>
+void DistSparseMatrix<Ring>::ProcessLocalQueues()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( distGraph_.locallyConsistent_ )
         return;
 
     Int numRemoved = 0;
     const Int numLocalEntries = vals_.size();
-    vector<Entry<T>> entries( numLocalEntries );
+    vector<Entry<Ring>> entries( numLocalEntries );
     if( distGraph_.markedForRemoval_.size() != 0 )
     {
         for( Int s=0; s<numLocalEntries; ++s )
@@ -360,7 +360,7 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
     else
     {
         for( Int s=0; s<numLocalEntries; ++s )
-            entries[s] = Entry<T>{distGraph_.sources_[s],
+            entries[s] = Entry<Ring>{distGraph_.sources_[s],
                                   distGraph_.targets_[s],vals_[s]};
     }
     std::sort( entries.begin(), entries.end(), CompareEntries );
@@ -398,11 +398,11 @@ void DistSparseMatrix<T>::ProcessLocalQueues()
 
 // Make a copy
 // -----------
-template<typename T>
-const DistSparseMatrix<T>& 
-DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
+template<typename Ring>
+const DistSparseMatrix<Ring>&
+DistSparseMatrix<Ring>::operator=( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     distGraph_ = A.distGraph_;
     vals_ = A.vals_;
     remoteVals_ = A.remoteVals_;
@@ -411,77 +411,78 @@ DistSparseMatrix<T>::operator=( const DistSparseMatrix<T>& A )
 
 // Make a copy of a submatrix
 // --------------------------
-template<typename T>
-DistSparseMatrix<T>
-DistSparseMatrix<T>::operator()
+template<typename Ring>
+DistSparseMatrix<Ring>
+DistSparseMatrix<Ring>::operator()
 ( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
-    DistSparseMatrix<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistSparseMatrix<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-DistSparseMatrix<T>
-DistSparseMatrix<T>::operator()
+template<typename Ring>
+DistSparseMatrix<Ring>
+DistSparseMatrix<Ring>::operator()
 ( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
-    DistSparseMatrix<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistSparseMatrix<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-DistSparseMatrix<T>
-DistSparseMatrix<T>::operator()
+template<typename Ring>
+DistSparseMatrix<Ring>
+DistSparseMatrix<Ring>::operator()
 ( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
-    DistSparseMatrix<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistSparseMatrix<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-DistSparseMatrix<T>
-DistSparseMatrix<T>::operator()
+template<typename Ring>
+DistSparseMatrix<Ring>
+DistSparseMatrix<Ring>::operator()
 ( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
-    DistSparseMatrix<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistSparseMatrix<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
 // Rescaling
 // ---------
-template<typename T>
-const DistSparseMatrix<T>& DistSparseMatrix<T>::operator*=( T alpha )
+template<typename Ring>
+const DistSparseMatrix<Ring>& DistSparseMatrix<Ring>::operator*=
+( const Ring& alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
 
 // Addition/subtraction
 // --------------------
-template<typename T>
-const DistSparseMatrix<T>&
-DistSparseMatrix<T>::operator+=( const DistSparseMatrix<T>& A )
+template<typename Ring>
+const DistSparseMatrix<Ring>&
+DistSparseMatrix<Ring>::operator+=( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    Axpy( T(1), A, *this );
+    EL_DEBUG_CSE
+    Axpy( Ring(1), A, *this );
     return *this;
 }
 
-template<typename T>
-const DistSparseMatrix<T>&
-DistSparseMatrix<T>::operator-=( const DistSparseMatrix<T>& A )
+template<typename Ring>
+const DistSparseMatrix<Ring>&
+DistSparseMatrix<Ring>::operator-=( const DistSparseMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    Axpy( T(-1), A, *this );
+    EL_DEBUG_CSE
+    Axpy( Ring(-1), A, *this );
     return *this;
 }
 
@@ -490,129 +491,131 @@ DistSparseMatrix<T>::operator-=( const DistSparseMatrix<T>& A )
 
 // High-level information
 // ----------------------
-template<typename T>
-Int DistSparseMatrix<T>::Height() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Height() const EL_NO_EXCEPT
 { return distGraph_.NumSources(); }
-template<typename T>
-Int DistSparseMatrix<T>::Width() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Width() const EL_NO_EXCEPT
 { return distGraph_.NumTargets(); }
-template<typename T>
-Int DistSparseMatrix<T>::NumEntries() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::NumEntries() const EL_NO_EXCEPT
 { return distGraph_.NumEdges(); }
 
-template<typename T>
-El::DistGraph& DistSparseMatrix<T>::DistGraph() EL_NO_EXCEPT
+template<typename Ring>
+El::DistGraph& DistSparseMatrix<Ring>::DistGraph() EL_NO_EXCEPT
 { return distGraph_; }
-template<typename T>
-const El::DistGraph& DistSparseMatrix<T>::LockedDistGraph() const EL_NO_EXCEPT
+template<typename Ring>
+const El::DistGraph& DistSparseMatrix<Ring>::LockedDistGraph()
+const EL_NO_EXCEPT
 { return distGraph_; }
 
-template<typename T>
-Int DistSparseMatrix<T>::FirstLocalRow() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::FirstLocalRow() const EL_NO_EXCEPT
 { return distGraph_.FirstLocalSource(); }
 
-template<typename T>
-Int DistSparseMatrix<T>::LocalHeight() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::LocalHeight() const EL_NO_EXCEPT
 { return distGraph_.NumLocalSources(); }
 
-template<typename T>
-Int DistSparseMatrix<T>::NumLocalEntries() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::NumLocalEntries() const EL_NO_EXCEPT
 { return distGraph_.NumLocalEdges(); }
 
-template<typename T>
-Int DistSparseMatrix<T>::Capacity() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Capacity() const EL_NO_EXCEPT
 { return distGraph_.Capacity(); }
 
-template<typename T>
-bool DistSparseMatrix<T>::LocallyConsistent() const EL_NO_EXCEPT
+template<typename Ring>
+bool DistSparseMatrix<Ring>::LocallyConsistent() const EL_NO_EXCEPT
 { return distGraph_.LocallyConsistent(); }
 
 // Distribution information
 // ------------------------
-template<typename T>
-mpi::Comm DistSparseMatrix<T>::Comm() const EL_NO_EXCEPT
-{ return distGraph_.Comm(); }
-template<typename T>
-Int DistSparseMatrix<T>::Blocksize() const EL_NO_EXCEPT
+template<typename Ring>
+const El::Grid& DistSparseMatrix<Ring>::Grid() const EL_NO_EXCEPT
+{ return distGraph_.Grid(); }
+
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Blocksize() const EL_NO_EXCEPT
 { return distGraph_.Blocksize(); }
 
-template<typename T>
-int DistSparseMatrix<T>::RowOwner( Int i ) const EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
-    return distGraph_.SourceOwner(i); 
-}
-
-template<typename T>
-Int DistSparseMatrix<T>::GlobalRow( Int iLoc ) const EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
-    return distGraph_.GlobalSource(iLoc); 
-}
-
-template<typename T>
-Int DistSparseMatrix<T>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
+template<typename Ring>
+int DistSparseMatrix<Ring>::RowOwner( Int i ) const EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+    return distGraph_.SourceOwner(i);
+}
+
+template<typename Ring>
+Int DistSparseMatrix<Ring>::GlobalRow( Int iLoc ) const EL_NO_RELEASE_EXCEPT
+{
+    EL_DEBUG_CSE
+    return distGraph_.GlobalSource(iLoc);
+}
+
+template<typename Ring>
+Int DistSparseMatrix<Ring>::LocalRow( Int i ) const EL_NO_RELEASE_EXCEPT
+{
+    EL_DEBUG_CSE
     return distGraph_.LocalSource(i);
 }
 
 // Detailed local information
 // --------------------------
-template<typename T>
-Int DistSparseMatrix<T>::Row( Int localInd ) const
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Row( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     return distGraph_.Source( localInd );
 }
 
-template<typename T>
-Int DistSparseMatrix<T>::Col( Int localInd ) const
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Col( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     return distGraph_.Target( localInd );
 }
 
-template<typename T>
-Int DistSparseMatrix<T>::RowOffset( Int localRow ) const
+template<typename Ring>
+Int DistSparseMatrix<Ring>::RowOffset( Int localRow ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.SourceOffset( localRow );
 }
 
-template<typename T>
-Int DistSparseMatrix<T>::Offset( Int localRow, Int col ) const
+template<typename Ring>
+Int DistSparseMatrix<Ring>::Offset( Int localRow, Int col ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.Offset( localRow, col );
 }
 
-template<typename T>
-Int DistSparseMatrix<T>::NumConnections( Int localRow ) const
+template<typename Ring>
+Int DistSparseMatrix<Ring>::NumConnections( Int localRow ) const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return distGraph_.NumConnections( localRow );
 }
 
-template<typename T>
-double DistSparseMatrix<T>::Imbalance() const
+template<typename Ring>
+double DistSparseMatrix<Ring>::Imbalance() const
 EL_NO_RELEASE_EXCEPT
 {
-    DEBUG_CSE
-    return distGraph_.Imbalance(); 
+    EL_DEBUG_CSE
+    return distGraph_.Imbalance();
 }
 
-template<typename T>
-T DistSparseMatrix<T>::Value( Int localInd ) const
+template<typename Ring>
+Ring DistSparseMatrix<Ring>::Value( Int localInd ) const
 EL_NO_RELEASE_EXCEPT
-{ 
-    DEBUG_CSE
-    DEBUG_ONLY(
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localInd < 0 || localInd >= (Int)vals_.size() )
           LogicError("Entry number out of bounds");
       AssertLocallyConsistent();
@@ -620,21 +623,22 @@ EL_NO_RELEASE_EXCEPT
     return vals_[localInd];
 }
 
-template<typename T>
-T DistSparseMatrix<T>::GetLocal( Int localRow, Int col )
+template<typename Ring>
+Ring DistSparseMatrix<Ring>::GetLocal( Int localRow, Int col )
 const EL_NO_RELEASE_EXCEPT
 {
     if( localRow == END ) localRow = LocalHeight() - 1;
     if( col == END ) col = distGraph_.numTargets_ - 1;
     Int index = Offset( localRow, col );
     if( Row(index) != GlobalRow(localRow) || Col(index) != col )
-        return T(0); 
+        return Ring(0);
     else
-        return Value( index ); 
+        return Value( index );
 }
 
-template<typename T>
-void DistSparseMatrix<T>::Set( Int row, Int col, T val ) EL_NO_RELEASE_EXCEPT
+template<typename Ring>
+void DistSparseMatrix<Ring>::Set
+( Int row, Int col, const Ring& val ) EL_NO_RELEASE_EXCEPT
 {
     if( row == END ) row = distGraph_.numSources_ - 1;
     if( col == END ) col = distGraph_.numTargets_ - 1;
@@ -658,77 +662,85 @@ void DistSparseMatrix<T>::Set( Int row, Int col, T val ) EL_NO_RELEASE_EXCEPT
     }
 }
 
-template<typename T>
-Int* DistSparseMatrix<T>::SourceBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Int* DistSparseMatrix<Ring>::SourceBuffer() EL_NO_EXCEPT
 { return distGraph_.SourceBuffer(); }
-template<typename T>
-Int* DistSparseMatrix<T>::TargetBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Int* DistSparseMatrix<Ring>::TargetBuffer() EL_NO_EXCEPT
 { return distGraph_.TargetBuffer(); }
-template<typename T>
-Int* DistSparseMatrix<T>::OffsetBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Int* DistSparseMatrix<Ring>::OffsetBuffer() EL_NO_EXCEPT
 { return distGraph_.OffsetBuffer(); }
-template<typename T>
-T* DistSparseMatrix<T>::ValueBuffer() EL_NO_EXCEPT
+template<typename Ring>
+Ring* DistSparseMatrix<Ring>::ValueBuffer() EL_NO_EXCEPT
 { return vals_.data(); }
 
-template<typename T>
-const Int* DistSparseMatrix<T>::LockedSourceBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Int* DistSparseMatrix<Ring>::LockedSourceBuffer() const EL_NO_EXCEPT
 { return distGraph_.LockedSourceBuffer(); }
 
-template<typename T>
-const Int* DistSparseMatrix<T>::LockedTargetBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Int* DistSparseMatrix<Ring>::LockedTargetBuffer() const EL_NO_EXCEPT
 { return distGraph_.LockedTargetBuffer(); }
 
-template<typename T>
-const Int* DistSparseMatrix<T>::LockedOffsetBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Int* DistSparseMatrix<Ring>::LockedOffsetBuffer() const EL_NO_EXCEPT
 { return distGraph_.LockedOffsetBuffer(); }
 
-template<typename T>
-const T* DistSparseMatrix<T>::LockedValueBuffer() const EL_NO_EXCEPT
+template<typename Ring>
+const Ring* DistSparseMatrix<Ring>::LockedValueBuffer() const EL_NO_EXCEPT
 { return vals_.data(); }
 
-template<typename T>
-void DistSparseMatrix<T>::ForceNumLocalEntries( Int numLocalEntries )
+template<typename Ring>
+void DistSparseMatrix<Ring>::ForceNumLocalEntries( Int numLocalEntries )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     distGraph_.ForceNumLocalEdges( numLocalEntries );
     vals_.resize( numLocalEntries );
 }
 
-template<typename T>
-void DistSparseMatrix<T>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
-{ distGraph_.ForceConsistency(consistent); }
+template<typename Ring>
+void DistSparseMatrix<Ring>::ForceConsistency( bool consistent ) EL_NO_EXCEPT
+{
+    EL_DEBUG_CSE
+    distGraph_.ForceConsistency(consistent);
+}
 
 // Auxiliary routines
 // ==================
-template<typename T>
-void DistSparseMatrix<T>::AssertConsistent() const
-{ 
-    Int locallyConsistent = ( LocallyConsistent() ? 1 : 0 );
-    Int consistent = 
-      mpi::AllReduce( locallyConsistent, mpi::BINARY_OR, Comm() );
+template<typename Ring>
+void DistSparseMatrix<Ring>::AssertConsistent() const
+{
+    EL_DEBUG_CSE
+    Int locallyConsistent = LocallyConsistent() ? 1 : 0;
+    Int consistent =
+      mpi::AllReduce( locallyConsistent, mpi::BINARY_OR, Grid().Comm() );
     if( !consistent )
         LogicError("Distributed sparse matrix must be consistent");
 }
 
-template<typename T>
-void DistSparseMatrix<T>::AssertLocallyConsistent() const
-{ 
+template<typename Ring>
+void DistSparseMatrix<Ring>::AssertLocallyConsistent() const
+{
+    EL_DEBUG_CSE
     if( !LocallyConsistent() )
         LogicError("Distributed sparse matrix must be consistent");
 }
-template<typename T>
-DistGraphMultMeta DistSparseMatrix<T>::InitializeMultMeta() const {  return distGraph_.InitializeMultMeta();  }
+template<typename Ring>
+DistGraphMultMeta DistSparseMatrix<Ring>::InitializeMultMeta() const
+{
+    EL_DEBUG_CSE
+    return distGraph_.InitializeMultMeta();
+}
 
-template<typename T>
-void DistSparseMatrix<T>::MappedSources
+template<typename Ring>
+void DistSparseMatrix<Ring>::MappedSources
 ( const DistMap& reordering, vector<Int>& mappedSources ) const
 {
-    DEBUG_CSE
-    mpi::Comm comm = Comm();
-    const int commRank = mpi::Rank( comm );
+    EL_DEBUG_CSE
+    const int commRank = Grid().Rank();
     Timer timer;
-    const bool time = false; 
+    const bool time = false;
     const Int localHeight = LocalHeight();
     if( Int(mappedSources.size()) == localHeight )
         return;
@@ -744,18 +756,17 @@ void DistSparseMatrix<T>::MappedSources
         Output("Source translation: ",timer.Stop()," secs");
 }
 
-template<typename T>
-void DistSparseMatrix<T>::MappedTargets
-( const DistMap& reordering, 
+template<typename Ring>
+void DistSparseMatrix<Ring>::MappedTargets
+( const DistMap& reordering,
   vector<Int>& mappedTargets,
   vector<Int>& colOffs ) const
 {
-    DEBUG_CSE
-    if( mappedTargets.size() != 0 && colOffs.size() != 0 ) 
+    EL_DEBUG_CSE
+    if( mappedTargets.size() != 0 && colOffs.size() != 0 )
         return;
 
-    mpi::Comm comm = Comm();
-    const int commRank = mpi::Rank( comm ); 
+    const int commRank = Grid().Rank();
     Timer timer;
     const bool time = false;
 
@@ -787,7 +798,7 @@ void DistSparseMatrix<T>::MappedTargets
     if( time && commRank == 0 )
         Output("Unique sort: ",timer.Stop()," secs");
 
-    // Get the reordered indices of the targets of our portion of the 
+    // Get the reordered indices of the targets of our portion of the
     // distributed sparse matrix
     if( time && commRank == 0 )
         timer.Start();
@@ -799,8 +810,9 @@ void DistSparseMatrix<T>::MappedTargets
         Output("Target translation: ",timer.Stop()," secs");
 }
 
-template<typename T>
-bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
+template<typename Ring>
+bool DistSparseMatrix<Ring>::CompareEntries
+( const Entry<Ring>& a, const Entry<Ring>& b )
 { return a.i < b.i || (a.i == b.i && a.j < b.j); }
 
 #ifdef EL_INSTANTIATE_CORE
@@ -809,7 +821,7 @@ bool DistSparseMatrix<T>::CompareEntries( const Entry<T>& a, const Entry<T>& b )
 # define EL_EXTERN extern
 #endif
 
-#define PROTO(T) EL_EXTERN template class DistSparseMatrix<T>;
+#define PROTO(Ring) EL_EXTERN template class DistSparseMatrix<Ring>;
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,20 +13,21 @@ namespace soc {
 
 // Members of second-order cones are stored contiguously within the column
 // vector x, with the corresponding order of the cone each member belongs to
-// stored in the same index of 'order', and the first index of the cone 
+// stored in the same index of 'order', and the first index of the cone
 // being listed in the same index of 'firstInd'.
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Dots
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
   const Matrix<Real>& y,
         Matrix<Real>& z,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    DEBUG_ONLY(
-      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    EL_DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
@@ -38,8 +39,8 @@ void Dots
     for( Int i=0; i<height; )
     {
         const Int order = orders(i);
-        const Int firstInd = firstInds(i);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
+          const Int firstInd = firstInds(i);
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
@@ -51,17 +52,18 @@ void Dots
     }
 }
 
-// TODO: An alternate, trivial implementation to benchmark against
-template<typename Real,typename>
+// TODO(poulson): An alternate, trivial implementation to benchmark against
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Dots
-( const ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Real>& yPre,
-        ElementalMatrix<Real>& zPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& yPre,
+        AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, yPre, zPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -82,9 +84,9 @@ void Dots
     auto& orders = ordersProx.GetLocked();
     auto& firstInds = firstIndsProx.GetLocked();
 
-    const Int height = x.Height();
-    DEBUG_ONLY(
-      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    EL_DEBUG_ONLY(
+      const Int height = x.Height();
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
@@ -97,7 +99,7 @@ void Dots
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    const int commSize = mpi::Size(comm);
+    const int commSize = x.DistSize();
 
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
@@ -105,7 +107,7 @@ void Dots
     const Real* yBuf = y.LockedBuffer();
           Real* zBuf = z.Buffer();
 
-    // TODO: Find a better strategy
+    // TODO(poulson): Find a better strategy
 
     // Handle all second-order cones with order <= cutoff
     // ==================================================
@@ -176,27 +178,28 @@ void Dots
     }
 }
 
-// TODO: An alternate, trivial implementation to benchmark against
-template<typename Real,typename>
+// TODO(poulson): An alternate, trivial implementation to benchmark against
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Dots
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
         Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+    // TODO(poulson): Check that the communicators are congruent
+    const Grid& grid = x.Grid();
+    const int commSize = grid.Size();
 
-    // TODO: Check that the communicators are congruent
-    mpi::Comm comm = x.Comm();
-    const int commSize = mpi::Size(comm);
     const Int localHeight = x.LocalHeight();
     const Int firstLocalRow = x.FirstLocalRow();
 
-    const Int height = x.Height();
-    DEBUG_ONLY(
-      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    EL_DEBUG_ONLY(
+      const Int height = x.Height();
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
@@ -204,7 +207,7 @@ void Dots
           LogicError("x and y must be the same size");
     )
 
-    z.SetComm( x.Comm() );
+    z.SetGrid( grid );
     Zeros( z, x.Height(), x.Width() );
 
     const Real* xBuf = x.LockedMatrix().LockedBuffer();
@@ -214,9 +217,9 @@ void Dots
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
     // Perform an mpi::AllToAll to collect all of the second-order cones of
-    // order less than or equal to the cutoff at the root locations and 
-    // individually handle the remainder 
-    // TODO: Find a better strategy
+    // order less than or equal to the cutoff at the root locations and
+    // individually handle the remainder
+    // TODO(poulson): Find a better strategy
 
     // Handle all second-order cones with order <= cutoff
     // ==================================================
@@ -257,7 +260,7 @@ void Dots
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
     vector<Int> sendPairs;
-    // TODO: Count and reserve so that the push_back's are all O(1)
+    // TODO(poulson): Count and reserve so that the push_back's are all O(1)
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = iLoc + firstLocalRow;
@@ -271,13 +274,13 @@ void Dots
     }
     const int numSendInts = sendPairs.size();
     vector<int> numRecvInts(commSize);
-    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, comm );
+    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, grid.Comm() );
     vector<int> recvOffs;
-    const int totalRecv = Scan( numRecvInts, recvOffs ); 
+    const int totalRecv = Scan( numRecvInts, recvOffs );
     vector<Int> recvPairs(totalRecv);
     mpi::AllGather
     ( sendPairs.data(), numSendInts,
-      recvPairs.data(), numRecvInts.data(), recvOffs.data(), comm );
+      recvPairs.data(), numRecvInts.data(), recvOffs.data(), grid.Comm() );
     const Int iFirst = firstLocalRow;
     const Int iLast = iFirst + localHeight;
     for( Int largeCone=0; largeCone<totalRecv/2; ++largeCone )
@@ -294,11 +297,11 @@ void Dots
         const int owner = z.Owner(i,0);
         if( z.IsLocal(i,0) )
         {
-            const Real dot = mpi::Reduce( localDot, owner, x.Comm() );
+            const Real dot = mpi::Reduce( localDot, owner, grid.Comm() );
             zBuf[i-firstLocalRow] = dot;
         }
         else
-            mpi::Reduce( localDot, owner, x.Comm() );
+            mpi::Reduce( localDot, owner, grid.Comm() );
     }
 }
 
@@ -310,11 +313,11 @@ void Dots
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void Dots \
-  ( const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Real>& y, \
+          AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void Dots \
   ( const DistMultiVec<Real>& x, \

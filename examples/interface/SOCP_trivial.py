@@ -39,4 +39,5 @@ ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.outerEquil = True
 ctrl.mehrotraCtrl.time = True
 El.SOCPAffine(A,G,b,c,h,orders,firstInd,x,y,z,s,ctrl)
+
 El.Finalize()

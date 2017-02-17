@@ -41,7 +41,7 @@ Estimate EigEstimate
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Estimate estimate;
     char jobz='C';
     char range='V';
@@ -64,7 +64,7 @@ Estimate EigEstimate
 // Compute all of the eigenvalues
 Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Info info;
     char jobz='N';
     char range='A';
@@ -90,7 +90,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Info info;
     char jobz='V';
     char range='A';
@@ -116,7 +116,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Info info;
     char jobz='N';
     char range='V';
@@ -142,7 +142,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   double lowerBound, double upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Info info;
     char jobz='V';
     char range='V';
@@ -167,7 +167,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Info info;
     ++lowerBound;
     ++upperBound;
@@ -196,7 +196,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
   int lowerBound, int upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Info info;
     ++lowerBound;
     ++upperBound;

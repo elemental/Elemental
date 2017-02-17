@@ -2,24 +2,24 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
+template<typename F>
 void Tikhonov
 ( Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& B, 
+  const Matrix<F>& B,
   const Matrix<F>& G,
         Matrix<F>& X,
   TikhonovAlg alg )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = ( orientation==NORMAL );
     const Int m = ( normal ? A.Height() : A.Width()  );
     const Int n = ( normal ? A.Width()  : A.Height() );
@@ -51,7 +51,7 @@ void Tikhonov
             else
                 Adjoint( A, ZT );
             ZB = G;
-            qr::ExplicitTriang( Z ); 
+            qr::ExplicitTriang( Z );
         }
         if( orientation == NORMAL )
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
@@ -65,16 +65,16 @@ void Tikhonov
     }
 }
 
-template<typename F> 
+template<typename F>
 void Tikhonov
 ( Orientation orientation,
-  const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& BPre, 
-  const ElementalMatrix<F>& G,
-        ElementalMatrix<F>& XPre, 
+  const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& BPre,
+  const AbstractDistMatrix<F>& G,
+        AbstractDistMatrix<F>& XPre,
   TikhonovAlg alg )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR>
       AProx( APre ),
@@ -116,7 +116,7 @@ void Tikhonov
             else
                 Adjoint( A, ZT );
             ZB = G;
-            qr::ExplicitTriang( Z ); 
+            qr::ExplicitTriang( Z );
         }
         if( orientation == NORMAL )
             Gemm( ADJOINT, NORMAL, F(1), A, B, X );
@@ -132,15 +132,15 @@ void Tikhonov
 
 // The following routines solve either
 //
-//   Minimum length: 
-//     min_{X,S} || [X;S] ||_F 
+//   Minimum length:
+//     min_{X,S} || [X;S] ||_F
 //     s.t. [W,G] [X;S] = B, or
 //
-//   Least squares:  
+//   Least squares:
 //     min_X || [W;G] X - [B;0] ||_F,
 //
-// where W=op(A) is either A, A^T, or A^H, via forming a Hermitian 
-// quasi-semidefinite system 
+// where W=op(A) is either A, A^T, or A^H, via forming a Hermitian
+// quasi-semidefinite system
 //
 //    | alpha*I     0     W | | R/alpha |   | B |
 //    |    0     alpha*I  G | | Y/alpha | = | 0 |,
@@ -154,35 +154,35 @@ void Tikhonov
 //
 // when height(W) < width(W).
 //
-// The latter guarantees that W X + G S = B, X in range(W^H) and 
-// S in range(G^H), which shows that [X;S] solves the minimum length problem. 
+// The latter guarantees that W X + G S = B, X in range(W^H) and
+// S in range(G^H), which shows that [X;S] solves the minimum length problem.
 // The former defines R = B - W X and Y = -G X then ensures that
-// [R; Y] is in the null-space of [W; G]^H (therefore solving the least 
+// [R; Y] is in the null-space of [W; G]^H (therefore solving the least
 // squares problem).
-// 
+//
 // Note that, ideally, alpha is roughly the minimum (nonzero) singular value
-// of [W, G] or [W; G], which implies that the condition number of the 
+// of [W, G] or [W; G], which implies that the condition number of the
 // quasi-semidefinite system is roughly equal to the condition number of [W, G]
 // or [W; G] (see the analysis of Bjorck). If it is too expensive to estimate
 // the minimum singular value, and either [W, G] or [W; G] is equilibrated to
 // have a unit two-norm, a typical choice for alpha is epsilon^0.25.
 //
 // The Hermitian quasi-semidefinite systems are solved by converting them into
-// Hermitian quasi-definite form via a priori regularization, applying an 
+// Hermitian quasi-definite form via a priori regularization, applying an
 // LDL^H factorization with static pivoting to the regularized system, and
 // using the iteratively-refined solution of with the regularized factorization
 // as a preconditioner for the original problem (defaulting to Flexible GMRES
 // for now).
 //
-// This approach originated within 
+// This approach originated within
 //
-//    Michael Saunders, 
+//    Michael Saunders,
 //   "Chapter 8, Cholesky-based Methods for Sparse Least Squares:
 //    The Benefits of Regularization",
 //    in L. Adams and J.L. Nazareth (eds.), Linear and Nonlinear Conjugate
 //    Gradient-Related Methods, SIAM, Philadelphia, 92--100 (1996) [CITATION].
 //
-// But note that SymmLQ and LSQR were used rather than flexible GMRES, and 
+// But note that SymmLQ and LSQR were used rather than flexible GMRES, and
 // iteratively refining *within* the preconditioner was not discussed.
 //
 
@@ -192,11 +192,11 @@ void Tikhonov
   const SparseMatrix<F>& A,
   const Matrix<F>& B,
   const SparseMatrix<F>& G,
-        Matrix<F>& X, 
+        Matrix<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
-    
+    EL_DEBUG_CSE
+
     // Explicitly form W := op(A)
     // ==========================
     SparseMatrix<F> W;
@@ -215,7 +215,7 @@ void Tikhonov
     // ====================================================================
     SparseMatrix<F> WEmb;
     if( m >= n )
-        VCat( W, G, WEmb ); 
+        VCat( W, G, WEmb );
     else
         HCat( W, G, WEmb );
     Matrix<F> BEmb;
@@ -238,7 +238,7 @@ void Tikhonov
     if( m >= n )
         X = XEmb;
     else
-        X = XEmb( IR(0,n), IR(0,numRHS) ); 
+        X = XEmb( IR(0,n), IR(0,numRHS) );
 }
 
 template<typename F>
@@ -247,15 +247,15 @@ void Tikhonov
   const DistSparseMatrix<F>& A,
   const DistMultiVec<F>& B,
   const DistSparseMatrix<F>& G,
-        DistMultiVec<F>& X, 
+        DistMultiVec<F>& X,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
-    mpi::Comm comm = A.Comm();
-    
+    EL_DEBUG_CSE
+    const Grid& grid = A.Grid();
+
     // Explicitly form W := op(A)
     // ==========================
-    DistSparseMatrix<F> W(comm);
+    DistSparseMatrix<F> W(grid);
     if( orientation == NORMAL )
         W = A;
     else if( orientation == TRANSPOSE )
@@ -269,13 +269,13 @@ void Tikhonov
 
     // Embed into a higher-dimensional problem via appending regularization
     // ====================================================================
-    DistSparseMatrix<F> WEmb(comm);
+    DistSparseMatrix<F> WEmb(grid);
     if( m >= n )
-        VCat( W, G, WEmb ); 
+        VCat( W, G, WEmb );
     else
         HCat( W, G, WEmb );
 
-    DistMultiVec<F> BEmb(comm);
+    DistMultiVec<F> BEmb(grid);
     Zeros( BEmb, WEmb.Height(), numRHS );
     if( m >= n )
     {
@@ -296,7 +296,7 @@ void Tikhonov
 
     // Solve the higher-dimensional problem
     // ====================================
-    DistMultiVec<F> XEmb(comm);
+    DistMultiVec<F> XEmb(grid);
     LeastSquares( NORMAL, WEmb, BEmb, XEmb, ctrl );
 
     // Extract the solution
@@ -317,10 +317,10 @@ void Tikhonov
           TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \
-    const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& B, \
-    const ElementalMatrix<F>& G, \
-          ElementalMatrix<F>& X, \
+    const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& G, \
+          AbstractDistMatrix<F>& X, \
           TikhonovAlg alg ); \
   template void Tikhonov \
   ( Orientation orientation, \

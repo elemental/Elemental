@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,28 +11,30 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Dets
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
         Matrix<Real>& d,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
     soc::Dots( x, Rx, d, orders, firstInds );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Dets
-( const ElementalMatrix<Real>& xPre, 
-        ElementalMatrix<Real>& dPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& dPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, dPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -56,14 +58,15 @@ void Dets
     soc::Dots( x, Rx, d, orders, firstInds, cutoff );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Dets
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& d,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto Rx = x;
     soc::Reflect( Rx, orders, firstInds );
     soc::Dots( x, Rx, d, orders, firstInds, cutoff );
@@ -76,10 +79,10 @@ void Dets
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void Dets \
-  ( const ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& d, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& d, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
   template void Dets \
   ( const DistMultiVec<Real>& x, \
           DistMultiVec<Real>& d, \

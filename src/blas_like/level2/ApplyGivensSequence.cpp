@@ -16,7 +16,7 @@ namespace El {
 // TODO: Optimized versions which avoid temporaries and/or directly work on the
 // underlying raw data buffers
 
-template<typename F>
+template<typename F,typename=DisableIf<IsReal<F>>>
 void ApplyVariableLeft
 ( Int i,
   const Base<F>& c,
@@ -59,7 +59,7 @@ void ApplyVariableLeft
     }
 }
 
-template<typename F>
+template<typename F,typename=DisableIf<IsReal<F>>>
 void ApplyVariableRight
 ( Int j,
   const Base<F>& c,
@@ -102,7 +102,7 @@ void ApplyVariableRight
     }
 }
 
-template<typename F>
+template<typename F,typename=DisableIf<IsReal<F>>>
 void ApplyTopLeft
 ( Int i,
   const Base<F>& c,
@@ -145,7 +145,7 @@ void ApplyTopLeft
     }
 }
 
-template<typename F>
+template<typename F,typename=DisableIf<IsReal<F>>>
 void ApplyTopRight
 ( Int j,
   const Base<F>& c,
@@ -188,7 +188,7 @@ void ApplyTopRight
     }
 }
 
-template<typename F>
+template<typename F,typename=DisableIf<IsReal<F>>>
 void ApplyBottomLeft
 ( Int i,
   const Base<F>& c,
@@ -233,7 +233,7 @@ void ApplyBottomLeft
     }
 }
 
-template<typename F>
+template<typename F,typename=DisableIf<IsReal<F>>>
 void ApplyBottomRight
 ( Int j,
   const Base<F>& c,
@@ -285,7 +285,7 @@ void ApplyGivensSequence
   const Matrix<F>& sList,
   Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Assert the correct lengths of cList and sList
     typedef Base<F> Real;
     const Real one(1);
@@ -425,7 +425,7 @@ void ApplyGivensSequence
   const Matrix<Base<F>>& sList,
   Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO(poulson): Assert the correct lengths of cList and sList
     typedef Base<F> Real;
     const Real one(1), zero(0);

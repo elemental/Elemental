@@ -63,7 +63,7 @@ startBP = El.mpi.Time()
 x = El.BP( A, b, ctrl )
 endBP = El.mpi.Time()
 if worldRank == 0:
-  print "BP time:", endBP-startBP, "seconds"
+  print('BP time: {} seconds'.format(endBP-startBP))
 if display:
   El.Display( x, "x" )
 if output:
@@ -76,10 +76,7 @@ El.Multiply \
 ( El.NORMAL, El.ComplexDouble(-1), A, x, El.ComplexDouble(1), e )
 eTwoNorm = El.Nrm2( e )
 if worldRank == 0:
-  print "|| x ||_1       =", xOneNorm
-  print "|| A x - b ||_2 =", eTwoNorm
+  print('|| x ||_1       = {}'.format(xOneNorm))
+  print('|| A x - b ||_2 = {}'.format(eTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

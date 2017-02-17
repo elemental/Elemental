@@ -1,20 +1,20 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
+   Copyright (c) 2013-2014, Jack Poulson and
    The Georgia Institute of Technology.
    All rights reserved.
 
    Copyright (c) 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -26,7 +26,7 @@ template<typename F>
 void DiagonalSolve
 ( const NodeInfo& info, const Front<F>& front, MatrixNode<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int numChildren = info.children.size();
     for( Int c=0; c<numChildren; ++c )
@@ -35,7 +35,7 @@ void DiagonalSolve
 
     if( PivotedFactorization(front.type) )
         QuasiDiagonalSolve
-        ( LEFT, LOWER, front.diag, front.subdiag, 
+        ( LEFT, LOWER, front.diag, front.subdiag,
           X.matrix, front.isHermitian );
     else
         DiagonalSolve( LEFT, NORMAL, front.diag, X.matrix, true );
@@ -45,7 +45,7 @@ template<typename F>
 void DiagonalSolve
 ( const DistNodeInfo& info, const DistFront<F>& front, DistMultiVecNode<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     if( front.child == nullptr )
     {
@@ -65,7 +65,7 @@ template<typename F>
 void DiagonalSolve
 ( const DistNodeInfo& info, const DistFront<F>& front, DistMatrixNode<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     if( front.child == nullptr )
     {

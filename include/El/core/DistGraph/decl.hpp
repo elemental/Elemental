@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_DISTGRAPH_DECL_HPP
@@ -59,7 +67,7 @@ using std::set;
 // Forward declare ldl::DistFront
 namespace ldl { template<typename F> struct DistFront; }
 
-// Use a simple 1d distribution where each process owns a fixed number of 
+// Use a simple 1d distribution where each process owns a fixed number of
 // sources:
 //     if last process,  numSources - (commSize-1)*floor(numSources/commSize)
 //     otherwise,        floor(numSources/commSize)
@@ -68,9 +76,11 @@ class DistGraph
 public:
     // Constructors and destructors
     // ============================
-    DistGraph( mpi::Comm comm=mpi::COMM_WORLD );
-    DistGraph( Int numSources, mpi::Comm comm=mpi::COMM_WORLD );
-    DistGraph( Int numSources, Int numTargets, mpi::Comm comm=mpi::COMM_WORLD );
+    DistGraph( const El::Grid& grid=El::Grid::Default() );
+    DistGraph( Int numSources, const El::Grid& grid=El::Grid::Default() );
+    DistGraph
+    ( Int numSources, Int numTargets,
+      const El::Grid& grid=El::Grid::Default() );
     DistGraph( const Graph& graph );
     // TODO: Move constructor
     DistGraph( const DistGraph& graph );
@@ -100,7 +110,7 @@ public:
 
     // Changing the distribution
     // -------------------------
-    void SetComm( mpi::Comm comm );
+    void SetGrid( const El::Grid& grid );
 
     // Assembly
     // --------
@@ -109,7 +119,7 @@ public:
     // Safe edge insertion/removal procedure
     void Connect( Int source, Int target );
     void ConnectLocal( Int localSource, Int target );
-    void Disconnect( Int source, Int target ); 
+    void Disconnect( Int source, Int target );
     void DisconnectLocal( Int localSource, Int target );
 
     void FreezeSparsity() EL_NO_EXCEPT;
@@ -117,10 +127,10 @@ public:
     bool FrozenSparsity() const EL_NO_EXCEPT;
 
     // For inserting/removing a sequence of edges and then forcing consistency
-    void QueueConnection( Int source, Int target, bool passive=false ) 
+    void QueueConnection( Int source, Int target, bool passive=false )
     EL_NO_RELEASE_EXCEPT;
     void QueueLocalConnection( Int localSource, Int target )
-    EL_NO_RELEASE_EXCEPT; 
+    EL_NO_RELEASE_EXCEPT;
     void QueueDisconnection( Int source, Int target, bool passive=false )
     EL_NO_RELEASE_EXCEPT;
     void QueueLocalDisconnection( Int localSource, Int target )
@@ -155,7 +165,7 @@ public:
 
     // Distribution information
     // ------------------------
-    mpi::Comm Comm() const EL_NO_EXCEPT;
+    const El::Grid& Grid() const EL_NO_EXCEPT;
     Int Blocksize() const EL_NO_EXCEPT;
     int SourceOwner( Int s ) const EL_NO_RELEASE_EXCEPT;
     Int GlobalSource( Int sLoc ) const EL_NO_RELEASE_EXCEPT;
@@ -169,7 +179,7 @@ public:
     Int Offset( Int localSource, Int target ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int localSource ) const EL_NO_RELEASE_EXCEPT;
 
-    // Return the ratio of the maximum number of local edges to the 
+    // Return the ratio of the maximum number of local edges to the
     // total number of edges divided by the number of processes
     double Imbalance() const EL_NO_RELEASE_EXCEPT;
 
@@ -181,10 +191,9 @@ public:
 
 private:
     Int numSources_, numTargets_;
-    mpi::Comm comm_;
-    // Apparently calling MPI_Comm_size in an inner loop is a very bad idea...
-    int commSize_;
-    int commRank_;
+
+    // An observing pointer to a pre-existing Grid.
+    const El::Grid* grid_=nullptr;
 
     Int blocksize_;
     Int numLocalSources_;

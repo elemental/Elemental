@@ -13,7 +13,6 @@
 #include <El/lapack_like/CReflect.hpp>
 #endif
 
-#include <El/lapack_like/perm.h>
 #include <El/lapack_like/reflect.h>
 #include <El/lapack_like/util.h>
 

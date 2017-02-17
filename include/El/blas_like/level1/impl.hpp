@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS1_IMPL_HPP
@@ -47,12 +47,15 @@
 #include <El/blas_like/level1/QuasiDiagonalScale.hpp>
 #include <El/blas_like/level1/QuasiDiagonalSolve.hpp>
 #include <El/blas_like/level1/RealPart.hpp>
+#include <El/blas_like/level1/Recv.hpp>
 #include <El/blas_like/level1/Reshape.hpp>
 #include <El/blas_like/level1/Rotate.hpp>
 #include <El/blas_like/level1/Round.hpp>
 #include <El/blas_like/level1/SafeScale.hpp>
 #include <El/blas_like/level1/Scale.hpp>
 #include <El/blas_like/level1/ScaleTrapezoid.hpp>
+#include <El/blas_like/level1/Send.hpp>
+#include <El/blas_like/level1/SendRecv.hpp>
 #include <El/blas_like/level1/SetDiagonal.hpp>
 #include <El/blas_like/level1/SetSubmatrix.hpp>
 #include <El/blas_like/level1/Shift.hpp>

@@ -24,7 +24,7 @@ void SafeMultiShiftTrsm
   F alpha, Matrix<F>& A, const Matrix<F>& shifts,
   Matrix<F>& B, Matrix<F>& scales )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B *= alpha;
     if( side == LEFT && uplo == UPPER && orientation == NORMAL)
     {
@@ -42,7 +42,7 @@ void SafeMultiShiftTrsm
   F alpha, const AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& shifts, 
   AbstractDistMatrix<F>& B, AbstractDistMatrix<F>& scales )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B *= alpha;
     if( side == LEFT && uplo == UPPER && orientation == NORMAL)
     {

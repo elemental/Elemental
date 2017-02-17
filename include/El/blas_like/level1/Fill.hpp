@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_FILL_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void Fill( Matrix<T>& A, T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int j=0; j<width; ++j )
@@ -25,28 +25,28 @@ void Fill( Matrix<T>& A, T alpha )
 template<typename T>
 void Fill( AbstractDistMatrix<T>& A, T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
 void Fill( DistMultiVec<T>& A, T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Fill( A.Matrix(), alpha );
 }
 
 template<typename T>
 void Fill( SparseMatrix<T>& A, T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Resize( m, n );
     Zero( A );
     if( alpha != T(0) )
     {
-        A.Reserve( m*n ); 
+        A.Reserve( m*n );
         for( Int i=0; i<m; ++i )
             for( Int j=0; j<n; ++j )
                 A.QueueUpdate( i, j, alpha );
@@ -57,17 +57,17 @@ void Fill( SparseMatrix<T>& A, T alpha )
 template<typename T>
 void Fill( DistSparseMatrix<T>& A, T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     A.Resize( m, n );
     Zero( A );
-    if( alpha != T(0) ) 
+    if( alpha != T(0) )
     {
         const Int localHeight = A.LocalHeight();
         A.Reserve( localHeight*n );
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            for( Int j=0; j<n; ++j ) 
+            for( Int j=0; j<n; ++j )
                 A.QueueLocalUpdate( iLoc, j, alpha );
         A.ProcessLocalQueues();
     }

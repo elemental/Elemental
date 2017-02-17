@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,30 +11,32 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MaxEig
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
         Matrix<Real>& maxEigs,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     soc::LowerNorms( x, maxEigs, orders, firstInds );
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds(i) ) 
+        if( i == firstInds(i) )
             maxEigs(i) += x(i);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MaxEig
-( const ElementalMatrix<Real>& xPre, 
-        ElementalMatrix<Real>& maxEigsPre,
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+        AbstractDistMatrix<Real>& maxEigsPre,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, maxEigsPre, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -51,9 +53,9 @@ void MaxEig
     auto& maxEigs = maxEigsProx.Get();
     auto& firstInds = firstIndsProx.GetLocked();
 
-    const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
+      const Int height = x.Height();
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -71,18 +73,19 @@ void MaxEig
             maxEigBuf[iLoc] += xBuf[iLoc];
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void MaxEig
-( const DistMultiVec<Real>& x, 
+( const DistMultiVec<Real>& x,
         DistMultiVec<Real>& maxEigs,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
     const Int localHeight = x.LocalHeight();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
@@ -100,32 +103,34 @@ void MaxEig
             maxEigBuf[iLoc] += xBuf[iLoc];
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxEig
-( const Matrix<Real>& x, 
-  const Matrix<Int>& orders, 
+( const Matrix<Real>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Real> maxEigs;
     soc::MaxEig( x, maxEigs, orders, firstInds );
 
     Real maxEig = limits::Lowest<Real>();
     const Int height = x.Height();
     for( Int i=0; i<height; ++i )
-        if( i == firstInds(i) ) 
+        if( i == firstInds(i) )
             maxEig = Max(maxEigs(i),maxEig);
     return maxEig;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxEig
-( const ElementalMatrix<Real>& x, 
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( x, orders, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -149,15 +154,18 @@ Real MaxEig
     return mpi::AllReduce( maxEigLocal, mpi::MAX, x.DistComm() );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxEig
-( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
-    DistMultiVec<Real> maxEigs(x.Comm());
+    EL_DEBUG_CSE
+    const Grid& grid = x.Grid();
+
+    DistMultiVec<Real> maxEigs(grid);
     soc::MaxEig( x, maxEigs, orders, firstInds, cutoff );
 
     const Real* maxEigBuf = maxEigs.LockedMatrix().LockedBuffer();
@@ -168,7 +176,7 @@ Real MaxEig
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         if( maxEigs.GlobalRow(iLoc) == firstIndBuf[iLoc] )
             maxEigLocal = Max(maxEigLocal,maxEigBuf[iLoc]);
-    return mpi::AllReduce( maxEigLocal, mpi::MAX, x.Comm() );
+    return mpi::AllReduce( maxEigLocal, mpi::MAX, grid.Comm() );
 }
 
 #define PROTO(Real) \
@@ -178,10 +186,10 @@ Real MaxEig
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void MaxEig \
-  ( const ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& maxEigs, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& maxEigs, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void MaxEig \
   ( const DistMultiVec<Real>& x, \
@@ -194,9 +202,9 @@ Real MaxEig
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template Real MaxEig \
-  ( const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template Real MaxEig \
   ( const DistMultiVec<Real>& x, \

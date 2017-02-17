@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -45,17 +45,13 @@
 //
 // For dense and sparse matrices we respectively default to (DS1) and (DS2).
 //
-// TODO: 
-//  Add the ability to switch between the (DS1) and (DS2) affine LP
-//  formulations described in [2].
-//
-// [1] 
+// [1]
 //   Emmanuel Candes and Terence Tao,
-//   "The Dantzig selector: Statistical estimation when p is much 
+//   "The Dantzig selector: Statistical estimation when p is much
 //    larger than n",
 //   The Annals of Statistics, pp. 2313--2351, 2007.
 //
-// [2] 
+// [2]
 //   Michael Friedlander and Michael Saunders,
 //  "Discussion: The Dantzig selector: Statistical estimation when p is much
 //   larger than n",
@@ -68,12 +64,12 @@ namespace ds {
 template<typename Real>
 void Var1
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), tInd(2*n,3*n);
     Matrix<Real> c, AHat, bHat, G, h;
@@ -132,16 +128,19 @@ void Var1
 
 template<typename Real>
 void Var1
-( const ElementalMatrix<Real>& APre,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
 
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -203,12 +202,12 @@ void Var1
 template<typename Real>
 void Var2
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m), tInd(2*n+m,3*n+m);
@@ -280,13 +279,17 @@ void Var2
 
 template<typename Real>
 void Var2
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& xPre,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -360,12 +363,12 @@ void Var2
 template<typename Real>
 void Var2
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesA = A.NumEntries();
@@ -375,9 +378,33 @@ void Var2
 
     // c := [1;1;0;0]
     // ==============
-    Zeros( c, 3*n, 1 );
+    Zeros( c, 3*n+m, 1 );
     auto cuv = c( IR(0,2*n), ALL );
     Fill( cuv, Real(1) );
+
+    // G := | -I  0 0  0 |
+    //      |  0 -I 0  0 |
+    //      |  0  0 0  I |
+    //      |  0  0 0 -I |
+    // ===================
+    Zeros( G, 4*n, 3*n+m );
+    G.Reserve( 4*n );
+    for( Int i=0; i<4*n; ++i )
+    {
+        if( i < 2*n )
+            G.QueueUpdate( i, i,       Real(-1) );
+        else if( i < 3*n )
+            G.QueueUpdate( i, i+m,     Real(+1) );
+        else
+            G.QueueUpdate( i, i+(m-n), Real(-1) );
+    }
+    G.ProcessQueues();
+
+    // h := [0;0;lambda e;lambda e]
+    // ============================
+    Zeros( h, 4*n, 1 );
+    auto ht = h( IR(2*n,4*n), ALL );
+    Fill( ht, lambda );
 
     // \hat A := | A, -A,  I,  0 |
     //           | 0,  0, A^T, I |
@@ -404,30 +431,6 @@ void Var2
     auto b0 = bHat( IR(0,m), ALL );
     b0 = b;
 
-    // G := | -I  0 0  0 |
-    //      |  0 -I 0  0 |
-    //      |  0  0 0  I |
-    //      |  0  0 0 -I |
-    // ===================
-    Zeros( G, 4*n, 3*n+m );
-    G.Reserve( 4*n );
-    for( Int i=0; i<4*n; ++i )
-    {
-        if( i < 2*n )
-            G.QueueUpdate( i, i,       Real(-1) );
-        else if( i < 3*n )
-            G.QueueUpdate( i, i+m,     Real(+1) );
-        else
-            G.QueueUpdate( i, i+(m-n), Real(-1) );
-    }
-    G.ProcessQueues();
-
-    // h := [0;0;lambda e;lambda e]
-    // ============================
-    Zeros( h, 4*n, 1 );
-    auto ht = h( IR(2*n,4*n), ALL );
-    Fill( ht, lambda );
-
     // Solve the affine LP
     // ===================
     Matrix<Real> xHat, y, z, s;
@@ -442,18 +445,19 @@ void Var2
 template<typename Real>
 void Var2
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numLocalEntriesA = A.NumLocalEntries();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), bHat(comm), h(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), bHat(grid), h(grid);
 
     auto& bLoc = b.LockedMatrix();
 
@@ -527,7 +531,7 @@ void Var2
 
     // Solve the affine LP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     LP( AHat, G, bHat, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -556,51 +560,54 @@ void Var2
 
 } // namespace ds
 
+// TODO(poulson): Add the ability to choose the variant (while preserving the
+// Var1 dense default and Var2 sparse default).
+
 template<typename Real>
 void DS
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var1( A, b, lambda, x, ctrl );
 }
 
 template<typename Real>
 void DS
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
         Real lambda,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var1( A, b, lambda, x, ctrl );
 }
 
 template<typename Real>
 void DS
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda,
         Matrix<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var2( A, b, lambda, x, ctrl );
 }
 
 template<typename Real>
 void DS
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         Real lambda,
         DistMultiVec<Real>& x,
   const lp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ds::Var2( A, b, lambda, x, ctrl );
 }
 
@@ -612,10 +619,10 @@ void DS
           Matrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
           Real lambda, \
-          ElementalMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& x, \
     const lp::affine::Ctrl<Real>& ctrl ); \
   template void DS \
   ( const SparseMatrix<Real>& A, \

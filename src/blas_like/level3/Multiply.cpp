@@ -3,9 +3,9 @@
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -28,7 +28,7 @@ void MultiplyCSR
   T beta,
         T*   y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -37,7 +37,7 @@ void MultiplyCSR
             const Int eStart = rowOffsets[i];
             const Int eStop = rowOffsets[i+1];
             for( Int e=eStart; e<eStop; ++e )
-                sum += x[colIndices[e]];         
+                sum += x[colIndices[e]];
             y[i] = alpha*sum + beta*y[i];
         }
     }
@@ -50,7 +50,7 @@ void MultiplyCSR
                 const Int eStart = rowOffsets[i];
                 const Int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*x[i];         
+                    y[colIndices[e]] += alpha*x[i];
             }
 	}
     }
@@ -68,7 +68,7 @@ void MultiplyCSR
   T beta,
         T*   y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( orientation == NORMAL )
     {
         for( Int i=0; i<m; ++i )
@@ -77,7 +77,7 @@ void MultiplyCSR
             const Int eStart = rowOffsets[i];
             const Int eStop = rowOffsets[i+1];
             for( Int e=eStart; e<eStop; ++e )
-                sum += values[e]*x[colIndices[e]];         
+                sum += values[e]*x[colIndices[e]];
             y[i] = alpha*sum + beta*y[i];
         }
     }
@@ -93,7 +93,7 @@ void MultiplyCSR
                 const Int eStart = rowOffsets[i];
                 const int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];
             }
         }
         else
@@ -103,7 +103,7 @@ void MultiplyCSR
                 const Int eStart = rowOffsets[i];
                 const Int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*values[e]*x[i];         
+                    y[colIndices[e]] += alpha*values[e]*x[i];
             }
         }
     }
@@ -121,13 +121,13 @@ void MultiplyCSR
   T beta,
         T*   y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #if defined(EL_HAVE_MKL) && !defined(EL_DISABLE_MKL_CSRMV)
     char matDescrA[6];
     matDescrA[0] = 'G';
     matDescrA[3] = 'C';
     mkl::csrmv
-    ( orientation, m, n, alpha, matDescrA, 
+    ( orientation, m, n, alpha, matDescrA,
       values, colIndices, rowOffsets, rowOffsets+1, x, beta, y );
 #else
     if( orientation == NORMAL )
@@ -138,7 +138,7 @@ void MultiplyCSR
             const Int eStart = rowOffsets[i];
             const Int eStop = rowOffsets[i+1];
             for( Int e=eStart; e<eStop; ++e )
-                sum += values[e]*x[colIndices[e]];         
+                sum += values[e]*x[colIndices[e]];
             y[i] = alpha*sum + beta*y[i];
         }
     }
@@ -154,7 +154,7 @@ void MultiplyCSR
                 const Int eStart = rowOffsets[i];
                 const int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];         
+                    y[colIndices[e]] += alpha*Conj(values[e])*x[i];
             }
         }
         else
@@ -164,7 +164,7 @@ void MultiplyCSR
                 const Int eStart = rowOffsets[i];
                 const Int eStop = rowOffsets[i+1];
                 for( Int e=eStart; e<eStop; ++e )
-                    y[colIndices[e]] += alpha*values[e]*x[i];         
+                    y[colIndices[e]] += alpha*values[e]*x[i];
             }
         }
     }
@@ -183,11 +183,11 @@ void MultiplyCSR
   T beta,
         T*   Y, Int ldY )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
+        ( orientation, m, n, alpha,
           rowOffsets, colIndices, values, X, beta, Y );
         return;
     }
@@ -223,7 +223,7 @@ void MultiplyCSR
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
+                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];
                 }
             }
         }
@@ -237,7 +237,7 @@ void MultiplyCSR
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];         
+                        Y[colIndices[e]+k*ldY] += prod*X[i+k*ldX];
                 }
             }
         }
@@ -255,11 +255,11 @@ void MultiplyCSR
   T beta,
         T*   Y, Int ldY )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
+        ( orientation, m, n, alpha,
           rowOffsets, colIndices, X, beta, Y );
         return;
     }
@@ -291,11 +291,8 @@ void MultiplyCSR
             	    const Int eStart = rowOffsets[i];
             	    const Int eStop = rowOffsets[i+1];
             	    for( Int e=eStart; e<eStop; ++e )
-            	    {
-            	        for( Int k=0; k<numRHS; ++k ){
-            	            Y[colIndices[e]+k*ldY] += alpha*X[i+k*ldX]; 
-			}	    
-            	    }
+            	        for( Int k=0; k<numRHS; ++k )
+            	            Y[colIndices[e]+k*ldY] += alpha*X[i+k*ldX];
             	}
             }
         }
@@ -314,11 +311,11 @@ void MultiplyCSRInterX
   T beta,
         T*   Y, Int ldY )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
+        ( orientation, m, n, alpha,
           rowOffsets, colIndices, values, X, beta, Y );
         return;
     }
@@ -354,7 +351,7 @@ void MultiplyCSRInterX
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];         
+                        Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];
                 }
             }
         }
@@ -368,7 +365,7 @@ void MultiplyCSRInterX
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];         
+                        Y[colIndices[e]+k*ldY] += prod*X[i*numRHS+k];
                 }
             }
         }
@@ -387,11 +384,11 @@ void MultiplyCSRInterY
   T beta,
         T*   Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
+        ( orientation, m, n, alpha,
           rowOffsets, colIndices, values, X, beta, Y );
         return;
     }
@@ -427,7 +424,7 @@ void MultiplyCSRInterY
                 {
                     T prod = alpha*Conj(values[e]);
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];         
+                        Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];
                 }
             }
         }
@@ -441,7 +438,7 @@ void MultiplyCSRInterY
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];         
+                        Y[colIndices[e]*numRHS+k] += prod*X[i+k*ldX];
                 }
             }
         }
@@ -460,11 +457,11 @@ void MultiplyCSRInter
   T beta,
         T*   Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( numRHS == 1 )
     {
         MultiplyCSR
-        ( orientation, m, n, alpha, 
+        ( orientation, m, n, alpha,
           rowOffsets, colIndices, values, X, beta, Y );
         return;
     }
@@ -514,7 +511,7 @@ void MultiplyCSRInter
                 {
                     T prod = alpha*values[e];
                     for( Int k=0; k<numRHS; ++k )
-                        Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k]; 
+                        Y[colIndices[e]*numRHS+k] += prod*X[i*numRHS+k];
                 }
             }
         }
@@ -529,8 +526,8 @@ void Multiply
   T alpha, const SparseMatrix<T>& A, const Matrix<T>& X,
   T beta,                                  Matrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
     )
@@ -545,19 +542,19 @@ void Multiply
 
 template<typename T>
 void Multiply
-( Orientation orientation, 
+( Orientation orientation,
   T alpha, const Graph& A, const Matrix<T>& X,
   T beta,                        Matrix<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
     )
     MultiplyCSR
-    ( orientation, A.NumSources(), A.NumTargets(), X.Width(), 
-      alpha, A.LockedOffsetBuffer(), 
-             A.LockedTargetBuffer(), 
+    ( orientation, A.NumSources(), A.NumTargets(), X.Width(),
+      alpha, A.LockedOffsetBuffer(),
+             A.LockedTargetBuffer(),
              X.LockedBuffer(), X.LDim(),
       beta,  Y.Buffer(), Y.LDim());
 }
@@ -565,28 +562,28 @@ void Multiply
 
 template<typename T>
 void Multiply
-( Orientation orientation, 
-        T alpha, 
+( Orientation orientation,
+        T alpha,
   const DistSparseMatrix<T>& A,
   const DistMultiVec<T>& X,
         T beta,
         DistMultiVec<T>& Y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( X.Width() != Y.Width() )
           LogicError("X and Y must have the same width");
-      if( !mpi::Congruent( A.Comm(), X.Comm() ) || 
-          !mpi::Congruent( X.Comm(), Y.Comm() ) )
+      if( !mpi::Congruent( A.Grid().Comm(), X.Grid().Comm() ) ||
+          !mpi::Congruent( X.Grid().Comm(), Y.Grid().Comm() ) )
           LogicError("Communicators did not match");
     )
 
     const bool time = false;
 
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
-    // TODO: Use sequential implementation if commSize = 1?
+    const Grid& grid = A.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
+    // TODO(poulson): Use sequential implementation if commSize = 1?
 
     Timer totalTimer, timer;
     if( time && commRank == 0 )
@@ -605,7 +602,7 @@ void Multiply
                 sendOffs=meta.sendOffs;
     for( int q=0; q<commSize; ++q )
     {
-        recvSizes[q] *= b;    
+        recvSizes[q] *= b;
         recvOffs[q] *= b;
         sendSizes[q] *= b;
         sendOffs[q] *= b;
@@ -637,17 +634,17 @@ void Multiply
         vector<T> recvVals( meta.numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), sendSizes.data(), sendOffs.data(),
-          recvVals.data(), recvSizes.data(), recvOffs.data(), comm );
-     
+          recvVals.data(), recvSizes.data(), recvOffs.data(), grid.Comm() );
+
         // Perform the local multiply-accumulate, y := alpha A x + y
         if( time && commRank == 0 )
             timer.Start();
         MultiplyCSRInterX
         ( NORMAL, A.LocalHeight(), meta.numRecvInds, b,
-          alpha, A.LockedOffsetBuffer(), 
+          alpha, A.LockedOffsetBuffer(),
                  meta.colOffs.data(),
                  A.LockedValueBuffer(),
-                 recvVals.data(), 
+                 recvVals.data(),
           T(1),  Y.Matrix().Buffer(), Y.Matrix().LDim() );
         if( time && commRank == 0 )
             Output("  MultiplyCSRInterX time: ",timer.Stop());
@@ -679,11 +676,11 @@ void Multiply
         FastResize( recvVals, numRecvInds*b );
         mpi::AllToAll
         ( sendVals.data(), recvSizes.data(), recvOffs.data(),
-          recvVals.data(), sendSizes.data(), sendOffs.data(), comm );
-     
+          recvVals.data(), sendSizes.data(), sendOffs.data(), grid.Comm() );
+
         // Accumulate the received indices onto Y
         const Int firstLocalRow = Y.FirstLocalRow();
-        T* YBuffer = Y.Matrix().Buffer(); 
+        T* YBuffer = Y.Matrix().Buffer();
         const Int ldY = Y.Matrix().LDim();
         for( Int s=0; s<numRecvInds; ++s )
         {

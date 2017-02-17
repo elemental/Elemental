@@ -3,9 +3,9 @@
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -38,7 +38,8 @@ main( int argc, char* argv[] )
         ctrl.numDistSeps = numDistSeps;
 
         const Int numVertices = n*n*n;
-        DistGraph graph( numVertices, comm );
+        const Grid grid( comm );
+        DistGraph graph( numVertices, grid );
 
         // Fill our portion of the graph of a 3D n x n x n 7-point stencil
         // in natural ordering: (x,y,z) at x + y*n + z*n*n
@@ -77,8 +78,9 @@ main( int argc, char* argv[] )
             DistGraph child;
             DistMap map;
             bool haveLeftChild;
-            const Int sepSize = 
-                Bisect( graph, child, map, haveLeftChild, ctrl );
+            std::unique_ptr<Grid> childGrid;
+            const Int sepSize =
+                Bisect( graph, childGrid, child, map, haveLeftChild, ctrl );
 
             int leftChildSize, rightChildSize;
             if( haveLeftChild )
@@ -107,7 +109,7 @@ main( int argc, char* argv[] )
 
             Graph leftChild, rightChild;
             std::vector<Int> map;
-            const Int sepSize = 
+            const Int sepSize =
                 Bisect( seqGraph, leftChild, rightChild, map, ctrl );
 
             const Int leftChildSize = leftChild.NumSources();

@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_DISTMAP_DECL_HPP
@@ -13,7 +21,7 @@
 
 namespace El {
 
-// Use a simple 1d distribution where each process owns a fixed number of 
+// Use a simple 1d distribution where each process owns a fixed number of
 // indices,
 //     if last process,  height - (commSize-1)*floor(height/commSize)
 //     otherwise,        floor(height/commSize)
@@ -21,9 +29,9 @@ class DistMap
 {
 public:
     // Constructors and destructors
-    DistMap( mpi::Comm comm=mpi::COMM_WORLD );
-    DistMap( Int numSources, mpi::Comm comm=mpi::COMM_WORLD );
-    // TODO: Constructor for building from a DistMap
+    DistMap( const El::Grid& grid=El::Grid::Default() );
+    DistMap( Int numSources, const El::Grid& grid=El::Grid::Default() );
+    // TODO(poulson): Constructor for building from a DistMap
     ~DistMap();
 
     // Map manipulation
@@ -39,11 +47,9 @@ public:
     // High-level information
     Int NumSources() const;
 
-    // Communicator management
-    void SetComm( mpi::Comm comm );
-    mpi::Comm Comm() const;
-
     // Distribution information
+    void SetGrid( const El::Grid& grid );
+    const El::Grid& Grid() const;
     Int Blocksize() const;
     Int FirstLocalSource() const;
     Int NumLocalSources() const;
@@ -67,10 +73,8 @@ public:
 private:
     Int numSources_;
 
-    mpi::Comm comm_;
-    // Apparently calling MPI_Comm_size in an inner loop is a bad idea
-    int commSize_;
-    int commRank_;
+    // An observing pointer to a pre-existing Grid.
+    const El::Grid* grid_=nullptr;
 
     Int blocksize_;
 
@@ -81,7 +85,7 @@ private:
 
 void InvertMap( const vector<Int>& map, vector<Int>& inverseMap );
 void InvertMap( const DistMap& map, DistMap& inverseMap );
-  
+
 } // namespace El
 
 #endif // ifndef EL_CORE_DISTMAP_DECL_HPP

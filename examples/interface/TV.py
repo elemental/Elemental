@@ -2,17 +2,18 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 import El
 
 n = 4000
-numLambdas = 5
+numLambdas = 3
 startLambda = 1.
-endLambda = 50.
-display = True
+endLambda = 20.
+#display = True
+display = False
 worldRank = El.mpi.WorldRank()
 worldSize = El.mpi.WorldSize()
 
@@ -42,15 +43,15 @@ ctrl.mehrotraCtrl.progress = True
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)
   if worldRank == 0:
-    print "lambda =", lambd
+    print('lambda = {}'.format(lambd))
 
   startTV = El.mpi.Time()
   x = El.TV( b, lambd, ctrl )
   endTV = El.mpi.Time()
   if worldRank == 0:
-    print "TV time: ", endTV-startTV
+    print('TV time: {}'.format(endTV-startTV))
 
-  Dx = El.DistMultiVec() 
+  Dx = El.DistMultiVec()
   El.Zeros( Dx, n-1, 1 )
   El.Multiply( El.NORMAL, 1., D, x, 0., Dx )
   if display:
@@ -65,10 +66,7 @@ for j in xrange(0,numLambdas):
     El.Display( e, "e" )
   eTwoNorm = El.Nrm2( e )
   if worldRank == 0:
-    print "|| D x ||_1   =", DxOneNorm
-    print "|| x - b ||_2 =", eTwoNorm
+    print('|| D x ||_1   = {}'.format(DxOneNorm))
+    print('|| x - b ||_2 = {}'.format(eTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

@@ -2,137 +2,138 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
 
 //
 // This driver generates a random low-rank matrix and then randomly corrupts
-// a large percentage of the entries (by default 10%). Robust Principal 
-// Component Analysis (RPCA) is then used to recover both the underlying 
+// a large percentage of the entries (by default 10%). Robust Principal
+// Component Analysis (RPCA) is then used to recover both the underlying
 // low-rank and sparse matrices.
 //
 // Please see <http://perception.csl.illinois.edu/matrix-rank/sample_code.html>
-// for references and documentation on the Augmented Lagrange Multiplier (ALM) 
+// for references and documentation on the Augmented Lagrange Multiplier (ALM)
 // and Alternating Direction Method of Multipliers (ADMM) for Robust PCA.
 //
 
 // Corrupt a portion of the entries with uniform samples from the unit ball
-template<typename F>
-int Corrupt( DistMatrix<F>& A, double probCorrupt )
+template<typename Field>
+int Corrupt( El::DistMatrix<Field>& A, double probCorrupt )
 {
-    DEBUG_ONLY(CallStackEntry cse("Corrupt"))
-    typedef Base<F> Real;
+    EL_DEBUG_ONLY(El::CallStackEntry cse("Corrupt"))
+    typedef El::Base<Field> Real;
 
-    Int numLocalCorrupt = 0;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    El::Int numLocalCorrupt = 0;
+    const El::Int localHeight = A.LocalHeight();
+    const El::Int localWidth = A.LocalWidth();
+    for( El::Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( El::Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            if( SampleUniform<Real>() <= probCorrupt )
+            if( El::SampleUniform<Real>() <= probCorrupt )
             {
                 ++numLocalCorrupt;
-                const F perturb = SampleBall<F>();
+                const Field perturb = El::SampleBall<Field>();
                 A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)+perturb );
             }
         }
     }
-    
-    return mpi::AllReduce( numLocalCorrupt, A.DistComm() );
+
+    return El::mpi::AllReduce( numLocalCorrupt, A.DistComm() );
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
-    const Int commRank = mpi::Rank();
-    typedef Complex<double> C;
+    El::Environment env( argc, argv );
+    const El::Int commRank = El::mpi::Rank();
+    typedef El::Complex<double> Scalar;
 
     try
     {
-        const Int m = Input("--height","height of matrix",100);
-        const Int n = Input("--width","width of matrix",100);
-        const Int rank = Input("--rank","rank of structured matrix",10);
-        const double probCorrupt = 
-            Input("--probCorrupt","probability of corruption",0.1);
-        const double tau = Input("--tau","sparse weighting factor",0.);
-        const double beta = Input("--beta","step size",1.);
-        const double rho = Input("--rho","stepsize multiple in ALM",6.);
-        const Int maxIts = Input("--maxIts","maximum iterations",1000);
-        const double tol = Input("--tol","tolerance",1.e-5);
-        const bool usePivQR = 
-            Input("--usePivQR","use pivoted QR approx?",false);
-        const Int numPivSteps = 
-            Input("--numPivSteps","number of steps of QR",75);
-        const bool useALM = Input("--useALM","use ALM algorithm?",true);
-        const bool display = Input("--display","display matrices",true);
-        const bool print = Input("--print","print matrices",false);
-        ProcessInput();
-        PrintInputReport();
+        const El::Int m = El::Input("--height","height of matrix",100);
+        const El::Int n = El::Input("--width","width of matrix",100);
+        const El::Int rank = El::Input("--rank","rank of structured matrix",10);
+        const double probCorrupt =
+          El::Input("--probCorrupt","probability of corruption",0.1);
+        const double tau = El::Input("--tau","sparse weighting factor",0.);
+        const double beta = El::Input("--beta","step size",1.);
+        const double rho = El::Input("--rho","stepsize multiple in ALM",6.);
+        const El::Int maxIts = El::Input("--maxIts","maximum iterations",1000);
+        const double tol = El::Input("--tol","tolerance",1.e-5);
+        const bool usePivQR =
+          El::Input("--usePivQR","use pivoted QR approx?",false);
+        const El::Int numPivSteps =
+          El::Input("--numPivSteps","number of steps of QR",75);
+        const bool useALM = El::Input("--useALM","use ALM algorithm?",true);
+        const bool display = El::Input("--display","display matrices",false);
+        const bool print = El::Input("--print","print matrices",true);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        DistMatrix<C> LTrue;
+        El::DistMatrix<Scalar> LTrue;
         {
-            DistMatrix<C> U, V;
-            Uniform( U, m, rank );
-            Uniform( V, n, rank );
-            Zeros( LTrue, m, n );
+            El::DistMatrix<Scalar> U, V;
+            El::Uniform( U, m, rank );
+            El::Uniform( V, n, rank );
+            El::Zeros( LTrue, m, n );
             // Since each entry of U and V is lies in the unit ball, every entry
             // of U V' will lie in the ball of radius 'rank', so scale this ball
-            Gemm( NORMAL, ADJOINT, C(1./rank), U, V, C(0), LTrue );
+            El::Gemm
+            ( El::NORMAL, El::ADJOINT,
+              Scalar(1./rank), U, V, Scalar(0), LTrue );
         }
-        const double frobLTrue = FrobeniusNorm( LTrue );
-        const double maxLTrue = MaxNorm( LTrue );
+        const double frobLTrue = El::FrobeniusNorm( LTrue );
+        const double maxLTrue = El::MaxNorm( LTrue );
         if( commRank == 0 )
         {
-            Output("|| L ||_F = ",frobLTrue);
-            Output("|| L ||_max = ",maxLTrue);
+            El::Output("|| L ||_F = ",frobLTrue);
+            El::Output("|| L ||_max = ",maxLTrue);
         }
         if( display )
-            Display( LTrue, "True low-rank" );
+            El::Display( LTrue, "True low-rank" );
         if( print )
-            Print( LTrue, "True low-rank" );
+            El::Print( LTrue, "True low-rank" );
 
-        DistMatrix<C> STrue;
-        Zeros( STrue, m, n );
-        const Int numCorrupt = Corrupt( STrue, probCorrupt );
-        const double frobSTrue = FrobeniusNorm( STrue );
-        const double maxSTrue = MaxNorm( STrue );
+        El::DistMatrix<Scalar> STrue;
+        El::Zeros( STrue, m, n );
+        const El::Int numCorrupt = Corrupt( STrue, probCorrupt );
+        const double frobSTrue = El::FrobeniusNorm( STrue );
+        const double maxSTrue = El::MaxNorm( STrue );
         if( commRank == 0 )
         {
-            Output("# of corrupted entries: ",numCorrupt);
-            Output("|| S ||_F = ",frobSTrue);
-            Output("|| S ||_max = ",maxSTrue);
+            El::Output("# of corrupted entries: ",numCorrupt);
+            El::Output("|| S ||_F = ",frobSTrue);
+            El::Output("|| S ||_max = ",maxSTrue);
         }
         if( display )
         {
-            Display( STrue, "True sparse matrix" );
+            El::Display( STrue, "True sparse matrix" );
 #ifdef EL_HAVE_QT5
-            Spy( STrue, "True sparse spy plot" );
+            El::Spy( STrue, "True sparse spy plot" );
 #endif
         }
         if( print )
-            Print( STrue, "True sparse" );
+            El::Print( STrue, "True sparse" );
 
         if( commRank == 0 )
-            Output
+            El::Output
             ("Using ",STrue.Grid().Height()," x ",STrue.Grid().Width(),
-             " grid and blocksize of ",Blocksize());
+             " grid and blocksize of ",El::Blocksize());
 
         // M = LTrue + STrue
-        DistMatrix<C> M( LTrue );
+        El::DistMatrix<Scalar> M( LTrue );
         M += STrue;
         if( display )
-            Display( M, "Sum of low-rank and sparse");
+            El::Display( M, "Sum of low-rank and sparse");
         if( print )
-            Print( M, "Sum of low-rank and sparse" );
+            El::Print( M, "Sum of low-rank and sparse" );
 
         // Create a custom set of parameters for RPCA
-        RPCACtrl<double> ctrl;
+        El::RPCACtrl<double> ctrl;
         ctrl.useALM = useALM;
         ctrl.usePivQR = usePivQR;
         ctrl.progress = print;
@@ -143,36 +144,36 @@ main( int argc, char* argv[] )
         ctrl.rho = rho;
         ctrl.tol = tol;
 
-        Timer timer;
-        DistMatrix<C> L, S;
+        El::Timer timer;
+        El::DistMatrix<Scalar> L, S;
         if( commRank == 0 )
             timer.Start();
-        RPCA( M, L, S, ctrl );
+        El::RPCA( M, L, S, ctrl );
         if( commRank == 0 )
             timer.Stop();
 
         if( display )
         {
-            Display( L, "Estimated low-rank matrix" );
-            Display( S, "Estimated sparse matrix" );
+            El::Display( L, "Estimated low-rank matrix" );
+            El::Display( S, "Estimated sparse matrix" );
 #ifdef EL_HAVE_QT5
-            Spy( S, "Estimated sparse spy plot" );
+            El::Spy( S, "Estimated sparse spy plot" );
 #endif
         }
         if( print )
         {
-            Print( L, "Estimated low-rank matrix" );
-            Print( S, "Estimated sparse matrix" );
+            El::Print( L, "Estimated low-rank matrix" );
+            El::Print( S, "Estimated sparse matrix" );
         }
 
         L -= LTrue;
         S -= STrue;
-        const double frobLDiff = FrobeniusNorm( L );
-        const double frobSDiff = FrobeniusNorm( S );
+        const double frobLDiff = El::FrobeniusNorm( L );
+        const double frobSDiff = El::FrobeniusNorm( S );
         if( commRank == 0 )
         {
-            Output("RPCA time: ",timer.Total()," secs");
-            Output
+            El::Output("RPCA time: ",timer.Total()," secs");
+            El::Output
             ("Error in decomposition:\n",
              "  || L - LTrue ||_F / || LTrue ||_F = ",frobLDiff/frobLTrue,"\n",
              "  || S - STrue ||_F / || STrue ||_F = ",frobSDiff/frobSTrue,"\n");
@@ -180,16 +181,16 @@ main( int argc, char* argv[] )
 
         if( display )
         {
-            Display( L, "Error in low-rank estimate" );
-            Display( S, "Error in sparse estimate" );
+            El::Display( L, "Error in low-rank estimate" );
+            El::Display( S, "Error in sparse estimate" );
         }
         if( print )
         {
-            Print( L, "Error in low-rank estimate" );
-            Print( S, "Error in sparse estimate" );
+            El::Print( L, "Error in low-rank estimate" );
+            El::Print( S, "Error in sparse estimate" );
         }
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

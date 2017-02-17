@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_TRANSPOSE_PARTIALCOLALLGATHER_HPP
@@ -15,12 +15,12 @@ namespace transpose {
 // (U,V) |-> (V,Partial(U))
 template<typename T>
 void PartialColAllGather
-( const ElementalMatrix<T>& A, 
+( const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( B.ColDist() != A.RowDist() || 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( B.ColDist() != A.RowDist() ||
           B.RowDist() != Partial(A.ColDist()) )
           LogicError("Incompatible distributions");
     )
@@ -34,12 +34,12 @@ void PartialColAllGather
 
 template<typename T>
 void PartialColAllGather
-( const BlockMatrix<T>& A, 
+( const BlockMatrix<T>& A,
         BlockMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( B.ColDist() != A.RowDist() || 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( B.ColDist() != A.RowDist() ||
           B.RowDist() != Partial(A.ColDist()) )
           LogicError("Incompatible distributions");
     )

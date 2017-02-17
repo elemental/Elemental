@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_DISTMATRIX_ABSTRACT_HPP
@@ -12,15 +12,14 @@
 namespace El {
 
 struct DistData;
-struct ElementalData;
 
-template<typename scalarType> 
+template<typename Ring>
 class AbstractDistMatrix
 {
 public:
     // Typedefs
     // ========
-    typedef AbstractDistMatrix<scalarType> type;
+    typedef AbstractDistMatrix<Ring> type;
 
     // Constructors and destructors
     // ============================
@@ -30,10 +29,13 @@ public:
     virtual ~AbstractDistMatrix();
 
     virtual type* Copy() const = 0;
-    virtual type* Construct( const El::Grid& g, int root ) const = 0;
-    virtual type* ConstructTranspose( const El::Grid& g, int root ) const = 0;
-    virtual type* ConstructDiagonal( const El::Grid& g, int root ) const = 0;
-    // TODO: ConstructPartialCol and friends?
+    virtual type* Construct
+    ( const El::Grid& grid, int root ) const = 0;
+    virtual type* ConstructTranspose
+    ( const El::Grid& grid, int root ) const = 0;
+    virtual type* ConstructDiagonal
+    ( const El::Grid& grid, int root ) const = 0;
+    // TODO(poulson): ConstructPartialCol and friends?
 
     // Assignment and reconfiguration
     // ==============================
@@ -68,7 +70,7 @@ public:
 
     // Rescaling
     // ---------
-    const type& operator*=( scalarType alpha );
+    const type& operator*=( Ring alpha );
 
     // Basic queries
     // =============
@@ -89,14 +91,14 @@ public:
 
           size_t      AllocatedMemory() const EL_NO_EXCEPT;
 
-          scalarType* Buffer()                     EL_NO_RELEASE_EXCEPT;
-          scalarType* Buffer( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
+          Ring* Buffer()                     EL_NO_RELEASE_EXCEPT;
+          Ring* Buffer( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
 
-    const scalarType* LockedBuffer()                     const EL_NO_EXCEPT;
-    const scalarType* LockedBuffer( Int iLoc, Int jLoc ) const EL_NO_EXCEPT;
+    const Ring* LockedBuffer()                     const EL_NO_EXCEPT;
+    const Ring* LockedBuffer( Int iLoc, Int jLoc ) const EL_NO_EXCEPT;
 
-          El::Matrix<scalarType>& Matrix()             EL_NO_EXCEPT;
-    const El::Matrix<scalarType>& LockedMatrix() const EL_NO_EXCEPT;
+          El::Matrix<Ring>& Matrix()             EL_NO_EXCEPT;
+    const El::Matrix<Ring>& LockedMatrix() const EL_NO_EXCEPT;
 
     // Distribution information
     // ------------------------
@@ -148,15 +150,16 @@ public:
     virtual int CrossRank()           const EL_NO_RELEASE_EXCEPT = 0;
     virtual int RedundantRank()       const EL_NO_RELEASE_EXCEPT = 0;
 
-    virtual Dist     ColDist()             const EL_NO_EXCEPT = 0;
-    virtual Dist     RowDist()             const EL_NO_EXCEPT = 0;
-    virtual Dist     CollectedColDist()    const EL_NO_EXCEPT = 0;
-    virtual Dist     CollectedRowDist()    const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialColDist()      const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialRowDist()      const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialUnionColDist() const EL_NO_EXCEPT = 0;
-    virtual Dist     PartialUnionRowDist() const EL_NO_EXCEPT = 0;
-    virtual DistWrap Wrap()                const EL_NO_EXCEPT = 0;
+    virtual Dist         ColDist()             const EL_NO_EXCEPT = 0;
+    virtual Dist         RowDist()             const EL_NO_EXCEPT = 0;
+    virtual Dist         CollectedColDist()    const EL_NO_EXCEPT = 0;
+    virtual Dist         CollectedRowDist()    const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialColDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialRowDist()      const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialUnionColDist() const EL_NO_EXCEPT = 0;
+    virtual Dist         PartialUnionRowDist() const EL_NO_EXCEPT = 0;
+    virtual DistWrap     Wrap()                const EL_NO_EXCEPT = 0;
+            El::DistData DistData()            const EL_NO_EXCEPT;
 
     virtual mpi::Comm ColComm()             const EL_NO_EXCEPT = 0;
     virtual mpi::Comm RowComm()             const EL_NO_EXCEPT = 0;
@@ -181,41 +184,41 @@ public:
     // Single-entry manipulation
     // =========================
 
-    // Global entry manipulation 
+    // Global entry manipulation
     // -------------------------
     // NOTE: Local entry manipulation is often much faster and should be
     //       preferred in most circumstances where performance matters.
 
-    scalarType Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Ring Get( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
 
-    Base<scalarType> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
-    Base<scalarType> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<Ring> GetRealPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
+    Base<Ring> GetImagPart( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
 
-    void Set( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
-    void Set( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
-
-    void SetRealPart
-    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
-    void SetImagPart
-    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+    void Set( Int i, Int j, Ring alpha ) EL_NO_RELEASE_EXCEPT;
+    void Set( const Entry<Ring>& entry ) EL_NO_RELEASE_EXCEPT;
 
     void SetRealPart
-    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+    ( Int i, Int j, Base<Ring> alpha ) EL_NO_RELEASE_EXCEPT;
     void SetImagPart
-    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+    ( Int i, Int j, Base<Ring> alpha ) EL_NO_RELEASE_EXCEPT;
 
-    void Update( Int i, Int j, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
-    void Update( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
+    void SetRealPart
+    ( const Entry<Base<Ring>>& entry ) EL_NO_RELEASE_EXCEPT;
+    void SetImagPart
+    ( const Entry<Base<Ring>>& entry ) EL_NO_RELEASE_EXCEPT;
+
+    void Update( Int i, Int j, Ring alpha ) EL_NO_RELEASE_EXCEPT;
+    void Update( const Entry<Ring>& entry ) EL_NO_RELEASE_EXCEPT;
 
     void UpdateRealPart
-    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+    ( Int i, Int j, Base<Ring> alpha ) EL_NO_RELEASE_EXCEPT;
     void UpdateImagPart
-    ( Int i, Int j, Base<scalarType> alpha ) EL_NO_RELEASE_EXCEPT;
+    ( Int i, Int j, Base<Ring> alpha ) EL_NO_RELEASE_EXCEPT;
 
     void UpdateRealPart
-    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+    ( const Entry<Base<Ring>>& entry ) EL_NO_RELEASE_EXCEPT;
     void UpdateImagPart
-    ( const Entry<Base<scalarType>>& entry ) EL_NO_RELEASE_EXCEPT;
+    ( const Entry<Base<Ring>>& entry ) EL_NO_RELEASE_EXCEPT;
 
     void MakeReal( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
     void Conjugate( Int i, Int j ) EL_NO_RELEASE_EXCEPT;
@@ -223,8 +226,8 @@ public:
     // Batch updating of remote entries
     // ---------------------------------
     void Reserve( Int numRemoteEntries );
-    void QueueUpdate( const Entry<scalarType>& entry ) EL_NO_RELEASE_EXCEPT;
-    void QueueUpdate( Int i, Int j, scalarType value ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( const Entry<Ring>& entry ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( Int i, Int j, Ring value ) EL_NO_RELEASE_EXCEPT;
     void ProcessQueues( bool includeViewers=true );
 
     // Batch extraction of remote entries
@@ -232,50 +235,50 @@ public:
     void ReservePulls( Int numPulls ) const;
     void QueuePull( Int i, Int j ) const EL_NO_RELEASE_EXCEPT;
     void ProcessPullQueue
-    ( scalarType* pullBuf, bool includeViewers=true ) const;
+    ( Ring* pullBuf, bool includeViewers=true ) const;
     void ProcessPullQueue
-    ( vector<scalarType>& pullBuf, bool includeViewers=true ) const;
+    ( vector<Ring>& pullBuf, bool includeViewers=true ) const;
 
     // Local entry manipulation
     // ------------------------
     // NOTE: Clearly each of the following routines could instead be performed
     //       via composing [Locked]Matrix() with the corresponding local
-    //       routine, but a large amount of code might need to change if 
+    //       routine, but a large amount of code might need to change if
     //       these were removed.
 
-    scalarType GetLocal( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
+    Ring GetLocal( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
 
-    Base<scalarType> GetLocalRealPart
+    Base<Ring> GetLocalRealPart
     ( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
-    Base<scalarType> GetLocalImagPart
+    Base<Ring> GetLocalImagPart
     ( Int iLoc, Int jLoc ) const EL_NO_RELEASE_EXCEPT;
 
-    void SetLocal( Int iLoc, Int jLoc, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
-    void SetLocal( const Entry<scalarType>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    void SetLocal( Int iLoc, Int jLoc, Ring alpha ) EL_NO_RELEASE_EXCEPT;
+    void SetLocal( const Entry<Ring>& localEntry ) EL_NO_RELEASE_EXCEPT;
 
-    void SetLocalRealPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
+    void SetLocalRealPart( Int iLoc, Int jLoc, Base<Ring> alpha )
     EL_NO_RELEASE_EXCEPT;
-    void SetLocalImagPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
+    void SetLocalImagPart( Int iLoc, Int jLoc, Base<Ring> alpha )
     EL_NO_RELEASE_EXCEPT;
 
-    void SetLocalRealPart( const Entry<Base<scalarType>>& localEntry )
+    void SetLocalRealPart( const Entry<Base<Ring>>& localEntry )
     EL_NO_RELEASE_EXCEPT;
-    void SetLocalImagPart( const Entry<Base<scalarType>>& localEntry )
+    void SetLocalImagPart( const Entry<Base<Ring>>& localEntry )
     EL_NO_RELEASE_EXCEPT;
 
     void UpdateLocal
-    ( Int iLoc, Int jLoc, scalarType alpha ) EL_NO_RELEASE_EXCEPT;
+    ( Int iLoc, Int jLoc, Ring alpha ) EL_NO_RELEASE_EXCEPT;
     void UpdateLocal
-    ( const Entry<scalarType>& localEntry ) EL_NO_RELEASE_EXCEPT;
+    ( const Entry<Ring>& localEntry ) EL_NO_RELEASE_EXCEPT;
 
-    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
+    void UpdateLocalRealPart( Int iLoc, Int jLoc, Base<Ring> alpha )
     EL_NO_RELEASE_EXCEPT;
-    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<scalarType> alpha )
+    void UpdateLocalImagPart( Int iLoc, Int jLoc, Base<Ring> alpha )
     EL_NO_RELEASE_EXCEPT;
 
-    void UpdateLocalRealPart( const Entry<Base<scalarType>>& localEntry )
+    void UpdateLocalRealPart( const Entry<Base<Ring>>& localEntry )
     EL_NO_RELEASE_EXCEPT;
-    void UpdateLocalImagPart( const Entry<Base<scalarType>>& localEntry )
+    void UpdateLocalImagPart( const Entry<Base<Ring>>& localEntry )
     EL_NO_RELEASE_EXCEPT;
 
     void MakeLocalReal( Int iLoc, Int jLoc ) EL_NO_RELEASE_EXCEPT;
@@ -298,13 +301,13 @@ public:
 
     // Remote updates
     // --------------
-    vector<Entry<scalarType>> remoteUpdates;
+    vector<Entry<Ring>> remoteUpdates;
 
 protected:
     // Member variables
     // ================
 
-    // Global and local matrix information 
+    // Global and local matrix information
     // -----------------------------------
     ViewType viewType_=OWNER;
     Int height_=0, width_=0;
@@ -317,13 +320,15 @@ protected:
         colShift_=0,
         rowShift_=0;
     int root_=0;
-    const El::Grid* grid_;
 
-    El::Matrix<scalarType> matrix_=El::Matrix<scalarType>(0,0,true);
+    // An observing pointer to a pre-existing grid.
+    const El::Grid* grid_=nullptr;
+
+    El::Matrix<Ring> matrix_=El::Matrix<Ring>();
 
     // Remote updates
     // --------------
-    // NOTE: Using ValueInt<Int> is somewhat of a hack; it would be nice to 
+    // NOTE: Using ValueInt<Int> is somewhat of a hack; it would be nice to
     //       have a pair of integers as its own data structure that does not
     //       require separate MPI wrappers from ValueInt<Int>
     mutable vector<ValueInt<Int>> remotePulls_;
@@ -331,7 +336,7 @@ protected:
     // Protected constructors
     // ======================
     // Create a 0 x 0 distributed matrix
-    AbstractDistMatrix( const El::Grid& g=Grid::Default(), int root=0 );
+    AbstractDistMatrix( const El::Grid& grid=Grid::Default(), int root=0 );
 
     // Modify the distribution metadata
     // ================================
@@ -349,30 +354,6 @@ private:
     template<typename S> friend class BlockMatrix;
 };
 
-struct ElementalData
-{
-    Dist colDist, rowDist;
-    int colAlign, rowAlign;
-    int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
-    const Grid* grid;
-
-    ElementalData() { }
-
-    template<typename scalarType>
-    ElementalData( const ElementalMatrix<scalarType>& A )
-    : colDist(A.ColDist()), rowDist(A.RowDist()),
-      colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
-      root(A.Root()), grid(&A.Grid())
-    { }
-};
-inline bool operator==( const ElementalData& A, const ElementalData& B )
-{ return A.colDist  == B.colDist &&
-         A.rowDist  == B.rowDist &&
-         A.colAlign == B.colAlign &&
-         A.rowAlign == B.rowAlign &&
-         A.root     == B.root &&
-         A.grid     == B.grid; }
-
 struct DistData
 {
     Dist colDist, rowDist;
@@ -384,16 +365,8 @@ struct DistData
 
     DistData() { }
 
-    DistData( const ElementalData& data )
-    : colDist(data.colDist), rowDist(data.rowDist),
-      blockHeight(1), blockWidth(1),
-      colAlign(data.colAlign), rowAlign(data.rowAlign),
-      colCut(0), rowCut(0),
-      root(data.root), grid(data.grid)
-    { }
-
-    template<typename scalarType>
-    DistData( const AbstractDistMatrix<scalarType>& A )
+    template<typename Ring>
+    DistData( const AbstractDistMatrix<Ring>& A )
     : colDist(A.ColDist()), rowDist(A.RowDist()),
       blockHeight(A.BlockHeight()), blockWidth(A.BlockWidth()),
       colAlign(A.ColAlign()), rowAlign(A.RowAlign()),
@@ -408,9 +381,12 @@ inline bool operator==( const DistData& A, const DistData& B )
          A.blockWidth  == B.blockWidth &&
          A.colAlign    == B.colAlign &&
          A.rowAlign    == B.rowAlign &&
+         A.colCut      == B.colCut &&
+         A.rowCut      == B.rowCut &&
          A.root        == B.root &&
          A.grid        == B.grid; }
-
+inline bool operator!=( const DistData& A, const DistData& B )
+{ return !(A == B); }
 
 } // namespace El
 

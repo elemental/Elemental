@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_DIAGONALSCALE_HPP
@@ -18,13 +18,13 @@ void DiagonalScale
   const Matrix<TDiag>& d,
         Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != m )
               LogicError("Invalid left diagonal scaling dimension");
         )
@@ -37,7 +37,7 @@ void DiagonalScale
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != n )
               LogicError("Invalid right diagonal scaling dimension");
         )
@@ -57,7 +57,7 @@ void DiagonalScale
   const AbstractDistMatrix<TDiag>& dPre,
         DistMatrix<T,U,V,wrapType>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( wrapType == ELEMENT )
     {
         if( side == LEFT )
@@ -128,33 +128,23 @@ void DiagonalScale
   const AbstractDistMatrix<TDiag>& d,
         AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
-    if( A.Wrap() == ELEMENT )
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
-            DiagonalScale( side, orientation, d, ACast );
-        #include <El/macros/GuardAndPayload.h>
-    }
-    else
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-            auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-            DiagonalScale( side, orientation, d, ACast );
-        #include <El/macros/GuardAndPayload.h>
-    }
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
+        DiagonalScale( side, orientation, d, ACast );
+    #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename TDiag,typename T>
 void DiagonalScale
 ( LeftOrRight side,
   Orientation orientation,
-  const Matrix<TDiag>& d, 
+  const Matrix<TDiag>& d,
         SparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const bool conjugate = ( orientation == ADJOINT );
@@ -165,7 +155,7 @@ void DiagonalScale
     const TDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
@@ -178,7 +168,7 @@ void DiagonalScale
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Width() )
               LogicError("The size of d must match the width of A");
         )
@@ -198,10 +188,10 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
-    if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+    if( !mpi::Congruent( d.Grid().Comm(), A.Grid().Comm() ) )
         LogicError("Communicators must be congruent");
     const bool conjugate = ( orientation == ADJOINT );
     const Int numEntries = A.NumLocalEntries();
@@ -211,11 +201,11 @@ void DiagonalScale
     const Int firstLocalRow = d.FirstLocalRow();
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
-        // TODO: Ensure that the DistMultiVec conforms
+        // TODO(poulson): Ensure that the DistMultiVec conforms
         for( Int k=0; k<numEntries; ++k )
         {
             const Int i = rowBuf[k];
@@ -226,13 +216,13 @@ void DiagonalScale
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Width() )
               LogicError("The size of d must match the width of A");
         )
         A.InitializeMultMeta();
         const auto& meta = A.LockedDistGraph().multMeta;
-        // Pack the send values 
+        // Pack the send values
         const Int numSendInds = meta.sendInds.size();
         vector<T> sendVals;
         FastResize( sendVals, numSendInds );
@@ -249,8 +239,8 @@ void DiagonalScale
         FastResize( recvVals, meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
-          A.Comm() );
+          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+          A.Grid().Comm() );
 
         // Loop over the entries of A and rescale
         for( Int k=0; k<numEntries; ++k )
@@ -265,11 +255,11 @@ void DiagonalScale
   const DistMultiVec<TDiag>& d,
         DistMultiVec<T>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
-      if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+      if( !mpi::Congruent( d.Grid().Comm(), X.Grid().Comm() ) )
           LogicError("Communicators must be congruent");
       if( side != LEFT )
           LogicError("Only the 'LEFT' argument is currently supported");
@@ -281,7 +271,7 @@ void DiagonalScale
     auto& XLoc = X.Matrix();
     auto& dLoc = d.LockedMatrix();
     const Int localHeight = d.LocalHeight();
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc ) 
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const T delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
         for( Int j=0; j<width; ++j )

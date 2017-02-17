@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_PSEUDOSPECTRA_LANCZOS_HPP
@@ -18,28 +18,32 @@ const Int HCapacityInit = 10;
 
 template<typename Real>
 void ComputeNewEstimates
-( const vector<Matrix<Real>>& HDiagList, 
+( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
         return;
     const BlasInt krylovSize = BlasInt(HDiagList[0].Height());
-    Matrix<Real> HDiag, HSubdiag;
-    vector<Real> w(krylovSize);
+
+    // We are only requesting the largest eigenvalue
+    HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.subset.indexSubset = true;
+    ctrl.subset.lowerIndex = krylovSize-1;
+    ctrl.subset.upperIndex = krylovSize-1;
+
+    Matrix<Real> HDiag, HSubdiag, w;
     for( Int j=0; j<numShifts; ++j )
     {
-        HDiag = HDiagList[j]; 
+        HDiag = HDiagList[j];
         HSubdiag = HSubdiagList[j];
         if( !HasNan(HDiag) && !HasNan(HSubdiag) )
         {
-            lapack::SymmetricTridiagEig     
-            ( krylovSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(), 
-              krylovSize-1, krylovSize-1 );
-            const Real est = Sqrt(w[0]);
+            HermitianTridiagEig( HDiag, HSubdiag, w, ctrl );
+            const Real est = Sqrt(w(0));
             activeEsts(j) = Min(est,normCap);
         }
         else
@@ -49,11 +53,11 @@ void ComputeNewEstimates
 
 template<typename Real>
 void ComputeNewEstimates
-( const vector<Matrix<Real>>& HDiagList, 
+( const vector<Matrix<Real>>& HDiagList,
   const vector<Matrix<Real>>& HSubdiagList,
   DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts.Matrix() );
 }
 
@@ -61,20 +65,20 @@ template<typename Real>
 void Deflate
 ( vector<Matrix<Real>>& HDiagList,
   vector<Matrix<Real>>& HSubdiagList,
-  Matrix<Complex<Real>>& activeShifts, 
+  Matrix<Complex<Real>>& activeShifts,
   Matrix<Int          >& activePreimage,
   Matrix<Complex<Real>>& activeXOld,
   Matrix<Complex<Real>>& activeX,
-  Matrix<Real         >& activeEsts, 
+  Matrix<Real         >& activeEsts,
   Matrix<Int          >& activeConverged,
   Matrix<Int          >& activeItCounts,
   bool progress=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Timer timer;
     if( progress )
         timer.Start();
-    const Int numActive = activeX.Width(); 
+    const Int numActive = activeX.Width();
     Int swapTo = numActive-1;
     for( Int swapFrom=numActive-1; swapFrom>=0; --swapFrom )
     {
@@ -111,11 +115,11 @@ void Deflate
   DistMatrix<Int,          VR,STAR>& activeItCounts,
   bool progress=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Timer timer;
     if( progress && activeShifts.Grid().Rank() == 0 )
         timer.Start();
-    const Int numActive = activeX.Width(); 
+    const Int numActive = activeX.Width();
     Int swapTo = numActive-1;
 
     DistMatrix<Complex<Real>,STAR,STAR> shiftsCopy( activeShifts );
@@ -135,12 +139,12 @@ void Deflate
             if( swapTo != swapFrom )
             {
                 // TODO: Avoid this large latency penalty
-                if( activeX.IsLocalCol(swapFrom) && 
+                if( activeX.IsLocalCol(swapFrom) &&
                     activeX.IsLocalCol(swapTo) )
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
                     const Int localTo = activeX.LocalCol(swapTo);
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( HDiagList[localFrom].Height() != n )
                           LogicError("Invalid HDiagList size");
                       if( HDiagList[localTo].Height() != n )
@@ -156,7 +160,7 @@ void Deflate
                 else if( activeX.IsLocalCol(swapFrom) )
                 {
                     const Int localFrom = activeX.LocalCol(swapFrom);
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( HDiagList[localFrom].Height() != n )
                           LogicError("Invalid HDiagList size");
                       if( HSubdiagList[localFrom].Height() != n )
@@ -167,13 +171,13 @@ void Deflate
                     ( HDiagList[localFrom].Buffer(), n,
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                     mpi::TaggedSendRecv
-                    ( HSubdiagList[localFrom].Buffer(), n, 
+                    ( HSubdiagList[localFrom].Buffer(), n,
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                 }
                 else if( activeX.IsLocalCol(swapTo) )
                 {
                     const Int localTo = activeX.LocalCol(swapTo);
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( HDiagList[localTo].Height() != n )
                           LogicError("Invalid HDiagList size");
                       if( HSubdiagList[localTo].Height() != n )
@@ -184,7 +188,7 @@ void Deflate
                     ( HDiagList[localTo].Buffer(), n,
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                     mpi::TaggedSendRecv
-                    ( HSubdiagList[localTo].Buffer(), n, 
+                    ( HSubdiagList[localTo].Buffer(), n,
                       partner, swapFrom, partner, swapFrom, activeX.RowComm() );
                 }
 
@@ -206,10 +210,10 @@ void Deflate
     activeXOld     = XOldCopy;
     activeX        = XCopy;
 
-    if( progress ) 
+    if( progress )
     {
         mpi::Barrier( activeShifts.Grid().Comm() );
-        if( activeShifts.Grid().Rank() == 0 ) 
+        if( activeShifts.Grid().Rank() == 0 )
             cout << "Deflation took " << timer.Stop() << " seconds" << endl;
     }
 }
@@ -218,11 +222,11 @@ template<typename Real>
 Matrix<Int>
 Lanczos
 ( const Matrix<Complex<Real>>& U,
-  const Matrix<Complex<Real>>& shifts, 
+  const Matrix<Complex<Real>>& shifts,
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -245,7 +249,7 @@ Lanczos
         for( Int j=0; j<numShifts; ++j )
             preimage(j) = j;
     }
- 
+
     // MultiShiftTrsm requires write access for now
     Matrix<C> UCopy( U );
 
@@ -327,7 +331,7 @@ Lanczos
                 const double msTime = subtimer.Stop();
                 const Int numActiveShifts = activeShifts.Height();
                 const double gflops = (32.*n*n*numActiveShifts)/(msTime*1.e9);
-                cout << "  MultiShiftHessSolve's: " << msTime 
+                cout << "  MultiShiftHessSolve's: " << msTime
                      << " seconds, " << gflops << " GFlops" << endl;
             }
         }
@@ -349,16 +353,16 @@ Lanczos
         PushBackList( HSubdiagList, colNorms );
 
         activeXOld = activeX;
-        activeX    = activeXNew; 
+        activeX    = activeXNew;
         DiagonalSolve( RIGHT, NORMAL, colNorms, activeX );
         if( progress )
             subtimer.Start();
         ComputeNewEstimates( HDiagList, HSubdiagList, activeEsts );
         if( progress )
-            cout << "  Ritz computations: " << subtimer.Stop() 
+            cout << "  Ritz computations: " << subtimer.Stop()
                  << " seconds" << endl;
 
-        auto activeConverged = 
+        auto activeConverged =
             FindConverged
             ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
         const Int numActiveDone = ZeroNorm( activeConverged );
@@ -391,7 +395,7 @@ Lanczos
         psCtrl.snapCtrl.Iterate();
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )
@@ -404,12 +408,12 @@ Lanczos
 template<typename Real>
 DistMatrix<Int,VR,STAR>
 Lanczos
-( const ElementalMatrix<Complex<Real>>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& invNormsPre, 
+( const AbstractDistMatrix<Complex<Real>>& UPre,
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre,
+        AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -428,7 +432,7 @@ Lanczos
     const bool deflate = psCtrl.deflate;
     const bool progress = psCtrl.progress;
 
-    if( deflate && g.Rank() == 0 ) 
+    if( deflate && g.Rank() == 0 )
         cerr << "NOTE: Deflation swaps not yet optimized!" << endl;
 
     // Keep track of the number of iterations per shift
@@ -469,7 +473,6 @@ Lanczos
                          HSubdiagList( X.LocalWidth() );
     for( Int j=0; j<X.LocalWidth(); ++j )
     {
-         
         HDiagList[j].Resize( 0, 1, Max(HCapacityInit,1) );
         HSubdiagList[j].Resize( 0, 1, Max(HCapacityInit-1,1) );
     }
@@ -509,7 +512,7 @@ Lanczos
         if( psCtrl.schur )
         {
             if( progress )
-            { 
+            {
                 mpi::Barrier( g.Comm() );
                 if( g.Rank() == 0 )
                     subtimer.Start();
@@ -526,7 +529,7 @@ Lanczos
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
                     const double gflops = (8.*n*n*numActiveShifts)/(msTime*1e9);
-                    cout << "  MultiShiftTrsm's: " << msTime 
+                    cout << "  MultiShiftTrsm's: " << msTime
                          << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
@@ -557,7 +560,7 @@ Lanczos
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
-                    const double gflops = 
+                    const double gflops =
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
                     cout << "  MultiShiftHessSolve's: " << msTime
                          << " seconds, " << gflops << " GFlops" << endl;
@@ -595,7 +598,7 @@ Lanczos
         {
             mpi::Barrier( g.Comm() );
             if( g.Rank() == 0 )
-                cout << "  Ritz computations: " << subtimer.Stop() 
+                cout << "  Ritz computations: " << subtimer.Stop()
                      << " seconds" << endl;
         }
 
@@ -636,7 +639,7 @@ Lanczos
         psCtrl.snapCtrl.Iterate();
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )

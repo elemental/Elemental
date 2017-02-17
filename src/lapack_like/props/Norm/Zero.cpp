@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace El {
 template<typename T>
 Int ZeroNorm( const Matrix<T>& A, Base<T> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numNonzeros = 0;
     const Int height = A.Height();
     const Int width = A.Width();
@@ -30,7 +30,7 @@ Int ZeroNorm( const Matrix<T>& A, Base<T> tol )
 template<typename T>
 Int ZeroNorm( const SparseMatrix<T>& A, Base<T> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numNonzeros = 0;
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
@@ -42,7 +42,7 @@ Int ZeroNorm( const SparseMatrix<T>& A, Base<T> tol )
 template<typename T>
 Int ZeroNorm( const AbstractDistMatrix<T>& A, Base<T> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numNonzeros;
     if( A.Participating() )
     {
@@ -56,13 +56,13 @@ Int ZeroNorm( const AbstractDistMatrix<T>& A, Base<T> tol )
 template<typename T>
 Int ZeroNorm( const DistSparseMatrix<T>& A, Base<T> tol )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numNonzeros = 0;
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
         if( Abs(A.Value(k)) > tol )
             ++numNonzeros;
-    return mpi::AllReduce( numNonzeros, A.Comm() );
+    return mpi::AllReduce( numNonzeros, A.Grid().Comm() );
 }
 
 #define PROTO(T) \

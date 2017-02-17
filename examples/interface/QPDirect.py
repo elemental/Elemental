@@ -109,7 +109,7 @@ if testMehrotra:
   El.QPDirect(Q,A,b,c,x,y,z,ctrl)
   endMehrotra = El.mpi.Time()
   if worldRank == 0:
-    print "Mehrotra time:", endMehrotra-startMehrotra
+    print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
 
   if display:
     El.Display( x, "x Mehrotra" )
@@ -121,7 +121,7 @@ if testMehrotra:
   El.Multiply( El.NORMAL, 1., Q, x, 0., d )
   obj = El.Dot(x,d)/2 + El.Dot(c,x)
   if worldRank == 0:
-    print "Mehrotra (1/2) x^T Q x + c^T x =", obj
+    print('Mehrotra (1/2) x^T Q x + c^T x = {}'.format(obj))
 
 if testIPF:
   ctrl.approach = El.QP_IPF
@@ -136,7 +136,7 @@ if testIPF:
   El.QPDirect(Q,A,b,c,x,y,z,ctrl)
   endIPF = El.mpi.Time()
   if worldRank == 0:
-    print "IPF time:", endIPF-startIPF
+    print('IPF time: {} seconds'.format(endIPF-startIPF))
 
   if display:
     El.Display( x, "x IPF" )
@@ -148,9 +148,6 @@ if testIPF:
   El.Multiply( El.NORMAL, 1., Q, x, 0., d )
   obj = El.Dot(x,d)/2 + El.Dot(c,x)
   if worldRank == 0:
-    print "IPF (1/2) x^T Q x + c^T x =", obj
+    print('IPF (1/2) x^T Q x + c^T x = {}'.format(obj))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

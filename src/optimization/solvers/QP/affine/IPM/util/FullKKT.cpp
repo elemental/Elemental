@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -24,7 +24,7 @@ namespace affine {
 //   | A 0        0     | | dy |   |     -rb        |,
 //   | G 0    -(z <> s) | | dz | = | -rh + z <> rmu |
 //
-// where 
+// where
 //
 //   rc  = Q x + A^T y + G^T z + c,
 //   rb  = A x - b,
@@ -38,19 +38,19 @@ void KKT
   const Matrix<Real>& G,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
-        Matrix<Real>& J, 
+        Matrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
-    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
-    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
     // Jxx := Q
     // ========
@@ -76,7 +76,7 @@ void KKT
     {
         // Jxy := A^T
         // ==========
-        Transpose( A, Jxy ); 
+        Transpose( A, Jxy );
 
         // Jxz := G^T
         // ==========
@@ -91,10 +91,10 @@ void KKT
   const ElementalMatrix<Real>& G,
   const ElementalMatrix<Real>& s,
   const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre, 
+        ElementalMatrix<Real>& JPre,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -146,10 +146,10 @@ void KKT
   const SparseMatrix<Real>& G,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -158,7 +158,7 @@ void KKT
     const Int numEntriesQ = Q.NumEntries();
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesG = G.NumEntries();
-    // Count the number of entries of Q that we'll use 
+    // Count the number of entries of Q that we'll use
     Int numUsedEntriesQ;
     if( onlyLower )
     {
@@ -214,15 +214,15 @@ void KKT
 template<typename Real>
 void StaticKKT
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
         Real gamma,
         Real delta,
         Real beta,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -231,7 +231,7 @@ void StaticKKT
     const Int numEntriesQ = Q.NumEntries();
     const Int numEntriesA = A.NumEntries();
     const Int numEntriesG = G.NumEntries();
-    // Count the number of entries of Q that we'll use 
+    // Count the number of entries of Q that we'll use
     Int numUsedEntriesQ;
     if( onlyLower )
     {
@@ -299,7 +299,7 @@ void FinishKKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = s.Height();
 
     // Jzz = -z <> s
@@ -321,7 +321,7 @@ void KKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -331,7 +331,7 @@ void KKT
     auto& sLoc = s.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, n+m+k, n+m+k );
 
     // Compute the number of entries to send
@@ -401,7 +401,7 @@ void StaticKKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -409,7 +409,7 @@ void StaticKKT
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();
 
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, n+m+k, n+m+k );
     const Int localHeightJ = J.LocalHeight();
 
@@ -478,7 +478,7 @@ void FinishKKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto& sLoc = s.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
@@ -499,13 +499,13 @@ void FinishKKT
 template<typename Real>
 void KKTRHS
 ( const Matrix<Real>& rc,
-  const Matrix<Real>& rb, 
+  const Matrix<Real>& rb,
   const Matrix<Real>& rh,
-  const Matrix<Real>& rmu, 
-  const Matrix<Real>& z, 
+  const Matrix<Real>& rmu,
+  const Matrix<Real>& z,
         Matrix<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
@@ -528,13 +528,13 @@ void KKTRHS
 template<typename Real>
 void KKTRHS
 ( const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rb,
   const ElementalMatrix<Real>& rh,
-  const ElementalMatrix<Real>& rmu, 
-  const ElementalMatrix<Real>& z, 
+  const ElementalMatrix<Real>& rmu,
+  const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -562,13 +562,13 @@ void KKTRHS
 template<typename Real>
 void KKTRHS
 ( const DistMultiVec<Real>& rc,
-  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rb,
   const DistMultiVec<Real>& rh,
-  const DistMultiVec<Real>& rmu, 
-  const DistMultiVec<Real>& z, 
+  const DistMultiVec<Real>& rmu,
+  const DistMultiVec<Real>& z,
         DistMultiVec<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const int k = rh.Height();
@@ -578,7 +578,7 @@ void KKTRHS
     auto& rmuLoc = rmu.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    d.SetComm( rc.Comm() );
+    d.SetGrid( rc.Grid() );
     Zeros( d, n+m+k, 1 );
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
@@ -608,11 +608,11 @@ template<typename Real>
 void ExpandCoreSolution
 ( Int m, Int n, Int k,
   const Matrix<Real>& d,
-        Matrix<Real>& dx, 
+        Matrix<Real>& dx,
         Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
     dx = d(IR(0,  n    ),ALL);
@@ -628,7 +628,7 @@ void ExpandCoreSolution
         ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.GetLocked();
@@ -649,14 +649,14 @@ void ExpandCoreSolution
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Height() != n+m+k || d.Width() != 1 )
         LogicError("Right-hand side was the wrong size");
 
-    mpi::Comm comm = d.Comm();
-    dx.SetComm( comm );
-    dy.SetComm( comm );
-    dz.SetComm( comm );
+    const Grid& grid = d.Grid();
+    dx.SetGrid( grid );
+    dy.SetGrid( grid );
+    dz.SetGrid( grid );
     Zeros( dx, n, 1 );
     Zeros( dy, m, 1 );
     Zeros( dz, k, 1 );
@@ -699,17 +699,17 @@ void ExpandCoreSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const Matrix<Real>& d,
   const Matrix<Real>& rmu,
   const Matrix<Real>& s,
-  const Matrix<Real>& z, 
+  const Matrix<Real>& z,
         Matrix<Real>& dx,
-        Matrix<Real>& dy, 
+        Matrix<Real>& dy,
         Matrix<Real>& dz,
         Matrix<Real>& ds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -723,17 +723,17 @@ void ExpandSolution
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& rmu,
   const ElementalMatrix<Real>& s,
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& dx,
-        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz,
         ElementalMatrix<Real>& ds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )
@@ -753,11 +753,11 @@ void ExpandSolution
   const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& dx,
-        DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz,
         DistMultiVec<Real>& ds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = s.Height();
     ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - z <> ( rmu + s o dz )

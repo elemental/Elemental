@@ -13,8 +13,8 @@ namespace msquasitrsm {
 template<typename F>
 void LUNUnb( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("U should be square");
       if( X.Height() != U.Height() )
@@ -97,8 +97,8 @@ void LUNUnb
   const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("U should be square");
       if( XReal.Height() != XImag.Height() ||
@@ -200,7 +200,7 @@ void LUNUnb
 template<typename F>
 void LUN( const Matrix<F>& U, const Matrix<F>& shifts, Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = X.Height();
     const Int bsize = Blocksize();
 
@@ -237,7 +237,7 @@ void LUN
 ( const Matrix<Real>& U, const Matrix<Complex<Real>>& shifts, 
         Matrix<Real>& XReal, Matrix<Real>& XImag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XReal.Height();
     const Int bsize = Blocksize();
 
@@ -278,7 +278,7 @@ void LUNLarge
   const AbstractDistMatrix<F>& shiftsPre, 
         AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -344,7 +344,7 @@ void LUNLarge
         AbstractDistMatrix<Real>& XRealPre, 
         AbstractDistMatrix<Real>& XImagPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More error checks, especially on alignments?
     typedef Complex<Real> C; 
     const Int m = XRealPre.Height();
@@ -427,7 +427,7 @@ void LUNMedium
   const AbstractDistMatrix<F>& shiftsPre, 
         AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = UPre.Grid();
@@ -498,7 +498,7 @@ void LUNMedium
         AbstractDistMatrix<Real>& XRealPre, 
         AbstractDistMatrix<Real>& XImagPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Error checks, particularly on alignments?
     typedef Complex<Real> C;
     const Int m = XRealPre.Height();
@@ -584,8 +584,8 @@ void LUNSmall
   const DistMatrix<F,shiftColDist,shiftRowDist>& shifts,
         DistMatrix<F,     colDist,STAR        >& X )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( U, shifts, X );
       if( U.Height() != U.Width() || U.Width() != X.Height() )
           LogicError
@@ -646,8 +646,8 @@ void LUNSmall
         DistMatrix<Real,              colDist,STAR        >& XReal,
         DistMatrix<Real,              colDist,STAR        >& XImag )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( U, shifts, XReal, XImag );
       if( XReal.Height() != XImag.Height() || 
           XReal.Width() != XImag.Width() )

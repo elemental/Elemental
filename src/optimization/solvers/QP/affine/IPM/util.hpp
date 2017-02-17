@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -51,11 +51,8 @@ void Initialize
         Matrix<Real>& y,
         Matrix<Real>& z,
         Matrix<Real>& s,
-  const vector<Int>& map,
-  const vector<Int>& invMap,
-  const ldl::Separator& rootSep,
-  const ldl::NodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, 
+        SparseLDLFactorization<Real>& sparseLDLFact,
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
@@ -68,14 +65,8 @@ void Initialize
         DistMultiVec<Real>& y,
         DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  const DistMap& map,
-  const DistMap& invMap,
-  const ldl::DistSeparator& rootSep,
-  const ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
-  bool primalInit, bool dualInit, bool standardShift,  
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 
 // Full system
@@ -154,7 +145,7 @@ void KKTRHS
 ( const Matrix<Real>& rc,
   const Matrix<Real>& rb,
   const Matrix<Real>& rh,
-  const Matrix<Real>& rmu, 
+  const Matrix<Real>& rmu,
   const Matrix<Real>& z,
         Matrix<Real>& d );
 template<typename Real>
@@ -162,7 +153,7 @@ void KKTRHS
 ( const ElementalMatrix<Real>& rc,
   const ElementalMatrix<Real>& rb,
   const ElementalMatrix<Real>& rh,
-  const ElementalMatrix<Real>& rmu, 
+  const ElementalMatrix<Real>& rmu,
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& d );
 template<typename Real>
@@ -170,16 +161,16 @@ void KKTRHS
 ( const DistMultiVec<Real>& rc,
   const DistMultiVec<Real>& rb,
   const DistMultiVec<Real>& rh,
-  const DistMultiVec<Real>& rmu, 
+  const DistMultiVec<Real>& rmu,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& d );
 
 template<typename Real>
 void ExpandCoreSolution
 ( Int m, Int n, Int k,
-  const Matrix<Real>& d, 
+  const Matrix<Real>& d,
         Matrix<Real>& dx,
-        Matrix<Real>& dy, 
+        Matrix<Real>& dy,
         Matrix<Real>& dz );
 template<typename Real>
 void ExpandCoreSolution
@@ -191,25 +182,25 @@ void ExpandCoreSolution
 template<typename Real>
 void ExpandCoreSolution
 ( Int m, Int n, Int k,
-  const DistMultiVec<Real>& d, 
+  const DistMultiVec<Real>& d,
         DistMultiVec<Real>& dx,
         DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz );
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const Matrix<Real>& d,
-  const Matrix<Real>& rmu, 
+  const Matrix<Real>& rmu,
   const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& dx,
-        Matrix<Real>& dy, 
+        Matrix<Real>& dy,
         Matrix<Real>& dz,
         Matrix<Real>& ds );
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& rmu,
   const ElementalMatrix<Real>& s,
@@ -220,7 +211,7 @@ void ExpandSolution
         ElementalMatrix<Real>& ds );
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
+( Int m, Int n,
   const DistMultiVec<Real>& d,
   const DistMultiVec<Real>& rmu,
   const DistMultiVec<Real>& s,

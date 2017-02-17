@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPECTRAL_SCHUR_HPP
@@ -18,17 +18,24 @@ namespace schur {
 // in a manner similar to xLANV2, returning the cosine and sine terms as well
 // as the real and imaginary parts of the two eigenvalues.
 //
-// Either A is overwritten with its real Schur factor (if it exists), or 
-// it is put into the form 
+// Either A is overwritten with its real Schur factor (if it exists), or
+// it is put into the form
 //
 //   | alpha00, alpha01 | = | c -s | | beta00 beta01 | |  c s |,
 //   | alpha10, alpha11 |   | s  c | | beta10 beta11 | | -s c |
 //
-// where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues 
+// where beta00 = beta11 and beta10*beta01 < 0, so that the two eigenvalues
 // are beta00 +- sqrt(beta10*beta01).
 //
+// TODO(poulson): Verify whether ot not the Intel compilers need to be
+// constrained to avoid over-aggressive FMA optimizations as discussed at
+//
+// <https://software.intel.com/en-us/articles/consistency-of-floating-point-results-using-the-intel-compiler>.
+//
+// It would seem that this is not necessary.
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwo
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
@@ -86,7 +93,7 @@ void TwoByTwo
         else
         {
             // We have complex or (almost) equal real eigenvalues, so force
-            // alpha00 and alpha11 to be equal 
+            // alpha00 and alpha11 to be equal
             Real sigma = alpha01 + alpha10;
             Real tau = SafeNorm( sigma, tmp );
             c = Sqrt( (one + Abs(sigma)/tau)/2 );
@@ -151,7 +158,8 @@ void TwoByTwo
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwo
 ( Real& alpha00, Real& alpha01,
   Real& alpha10, Real& alpha11,
@@ -188,6 +196,9 @@ void TwoByTwo
     lambda0 = (halfTrace+discrim)*scale;
     lambda1 = (halfTrace-discrim)*scale;
 }
+
+// TODO(poulson): Provide support for the 2x2 complex Schur with the
+// eigenvectors in Givens rotation form?
 
 } // namespace schur
 } // namespace El

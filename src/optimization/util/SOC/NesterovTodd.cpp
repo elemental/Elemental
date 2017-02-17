@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,7 +11,7 @@
 namespace El {
 namespace soc {
 
-// Find the Nesterov-Todd scaling point w such that 
+// Find the Nesterov-Todd scaling point w such that
 //
 //   Q_w z = s,
 //
@@ -23,15 +23,16 @@ namespace soc {
 
 namespace {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void ClassicalNT
-( const Matrix<Real>& s, 
+( const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& w,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
 
     Matrix<PReal> sProm, zProm;
@@ -48,7 +49,7 @@ void ClassicalNT
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    Matrix<PReal> b; 
+    Matrix<PReal> b;
     soc::SquareRoot( a, b, orders, firstInds );
     soc::Inverse( b, a, orders, firstInds );
 
@@ -59,16 +60,17 @@ void ClassicalNT
     Copy( wProm, w );
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void ClassicalNT
-( const ElementalMatrix<Real>& sPre, 
-  const ElementalMatrix<Real>& zPre,
-        ElementalMatrix<Real>& wPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& sPre,
+  const AbstractDistMatrix<Real>& zPre,
+        AbstractDistMatrix<Real>& wPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
@@ -88,7 +90,7 @@ void ClassicalNT
     auto& z = zProx.GetLocked();
     auto& w = wProx.Get();
     auto& orders = ordersProx.GetLocked();
-    auto& firstInds = firstIndsProx.GetLocked(); 
+    auto& firstInds = firstIndsProx.GetLocked();
 
     DistMatrix<PReal,VC,STAR> sRoot(s.Grid());
     soc::SquareRoot( s, sRoot, orders, firstInds, cutoff );
@@ -100,7 +102,7 @@ void ClassicalNT
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMatrix<PReal,VC,STAR> b(z.Grid()); 
+    DistMatrix<PReal,VC,STAR> b(z.Grid());
     soc::SquareRoot( a, b, orders, firstInds, cutoff );
     soc::Inverse( b, a, orders, firstInds, cutoff );
 
@@ -109,56 +111,58 @@ void ClassicalNT
     soc::ApplyQuadratic( sRoot, a, w, orders, firstInds, cutoff );
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void ClassicalNT
-( const DistMultiVec<Real>& s, 
+( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
-    mpi::Comm comm = s.Comm();
+    const Grid& grid = s.Grid();
 
-    DistMultiVec<PReal> sProm(comm), zProm(comm);
+    DistMultiVec<PReal> sProm(grid), zProm(grid);
     Copy( s, sProm );
     Copy( z, zProm );
 
-    DistMultiVec<PReal> sRoot(comm);
+    DistMultiVec<PReal> sRoot(grid);
     soc::SquareRoot( sProm, sRoot, orders, firstInds, cutoff );
 
     // a := Q_{sqrt(s)}(z)
     // -------------------
-    DistMultiVec<PReal> a(comm);
+    DistMultiVec<PReal> a(grid);
     soc::ApplyQuadratic( sRoot, zProm, a, orders, firstInds, cutoff );
 
     // a := inv(sqrt(a)) = inv(sqrt((Q_{sqrt(s)}(z))))
     // -----------------------------------------------
-    DistMultiVec<PReal> b(comm); 
+    DistMultiVec<PReal> b(grid);
     soc::SquareRoot( a, b, orders, firstInds, cutoff );
     soc::Inverse( b, a, orders, firstInds, cutoff );
 
     // w := Q_{sqrt(s)}(a)
     // -------------------
-    DistMultiVec<PReal> wProm(comm);
+    DistMultiVec<PReal> wProm(grid);
     soc::ApplyQuadratic( sRoot, a, wProm, orders, firstInds, cutoff );
     Copy( wProm, w );
 }
 
-// See Section 4.2 of 
+// See Section 4.2 of
 // http://www.seas.ucla.edu/~vandenbe/publications/coneprog.pdf
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void VandenbergheNT
-( const Matrix<Real>& s, 
+( const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& w,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int n = s.Height();
 
@@ -209,16 +213,17 @@ void VandenbergheNT
     Copy( wProm, w );
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void VandenbergheNT
-( const ElementalMatrix<Real>& sPre, 
-  const ElementalMatrix<Real>& zPre,
-        ElementalMatrix<Real>& wPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& sPre,
+  const AbstractDistMatrix<Real>& zPre,
+        AbstractDistMatrix<Real>& wPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
     const Grid& grid = sPre.Grid();
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
@@ -238,7 +243,7 @@ void VandenbergheNT
       firstIndsProx( firstIndsPre, ctrl );
     auto& w = wProx.Get();
     auto& orders = ordersProx.GetLocked();
-    auto& firstInds = firstIndsProx.GetLocked(); 
+    auto& firstInds = firstIndsProx.GetLocked();
 
     // Normalize with respect to the Jordan determinant
     // ================================================
@@ -287,26 +292,27 @@ void VandenbergheNT
     }
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void VandenbergheNT
-( const DistMultiVec<Real>& s, 
+( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
-    mpi::Comm comm = s.Comm();
+    const Grid& grid = s.Grid();
 
-    DistMultiVec<PReal> sProm(comm), zProm(comm);
+    DistMultiVec<PReal> sProm(grid), zProm(grid);
     Copy( s, sProm );
     Copy( z, zProm );
 
     // Normalize with respect to the Jordan determinant
     // ================================================
     const Int nLocal = sProm.LocalHeight();
-    DistMultiVec<PReal> sDets(comm), zDets(comm);
+    DistMultiVec<PReal> sDets(grid), zDets(grid);
     soc::Dets( sProm, sDets, orders, firstInds, cutoff );
     soc::Dets( zProm, zDets, orders, firstInds, cutoff );
     cone::Broadcast( sDets, orders, firstInds, cutoff );
@@ -323,7 +329,7 @@ void VandenbergheNT
 
     // Compute the 'gamma' coefficients
     // ================================
-    DistMultiVec<PReal> gammas(comm);
+    DistMultiVec<PReal> gammas(grid);
     soc::Dots( zProm, sProm, gammas, orders, firstInds, cutoff );
     cone::Broadcast( gammas, orders, firstInds, cutoff );
     auto& gammasLoc = gammas.Matrix();
@@ -353,15 +359,16 @@ void VandenbergheNT
 
 } // anonymous namespace
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void NesterovTodd
-( const Matrix<Real>& s, 
+( const Matrix<Real>& s,
   const Matrix<Real>& z,
         Matrix<Real>& w,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds );
@@ -369,16 +376,17 @@ void NesterovTodd
         VandenbergheNT( s, z, w, orders, firstInds );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void NesterovTodd
-( const ElementalMatrix<Real>& s, 
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& w,
-  const ElementalMatrix<Int>& orders, 
-  const ElementalMatrix<Int>& firstInds,
+( const AbstractDistMatrix<Real>& s,
+  const AbstractDistMatrix<Real>& z,
+        AbstractDistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -386,15 +394,16 @@ void NesterovTodd
         VandenbergheNT( s, z, w, orders, firstInds, cutoff );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void NesterovTodd
-( const DistMultiVec<Real>& s, 
+( const DistMultiVec<Real>& s,
   const DistMultiVec<Real>& z,
         DistMultiVec<Real>& w,
-  const DistMultiVec<Int>& orders, 
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool useClassical = false;
     if( useClassical )
         ClassicalNT( s, z, w, orders, firstInds, cutoff );
@@ -410,11 +419,11 @@ void NesterovTodd
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void NesterovTodd \
-  ( const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& w, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& z, \
+          AbstractDistMatrix<Real>& w, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template void NesterovTodd \
   ( const DistMultiVec<Real>& s, \

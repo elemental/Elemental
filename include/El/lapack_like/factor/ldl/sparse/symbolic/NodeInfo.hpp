@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_FACTOR_LDL_SPARSE_SYMBOLIC_NODEINFO_HPP
@@ -20,12 +28,19 @@ struct NodeInfo
 {
     // Known before analysis
     // ---------------------
-    Int size, off; 
+    Int size, off;
     vector<Int> origLowerStruct;
 
-    NodeInfo* parent;
-    vector<NodeInfo*> children;
-    DistNodeInfo* duplicate; 
+    // This observing pointer is to the parent node (should one exist).
+    NodeInfo* parent=nullptr;
+
+    // This observing pointer is to the equivalent distributed node and is only
+    // used for the highest node in the sequential subtree. The duplicate will
+    // always be 'distributed' over a single process.
+    DistNodeInfo* duplicate=nullptr;
+
+    // Unique pointers to any children of this node.
+    vector<unique_ptr<NodeInfo>> children;
 
     // Known after analysis
     // --------------------
@@ -41,24 +56,9 @@ struct NodeInfo
     vector<Int> LOffsets;
     vector<Int> LParents;
 
-    NodeInfo( NodeInfo* parentNode=nullptr )
-    : parent(parentNode), duplicate(nullptr)
-    { }
-
+    NodeInfo( NodeInfo* parentNode=nullptr );
     NodeInfo( DistNodeInfo* duplicateNode );
-
-    ~NodeInfo()
-    {
-        if( uncaught_exception() )
-        {
-            cerr << "Uncaught exception" << endl;
-            DEBUG_ONLY(DumpCallStack())
-            return;
-        }
-
-        for( const NodeInfo* child : children )
-            delete child;
-    }
+    ~NodeInfo();
 };
 
 struct DistNodeInfo
@@ -68,15 +68,21 @@ struct DistNodeInfo
     Int size, off;
     vector<Int> origLowerStruct;
     bool onLeft;
-    mpi::Comm comm;
 
-    DistNodeInfo* parent; 
-    DistNodeInfo* child; 
-    NodeInfo* duplicate;
+    // This observing pointer is to the parent node (should one exist).
+    DistNodeInfo* parent=nullptr;
+
+    // A unique pointer to the sequential equivalent node (should one exist).
+    // Such a pointer should exist when this node is distributed over a single
+    // process.
+    unique_ptr<NodeInfo> duplicate;
+
+    // A unique pointer to the distributed child shared by this process
+    // (should one exist).
+    unique_ptr<DistNodeInfo> child;
 
     // Known after analysis
     // --------------------
-    Grid* grid;
     Int myOff;
     vector<Int> lowerStruct;
     vector<Int> origLowerRelInds;
@@ -84,45 +90,35 @@ struct DistNodeInfo
     vector<Int> childSizes;
     // The relative indices of our children
     // (maps from the child update indices to our frontal indices).
-    // These could be replaced with just the relative indices of our local 
+    // These could be replaced with just the relative indices of our local
     // submatrices of the child updates.
     vector<vector<Int>> childRelInds;
 
-    DistNodeInfo( DistNodeInfo* parentNode=nullptr )
-    : comm(mpi::COMM_WORLD), 
-      parent(parentNode), child(nullptr), duplicate(nullptr),
-      grid(nullptr)
-    { }
+    // For constructing the root of the tree.
+    explicit DistNodeInfo( const El::Grid& grid );
 
-    ~DistNodeInfo()
-    {
-        if( uncaught_exception() )
-        {
-            cerr << "Uncaught exception" << endl;
-            DEBUG_ONLY(DumpCallStack())
-            return;
-        }
-    
-        delete child;
-        delete duplicate;
-    
-        delete grid;
-        if( comm != mpi::COMM_WORLD )
-            mpi::Free( comm );
-    }   
+    // For constructing descendents in the tree.
+    DistNodeInfo( DistNodeInfo* parentNode );
+
+    ~DistNodeInfo();
+
+    void SetRootGrid( const El::Grid& grid );
+    void AssignGrid( unique_ptr<El::Grid>& grid );
+    const El::Grid& Grid() const;
+
+    void GetChildGridDims
+    ( vector<int>& gridHeights, vector<int>& gridWidths ) const;
+
+private:
+    // If we are the root node, there is no need to construct a grid, so we
+    // make use of an observing pointer.
+    const El::Grid* rootGrid_=nullptr;
+
+    // If we are not the root node, the following will point to a constructed
+    // grid.
+    // TODO(poulson): Accept a function for determining the grid dimensions.
+    unique_ptr<El::Grid> grid_;
 };
-
-inline NodeInfo::NodeInfo( DistNodeInfo* duplicateNode )
-: parent(nullptr), duplicate(duplicateNode)
-{
-    size = duplicate->size;
-    off = duplicate->off;
-    origLowerStruct = duplicate->origLowerStruct;
-
-    myOff = duplicate->myOff;
-    lowerStruct = duplicate->lowerStruct;
-    origLowerRelInds = duplicate->origLowerRelInds;
-}
 
 } // namespace ldl
 } // namespace El

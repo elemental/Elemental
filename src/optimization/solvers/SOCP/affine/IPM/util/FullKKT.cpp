@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -15,10 +15,10 @@ namespace affine {
 
 // Given the Lagrangian
 //
-//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) + 
+//   L(x,s;y,z) = c^T x + y^T (A x - b) + z^T (G x + s - h) +
 //                tau Phi(inv(W)^T s),
 //
-// where Phi is the standard barrier function of the product cone, tau is a 
+// where Phi is the standard barrier function of the product cone, tau is a
 // scaling of the barrier, and W is some automorphism of the product cone
 // (in our case, it is arises from the Nesterov-Todd scaling), critical points
 // must satisfy the first-order optimality conditions:
@@ -43,13 +43,13 @@ namespace affine {
 //   | A 0       0   | | dy |   | -r_b            |,
 //   | G 0    -W^T W | | dz | = | -r_h + W^T r_mu |
 //
-// where W = W^T is a block-diagonal matrix, with each diagonal block 
-// equalling -Q_{sqrt(w_i)}, where Q_a is the quadratic representation of 
+// where W = W^T is a block-diagonal matrix, with each diagonal block
+// equalling -Q_{sqrt(w_i)}, where Q_a is the quadratic representation of
 // a member of the Jordan algebra associated with the SOC:
-//   
+//
 //   Q_a = 2 a a^T - det(a) R,
 //
-// where R is the reflection operator diag(1,-I). In our case, we choose the 
+// where R is the reflection operator diag(1,-I). In our case, we choose the
 // point  w to be the (unique) Nesterov-Todd scaling point satisfying
 //
 //   Q_w z = s,
@@ -62,7 +62,7 @@ namespace affine {
 //
 //   Phi(w) = -(1/2) sum_i ln det(w_i).
 //
-// Since (Q_a)^2 = Q_(a^2), we have that 
+// Since (Q_a)^2 = Q_(a^2), we have that
 //
 //   -W_i^T W_i = -W_i^2 = -(Q_{sqrt(w_i})^2 = -Q_{w_i}.
 //              = -2 w_i w_i^T + det(w_i) R,
@@ -76,7 +76,7 @@ namespace affine {
 //    diag(delta_0,I) - v_i v_i^T > 0.
 //
 // Let us temporarily drop the "i" subscript and suppose that det(w) = 1.
-// Then, if we expose the first entries of u, v, and w as 
+// Then, if we expose the first entries of u, v, and w as
 //
 //    u = [u_0; u_1], v = [v_0; v_1], w = [w_0, w_1],
 //
@@ -87,7 +87,7 @@ namespace affine {
 //
 // Furthermore, we require that v_0 = 0 so that
 //
-//    Q_w = 2 w w^T - det(w) R 
+//    Q_w = 2 w w^T - det(w) R
 //
 //        = 2 w w^T - R
 //
@@ -106,7 +106,7 @@ namespace affine {
 //        = | delta_0 + u_0^2,                   u_0 u_1^T                 |.
 //          |      u_0 u_1,     I + (||u_1||_2^2 - 2||v_1||_2^2) f_1 f_1^T |
 //
-// Then the expansion of a subcone's portion of the  third block row of the 
+// Then the expansion of a subcone's portion of the  third block row of the
 // KKT system, say
 //
 //   G dx - W^T W dz = -r_h + W^T r_mu,
@@ -118,7 +118,7 @@ namespace affine {
 //  | 0 |      | -u^T   0   1 | |  xi |   |        0        |
 //
 // using the definition D = diag(delta_0,I), xi = u^T dz, and eta = v^T dz.
-// It is straight-forward to verify that the requirements that 
+// It is straight-forward to verify that the requirements that
 //
 //     delta_0 > 0 and D - v v^T > 0
 //
@@ -131,7 +131,7 @@ namespace affine {
 //
 //     psi_u^2 = (4 psi_w^4 + 4 psi_w^2 + 1/2) / (2 psi_w^2 + 1),
 //
-// and set 
+// and set
 //
 //     u_0 = 2 w_0 psi_w / psi_u,
 //
@@ -165,7 +165,7 @@ namespace affine {
 //   r_h  = G x + s - h,
 //   r_mu = l - tau inv(l),
 //
-// where 
+// where
 //
 //   l = W z = inv(W) s
 //
@@ -174,15 +174,15 @@ namespace affine {
 
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& G,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& J, 
+        Matrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -192,15 +192,15 @@ void KKT
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
-    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
-    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
     // Jyx := A
     // ========
     Jyx = A;
     if( !onlyLower )
-        Transpose( A, Jxy ); 
+        Transpose( A, Jxy );
 
     // Jzx := G
     // ========
@@ -216,7 +216,7 @@ void KKT
         const Int firstInd = firstInds(i);
         if( i != firstInd )
             LogicError("Inconsistency between firstInds and orders");
-        
+
         auto Jzzi = Jzz(IR(i,i+order),IR(i,i+order));
         auto wi = w(IR(i,i+order),ALL);
         const Real wiDet = wDets(i);
@@ -233,15 +233,15 @@ void KKT
 
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A,    
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& w,
-  const ElementalMatrix<Int>& ordersPre,
-  const ElementalMatrix<Int>& firstIndsPre,
-        ElementalMatrix<Real>& JPre, 
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
+        DistMatrix<Real>& J,
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -256,9 +256,6 @@ void KKT
       firstIndsProx( firstIndsPre, ctrl );
     auto& orders = ordersProx.GetLocked();
     auto& firstInds = firstIndsProx.GetLocked();
-
-    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
-    auto& J = JProx.Get();
 
     DistMatrix<Real,VC,STAR> wDets(g);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
@@ -284,7 +281,7 @@ void KKT
 
     // Jzz := -W^2
     // ===========
-    // TODO: Create soc::ExplicitQuadratic?
+    // TODO(poulson): Create soc::ExplicitQuadratic?
     DistMatrix<Int,MC,STAR> orders_MC(g), firstInds_MC(g);
     DistMatrix<Real,MC,STAR> w_MC(g);
     DistMatrix<Real,MR,STAR> w_MR(g);
@@ -303,7 +300,7 @@ void KKT
     const Int localHeightJzz = Jzz.LocalHeight();
     // For now, perform this in quadratic time, which does not effect the
     // asymptotic complexity of this routine, as simply zeroing the original
-    // matrix has the same asymptotic cost. A more efficient parallel 
+    // matrix has the same asymptotic cost. A more efficient parallel
     // implementation will require more thought (and likely substantially more
     // code).
     auto& orders_MCLoc = orders_MC.Matrix();
@@ -319,30 +316,30 @@ void KKT
         const Int firstInd = firstInds_MCLoc(iLoc);
         const Real omega_i = w_MCLoc(iLoc);
         const Real wDet = wDets_MCLoc(iLoc);
-        // TODO: Restrict the range of this loop (perhaps via Length)
-        for( Int jLoc=0; jLoc<localWidthJzz; ++jLoc ) 
+        // TODO(poulson): Restrict the range of this loop (perhaps via Length)
+        for( Int jLoc=0; jLoc<localWidthJzz; ++jLoc )
         {
             const Int j = Jzz.GlobalCol(jLoc);
             const Real omega_j = w_MRLoc(jLoc);
 
             // Handle the diagonal update, det(w) R
-            if( i == firstInd && j == firstInd ) 
+            if( i == firstInd && j == firstInd )
                 JzzLoc(iLoc,jLoc) += wDet;
             else if( i == j )
                 JzzLoc(iLoc,jLoc) -= wDet;
 
             // Handle the rank-one update, -2 w w^T
-            if( (!onlyLower || i >= j) && 
+            if( (!onlyLower || i >= j) &&
                 j >= firstInd && j < firstInd+order )
                 JzzLoc(iLoc,jLoc) -= 2*omega_i*omega_j;
         }
     }
 }
 
-// TODO: Incorporate {gamma,delta,beta}
+// TODO(poulson): Incorporate {gamma,delta,beta}
 template<typename Real>
 void KKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
@@ -350,10 +347,10 @@ void KKT
   const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -387,7 +384,7 @@ void KKT
                 if( i == firstInd )
                 {
                     // An entry of D and u (the first entry of v is 0), as well
-                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // as the (scaled) -1 and +1 diagonal entries for the
                     // v and u auxiliary variables
                     numEntries += 4;
                 }
@@ -445,16 +442,16 @@ void KKT
                 const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
-                const Real wPsiPinv = 
+                const Real wPsiPinv =
                   ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D and u, and then the (scaled) 
+                    // Queue up an entry of D and u, and then the (scaled)
                     // -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -498,7 +495,7 @@ void KKT
                 if( i == firstInd )
                 {
                     // An entry of D and a symmetric update with an entry of u,
-                    // as well as the (scaled) -1 and +1 diagonal entries for 
+                    // as well as the (scaled) -1 and +1 diagonal entries for
                     // the v and u auxiliary variables
                     numEntries += 5;
                 }
@@ -554,7 +551,7 @@ void KKT
                 for( Int j=firstInd; j<firstInd+order; ++j )
                     if( j != i )
                         J.QueueUpdate
-                        ( n+m+iSparse, n+m+(j+sparseOff), 
+                        ( n+m+iSparse, n+m+(j+sparseOff),
                           -2*omega_i*w(j) );
             }
             else
@@ -563,7 +560,7 @@ void KKT
                 const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
@@ -572,7 +569,7 @@ void KKT
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D, a symmetric update with u, and 
+                    // Queue up an entry of D, a symmetric update with u, and
                     // then the (scaled) -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -589,11 +586,11 @@ void KKT
                 }
                 else
                 {
-                    // Queue up an entry of D and symmetric updates with 
+                    // Queue up an entry of D and symmetric updates with
                     // u and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet        ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet        );
                     J.QueueUpdate
                     ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
@@ -611,7 +608,7 @@ void KKT
 
 template<typename Real>
 void StaticKKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
         Real gamma,
         Real delta,
@@ -621,10 +618,10 @@ void StaticKKT
   const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -703,7 +700,7 @@ void StaticKKT
                     J.QueueUpdate
                     ( sparseFirstInd+order, sparseFirstInd+order, -beta*beta );
                     J.QueueUpdate
-                    ( sparseFirstInd+order+1, sparseFirstInd+order+1, 
+                    ( sparseFirstInd+order+1, sparseFirstInd+order+1,
                       beta*beta );
                 }
                 else
@@ -772,7 +769,7 @@ void StaticKKT
 
             if( order == sparseOrder )
             {
-                for( Int jSparse=sparseFirstInd; 
+                for( Int jSparse=sparseFirstInd;
                          jSparse<sparseFirstInd+order; ++jSparse )
                 {
                     if( jSparse == iSparse )
@@ -794,7 +791,7 @@ void StaticKKT
                     J.QueueUpdate
                     ( sparseFirstInd+order, sparseFirstInd+order, -beta*beta );
                     J.QueueUpdate
-                    ( sparseFirstInd+order+1, sparseFirstInd+order+1, 
+                    ( sparseFirstInd+order+1, sparseFirstInd+order+1,
                       beta*beta );
                 }
                 else
@@ -814,17 +811,17 @@ void StaticKKT
 
 template<typename Real>
 void FinishKKT
-( Int m, Int n, 
+( Int m, Int n,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = w.Height();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
@@ -856,7 +853,7 @@ void FinishKKT
                 if( i == firstInd )
                 {
                     // An entry of D and u (the first entry of v is 0), as well
-                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // as the (scaled) -1 and +1 diagonal entries for the
                     // v and u auxiliary variables
                     numEntries += 4;
                 }
@@ -905,16 +902,16 @@ void FinishKKT
                 const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
-                const Real wPsiPinv = 
+                const Real wPsiPinv =
                   ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D and u, and then the (scaled) 
+                    // Queue up an entry of D and u, and then the (scaled)
                     // -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -958,7 +955,7 @@ void FinishKKT
                 if( i == firstInd )
                 {
                     // An entry of D and a symmetric update with an entry of u,
-                    // as well as the (scaled) -1 and +1 diagonal entries for 
+                    // as well as the (scaled) -1 and +1 diagonal entries for
                     // the v and u auxiliary variables
                     numEntries += 5;
                 }
@@ -1001,7 +998,7 @@ void FinishKKT
                 for( Int j=firstInd; j<firstInd+order; ++j )
                     if( j != i )
                         J.QueueUpdate
-                        ( n+m+iSparse, n+m+(j+sparseOff), 
+                        ( n+m+iSparse, n+m+(j+sparseOff),
                           -2*omega_i*w(j) );
             }
             else
@@ -1010,7 +1007,7 @@ void FinishKKT
                 const Real wLower = wLowers(i);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
@@ -1019,7 +1016,7 @@ void FinishKKT
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D, a symmetric update with u, and 
+                    // Queue up an entry of D, a symmetric update with u, and
                     // then the (scaled) -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -1036,11 +1033,11 @@ void FinishKKT
                 }
                 else
                 {
-                    // Queue up an entry of D and symmetric updates with 
+                    // Queue up an entry of D and symmetric updates with
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet        ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet        );
                     J.QueueUpdate
                     ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
@@ -1056,10 +1053,10 @@ void FinishKKT
     J.ProcessQueues();
 }
 
-// TODO: Incorporate {gamma,delta,beta}
+// TODO(poulson): Incorporate {gamma,delta,beta}
 template<typename Real>
 void KKT
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders,
@@ -1067,19 +1064,19 @@ void KKT
   const DistMultiVec<Int>& origToSparseOrders,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
-        DistSparseMatrix<Real>& J, 
+        DistSparseMatrix<Real>& J,
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = w.Comm();
-    const int commSize = mpi::Size(comm);
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = w.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
-    DistMultiVec<Real> wDets(comm), wLowers(comm);
+    DistMultiVec<Real> wDets(grid), wLowers(grid);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
     soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     cone::Broadcast( wDets, orders, firstInds, cutoffPar );
@@ -1097,13 +1094,12 @@ void KKT
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
     // NOTE: We exploit the fact that each process owns a contiguous chunk
-    //       of rows 
+    //       of rows
     vector<int> recvOffs;
     vector<Real> recvBuf;
     const Int wLocalHeight = w.LocalHeight();
     {
-        // TODO: Rewrite this using QueuePull!
-        // ===================================
+        // TODO(poulson): Rewrite this using QueuePull!
 
         // Count the total number of entries of w to send to each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1116,7 +1112,7 @@ void KKT
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
-            const Int numLocalIndsCone = 
+            const Int numLocalIndsCone =
               Min(numLocalIndsLeft,order-(i-firstInd));
 
             if( order == sparseOrder )
@@ -1127,17 +1123,17 @@ void KKT
                     if( owner != commRank )
                         sendCounts[owner] += numLocalIndsCone;
             }
-            
-            iLoc += numLocalIndsCone; 
+
+            iLoc += numLocalIndsCone;
         }
 
         // Pack the entries of w to send to each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs ); 
-        vector<Real> sendBuf(totalSend); 
+        const int totalSend = Scan( sendCounts, sendOffs );
+        vector<Real> sendBuf(totalSend);
         auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<wLocalHeight; ) 
+        for( Int iLoc=0; iLoc<wLocalHeight; )
         {
             const Int order = ordersLoc(iLoc);
             const Int firstInd = firstIndsLoc(iLoc);
@@ -1145,7 +1141,7 @@ void KKT
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
-            const Int numLocalIndsCone = 
+            const Int numLocalIndsCone =
               Min(numLocalIndsLeft,order-(i-firstInd));
 
             if( order == sparseOrder )
@@ -1157,22 +1153,23 @@ void KKT
                         for( Int e=0; e<numLocalIndsCone; ++e )
                             sendBuf[offs[owner]++] = wLoc(iLoc+e);
             }
-            
-            iLoc += numLocalIndsCone; 
+
+            iLoc += numLocalIndsCone;
         }
 
         // Receive the entries from each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+        mpi::AllToAll
+        ( sendCounts.data(), 1, recvCounts.data(), 1, grid.Comm() );
         const int totalRecv = Scan( recvCounts, recvOffs );
         recvBuf.resize( totalRecv );
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), grid.Comm() );
     }
 
-    J.SetComm( comm );
+    J.SetGrid( grid );
     Zeros( J, n+m+kSparse, n+m+kSparse );
     if( onlyLower )
     {
@@ -1195,7 +1192,7 @@ void KKT
                 if( i == firstInd )
                 {
                     // An entry of D and u (the first entry of v is 0), as well
-                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // as the (scaled) -1 and +1 diagonal entries for the
                     // v and u auxiliary variables
                     numRemoteEntries += 4;
                 }
@@ -1249,7 +1246,7 @@ void KKT
                         if( owner == commRank )
                             wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
-                            wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                            wBuf[j-firstInd] = recvBuf[offs[owner]++];
                     }
                 }
 
@@ -1264,7 +1261,7 @@ void KKT
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), 
+                    ( n+m+iSparse, n+m+(j+sparseOff),
                       -2*omega_i*wBuf[j-firstInd] );
             }
             else
@@ -1273,16 +1270,16 @@ void KKT
                 const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
-                const Real wPsiPinv = 
+                const Real wPsiPinv =
                   ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D and u, and then the (scaled) 
+                    // Queue up an entry of D and u, and then the (scaled)
                     // -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -1323,7 +1320,7 @@ void KKT
                 if( i == firstInd )
                 {
                     // An entry of D and a symmetric update with an entry of u,
-                    // as well as the (scaled) -1 and +1 diagonal entries for 
+                    // as well as the (scaled) -1 and +1 diagonal entries for
                     // the v and u auxiliary variables
                     numRemoteEntries += 5;
                 }
@@ -1382,7 +1379,7 @@ void KKT
                         if( owner == commRank )
                             wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
-                            wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                            wBuf[j-firstInd] = recvBuf[offs[owner]++];
                     }
                 }
 
@@ -1398,7 +1395,7 @@ void KKT
                 for( Int j=firstInd; j<firstInd+order; ++j )
                     if( j != i )
                         J.QueueUpdate
-                        ( n+m+iSparse, n+m+(j+sparseOff), 
+                        ( n+m+iSparse, n+m+(j+sparseOff),
                           -2*omega_i*wBuf[j-firstInd] );
             }
             else
@@ -1407,7 +1404,7 @@ void KKT
                 const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
@@ -1416,7 +1413,7 @@ void KKT
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D, a symmetric update with u, and 
+                    // Queue up an entry of D, a symmetric update with u, and
                     // then the (scaled) -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -1433,11 +1430,11 @@ void KKT
                 }
                 else
                 {
-                    // Queue up an entry of D and symmetric updates with 
+                    // Queue up an entry of D and symmetric updates with
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet );
                     J.QueueUpdate
                     ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
@@ -1455,7 +1452,7 @@ void KKT
 
 template<typename Real>
 void StaticKKT
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
         Real gamma,
         Real delta,
@@ -1465,18 +1462,18 @@ void StaticKKT
   const DistMultiVec<Int>& origToSparseOrders,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
-        DistSparseMatrix<Real>& J, 
+        DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int coneLocalHeight = orders.LocalHeight();
     const Int numEntriesA = A.NumLocalEntries();
     const Int numEntriesG = G.NumLocalEntries();
 
-    mpi::Comm comm = A.Comm();
-    J.SetComm( comm );
+    const Grid& grid = A.Grid();
+    J.SetGrid( grid );
     Zeros( J, n+m+kSparse, n+m+kSparse );
     const Int JLocalHeight = J.LocalHeight();
 
@@ -1484,7 +1481,7 @@ void StaticKKT
     for( Int iLoc=0; iLoc<JLocalHeight; ++iLoc )
     {
         const Int i = J.GlobalRow(iLoc);
-        if( i < n+m )    
+        if( i < n+m )
             ++numLocalEntries;
         else
             break;
@@ -1514,7 +1511,7 @@ void StaticKKT
                 if( i == firstInd )
                 {
                     // An entry of D and u (the first entry of v is 0), as well
-                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // as the (scaled) -1 and +1 diagonal entries for the
                     // v and u auxiliary variables
                     numRemoteEntries += 4;
                 }
@@ -1574,7 +1571,7 @@ void StaticKKT
                 const Int coneOff = n+m+sparseFirstInd;
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D and u, and then the (scaled) 
+                    // Queue up an entry of D and u, and then the (scaled)
                     // -1 and +1
                     J.QueueUpdate
                     ( coneOff,         coneOff,       -beta*beta );
@@ -1614,7 +1611,7 @@ void StaticKKT
                 if( i == firstInd )
                 {
                     // An entry of D and u (the first entry of v is 0), as well
-                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // as the (scaled) -1 and +1 diagonal entries for the
                     // v and u auxiliary variables
                     numRemoteEntries += 5;
                 }
@@ -1681,7 +1678,7 @@ void StaticKKT
                 const Int coneOff = n+m+sparseFirstInd;
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D and u, and then the (scaled) 
+                    // Queue up an entry of D and u, and then the (scaled)
                     // -1 and +1
                     J.QueueUpdate
                     ( coneOff,         coneOff,       -beta*beta );
@@ -1719,17 +1716,17 @@ void FinishKKT
   const DistMultiVec<Int>& origToSparseOrders,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
-        DistSparseMatrix<Real>& J, 
+        DistSparseMatrix<Real>& J,
   bool onlyLower, Int cutoffPar )
 {
-    DEBUG_CSE
-    mpi::Comm comm = w.Comm();
-    const int commSize = mpi::Size(comm);
-    const int commRank = mpi::Rank(comm);
+    EL_DEBUG_CSE
+    const Grid& grid = w.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     // NOTE: The following computation is a bit redundant, and the lower norms
     //       are only needed for sufficiently large cones.
-    DistMultiVec<Real> wDets(comm), wLowers(comm);
+    DistMultiVec<Real> wDets(grid), wLowers(grid);
     soc::Dets( w, wDets, orders, firstInds, cutoffPar );
     soc::LowerNorms( w, wLowers, orders, firstInds, cutoffPar );
     cone::Broadcast( wDets, orders, firstInds, cutoffPar );
@@ -1747,13 +1744,12 @@ void FinishKKT
     // Gather all of each non-sparsified member cone that we own a piece of
     // --------------------------------------------------------------------
     // NOTE: We exploit the fact that each process owns a contiguous chunk
-    //       of rows 
+    //       of rows
     vector<int> recvOffs;
     vector<Real> recvBuf;
     const Int wLocalHeight = w.LocalHeight();
     {
-        // TODO: Reimplement this using the new QueuePull interface!
-        // =========================================================
+        // TODO(poulson): Reimplement this using the new QueuePull interface!
 
         // Count the total number of entries of w to send to each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1766,7 +1762,7 @@ void FinishKKT
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
-            const Int numLocalIndsCone = 
+            const Int numLocalIndsCone =
               Min(numLocalIndsLeft,order-(i-firstInd));
 
             if( order == sparseOrder )
@@ -1777,17 +1773,17 @@ void FinishKKT
                     if( owner != commRank )
                         sendCounts[owner] += numLocalIndsCone;
             }
-            
-            iLoc += numLocalIndsCone; 
+
+            iLoc += numLocalIndsCone;
         }
 
         // Pack the entries of w to send to each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> sendOffs;
-        const int totalSend = Scan( sendCounts, sendOffs ); 
-        vector<Real> sendBuf(totalSend); 
+        const int totalSend = Scan( sendCounts, sendOffs );
+        vector<Real> sendBuf(totalSend);
         auto offs = sendOffs;
-        for( Int iLoc=0; iLoc<wLocalHeight; ) 
+        for( Int iLoc=0; iLoc<wLocalHeight; )
         {
             const Int order = ordersLoc(iLoc);
             const Int firstInd = firstIndsLoc(iLoc);
@@ -1795,7 +1791,7 @@ void FinishKKT
 
             const Int i = w.GlobalRow(iLoc);
             const Int numLocalIndsLeft = wLocalHeight-iLoc;
-            const Int numLocalIndsCone = 
+            const Int numLocalIndsCone =
               Min(numLocalIndsLeft,order-(i-firstInd));
 
             if( order == sparseOrder )
@@ -1807,19 +1803,20 @@ void FinishKKT
                         for( Int e=0; e<numLocalIndsCone; ++e )
                             sendBuf[offs[owner]++] = wLoc(iLoc+e);
             }
-            
-            iLoc += numLocalIndsCone; 
+
+            iLoc += numLocalIndsCone;
         }
 
         // Receive the entries from each process
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+        mpi::AllToAll
+        ( sendCounts.data(), 1, recvCounts.data(), 1, grid.Comm() );
         const int totalRecv = Scan( recvCounts, recvOffs );
         recvBuf.resize( totalRecv );
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), grid.Comm() );
     }
 
     if( onlyLower )
@@ -1843,7 +1840,7 @@ void FinishKKT
                 if( i == firstInd )
                 {
                     // An entry of D and u (the first entry of v is 0), as well
-                    // as the (scaled) -1 and +1 diagonal entries for the 
+                    // as the (scaled) -1 and +1 diagonal entries for the
                     // v and u auxiliary variables
                     numRemoteEntries += 4;
                 }
@@ -1887,7 +1884,7 @@ void FinishKKT
                         if( owner == commRank )
                             wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
-                            wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                            wBuf[j-firstInd] = recvBuf[offs[owner]++];
                     }
                 }
 
@@ -1902,7 +1899,7 @@ void FinishKKT
                 // offdiag(-2 w w^T)
                 for( Int j=firstInd; j<i; ++j )
                     J.QueueUpdate
-                    ( n+m+iSparse, n+m+(j+sparseOff), 
+                    ( n+m+iSparse, n+m+(j+sparseOff),
                       -2*omega_i*wBuf[j-firstInd] );
             }
             else
@@ -1911,16 +1908,16 @@ void FinishKKT
                 const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
-                const Real wPsiPinv = 
+                const Real wPsiPinv =
                   ( wPsi < limits::Epsilon<Real>() ? Real(1) : 1/wPsi );
                 // NOTE: This includes the outer wDet factor
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D and u, and then the (scaled) 
+                    // Queue up an entry of D and u, and then the (scaled)
                     // -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -1961,7 +1958,7 @@ void FinishKKT
                 if( i == firstInd )
                 {
                     // An entry of D and a symmetric update with an entry of u,
-                    // as well as the (scaled) -1 and +1 diagonal entries for 
+                    // as well as the (scaled) -1 and +1 diagonal entries for
                     // the v and u auxiliary variables
                     numRemoteEntries += 5;
                 }
@@ -2006,7 +2003,7 @@ void FinishKKT
                         if( owner == commRank )
                             wBuf[j-firstInd] = wLoc(w.LocalRow(j));
                         else
-                            wBuf[j-firstInd] = recvBuf[offs[owner]++]; 
+                            wBuf[j-firstInd] = recvBuf[offs[owner]++];
                     }
                 }
 
@@ -2022,7 +2019,7 @@ void FinishKKT
                 for( Int j=firstInd; j<firstInd+order; ++j )
                     if( j != i )
                         J.QueueUpdate
-                        ( n+m+iSparse, n+m+(j+sparseOff), 
+                        ( n+m+iSparse, n+m+(j+sparseOff),
                           -2*omega_i*wBuf[j-firstInd] );
             }
             else
@@ -2031,7 +2028,7 @@ void FinishKKT
                 const Real wLower = wLowersLoc(iLoc);
                 const Real wPsi = wLower / Sqrt(wDet);
                 const Real wPsiSq = wPsi*wPsi;
-                const Real uPsi = 
+                const Real uPsi =
                   Sqrt((4*wPsiSq*wPsiSq+4*wPsiSq+Real(1)/Real(2))/(2*wPsiSq+1));
                 // Apply a pseudoinverse of sorts instead of 1/wPsi
                 const Real wPsiPinv =
@@ -2040,7 +2037,7 @@ void FinishKKT
                 const Real psiMap = wPsiPinv*omega_i*Sqrt(wDet);
                 if( i == firstInd )
                 {
-                    // Queue up an entry of D, a symmetric update with u, and 
+                    // Queue up an entry of D, a symmetric update with u, and
                     // then the (scaled) -1 and +1
                     const Real u0 = 2*(omega_i/Sqrt(wDet))*wPsi / uPsi;
                     const Real delta0 = 2*wPsiSq + 1 - u0*u0;
@@ -2052,11 +2049,11 @@ void FinishKKT
                 }
                 else
                 {
-                    // Queue up an entry of D and symmetric updates with 
+                    // Queue up an entry of D and symmetric updates with
                     // u, and v
                     const Real vPsi = Sqrt(uPsi*uPsi-2*wPsiSq);
                     J.QueueUpdate
-                    ( n+m+iSparse,     n+m+iSparse,     -wDet ); 
+                    ( n+m+iSparse,     n+m+iSparse,     -wDet );
                     J.QueueUpdate
                     ( coneOff+order,   n+m+iSparse,      vPsi*psiMap );
                     J.QueueUpdate
@@ -2083,7 +2080,7 @@ void KKTRHS
   const Matrix<Int>& firstInds,
         Matrix<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     const Int k = rh.Height();
@@ -2105,17 +2102,17 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const ElementalMatrix<Real>& rc,  
-  const ElementalMatrix<Real>& rb,
-  const ElementalMatrix<Real>& rh,  
-  const ElementalMatrix<Real>& rmu,
-  const ElementalMatrix<Real>& wRoot,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& dPre,
+( const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rb,
+  const DistMatrix<Real>& rh,
+  const DistMatrix<Real>& rmu,
+  const DistMatrix<Real>& wRoot,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        AbstractDistMatrix<Real>& dPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -2142,18 +2139,18 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const Matrix<Real>& rc, 
-  const Matrix<Real>& rb, 
-  const Matrix<Real>& rh, 
+( const Matrix<Real>& rc,
+  const Matrix<Real>& rb,
+  const Matrix<Real>& rh,
   const Matrix<Real>& rmu,
-  const Matrix<Real>& wRoot, 
+  const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
         Matrix<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
     Zeros( d, n+m+kSparse, 1 );
@@ -2180,11 +2177,11 @@ void KKTRHS
 
 template<typename Real>
 void KKTRHS
-( const DistMultiVec<Real>& rc, 
-  const DistMultiVec<Real>& rb, 
-  const DistMultiVec<Real>& rh, 
+( const DistMultiVec<Real>& rc,
+  const DistMultiVec<Real>& rb,
+  const DistMultiVec<Real>& rh,
   const DistMultiVec<Real>& rmu,
-  const DistMultiVec<Real>& wRoot, 
+  const DistMultiVec<Real>& wRoot,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   const DistMultiVec<Int>& origToSparseFirstInds,
@@ -2192,13 +2189,15 @@ void KKTRHS
         DistMultiVec<Real>& d,
   Int cutoffPar )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rc.Height();
     const Int m = rb.Height();
-    d.SetComm( rc.Comm() );
+    const Grid& grid = rc.Grid();
+
+    d.SetGrid( grid );
     Zeros( d, n+m+kSparse, 1 );
 
-    DistMultiVec<Real> W_rmu( rc.Comm() );
+    DistMultiVec<Real> W_rmu( grid );
     soc::ApplyQuadratic( wRoot, rmu, W_rmu, orders, firstInds, cutoffPar );
 
     Int numEntries = rc.LocalHeight() + rb.LocalHeight() + rmu.LocalHeight();
@@ -2236,17 +2235,17 @@ void KKTRHS
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n,
-  const Matrix<Real>& d, 
+  const Matrix<Real>& d,
   const Matrix<Real>& rmu,
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& dx, 
+        Matrix<Real>& dx,
         Matrix<Real>& dy,
-        Matrix<Real>& dz, 
+        Matrix<Real>& dz,
         Matrix<Real>& ds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
@@ -2261,18 +2260,18 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n,
-  const ElementalMatrix<Real>& d, 
+  const ElementalMatrix<Real>& d,
   const ElementalMatrix<Real>& rmu,
-  const ElementalMatrix<Real>& wRoot, 
+  const ElementalMatrix<Real>& wRoot,
   const ElementalMatrix<Int>& orders,
   const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& dx, 
+        ElementalMatrix<Real>& dx,
         ElementalMatrix<Real>& dy,
-        ElementalMatrix<Real>& dz, 
+        ElementalMatrix<Real>& dz,
         ElementalMatrix<Real>& ds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = wRoot.Height();
     qp::affine::ExpandCoreSolution( m, n, k, d, dx, dy, dz );
     // ds := - W^T ( rmu + W dz )
@@ -2287,7 +2286,7 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n,
-  const Matrix<Real>& d, 
+  const Matrix<Real>& d,
   const Matrix<Real>& rmu,
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
@@ -2296,12 +2295,12 @@ void ExpandSolution
   const Matrix<Int>& sparseFirstInds,
   const Matrix<Int>& sparseToOrigOrders,
   const Matrix<Int>& sparseToOrigFirstInds,
-        Matrix<Real>& dx, 
+        Matrix<Real>& dx,
         Matrix<Real>& dy,
-        Matrix<Real>& dz, 
+        Matrix<Real>& dz,
         Matrix<Real>& ds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = wRoot.Height();
     const Int kSparse = d.Height() - (n+m);
 
@@ -2339,7 +2338,7 @@ void ExpandSolution
 template<typename Real>
 void ExpandSolution
 ( Int m, Int n,
-  const DistMultiVec<Real>& d, 
+  const DistMultiVec<Real>& d,
   const DistMultiVec<Real>& rmu,
   const DistMultiVec<Real>& wRoot,
   const DistMultiVec<Int>& orders,
@@ -2348,13 +2347,13 @@ void ExpandSolution
   const DistMultiVec<Int>& sparseFirstInds,
   const DistMultiVec<Int>& sparseToOrigOrders,
   const DistMultiVec<Int>& sparseToOrigFirstInds,
-        DistMultiVec<Real>& dx, 
+        DistMultiVec<Real>& dx,
         DistMultiVec<Real>& dy,
-        DistMultiVec<Real>& dz, 
+        DistMultiVec<Real>& dz,
         DistMultiVec<Real>& ds,
   Int cutoffPar )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = wRoot.Height();
 
     // Extract dx
@@ -2419,12 +2418,12 @@ void ExpandSolution
           Matrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& w, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& J, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& G, \
+    const DistMatrix<Real>& w, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          DistMatrix<Real>& J, \
     bool onlyLower, Int cutoff ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \
@@ -2504,14 +2503,14 @@ void ExpandSolution
     const Matrix<Int>& firstInds, \
           Matrix<Real>& d ); \
   template void KKTRHS \
-  ( const ElementalMatrix<Real>& rc, \
-    const ElementalMatrix<Real>& rb, \
-    const ElementalMatrix<Real>& rh, \
-    const ElementalMatrix<Real>& rmu, \
-    const ElementalMatrix<Real>& wRoot, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& d, \
+  ( const DistMatrix<Real>& rc, \
+    const DistMatrix<Real>& rb, \
+    const DistMatrix<Real>& rh, \
+    const DistMatrix<Real>& rmu, \
+    const DistMatrix<Real>& wRoot, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          AbstractDistMatrix<Real>& d, \
     Int cutoff ); \
   template void KKTRHS \
   ( const Matrix<Real>& rc, \

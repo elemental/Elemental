@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,208 +13,210 @@
 
 namespace El {
 
-template<typename F>
-SafeProduct<F>  SafeDeterminant( const Matrix<F>& A )
+template<typename Field>
+SafeProduct<Field> SafeDeterminant( const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    Matrix<F> B( A );
-    return det::LUPartialPiv( B ); 
+    EL_DEBUG_CSE
+    Matrix<Field> B( A );
+    return det::LUPartialPiv( B );
 }
 
-template<typename F>
-SafeProduct<F> SafeDeterminant( const ElementalMatrix<F>& A )
+template<typename Field>
+SafeProduct<Field> SafeDeterminant( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    DistMatrix<F> B( A );
-    return det::LUPartialPiv( B ); 
+    EL_DEBUG_CSE
+    DistMatrix<Field> B( A );
+    return det::LUPartialPiv( B );
 }
 
-template<typename F>
-SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Field>
+SafeProduct<Base<Field>> SafeHPDDeterminant
+( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    Matrix<F> B( A );
-    return hpd_det::Cholesky( uplo, B ); 
+    EL_DEBUG_CSE
+    Matrix<Field> B( A );
+    return hpd_det::Cholesky( uplo, B );
 }
 
-template<typename F>
-SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, const ElementalMatrix<F>& A )
+template<typename Field>
+SafeProduct<Base<Field>> SafeHPDDeterminant
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    DistMatrix<F> B( A );
-    return hpd_det::Cholesky( uplo, B ); 
+    EL_DEBUG_CSE
+    DistMatrix<Field> B( A );
+    return hpd_det::Cholesky( uplo, B );
 }
 
-template<typename F>
-SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite )
+template<typename Field>
+SafeProduct<Field> SafeDeterminant( Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    Matrix<F> B;
+    EL_DEBUG_CSE
+    Matrix<Field> B;
     if( canOverwrite )
     {
-        return det::LUPartialPiv( A ); 
+        return det::LUPartialPiv( A );
     }
     else
     {
-        Matrix<F> B( A );
-        return det::LUPartialPiv( B ); 
+        Matrix<Field> B( A );
+        return det::LUPartialPiv( B );
     }
 }
 
-template<typename F>
-SafeProduct<F> SafeDeterminant( ElementalMatrix<F>& A, bool canOverwrite )
+template<typename Field>
+SafeProduct<Field>
+SafeDeterminant( AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
-        return det::LUPartialPiv( A ); 
+        return det::LUPartialPiv( A );
     }
     else
     {
-        DistMatrix<F> B( A );
-        return det::LUPartialPiv( B ); 
+        DistMatrix<Field> B( A );
+        return det::LUPartialPiv( B );
     }
 }
 
-template<typename F>
-SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
+template<typename Field>
+SafeProduct<Base<Field>> SafeHPDDeterminant
+( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
-        return hpd_det::Cholesky( uplo, A ); 
+        return hpd_det::Cholesky( uplo, A );
     }
     else
     {
-        Matrix<F> B( A );
-        return hpd_det::Cholesky( uplo, B ); 
+        Matrix<Field> B( A );
+        return hpd_det::Cholesky( uplo, B );
     }
 }
 
-template<typename F>
-SafeProduct<Base<F>> SafeHPDDeterminant
-( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite )
+template<typename Field>
+SafeProduct<Base<Field>> SafeHPDDeterminant
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( canOverwrite )
     {
-        return hpd_det::Cholesky( uplo, A ); 
+        return hpd_det::Cholesky( uplo, A );
     }
     else
     {
-        DistMatrix<F> B( A );
-        return hpd_det::Cholesky( uplo, B ); 
+        DistMatrix<Field> B( A );
+        return hpd_det::Cholesky( uplo, B );
     }
 }
 
-template<typename F>
-F Determinant( const Matrix<F>& A )
+template<typename Field>
+Field Determinant( const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeProduct<F> safeDet = SafeDeterminant( A );
+    EL_DEBUG_CSE
+    SafeProduct<Field> safeDet = SafeDeterminant( A );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-F Determinant( const ElementalMatrix<F>& A )
+template<typename Field>
+Field Determinant( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeProduct<F> safeDet = SafeDeterminant( A );
+    EL_DEBUG_CSE
+    SafeProduct<Field> safeDet = SafeDeterminant( A );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-Base<F> HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Field>
+Base<Field> HPDDeterminant( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-Base<F> HPDDeterminant( UpperOrLower uplo, const ElementalMatrix<F>& A )
+template<typename Field>
+Base<Field>
+HPDDeterminant( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-F Determinant( Matrix<F>& A, bool canOverwrite )
+template<typename Field>
+Field Determinant( Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
+    EL_DEBUG_CSE
+    SafeProduct<Field> safeDet = SafeDeterminant( A, canOverwrite );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-F Determinant( ElementalMatrix<F>& A, bool canOverwrite )
+template<typename Field>
+Field Determinant( AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
+    EL_DEBUG_CSE
+    SafeProduct<Field> safeDet = SafeDeterminant( A, canOverwrite );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-Base<F> HPDDeterminant
-( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
+template<typename Field>
+Base<Field> HPDDeterminant
+( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet =
+      SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
-template<typename F>
-Base<F> HPDDeterminant
-( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite )
+template<typename Field>
+Base<Field> HPDDeterminant
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet =
+      SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
-#define PROTO(F) \
-  template SafeProduct<F> SafeDeterminant( const Matrix<F>& A ); \
-  template SafeProduct<F> SafeDeterminant( const ElementalMatrix<F>& A ); \
-  template SafeProduct<F> SafeDeterminant \
-  ( Matrix<F>& A, bool canOverwrite ); \
-  template SafeProduct<F> SafeDeterminant \
-  ( ElementalMatrix<F>& A, bool canOverwrite ); \
-  \
-  template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
-  template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
-  template SafeProduct<Base<F>> SafeHPDDeterminant \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite ); \
-  \
-  template F Determinant( const Matrix<F>& A ); \
-  template F Determinant( const ElementalMatrix<F>& A ); \
-  template F Determinant( Matrix<F>& A, bool canOverwrite ); \
-  template F Determinant( ElementalMatrix<F>& A, bool canOverwrite ); \
-  \
-  template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
-  template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
-  template Base<F> HPDDeterminant \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite ); \
-  \
-  template SafeProduct<Base<F>> hpd_det::AfterCholesky \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template SafeProduct<Base<F>> hpd_det::AfterCholesky \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const Matrix<F>& A, const Permutation& P ); \
-  template SafeProduct<F> det::AfterLUPartialPiv \
-  ( const ElementalMatrix<F>& A, const DistPermutation& P );
+#define PROTO(Field) \
+  template SafeProduct<Field> SafeDeterminant( const Matrix<Field>& A ); \
+  template SafeProduct<Field> SafeDeterminant \
+  ( const AbstractDistMatrix<Field>& A ); \
+  template SafeProduct<Field> SafeDeterminant \
+  ( Matrix<Field>& A, bool canOverwrite ); \
+  template SafeProduct<Field> SafeDeterminant \
+  ( AbstractDistMatrix<Field>& A, bool canOverwrite ); \
+  template SafeProduct<Base<Field>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, const Matrix<Field>& A ); \
+  template SafeProduct<Base<Field>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A ); \
+  template SafeProduct<Base<Field>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite ); \
+  template SafeProduct<Base<Field>> SafeHPDDeterminant \
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite ); \
+  template Field Determinant( const Matrix<Field>& A ); \
+  template Field Determinant( const AbstractDistMatrix<Field>& A ); \
+  template Field Determinant( Matrix<Field>& A, bool canOverwrite ); \
+  template Field Determinant \
+  ( AbstractDistMatrix<Field>& A, bool canOverwrite ); \
+  template Base<Field> HPDDeterminant \
+  ( UpperOrLower uplo, const Matrix<Field>& A ); \
+  template Base<Field> HPDDeterminant \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A ); \
+  template Base<Field> HPDDeterminant \
+  ( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite ); \
+  template Base<Field> HPDDeterminant \
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite ); \
+  template SafeProduct<Base<Field>> hpd_det::AfterCholesky \
+  ( UpperOrLower uplo, const Matrix<Field>& A ); \
+  template SafeProduct<Base<Field>> hpd_det::AfterCholesky \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A ); \
+  template SafeProduct<Field> det::AfterLUPartialPiv \
+  ( const Matrix<Field>& A, const Permutation& P ); \
+  template SafeProduct<Field> det::AfterLUPartialPiv \
+  ( const AbstractDistMatrix<Field>& A, const DistPermutation& P );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

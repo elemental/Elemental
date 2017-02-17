@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_INVERSE_LUPARTIALPIV_HPP
@@ -19,10 +19,10 @@ namespace inverse {
 // then,
 //     inv(A) = inv(U) inv(L) P.
 
-template<typename F> 
-void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
+template<typename Field>
+void AfterLUPartialPiv( Matrix<Field>& A, const Permutation& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
 
@@ -53,20 +53,20 @@ void AfterLUPartialPiv( Matrix<F>& A, const Permutation& P )
         Zero( A21 );
 
         // Perform the lazy update of A1
-        Gemm( NORMAL, NORMAL, F(-1), A2, L21, F(1), A1 );
+        Gemm( NORMAL, NORMAL, Field(-1), A2, L21, Field(1), A1 );
 
         // Solve against this diagonal block of L11
-        Trsm( RIGHT, LOWER, NORMAL, UNIT, F(1), L11, A1 );
+        Trsm( RIGHT, LOWER, NORMAL, UNIT, Field(1), L11, A1 );
     }
 
     // inv(A) := inv(A) P
     P.InversePermuteCols( A );
 }
 
-template<typename F> 
-void LUPartialPiv( Matrix<F>& A )
+template<typename Field>
+void LUPartialPiv( Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     Permutation P;
@@ -74,14 +74,14 @@ void LUPartialPiv( Matrix<F>& A )
     inverse::AfterLUPartialPiv( A, P );
 }
 
-template<typename F> 
+template<typename Field>
 void AfterLUPartialPiv
-(       ElementalMatrix<F>& APre,
+(       AbstractDistMatrix<Field>& APre,
   const DistPermutation& P )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     if( A.Height() != A.Width() )
@@ -90,11 +90,11 @@ void AfterLUPartialPiv
     TriangularInverse( UPPER, NON_UNIT, A );
 
     const Grid& g = A.Grid();
-    DistMatrix<F,VC,  STAR> A1_VC_STAR(g);
-    DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,VR,  STAR> L21_VR_STAR(g);
-    DistMatrix<F,STAR,MR  > L21Trans_STAR_MR(g);
-    DistMatrix<F,MC,  STAR> Z1(g);
+    DistMatrix<Field,VC,  STAR> A1_VC_STAR(g);
+    DistMatrix<Field,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<Field,VR,  STAR> L21_VR_STAR(g);
+    DistMatrix<Field,STAR,MR  > L21Trans_STAR_MR(g);
+    DistMatrix<Field,MC,  STAR> Z1(g);
 
     const Int n = A.Height();
 
@@ -126,13 +126,14 @@ void AfterLUPartialPiv
         // Perform the lazy update of A1
         Z1.AlignWith( A1 );
         Zeros( Z1, n, nb );
-        LocalGemm( NORMAL, TRANSPOSE, F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
-        AxpyContract( F(1), Z1, A1 );
+        LocalGemm
+        ( NORMAL, TRANSPOSE, Field(-1), A2, L21Trans_STAR_MR, Field(0), Z1 );
+        AxpyContract( Field(1), Z1, A1 );
 
         // Solve against this diagonal block of L11
         A1_VC_STAR = A1;
         LocalTrsm
-        ( RIGHT, LOWER, NORMAL, UNIT, F(1), L11_STAR_STAR, A1_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, UNIT, Field(1), L11_STAR_STAR, A1_VC_STAR );
         A1 = A1_VC_STAR;
     }
 
@@ -140,10 +141,10 @@ void AfterLUPartialPiv
     P.InversePermuteCols( A );
 }
 
-template<typename F> 
-void LUPartialPiv( ElementalMatrix<F>& A )
+template<typename Field>
+void LUPartialPiv( AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot invert non-square matrices");
     const Grid& g = A.Grid();

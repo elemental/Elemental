@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_SETDIAGONAL_HPP
@@ -14,95 +14,98 @@ namespace El {
 template<typename T>
 void SetDiagonal( Matrix<T>& A, const Matrix<T>& d, Int offset )
 {
-    DEBUG_CSE
-    function<void(T&,T)> func
-    ( []( T& beta, T gamma ) { beta = gamma; } );
+    EL_DEBUG_CSE
+    function<void(T&,const T&)> func
+    ( []( T& beta, const T& gamma ) { beta = gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
 template<typename T>
 void SetRealPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
-    function<void(T&,Base<T>)> func
-    ( []( T& beta, Base<T> gamma ) { SetRealPart(beta,gamma); } );
+    EL_DEBUG_CSE
+    function<void(T&,const Base<T>&)> func
+    ( []( T& beta, const Base<T>& gamma ) { SetRealPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
 template<typename T>
 void SetImagPartOfDiagonal( Matrix<T>& A, const Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
-    function<void(T&,Base<T>)> func
-    ( []( T& beta, Base<T> gamma ) { SetImagPart(beta,gamma); } );
+    EL_DEBUG_CSE
+    function<void(T&,const Base<T>&)> func
+    ( []( T& beta, const Base<T>& gamma ) { SetImagPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void SetDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<T>& d, Int offset )
+( DistMatrix<T,U,V,wrap>& A, const AbstractDistMatrix<T>& d, Int offset )
 {
-    DEBUG_CSE
-    function<void(T&,T)> func
-    ( []( T& beta, T gamma ) { beta = gamma; } );
+    EL_DEBUG_CSE
+    function<void(T&,const T&)> func
+    ( []( T& beta, const T& gamma ) { beta = gamma; } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void SetRealPartOfDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( DistMatrix<T,U,V,wrap>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
-    function<void(T&,Base<T>)> func
-    ( []( T& beta, Base<T> gamma ) { SetRealPart(beta,gamma); } );
+    EL_DEBUG_CSE
+    function<void(T&,const Base<T>&)> func
+    ( []( T& beta, const Base<T>& gamma ) { SetRealPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void SetImagPartOfDiagonal
-( DistMatrix<T,U,V>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( DistMatrix<T,U,V,wrap>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
-    function<void(T&,Base<T>)> func
-    ( []( T& beta, Base<T> gamma ) { SetImagPart(beta,gamma); } );
+    EL_DEBUG_CSE
+    function<void(T&,const Base<T>&)> func
+    ( []( T& beta, const Base<T>& gamma ) { SetImagPart(beta,gamma); } );
     UpdateMappedDiagonal( A, d, func, offset );
 }
 
 template<typename T>
 void SetDiagonal
-( ElementalMatrix<T>& A, const ElementalMatrix<T>& d, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       SetDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
 void SetRealPartOfDiagonal
-( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       SetRealPartOfDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
 void SetImagPartOfDiagonal
-( ElementalMatrix<T>& A, const ElementalMatrix<Base<T>>& d, Int offset )
+( AbstractDistMatrix<T>& A, const AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       SetImagPartOfDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }

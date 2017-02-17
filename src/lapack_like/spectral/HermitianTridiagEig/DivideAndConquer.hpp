@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_HERM_TRIDIAG_EIG_DC_HPP
@@ -17,7 +17,7 @@ namespace El {
 namespace herm_tridiag_eig {
 
 // The following is analogous to LAPACK's {s,d}laed{1,2,3} [CITATION] but does
-// not accept initial sorting permutations for w0 and w1, nor does it enforce 
+// not accept initial sorting permutations for w0 and w1, nor does it enforce
 // any ordering on the resulting eigenvalues.
 template<typename Real>
 DCInfo
@@ -47,7 +47,7 @@ Merge
   Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n0 = w0.Height();
     const Int n1 = w1.Height();
     const Int n = n0 + n1;
@@ -72,16 +72,16 @@ Merge
         View( Q1, Q, IR(1), IR(n0,END) );
     }
 
-    // Before permutation, 
+    // Before permutation,
     //
     //   r = sqrt(2 |beta|) z,
     //
     // where
-    //     
+    //
     //   z = [ sgn(beta)*Q0(n0-1,:), Q1(0,:) ] / sqrt(2).
     //
     // But we reorder indices 0 and n0-1 to put r in the first position. Thus,
-    // we must form 
+    // we must form
     //
     //   d = [w0(n0-1); w0(0:n0-2); w1]
     //
@@ -103,10 +103,10 @@ Merge
         d(j+n0) = w1(j);
     }
 
-    // Compute the scale of the problem and rescale. We will rescale the 
+    // Compute the scale of the problem and rescale. We will rescale the
     // eigenvalues at the end of this routine. Note that LAPACK's {s,d}laed2
     // [CITATION] uses max(|beta|,||z||_max), where || z ||_2 = sqrt(2),
-    // which could be much too small if || r ||_2 is much larger than beta 
+    // which could be much too small if || r ||_2 is much larger than beta
     // and sqrt(2).
     Real scale = Max( 2*Abs(beta), MaxNorm(d) );
     SafeScale( Real(1), scale, d );
@@ -232,7 +232,7 @@ Merge
             //   | z(j), z(revivalCandidate) | | c -s | = | gamma, 0 |,
             //                                 | s  c |
             //
-            // where gamma = || z(revivalCandidate); z(j) ||_2. Putting 
+            // where gamma = || z(revivalCandidate); z(j) ||_2. Putting
             //
             //   c = z(j)                / gamma,
             //   s = z(revivalCandidate) / gamma,
@@ -321,7 +321,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<n; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -421,7 +421,7 @@ Merge
     Matrix<Real> rCorrected;
     Ones( rCorrected, numUndeflated, 1 );
 
-    // Ensure that there is sufficient space for storing the needed 
+    // Ensure that there is sufficient space for storing the needed
     // eigenvectors from the undeflated secular equation. Notice that we
     // *always* need to compute the eigenvectors of the undeflated secular
     // equation.
@@ -484,7 +484,7 @@ Merge
         for( Int i=0; i<numUndeflated; ++i )
             u(i) = q(packingPerm.Preimage(i)) / qFrob;
     }
-    // Overwrite the first 'numUndeflated' columns of Q with the updated 
+    // Overwrite the first 'numUndeflated' columns of Q with the updated
     // eigenvectors by exploiting the partitioning of Z = QPacked as
     //
     //   Z = | Z_{0,0} |    0    | Z_{0,2} |,
@@ -589,7 +589,7 @@ Merge
   DistMatrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = w0.Grid();
     const bool amRoot = ( g.Rank() == 0 );
     const Int n0 = w0.Height();
@@ -619,16 +619,16 @@ Merge
         View( Q1, Q, IR(1), IR(n0,END) );
     }
 
-    // Before permutation, 
+    // Before permutation,
     //
     //   r = sqrt(2 |beta|) z,
     //
     // where
-    //     
+    //
     //   z = [ sgn(beta)*Q0(n0-1,:), Q1(0,:) ] / sqrt(2).
     //
     // But we reorder indices 0 and n0-1 to put r in the first position. Thus,
-    // we must form 
+    // we must form
     //
     //   d = [w0(n0-1); w0(0:n0-2); w1]
     //
@@ -653,10 +653,10 @@ Merge
         dLoc(j+n0) = w1Loc(j);
     }
 
-    // Compute the scale of the problem and rescale. We will rescale the 
+    // Compute the scale of the problem and rescale. We will rescale the
     // eigenvalues at the end of this routine. Note that LAPACK's {s,d}laed2
     // [CITATION] uses max(|beta|,||z||_max), where || z ||_2 = sqrt(2),
-    // which could be much too small if || r ||_2 is much larger than beta 
+    // which could be much too small if || r ||_2 is much larger than beta
     // and sqrt(2).
     Real scale = Max( 2*Abs(beta), MaxNorm(dLoc) );
     SafeScale( Real(1), scale, d );
@@ -673,7 +673,7 @@ Merge
 
     // Get a full copy of the last row of Q0 and the first row of Q1.
     const Int lastRowOfQ0 = ( ctrl.wantEigVecs ? n0-1 : 0 );
-    DistMatrix<Real,STAR,STAR> q0Last( Q0(IR(lastRowOfQ0),ALL) ), 
+    DistMatrix<Real,STAR,STAR> q0Last( Q0(IR(lastRowOfQ0),ALL) ),
       q1First( Q1(IR(0),ALL) );
     const auto& q0LastLoc = q0Last.LockedMatrix();
     const auto& q1FirstLoc = q1First.LockedMatrix();
@@ -796,7 +796,7 @@ Merge
             //   | z(j), z(revivalCandidate) | | c -s | = | gamma, 0 |,
             //                                 | s  c |
             //
-            // where gamma = || z(revivalCandidate); z(j) ||_2. Putting 
+            // where gamma = || z(revivalCandidate); z(j) ||_2. Putting
             //
             //   c = z(j)                / gamma,
             //   s = z(revivalCandidate) / gamma,
@@ -879,7 +879,7 @@ Merge
     std::vector<Int> packingCounts( NUM_DC_COMBINED_COLUMN_TYPES, 0 );
     for( Int j=0; j<n; ++j )
         ++packingCounts[columnTypes(j)];
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( packingCounts[DEFLATED_COLUMN] != numDeflated )
           LogicError
           ("Inconsistency between packingCounts[DEFLATED_COLUMN]=",
@@ -1123,7 +1123,7 @@ DivideAndConquer
         Matrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     const auto& dcCtrl = ctrl.dcCtrl;
 
@@ -1229,11 +1229,10 @@ DivideAndConquer
   const HermitianTridiagEigCtrl<Real>& ctrl,
   bool topLevel=true )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& grid = Q.Grid();
     const Int n = mainDiag.Height();
     const auto& dcCtrl = ctrl.dcCtrl;
-
     DCInfo info;
 
     if( n <= Max(dcCtrl.cutoff,3) )
@@ -1244,9 +1243,24 @@ DivideAndConquer
         Matrix<Real> wLoc, QLoc;
         if( ctrl.wantEigVecs )
         {
-
             ctrlMod.accumulateEigVecs = false;
-            HermitianTridiagEig( mainDiag, superDiag, wLoc, QLoc, ctrlMod );
+            if( ctrl.qrCtrl.broadcast )
+            {
+                if( grid.Rank() == 0 )
+                {
+                    HermitianTridiagEig
+                    ( mainDiag, superDiag, wLoc, QLoc, ctrlMod );
+                }
+                wLoc.Resize( n, 1 );
+                El::Broadcast( wLoc, grid.VCComm(), 0 );
+                QLoc.Resize( n, n );
+                El::Broadcast( QLoc, grid.VCComm(), 0 );
+            }
+            else
+            {
+                // Let's cross our fingers and ignore the forward instability
+                HermitianTridiagEig( mainDiag, superDiag, wLoc, QLoc, ctrlMod );
+            }
         }
         else
         {
@@ -1255,7 +1269,22 @@ DivideAndConquer
             Zeros( QLoc, 2, n );
             QLoc(0,0) = 1;
             QLoc(1,n-1) = 1;
-            HermitianTridiagEig( mainDiag, superDiag, wLoc, QLoc, ctrlMod );
+            if( ctrl.qrCtrl.broadcast )
+            {
+                if( grid.Rank() == 0 )
+                {
+                    HermitianTridiagEig
+                    ( mainDiag, superDiag, wLoc, QLoc, ctrlMod );
+                }
+                wLoc.Resize( n, 1 );
+                El::Broadcast( wLoc, grid.VCComm(), 0 );
+                El::Broadcast( QLoc, grid.VCComm(), 0 );
+            }
+            else
+            {
+                // Let's cross our fingers and ignore the forward instability
+                HermitianTridiagEig( mainDiag, superDiag, wLoc, QLoc, ctrlMod );
+            }
         }
 
         w.Resize( n, 1 );

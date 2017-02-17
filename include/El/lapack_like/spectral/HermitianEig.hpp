@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPECTRAL_HERMITIAN_EIG_HPP
@@ -34,7 +34,7 @@ namespace herm_eig {
 //   lambda in [diagSum +- sqrt(diagDiff^2 + twiceAlpha01^2)] / 2.
 //
 // The eigenvalue corresponding to the "+" term is of maximal magnitude iff
-// diagSum >= 0, so our computation branches based upon this condition. The 
+// diagSum >= 0, so our computation branches based upon this condition. The
 // smaller eigenvalue is *not* directly computed using the above formula, as
 // this would potentially lead to catastrophic cancellation, and so we instead
 // carefully divide the determinant by the dominant eigenvalue.
@@ -66,7 +66,8 @@ namespace herm_eig {
 // TODO(poulson): Decide how/if to avoid redundancy in the following two
 // routines without incurring unacceptable overheads.
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwo
 ( const Real& alpha00,
   const Real& alpha01,
@@ -165,7 +166,8 @@ void TwoByTwo
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwo
 ( const Real& alpha00,
   const Real& alpha01,
@@ -266,7 +268,7 @@ void TwoByTwo
     }
 
     // Choose between solving the first or second equation of
-    //   
+    //
     //   (A - lambda0 I) | c | = | 0 |
     //                   | s |   | 0 |
     //
@@ -286,9 +288,9 @@ void TwoByTwo
     // Carefully normalize based upon whether or not |shiftedDiagTerm| is
     // greater than |2 alpha01|.
     const Real shiftedDiagAbs = Abs(shiftedDiagTerm);
-    if( shiftedDiagAbs > twiceAlpha01Abs )    
+    if( shiftedDiagAbs > twiceAlpha01Abs )
     {
-        const Real ratio = -twiceAlpha01/shiftedDiagTerm; 
+        const Real ratio = -twiceAlpha01/shiftedDiagTerm;
         s = one / Sqrt(one + ratio*ratio);
         c = ratio*s;
     }

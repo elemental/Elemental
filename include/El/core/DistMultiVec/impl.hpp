@@ -1,14 +1,21 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
-
 #include <El/blas_like/level1/Axpy.hpp>
 #include <El/blas_like/level1/Scale.hpp>
 
@@ -17,61 +24,46 @@ namespace El {
 // Constructors and destructors
 // ============================
 
-template<typename T>
-DistMultiVec<T>::DistMultiVec( mpi::Comm comm )
-: height_(0), width_(0),
-  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
-{ 
-    if( comm == mpi::COMM_WORLD )
-        comm_ = comm;
-    else
-        mpi::Dup( comm, comm_ );
-    InitializeLocalData();
-}
-
-template<typename T>
-DistMultiVec<T>::DistMultiVec( Int height, Int width, mpi::Comm comm )
-: height_(height), width_(width), 
-  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
-{ 
-    if( comm == mpi::COMM_WORLD )
-        comm_ = comm;
-    else
-        mpi::Dup( comm, comm_ );
-    InitializeLocalData();
-}
-
-template<typename T>
-DistMultiVec<T>::DistMultiVec( const DistMultiVec<T>& A )
+template<typename Ring>
+DistMultiVec<Ring>::DistMultiVec( const El::Grid& grid )
+: grid_(&grid)
 {
-    DEBUG_CSE
-    height_ = 0;
-    width_ = 0;
-    comm_ = mpi::COMM_WORLD;
+    EL_DEBUG_CSE
+    InitializeLocalData();
+}
+
+template<typename Ring>
+DistMultiVec<Ring>::DistMultiVec( Int height, Int width, const El::Grid& grid )
+: height_(height), width_(width), grid_(&grid)
+{
+    InitializeLocalData();
+}
+
+template<typename Ring>
+DistMultiVec<Ring>::DistMultiVec( const DistMultiVec<Ring>& A )
+{
+    EL_DEBUG_CSE
+    grid_ = &A.Grid();
     if( &A != this )
         *this = A;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       else
           LogicError("Tried to construct DistMultiVec via itself");
     )
 }
 
-template<typename T>
-DistMultiVec<T>::~DistMultiVec()
-{ 
-    if( !mpi::Finalized() )
-        if( comm_ != mpi::COMM_WORLD )
-            mpi::Free( comm_ );
-}
+template<typename Ring>
+DistMultiVec<Ring>::~DistMultiVec() { }
 
 // Assignment and reconfiguration
 // ==============================
 
 // Change the size of the matrix
 // -----------------------------
-template<typename T>
-void DistMultiVec<T>::Empty( bool freeMemory )
+template<typename Ring>
+void DistMultiVec<Ring>::Empty( bool freeMemory )
 {
+    EL_DEBUG_CSE
     height_ = 0;
     width_ = 0;
     blocksize_ = 1;
@@ -81,19 +73,23 @@ void DistMultiVec<T>::Empty( bool freeMemory )
     SwapClear( remoteUpdates_ );
 }
 
-template<typename T>
-void DistMultiVec<T>::InitializeLocalData()
+template<typename Ring>
+void DistMultiVec<Ring>::InitializeLocalData()
 {
-    blocksize_ = height_ / commSize_;
-    if( blocksize_*commSize_ < height_ || height_ == 0 )
+    EL_DEBUG_CSE
+    const int gridRank = grid_->Rank();
+    const int gridSize = grid_->Size();
+    blocksize_ = height_ / gridSize;
+    if( blocksize_*gridSize < height_ || height_ == 0 )
         ++blocksize_;
-    const Int localHeight = Min(blocksize_,Max(0,height_-blocksize_*commRank_));
+    const Int localHeight = Min(blocksize_,Max(0,height_-blocksize_*gridRank));
     multiVec_.Resize( localHeight, width_ );
 }
 
-template<typename T>
-void DistMultiVec<T>::Resize( Int height, Int width )
+template<typename Ring>
+void DistMultiVec<Ring>::Resize( Int height, Int width )
 {
+    EL_DEBUG_CSE
     if( height_ == height && width == width_ )
         return;
 
@@ -106,21 +102,13 @@ void DistMultiVec<T>::Resize( Int height, Int width )
 
 // Change the distribution
 // -----------------------
-template<typename T>
-void DistMultiVec<T>::SetComm( mpi::Comm comm )
-{ 
-    commSize_ = mpi::Size(comm);
-    commRank_ = mpi::Rank(comm);
-    if( comm == comm_ )
+template<typename Ring>
+void DistMultiVec<Ring>::SetGrid( const El::Grid& grid )
+{
+    EL_DEBUG_CSE
+    if( grid_ == &grid )
         return;
-
-    if( comm_ != mpi::COMM_WORLD )
-        mpi::Free( comm_ );
-    if( comm == mpi::COMM_WORLD )
-        comm_ = comm;
-    else
-        mpi::Dup( comm, comm_ );
-
+    grid_ = &grid;
     Resize( 0, 0 );
 }
 
@@ -129,90 +117,94 @@ void DistMultiVec<T>::SetComm( mpi::Comm comm )
 
 // Make a copy
 // -----------
-template<typename T>
-const DistMultiVec<T>& DistMultiVec<T>::operator=( const DistMultiVec<T>& A )
+template<typename Ring>
+const DistMultiVec<Ring>& DistMultiVec<Ring>::operator=
+( const DistMultiVec<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( A, *this );
     return *this;
 }
 
-template<typename T>
-const DistMultiVec<T>& 
-DistMultiVec<T>::operator=( const AbstractDistMatrix<T>& A )
+template<typename Ring>
+const DistMultiVec<Ring>&
+DistMultiVec<Ring>::operator=( const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( A, *this );
     return *this;
 }
 
 // Make a copy of a submatrix
 // --------------------------
-template<typename T>
-DistMultiVec<T>
-DistMultiVec<T>::operator()( Range<Int> I, Range<Int> J ) const
+template<typename Ring>
+DistMultiVec<Ring>
+DistMultiVec<Ring>::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
-    DistMultiVec<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistMultiVec<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-DistMultiVec<T>
-DistMultiVec<T>::operator()( Range<Int> I, const vector<Int>& J ) const
+template<typename Ring>
+DistMultiVec<Ring>
+DistMultiVec<Ring>::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
-    DistMultiVec<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistMultiVec<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-DistMultiVec<T>
-DistMultiVec<T>::operator()( const vector<Int>& I, Range<Int> J ) const
+template<typename Ring>
+DistMultiVec<Ring>
+DistMultiVec<Ring>::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
-    DistMultiVec<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistMultiVec<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
-template<typename T>
-DistMultiVec<T>
-DistMultiVec<T>::operator()( const vector<Int>& I, const vector<Int>& J ) const
+template<typename Ring>
+DistMultiVec<Ring>
+DistMultiVec<Ring>::operator()
+( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
-    DistMultiVec<T> ASub(this->Comm());
+    EL_DEBUG_CSE
+    DistMultiVec<Ring> ASub(this->Grid());
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
 // Rescaling
 // ---------
-template<typename T>
-const DistMultiVec<T>& DistMultiVec<T>::operator*=( T alpha )
+template<typename Ring>
+const DistMultiVec<Ring>& DistMultiVec<Ring>::operator*=( const Ring& alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
 
 // Addition/subtraction
 // --------------------
-template<typename T>
-const DistMultiVec<T>& DistMultiVec<T>::operator+=( const DistMultiVec<T>& A )
+template<typename Ring>
+const DistMultiVec<Ring>& DistMultiVec<Ring>::operator+=
+( const DistMultiVec<Ring>& A )
 {
-    DEBUG_CSE
-    Axpy( T(1), A, *this );
+    EL_DEBUG_CSE
+    Axpy( Ring(1), A, *this );
     return *this;
 }
 
-template<typename T>
-const DistMultiVec<T>& DistMultiVec<T>::operator-=( const DistMultiVec<T>& A )
+template<typename Ring>
+const DistMultiVec<Ring>& DistMultiVec<Ring>::operator-=
+( const DistMultiVec<Ring>& A )
 {
-    DEBUG_CSE
-    Axpy( T(-1), A, *this );
+    EL_DEBUG_CSE
+    Axpy( Ring(-1), A, *this );
     return *this;
 }
 
@@ -221,70 +213,70 @@ const DistMultiVec<T>& DistMultiVec<T>::operator-=( const DistMultiVec<T>& A )
 
 // High-level information
 // ----------------------
-template<typename T>
-Int DistMultiVec<T>::Height() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistMultiVec<Ring>::Height() const EL_NO_EXCEPT
 { return height_; }
-template<typename T>
-Int DistMultiVec<T>::Width() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistMultiVec<Ring>::Width() const EL_NO_EXCEPT
 { return multiVec_.Width(); }
-template<typename T>
-Int DistMultiVec<T>::FirstLocalRow() const EL_NO_EXCEPT
-{ return blocksize_*commRank_; }
-template<typename T>
-Int DistMultiVec<T>::LocalHeight() const EL_NO_EXCEPT
+template<typename Ring>
+Int DistMultiVec<Ring>::FirstLocalRow() const EL_NO_EXCEPT
+{ return blocksize_*grid_->Rank(); }
+template<typename Ring>
+Int DistMultiVec<Ring>::LocalHeight() const EL_NO_EXCEPT
 { return multiVec_.Height(); }
-template<typename T>
-El::Matrix<T>& DistMultiVec<T>::Matrix() EL_NO_EXCEPT
+template<typename Ring>
+El::Matrix<Ring>& DistMultiVec<Ring>::Matrix() EL_NO_EXCEPT
 { return multiVec_; }
-template<typename T>
-const El::Matrix<T>& DistMultiVec<T>::LockedMatrix() const EL_NO_EXCEPT
+template<typename Ring>
+const El::Matrix<Ring>& DistMultiVec<Ring>::LockedMatrix() const EL_NO_EXCEPT
 { return multiVec_; }
 
 // Distribution information
 // ------------------------
-template<typename T>
-mpi::Comm DistMultiVec<T>::Comm() const EL_NO_EXCEPT { return comm_; }
+template<typename Ring>
+const El::Grid& DistMultiVec<Ring>::Grid() const EL_NO_EXCEPT { return *grid_; }
 
-template<typename T>
-Int DistMultiVec<T>::Blocksize() const EL_NO_EXCEPT { return blocksize_; }
+template<typename Ring>
+Int DistMultiVec<Ring>::Blocksize() const EL_NO_EXCEPT { return blocksize_; }
 
-template<typename T>
-int DistMultiVec<T>::RowOwner( Int i ) const EL_NO_EXCEPT
-{ 
+template<typename Ring>
+int DistMultiVec<Ring>::RowOwner( Int i ) const EL_NO_EXCEPT
+{
     if( i == END ) i = height_ - 1;
     return i / blocksize_;
 }
 
-template<typename T>
-int DistMultiVec<T>::Owner( Int i, Int j ) const EL_NO_EXCEPT
+template<typename Ring>
+int DistMultiVec<Ring>::Owner( Int i, Int j ) const EL_NO_EXCEPT
 { return RowOwner(i); }
 
-template<typename T>
-bool DistMultiVec<T>::IsLocalRow( Int i ) const EL_NO_EXCEPT
-{ return RowOwner(i) == commRank_; }
+template<typename Ring>
+bool DistMultiVec<Ring>::IsLocalRow( Int i ) const EL_NO_EXCEPT
+{ return RowOwner(i) == grid_->Rank(); }
 
-template<typename T>
-bool DistMultiVec<T>::IsLocal( Int i, Int j ) const EL_NO_EXCEPT
+template<typename Ring>
+bool DistMultiVec<Ring>::IsLocal( Int i, Int j ) const EL_NO_EXCEPT
 { return IsLocalRow(i); }
 
-template<typename T>
-Int DistMultiVec<T>::GlobalRow( Int iLoc ) const
+template<typename Ring>
+Int DistMultiVec<Ring>::GlobalRow( Int iLoc ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( iLoc == END ) iLoc = LocalHeight() - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( iLoc < 0 || iLoc >= LocalHeight() )
           LogicError("Invalid local row index");
     )
     return iLoc + FirstLocalRow();
 }
 
-template<typename T>
-Int DistMultiVec<T>::LocalRow( Int i ) const
+template<typename Ring>
+Int DistMultiVec<Ring>::LocalRow( Int i ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = Height() - 1;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( i < 0 || i >= Height() )
           LogicError("Invalid global row index");
     )
@@ -293,104 +285,104 @@ Int DistMultiVec<T>::LocalRow( Int i ) const
 
 // Detailed local information
 // --------------------------
-template<typename T>
-T DistMultiVec<T>::Get( Int i, Int j ) const
+template<typename Ring>
+Ring DistMultiVec<Ring>::Get( Int i, Int j ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = height_ - 1;
     const int rowOwner = RowOwner(i);
-    T value;
-    if( rowOwner == commRank_ )
+    Ring value;
+    if( rowOwner == grid_->Rank() )
         value = GetLocal( i-FirstLocalRow(), j );
-    mpi::Broadcast( value, rowOwner, comm_ );
+    mpi::Broadcast( value, rowOwner, grid_->Comm() );
     return value;
 }
 
-template<typename T>
-void DistMultiVec<T>::Set( Int i, Int j, T value )
+template<typename Ring>
+void DistMultiVec<Ring>::Set( Int i, Int j, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = height_ - 1;
     const Int firstLocalRow = FirstLocalRow();
     if( i >= firstLocalRow && i < firstLocalRow+LocalHeight() )
         SetLocal( i-firstLocalRow, j, value );
 }
 
-template<typename T>
-void DistMultiVec<T>::Set( const Entry<T>& entry )
+template<typename Ring>
+void DistMultiVec<Ring>::Set( const Entry<Ring>& entry )
 { Set( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-void DistMultiVec<T>::Update( Int i, Int j, T value )
+template<typename Ring>
+void DistMultiVec<Ring>::Update( Int i, Int j, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( i == END ) i = height_ - 1;
     const Int firstLocalRow = FirstLocalRow();
     if( i >= firstLocalRow && i < firstLocalRow+LocalHeight() )
         UpdateLocal( i-firstLocalRow, j, value );
 }
 
-template<typename T>
-void DistMultiVec<T>::Update( const Entry<T>& entry )
+template<typename Ring>
+void DistMultiVec<Ring>::Update( const Entry<Ring>& entry )
 { Update( entry.i, entry.j, entry.value ); }
 
-template<typename T>
-T DistMultiVec<T>::GetLocal( Int iLoc, Int j ) const
-{ 
-    DEBUG_CSE
+template<typename Ring>
+Ring DistMultiVec<Ring>::GetLocal( Int iLoc, Int j ) const
+{
+    EL_DEBUG_CSE
     return multiVec_.Get(iLoc,j);
 }
 
-template<typename T>
-void DistMultiVec<T>::SetLocal( Int iLoc, Int j, T value )
+template<typename Ring>
+void DistMultiVec<Ring>::SetLocal( Int iLoc, Int j, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     multiVec_.Set(iLoc,j,value);
 }
 
-template<typename T>
-void DistMultiVec<T>::SetLocal( const Entry<T>& localEntry )
+template<typename Ring>
+void DistMultiVec<Ring>::SetLocal( const Entry<Ring>& localEntry )
 { SetLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
-template<typename T>
-void DistMultiVec<T>::UpdateLocal( Int iLoc, Int j, T value )
+template<typename Ring>
+void DistMultiVec<Ring>::UpdateLocal( Int iLoc, Int j, const Ring& value )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     multiVec_.Update(iLoc,j,value);
 }
 
-template<typename T>
-void DistMultiVec<T>::UpdateLocal( const Entry<T>& localEntry )
+template<typename Ring>
+void DistMultiVec<Ring>::UpdateLocal( const Entry<Ring>& localEntry )
 { UpdateLocal( localEntry.i, localEntry.j, localEntry.value ); }
 
 // Batch remote updates
 // --------------------
-template<typename T>
-void DistMultiVec<T>::Reserve( Int numRemoteEntries )
+template<typename Ring>
+void DistMultiVec<Ring>::Reserve( Int numRemoteEntries )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int currSize = remoteUpdates_.size();
     remoteUpdates_.reserve( currSize+numRemoteEntries );
 }
 
-template<typename T>
-void DistMultiVec<T>::QueueUpdate( const Entry<T>& entry )
+template<typename Ring>
+void DistMultiVec<Ring>::QueueUpdate( const Entry<Ring>& entry )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     remoteUpdates_.push_back( entry );
 }
 
-template<typename T>
-void DistMultiVec<T>::QueueUpdate( Int i, Int j, T value )
-{ QueueUpdate( Entry<T>{i,j,value} ); }
+template<typename Ring>
+void DistMultiVec<Ring>::QueueUpdate( Int i, Int j, const Ring& value )
+{ QueueUpdate( Entry<Ring>{i,j,value} ); }
 
-template<typename T>
-void DistMultiVec<T>::ProcessQueues()
+template<typename Ring>
+void DistMultiVec<Ring>::ProcessQueues()
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Compute the send counts
     // -----------------------
-    vector<int> sendCounts(commSize_);
+    vector<int> sendCounts(grid_->Size());
     for( const auto& entry : remoteUpdates_ )
         ++sendCounts[Owner(entry.i,entry.j)];
     // Pack the send data
@@ -398,16 +390,16 @@ void DistMultiVec<T>::ProcessQueues()
     vector<int> sendOffs;
     const int totalSend = Scan( sendCounts, sendOffs );
     auto offs = sendOffs;
-    vector<Entry<T>> sendEntries(totalSend);
+    vector<Entry<Ring>> sendEntries(totalSend);
     for( const auto& entry : remoteUpdates_ )
         sendEntries[offs[Owner(entry.i,entry.j)]++] = entry;
     SwapClear( remoteUpdates_ );
     // Exchange and unpack
     // -------------------
-    auto recvEntries = 
-      mpi::AllToAll( sendEntries, sendCounts, sendOffs, comm_ );
+    auto recvEntries =
+      mpi::AllToAll( sendEntries, sendCounts, sendOffs, grid_->Comm() );
 
-    T* matBuf = multiVec_.Buffer();
+    Ring* matBuf = multiVec_.Buffer();
     const Int matLDim = multiVec_.LDim();
     const Int firstLocalRow = FirstLocalRow();
     for( const auto& entry : recvEntries )
@@ -420,7 +412,7 @@ void DistMultiVec<T>::ProcessQueues()
 # define EL_EXTERN extern
 #endif
 
-#define PROTO(T) EL_EXTERN template class DistMultiVec<T>;
+#define PROTO(Ring) EL_EXTERN template class DistMultiVec<Ring>;
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD

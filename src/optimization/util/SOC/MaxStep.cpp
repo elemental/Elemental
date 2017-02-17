@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,12 +11,12 @@
 namespace El {
 namespace soc {
 
-// Given x within a Second-Order Cone and an arbitrary search direction y in 
-// R^n, find the maximum value of alpha* in [0,upperBound] such that 
+// Given x within a Second-Order Cone and an arbitrary search direction y in
+// R^n, find the maximum value of alpha* in [0,upperBound] such that
 // x + t y lies within the cone for all values of t in [0,alpha*].
 //
 // Thus, we seek the minimum positive solution to the quadratic equation
-//   
+//
 //   det(x + alpha y) = det(y) alpha^2 + 2 (x^T R y) alpha + det(x) = 0,
 //
 // which is degenerate in the case where y lies on the boundary of either the
@@ -26,7 +26,7 @@ namespace soc {
 //   alpha = -det(x) / (2 x^T R y).
 //
 // It also happens that, when y lies within the reflection of the orthogonal
-// complement of x, that x^T R y = 0, and the only positive solution to the 
+// complement of x, that x^T R y = 0, and the only positive solution to the
 // original formula simplifies to
 //
 //   alpha = sqrt(-det(x)/det(y)).
@@ -35,7 +35,7 @@ namespace soc {
 // to make alpha as large as possible.
 //
 // In all cases, after finding the maximum unconstrained step-length, alpha,
-// we set 
+// we set
 //
 //   alpha* = min(alpha,upperBound).
 //
@@ -44,7 +44,7 @@ namespace soc {
 //
 //   Compute det(x), det(y), and x^T R y.
 //
-//   If y_0 >= 0 and det(y) >= 0, 
+//   If y_0 >= 0 and det(y) >= 0,
 //
 //     Set alpha* = upperBound.
 //
@@ -58,11 +58,11 @@ namespace soc {
 //     minusRoot := (-(x^T R y) - sqrt((x^T R y)^2 - det(x) det(y)))/det(y),
 //     minRoot := min(plusRoot,minusRoot)
 //     maxRoot := max(plusRoot,minusRoot)
-//     
+//
 //     If minRoot >= 0:
 //
 //       alpha* = min(minRoot,upperBound)
-//     
+//
 //     Else:
 //
 //       alpha* = min(maxRoot,upperBound)
@@ -71,12 +71,12 @@ namespace soc {
 //
 //   End
 //
-// In order to compute the step-length for a product cone, the minimum over 
+// In order to compute the step-length for a product cone, the minimum over
 // the set of subcone step-lengths should be taken.
 //
-// Alternatively [1, pg. 23], since x is assumed to be a member of the SOC, one 
+// Alternatively [1, pg. 23], since x is assumed to be a member of the SOC, one
 // can compute an automorphism of the cone which maps x to e, as
-// 
+//
 //   Q_{x^{-1/2}) x = e,
 //
 // where Q_z is the quadratic representation of the Jordan algebra member z,
@@ -92,7 +92,7 @@ namespace soc {
 //   max { t >= 0 | e + t (G y) >= 0 } = max { t >= 0 | e / t + G y >= 0 },
 //                                     = min { t >= 0 | e * t + G y >= 0 },
 //
-// where the result is simply equal to max(|| z_1 ||_2 - z_0,0) if we define 
+// where the result is simply equal to max(|| z_1 ||_2 - z_0,0) if we define
 // z = G y. Then we need only consider two cases:
 //
 //   If max(|| z_1 ||_2 - z_0,0) == 0, return upperBound
@@ -100,35 +100,36 @@ namespace soc {
 //   Otherwise, return min(1 / max(|| z_1 ||_2 - z_0,0),upperBound).
 //
 // [1] L. Vandenberghe, "The CVXOPT linear and quadratic cone program solvers",
-//     2010. Last accessed from 
+//     2010. Last accessed from
 //     http://www.seas.ucla.edu/~vandenbe/publications/coneprog.pdf
 //
 // [2] M. Andersen, J. Dahl, and L. Vandenberghe, CVXOPT function misc.max_step,
-//     2014. Last accessed from 
+//     2014. Last accessed from
 //     https://github.com/cvxopt/cvxopt/blob/f3ca94fb997979a54b913f95b816132f7fd44820/src/python/misc.py#L1018
-// 
+//
 
 namespace {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 Real ChooseStepLength
 ( const Real& x0,
   const Real& y0,
   const Real& xDet,
   const Real& yDet,
   const Real& xTRy,
-  const Real& upperBound, 
+  const Real& upperBound,
   const Real& delta=limits::Epsilon<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Real step;
-    if( y0 >= Real(0) && yDet >= Real(0) ) 
+    if( y0 >= Real(0) && yDet >= Real(0) )
     {
         step = upperBound;
     }
     else if( Abs(yDet) <= delta )
     {
-        // Fall back to a backstepping line search rather than using the 
+        // Fall back to a backstepping line search rather than using the
         // alpha^2 = 0 approximation alpha = - 2 det(x) / (x^T R y),
         // which has been observed to, in some cases, return 0 instead of the
         // upper bound.
@@ -157,15 +158,16 @@ Real ChooseStepLength
 
 } // anonymous namespace
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxStep
 ( const Matrix<Real>& x,
-  const Matrix<Real>& y, 
+  const Matrix<Real>& y,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   Real upperBound )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
     const Int height = x.Height();
 
@@ -194,7 +196,7 @@ Real MaxStep
     {
         const Int order = orderBuf[i];
         const Int firstInd = firstIndBuf[i];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
@@ -212,15 +214,16 @@ Real MaxStep
     return Real(alpha);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxStep
-( const ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Real>& yPre, 
-  const ElementalMatrix<Int>& ordersPre,
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Real>& yPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Real upperBound, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
 
     ElementalProxyCtrl control;
@@ -267,27 +270,28 @@ Real MaxStep
         const PReal xDet = xDetBuf[iLoc];
         const PReal yDet = yDetBuf[iLoc];
         const PReal xTRy = xTRyBuf[iLoc];
-        
+
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
 
     return Real(mpi::AllReduce( alpha, mpi::MIN, x.DistComm() ));
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Real MaxStep
-( const DistMultiVec<Real>& x,     
-  const DistMultiVec<Real>& y, 
-  const DistMultiVec<Int>& orders, 
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Real>& y,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Real upperBound, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Promote<Real> PReal;
-    mpi::Comm comm = x.Comm();
+    const Grid& grid = x.Grid();
 
-    DistMultiVec<PReal> xProm(comm), yProm(comm),
-                        xDets(comm), yDets(comm), xTRys(comm), maxSteps(comm);
+    DistMultiVec<PReal> xProm(grid), yProm(grid),
+                        xDets(grid), yDets(grid), xTRys(grid), maxSteps(grid);
     Copy( x, xProm );
     Copy( y, yProm );
     soc::Dets( xProm, xDets, orders, firstInds, cutoff );
@@ -322,7 +326,7 @@ Real MaxStep
 
         alpha = ChooseStepLength(x0,y0,xDet,yDet,xTRy,alpha);
     }
-    return Real(mpi::AllReduce( alpha, mpi::MIN, comm ));
+    return Real(mpi::AllReduce( alpha, mpi::MIN, grid.Comm() ));
 }
 
 #define PROTO(Real) \
@@ -333,10 +337,10 @@ Real MaxStep
     const Matrix<Int>& firstInds, \
     Real upperBound ); \
   template Real MaxStep \
-  ( const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& ds, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& s, \
+    const AbstractDistMatrix<Real>& ds, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Real upperBound, Int cutoff ); \
   template Real MaxStep \
   ( const DistMultiVec<Real>& s, \

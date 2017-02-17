@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -12,10 +12,10 @@
 
 namespace El {
 
-template<typename T> 
+template<typename T>
 void Walsh( Matrix<T>& A, Int k, bool binary )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -25,12 +25,12 @@ void Walsh( Matrix<T>& A, Int k, bool binary )
     // based upon successive sign flips
     const T onValue = 1;
     const T offValue = ( binary ? 0 : -1 );
-    auto walshFill = 
+    auto walshFill =
       [&]( Int i, Int j ) -> T
       {
         // Recurse on the quadtree, flipping the sign of the entry each
         // time we are in the bottom-right quadrant
-        Unsigned r = (Unsigned)i;     
+        Unsigned r = (Unsigned)i;
         Unsigned s = (Unsigned)j;
         Unsigned t = n;
         bool on = true;
@@ -50,7 +50,7 @@ void Walsh( Matrix<T>& A, Int k, bool binary )
 template<typename T>
 void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
@@ -60,13 +60,13 @@ void Walsh( AbstractDistMatrix<T>& A, Int k, bool binary )
     // based upon successive sign flips
     const T onValue = 1;
     const T offValue = ( binary ? 0 : -1 );
-    auto walshFill = 
+    auto walshFill =
       [&]( Int i, Int j ) -> T
       {
         // Recurse on the quadtree, flipping the sign of the entry each
         // time we are in the bottom-right quadrant
-        Unsigned r = (Unsigned)i;     
-        Unsigned s = (Unsigned)j;
+        Unsigned r = static_cast<Unsigned>(i);
+        Unsigned s = static_cast<Unsigned>(j);
         Unsigned t = n;
         bool on = true;
         while( t != 1u )

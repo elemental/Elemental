@@ -10,7 +10,10 @@ include(FindCXXFeatures)
 include(CheckCXXSourceCompiles)
 
 message(STATUS "CXX11_COMPILER_FLAGS=${CXX11_COMPILER_FLAGS}")
-set(CMAKE_REQUIRED_FLAGS ${CXX11_COMPILER_FLAGS})
+message(STATUS "CXX14_COMPILER_FLAGS=${CXX14_COMPILER_FLAGS}")
+set(CMAKE_REQUIRED_FLAGS ${CXX14_COMPILER_FLAGS})
+
+# TODO(poulson): Test for C++14 features such as [[deprecated]]
 
 # Required features
 # =================

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_OPTIMIZATION_CREFLECT_C_HPP
@@ -13,11 +13,6 @@ namespace El {
 
 // Optimization
 // ------------
-inline ElRegularization CReflect( Regularization penalty )
-{ return static_cast<ElRegularization>(penalty); }
-inline Regularization CReflect( ElRegularization penalty )
-{ return static_cast<Regularization>(penalty); }
-
 inline ElKKTSystem CReflect( KKTSystem system )
 { return static_cast<ElKKTSystem>(system); }
 inline KKTSystem CReflect( ElKKTSystem system )
@@ -36,19 +31,29 @@ inline ElMehrotraCtrl_s CReflect( const MehrotraCtrl<float>& ctrl )
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system        = CReflect(ctrl.system);
     ctrlC.mehrotra      = ctrl.mehrotra;
-    ctrlC.forceSameStep = ctrl.forceSameStep;
-    ctrlC.solveCtrl     = CReflect(ctrl.solveCtrl);
-    ctrlC.resolveReg    = ctrl.resolveReg;
-    ctrlC.outerEquil    = ctrl.outerEquil;
-    ctrlC.basisSize     = ctrl.basisSize;
-    ctrlC.print         = ctrl.print;
-    ctrlC.time          = ctrl.time;
-    ctrlC.wSafeMaxNorm  = ctrl.wSafeMaxNorm;
-    ctrlC.wMaxLimit     = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol  = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter   = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol  = ctrl.diagEquilTol;
-    ctrlC.checkResiduals = ctrl.checkResiduals;
+   
+    auto centralityRuleRes =
+      ctrl.centralityRule.target<float(*)(float,float,float,float)>();
+    if( centralityRuleRes )
+        ctrlC.centralityRule = *centralityRuleRes;
+    else
+        RuntimeError("Could not convert centralityRule to C function pointer");
+
+    ctrlC.standardInitShift = ctrl.standardInitShift;
+    ctrlC.balanceTol        = ctrl.balanceTol;
+    ctrlC.forceSameStep     = ctrl.forceSameStep;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.resolveReg        = ctrl.resolveReg;
+    ctrlC.outerEquil        = ctrl.outerEquil;
+    ctrlC.basisSize         = ctrl.basisSize;
+    ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
+    ctrlC.wSafeMaxNorm      = ctrl.wSafeMaxNorm;
+    ctrlC.wMaxLimit         = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol      = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter       = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol      = ctrl.diagEquilTol;
+    ctrlC.checkResiduals    = ctrl.checkResiduals;
 
     ctrlC.reg0Tmp = ctrl.reg0Tmp;
     ctrlC.reg1Tmp = ctrl.reg1Tmp;
@@ -70,19 +75,29 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system        = CReflect(ctrl.system);
     ctrlC.mehrotra      = ctrl.mehrotra;
-    ctrlC.forceSameStep = ctrl.forceSameStep;
-    ctrlC.solveCtrl     = CReflect(ctrl.solveCtrl);
-    ctrlC.resolveReg    = ctrl.resolveReg;
-    ctrlC.outerEquil    = ctrl.outerEquil;
-    ctrlC.basisSize     = ctrl.basisSize;
-    ctrlC.print         = ctrl.print;
-    ctrlC.time          = ctrl.time;
-    ctrlC.wSafeMaxNorm  = ctrl.wSafeMaxNorm;
-    ctrlC.wMaxLimit     = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol  = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter   = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol  = ctrl.diagEquilTol;
-    ctrlC.checkResiduals = ctrl.checkResiduals;
+
+    auto centralityRuleRes =
+      ctrl.centralityRule.target<double(*)(double,double,double,double)>();
+    if( centralityRuleRes )
+        ctrlC.centralityRule = *centralityRuleRes;
+    else
+        RuntimeError("Could not convert centralityRule to C function pointer");
+
+    ctrlC.standardInitShift = ctrl.standardInitShift;
+    ctrlC.balanceTol        = ctrl.balanceTol;
+    ctrlC.forceSameStep     = ctrl.forceSameStep;
+    ctrlC.solveCtrl         = CReflect(ctrl.solveCtrl);
+    ctrlC.resolveReg        = ctrl.resolveReg;
+    ctrlC.outerEquil        = ctrl.outerEquil;
+    ctrlC.basisSize         = ctrl.basisSize;
+    ctrlC.print             = ctrl.print;
+    ctrlC.time              = ctrl.time;
+    ctrlC.wSafeMaxNorm      = ctrl.wSafeMaxNorm;
+    ctrlC.wMaxLimit         = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol      = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter       = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol      = ctrl.diagEquilTol;
+    ctrlC.checkResiduals    = ctrl.checkResiduals;
 
     ctrlC.reg0Tmp = ctrl.reg0Tmp;
     ctrlC.reg1Tmp = ctrl.reg1Tmp;
@@ -96,27 +111,30 @@ inline ElMehrotraCtrl_d CReflect( const MehrotraCtrl<double>& ctrl )
 inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
 {
     MehrotraCtrl<float> ctrl;
-    ctrl.primalInit    = ctrlC.primalInit;
-    ctrl.dualInit      = ctrlC.dualInit;
-    ctrl.minTol        = ctrlC.minTol;
-    ctrl.targetTol     = ctrlC.targetTol;
-    ctrl.maxIts        = ctrlC.maxIts;
-    ctrl.maxStepRatio  = ctrlC.maxStepRatio;
-    ctrl.system        = CReflect(ctrlC.system);
-    ctrl.mehrotra      = ctrlC.mehrotra;
-    ctrl.forceSameStep = ctrlC.forceSameStep;
-    ctrl.solveCtrl     = CReflect(ctrlC.solveCtrl);
-    ctrl.resolveReg    = ctrlC.resolveReg;
-    ctrl.outerEquil    = ctrlC.outerEquil;
-    ctrl.basisSize     = ctrlC.basisSize;
-    ctrl.print         = ctrlC.print;
-    ctrl.time          = ctrlC.time;
-    ctrl.wSafeMaxNorm  = ctrlC.wSafeMaxNorm;
-    ctrl.wMaxLimit     = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol  = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter   = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol  = ctrlC.diagEquilTol;
-    ctrl.checkResiduals = ctrlC.checkResiduals;
+    ctrl.primalInit        = ctrlC.primalInit;
+    ctrl.dualInit          = ctrlC.dualInit;
+    ctrl.minTol            = ctrlC.minTol;
+    ctrl.targetTol         = ctrlC.targetTol;
+    ctrl.maxIts            = ctrlC.maxIts;
+    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.system            = CReflect(ctrlC.system);
+    ctrl.mehrotra          = ctrlC.mehrotra;
+    ctrl.centralityRule    = ctrlC.centralityRule;
+    ctrl.standardInitShift = ctrlC.standardInitShift;
+    ctrl.balanceTol        = ctrlC.balanceTol;
+    ctrl.forceSameStep     = ctrlC.forceSameStep;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.resolveReg        = ctrlC.resolveReg;
+    ctrl.outerEquil        = ctrlC.outerEquil;
+    ctrl.basisSize         = ctrlC.basisSize;
+    ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
+    ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
+    ctrl.wMaxLimit         = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol      = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter       = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol      = ctrlC.diagEquilTol;
+    ctrl.checkResiduals    = ctrlC.checkResiduals;
 
     ctrl.reg0Tmp = ctrlC.reg0Tmp;
     ctrl.reg1Tmp = ctrlC.reg1Tmp;
@@ -130,27 +148,30 @@ inline MehrotraCtrl<float> CReflect( const ElMehrotraCtrl_s& ctrlC )
 inline MehrotraCtrl<double> CReflect( const ElMehrotraCtrl_d& ctrlC )
 {
     MehrotraCtrl<double> ctrl;
-    ctrl.primalInit    = ctrlC.primalInit;
-    ctrl.dualInit      = ctrlC.dualInit;
-    ctrl.minTol        = ctrlC.minTol;
-    ctrl.targetTol     = ctrlC.targetTol;
-    ctrl.maxIts        = ctrlC.maxIts;
-    ctrl.maxStepRatio  = ctrlC.maxStepRatio;
-    ctrl.system        = CReflect(ctrlC.system);
-    ctrl.mehrotra      = ctrlC.mehrotra;
-    ctrl.forceSameStep = ctrlC.forceSameStep;
-    ctrl.solveCtrl     = CReflect(ctrlC.solveCtrl);
-    ctrl.resolveReg    = ctrlC.resolveReg;
-    ctrl.outerEquil    = ctrlC.outerEquil;
-    ctrl.basisSize     = ctrlC.basisSize;
-    ctrl.print         = ctrlC.print;
-    ctrl.time          = ctrlC.time;
-    ctrl.wSafeMaxNorm  = ctrlC.wSafeMaxNorm;
-    ctrl.wMaxLimit     = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol  = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter   = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol  = ctrlC.diagEquilTol;
-    ctrl.checkResiduals = ctrlC.checkResiduals;
+    ctrl.primalInit        = ctrlC.primalInit;
+    ctrl.dualInit          = ctrlC.dualInit;
+    ctrl.minTol            = ctrlC.minTol;
+    ctrl.targetTol         = ctrlC.targetTol;
+    ctrl.maxIts            = ctrlC.maxIts;
+    ctrl.maxStepRatio      = ctrlC.maxStepRatio;
+    ctrl.system            = CReflect(ctrlC.system);
+    ctrl.mehrotra          = ctrlC.mehrotra;
+    ctrl.centralityRule    = ctrlC.centralityRule;
+    ctrl.standardInitShift = ctrlC.standardInitShift;
+    ctrl.balanceTol        = ctrlC.balanceTol;
+    ctrl.forceSameStep     = ctrlC.forceSameStep;
+    ctrl.solveCtrl         = CReflect(ctrlC.solveCtrl);
+    ctrl.resolveReg        = ctrlC.resolveReg;
+    ctrl.outerEquil        = ctrlC.outerEquil;
+    ctrl.basisSize         = ctrlC.basisSize;
+    ctrl.print             = ctrlC.print;
+    ctrl.time              = ctrlC.time;
+    ctrl.wSafeMaxNorm      = ctrlC.wSafeMaxNorm;
+    ctrl.wMaxLimit         = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol      = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter       = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol      = ctrlC.diagEquilTol;
+    ctrl.checkResiduals    = ctrlC.checkResiduals;
 
     ctrl.reg0Tmp = ctrlC.reg0Tmp;
     ctrl.reg1Tmp = ctrlC.reg1Tmp;
@@ -652,7 +673,7 @@ inline BPDNCtrl<double> CReflect( const ElBPDNCtrl_d& ctrlC )
 // Non-negative Least Squares
 // """"""""""""""""""""""""""
 
-inline NNLSApproach CReflect( ElNNLSApproach approach ) 
+inline NNLSApproach CReflect( ElNNLSApproach approach )
 { return static_cast<NNLSApproach>(approach); }
 inline ElNNLSApproach CReflect( NNLSApproach approach )
 { return static_cast<ElNNLSApproach>(approach); }
@@ -845,83 +866,33 @@ inline SparseInvCovCtrl<double> CReflect( const ElSparseInvCovCtrl_d& ctrlC )
     return ctrl;
 }
 
-/* Model Fit
-   """"""""" */
-inline ElModelFitCtrl_s CReflect( const ModelFitCtrl<float>& ctrl )
-{
-    ElModelFitCtrl_s ctrlC;
-    ctrlC.rho      = ctrl.rho;
-    ctrlC.maxIter  = ctrl.maxIter;
-    ctrlC.inv      = ctrl.inv;
-    ctrlC.progress = ctrl.progress;
-    return ctrlC;
-}
-
-inline ElModelFitCtrl_d CReflect( const ModelFitCtrl<double>& ctrl )
-{
-    ElModelFitCtrl_d ctrlC;
-    ctrlC.rho      = ctrl.rho;
-    ctrlC.maxIter  = ctrl.maxIter;
-    ctrlC.inv      = ctrl.inv;
-    ctrlC.progress = ctrl.progress;
-    return ctrlC;
-}
-
-inline ModelFitCtrl<float> CReflect( const ElModelFitCtrl_s& ctrlC )
-{
-    ModelFitCtrl<float> ctrl;
-    ctrl.rho      = ctrlC.rho;
-    ctrl.maxIter  = ctrlC.maxIter;
-    ctrl.inv      = ctrlC.inv;
-    ctrl.progress = ctrlC.progress;
-    return ctrl;
-}
-
-inline ModelFitCtrl<double> CReflect( const ElModelFitCtrl_d& ctrlC )
-{
-    ModelFitCtrl<double> ctrl;
-    ctrl.rho      = ctrlC.rho;
-    ctrl.maxIter  = ctrlC.maxIter;
-    ctrl.inv      = ctrlC.inv;
-    ctrl.progress = ctrlC.progress;
-    return ctrl;
-}
-
 /* Support Vector Machine
    """""""""""""""""""""" */
 inline ElSVMCtrl_s CReflect( const SVMCtrl<float>& ctrl )
 {
     ElSVMCtrl_s ctrlC;
-    ctrlC.useIPM       = ctrl.useIPM;
-    ctrlC.modelFitCtrl = CReflect(ctrl.modelFitCtrl);
-    ctrlC.ipmCtrl      = CReflect(ctrl.ipmCtrl);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 
 inline ElSVMCtrl_d CReflect( const SVMCtrl<double>& ctrl )
 {
     ElSVMCtrl_d ctrlC;
-    ctrlC.useIPM       = ctrl.useIPM;
-    ctrlC.modelFitCtrl = CReflect(ctrl.modelFitCtrl);
-    ctrlC.ipmCtrl      = CReflect(ctrl.ipmCtrl);
+    ctrlC.ipmCtrl = CReflect(ctrl.ipmCtrl);
     return ctrlC;
 }
 
 inline SVMCtrl<float> CReflect( const ElSVMCtrl_s& ctrlC )
 {
     SVMCtrl<float> ctrl;
-    ctrl.useIPM       = ctrlC.useIPM;
-    ctrl.modelFitCtrl = CReflect(ctrlC.modelFitCtrl);
-    ctrl.ipmCtrl      = CReflect(ctrlC.ipmCtrl);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 
 inline SVMCtrl<double> CReflect( const ElSVMCtrl_d& ctrlC )
 {
     SVMCtrl<double> ctrl;
-    ctrl.useIPM       = ctrlC.useIPM;
-    ctrl.modelFitCtrl = CReflect(ctrlC.modelFitCtrl);
-    ctrl.ipmCtrl      = CReflect(ctrlC.ipmCtrl);
+    ctrl.ipmCtrl = CReflect(ctrlC.ipmCtrl);
     return ctrl;
 }
 

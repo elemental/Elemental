@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_IMAGPART_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     AImag.Resize( m, n );
@@ -25,20 +25,10 @@ void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 
 template<typename T>
 void ImagPart
-( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag )
-{ 
-    auto imagPart = []( T alpha ) { return ImagPart(alpha); };
-    function<Base<T>(T)> realLambda( imagPart );
-    EntrywiseMap( A, AImag, realLambda );
-}
-
-template<typename T>
-void ImagPart
-( const BlockMatrix<T>& A, BlockMatrix<Base<T>>& AImag )
-{ 
-    auto imagPart = []( T alpha ) { return ImagPart(alpha); };
-    function<Base<T>(T)> realLambda( imagPart );
-    EntrywiseMap( A, AImag, realLambda );
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag )
+{
+    auto imagPart = []( const T& alpha ) { return ImagPart(alpha); };
+    EntrywiseMap( A, AImag, MakeFunction(imagPart) );
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1
@@ -51,10 +41,7 @@ void ImagPart
   EL_EXTERN template void ImagPart \
   ( const Matrix<T>& A, Matrix<Base<T>>& AImag ); \
   EL_EXTERN template void ImagPart \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& AImag ); \
-  EL_EXTERN template void ImagPart \
-  ( const BlockMatrix<T>& A, \
-          BlockMatrix<Base<T>>& AImag );
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& AImag );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

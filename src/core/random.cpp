@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -86,7 +86,7 @@ Quad SampleUniform( const Quad& a, const Quad& b )
 template<>
 BigFloat SampleUniform( const BigFloat& a, const BigFloat& b )
 {
-    BigFloat sample; 
+    BigFloat sample;
     gmp_randstate_t randState;
     mpfr::RandomState( randState );
 
@@ -102,10 +102,10 @@ BigFloat SampleUniform( const BigFloat& a, const BigFloat& b )
 template<>
 BigInt SampleUniform( const BigInt& a, const BigInt& b )
 {
-    BigInt sample; 
+    BigInt sample;
     gmp_randstate_t randState;
     mpfr::RandomState( randState );
-    
+
     mpz_urandomb( sample.Pointer(), randState, b.NumBits() );
     return a+Mod(sample,b-a);
 }
@@ -117,7 +117,7 @@ Int SampleUniform( const Int& a, const Int& b )
 {
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
-    std::uniform_int_distribution<Int> intDist(a,b-1); 
+    std::uniform_int_distribution<Int> intDist(a,b-1);
     return intDist(gen);
 #else
     return a + (rand() % (b-a));

@@ -18,8 +18,8 @@ namespace El {
 
 inline Int Length( Int n, Int shift, Int stride )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( n < 0 )
           LogicError("n must be non-negative");
       if( shift < 0 || shift >= stride )
@@ -38,7 +38,7 @@ inline Int Length_( Int n, Int shift, Int stride ) EL_NO_EXCEPT
 inline Int
 Length( Int n, Int rank, Int align, Int stride )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int shift = Shift( rank, align, stride );
     return Length( n, shift, stride );
 }
@@ -52,8 +52,8 @@ inline Int Length_
 
 inline Int MaxLength( Int n, Int stride )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( n < 0 )
           LogicError("n must be non-negative");
       if( stride <= 0 )
@@ -73,8 +73,8 @@ inline Int GlobalIndex( Int iLoc, Int shift, Int numProcs )
 
 inline Int BlockedLength( Int n, Int shift, Int bsize, Int cut, Int stride )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( n < 0 )
           LogicError("n must be non-negative");
       if( shift < 0 || shift >= stride )
@@ -107,7 +107,7 @@ inline Int BlockedLength_
     length += lengthBlock*bsize;
     n -= nBlock*bsize;
     // Cycle each process's first block left by nBlock
-    shift = Mod(shift-nBlock,stride);
+    shift = Mod(shift-Mod(nBlock,stride),stride);
 
     // Handle the (possibly empty) last block
     // ======================================
@@ -120,7 +120,7 @@ inline Int BlockedLength_
 inline Int
 BlockedLength( Int n, Int rank, Int align, Int bsize, Int cut, Int stride )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int shift = Shift( rank, align, stride );
     return BlockedLength( n, shift, bsize, cut, stride );
 }
@@ -134,8 +134,8 @@ inline Int BlockedLength_
 
 inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( n < 0 )
           LogicError("n must be non-negative");
       if( stride <= 0 )
@@ -146,7 +146,16 @@ inline Int MaxBlockedLength( Int n, Int bsize, Int cut, Int stride )
 
 inline Int MaxBlockedLength_
 ( Int n, Int bsize, Int cut, Int stride ) EL_NO_EXCEPT
-{ return BlockedLength_( n, 0, bsize, cut, stride ); }
+{
+    // The first process does *not* necessarily own the most data if the
+    // cut is nonzero. But, if it does not, the second process must be assigned
+    // the most, and so we can simply take the maximum of the first and second.
+    const Int firstLength = BlockedLength_( n, 0, bsize, cut, stride );
+    const Int firstBlockSize = Min( n, bsize-cut );
+    const Int secondLength =
+      BlockedLength_( n-firstBlockSize, 0, bsize, 0, stride );
+    return Max( firstLength, secondLength );
+}
 
 inline Int 
 GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs )
@@ -170,8 +179,8 @@ GlobalBlockedIndex( Int iLoc, Int shift, Int bsize, Int cut, Int numProcs )
 
 inline Int Mod( Int a, Int b )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b <= 0 )
           LogicError("b is assumed to be positive");
     )
@@ -187,8 +196,8 @@ inline Int Mod_( Int a, Int b ) EL_NO_EXCEPT
 #ifdef EL_HAVE_MPC
 inline BigInt Mod( const BigInt& a, const BigInt& b )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b <= 0 )
           LogicError("b is assumed to be positive");
     )
@@ -197,14 +206,14 @@ inline BigInt Mod( const BigInt& a, const BigInt& b )
 
 inline BigInt Mod( const BigInt& a, const unsigned& b )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const BigInt rem = a % b;
     return ( rem >= 0 ? rem : rem+b );
 }
 
 inline BigInt Mod( const BigInt& a, const unsigned long& b )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const BigInt rem = a % b;
     return ( rem >= 0 ? rem : rem+b );
 }
@@ -220,8 +229,8 @@ inline BigInt Mod_( const BigInt& a, const BigInt& b )
 // For determining the first index assigned to a given rank
 inline Int Shift( Int rank, Int align, Int stride )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( rank < 0 || rank >= stride )
           LogicError("Invalid rank: rank=",rank,", stride=",stride);
       if( align < 0 || align >= stride )
@@ -256,8 +265,8 @@ DiagonalLength( Int height, Int width, Int offset ) EL_NO_EXCEPT
 
 inline Int GCD( Int a, Int b )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( a < 0 || b < 0 )
           LogicError("GCD called with negative argument");
     )

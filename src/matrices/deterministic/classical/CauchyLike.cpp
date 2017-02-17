@@ -18,7 +18,7 @@ void CauchyLike
   const vector<F2>& r, const vector<F2>& s,
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = r.size();
     const Int n = s.size();
     if( x.size() != (Unsigned)m )
@@ -30,7 +30,7 @@ void CauchyLike
     auto cauchyFill = 
       [&]( Int i, Int j ) -> F1
       {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           // TODO: Use tolerance instead?
           if( x[i] == y[j] )
               LogicError
@@ -48,7 +48,7 @@ void CauchyLike
   const vector<F2>& r, const vector<F2>& s, 
   const vector<F2>& x, const vector<F2>& y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = r.size();
     const Int n = s.size();
     if( x.size() != (Unsigned)m )
@@ -60,7 +60,7 @@ void CauchyLike
     auto cauchyFill =
       [&]( Int i, Int j ) -> F1
       {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           // TODO: Use tolerance instead?
           if( x[i] == y[j] )
               LogicError

@@ -19,7 +19,7 @@ void SlidePartitionUp
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     View( AT, A0 );
     Merge2x1( AB, A1, A2 );
 }
@@ -30,8 +30,8 @@ void SlidePartitionUp
                           ElementalMatrix<T>& A1,
   ElementalMatrix<T>& AB, ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -45,7 +45,7 @@ void SlideLockedPartitionUp
                  const Matrix<T>& A1,
   Matrix<T>& AB, const Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedView( AT, A0 );
     LockedMerge2x1( AB, A1, A2 );
 }
@@ -56,8 +56,8 @@ void SlideLockedPartitionUp
                           const ElementalMatrix<T>& A1,
   ElementalMatrix<T>& AB, const ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -74,7 +74,7 @@ void SlidePartitionDown
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Merge2x1( AT, A0, A1 );
     View( AB, A2 );
 }
@@ -85,8 +85,8 @@ void SlidePartitionDown
                           ElementalMatrix<T>& A1,
   ElementalMatrix<T>& AB, ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -100,7 +100,7 @@ void SlideLockedPartitionDown
                  const Matrix<T>& A1,
   Matrix<T>& AB, const Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedMerge2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
@@ -111,8 +111,8 @@ void SlideLockedPartitionDown
                           const ElementalMatrix<T>& A1,
   ElementalMatrix<T>& AB, const ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -128,7 +128,7 @@ void SlidePartitionLeft
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     View( AL, A0 );
     Merge1x2( AR, A1, A2 );
 }
@@ -138,8 +138,8 @@ void SlidePartitionLeft
 ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR,
   ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -152,7 +152,7 @@ void SlideLockedPartitionLeft
 ( Matrix<T>& AL, Matrix<T>& AR,
   const Matrix<T>& A0, const Matrix<T>& A1, const Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedView( AL, A0 );
     LockedMerge1x2( AR, A1, A2 );
 }
@@ -165,8 +165,8 @@ void SlideLockedPartitionLeft
   const ElementalMatrix<T>& A1,
   const ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -182,7 +182,7 @@ void SlidePartitionRight
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Merge1x2( AL, A0, A1 );
     View( AR, A2 );
 }
@@ -192,8 +192,8 @@ void SlidePartitionRight
 ( ElementalMatrix<T>& AL, ElementalMatrix<T>& AR,
   ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -206,7 +206,7 @@ void SlideLockedPartitionRight
 ( Matrix<T>& AL, Matrix<T>& AR,
   const Matrix<T>& A0, const Matrix<T>& A1, const Matrix<T>& A2 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedMerge1x2( AL, A0, A1 );
     LockedView( AR, A2 );
 }
@@ -219,8 +219,8 @@ void SlideLockedPartitionRight
   const ElementalMatrix<T>& A1,
   const ElementalMatrix<T>& A2 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -239,7 +239,7 @@ void SlidePartitionUpDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     View( ATL, A00 );
     Merge1x2( ATR, A01, A02 );
     Merge2x1( ABL, A10, A20 );
@@ -255,8 +255,8 @@ void SlidePartitionUpDiagonal
   ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, ElementalMatrix<T>& A20, 
   ElementalMatrix<T>& A21, ElementalMatrix<T>& A22 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -277,7 +277,7 @@ void SlideLockedPartitionUpDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   const Matrix<T>& A20, const Matrix<T>& A21, const Matrix<T>& A22 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedView( ATL, A00 );
     LockedMerge1x2( ATR, A01, A02 );
     LockedMerge2x1( ABL, A10, A20 );
@@ -301,8 +301,8 @@ void SlideLockedPartitionUpDiagonal
   const ElementalMatrix<T>& A21,
   const ElementalMatrix<T>& A22 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -326,7 +326,7 @@ void SlidePartitionDownDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Merge2x2( ATL, A00, A01,
                    A10, A11 );
     Merge2x1( ATR, A02, A12 );
@@ -342,8 +342,8 @@ void SlidePartitionDownDiagonal
   ElementalMatrix<T>& ABL, ElementalMatrix<T>& ABR, 
   ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, ElementalMatrix<T>& A22 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -364,7 +364,7 @@ void SlideLockedPartitionDownDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   const Matrix<T>& A20, const Matrix<T>& A21, const Matrix<T>& A22 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedMerge2x2( ATL, A00, A01,
                          A10, A11 );
     LockedMerge2x1( ATR, A02, A12 );
@@ -388,8 +388,8 @@ void SlideLockedPartitionDownDiagonal
   const ElementalMatrix<T>& A21,
   const ElementalMatrix<T>& A22 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists

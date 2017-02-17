@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -29,9 +29,9 @@ namespace El {
 // QP formulation
 // --------------
 //
-// Solve each problem 
+// Solve each problem
 //
-//   min || A x - b ||_2 
+//   min || A x - b ||_2
 //   s.t. x >= 0
 //
 // by transforming it into the explicit QP
@@ -45,12 +45,12 @@ namespace El {
 
 template<typename Real>
 void NNLS
-( const Matrix<Real>& A, 
-  const Matrix<Real>& B, 
-        Matrix<Real>& X, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -61,12 +61,12 @@ void NNLS
 
 template<typename Real>
 void NNLS
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& B, 
-        ElementalMatrix<Real>& X,
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& B,
+        AbstractDistMatrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -77,12 +77,12 @@ void NNLS
 
 template<typename Real>
 void NNLS
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& B, 
-        Matrix<Real>& X, 
+( const SparseMatrix<Real>& A,
+  const Matrix<Real>& B,
+        Matrix<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -93,12 +93,12 @@ void NNLS
 
 template<typename Real>
 void NNLS
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& B, 
-        DistMultiVec<Real>& X, 
+( const DistSparseMatrix<Real>& A,
+  const DistMultiVec<Real>& B,
+        DistMultiVec<Real>& X,
   const NNLSCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.approach == NNLS_SOCP )
         nnls::SOCP( A, B, X, ctrl.socpCtrl );
     else if( ctrl.approach == NNLS_QP )
@@ -114,9 +114,9 @@ void NNLS
           Matrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& B, \
-          ElementalMatrix<Real>& X, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& B, \
+          AbstractDistMatrix<Real>& X, \
     const NNLSCtrl<Real>& ctrl ); \
   template void NNLS \
   ( const SparseMatrix<Real>& A, \

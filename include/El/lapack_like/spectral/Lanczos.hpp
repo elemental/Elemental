@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPECTRAL_LANCZOS_HPP
@@ -11,7 +11,7 @@
 
 namespace El {
 
-// Form 
+// Form
 //
 //   A V = V T + v (beta e_{k-1})^H.
 //
@@ -25,23 +25,23 @@ namespace El {
 //      | alpha*I  A | | r/alpha | = | b |
 //      |   A^H    0 | |    x    |   | 0 |
 //
-// as near to that of A as possible (e.g., by setting alpha to roughly the 
+// as near to that of A as possible (e.g., by setting alpha to roughly the
 // minimum nonzero singular value of A), as well as to provide a means of
 // scaling A down to roughly unit two-norm.
 //
 
-template<typename F,class ApplyAType>
+template<typename Field,class ApplyAType>
 void Lanczos
 (       Int n,
   const ApplyAType& applyA,
-        Matrix<Base<F>>& T,
+        Matrix<Base<Field>>& T,
         Int basisSize )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real eps = limits::Epsilon<Real>();
 
-    Matrix<F> v_km1, v_k, v;
+    Matrix<Field> v_km1, v_k, v;
     basisSize = Min(n,basisSize);
     Zeros( v_km1, n, 1 );
     Zeros( v_k,   n, 1 );
@@ -51,12 +51,12 @@ void Lanczos
     // ------------------------------
     {
         Uniform( v, n, 1 );
-        Shift( v, SampleUniform<F>() );
-        const Real beta = FrobeniusNorm( v ); 
+        Shift( v, SampleUniform<Field>() );
+        const Real beta = FrobeniusNorm( v );
         v *= 1/beta;
     }
-        
-    // TODO: Incorporate Frobenius norm of A?
+
+    // TODO(poulson): Incorporate Frobenius norm of A?
     const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
@@ -84,7 +84,7 @@ void Lanczos
         const Real beta = FrobeniusNorm( v );
         if( beta <= minBeta )
         {
-            T.Resize( k+1, k+1 );        
+            T.Resize( k+1, k+1 );
             break;
         }
         v *= 1/beta;
@@ -98,29 +98,29 @@ void Lanczos
     }
 }
 
-template<typename F,class ApplyAType>
-Base<F> LanczosDecomp
+template<typename Field,class ApplyAType>
+Base<Field> LanczosDecomp
 (       Int n,
   const ApplyAType& applyA,
-        Matrix<F>& V, 
-        Matrix<Base<F>>& T,
-        Matrix<F>& v,
+        Matrix<Field>& V,
+        Matrix<Base<Field>>& T,
+        Matrix<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real eps = limits::Epsilon<Real>();
 
     basisSize = Min(n,basisSize);
     Zeros( V, n, basisSize );
     Zeros( T, basisSize, basisSize );
 
-    // Initialize the first column of V 
+    // Initialize the first column of V
     // --------------------------------
     {
         Uniform( v, n, 1 );
-        Shift( v, SampleUniform<F>() );
-        const Real beta = FrobeniusNorm( v ); 
+        Shift( v, SampleUniform<Field>() );
+        const Real beta = FrobeniusNorm( v );
         v *= 1/beta;
     }
     if( basisSize > 0 )
@@ -128,9 +128,9 @@ Base<F> LanczosDecomp
         auto v0 = V( ALL, IR(0) );
         v0 = v;
     }
-        
+
     Real beta = 0;
-    // TODO: Incorporate Frobenius norm of A
+    // TODO(poulson): Incorporate Frobenius norm of A
     const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
@@ -156,9 +156,9 @@ Base<F> LanczosDecomp
         // v := w / || w ||_2
         // -----------------
         beta = FrobeniusNorm( v );
-        if( beta <= minBeta )        
+        if( beta <= minBeta )
         {
-            T.Resize( k+1, k+1 );    
+            T.Resize( k+1, k+1 );
             break;
         }
         v *= 1/beta;
@@ -175,25 +175,25 @@ Base<F> LanczosDecomp
     return beta;
 }
 
-template<typename F,class ApplyAType>
+template<typename Field,class ApplyAType>
 void Lanczos
 (       Int n,
   const ApplyAType& applyA,
-        ElementalMatrix<Base<F>>& TPre,
+        AbstractDistMatrix<Base<Field>>& TPre,
         Int basisSize )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
     auto& T = TProx.Get();
     auto& TLoc = T.Matrix();
 
     const Real eps = limits::Epsilon<Real>();
-    mpi::Comm comm = T.Grid().Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = T.Grid();
+    const int commRank = grid.Rank();
 
-    DistMultiVec<F> v_km1(comm), v_k(comm), v(comm);
+    DistMultiVec<Field> v_km1(grid), v_k(grid), v(grid);
     basisSize = Min(n,basisSize);
     Zeros( v_km1, n, 1 );
     Zeros( v_k,   n, 1 );
@@ -202,17 +202,17 @@ void Lanczos
     // Create the initial unit-vector
     // ------------------------------
     {
-        F shift;
+        Field shift;
         if( commRank == 0 )
-            shift = SampleUniform<F>();
-        mpi::Broadcast( shift, 0, comm ); 
+            shift = SampleUniform<Field>();
+        mpi::Broadcast( shift, 0, grid.Comm() );
         Uniform( v, n, 1 );
         Shift( v, shift );
         const Real beta = FrobeniusNorm( v );
         v *= 1/beta;
     }
-        
-    // TODO: Use Frobenius norm of A
+
+    // TODO(poulson): Use Frobenius norm of A
     const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {
@@ -254,26 +254,26 @@ void Lanczos
     }
 }
 
-template<typename F,class ApplyAType>
-Base<F> LanczosDecomp
+template<typename Field,class ApplyAType>
+Base<Field> LanczosDecomp
 (       Int n,
   const ApplyAType& applyA,
-        DistMultiVec<F>& V, 
-        ElementalMatrix<Base<F>>& TPre,
-        DistMultiVec<F>& v,
+        DistMultiVec<Field>& V,
+        AbstractDistMatrix<Base<Field>>& TPre,
+        DistMultiVec<Field>& v,
         Int basisSize )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     DistMatrixWriteProxy<Real,Real,STAR,STAR> TProx( TPre );
     auto& T = TProx.Get();
 
     const Real eps = limits::Epsilon<Real>();
-    mpi::Comm comm = T.Grid().Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = T.Grid();
+    const int commRank = grid.Rank();
 
-    DistMultiVec<F> v_km1(comm), v_k(comm);
+    DistMultiVec<Field> v_km1(grid), v_k(grid);
     basisSize = Min(n,basisSize);
     Zeros( V, n, basisSize );
     Zeros( T, basisSize, basisSize );
@@ -283,10 +283,10 @@ Base<F> LanczosDecomp
     // Choose the initial (unit-length) vector
     // ---------------------------------------
     {
-        F shift;
+        Field shift;
         if( commRank == 0 )
-            shift = SampleUniform<F>();
-        mpi::Broadcast( shift, 0, comm ); 
+            shift = SampleUniform<Field>();
+        mpi::Broadcast( shift, 0, grid.Comm() );
         Uniform( v, n, 1 );
         Shift( v, shift );
         const Real beta = FrobeniusNorm( v );
@@ -299,7 +299,7 @@ Base<F> LanczosDecomp
     }
 
     Real beta = 0;
-    // TODO: Use the Frobenius norm of A
+    // TODO(poulson): Use the Frobenius norm of A
     const Real minBeta = eps;
     for( Int k=0; k<basisSize; ++k )
     {

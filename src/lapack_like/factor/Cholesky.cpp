@@ -8,14 +8,16 @@
 */
 #include <El.hpp>
 
-#include "./Cholesky/LVar3.hpp"
-#include "./Cholesky/LVar3Pivoted.hpp"
-#include "./Cholesky/UVar3.hpp"
-#include "./Cholesky/UVar3Pivoted.hpp"
+#include "./Cholesky/LowerVariant3.hpp"
+#include "./Cholesky/UpperVariant3.hpp"
+#include "./Cholesky/ReverseLowerVariant3.hpp"
+#include "./Cholesky/ReverseUpperVariant3.hpp"
+#include "./Cholesky/PivotedLowerVariant3.hpp"
+#include "./Cholesky/PivotedUpperVariant3.hpp"
 #include "./Cholesky/SolveAfter.hpp"
 
-#include "./Cholesky/LMod.hpp"
-#include "./Cholesky/UMod.hpp"
+#include "./Cholesky/LowerMod.hpp"
+#include "./Cholesky/UpperMod.hpp"
 
 namespace El {
 
@@ -24,43 +26,43 @@ namespace El {
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A );
+        cholesky::LowerVariant3Blocked( A );
     else
-        cholesky::UVar3( A );
+        cholesky::UpperVariant3Blocked( A );
 }
 
 template<typename F>
 void Cholesky( UpperOrLower uplo, Matrix<F>& A, Permutation& p )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::PivotedLowerVariant3Blocked( A, p );
     else
-        cholesky::UVar3( A, p );
+        cholesky::PivotedUpperVariant3Blocked( A, p );
 }
 
 template<typename F>
 void ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
     if( uplo == LOWER )
-        cholesky::ReverseLVar3( A );
+        cholesky::ReverseLowerVariant3Blocked( A );
     else
-        cholesky::ReverseUVar3( A );
+        cholesky::ReverseUpperVariant3Blocked( A );
 }
 
 namespace cholesky {
@@ -75,15 +77,10 @@ void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
     auto& ABlock = ABlockProx.Get();
 
     const Int n = ABlock.Height();
-    const int bHandle = blacs::Handle( ABlock );
-    const int context = blacs::GridInit( bHandle, ABlock );
-    auto descA = FillDesc( ABlock, context );
-
     const char uploChar = UpperOrLowerToChar( uplo );
-    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
 
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
+    auto descA = FillDesc( ABlock );
+    scalapack::Cholesky( uploChar, n, ABlock.Buffer(), descA.data() );
 #endif
 }
 
@@ -98,7 +95,7 @@ void ScaLAPACKHelper( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 template<typename F> 
 void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( scalapack )
     {
         cholesky::ScaLAPACKHelper( uplo, A );
@@ -106,9 +103,9 @@ void Cholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool scalapack )
     else
     {
         if( uplo == LOWER )
-            cholesky::LVar3( A );
+            cholesky::LowerVariant3Blocked( A );
         else
-            cholesky::UVar3( A );
+            cholesky::UpperVariant3Blocked( A );
     }
 }
 
@@ -116,11 +113,11 @@ template<typename F>
 void Cholesky
 ( UpperOrLower uplo, AbstractDistMatrix<F>& A, DistPermutation& p )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
-        cholesky::LVar3( A, p );
+        cholesky::PivotedLowerVariant3Blocked( A, p );
     else
-        cholesky::UVar3( A, p );
+        cholesky::PivotedUpperVariant3Blocked( A, p );
 }
 
 template<typename F>
@@ -131,11 +128,11 @@ void Cholesky
 template<typename F> 
 void ReverseCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
-        cholesky::ReverseLVar3( A );
+        cholesky::ReverseLowerVariant3Blocked( A );
     else
-        cholesky::ReverseUVar3( A );
+        cholesky::ReverseUpperVariant3Blocked( A );
 }
 
 template<typename F>
@@ -150,13 +147,13 @@ void ReverseCholesky
 template<typename F>
 void CholeskyMod( UpperOrLower uplo, Matrix<F>& T, Base<F> alpha, Matrix<F>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
-        cholesky::LMod( T, alpha, V );
+        cholesky::LowerMod( T, alpha, V );
     else
-        cholesky::UMod( T, alpha, V );
+        cholesky::UpperMod( T, alpha, V );
 }
 
 template<typename F>
@@ -166,19 +163,19 @@ void CholeskyMod
   Base<F> alpha,
   AbstractDistMatrix<F>& V )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( alpha == Base<F>(0) )
         return;
     if( uplo == LOWER )
-        cholesky::LMod( T, alpha, V );
+        cholesky::LowerMod( T, alpha, V );
     else
-        cholesky::UMod( T, alpha, V );
+        cholesky::UpperMod( T, alpha, V );
 }
 
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
@@ -191,7 +188,7 @@ void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 template<typename F>
 void HPSDCholesky( UpperOrLower uplo, AbstractDistMatrix<F>& APre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // NOTE: This should be removed once HPSD, LQ, and QR have been generalized
     DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );

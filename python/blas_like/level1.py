@@ -247,7 +247,7 @@ def HCat(A,B):
     else: DataExcept()
     return C
   elif type(A) is DistSparseMatrix:
-    C = DistSparseMatrix(A.tag,A.Comm())
+    C = DistSparseMatrix(A.tag,A.Grid())
     args = [A.obj,B.obj,C.obj]
     if   A.tag == iTag: lib.ElHCatDistSparse_i(*args)
     elif A.tag == sTag: lib.ElHCatDistSparse_s(*args)
@@ -257,7 +257,7 @@ def HCat(A,B):
     else: DataExcept()
     return C
   elif type(A) is DistMultiVec:
-    C = DistMultiVec(A.tag,A.Comm())
+    C = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,B.obj,C.obj]
     if   A.tag == iTag: lib.ElHCatDistMultiVec_i(*args)
     elif A.tag == sTag: lib.ElHCatDistMultiVec_s(*args)
@@ -333,7 +333,7 @@ def VCat(A,B):
     else: DataExcept()
     return C
   elif type(A) is DistSparseMatrix:
-    C = DistSparseMatrix(A.tag,A.Comm())
+    C = DistSparseMatrix(A.tag,A.Grid())
     args = [A.obj,B.obj,C.obj]
     if   A.tag == iTag: lib.ElVCatDistSparse_i(*args)
     elif A.tag == sTag: lib.ElVCatDistSparse_s(*args)
@@ -343,7 +343,7 @@ def VCat(A,B):
     else: DataExcept()
     return C
   elif type(A) is DistMultiVec:
-    C = DistMultiVec(A.tag,A.Comm())
+    C = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,B.obj,C.obj]
     if   A.tag == iTag: lib.ElVCatDistMultiVec_i(*args)
     elif A.tag == sTag: lib.ElVCatDistMultiVec_s(*args)
@@ -1176,7 +1176,7 @@ def GetSubgraph(graph,I,J):
     lib.ElGetSubgraph(graph.obj,I,J,subgraph.obj)
     return subgraph
   elif type(graph) is DistGraph:
-    subgraph = DistGraph(graph.Comm())
+    subgraph = DistGraph(graph.Grid())
     lib.ElGetSubgraphDist(graph.obj,I,J,subgraph.obj)
     return subgraph
   else: TypeExcept()
@@ -1244,7 +1244,7 @@ def GetSubmatrix(A,I,J):
     else: DataExcept()
     return ASub
   elif type(A) is DistSparseMatrix:
-    ASub = DistSparseMatrix(A.tag,A.Comm())
+    ASub = DistSparseMatrix(A.tag,A.Grid())
     args = [A.obj,I,J,ASub.obj]
     if   A.tag == iTag: lib.ElGetContigSubmatrixDistSparse_i(*args)
     elif A.tag == sTag: lib.ElGetContigSubmatrixDistSparse_s(*args)
@@ -1254,7 +1254,7 @@ def GetSubmatrix(A,I,J):
     else: DataExcept()
     return ASub
   elif type(A) is DistMultiVec:
-    ASub = DistMultiVec(A.tag,A.Comm())
+    ASub = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,I,J,ASub.obj]
     if   A.tag == iTag: lib.ElGetContigSubmatrixDistMultiVec_i(*args)
     elif A.tag == sTag: lib.ElGetContigSubmatrixDistMultiVec_s(*args)
@@ -2325,7 +2325,7 @@ def Reshape(m,n,A):
     else: DataExcept()
     return B
   elif type(A) is DistSparseMatrix:
-    B = DistSparseMatrix(A.tag,A.Comm())
+    B = DistSparseMatrix(A.tag,A.Grid())
     args = [m,n,A.obj,B.obj]
     if   A.tag == iTag: lib.ElReshapeDistSparse_i(*args)
     elif A.tag == sTag: lib.ElReshapeDistSparse_s(*args)

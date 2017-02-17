@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -27,7 +27,7 @@ void ProcessEvents( int numMsecs )
 template<typename Real>
 void Display( const Matrix<Real>& A, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
     {
@@ -58,7 +58,7 @@ void Display( const Matrix<Real>& A, string title )
 template<typename Real>
 void Display( const Matrix<Complex<Real>>& A, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef EL_HAVE_QT5
     if( GuiDisabled() )
     {
@@ -75,8 +75,8 @@ void Display( const Matrix<Complex<Real>>& A, string title )
         for( Int i=0; i<m; ++i )
         {
             const Complex<Real> alpha = A.Get(i,j);
-            const Complex<double> alphaDouble = 
-                Complex<double>(alpha.real(),alpha.imag()); 
+            const Complex<double> alphaDouble =
+                Complex<double>(alpha.real(),alpha.imag());
             ADouble->Set( i, j, alphaDouble );
         }
     }
@@ -96,7 +96,7 @@ void Display( const Matrix<Complex<Real>>& A, string title )
 template<typename T>
 void Display( const AbstractDistMatrix<T>& A, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
         if( A.CrossRank() == A.Root() && A.RedundantRank() == 0 )
@@ -113,9 +113,8 @@ void Display( const AbstractDistMatrix<T>& A, string title )
 template<typename T>
 void Display( const DistMultiVec<T>& X, string title )
 {
-    DEBUG_CSE
-    const int commRank = mpi::Rank( X.Comm() );
-    if( commRank == 0 )
+    EL_DEBUG_CSE
+    if( X.Grid().Rank() == 0 )
     {
         Matrix<T> XLoc;
         CopyFromRoot( X, XLoc );
@@ -129,7 +128,7 @@ void Display( const DistMultiVec<T>& X, string title )
 
 void Display( const Graph& graph, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef HAVE_QT5
     graph.AssertConsistent();
     auto graphMat = new Matrix<int>;
@@ -157,11 +156,8 @@ void Display( const Graph& graph, string title )
 
 void Display( const DistGraph& graph, string title )
 {
-    DEBUG_CSE
-    const mpi::Comm comm = graph.Comm();
-    const int commRank = mpi::Rank( comm );
-
-    if( commRank == 0 )
+    EL_DEBUG_CSE
+    if( graph.Grid().Rank() == 0 )
     {
         Graph seqGraph;
         CopyFromRoot( graph, seqGraph );
@@ -176,7 +172,7 @@ void Display( const DistGraph& graph, string title )
 template<typename Real>
 void Display( const SparseMatrix<Real>& A, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef HAVE_QT5
     A.AssertConsistent();
     auto AFull = new Matrix<double>;
@@ -206,7 +202,7 @@ void Display( const SparseMatrix<Real>& A, string title )
 template<typename Real>
 void Display( const SparseMatrix<Complex<Real>>& A, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef HAVE_QT5
     A.AssertConsistent();
     auto AFull = new Matrix<Complex<double>>;
@@ -240,18 +236,15 @@ void Display( const SparseMatrix<Complex<Real>>& A, string title )
 template<typename T>
 void Display( const DistSparseMatrix<T>& A, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     A.AssertLocallyConsistent();
-    const mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
-    
-    if( commRank == 0 )
+    if( A.Grid().Rank() == 0 )
     {
-        SparseMatrix<T> ASeq; 
+        SparseMatrix<T> ASeq;
         CopyFromRoot( A, ASeq );
         Display( ASeq, title );
     }
-    else 
+    else
     {
         CopyFromNonRoot( A, 0 );
     }
@@ -260,7 +253,7 @@ void Display( const DistSparseMatrix<T>& A, string title )
 void DisplayLocal
 ( const ldl::DistNodeInfo& info, bool beforeFact, string title )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 #ifdef HAVE_QT5
     const int n = info.distNodes.back().size + info.distNodes.back().off;
     auto graphMat = new Matrix<int>;

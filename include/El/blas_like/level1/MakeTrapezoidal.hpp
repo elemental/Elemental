@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_MAKETRAPEZOIDAL_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
     const Int ldim = A.LDim();
@@ -46,7 +46,7 @@ template<typename T>
 void
 MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -89,13 +89,13 @@ MakeTrapezoidal( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int offset )
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
-        if( (uplo == LOWER && j-i > offset) || 
+        if( (uplo == LOWER && j-i > offset) ||
             (uplo == UPPER && j-i < offset) )
             A.QueueZero( i, j );
     }
@@ -105,14 +105,14 @@ void MakeTrapezoidal( UpperOrLower uplo, SparseMatrix<T>& A, Int offset )
 template<typename T>
 void MakeTrapezoidal( UpperOrLower uplo, DistSparseMatrix<T>& A, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int firstLocalRow = A.FirstLocalRow();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
-        if( (uplo == LOWER && j-i > offset) || 
+        if( (uplo == LOWER && j-i > offset) ||
             (uplo == UPPER && j-i < offset) )
             A.QueueLocalZero( i-firstLocalRow, j );
     }

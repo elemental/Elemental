@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SOLVE_REFINED_HPP
@@ -16,31 +16,42 @@
 //  3) an arbitrary number of right-hand sides.
 //
 // In the first and second cases, proper iterative refinement is performed.
-// In the third case, "batch" iterative refinement is performed for a 
-// specified number of iterations. While batch refinement will occasionally 
+// In the third case, "batch" iterative refinement is performed for a
+// specified number of iterations. While batch refinement will occasionally
 // result in higher residual norms than necessary (as monotonicity must be
-// specifically enforced), and more iterations than necessary may be performed, 
+// specifically enforced), and more iterations than necessary may be performed,
 // it is a compromise between performance and accuracy.
 
-// TODO: DistMatrix implementations
-// TODO: Simplify once DistMultiVec is eliminated
-// TODO: Allow for a choice between max and two norms?
+// TODO(poulson): DistMatrix implementations
+// TODO(poulson): Simplify once DistMultiVec is eliminated
+// TODO(poulson): Allow for a choice between max and two norms?
 
 namespace El {
 
 namespace refined_solve {
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+// In what follows, 'applyA' should be a function of the form
+//
+//   void applyA( const Matrix<Field>& x, Matrix<Field>& y )
+//
+// and overwrite y with A x. However, 'applyAInv' should have the form
+//
+//   void applyAInv( Matrix<Field>& b )
+//
+// and overwrite b with inv(A) b.
+//
+
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& b,
-        Base<F> relTol,
+        Matrix<Field>& b,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -51,19 +62,19 @@ Int Single
     }
 
     auto bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
+    const Base<Field> bNorm = MaxNorm( b );
 
     // Compute the initial guess
     // =========================
     auto x = b;
     applyAInv( x );
 
-    Matrix<F> dx, xCand, y;
+    Matrix<Field> dx, xCand, y;
     Zeros( y, x.Height(), 1 );
 
     applyA( x, y );
     b -= y;
-    Base<F> errorNorm = MaxNorm( b );
+    Base<Field> errorNorm = MaxNorm( b );
     if( progress )
         Output("original rel error: ",errorNorm/bNorm);
 
@@ -107,17 +118,17 @@ Int Single
     return refineIt;
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int Pair
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( B.Width() != 2 )
           LogicError("Expected a pair of right-hand sides");
     )
@@ -129,11 +140,11 @@ Int Pair
 
     auto bL = B( ALL, IR(0) );
     auto bR = B( ALL, IR(1) );
-    const Base<F> bLNorm = MaxNorm( bL );
-    const Base<F> bRNorm = MaxNorm( bR );
+    const Base<Field> bLNorm = MaxNorm( bL );
+    const Base<Field> bRNorm = MaxNorm( bR );
 
     auto BOrig = B;
-    auto bOrigL = BOrig( ALL, IR(0) ); 
+    auto bOrigL = BOrig( ALL, IR(0) );
     auto bOrigR = BOrig( ALL, IR(1) );
 
     // Compute the initial guess
@@ -143,7 +154,7 @@ Int Pair
     auto xR = X( ALL, IR(1) );
     applyAInv( X );
 
-    Matrix<F> dX, XCand, Y;
+    Matrix<Field> dX, XCand, Y;
     Zeros( dX, X.Height(), X.Width() );
     Zeros( XCand, X.Height(), X.Width() );
     Zeros( Y, X.Height(), X.Width() );
@@ -157,8 +168,8 @@ Int Pair
 
     applyA( X, Y );
     B -= Y;
-    Base<F> errorNormL = MaxNorm( bL );
-    Base<F> errorNormR = MaxNorm( bR );
+    Base<Field> errorNormL = MaxNorm( bL );
+    Base<Field> errorNormR = MaxNorm( bR );
     if( progress )
         Output
         ("original rel errors: ",errorNormL/bLNorm," and ",errorNormR/bRNorm);
@@ -167,8 +178,8 @@ Int Pair
     bool leftConv=false, rightConv=false;
     while( true )
     {
-        const Base<F> relErrorL = errorNormL/bLNorm;
-        const Base<F> relErrorR = errorNormR/bRNorm;
+        const Base<Field> relErrorL = errorNormL/bLNorm;
+        const Base<Field> relErrorR = errorNormR/bRNorm;
         if( !leftConv && relErrorL <= relTol )
         {
             if( progress )
@@ -282,18 +293,18 @@ Int Pair
     return refineIt;
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
+        Matrix<Field>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
-        applyAInv( B );    
+        applyAInv( B );
         return 0;
     }
 
@@ -305,7 +316,7 @@ Int Batch
     auto X = B;
     applyAInv( X );
 
-    Matrix<F> dX, Y;
+    Matrix<Field> dX, Y;
     Zeros( Y, X.Height(), X.Width() );
     applyA( X, Y );
     B -= Y;
@@ -337,16 +348,16 @@ Int Batch
 
 } // namespace refined_solve
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int RefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::Single
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -360,17 +371,17 @@ Int RefinedSolve
 
 namespace refined_solve {
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& b,
-        Base<F> relTol,
+        Matrix<Field>& b,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -379,11 +390,11 @@ Int PromotedSingle
         applyAInv( b );
         return 0;
     }
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    Matrix<PF> bProm, bOrigProm;
+    Matrix<PField> bProm, bOrigProm;
     Copy( b, bProm );
     Copy( b, bOrigProm );
     const PReal bNorm = MaxNorm( bOrigProm );
@@ -391,10 +402,10 @@ Int PromotedSingle
     // Compute the initial guess
     // =========================
     applyAInv( b );
-    Matrix<PF> xProm;
+    Matrix<PField> xProm;
     Copy( b, xProm );
 
-    Matrix<PF> dxProm, xCandProm, yProm;
+    Matrix<PField> dxProm, xCandProm, yProm;
     Zeros( yProm, xProm.Height(), 1 );
 
     applyA( xProm, yProm );
@@ -444,17 +455,17 @@ Int PromotedSingle
     return refineIt;
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int PromotedPair
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( B.Width() != 2 )
           LogicError("Expected a pair of right-hand sides");
     )
@@ -463,11 +474,11 @@ Int PromotedPair
         applyAInv( B );
         return 0;
     }
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     typedef Promote<Real> PReal;
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    Matrix<PF> BProm, BOrigProm;
+    Matrix<PField> BProm, BOrigProm;
     Copy( B, BProm );
     Copy( B, BOrigProm );
 
@@ -484,13 +495,13 @@ Int PromotedPair
     // Compute the initial guess
     // =========================
     applyAInv( B );
-    Matrix<PF> XProm;
+    Matrix<PField> XProm;
     Copy( B, XProm );
 
     auto xLProm = XProm( ALL, IR(0) );
     auto xRProm = XProm( ALL, IR(1) );
 
-    Matrix<PF> dXProm, XCandProm, YProm;
+    Matrix<PField> dXProm, XCandProm, YProm;
     Zeros( dXProm, XProm.Height(), XProm.Width() );
     Zeros( XCandProm, XProm.Height(), XProm.Width() );
     Zeros( YProm, XProm.Height(), XProm.Width() );
@@ -530,7 +541,7 @@ Int PromotedPair
         }
         if( leftConv && rightConv )
             break;
- 
+
         if( leftConv )
         {
             // Compute the proposed update to the solution
@@ -633,33 +644,33 @@ Int PromotedPair
     return refineIt;
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
+        Matrix<Field>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
         return 0;
     }
-    typedef Promote<F> PF;
+    typedef Promote<Field> PField;
 
-    Matrix<PF> BProm, BOrigProm;
+    Matrix<PField> BProm, BOrigProm;
     Copy( B, BProm );
     Copy( B, BOrigProm );
 
     // Compute the initial guesses
     // ===========================
     applyAInv( B );
-    Matrix<PF> XProm;
+    Matrix<PField> XProm;
     Copy( B, XProm );
 
-    Matrix<PF> dXProm, YProm;
+    Matrix<PField> dXProm, YProm;
     Zeros( YProm, XProm.Height(), XProm.Width() );
     applyA( XProm, YProm );
     BProm -= YProm;
@@ -692,17 +703,17 @@ Int PromotedBatch
 
 } // namespace refined_solve
 
-template<typename F,class ApplyAType,class ApplyAInvType>
-DisableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field,class ApplyAType,class ApplyAInvType>
+DisableIf<IsSame<Field,Promote<Field>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::PromotedSingle
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -714,33 +725,33 @@ PromotedRefinedSolve
                ( applyA, applyAInv, B, maxRefineIts, progress );
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
-EnableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field,class ApplyAType,class ApplyAInvType>
+EnableIf<IsSame<Field,Promote<Field>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        Matrix<F>& B,
-        Base<F> relTol,
+        Matrix<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 
 namespace refined_solve {
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int Single
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& b,
-        Base<F> relTol,
+        DistMultiVec<Field>& b,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -749,22 +760,22 @@ Int Single
         applyAInv( b );
         return 0;
     }
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
 
     auto bOrig = b;
-    const Base<F> bNorm = MaxNorm( b );
+    const Base<Field> bNorm = MaxNorm( b );
 
     // Compute the initial guess
     // =========================
     auto x = b;
     applyAInv( x );
 
-    DistMultiVec<F> dx(comm), xCand(comm), y(comm);
+    DistMultiVec<Field> dx(grid), xCand(grid), y(grid);
     Zeros( y, x.Height(), 1 );
     applyA( x, y );
     b -= y;
-    Base<F> errorNorm = MaxNorm( b );
+    Base<Field> errorNorm = MaxNorm( b );
     if( progress && commRank == 0 )
         Output("original rel error: ",errorNorm/bNorm);
 
@@ -791,7 +802,7 @@ Int Single
         applyA( xCand, y );
         b = bOrig;
         b -= y;
-        Base<F> newErrorNorm = MaxNorm( b );
+        Base<Field> newErrorNorm = MaxNorm( b );
         if( progress && commRank == 0 )
             Output("refined rel error: ",newErrorNorm/bNorm);
 
@@ -810,21 +821,21 @@ Int Single
     return refineIt;
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int Batch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& B,
+        DistMultiVec<Field>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
         return 0;
     }
-    mpi::Comm comm = B.Comm();
+    const Grid& grid = B.Grid();
 
     auto BOrig = B;
 
@@ -833,7 +844,7 @@ Int Batch
     auto X = B;
     applyAInv( X );
 
-    DistMultiVec<F> dX(comm), Y(comm);
+    DistMultiVec<Field> dX(grid), Y(grid);
     Zeros( Y, X.Height(), X.Width() );
     applyA( X, Y );
     B -= Y;
@@ -867,16 +878,16 @@ Int Batch
 
 } // namespace refined_solve
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int RefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::Single
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -887,17 +898,17 @@ Int RefinedSolve
 
 namespace refined_solve {
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int PromotedSingle
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& b,
-        Base<F> relTol,
+        DistMultiVec<Field>& b,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( b.Width() != 1 )
           LogicError("Expected a single right-hand side");
     )
@@ -906,11 +917,11 @@ Int PromotedSingle
         applyAInv( b );
         return 0;
     }
-    typedef Promote<F> PF;
-    mpi::Comm comm = b.Comm();
-    const int commRank = mpi::Rank(comm);
+    typedef Promote<Field> PField;
+    const Grid& grid = b.Grid();
+    const int commRank = grid.Rank();
 
-    DistMultiVec<PF> bProm(comm), bOrigProm(comm);
+    DistMultiVec<PField> bProm(grid), bOrigProm(grid);
     Copy( b, bProm );
     Copy( b, bOrigProm );
     const auto bNorm = MaxNorm( bProm );
@@ -918,10 +929,10 @@ Int PromotedSingle
     // Compute the initial guess
     // =========================
     applyAInv( b );
-    DistMultiVec<PF> xProm(comm);
+    DistMultiVec<PField> xProm(grid);
     Copy( b, xProm );
 
-    DistMultiVec<PF> dxProm(comm), xCandProm(comm), yProm(comm);
+    DistMultiVec<PField> dxProm(grid), xCandProm(grid), yProm(grid);
     Zeros( yProm, xProm.Height(), 1 );
     applyA( xProm, yProm );
     bProm -= yProm;
@@ -972,34 +983,34 @@ Int PromotedSingle
     return refineIt;
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
+template<typename Field,class ApplyAType,class ApplyAInvType>
 Int PromotedBatch
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& B,
+        DistMultiVec<Field>& B,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( maxRefineIts <= 0 )
     {
         applyAInv( B );
         return 0;
     }
-    typedef Promote<F> PF;
-    mpi::Comm comm = B.Comm();
+    typedef Promote<Field> PField;
+    const Grid& grid = B.Grid();
 
-    DistMultiVec<PF> BProm(comm), BOrigProm(comm);
+    DistMultiVec<PField> BProm(grid), BOrigProm(grid);
     Copy( B, BProm );
     Copy( B, BOrigProm );
 
     // Compute the initial guess
     // =========================
     applyAInv( B );
-    DistMultiVec<PF> XProm(comm);
+    DistMultiVec<PField> XProm(grid);
     Copy( B, XProm );
 
-    DistMultiVec<PF> dXProm(comm), YProm(comm);
+    DistMultiVec<PField> dXProm(grid), YProm(grid);
     Zeros( YProm, XProm.Height(), XProm.Width() );
     applyA( XProm, YProm );
     BProm -= YProm;
@@ -1034,17 +1045,17 @@ Int PromotedBatch
 
 } // namespace refined_solve
 
-template<typename F,class ApplyAType,class ApplyAInvType>
-DisableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field,class ApplyAType,class ApplyAInvType>
+DisableIf<IsSame<Field,Promote<Field>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.Width() == 1 )
         return refined_solve::PromotedSingle
                ( applyA, applyAInv, B, relTol, maxRefineIts, progress );
@@ -1053,17 +1064,17 @@ PromotedRefinedSolve
                ( applyA, applyAInv, B, maxRefineIts, progress );
 }
 
-template<typename F,class ApplyAType,class ApplyAInvType>
-EnableIf<IsSame<F,Promote<F>>,Int>
+template<typename Field,class ApplyAType,class ApplyAInvType>
+EnableIf<IsSame<Field,Promote<Field>>,Int>
 PromotedRefinedSolve
 ( const ApplyAType& applyA,
   const ApplyAInvType& applyAInv,
-        DistMultiVec<F>& B,
-        Base<F> relTol,
+        DistMultiVec<Field>& B,
+        Base<Field> relTol,
         Int maxRefineIts,
         bool progress )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return RefinedSolve( applyA, applyAInv, B, relTol, maxRefineIts, progress );
 }
 

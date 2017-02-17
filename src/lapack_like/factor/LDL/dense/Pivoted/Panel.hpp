@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_PIVOTED_PANEL_HPP
@@ -18,15 +18,15 @@ inline LDLPivot
 SelectFromPanel
 ( const Matrix<F>& A,
   const Matrix<F>& X,
-  const Matrix<F>& Y, 
+  const Matrix<F>& Y,
   LDLPivotType pivotType,
   Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
-    case BUNCH_KAUFMAN_A: 
+    case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C: pivot = PanelBunchKaufmanA( A, X, Y, gamma ); break;
     case BUNCH_KAUFMAN_D: pivot = PanelBunchKaufmanD( A, X, Y, gamma ); break;
     default: LogicError("This pivot type not yet supported");
@@ -37,16 +37,16 @@ SelectFromPanel
 template<typename F>
 inline LDLPivot
 SelectFromPanel
-( const DistMatrix<F>& A, 
-  const DistMatrix<F,MC,STAR>& X, 
-  const DistMatrix<F,MR,STAR>& Y, 
+( const DistMatrix<F>& A,
+  const DistMatrix<F,MC,STAR>& X,
+  const DistMatrix<F,MR,STAR>& Y,
   LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
-    case BUNCH_KAUFMAN_A: 
+    case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C: pivot = PanelBunchKaufmanA( A, X, Y, gamma ); break;
     case BUNCH_KAUFMAN_D: pivot = PanelBunchKaufmanD( A, X, Y, gamma ); break;
     default: LogicError("This pivot type not yet supported");
@@ -61,16 +61,16 @@ inline void
 Panel
 ( Matrix<F>& AFull,
   Matrix<F>& dSub,
-  Permutation& PFull, 
+  Permutation& PFull,
   Matrix<F>& X,
   Matrix<F>& Y,
   Int bsize,
   Int off=0,
   bool conjugate=false,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nFull = AFull.Height();
     auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
@@ -78,7 +78,7 @@ Panel
     Zeros( Y, n, bsize );
     if( n == 0 )
         return;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
       if( dSub.Height() != n-1 || dSub.Width() != 1 )
@@ -123,11 +123,11 @@ Panel
 
         // Update the active columns and then store the new update factors
         const IR ind1( k, k+pivot.nb ), ind2( k+pivot.nb, n );
-        if( pivot.nb == 1 ) 
+        if( pivot.nb == 1 )
         {
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
-            auto XB0 = X( indB, ind0 ); 
-            auto y10 = Y( ind1, ind0 ); 
+            auto XB0 = X( indB, ind0 );
+            auto y10 = Y( ind1, ind0 );
             auto aB1 = A( indB, ind1 );
             Gemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
             if( conjugate )
@@ -136,8 +136,8 @@ Panel
             // Store x21 := a21/delta11 and y21 := a21
             const F delta11Inv = F(1)/A(k,k);
             auto a21 = A( ind2, ind1 );
-            auto x21 = X( ind2, ind1 ); 
-            auto y21 = Y( ind2, ind1 ); 
+            auto x21 = X( ind2, ind1 );
+            auto y21 = Y( ind2, ind1 );
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -170,7 +170,7 @@ Panel
                 Conjugate( A21, Y21 );
             else
                 Y21 = A21;
-            
+
             auto D11Inv = D11;
             Symmetric2x2Inv( LOWER, D11Inv, conjugate );
             MakeSymmetric( LOWER, D11Inv, conjugate );
@@ -190,9 +190,9 @@ Panel
 template<typename F>
 inline void
 Panel
-( DistMatrix<F>& AFull, 
-  ElementalMatrix<F>& dSub, 
-  DistPermutation& PFull, 
+( DistMatrix<F>& AFull,
+  AbstractDistMatrix<F>& dSub,
+  DistPermutation& PFull,
   DistMatrix<F,MC,STAR>& X,
   DistMatrix<F,MR,STAR>& Y,
   Int bsize,
@@ -201,7 +201,7 @@ Panel
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int nFull = AFull.Height();
     auto A = AFull( IR(off,nFull), IR(off,nFull) );
     const Int n = A.Height();
@@ -212,7 +212,7 @@ Panel
 
     if( n == 0 )
         return;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Width() != n )
           LogicError("A must be square");
       if( dSub.Height() != n-1 || dSub.Width() != 1 )
@@ -260,7 +260,7 @@ Panel
 
         // Update the active columns and then store the new update factors
         const IR ind1( k, k+pivot.nb ), ind2( k+pivot.nb, n );
-        if( pivot.nb == 1 ) 
+        if( pivot.nb == 1 )
         {
             // Update A(k:end,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
             auto aB1 = A( indB, ind1 );
@@ -277,7 +277,7 @@ Panel
             const F delta11Inv = F(1)/A.Get(k,k);
             auto a21 = A( ind2, ind1 );
             auto x21 = X( ind2, ind1 );
-            auto y21 = Y( ind2, ind1 ); 
+            auto y21 = Y( ind2, ind1 );
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -289,8 +289,8 @@ Panel
         {
             // Update A(k:end,k:k+1) -= X(k:end,0:k-1) Y(k:k+1,0:k-1)^T
             // NOTE: top-right entry of AB1 is above-diagonal
-            auto XB0 = X( indB, ind0 ); 
-            auto Y10 = Y( ind1, ind0 ); 
+            auto XB0 = X( indB, ind0 );
+            auto Y10 = Y( ind1, ind0 );
             auto AB1 = A( indB, ind1 );
             // TODO: Make Get and Set local
             const F psi = AB1.Get(0,1);

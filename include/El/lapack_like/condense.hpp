@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CONDENSE_HPP
@@ -18,73 +18,73 @@ namespace El {
 
 // Return the packed reduction to bidiagonal form
 // ----------------------------------------------
-template<typename F>
+template<typename Field>
 void Bidiag
-( Matrix<F>& A,
-  Matrix<F>& phaseP,
-  Matrix<F>& phaseQ );
+( Matrix<Field>& A,
+  Matrix<Field>& householderScalarsP,
+  Matrix<Field>& householderScalarsQ );
 
-template<typename F>
+template<typename Field>
 void Bidiag
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseP,
-  ElementalMatrix<F>& phaseQ );
-template<typename F>
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalarsP,
+  AbstractDistMatrix<Field>& householderScalarsQ );
+template<typename Field>
 void Bidiag
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& phaseP,
-  ElementalMatrix<F>& phaseQ );
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalarsP,
+  AbstractDistMatrix<Field>& householderScalarsQ );
 
 namespace bidiag {
 
 // Overwrite A with B = Q^H A P and additionally return P and Q
-template<typename F>
+template<typename Field>
 void Explicit
-( Matrix<F>& A, 
-  Matrix<F>& P,
-  Matrix<F>& Q );
-template<typename F>
+( Matrix<Field>& A,
+  Matrix<Field>& P,
+  Matrix<Field>& Q );
+template<typename Field>
 void Explicit
-( ElementalMatrix<F>& A, 
-  ElementalMatrix<F>& P,
-  ElementalMatrix<F>& Q );
-template<typename F>
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& P,
+  AbstractDistMatrix<Field>& Q );
+template<typename Field>
 void Explicit
-( DistMatrix<F>& A, 
-  DistMatrix<F>& P,
-  DistMatrix<F>& Q );
+( DistMatrix<Field>& A,
+  DistMatrix<Field>& P,
+  DistMatrix<Field>& Q );
 
 // Only return the condensed bidiagonal matrix
-template<typename F>
-void ExplicitCondensed( Matrix<F>& A ); 
-template<typename F>
-void ExplicitCondensed( ElementalMatrix<F>& A );
+template<typename Field>
+void ExplicitCondensed( Matrix<Field>& A );
+template<typename Field>
+void ExplicitCondensed( AbstractDistMatrix<Field>& A );
 
-template<typename F>
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+        AbstractDistMatrix<Field>& B );
 
-template<typename F>
+template<typename Field>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyP
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase,
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+        AbstractDistMatrix<Field>& B );
 
 } // namespace bidiag
 
@@ -101,87 +101,90 @@ enum HermitianTridiagApproach
 }
 using namespace HermitianTridiagApproachNS;
 
-template<typename F>
-struct HermitianTridiagCtrl 
+template<typename Field>
+struct HermitianTridiagCtrl
 {
     HermitianTridiagApproach approach=HERMITIAN_TRIDIAG_SQUARE;
     GridOrder order=ROW_MAJOR;
-    SymvCtrl<F> symvCtrl;
+    SymvCtrl<Field> symvCtrl;
 };
 
-template<typename F>
-void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase );
-template<typename F>
+template<typename Field>
+void HermitianTridiag
+( UpperOrLower uplo, Matrix<Field>& A, Matrix<Field>& householderScalars );
+template<typename Field>
 void HermitianTridiag
 ( UpperOrLower uplo,
-  ElementalMatrix<F>& A,
-  ElementalMatrix<F>& phase,
-  const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
+  AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars,
+  const HermitianTridiagCtrl<Field>& ctrl=HermitianTridiagCtrl<Field>() );
 
 namespace herm_tridiag {
 
-template<typename F>
-void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
+template<typename Field>
+void ExplicitCondensed( UpperOrLower uplo, Matrix<Field>& A );
+template<typename Field>
 void ExplicitCondensed
-( UpperOrLower uplo, ElementalMatrix<F>& A,
-  const HermitianTridiagCtrl<F>& ctrl=HermitianTridiagCtrl<F>() );
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A,
+  const HermitianTridiagCtrl<Field>& ctrl=HermitianTridiagCtrl<Field>() );
 
-template<typename F>
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+        AbstractDistMatrix<Field>& B );
 
 } // namespace herm_tridiag
 
 // Hessenberg
 // ==========
-template<typename F>
-void Hessenberg( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& phase );
-template<typename F>
+template<typename Field>
 void Hessenberg
-( UpperOrLower uplo, ElementalMatrix<F>& A, ElementalMatrix<F>& phase );
+( UpperOrLower uplo, Matrix<Field>& A, Matrix<Field>& householderScalars );
+template<typename Field>
+void Hessenberg
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Field>& householderScalars );
 
 namespace hessenberg {
 
-template<typename F>
-void ExplicitCondensed( UpperOrLower uplo, Matrix<F>& A );
-template<typename F>
-void ExplicitCondensed( UpperOrLower uplo, ElementalMatrix<F>& A );
+template<typename Field>
+void ExplicitCondensed( UpperOrLower uplo, Matrix<Field>& A );
+template<typename Field>
+void ExplicitCondensed( UpperOrLower uplo, AbstractDistMatrix<Field>& A );
 
-template<typename F>
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-        Matrix<F>& B );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+        Matrix<Field>& B );
+template<typename Field>
 void ApplyQ
 ( LeftOrRight side, UpperOrLower uplo, Orientation orientation,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
-        ElementalMatrix<F>& B );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+        AbstractDistMatrix<Field>& B );
 
-template<typename F>
+template<typename Field>
 void FormQ
 ( UpperOrLower uplo,
-  const Matrix<F>& A,
-  const Matrix<F>& phase,
-        Matrix<F>& Q );
-template<typename F>
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+        Matrix<Field>& Q );
+template<typename Field>
 void FormQ
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& phase, 
-        ElementalMatrix<F>& Q );
+  const AbstractDistMatrix<Field>& A,
+  const AbstractDistMatrix<Field>& householderScalars,
+        AbstractDistMatrix<Field>& Q );
 
 } // namespace hessenberg
 

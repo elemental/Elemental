@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -11,16 +11,16 @@
 
 namespace El {
 
-// TODO: Add options for OneAbs instead of Abs
+// TODO(poulson): Add options for OneAbs instead of Abs
 
-template<typename F>
-ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )
+template<typename Ring>
+ValueInt<Base<Ring>> VectorMinAbsLoc( const Matrix<Ring>& x )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> Real;
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
     )
@@ -28,17 +28,17 @@ ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )
     if( Min(m,n) == 0 )
     {
         pivot.value = 0;
-        pivot.index = -1;    
+        pivot.index = -1;
         return pivot;
     }
 
-    pivot.value = Abs(x.Get(0,0));
+    pivot.value = Abs(x(0));
     pivot.index = 0;
     if( n == 1 )
     {
         for( Int i=1; i<m; ++i )
         {
-            const Real absVal = Abs(x.Get(i,0));
+            const Real absVal = Abs(x(i));
             if( absVal < pivot.value )
             {
                 pivot.index = i;
@@ -50,7 +50,7 @@ ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )
     {
         for( Int j=1; j<n; ++j )
         {
-            const Real absVal = Abs(x.Get(0,j));
+            const Real absVal = Abs(x(0,j));
             if( absVal < pivot.value )
             {
                 pivot.index = j;
@@ -61,14 +61,14 @@ ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x )
     return pivot;
 }
 
-template<typename F>
-ValueInt<Base<F>> VectorMinAbsLoc( const AbstractDistMatrix<F>& x )
+template<typename Ring>
+ValueInt<Base<Ring>> VectorMinAbsLoc( const AbstractDistMatrix<Ring>& x )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> Real;
     const Int m = x.Height();
     const Int n = x.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( m != 1 && n != 1 )
           LogicError("Input should have been a vector");
       if( !x.Grid().InGrid() )
@@ -81,7 +81,7 @@ ValueInt<Base<F>> VectorMinAbsLoc( const AbstractDistMatrix<F>& x )
         pivot.index = -1;
         return pivot;
     }
- 
+
     ValueInt<Real> localPivot;
     localPivot.value = Abs(x.Get(0,0));
     localPivot.index = 0;
@@ -126,11 +126,11 @@ ValueInt<Base<F>> VectorMinAbsLoc( const AbstractDistMatrix<F>& x )
     return pivot;
 }
 
-template<typename F>
-Entry<Base<F>> MinAbsLoc( const Matrix<F>& A )
+template<typename Ring>
+Entry<Base<Ring>> MinAbsLoc( const Matrix<Ring>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -145,12 +145,12 @@ Entry<Base<F>> MinAbsLoc( const Matrix<F>& A )
 
     pivot.i = 0;
     pivot.j = 0;
-    pivot.value = Abs(A.Get(0,0));
+    pivot.value = Abs(A(0,0));
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
         {
-            const Real absVal = Abs(A.Get(i,j));
+            const Real absVal = Abs(A(i,j));
             if( absVal < pivot.value )
             {
                 pivot.i = i;
@@ -162,15 +162,15 @@ Entry<Base<F>> MinAbsLoc( const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F>
-Entry<Base<F>> MinAbsLoc( const AbstractDistMatrix<F>& A )
+template<typename Ring>
+Entry<Base<Ring>> MinAbsLoc( const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    typedef Base<F> Real;
+    typedef Base<Ring> Real;
     Entry<Real> pivot;
     if( Min(A.Height(),A.Width()) == 0 )
     {
@@ -213,15 +213,16 @@ Entry<Base<F>> MinAbsLoc( const AbstractDistMatrix<F>& A )
     return pivot;
 }
 
-template<typename F>
-Entry<Base<F>> SymmetricMinAbsLoc( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Ring>
+Entry<Base<Ring>> SymmetricMinAbsLoc
+( UpperOrLower uplo, const Matrix<Ring>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
-    typedef Base<F> Real;
+    typedef Base<Ring> Real;
     const Int n = A.Width();
     Entry<Real> pivot;
     if( n == 0 )
@@ -234,14 +235,14 @@ Entry<Base<F>> SymmetricMinAbsLoc( UpperOrLower uplo, const Matrix<F>& A )
 
     pivot.i = 0;
     pivot.j = 0;
-    pivot.value = Abs(A.Get(0,0));
+    pivot.value = Abs(A(0,0));
     if( uplo == LOWER )
     {
         for( Int j=0; j<n; ++j )
         {
             for( Int i=j; i<n; ++i )
             {
-                const Real absVal = Abs(A.Get(i,j));
+                const Real absVal = Abs(A(i,j));
                 if( absVal < pivot.value )
                 {
                     pivot.i = i;
@@ -253,11 +254,11 @@ Entry<Base<F>> SymmetricMinAbsLoc( UpperOrLower uplo, const Matrix<F>& A )
     }
     else
     {
-        for( Int j=0; j<n; ++j ) 
-        { 
+        for( Int j=0; j<n; ++j )
+        {
             for( Int i=0; i<=j; ++i )
             {
-                const Real absVal = Abs(A.Get(i,j));
+                const Real absVal = Abs(A(i,j));
                 if( absVal < pivot.value )
                 {
                     pivot.i = i;
@@ -270,18 +271,18 @@ Entry<Base<F>> SymmetricMinAbsLoc( UpperOrLower uplo, const Matrix<F>& A )
     return pivot;
 }
 
-template<typename F>
-Entry<Base<F>>
-SymmetricMinAbsLoc( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename Ring>
+Entry<Base<Ring>>
+SymmetricMinAbsLoc( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( !A.Grid().InGrid() )
           LogicError("Viewing processes are not allowed");
     )
-    typedef Base<F> Real;
+    typedef Base<Ring> Real;
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
 
@@ -347,18 +348,21 @@ SymmetricMinAbsLoc( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
     return pivot;
 }
 
-#define PROTO(F) \
-  template ValueInt<Base<F>> VectorMinAbsLoc( const Matrix<F>& x ); \
-  template ValueInt<Base<F>> VectorMinAbsLoc \
-  ( const AbstractDistMatrix<F>& x ); \
-  template Entry<Base<F>> MinAbsLoc( const Matrix<F>& x ); \
-  template Entry<Base<F>> MinAbsLoc( const AbstractDistMatrix<F>& x ); \
-  template Entry<Base<F>> SymmetricMinAbsLoc \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Entry<Base<F>> SymmetricMinAbsLoc \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A );
+#define PROTO(Ring) \
+  template ValueInt<Base<Ring>> VectorMinAbsLoc( const Matrix<Ring>& x ); \
+  template ValueInt<Base<Ring>> VectorMinAbsLoc \
+  ( const AbstractDistMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> MinAbsLoc( const Matrix<Ring>& x ); \
+  template Entry<Base<Ring>> MinAbsLoc( const AbstractDistMatrix<Ring>& x ); \
+  template Entry<Base<Ring>> SymmetricMinAbsLoc \
+  ( UpperOrLower uplo, const Matrix<Ring>& A ); \
+  template Entry<Base<Ring>> SymmetricMinAbsLoc \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Ring>& A );
 
+#define EL_ENABLE_DOUBLEDOUBLE
+#define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
+#define EL_ENABLE_BIGINT
 #define EL_ENABLE_BIGFLOAT
 #include <El/macros/Instantiate.h>
 

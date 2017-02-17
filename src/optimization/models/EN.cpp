@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,7 +12,7 @@
 //
 //   min || b - A x ||_2^2 + lambda_1 || x ||_1.+ lambda_2 || x ||_2^2.
 //
-// Real instances of the problem are expressable as a Quadratic Program [1] via 
+// Real instances of the problem are expressable as a Quadratic Program [1] via
 // the transformation
 //
 //   min r^T r + lambda_1 1^T [u;v] + lambda_2 (u^T u + v^T v)
@@ -20,23 +20,23 @@
 //
 // When expressed in affine conic form, the above expression becomes
 //
-//   min (1/2) [u;v;r]^T | 2*lambda_2     0      0 | | u | + 
-//                       |     0      2*lambda_2 0 | | v |  
-//                       |     0          0      2 | | r | 
+//   min (1/2) [u;v;r]^T | 2*lambda_2     0      0 | | u | +
+//                       |     0      2*lambda_2 0 | | v |
+//                       |     0          0      2 | | r |
 //       lambda_1 [1;1;0]^T [u;v;r]
 //
-//   s.t. [A,-A,I] [u;v;r] = b, 
+//   s.t. [A,-A,I] [u;v;r] = b,
 //
 //        | -I  0 0 | | u | + s = | 0 |, s >= 0.
 //        |  0 -I 0 | | v |       | 0 |
-//                    | r | 
+//                    | r |
 //
 // Due to the linear transformation within the affine conic constraint,
-// 
+//
 //   | -I  0 0 |
 //   |  0 -I 0 |,
 //
-// being both sparse and exceedingly simple to analytically manipulate, 
+// being both sparse and exceedingly simple to analytically manipulate,
 // the dense variants of this algorithm will be unnecessarily slow relative
 // to tailored algorithms (even without considering the use of iterative
 // solvers for the KKT system exploiting fast algorithms for applying A).
@@ -47,13 +47,13 @@ namespace El {
 template<typename Real>
 void EN
 ( const Matrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda1,
         Real lambda2,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -109,14 +109,18 @@ void EN
 
 template<typename Real>
 void EN
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& b,
         Real lambda1,
         Real lambda2,
-        ElementalMatrix<Real>& x,
+        AbstractDistMatrix<Real>& xPre,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+
+    DistMatrixWriteProxy<Real,Real,MC,MR> xProx( xPre );
+    auto& x = xProx.Get();
+
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& g = A.Grid();
@@ -173,13 +177,13 @@ void EN
 template<typename Real>
 void EN
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
         Real lambda1,
         Real lambda2,
         Matrix<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> uInd(0,n), vInd(n,2*n), rInd(2*n,2*n+m);
@@ -245,18 +249,19 @@ void EN
 template<typename Real>
 void EN
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
         Real lambda1,
         Real lambda2,
         DistMultiVec<Real>& x,
   const qp::affine::Ctrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm), AHat(comm), G(comm);
-    DistMultiVec<Real> c(comm), h(comm);
+    const Grid& grid = A.Grid();
+
+    DistSparseMatrix<Real> Q(grid), AHat(grid), G(grid);
+    DistMultiVec<Real> c(grid), h(grid);
 
     // Q := | 2*lambda_2     0      0 |
     //      |     0      2*lambda_2 0 |
@@ -318,7 +323,7 @@ void EN
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> xHat(comm), y(comm), z(comm), s(comm);
+    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
     QP( Q, AHat, G, b, c, h, xHat, y, z, s, ctrl );
 
     // x := u - v
@@ -353,11 +358,11 @@ void EN
           Matrix<Real>& x, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void EN \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
           Real lambda1, \
           Real lambda2, \
-          ElementalMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& x, \
     const qp::affine::Ctrl<Real>& ctrl ); \
   template void EN \
   ( const SparseMatrix<Real>& A, \

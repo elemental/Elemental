@@ -8,14 +8,8 @@
 #
 import El, math
 
-#n = 500
-#r = 15
-#n = 1000
-#r = 30
-#n = 3000
-#r = 50
-n = 7500
-r = 60
+n = 1000
+r = 30
 gamma = 0.1
 display = False
 worldRank = El.mpi.WorldRank()
@@ -68,7 +62,7 @@ if display:
   El.Display( c, "c" )
 
 ctrl = El.SOCPAffineCtrl_d()
-ctrl.mehrotraCtrl.progress = False
+ctrl.mehrotraCtrl.progress = True
 ctrl.mehrotraCtrl.time = False
 ctrl.mehrotraCtrl.solveCtrl.progress = False
 ctrl.mehrotraCtrl.solveCtrl.time = False
@@ -79,7 +73,7 @@ startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print "LOP time (resolve reg. w/ equil):", endLOP-startLOP, "seconds"
+  print('LOP time (resolve reg. w/ equil): {} seconds'.format(endLOP-startLOP))
 if display:
   El.Display( x, "x" )
 
@@ -89,7 +83,8 @@ startLOP = El.mpi.Time()
 x = El.LongOnlyPortfolio(d,F,c,gamma,ctrl)
 endLOP = El.mpi.Time()
 if worldRank == 0:
-  print "LOP time (no resolve reg. w/ equil):", endLOP-startLOP, "seconds"
+  print('LOP time (no resolve reg. w/ equil): {} seconds'.format( \
+    endLOP-startLOP))
 if display:
   El.Display( x, "x" )
 
@@ -104,15 +99,12 @@ El.Multiply( El.TRANSPOSE, 1., F, x, 0., f )
 El.Multiply( El.NORMAL, 1., F, f, 1., e )
 rar = El.Dot(c,x) - gamma*El.Dot(x,e)
 if worldRank == 0:
-  print "c^T x - gamma x^T (D + F F^T) x = ", rar
+  print('c^T x - gamma x^T (D + F F^T) x = {}'.format(rar))
 
 xOneNorm = El.EntrywiseNorm( x, 1 )
 xTwoNorm = El.Nrm2( x )
 if worldRank == 0:
-  print "|| x ||_1       =", xOneNorm
-  print "|| x ||_2       =", xTwoNorm
+  print('|| x ||_1 = {}'.format(xOneNorm))
+  print('|| x ||_2 = {}'.format(xTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_RESHAPE_HPP
@@ -14,11 +14,11 @@ namespace El {
 template<typename T>
 void Reshape
 (       Int mNew,
-        Int nNew, 
+        Int nNew,
   const Matrix<T>& A,
         Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     if( m*n != mNew*nNew )
@@ -42,22 +42,22 @@ void Reshape
 template<typename T>
 Matrix<T> Reshape( Int mNew, Int nNew, const Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<T> B;
     Reshape( mNew, nNew, A, B );
     return B;
 }
 
-// TODO: Merge with implementation of GetSubmatrix via a function which maps
-//       the coordinates in A to the coordinates in B
+// TODO(poulson): Merge with implementation of GetSubmatrix via a function
+// which maps the coordinates in A to the coordinates in B
 template<typename T>
 void Reshape
 (       Int mNew,
-        Int nNew, 
+        Int nNew,
   const AbstractDistMatrix<T>& A,
         AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLocal = A.LocalHeight();
@@ -68,10 +68,10 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    B.SetGrid( g ); 
+    B.SetGrid( g );
     B.Resize( mNew, nNew );
     Zero( B );
-    
+
     B.Reserve( mLocal*nLocal );
     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
     {
@@ -102,7 +102,7 @@ void Reshape
   const SparseMatrix<T>& A,
         SparseMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
@@ -138,11 +138,11 @@ SparseMatrix<T> Reshape( Int mNew, Int nNew, const SparseMatrix<T>& A )
 template<typename T>
 void Reshape
 (       Int mNew,
-        Int nNew, 
+        Int nNew,
   const DistSparseMatrix<T>& A,
         DistSparseMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();
@@ -151,7 +151,7 @@ void Reshape
         ("Reshape from ",m," x ",n," to ",mNew," x ",nNew,
          " did not preserve the total number of entries");
 
-    B.SetComm( A.Comm() );
+    B.SetGrid( A.Grid() );
     B.Resize( mNew, nNew );
     Zero( B );
 
@@ -170,7 +170,7 @@ void Reshape
 template<typename T>
 DistSparseMatrix<T> Reshape( Int mNew, Int nNew, const DistSparseMatrix<T>& A )
 {
-    DistSparseMatrix<T> B(A.Comm());
+    DistSparseMatrix<T> B(A.Grid());
     Reshape( mNew, nNew, A, B );
     return B;
 }

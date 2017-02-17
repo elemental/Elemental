@@ -3,47 +3,34 @@
    The University of Texas at Austin, Stanford University, and the
    Georgia Insitute of Technology.
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
 
 namespace El {
 
-DistMap::DistMap( mpi::Comm comm )
-: numSources_(0),
-  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
-{ 
-    if( comm == mpi::COMM_WORLD )
-        comm_ = comm;
-    else
-        mpi::Dup( comm, comm_ );
+DistMap::DistMap( const El::Grid& grid )
+: numSources_(0), grid_(&grid)
+{
+    EL_DEBUG_CSE
     InitializeLocalData();
 }
 
-DistMap::DistMap( Int numSources, mpi::Comm comm )
-: numSources_(numSources),
-  commSize_(mpi::Size(comm)), commRank_(mpi::Rank(comm))
-{ 
-    if( comm == mpi::COMM_WORLD )
-        comm_ = comm;
-    else
-        mpi::Dup( comm, comm_ );
+DistMap::DistMap( Int numSources, const El::Grid& grid )
+: numSources_(numSources), grid_(&grid)
+{
+    EL_DEBUG_CSE
     InitializeLocalData();
 }
 
-DistMap::~DistMap()
-{ 
-    if( !mpi::Finalized() )
-        if( comm_ != mpi::COMM_WORLD )
-            mpi::Free( comm_ ); 
-}
+DistMap::~DistMap() { }
 
 void DistMap::Translate( vector<Int>& localInds ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<int> origOwners;
     if( origOwners.size() != localInds.size() )
     {
@@ -64,12 +51,14 @@ void DistMap::Translate( vector<Int>& localInds ) const
 void DistMap::Translate
 ( vector<Int>& localInds, const vector<int>& origOwners ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numLocalInds = localInds.size();
+    const int commSize = grid_->Size();
+    const int commRank = grid_->Rank();
 
     // Count how many indices we need each process to map
     // Avoid unncessary branching within the loop by avoiding RowToProcess
-    vector<int> requestSizes( commSize_, 0 );
+    vector<int> requestSizes( commSize, 0 );
     for( Int s=0; s<numLocalInds; ++s )
     {
         const Int i = localInds[s];
@@ -78,15 +67,16 @@ void DistMap::Translate
     }
 
     // Send our requests and find out what we need to fulfill
-    vector<int> fulfillSizes( commSize_ );
-    mpi::AllToAll( requestSizes.data(), 1, fulfillSizes.data(), 1, comm_ );
+    vector<int> fulfillSizes( commSize );
+    mpi::AllToAll
+    ( requestSizes.data(), 1, fulfillSizes.data(), 1, grid_->Comm() );
 
     // Prepare for the AllToAll to exchange request sizes
     vector<int> requestOffs, fulfillOffs;
     const int numRequests = Scan( requestSizes, requestOffs );
     const int numFulfills = Scan( fulfillSizes, fulfillOffs );
 
-    // Pack the requested information 
+    // Pack the requested information
     vector<int> requests( numRequests );
     auto offs = requestOffs;
     for( Int s=0; s<numLocalInds; ++s )
@@ -100,18 +90,18 @@ void DistMap::Translate
     vector<int> fulfills( numFulfills );
     mpi::AllToAll
     ( requests.data(), requestSizes.data(), requestOffs.data(),
-      fulfills.data(), fulfillSizes.data(), fulfillOffs.data(), comm_ );
+      fulfills.data(), fulfillSizes.data(), fulfillOffs.data(), grid_->Comm() );
 
     // Map all of the indices in 'fulfills'
     for( int s=0; s<numFulfills; ++s )
     {
         const Int i = fulfills[s];
-        const Int iLocal = i - blocksize_*commRank_;
-        DEBUG_ONLY(
+        const Int iLocal = i - blocksize_*commRank;
+        EL_DEBUG_ONLY(
           if( iLocal < 0 || iLocal >= (Int)map_.size() )
               LogicError
               ("invalid request: i=",i,", iLocal=",iLocal,
-               ", commRank=",commRank_,", blocksize=",blocksize_);
+               ", commRank=",commRank,", blocksize=",blocksize_);
         )
         fulfills[s] = map_[iLocal];
     }
@@ -119,7 +109,7 @@ void DistMap::Translate
     // Send everything back
     mpi::AllToAll
     ( fulfills.data(), fulfillSizes.data(), fulfillOffs.data(),
-      requests.data(), requestSizes.data(), requestOffs.data(), comm_ );
+      requests.data(), requestSizes.data(), requestOffs.data(), grid_->Comm() );
 
     // Unpack in the same way we originally packed
     // Avoid unncessary branching within the loop by avoiding RowToProcess
@@ -134,15 +124,15 @@ void DistMap::Translate
 
 void DistMap::Extend( DistMap& firstMap ) const
 {
-    DEBUG_CSE
-    // TODO: Ensure that the communicators are congruent and that the maps
-    //       are compatible sizes.
-    Translate( firstMap.map_ ); 
+    EL_DEBUG_CSE
+    // TODO(poulson): Ensure that the communicators are congruent and that the
+    // maps are compatible sizes.
+    Translate( firstMap.map_ );
 }
 
 void DistMap::Extend( const DistMap& firstMap, DistMap& compositeMap ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     compositeMap = firstMap;
     Extend( compositeMap );
 }
@@ -151,47 +141,42 @@ Int DistMap::NumSources() const { return numSources_; }
 
 void DistMap::InitializeLocalData()
 {
-    blocksize_ = numSources_ / commSize_;
-    if( blocksize_*commSize_ < numSources_ || numSources_ == 0 )
+    EL_DEBUG_CSE
+    const int commSize = grid_->Size();
+    const int commRank = grid_->Rank();
+
+    blocksize_ = numSources_ / commSize;
+    if( blocksize_*commSize < numSources_ || numSources_ == 0 )
         ++blocksize_;
 
     const Int numLocalSources =
-      Min(blocksize_,Max(numSources_-blocksize_*commRank_,0));
+      Min(blocksize_,Max(numSources_-blocksize_*commRank,0));
     map_.resize( numLocalSources );
 }
 
-void DistMap::SetComm( mpi::Comm comm )
+void DistMap::SetGrid( const El::Grid& grid )
 {
-    commSize_ = mpi::Size(comm);
-    commRank_ = mpi::Rank(comm);
-    if( comm == comm_ )
+    EL_DEBUG_CSE
+    if( grid_ == &grid )
         return;
-
-    if( comm_ != mpi::COMM_WORLD )
-        mpi::Free( comm_ );
-
-    if( comm != mpi::COMM_WORLD )
-        mpi::Dup( comm, comm_ );
-    else
-        comm_ = comm;
-
+    grid_ = &grid;
     InitializeLocalData();
 }
 
-mpi::Comm DistMap::Comm() const { return comm_; }
+const El::Grid& DistMap::Grid() const { return *grid_; }
 
 Int DistMap::Blocksize() const { return blocksize_; }
 
-Int DistMap::FirstLocalSource() const { return blocksize_*commRank_; }
+Int DistMap::FirstLocalSource() const { return blocksize_*grid_->Rank(); }
 
 Int DistMap::NumLocalSources() const { return map_.size(); }
 
 int DistMap::RowOwner( Int i ) const { return i / blocksize_; }
 
 Int DistMap::GetLocal( Int localSource ) const
-{ 
-    DEBUG_CSE
-    DEBUG_ONLY(
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource >= (Int)map_.size() )
           LogicError("local source is out of bounds");
     )
@@ -200,12 +185,12 @@ Int DistMap::GetLocal( Int localSource ) const
 
 void DistMap::SetLocal( Int localSource, Int target )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( localSource < 0 || localSource >= (Int)map_.size() )
           LogicError("local source is out of bounds");
     )
-    map_[localSource] = target; 
+    map_[localSource] = target;
 }
 
       vector<Int>& DistMap::Map()       { return map_; }
@@ -216,6 +201,7 @@ const Int* DistMap::Buffer() const { return map_.data(); }
 
 void DistMap::Empty()
 {
+    EL_DEBUG_CSE
     numSources_ = 0;
     blocksize_ = 1;
     SwapClear( map_ );
@@ -223,43 +209,50 @@ void DistMap::Empty()
 
 void DistMap::Resize( Int numSources )
 {
+    EL_DEBUG_CSE
+    const int commSize = grid_->Size();
+    const int commRank = grid_->Rank();
+
     numSources_ = numSources;
-    blocksize_ = numSources / commSize_;
-    if( blocksize_*commSize_ < numSources_ || numSources_ == 0 )
+    blocksize_ = numSources / commSize;
+    if( blocksize_*commSize < numSources_ || numSources_ == 0 )
         ++blocksize_;
 
     const Int numLocalSources =
-      Min(blocksize_,Max(numSources_-blocksize_*commRank_,0));
+      Min(blocksize_,Max(numSources_-blocksize_*commRank,0));
     map_.resize( numLocalSources );
 }
 
 const DistMap& DistMap::operator=( const DistMap& map )
 {
+    EL_DEBUG_CSE
     numSources_ = map.numSources_;
-    SetComm( map.comm_ );
+    SetGrid( map.Grid() );
     map_ = map.map_;
     return *this;
 }
 
-void InvertMap( const vector<Int>& map, vector<Int>& inverseMap ) 
+void InvertMap( const vector<Int>& map, vector<Int>& inverseMap )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int n = map.size();
     inverseMap.resize( n );
     for( int i=0; i<n; ++i )
         inverseMap[map[i]] = i;
 }
 
-void InvertMap( const DistMap& map, DistMap& inverseMap ) 
+void InvertMap( const DistMap& map, DistMap& inverseMap )
 {
-    DEBUG_CSE
-    mpi::Comm comm = map.Comm();
-    const int commSize = mpi::Size( comm );
+    EL_DEBUG_CSE
+    const El::Grid& grid = map.Grid();
+    mpi::Comm comm = grid.Comm();
+    const int commSize = grid.Size();
+
     const Int numLocalSources = map.NumLocalSources();
     const vector<Int>& localMap = map.Map();
     const Int firstLocalSource = map.FirstLocalSource();
 
-    // TODO: Allow this to be cached?
+    // TODO(poulson): Allow this to be cached?
     vector<int> owners(numLocalSources);
     for( Int s=0; s<numLocalSources; ++s )
         owners[s] = map.RowOwner(localMap[s]);
@@ -277,7 +270,7 @@ void InvertMap( const DistMap& map, DistMap& inverseMap )
     vector<int> sendOffs, recvOffs;
     const int numSends = Scan( sendSizes, sendOffs );
     const int numRecvs = Scan( recvSizes, recvOffs );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( numSends != 2*numLocalSources )
           LogicError("Miscalculated numSends");
       if( numRecvs != 2*numLocalSources )
@@ -302,7 +295,7 @@ void InvertMap( const DistMap& map, DistMap& inverseMap )
       recvs.data(), recvSizes.data(), recvOffs.data(), comm );
 
     // Form our part of the inverse map
-    inverseMap.SetComm( comm );
+    inverseMap.SetGrid( grid );
     inverseMap.Resize( map.NumSources() );
     Int* invMapBuf = inverseMap.Buffer();
     for( Int s=0; s<numRecvs; s+=2 )

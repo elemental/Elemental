@@ -41,8 +41,8 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
   for deltaLower in 0.5, 0.75, 0.95, 0.98:
     for variant in El.LLL_NORMAL, El.LLL_DEEP, El.LLL_DEEP_REDUCE:
 
-      print "variant=%d, presort=%r, smallest1st=%r, deltaLower=%f" % \
-        (variant,presort,smallestFirst,deltaLower)
+      print('variant={}, presort={}, smallest1st={}, deltaLower={}'.format( \
+        variant,presort,smallestFirst,deltaLower))
 
       El.Copy( BOrig, B )
 
@@ -55,8 +55,10 @@ for presort, smallestFirst in (True,True), (True,False), (False,False):
       startTime = El.mpi.Time()
       M, K = El.LatticeImageAndKernel(B,ctrl)
       runTime = El.mpi.Time() - startTime
-      print "  runtime: %f seconds" % runTime
-      print "  nullity: ", K.Width()
+      print('  runtime: {} seconds'.format(runTime))
+      print('  nullity: {}'.format(K.Width()))
       if output:
         El.Print( M, "Image" )
         El.Print( K, "Kernel" )
+
+El.Finalize()

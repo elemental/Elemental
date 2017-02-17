@@ -2,13 +2,13 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 
 // This file should be included into each of the DistMatrix specializations
-// as a workaround for the fact that C++11 constructor inheritance is not 
+// as a workaround for the fact that C++11 constructor inheritance is not
 // yet widely supported.
 
 #include "El/blas_like/level1/Copy/internal_impl.hpp"
@@ -28,29 +28,29 @@ namespace El {
 template<typename T>
 DM::DistMatrix( const El::Grid& grid, int root )
 : EM(grid,root)
-{ 
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
-    this->SetShifts(); 
+{
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
+    this->SetShifts();
 }
 
 template<typename T>
 DM::DistMatrix( Int height, Int width, const El::Grid& grid, int root )
 : EM(grid,root)
-{ 
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
-    this->SetShifts(); 
-    this->Resize(height,width); 
+{
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
+    this->SetShifts();
+    this->Resize(height,width);
 }
 
 template<typename T>
 DM::DistMatrix( const DM& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -63,9 +63,9 @@ template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( COLDIST != U || ROWDIST != V ||
         reinterpret_cast<const DM*>(&A) != this )
@@ -78,45 +78,34 @@ template<typename T>
 DM::DistMatrix( const AbstractDistMatrix<T>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
-
-    if( A.Wrap() == ELEMENT )
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-          if( COLDIST != CDIST || ROWDIST != RDIST || \
-              reinterpret_cast<const DM*>(&A) != this ) \
-              *this = ACast; \
-          else \
-              LogicError("Tried to construct DistMatrix with itself");
-        #include "El/macros/GuardAndPayload.h"     
-    }
-    else
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = \
-            static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"     
-    }
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
+      if( COLDIST != CDIST || ROWDIST != RDIST || ELEMENT != WRAP || \
+          reinterpret_cast<const DM*>(&A) != this ) \
+          *this = ACast; \
+      else \
+          LogicError("Tried to construct DistMatrix with itself");
+    #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
 DM::DistMatrix( const ElementalMatrix<T>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       if( COLDIST != CDIST || ROWDIST != RDIST || \
           reinterpret_cast<const DM*>(&A) != this ) \
@@ -131,9 +120,9 @@ template<Dist U,Dist V>
 DM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 : EM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     *this = A;
 }
@@ -143,23 +132,23 @@ DM::DistMatrix( DM&& A ) EL_NO_EXCEPT : EM(std::move(A)) { }
 
 template<typename T> DM::~DistMatrix() { }
 
-template<typename T> 
+template<typename T>
 DistMatrix<T,COLDIST,ROWDIST>* DM::Copy() const
 { return new DistMatrix<T,COLDIST,ROWDIST>(*this); }
 
-template<typename T> 
+template<typename T>
 DistMatrix<T,COLDIST,ROWDIST>* DM::Construct
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,COLDIST,ROWDIST>(g,root); }
 
-template<typename T> 
+template<typename T>
 DistMatrix<T,ROWDIST,COLDIST>* DM::ConstructTranspose
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,ROWDIST,COLDIST>(g,root); }
 
 template<typename T>
 DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
-             DiagRow<COLDIST,ROWDIST>()>* 
+             DiagRow<COLDIST,ROWDIST>()>*
 DM::ConstructDiagonal
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
@@ -173,14 +162,14 @@ DM::ConstructDiagonal
 template<typename T>
 DM DM::operator()( Range<Int> I, Range<Int> J )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return View( *this, I, J );
 }
 
 template<typename T>
 const DM DM::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return LockedView( *this, I, J );
 }
 
@@ -189,16 +178,16 @@ const DM DM::operator()( Range<Int> I, Range<Int> J ) const
 template<typename T>
 DM DM::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DM ASub( this->Grid() );
-    GetSubmatrix( *this, I, J, ASub ); 
+    GetSubmatrix( *this, I, J, ASub );
     return ASub;
 }
 
 template<typename T>
 DM DM::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DM ASub( this->Grid() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -207,7 +196,7 @@ DM DM::operator()( const vector<Int>& I, Range<Int> J ) const
 template<typename T>
 DM DM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DM ASub( this->Grid() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -218,7 +207,7 @@ DM DM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 template<typename T>
 DM& DM::operator=( const DM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::Translate( A, *this );
     return *this;
 }
@@ -226,26 +215,15 @@ DM& DM::operator=( const DM& A )
 template<typename T>
 DM& DM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use either AllGather or Gather if the distribution of this matrix
     //       is respectively either (STAR,STAR) or (CIRC,CIRC)
-    if( A.Wrap() == ELEMENT )
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"     
-    }
-    else
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = \
-            static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"     
-    }
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
+      *this = ACast;
+    #include "El/macros/GuardAndPayload.h"
     return *this;
 }
 
@@ -253,11 +231,16 @@ template<typename T>
 template<Dist U,Dist V>
 DM& DM::operator=( const DistMatrix<T,U,V,BLOCK>& A )
 {
-    DEBUG_CSE
-    // TODO: Use either AllGather or Gather if the distribution of this matrix
-    //       is respectively either (STAR,STAR) or (CIRC,CIRC)
-    const bool elemColCompat = ( A.BlockHeight() == 1 || A.ColStride() == 1 );
-    const bool elemRowCompat = ( A.BlockWidth() == 1 || A.RowStride() == 1 );
+    EL_DEBUG_CSE
+    // TODO(poulson):
+    // Use either AllGather or Gather if the distribution of this matrix
+    // is respectively either (STAR,STAR) or (CIRC,CIRC)
+    //
+    // TODO(poulson): Avoid the GeneralPurpose redistribution in more cases
+    const bool elemColCompat =
+      ( A.BlockHeight() == 1 || A.ColStride() == 1 );
+    const bool elemRowCompat =
+      ( A.BlockWidth() == 1 || A.RowStride() == 1 );
     if( elemColCompat && elemRowCompat )
     {
         DistMatrix<T,U,V> AElemView(A.Grid());
@@ -276,7 +259,7 @@ DM& DM::operator=( const DistMatrix<T,U,V,BLOCK>& A )
 template<typename T>
 DM& DM::operator=( DM&& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( this->Viewing() || A.Viewing() )
         this->operator=( (const DM&)A );
     else
@@ -289,7 +272,7 @@ DM& DM::operator=( DM&& A )
 template<typename T>
 const DM& DM::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -299,7 +282,7 @@ const DM& DM::operator*=( T alpha )
 template<typename T>
 const DM& DM::operator+=( const EM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -307,7 +290,7 @@ const DM& DM::operator+=( const EM& A )
 template<typename T>
 const DM& DM::operator+=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -315,7 +298,7 @@ const DM& DM::operator+=( const ADM& A )
 template<typename T>
 const DM& DM::operator-=( const EM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -323,17 +306,13 @@ const DM& DM::operator-=( const EM& A )
 template<typename T>
 const DM& DM::operator-=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
 
 // Distribution data
 // =================
-
-template<typename T>
-ElementalData DM::DistData() const { return ElementalData(*this); }
-
 template<typename T>
 Dist DM::ColDist() const EL_NO_EXCEPT { return COLDIST; }
 template<typename T>

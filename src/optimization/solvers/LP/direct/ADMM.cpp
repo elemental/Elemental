@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -23,21 +23,21 @@ namespace direct {
 
 template<typename Real>
 Int ADMM
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& b,
-  const Matrix<Real>& c, 
+  const Matrix<Real>& c,
         Matrix<Real>& z,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-    
-    // Cache a custom partially-pivoted LU factorization of 
+    EL_DEBUG_CSE
+
+    // Cache a custom partially-pivoted LU factorization of
     //    |  rho*I   A^H | = | B11  B12 |
     //    |  A       0   |   | B21  B22 |
     // by (justifiably) avoiding pivoting in the first n steps of
     // the factorization, so that
     //    [I,rho*I] = lu(rho*I).
-    // The factorization would then proceed with 
+    // The factorization would then proceed with
     //    B21 := B21 U11^{-1} = A (rho*I)^{-1} = A/rho
     //    B12 := L11^{-1} B12 = I A^H = A^H.
     // The Schur complement would then be
@@ -54,7 +54,7 @@ Int ADMM
     // where [L22,U22] are stored within B22.
     Matrix<Real> U12, L21, B22, bPiv;
     Adjoint( A, U12 );
-    L21 = A; 
+    L21 = A;
     L21 *= 1/ctrl.rho;
     Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
@@ -91,10 +91,10 @@ Int ADMM
         zOld = z;
 
         // Find x from
-        //  | rho*I  A^H | | x | = | rho*(z-u)-c | 
+        //  | rho*I  A^H | | x | = | rho*(z-u)-c |
         //  | A      0   | | y |   | b           |
         // via our cached custom factorization:
-        // 
+        //
         // |x| = inv(U) inv(L) P' |rho*(z-u)-c|
         // |y|                    |b          |
         //     = |rho*I U12|^{-1} |I   0  | |I 0   | |rho*(z-u)-c|
@@ -176,13 +176,13 @@ Int ADMM
 
 template<typename Real>
 Int ADMM
-( const ElementalMatrix<Real>& APre, 
-  const ElementalMatrix<Real>& bPre,
-  const ElementalMatrix<Real>& cPre,
-        ElementalMatrix<Real>& zPre, 
+( const AbstractDistMatrix<Real>& APre,
+  const AbstractDistMatrix<Real>& bPre,
+  const AbstractDistMatrix<Real>& cPre,
+        AbstractDistMatrix<Real>& zPre,
   const ADMMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR>
       AProx( APre ),
@@ -195,13 +195,13 @@ Int ADMM
     auto& c = cProx.GetLocked();
     auto& z = zProx.Get();
 
-    // Cache a custom partially-pivoted LU factorization of 
+    // Cache a custom partially-pivoted LU factorization of
     //    |  rho*I   A^H | = | B11  B12 |
     //    |  A       0   |   | B21  B22 |
     // by (justifiably) avoiding pivoting in the first n steps of
     // the factorization, so that
     //    [I,rho*I] = lu(rho*I).
-    // The factorization would then proceed with 
+    // The factorization would then proceed with
     //    B21 := B21 U11^{-1} = A (rho*I)^{-1} = A/rho
     //    B12 := L11^{-1} B12 = I A^H = A^H.
     // The Schur complement would then be
@@ -224,7 +224,7 @@ Int ADMM
     L21.Align( n%L21.ColStride(), 0                 );
     B22.Align( n%B22.ColStride(), n%B22.RowStride() );
     Adjoint( A, U12 );
-    L21 = A; 
+    L21 = A;
     L21 *= 1/ctrl.rho;
     Herk( LOWER, NORMAL, -1/ctrl.rho, A, B22 );
     MakeHermitian( LOWER, B22 );
@@ -258,10 +258,10 @@ Int ADMM
         zOld = z;
 
         // Find x from
-        //  | rho*I  A^H | | x | = | rho*(z-u)-c | 
+        //  | rho*I  A^H | | x | = | rho*(z-u)-c |
         //  | A      0   | | y |   | b           |
         // via our cached custom factorization:
-        // 
+        //
         // |x| = inv(U) inv(L) P' |rho*(z-u)-c|
         // |y|                    |b          |
         //     = |rho*I U12|^{-1} |I   0  | |I 0   | |rho*(z-u)-c|
@@ -350,10 +350,10 @@ Int ADMM
           Matrix<Real>& z, \
     const ADMMCtrl<Real>& ctrl ); \
   template Int ADMM \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-          ElementalMatrix<Real>& z, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& b, \
+    const AbstractDistMatrix<Real>& c, \
+          AbstractDistMatrix<Real>& z, \
     const ADMMCtrl<Real>& ctrl );
 
 #define EL_NO_INT_PROTO

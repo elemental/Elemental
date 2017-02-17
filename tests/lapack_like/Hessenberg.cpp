@@ -2,23 +2,23 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F> 
+template<typename Field>
 void TestCorrectness
-( UpperOrLower uplo, 
-  const Matrix<F>& A, 
-  const Matrix<F>& phase,
-        Matrix<F>& AOrig,
+( UpperOrLower uplo,
+  const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+        Matrix<Field>& AOrig,
   bool print,
   bool display )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int n = AOrig.Height();
     const Real eps = limits::Epsilon<Real>();
     const Real oneNormAOrig = OneNorm( AOrig );
@@ -26,7 +26,7 @@ void TestCorrectness
     PushIndent();
 
     // Set H to the appropriate Hessenberg portion of A
-    Matrix<F> H( A );
+    Matrix<Field> H( A );
     if( uplo == LOWER )
         MakeTrapezoidal( LOWER, H, 1 );
     else
@@ -38,9 +38,9 @@ void TestCorrectness
 
     if( print || display )
     {
-        Matrix<F> Q;
+        Matrix<Field> Q;
         Identity( Q, n, n );
-        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
         if( print )
             Print( Q, "Q" );
         if( display )
@@ -48,8 +48,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, phase, AOrig );
-    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, phase, AOrig );
+    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, householderScalars, AOrig );
+    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, householderScalars, AOrig );
     if( print )
         Print( AOrig, "Manual Hessenberg" );
     if( display )
@@ -70,32 +70,32 @@ void TestCorrectness
 
     Output("||H - Q^H A Q||_oo / (eps n || A ||_1) = ",relError);
 
-    // TODO: Use a more refined failure condition
+    // TODO(poulson): Use a more refined failure condition
     if( relError > Real(1) )
         LogicError("Unacceptably large relative error");
 
     PopIndent();
 }
 
-template<typename F> 
+template<typename Field>
 void TestCorrectness
-( UpperOrLower uplo, 
-  const DistMatrix<F>& A, 
-  const DistMatrix<F,STAR,STAR>& phase,
-        DistMatrix<F>& AOrig,
+( UpperOrLower uplo,
+  const DistMatrix<Field>& A,
+  const DistMatrix<Field,STAR,STAR>& householderScalars,
+        DistMatrix<Field>& AOrig,
   bool print,
   bool display )
 {
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+    typedef Base<Field> Real;
+    const Grid& grid = A.Grid();
     const Int n = AOrig.Height();
     const Real eps = limits::Epsilon<Real>();
     const Real oneNormAOrig = OneNorm( AOrig );
-    OutputFromRoot(g.Comm(),"Testing error...");
+    OutputFromRoot(grid.Comm(),"Testing error...");
     PushIndent();
 
     // Set H to the appropriate Hessenberg portion of A
-    DistMatrix<F> H( A );
+    DistMatrix<Field> H( A );
     if( uplo == LOWER )
         MakeTrapezoidal( LOWER, H, 1 );
     else
@@ -107,9 +107,9 @@ void TestCorrectness
 
     if( print || display )
     {
-        DistMatrix<F> Q(g);
+        DistMatrix<Field> Q(grid);
         Identity( Q, n, n );
-        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+        hessenberg::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
         if( print )
             Print( Q, "Q" );
         if( display )
@@ -117,8 +117,8 @@ void TestCorrectness
     }
 
     // Reverse the accumulated Householder transforms
-    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, phase, AOrig );
-    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, phase, AOrig );
+    hessenberg::ApplyQ( LEFT, uplo, ADJOINT, A, householderScalars, AOrig );
+    hessenberg::ApplyQ( RIGHT, uplo, NORMAL, A, householderScalars, AOrig );
     if( print )
         Print( AOrig, "Manual Hessenberg" );
     if( display )
@@ -138,26 +138,26 @@ void TestCorrectness
     const Real relError = infError / (n*eps*oneNormAOrig);
 
     OutputFromRoot
-    (g.Comm(),"||H - Q^H A Q||_oo / (eps n || A ||_1) = ",relError);
+    (grid.Comm(),"||H - Q^H A Q||_oo / (eps n || A ||_1) = ",relError);
 
-    // TODO: Use a more refined failure condition
+    // TODO(poulson): Use a more refined failure condition
     if( relError > Real(1) )
         LogicError("Unacceptably large relative error");
 
     PopIndent();
 }
 
-template<typename F>
+template<typename Field>
 void TestHessenberg
 ( UpperOrLower uplo,
   Int n,
-  bool correctness, 
+  bool correctness,
   bool print,
   bool display )
 {
-    Matrix<F> A, AOrig;
-    Matrix<F> phase;
-    Output("Testing with ",TypeName<F>());
+    Matrix<Field> A, AOrig;
+    Matrix<Field> householderScalars;
+    Output("Testing with ",TypeName<Field>());
     PushIndent();
 
     Uniform( A, n, n );
@@ -171,37 +171,37 @@ void TestHessenberg
     Output("Starting reduction to Hessenberg form...");
     Timer timer;
     timer.Start();
-    Hessenberg( uplo, A, phase );
+    Hessenberg( uplo, A, householderScalars );
     const double runTime = timer.Stop();
-    // TODO: Flop calculation
+    // TODO(poulson): Flop calculation
     Output(runTime," seconds");
     if( print )
     {
         Print( A, "A after Hessenberg" );
-        Print( phase, "phase after Hessenberg" );
+        Print( householderScalars, "householderScalars after Hessenberg" );
     }
     if( display )
     {
         Display( A, "A after Hessenberg" );
-        Display( phase, "phase after Hessenberg" );
+        Display( householderScalars, "householderScalars after Hessenberg" );
     }
     if( correctness )
-        TestCorrectness( uplo, A, phase, AOrig, print, display );
+        TestCorrectness( uplo, A, householderScalars, AOrig, print, display );
     PopIndent();
 }
 
-template<typename F>
+template<typename Field>
 void TestHessenberg
-( const Grid& g,
+( const Grid& grid,
   UpperOrLower uplo,
   Int n,
-  bool correctness, 
+  bool correctness,
   bool print,
   bool display )
 {
-    DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,STAR,STAR> phase(g);
-    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    DistMatrix<Field> A(grid), AOrig(grid);
+    DistMatrix<Field,STAR,STAR> householderScalars(grid);
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
     PushIndent();
 
     Uniform( A, n, n );
@@ -212,31 +212,31 @@ void TestHessenberg
     if( display )
         Display( A, "A" );
 
-    OutputFromRoot(g.Comm(),"Starting reduction to Hessenberg form...");
-    mpi::Barrier( g.Comm() );
+    OutputFromRoot(grid.Comm(),"Starting reduction to Hessenberg form...");
+    mpi::Barrier( grid.Comm() );
     Timer timer;
     timer.Start();
-    Hessenberg( uplo, A, phase );
-    mpi::Barrier( g.Comm() );
+    Hessenberg( uplo, A, householderScalars );
+    mpi::Barrier( grid.Comm() );
     const double runTime = timer.Stop();
-    // TODO: Flop calculation
-    OutputFromRoot(g.Comm(),runTime," seconds");
+    // TODO(poulson): Flop calculation
+    OutputFromRoot(grid.Comm(),runTime," seconds");
     if( print )
     {
         Print( A, "A after Hessenberg" );
-        Print( phase, "phase after Hessenberg" );
+        Print( householderScalars, "householderScalars after Hessenberg" );
     }
     if( display )
     {
         Display( A, "A after Hessenberg" );
-        Display( phase, "phase after Hessenberg" );
+        Display( householderScalars, "householderScalars after Hessenberg" );
     }
     if( correctness )
-        TestCorrectness( uplo, A, phase, AOrig, print, display );
+        TestCorrectness( uplo, A, householderScalars, AOrig, print, display );
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -250,7 +250,7 @@ main( int argc, char* argv[] )
         const Int n = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool sequential = Input("--sequential","test sequential?",true);
-        const bool correctness = 
+        const bool correctness =
           Input("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         const bool display = Input("--display","display matrices?",false);
@@ -265,9 +265,9 @@ main( int argc, char* argv[] )
 #endif
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, gridHeight, order );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
+        const Grid grid( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         ComplainIfDebug();
@@ -312,39 +312,39 @@ main( int argc, char* argv[] )
         }
 
         TestHessenberg<float>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
         TestHessenberg<Complex<float>>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
 
         TestHessenberg<double>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
         TestHessenberg<Complex<double>>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
 
 #ifdef EL_HAVE_QD
         TestHessenberg<DoubleDouble>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
         TestHessenberg<QuadDouble>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
 
         TestHessenberg<Complex<DoubleDouble>>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
         TestHessenberg<Complex<QuadDouble>>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestHessenberg<Quad>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
         TestHessenberg<Complex<Quad>>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestHessenberg<BigFloat>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
         TestHessenberg<Complex<BigFloat>>
-        ( g, uplo, n, correctness, print, display );
+        ( grid, uplo, n, correctness, print, display );
 #endif
     }
     catch( exception& e ) { ReportException(e); }

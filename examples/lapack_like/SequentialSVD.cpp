@@ -2,112 +2,112 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-using namespace El;
-
-// Typedef our real and complex types to 'Real' and 'C' for convenience
-typedef double Real;
-typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
 {
-    Environment env( argc, argv );
+    El::Environment env( argc, argv );
+    El::mpi::Comm comm = El::mpi::COMM_WORLD;
 
     enum TestType { FOURIER=0, HILBERT=1, IDENTITY=2, ONES=3, ONE_TWO_ONE=4,
-                    UNIFORM=5, WILKINSON=6, ZEROS=7 }; 
+                    UNIFORM=5, WILKINSON=6, ZEROS=7 };
 
-    try 
+    try
     {
-        const Int k = Input("--size","problem size",100);
-        const bool useLAPACK = Input("--useLAPACK","use LAPACK?",false);
-        const bool useLAPACKQR = Input("--useLAPACKQR","use LAPACK QR?",false);
-        const Int numTests = Input("--numTests","number of tests",5);
-        ProcessInput();
-        PrintInputReport();
+        typedef double Real;
+        typedef El::Complex<Real> Scalar;
 
-        Matrix<C> A, U, V;
-        Matrix<Real> s;
+        const El::Int k = El::Input("--size","problem size",100);
+        const bool useLAPACK = El::Input("--useLAPACK","use LAPACK?",false);
+        const bool useLAPACKQR =
+          El::Input("--useLAPACKQR","use LAPACK QR?",false);
+        const El::Int numTests = El::Input("--numTests","number of tests",5);
+        El::ProcessInput();
+        El::PrintInputReport();
 
-        SVDCtrl<Real> ctrl;
-        for( Int test=0; test<numTests; ++test )
+        El::Matrix<Scalar> A, U, V;
+        El::Matrix<Real> s;
+
+        El::SVDCtrl<Real> ctrl;
+        for( El::Int test=0; test<numTests; ++test )
         {
-            Int n=1;
+            El::Int n=1;
             const TestType testType = TestType(test/2);
             ctrl.useLAPACK = useLAPACK;
             ctrl.bidiagSVDCtrl.qrCtrl.useLAPACK = useLAPACKQR;
             switch( testType )
             {
-            case FOURIER:     
-                if( mpi::Rank() == 0 ) 
-                    Output("Testing Fourier");
+            case FOURIER:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Fourier");
                 n = k;
-                Fourier( A, n ); 
+                El::Fourier( A, n );
                 break;
-            case HILBERT:     
-                if( mpi::Rank() == 0 )
-                    Output("Testing Hilbert");
+            case HILBERT:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Hilbert");
                 n = k;
-                Hilbert( A, n ); 
+                El::Hilbert( A, n );
                 break;
-            case IDENTITY:    
-                if( mpi::Rank() == 0 )
-                    Output("Testing Identity");
+            case IDENTITY:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Identity");
                 n = k;
-                Identity( A, n, n ); 
+                El::Identity( A, n, n );
                 break;
-            case ONES:        
-                if( mpi::Rank() == 0 )
-                    Output("Testing Ones");
+            case ONES:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Ones");
                 n = k;
-                Ones( A, n, n ); 
+                El::Ones( A, n, n );
                 break;
-            case ONE_TWO_ONE: 
-                if( mpi::Rank() == 0 )
-                    Output("Testing OneTwoOne");
+            case ONE_TWO_ONE:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing OneTwoOne");
                 n = k;
-                OneTwoOne( A, n ); 
+                El::OneTwoOne( A, n );
                 break;
-            case UNIFORM:     
-                if( mpi::Rank() == 0 )
-                    Output("Testing Uniform");
+            case UNIFORM:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Uniform");
                 n = k;
-                Uniform( A, n, n ); 
+                El::Uniform( A, n, n );
                 break;
-            case WILKINSON:   
-                if( mpi::Rank() == 0 )
-                    Output("Testing Wilkinson");
-                Wilkinson( A, k ); 
+            case WILKINSON:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Wilkinson");
+                El::Wilkinson( A, k );
                 n = 2*k+1;
                 break;
-            case ZEROS:       
-                if( mpi::Rank() == 0 )
-                    Output("Testing Zeros");
+            case ZEROS:
+                if( El::mpi::Rank(comm) == 0 )
+                    El::Output("Testing Zeros");
                 n = k;
-                Zeros( A, n, n ); 
+                El::Zeros( A, n, n );
                 break;
             };
 
-            SVD( A, U, s, V, ctrl );
+            El::SVD( A, U, s, V, ctrl );
 
-            const Real twoNormA = MaxNorm( s );
-            const Real maxNormA = MaxNorm( A );
-            const Real frobNormA = FrobeniusNorm( A );
-            const Real twoEstA = TwoNormEstimate( A );
+            const Real twoNormA = El::MaxNorm( s );
+            const Real maxNormA = El::MaxNorm( A );
+            const Real frobNormA = El::FrobeniusNorm( A );
+            const Real twoEstA = El::TwoNormEstimate( A );
 
-            DiagonalScale( RIGHT, NORMAL, s, U );
-            Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-            const Real maxNormE = MaxNorm( A );
-            const Real frobNormE = FrobeniusNorm( A );
-            const Real epsilon = limits::Epsilon<Real>();
+            El::DiagonalScale( El::RIGHT, El::NORMAL, s, U );
+            El::Gemm( El::NORMAL, El::ADJOINT, Scalar(-1), U, V, Scalar(1), A );
+            const Real maxNormE = El::MaxNorm( A );
+            const Real frobNormE = El::FrobeniusNorm( A );
+            const Real epsilon = El::limits::Epsilon<Real>();
             const Real scaledResidual = frobNormE/(n*epsilon*twoNormA);
 
-            if( mpi::Rank() == 0 )
-                Output
+            if( El::mpi::Rank(comm) == 0 )
+                El::Output
                 ("||A||_max   = ",maxNormA,"\n",
                  "||A||_F     = ",frobNormA,"\n",
                  "||A||_2     = ",twoNormA,"\n",
@@ -117,7 +117,7 @@ main( int argc, char* argv[] )
                  "||A - U Sigma V_H||_F / (n eps ||A||_2) = ",scaledResidual);
         }
     }
-    catch( exception& e ) { ReportException(e); }
+    catch( std::exception& e ) { El::ReportException(e); }
 
     return 0;
 }

@@ -21,7 +21,7 @@ namespace El {
 template<typename F>
 void GKS( Matrix<F>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     A.Resize( n, n );
     auto gksFill = 
       []( Int i, Int j ) -> F
@@ -34,7 +34,7 @@ void GKS( Matrix<F>& A, Int n )
 template<typename F>
 void GKS( AbstractDistMatrix<F>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     A.Resize( n, n );
     auto gksFill = 
       []( Int i, Int j ) -> F 

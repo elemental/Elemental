@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_GATHER_HPP
@@ -17,7 +17,7 @@ void Gather
 ( const ElementalMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.DistSize() == 1 && A.CrossSize() == 1 )
     {
@@ -62,7 +62,7 @@ void Gather
           sendBuf.data(),   1, A.LocalHeight() );
     mpi::Gather
     ( sendBuf.data(), totalSend,
-      recvBuf.data(), recvCounts.data(), recvOffsets.data(), 
+      recvBuf.data(), recvCounts.data(), recvOffsets.data(),
       B.Root(), B.CrossComm() );
 
     // Unpack
@@ -92,7 +92,7 @@ void Gather
 ( const BlockMatrix<T>& A,
         DistMatrix<T,CIRC,CIRC,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     if( A.DistSize() == 1 && A.CrossSize() == 1 )
     {
@@ -137,7 +137,7 @@ void Gather
           sendBuf.data(),   1, A.LocalHeight() );
     mpi::Gather
     ( sendBuf.data(), totalSend,
-      recvBuf.data(), recvCounts.data(), recvOffsets.data(), 
+      recvBuf.data(), recvCounts.data(), recvOffsets.data(),
       B.Root(), B.CrossComm() );
 
     // Unpack
@@ -158,7 +158,7 @@ void Gather
             const Int rowStride = A.RowStride();
             const Int localHeight =
               BlockedLength( height, colShift, mb, colCut, colStride );
-            const Int localWidth = 
+            const Int localWidth =
               BlockedLength( width, rowShift, nb, rowCut, rowStride );
             const T* data = &recvBuf[recvOffsets[q]];
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )

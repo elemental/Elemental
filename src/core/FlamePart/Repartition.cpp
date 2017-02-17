@@ -20,7 +20,7 @@ void RepartitionUp
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
@@ -31,8 +31,8 @@ void RepartitionUp
                           ElementalMatrix<T>& A1,
   ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -46,7 +46,7 @@ void LockedRepartitionUp
                        Matrix<T>& A1,
   const Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
@@ -57,8 +57,8 @@ void LockedRepartitionUp
                                 ElementalMatrix<T>& A1,
   const ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -75,7 +75,7 @@ void RepartitionDown
                  Matrix<T>& A1,
   Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     View( A0, AT );
     PartitionDown( AB, A1, A2, A1Height );
 }
@@ -86,8 +86,8 @@ void RepartitionDown
                           ElementalMatrix<T>& A1,
   ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -101,7 +101,7 @@ void LockedRepartitionDown
                        Matrix<T>& A1,
   const Matrix<T>& AB, Matrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedView( A0, AT );
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
@@ -112,8 +112,8 @@ void LockedRepartitionDown
                                 ElementalMatrix<T>& A1,
   const ElementalMatrix<T>& AB, ElementalMatrix<T>& A2, Int A1Height )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AT, AB, A0, A1, A2 );
       AssertSameDists( AT, AB, A0, A1, A2 );
     )
@@ -129,7 +129,7 @@ void RepartitionLeft
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
@@ -140,8 +140,8 @@ void RepartitionLeft
   ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
   ElementalMatrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -154,7 +154,7 @@ void LockedRepartitionLeft
 ( const Matrix<T>& AL, const Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
@@ -165,8 +165,8 @@ void LockedRepartitionLeft
   ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
   ElementalMatrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -182,7 +182,7 @@ void RepartitionRight
 ( Matrix<T>& AL, Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     View( A0, AL );
     PartitionRight( AR, A1, A2, A1Width );
 }
@@ -193,8 +193,8 @@ void RepartitionRight
   ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
   ElementalMatrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -207,7 +207,7 @@ void LockedRepartitionRight
 ( const Matrix<T>& AL, const Matrix<T>& AR,
   Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedView( A0, AL );
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
@@ -218,8 +218,8 @@ void LockedRepartitionRight
   ElementalMatrix<T>& A0, ElementalMatrix<T>& A1, 
   ElementalMatrix<T>& A2, Int A1Width )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( AL, AR, A0, A1, A2 );
       AssertSameDists( AL, AR, A0, A1, A2 );
     )
@@ -238,7 +238,7 @@ void RepartitionUpDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     PartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -259,8 +259,8 @@ void RepartitionUpDiagonal
   ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
   ElementalMatrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -283,7 +283,7 @@ void LockedRepartitionUpDiagonal
   const Matrix<T>& ABL, const Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedPartitionUpOffsetDiagonal
     ( ATL.Width()-ATL.Height(),
       ATL, A00, A01,
@@ -304,8 +304,8 @@ void LockedRepartitionUpDiagonal
   ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
   ElementalMatrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -331,7 +331,7 @@ void RepartitionDownDiagonal
   Matrix<T>& ABL, Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     View( A00, ATL );
     PartitionDownDiagonal( ABR, A11, A12,
                                 A21, A22, bsize );
@@ -350,8 +350,8 @@ void RepartitionDownDiagonal
   ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
   ElementalMatrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists
@@ -372,7 +372,7 @@ void LockedRepartitionDownDiagonal
   const Matrix<T>& ABL, const Matrix<T>& ABR, 
   Matrix<T>& A20, Matrix<T>& A21, Matrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LockedView( A00, ATL );
     LockedPartitionDownDiagonal( ABR, A11, A12,
                                       A21, A22, bsize );
@@ -391,8 +391,8 @@ void LockedRepartitionDownDiagonal
   ElementalMatrix<T>& A20, ElementalMatrix<T>& A21, 
   ElementalMatrix<T>& A22, Int bsize )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids
       ( ATL, ATR, ABL, ABR, A00, A01, A02, A10, A11, A12, A20, A21, A22 );
       AssertSameDists

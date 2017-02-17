@@ -168,7 +168,7 @@ def BP(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -260,7 +260,7 @@ def CP(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -348,7 +348,7 @@ def DS(A,b,lambdaPre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,lambd,x.obj]
     argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -434,7 +434,7 @@ def LAV(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -445,105 +445,6 @@ def LAV(A,b,ctrl=None):
       else:            lib.ElLAVXDistSparse_d(*argsCtrl)
     else: DataExcept()
     return x
-  else: TypeExcept()
-
-# Logistic regression
-# ===================
-(NO_PENALTY,L1_PENALTY,L2_PENALTY)=(0,1,2)
-
-lib.ElLogisticRegression_s.argtypes = \
-lib.ElLogisticRegressionDist_s.argtypes = \
-  [c_void_p,c_void_p,c_void_p,sType,c_uint,POINTER(iType)]
-lib.ElLogisticRegression_d.argtypes = \
-lib.ElLogisticRegressionDist_d.argtypes = \
-  [c_void_p,c_void_p,c_void_p,dType,c_uint,POINTER(iType)]
-
-def LogisticRegression(G,q,gamma,penalty=L1_PENALTY):
-  if type(G) is not type(q):
-    raise Exception('Types of G and q must match')
-  if G.tag != q.tag:
-    raise Exception('Datatypes of G and q must match')
-  numIts = iType()
-  if type(G) is Matrix:
-    z = Matrix(G.tag)
-    args = [G.obj,q.obj,z.obj,gamma,penalty,pointer(numIts)]
-    if   G.tag == sTag: lib.ElLogisticRegression_s(*args)
-    elif G.tag == dTag: lib.ElLogisticRegression_d(*args)
-    else: DataExcept()
-    return z, numIts
-  elif type(G) is DistMatrix:
-    z = DistMatrix(G.tag,MC,MR,G.Grid())
-    args = [G.obj,q.obj,z.obj,gamma,penalty,pointer(numIts)]
-    if   G.tag == sTag: lib.ElLogisticRegressionDist_s(*args)
-    elif G.tag == dTag: lib.ElLogisticRegressionDist_d(*args)
-    else: DataExcept()
-    return z, numIts
-  else: TypeExcept()
-
-# Model fit
-# =========
-lib.ElModelFitCtrlDefault_s.argtypes = \
-lib.ElModelFitCtrlDefault_d.argtypes = \
-  [c_void_p]
-class ModelFitCtrl_s(ctypes.Structure):
-  _fields_ = [("rho",sType),("maxIter",iType),("inv",bType),("progress",bType)]
-  def __init__(self):
-    lib.ElModelFitCtrlDefault_s(pointer(self)) 
-class ModelFitCtrl_d(ctypes.Structure):
-  _fields_ = [("rho",dType),("maxIter",iType),("inv",bType),("progress",bType)]
-  def __init__(self):
-    lib.ElModelFitCtrlDefault_d(pointer(self)) 
-
-lib.ElModelFit_s.argtypes = \
-lib.ElModelFitDist_s.argtypes = \
-  [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
-   c_void_p,c_void_p,c_void_p,POINTER(iType)]
-lib.ElModelFit_d.argtypes = \
-lib.ElModelFitDist_d.argtypes = \
-  [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
-   c_void_p,c_void_p,c_void_p,POINTER(iType)]
-
-lib.ElModelFitX_s.argtypes = \
-lib.ElModelFitXDist_s.argtypes = \
-  [CFUNCTYPE(None,c_void_p,sType),CFUNCTYPE(None,c_void_p,sType),
-   c_void_p,c_void_p,c_void_p,ModelFitCtrl_s,POINTER(iType)]
-lib.ElModelFitX_d.argtypes = \
-lib.ElModelFitXDist_d.argtypes = \
-  [CFUNCTYPE(None,c_void_p,dType),CFUNCTYPE(None,c_void_p,dType),
-   c_void_p,c_void_p,c_void_p,ModelFitCtrl_d,POINTER(iType)]
-
-def ModelFit(lossProx,regProx,A,b,ctrl=None):
-  if type(A) is not type(b):
-    raise Exception('Types of A and b must match')
-  if A.tag != b.tag:
-    raise Exception('Datatypes of A and b must match')
-  numIts = iType()
-  cLoss = CFUNCTYPE(None,c_void_p,TagToType(A.tag))(lossProx)
-  cReg = CFUNCTYPE(None,c_void_p,TagToType(A.tag))(regProx)
-  if type(A) is Matrix:
-    w = Matrix(A.tag)
-    args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
-    argsCtrl = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts),ctrl]
-    if   A.tag == sTag: 
-      if ctrl==None: lib.ElModelFit_s(*args)
-      else:          lib.ElModelFitX_s(*argsCtrl)
-    elif A.tag == dTag: 
-      if ctrl==None: lib.ElModelFit_d(*args)
-      else:          lib.ElModelFitX_d(*argsCtrl)
-    else: DataExcept()
-    return w, numIts
-  elif type(A) is DistMatrix:
-    w = DistMatrix(A.tag,MC,MR,A.Grid())
-    args = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts)]
-    argsCtrl = [cLoss,cReg,A.obj,b.obj,w.obj,pointer(numIts),ctrl]
-    if   A.tag == sTag: 
-      if ctrl==None: lib.ElModelFitDist_s(*args)
-      else:          lib.ElModelFitXDist_s(*argsCtrl)
-    elif A.tag == dTag: 
-      if ctrl==None: lib.ElModelFitDist_d(*args)
-      else:          lib.ElModelFitXDist_d(*argsCtrl)
-    else: DataExcept()
-    return w, numIts
   else: TypeExcept()
 
 # Robust least squares
@@ -618,7 +519,7 @@ def RLS(A,b,rho,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,rho,x.obj]
     argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -703,7 +604,7 @@ def RNNLS(A,b,rho,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,rho,x.obj]
     argsCtrl = [A.obj,b.obj,rho,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -805,7 +706,7 @@ def NNLS(A,b,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,x.obj]
     argsCtrl = [A.obj,b.obj,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -968,7 +869,7 @@ def BPDN(A,b,lambdPre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,lambd,x.obj]
     argsCtrl = [A.obj,b.obj,lambd,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -1057,7 +958,7 @@ def EN(A,b,lambda1Pre,lambda2Pre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(b) is not DistMultiVec:
       raise Exception('b must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,b.obj,lambda1,lambda2,x.obj]
     argsCtrl = [A.obj,b.obj,lambda1,lambda2,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -1240,13 +1141,11 @@ lib.ElSVMCtrlDefault_s.argtypes = \
 lib.ElSVMCtrlDefault_d.argtypes = \
   [c_void_p]
 class SVMCtrl_s(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("modelFitCtrl",ModelFitCtrl_s),("ipmCtrl",QPAffineCtrl_s)]
+  _fields_ = [("ipmCtrl",QPAffineCtrl_s)]
   def __init__(self):
     lib.ElSVMCtrlDefault_s(pointer(self))
 class SVMCtrl_d(ctypes.Structure):
-  _fields_ = [("useIPM",bType),
-              ("modelFitCtrl",ModelFitCtrl_d),("ipmCtrl",QPAffineCtrl_d)]
+  _fields_ = [("ipmCtrl",QPAffineCtrl_d)]
   def __init__(self):
     lib.ElSVMCtrlDefault_d(pointer(self))
 
@@ -1323,7 +1222,7 @@ def SVM(A,d,lambdPre,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(d) is not DistMultiVec:
       raise Exception('d must be a DistMultiVec')
-    x = DistMultiVec(A.tag,A.Comm())
+    x = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,d.obj,lambd,x.obj]
     argsCtrl = [A.obj,d.obj,lambd,x.obj,ctrl]
     if   A.tag == sTag: 
@@ -1383,7 +1282,7 @@ def TV(b,lambdPre,ctrl=None):
     else: DataExcept()
     return x
   elif type(b) is DistMultiVec:
-    x = DistMultiVec(b.tag,b.Comm())
+    x = DistMultiVec(b.tag,b.Grid())
     args = [b.obj,lambd,x.obj]
     argsCtrl = [b.obj,lambd,x.obj,ctrl]
     if   b.tag == sTag: 
@@ -1439,7 +1338,7 @@ def LongOnlyPortfolio(d,F,c,gammaPre,ctrl=None):
     else: DataExcept()
     return x
   elif type(F) is DistSparseMatrix:
-    x = DistMultiVec(d.tag,d.Comm())
+    x = DistMultiVec(d.tag,d.Grid())
     args = [d.obj,F.obj,c.obj,gamma,x.obj]
     argsCtrl = [d.obj,F.obj,c.obj,gamma,x.obj,ctrl]
     if   d.tag == sTag:

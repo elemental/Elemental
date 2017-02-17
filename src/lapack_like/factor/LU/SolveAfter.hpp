@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LU_SOLVEAFTER_HPP
@@ -12,14 +12,14 @@
 namespace El {
 namespace lu {
 
-template<typename F> 
+template<typename F>
 void SolveAfter
 ( Orientation orientation,
   const Matrix<F>& A,
         Matrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -37,14 +37,14 @@ void SolveAfter
     }
 }
 
-template<typename F> 
+template<typename F>
 void SolveAfter
-( Orientation orientation, 
-  const ElementalMatrix<F>& A,
-        ElementalMatrix<F>& B )
+( Orientation orientation,
+  const AbstractDistMatrix<F>& A,
+        AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -63,15 +63,15 @@ void SolveAfter
     }
 }
 
-template<typename F> 
+template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A, 
+  const Matrix<F>& A,
   const Permutation& P,
         Matrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -91,15 +91,15 @@ void SolveAfter
     }
 }
 
-template<typename F> 
+template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A, 
+  const AbstractDistMatrix<F>& A,
   const DistPermutation& P,
-        ElementalMatrix<F>& B )
+        AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");
@@ -120,16 +120,16 @@ void SolveAfter
     }
 }
 
-template<typename F> 
+template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const Matrix<F>& A, 
+  const Matrix<F>& A,
   const Permutation& P,
   const Permutation& Q,
         Matrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( A.Height() != B.Height() )
@@ -151,16 +151,16 @@ void SolveAfter
     }
 }
 
-template<typename F> 
+template<typename F>
 void SolveAfter
 ( Orientation orientation,
-  const ElementalMatrix<F>& A, 
+  const AbstractDistMatrix<F>& A,
   const DistPermutation& P,
   const DistPermutation& Q,
-        ElementalMatrix<F>& B )
+        AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != A.Width() )
           LogicError("A must be square");

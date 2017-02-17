@@ -15,7 +15,7 @@ namespace trtrmm {
 template<typename T>
 void UVar1( Matrix<T>& U, bool conjugate=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = U.Height();
     const Int bsize = Blocksize();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE ); 
@@ -40,8 +40,8 @@ void UVar1( Matrix<T>& U, bool conjugate=false )
 template<typename T>
 void UVar1( AbstractDistMatrix<T>& UPre, bool conjugate=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");
     )

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -40,16 +40,16 @@ void SetDefaultBlockWidth( Int nb )
 
 template<typename T>
 BlockMatrix<T>::BlockMatrix
-( const El::Grid& g, int root )
-: AbstractDistMatrix<T>(g,root),
+( const El::Grid& grid, int root )
+: AbstractDistMatrix<T>(grid,root),
   blockHeight_(DefaultBlockHeight()), blockWidth_(DefaultBlockWidth()),
   colCut_(0), rowCut_(0)
 { }
 
 template<typename T>
 BlockMatrix<T>::BlockMatrix
-( const El::Grid& g, Int blockHeight, Int blockWidth, int root )
-: AbstractDistMatrix<T>(g,root),
+( const El::Grid& grid, Int blockHeight, Int blockWidth, int root )
+: AbstractDistMatrix<T>(grid,root),
   blockHeight_(blockHeight), blockWidth_(blockWidth),
   colCut_(0), rowCut_(0)
 { }
@@ -60,7 +60,7 @@ BlockMatrix<T>::BlockMatrix
 : AbstractDistMatrix<T>(std::move(A)),
   blockHeight_(A.blockHeight_), blockWidth_(A.blockWidth_),
   colCut_(A.colCut_), rowCut_(A.rowCut_)
-{ } 
+{ }
 
 // Optional to override
 // --------------------
@@ -77,7 +77,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator=( const BlockMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     El::Copy( A, *this );
     return *this;
 }
@@ -86,7 +86,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     El::Copy( A, *this );
     return *this;
 }
@@ -97,7 +97,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -108,7 +108,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator+=( const BlockMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -117,7 +117,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator+=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -126,7 +126,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator-=( const BlockMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -135,7 +135,7 @@ template<typename T>
 const BlockMatrix<T>&
 BlockMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -144,7 +144,7 @@ BlockMatrix<T>::operator-=( const AbstractDistMatrix<T>& A )
 // ---------------
 
 template<typename T>
-BlockMatrix<T>& 
+BlockMatrix<T>&
 BlockMatrix<T>::operator=( BlockMatrix<T>&& A )
 {
     if( this->Viewing() || A.Viewing() )
@@ -204,9 +204,9 @@ void BlockMatrix<T>::Empty( bool freeMemory )
 template<typename T>
 void BlockMatrix<T>::Resize( Int height, Int width )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(this->AssertNotLocked())
-    this->height_ = height; 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(this->AssertNotLocked())
+    this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
         this->matrix_.Resize_
@@ -216,9 +216,9 @@ void BlockMatrix<T>::Resize( Int height, Int width )
 template<typename T>
 void BlockMatrix<T>::Resize( Int height, Int width, Int ldim )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(this->AssertNotLocked())
-    this->height_ = height; 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(this->AssertNotLocked())
+    this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
         this->matrix_.Resize_
@@ -228,7 +228,7 @@ void BlockMatrix<T>::Resize( Int height, Int width, Int ldim )
 template<typename T>
 void BlockMatrix<T>::MakeConsistent( bool includingViewers )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int msgLength = 13;
     Int message[msgLength];
@@ -249,21 +249,22 @@ void BlockMatrix<T>::MakeConsistent( bool includingViewers )
         message[12] = this->root_;
     }
 
-    const El::Grid& g = *this->grid_;
-    if( !g.InGrid() && !includingViewers )
+    const El::Grid& grid = *this->grid_;
+    if( !grid.InGrid() && !includingViewers )
         LogicError("Non-participating process called MakeConsistent");
-    if( g.InGrid() )
+    if( grid.InGrid() )
     {
-        // TODO: Ensure roots are consistent within each cross communicator
+        // TODO(poulson): Ensure roots are consistent within each cross
+        // communicator
         mpi::Broadcast( message, msgLength, this->Root(), this->CrossComm() );
     }
     if( includingViewers )
     {
-        const Int vcRoot = g.VCToViewing(0);
-        mpi::Broadcast( message, msgLength, vcRoot, g.ViewingComm() );
+        const Int vcRoot = grid.VCToViewing(0);
+        mpi::Broadcast( message, msgLength, vcRoot, grid.ViewingComm() );
     }
     const ViewType newViewType    = static_cast<ViewType>(message[0]);
-    const Int newHeight           = message[ 1]; 
+    const Int newHeight           = message[ 1];
     const Int newWidth            = message[ 2];
     const bool newConstrainedCol  = message[ 3];
     const bool newConstrainedRow  = message[ 4];
@@ -297,15 +298,15 @@ void BlockMatrix<T>::MakeConsistent( bool includingViewers )
 
 template<typename T>
 void BlockMatrix<T>::Align
-( Int blockHeight, Int blockWidth, 
+( Int blockHeight, Int blockWidth,
   int colAlign, int rowAlign, Int colCut, Int rowCut, bool constrain )
-{ 
-    DEBUG_CSE
-    const bool requireChange = 
+{
+    EL_DEBUG_CSE
+    const bool requireChange =
         this->blockHeight_ != blockHeight || this->blockWidth_ != blockWidth ||
         this->colAlign_    != colAlign    || this->rowAlign_   != rowAlign   ||
         this->colCut_      != colCut      || this->rowCut_     != rowCut;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( this->Viewing() && requireChange )
           LogicError("Tried to realign a view");
     )
@@ -328,13 +329,13 @@ void BlockMatrix<T>::Align
 template<typename T>
 void BlockMatrix<T>::AlignCols
 ( Int blockHeight, int colAlign, Int colCut, bool constrain )
-{ 
-    DEBUG_CSE
-    const bool requireChange = 
-        this->blockHeight_ != blockHeight || 
-        this->colAlign_    != colAlign    || 
+{
+    EL_DEBUG_CSE
+    const bool requireChange =
+        this->blockHeight_ != blockHeight ||
+        this->colAlign_    != colAlign    ||
         this->colCut_      != colCut;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( this->Viewing() && requireChange )
           LogicError("Tried to realign a view");
     )
@@ -351,13 +352,13 @@ void BlockMatrix<T>::AlignCols
 template<typename T>
 void BlockMatrix<T>::AlignRows
 ( Int blockWidth, int rowAlign, Int rowCut, bool constrain )
-{ 
-    DEBUG_CSE
-    const bool requireChange = 
-        this->blockWidth_ != blockWidth || 
-        this->rowAlign_   != rowAlign   || 
+{
+    EL_DEBUG_CSE
+    const bool requireChange =
+        this->blockWidth_ != blockWidth ||
+        this->rowAlign_   != rowAlign   ||
         this->rowCut_     != rowCut;
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( this->Viewing() && requireChange )
           LogicError("Tried to realign a view");
     )
@@ -374,19 +375,19 @@ void BlockMatrix<T>::AlignRows
 template<typename T>
 void BlockMatrix<T>::AlignWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     this->AlignColsWith( data, constrain, allowMismatch );
     this->AlignRowsWith( data, constrain, allowMismatch );
 }
 
 template<typename T>
 void BlockMatrix<T>::AlignAndResize
-( Int blockHeight, Int blockWidth, 
+( Int blockHeight, Int blockWidth,
   int colAlign, int rowAlign, Int colCut, Int rowCut,
   Int height, Int width, bool force, bool constrain )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !this->Viewing() )
     {
         if( force || !this->ColConstrained() )
@@ -394,7 +395,7 @@ void BlockMatrix<T>::AlignAndResize
             this->blockHeight_ = blockHeight;
             this->colAlign_ = colAlign;
             this->colCut_ = colCut;
-            this->SetColShift(); 
+            this->SetColShift();
         }
         if( force || !this->RowConstrained() )
         {
@@ -409,34 +410,34 @@ void BlockMatrix<T>::AlignAndResize
         this->colConstrained_ = true;
         this->rowConstrained_ = true;
     }
-    if( force && 
+    if( force &&
         (this->blockHeight_ != blockHeight ||
-         this->blockWidth_  != blockWidth  || 
-         this->colAlign_    != colAlign    || 
+         this->blockWidth_  != blockWidth  ||
+         this->colAlign_    != colAlign    ||
          this->rowAlign_    != rowAlign    ||
-         this->colCut_      != colCut      || 
+         this->colCut_      != colCut      ||
          this->rowCut_      != rowCut) )
-        LogicError("Could not set alignments and cuts"); 
+        LogicError("Could not set alignments and cuts");
     this->Resize( height, width );
 }
 
 template<typename T>
 void BlockMatrix<T>::AlignColsAndResize
-( Int blockHeight, int colAlign, Int colCut, Int height, Int width, 
+( Int blockHeight, int colAlign, Int colCut, Int height, Int width,
   bool force, bool constrain )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !this->Viewing() && (force || !this->ColConstrained()) )
     {
         this->blockHeight_ = blockHeight;
         this->colAlign_ = colAlign;
         this->colCut_ = colCut;
-        this->SetColShift(); 
+        this->SetColShift();
     }
     if( constrain )
         this->colConstrained_ = true;
-    if( force && 
-        (this->colAlign_ != colAlign || this->colCut_ != colCut || 
+    if( force &&
+        (this->colAlign_ != colAlign || this->colCut_ != colCut ||
          this->blockHeight_ != blockHeight) )
         LogicError("Could not set col alignment and cut");
     this->Resize( height, width );
@@ -444,20 +445,20 @@ void BlockMatrix<T>::AlignColsAndResize
 
 template<typename T>
 void BlockMatrix<T>::AlignRowsAndResize
-( Int blockWidth, int rowAlign, Int rowCut, Int height, Int width, 
+( Int blockWidth, int rowAlign, Int rowCut, Int height, Int width,
   bool force, bool constrain )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !this->Viewing() && (force || !this->RowConstrained()) )
     {
         this->blockWidth_ = blockWidth;
         this->rowAlign_ = rowAlign;
         this->rowCut_ = rowCut;
-        this->SetRowShift(); 
+        this->SetRowShift();
     }
     if( constrain )
         this->rowConstrained_ = true;
-    if( force && 
+    if( force &&
         (this->rowAlign_ != rowAlign || this->rowCut_ != rowCut ||
          this->blockWidth_ != blockWidth) )
         LogicError("Could not set row alignment and cut");
@@ -469,12 +470,12 @@ void BlockMatrix<T>::AlignRowsAndResize
 
 template<typename T>
 void BlockMatrix<T>::Attach
-( Int height, Int width, const El::Grid& g, 
-  Int blockHeight, Int blockWidth, 
+( Int height, Int width, const El::Grid& g,
+  Int blockHeight, Int blockWidth,
   int colAlign, int rowAlign, Int colCut, Int rowCut,
   T* buffer, Int ldim, int root )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     this->Empty();
 
     this->grid_ = &g;
@@ -501,28 +502,28 @@ void BlockMatrix<T>::Attach
 
 template<typename T>
 void BlockMatrix<T>::Attach
-( Int height, Int width, const El::Grid& g,
-  Int blockHeight, Int blockWidth, 
-  int colAlign, int rowAlign, Int colCut, Int rowCut, El::Matrix<T>& A, 
+( Int height, Int width, const El::Grid& grid,
+  Int blockHeight, Int blockWidth,
+  int colAlign, int rowAlign, Int colCut, Int rowCut, El::Matrix<T>& A,
   int root )
 {
-    // TODO: Assert that the local dimensions are correct
+    // TODO(poulson): Assert that the local dimensions are correct
     this->Attach
-    ( height, width, g, blockHeight, blockWidth, 
+    ( height, width, grid, blockHeight, blockWidth,
       colAlign, rowAlign, colCut, rowCut, A.Buffer(), A.LDim(), root );
 }
 
 template<typename T>
 void BlockMatrix<T>::LockedAttach
-( Int height, Int width, const El::Grid& g, 
-  Int blockHeight, Int blockWidth, 
+( Int height, Int width, const El::Grid& grid,
+  Int blockHeight, Int blockWidth,
   int colAlign, int rowAlign, Int colCut, Int rowCut,
   const T* buffer, Int ldim, int root )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     this->Empty();
 
-    this->grid_ = &g;
+    this->grid_ = &grid;
     this->root_ = root;
     this->height_ = height;
     this->width_ = width;
@@ -546,14 +547,14 @@ void BlockMatrix<T>::LockedAttach
 
 template<typename T>
 void BlockMatrix<T>::LockedAttach
-( Int height, Int width, const El::Grid& g,
-  Int blockHeight, Int blockWidth, 
+( Int height, Int width, const El::Grid& grid,
+  Int blockHeight, Int blockWidth,
   int colAlign, int rowAlign, Int colCut, Int rowCut, const El::Matrix<T>& A,
   int root )
 {
-    // TODO: Assert that the local dimensions are correct
+    // TODO(poulson): Assert that the local dimensions are correct
     this->LockedAttach
-    ( height, width, g, blockHeight, blockWidth, 
+    ( height, width, grid, blockHeight, blockWidth,
       colAlign, rowAlign, colCut, rowCut, A.LockedBuffer(), A.LDim(), root );
 }
 
@@ -579,7 +580,7 @@ Int BlockMatrix<T>::RowCut() const EL_NO_EXCEPT
 
 template<typename T>
 int BlockMatrix<T>::RowOwner( Int i ) const EL_NO_EXCEPT
-{ 
+{
     if( i == END ) i = this->height_ - 1;
     const Int block = (i+this->ColCut())/this->BlockHeight();
     const Int rowOwner = (block+this->ColAlign()) % this->ColStride();
@@ -588,7 +589,7 @@ int BlockMatrix<T>::RowOwner( Int i ) const EL_NO_EXCEPT
 
 template<typename T>
 int BlockMatrix<T>::ColOwner( Int j ) const EL_NO_EXCEPT
-{ 
+{
     if( j == END ) j = this->width_ - 1;
     const Int block = (j+this->RowCut())/this->BlockWidth();
     const Int colOwner = (block+this->RowAlign()) % this->RowStride();
@@ -597,56 +598,56 @@ int BlockMatrix<T>::ColOwner( Int j ) const EL_NO_EXCEPT
 
 template<typename T>
 Int BlockMatrix<T>::LocalRowOffset( Int i ) const EL_NO_EXCEPT
-{ 
+{
     if( i == END ) i = this->height_ - 1;
     return BlockedLength_
-           ( i, this->ColShift(), this->BlockHeight(), 
-             this->ColCut(), this->ColStride() ); 
+           ( i, this->ColShift(), this->BlockHeight(),
+             this->ColCut(), this->ColStride() );
 }
 
 template<typename T>
 Int BlockMatrix<T>::LocalColOffset( Int j ) const EL_NO_EXCEPT
-{ 
+{
     if( j == END ) j = this->width_ - 1;
     return BlockedLength_
            ( j, this->RowShift(), this->BlockWidth(),
-             this->RowCut(), this->RowStride() ); 
+             this->RowCut(), this->RowStride() );
 }
 
 template<typename T>
 Int BlockMatrix<T>::LocalRowOffset( Int i, int rowOwner ) const EL_NO_EXCEPT
-{ 
+{
     if( i == END ) i = this->height_ - 1;
     return BlockedLength_
-           ( i, rowOwner, this->ColAlign(), this->BlockHeight(), 
-             this->ColCut(), this->ColStride() ); 
+           ( i, rowOwner, this->ColAlign(), this->BlockHeight(),
+             this->ColCut(), this->ColStride() );
 }
 
 template<typename T>
 Int BlockMatrix<T>::LocalColOffset( Int j, int colOwner ) const EL_NO_EXCEPT
-{ 
+{
     if( j == END ) j = this->width_ - 1;
     return BlockedLength_
            ( j, colOwner, this->RowAlign(), this->BlockWidth(),
-             this->RowCut(), this->RowStride() ); 
+             this->RowCut(), this->RowStride() );
 }
 
 template<typename T>
 Int BlockMatrix<T>::GlobalRow( Int iLoc ) const EL_NO_EXCEPT
-{ 
+{
     if( iLoc == END ) iLoc = this->LocalHeight();
     return GlobalBlockedIndex
            (iLoc,this->ColShift(),this->BlockHeight(),
-            this->ColCut(),this->ColStride()); 
+            this->ColCut(),this->ColStride());
 }
 
 template<typename T>
 Int BlockMatrix<T>::GlobalCol( Int jLoc ) const EL_NO_EXCEPT
-{ 
+{
     if( jLoc == END ) jLoc = this->LocalWidth();
     return GlobalBlockedIndex
            (jLoc,this->RowShift(),this->BlockWidth(),
-            this->RowCut(),this->RowStride()); 
+            this->RowCut(),this->RowStride());
 }
 
 // Diagonal manipulation
@@ -655,9 +656,9 @@ template<typename T>
 bool BlockMatrix<T>::DiagonalAlignedWith
 ( const El::DistData& d, Int offset ) const
 {
-    DEBUG_CSE
-    // TODO: Ensure blocksize is compatible...the blocksizes needed for a 
-    //       diagonal distribution are variable except for special cases.
+    EL_DEBUG_CSE
+    // TODO(poulson): Ensure blocksize is compatible...the blocksizes needed for
+    // a diagonal distribution are variable except for special cases.
     LogicError("This routine is not yet written");
     return false;
 }
@@ -665,7 +666,7 @@ bool BlockMatrix<T>::DiagonalAlignedWith
 template<typename T>
 int BlockMatrix<T>::DiagonalRoot( Int offset ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet written");
     return 0;
 }
@@ -673,7 +674,7 @@ int BlockMatrix<T>::DiagonalRoot( Int offset ) const
 template<typename T>
 int BlockMatrix<T>::DiagonalAlign( Int offset ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine is not yet written");
     return 0;
 }
@@ -682,10 +683,10 @@ template<typename T>
 void BlockMatrix<T>::AlignColsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
-    if( data.colDist == this->ColDist() || 
+    if( data.colDist == this->ColDist() ||
         data.colDist == this->PartialColDist() )
         this->AlignCols
         ( data.blockHeight, data.colAlign, data.colCut, constrain );
@@ -701,8 +702,8 @@ void BlockMatrix<T>::AlignColsWith
         AlignCols
         ( data.blockWidth, data.rowAlign % this->ColStride(), data.rowCut,
           constrain );
-    else if( this->ColDist() != this->CollectedColDist() && 
-             data.colDist    != this->CollectedColDist() && 
+    else if( this->ColDist() != this->CollectedColDist() &&
+             data.colDist    != this->CollectedColDist() &&
              data.rowDist    != this->CollectedColDist() && !allowMismatch )
         LogicError("Nonsensical alignment");
 }
@@ -711,7 +712,7 @@ template<typename T>
 void BlockMatrix<T>::AlignRowsWith
 ( const El::DistData& data, bool constrain, bool allowMismatch )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     this->SetGrid( *data.grid );
     this->SetRoot( data.root );
     if( data.colDist == this->RowDist() ||
@@ -730,8 +731,8 @@ void BlockMatrix<T>::AlignRowsWith
         this->AlignRows
         ( data.blockWidth, data.rowAlign % this->RowStride(), data.rowCut,
           constrain );
-    else if( this->RowDist() != this->CollectedRowDist() && 
-             data.colDist    != this->CollectedRowDist() && 
+    else if( this->RowDist() != this->CollectedRowDist() &&
+             data.colDist    != this->CollectedRowDist() &&
              data.rowDist    != this->CollectedRowDist() && !allowMismatch )
         LogicError("Nonsensical alignment");
 }
@@ -742,7 +743,7 @@ void BlockMatrix<T>::AlignRowsWith
 template<typename T>
 Int BlockMatrix<T>::NewLocalHeight( Int height ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return BlockedLength
            (height,
             this->ColShift(),
@@ -754,7 +755,7 @@ Int BlockMatrix<T>::NewLocalHeight( Int height ) const
 template<typename T>
 Int BlockMatrix<T>::NewLocalWidth( Int width ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return BlockedLength
            (width,
             this->RowShift(),
@@ -791,11 +792,11 @@ void BlockMatrix<T>::ShallowSwap( BlockMatrix<T>& A )
 // Outside of class
 // ----------------
 
-template<typename T> 
+template<typename T>
 void AssertConforming1x2
 ( const BlockMatrix<T>& AL, const BlockMatrix<T>& AR )
 {
-    if( AL.Height() != AR.Height() )    
+    if( AL.Height() != AR.Height() )
         LogicError
         ("1x2 not conformant:\n",
          DimsString(AL,"Left"),"\n",DimsString(AR,"Right"));
@@ -803,7 +804,7 @@ void AssertConforming1x2
         LogicError("1x2 is misaligned");
 }
 
-template<typename T> 
+template<typename T>
 void AssertConforming2x1
 ( const BlockMatrix<T>& AT, const BlockMatrix<T>& AB )
 {
@@ -815,9 +816,9 @@ void AssertConforming2x1
         LogicError("2x1 is not aligned");
 }
 
-template<typename T> 
+template<typename T>
 void AssertConforming2x2
-( const BlockMatrix<T>& ATL, const BlockMatrix<T>& ATR, 
+( const BlockMatrix<T>& ATL, const BlockMatrix<T>& ATR,
   const BlockMatrix<T>& ABL, const BlockMatrix<T>& ABR )
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||

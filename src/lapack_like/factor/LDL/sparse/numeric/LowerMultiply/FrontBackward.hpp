@@ -27,8 +27,8 @@ template<typename F>
 void FrontVanillaLowerBackwardMultiply
 ( const Matrix<F>& L, Matrix<F>& X, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Height() < L.Width() || L.Height() != X.Height() )
           LogicError
           ("Nonconformal multiply:\n",
@@ -47,7 +47,7 @@ template<typename F>
 void FrontLowerBackwardMultiply
 ( const Front<F>& front, Matrix<F>& W, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     auto type = front.type;
     if( Unfactored(type) )
         LogicError("Cannot multiply against an unfactored matrix");
@@ -72,8 +72,8 @@ void FrontVanillaLowerBackwardMultiply
         DistMatrix<F,VC,STAR>& X,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -113,8 +113,8 @@ void FrontVanillaLowerBackwardMultiply
         DistMatrix<F>& X,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( L.Grid() != X.Grid() )
           LogicError("L and X must be distributed over the same grid");
       if( L.Height() < L.Width() || L.Height() != X.Height() )
@@ -143,7 +143,7 @@ template<typename F>
 void FrontLowerBackwardMultiply
 ( const DistFront<F>& front, DistMatrix<F>& W, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( Unfactored(front.type) )
         LogicError("Cannot multiply against an unfactored matrix");
 
@@ -157,7 +157,7 @@ template<typename F>
 void FrontLowerBackwardMultiply
 ( const DistFront<F>& front, DistMatrix<F,VC,STAR>& W, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( Unfactored(front.type) )
         LogicError("Cannot multiply against an unfactored matrix");
 

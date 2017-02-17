@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -11,7 +11,7 @@
 
 namespace El {
 
-// TODO: Avoid sorting since the ordering can easily be preserved
+// TODO(poulson): Avoid sorting since the ordering can easily be preserved
 
 void GetSubgraph
 ( const Graph& graph,
@@ -19,7 +19,7 @@ void GetSubgraph
         Range<Int> J,
         Graph& subgraph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int* offsetBuf = graph.LockedOffsetBuffer();
     const Int* targetBuf = graph.LockedTargetBuffer();
 
@@ -48,7 +48,7 @@ void GetSubgraph
     subgraph.Reserve( numEdgesSub );
 
     // Insert the edges
-    for( Int i=I.beg; i<I.end; ++i ) 
+    for( Int i=I.beg; i<I.end; ++i )
     {
         const Int offset = offsetBuf[i];
         const Int numConn = offsetBuf[i+1] - offset;
@@ -68,8 +68,8 @@ void GetSubgraph
   const vector<Int>& J,
         Graph& subgraph )
 {
-    DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    EL_DEBUG_CSE
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -79,8 +79,8 @@ void GetSubgraph
         Range<Int> J,
         Graph& subgraph )
 {
-    DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    EL_DEBUG_CSE
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -90,8 +90,8 @@ void GetSubgraph
   const vector<Int>& J,
         Graph& subgraph )
 {
-    DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    EL_DEBUG_CSE
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -101,7 +101,7 @@ void GetSubgraph
         Range<Int> J,
         DistGraph& subgraph )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int* targetBuf = graph.LockedTargetBuffer();
     const Int* sourceBuf = graph.LockedSourceBuffer();
     if( I.end == END )
@@ -112,10 +112,10 @@ void GetSubgraph
     const Int nSub = J.end-J.beg;
     const Int numEdges = graph.NumLocalEdges();
 
-    mpi::Comm comm = graph.Comm();
-    const int commSize = mpi::Size( comm );
+    const Grid& grid = graph.Grid();
+    const int commSize = grid.Size();
     subgraph.Empty();
-    subgraph.SetComm( comm );
+    subgraph.SetGrid( grid );
     subgraph.Resize( mSub, nSub );
 
     // Compute the metadata
@@ -153,11 +153,13 @@ void GetSubgraph
             ++offs[owner];
         }
     }
-    
+
     // Exchange and unpack the data
     // ============================
-    auto recvSources = mpi::AllToAll( sendSources, sendCounts, sendOffs, comm );
-    auto recvTargets = mpi::AllToAll( sendTargets, sendCounts, sendOffs, comm );
+    auto recvSources =
+      mpi::AllToAll( sendSources, sendCounts, sendOffs, grid.Comm() );
+    auto recvTargets =
+      mpi::AllToAll( sendTargets, sendCounts, sendOffs, grid.Comm() );
     const Int totalRecv = recvSources.size();
     subgraph.Reserve( totalRecv );
     for( Int i=0; i<totalRecv; ++i )
@@ -171,8 +173,8 @@ void GetSubgraph
   const vector<Int>& J,
         DistGraph& subgraph )
 {
-    DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    EL_DEBUG_CSE
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -182,8 +184,8 @@ void GetSubgraph
         Range<Int> J,
         DistGraph& subgraph )
 {
-    DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    EL_DEBUG_CSE
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 
@@ -193,8 +195,8 @@ void GetSubgraph
   const vector<Int>& J,
         DistGraph& subgraph )
 {
-    DEBUG_CSE
-    // TODO: Decide how to handle unsorted I and J with duplicates
+    EL_DEBUG_CSE
+    // TODO(poulson): Decide how to handle unsorted I and J with duplicates
     LogicError("This routine is not yet written");
 }
 

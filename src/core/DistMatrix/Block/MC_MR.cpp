@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -25,7 +25,7 @@ namespace El {
 template<typename T>
 BDM& BDM::operator=( const BDM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::Translate( A, *this );
     return *this;
 }
@@ -33,15 +33,15 @@ BDM& BDM::operator=( const BDM& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MC,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::RowFilter( A, *this );
     return *this;
 }
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MR,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::ColFilter( A, *this );
     return *this;
 }
@@ -49,7 +49,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,MR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MD,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -58,7 +58,7 @@ BDM& BDM::operator=( const DistMatrix<T,MD,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MD,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -66,8 +66,8 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,MD,BLOCK>& A )
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,MC,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -75,8 +75,8 @@ BDM& BDM::operator=( const DistMatrix<T,MR,MC,BLOCK>& A )
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,VR,STAR,BLOCK> A_VR_STAR( A );
     DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR( this->Grid() );
     A_VC_STAR.AlignWith( *this );
@@ -88,29 +88,29 @@ BDM& BDM::operator=( const DistMatrix<T,MR,STAR,BLOCK>& A )
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,MC,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VC,BLOCK> A_STAR_VC( A );
     DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR( this->Grid() );
     A_STAR_VR.AlignWith( *this );
     A_STAR_VR = A_STAR_VC;
-    A_STAR_VC.Empty(); 
+    A_STAR_VC.Empty();
     *this = A_STAR_VR;
     return *this;
 }
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VC,STAR,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::ColAllToAllPromote( A, *this );
     return *this;
 }
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VR,BLOCK> A_STAR_VR(this->Grid());
     A_STAR_VR.AlignWith( *this );
     A_STAR_VR = A;
@@ -120,8 +120,8 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,VC,BLOCK>& A )
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,VR,STAR,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,VC,STAR,BLOCK> A_VC_STAR(this->Grid());
     A_VC_STAR.AlignWith( *this );
     A_VC_STAR = A;
@@ -131,8 +131,8 @@ BDM& BDM::operator=( const DistMatrix<T,VR,STAR,BLOCK>& A )
 
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,VR,BLOCK>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::RowAllToAllPromote( A, *this );
     return *this;
 }
@@ -140,7 +140,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,VR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,STAR,STAR,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::Filter( A, *this );
     return *this;
 }
@@ -148,7 +148,7 @@ BDM& BDM::operator=( const DistMatrix<T,STAR,STAR,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -157,10 +157,11 @@ BDM& BDM::operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A )
 template<typename T>
 BDM& BDM::operator=( const BlockMatrix<T>& A )
 {
-    DEBUG_CSE
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == BLOCK
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = \
         static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
       *this = ACast;

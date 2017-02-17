@@ -176,7 +176,7 @@ BlackBox
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     HermitianEigInfo info;
     if( A.Height() != A.Width() )
@@ -260,7 +260,7 @@ HermitianEig
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
     if( ctrl.useSDC )
@@ -283,8 +283,8 @@ SequentialHelper
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( IsDistributed(A) )
           LogicError("A should not`have been distributed");
       if( IsDistributed(w) )
@@ -322,7 +322,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<Base<F>>& wPre,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( APre );
     auto& A = AProx.Get();
@@ -348,11 +348,6 @@ ScaLAPACKHelper
     const Int n = A.Height();
     w.Resize( n, 1 );
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    
-    const char uploChar = UpperOrLowerToChar( uplo );
     if( subset.rangeSubset )
     {
         LogicError("This option is not yet supported");
@@ -363,9 +358,12 @@ ScaLAPACKHelper
     }
     else
     {
+        const char uploChar = UpperOrLowerToChar( uplo );
+        auto descA = FillDesc( A );
         scalapack::HermitianEig
         ( uploChar, n, A.Buffer(), descA.data(), w.Buffer() );
     }
+
     return info;
 }
 
@@ -377,7 +375,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<Base<F>>& wPre,
   const HermitianEigCtrl<F>& ctrl=HermitianEigCtrl<F>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine should not be called");
     HermitianEigInfo info;
     return info;
@@ -392,7 +390,7 @@ BlackBox
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     HermitianEigInfo info;
 
@@ -503,7 +501,7 @@ HermitianEig
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     if( APre.Height() != APre.Width() )
         LogicError("Hermitian matrices must be square");
@@ -545,19 +543,19 @@ BlackBox
   Matrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HermitianEigInfo info;
 
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
-    Matrix<F> phase;
-    HermitianTridiag( uplo, A, phase );
+    Matrix<F> householderScalars;
+    HermitianTridiag( uplo, A, householderScalars );
 
     auto d = GetRealPartOfDiagonal(A);
     auto dSub = GetDiagonal( A, (uplo==LOWER?-1:1) );
     info.tridiagEigInfo =
       HermitianTridiagEig( d, dSub, w, Q, ctrl.tridiagEigCtrl );
 
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
 
     return info;
 }
@@ -571,7 +569,7 @@ BlackBox
   AbstractDistMatrix<F>& QPre, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = APre.Grid();
     HermitianEigInfo info;
 
@@ -579,8 +577,8 @@ BlackBox
     auto& A = AProx.Get();
 
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
-    DistMatrix<F,VC,STAR> phase(g);
-    HermitianTridiag( uplo, A, phase );
+    DistMatrix<F,VC,STAR> householderScalars(g);
+    HermitianTridiag( uplo, A, householderScalars );
 
     auto d = GetRealPartOfDiagonal(A);
     auto dSub = GetDiagonal( A, (uplo==LOWER?-1:1) );
@@ -592,7 +590,7 @@ BlackBox
 
         info.tridiagEigInfo =
           HermitianTridiagEig( d, dSub, w, Q, ctrl.tridiagEigCtrl );
-        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
     }
     else
     {
@@ -601,7 +599,7 @@ BlackBox
 
         info.tridiagEigInfo =
           HermitianTridiagEig( d, dSub, w, Q, ctrl.tridiagEigCtrl );
-        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+        herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
     }
 
     return info;
@@ -618,7 +616,7 @@ HermitianEig
   Matrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     auto subset = ctrl.tridiagEigCtrl.subset;
@@ -708,8 +706,8 @@ SequentialHelper
   AbstractDistMatrix<F>& Q, 
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( IsDistributed(A) )
           LogicError("A should not`have been distributed");
       if( IsDistributed(w) )
@@ -760,7 +758,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<F>& QPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR,BLOCK> AProx( APre );
     auto& A = AProx.Get();
@@ -794,12 +792,7 @@ ScaLAPACKHelper
     Q.AlignWith( A );
     Q.Resize( n, n );
 
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descQ = FillDesc( Q, context );
-    
-    const char uploChar = UpperOrLowerToChar( uplo );
+
     if( subset.rangeSubset )
     {
         LogicError("This option is not yet supported");
@@ -810,12 +803,16 @@ ScaLAPACKHelper
     }
     else
     {
+        const char uploChar = UpperOrLowerToChar( uplo );
+        auto descA = FillDesc( A );
+        auto descQ = FillDesc( Q );
         scalapack::HermitianEig
         ( uploChar, n,
           A.Buffer(), descA.data(),
           w.Buffer(),
           Q.Buffer(), descQ.data() );
     }
+
     return info;
 }
 
@@ -828,7 +825,7 @@ ScaLAPACKHelper
   AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine should not be called");
     HermitianEigInfo info;
     return info;
@@ -844,7 +841,7 @@ MRRR
   AbstractDistMatrix<F>& QPre,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = APre.Height();
     const Grid& g = APre.Grid();
@@ -862,8 +859,8 @@ MRRR
         if( A.Grid().Rank() == 0 )
             timer.Start();
     }
-    DistMatrix<F,STAR,STAR> phase(g);
-    HermitianTridiag( uplo, A, phase, ctrl.tridiagCtrl );
+    DistMatrix<F,STAR,STAR> householderScalars(g);
+    HermitianTridiag( uplo, A, householderScalars, ctrl.tridiagCtrl );
     if( ctrl.timeStages )
     {
         mpi::Barrier( A.DistComm() );
@@ -983,7 +980,7 @@ MRRR
             timer.Start();
         }
     }
-    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, phase, Q );
+    herm_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, householderScalars, Q );
     if( ctrl.timeStages )
     {
         mpi::Barrier( A.DistComm() );
@@ -1005,7 +1002,7 @@ HermitianEig
   AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
     auto subset = ctrl.tridiagEigCtrl.subset;

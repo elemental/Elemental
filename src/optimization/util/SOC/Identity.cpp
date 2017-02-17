@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,16 +11,17 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Identity
-(       Matrix<Real>& x, 
+(       Matrix<Real>& x,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = orders.Height();
-    DEBUG_ONLY(
-      if( firstInds.Height() != height || 
+    EL_DEBUG_ONLY(
+      if( firstInds.Height() != height ||
           firstInds.Width() != 1 || orders.Width() != 1 )
           LogicError("orders and firstInds should vectors of the same height");
     )
@@ -31,13 +32,14 @@ void Identity
             x(i) = 1;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Identity
-(       ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre )
+(       AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -54,8 +56,8 @@ void Identity
     auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = orders.Height();
-    DEBUG_ONLY(
-      if( firstInds.Height() != height || 
+    EL_DEBUG_ONLY(
+      if( firstInds.Height() != height ||
           firstInds.Width() != 1 || orders.Width() != 1 )
           LogicError("orders and firstInds should vectors of the same height");
     )
@@ -73,16 +75,17 @@ void Identity
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Identity
-(       DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     const Int height = orders.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( firstInds.Height() != height ||
           firstInds.Width() != 1 || orders.Width() != 1 )
           LogicError("orders and firstInds should vectors of the same height");
@@ -90,7 +93,7 @@ void Identity
 
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
-    x.SetComm( orders.Comm() );
+    x.SetGrid( orders.Grid() );
     Zeros( x, height, 1 );
     Real* xBuf = x.Matrix().Buffer();
     const Int localHeight = x.LocalHeight();
@@ -108,9 +111,9 @@ void Identity
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void Identity \
-  (       ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds ); \
+  (       AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds ); \
   template void Identity \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

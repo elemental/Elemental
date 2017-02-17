@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -14,17 +14,17 @@ namespace El {
 template<typename T>
 void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int mX = X.Height();
     const Int nX = X.Width();
 
     if( orientation == NORMAL )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( Y.Height() != mX || Y.Width() != nX )
               LogicError("Invalid submatrix sizes");
         )
-        // TODO: Optimize memory access patterns
+        // TODO(poulson): Optimize memory access patterns
         if( mX > nX )
         {
             for( Int j=0; j<nX; ++j )
@@ -40,11 +40,11 @@ void Swap( Orientation orientation, Matrix<T>& X, Matrix<T>& Y )
     else
     {
         const bool conjugate = ( orientation==ADJOINT );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( Y.Width() != mX || Y.Height() != nX )
               LogicError("Invalid submatrix sizes");
         )
-        // TODO: Optimize memory access patterns
+        // TODO(poulson): Optimize memory access patterns
         for( Int j=0; j<nX; ++j )
         {
             if( conjugate )
@@ -70,14 +70,14 @@ void Swap
   AbstractDistMatrix<T>& X,
   AbstractDistMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( orientation == NORMAL )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( Y.Height() != X.Height() || Y.Width() != X.Width() )
               LogicError("Invalid submatrix sizes");
         )
-        // TODO: Optimize communication
+        // TODO(poulson): Optimize communication
         unique_ptr<AbstractDistMatrix<T>> XCopy( X.Copy() );
         Copy( Y, X );
         Copy( *XCopy, Y );
@@ -85,12 +85,12 @@ void Swap
     else
     {
         const bool conjugate = ( orientation==ADJOINT );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( Y.Width() != X.Height() || Y.Height() != X.Width() )
               LogicError("Invalid submatrix sizes");
         )
-        // TODO: Optimize communication
-        unique_ptr<AbstractDistMatrix<T>> XCopy( X.Copy() );       
+        // TODO(poulson): Optimize communication
+        unique_ptr<AbstractDistMatrix<T>> XCopy( X.Copy() );
         Transpose( Y, X, conjugate );
         Transpose( *XCopy, Y, conjugate );
     }
@@ -99,8 +99,8 @@ void Swap
 template<typename T>
 void RowSwap( Matrix<T>& A, Int to, Int from )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
           LogicError
           ("Attempted invalid row swap, (",to,",",from,") of matrix of height ",
@@ -117,8 +117,8 @@ void RowSwap( Matrix<T>& A, Int to, Int from )
 template<typename T>
 void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
           LogicError
           ("Attempted invalid row swap, (",to,",",from,") of matrix of height ",
@@ -144,7 +144,7 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
         {
             const Int iLocTo = (to-colShift) / colStride;
             const Int iLocFrom = (from-colShift) / colStride;
-            blas::Swap( nLocal, &ABuf[iLocTo], ALDim, &ABuf[iLocFrom], ALDim ); 
+            blas::Swap( nLocal, &ABuf[iLocTo], ALDim, &ABuf[iLocFrom], ALDim );
         }
     }
     else if( toMod == colShift )
@@ -176,8 +176,8 @@ void RowSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 template<typename T>
 void ColSwap( Matrix<T>& A, Int to, Int from )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( to < 0 || to >= A.Width() || from < 0 || from >= A.Width() )
           LogicError
           ("Attempted invalid col swap, (",to,",",from,") of matrix of width ",
@@ -195,8 +195,8 @@ void ColSwap( Matrix<T>& A, Int to, Int from )
 template<typename T>
 void ColSwap( AbstractDistMatrix<T>& A, Int to, Int from )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( to < 0 || to >= A.Width() || from < 0 || from >= A.Width() )
           LogicError
           ("Attempted invalid col swap, (",to,",",from,") of matrix of width ",
@@ -243,8 +243,8 @@ template<typename T>
 void SymmetricSwap
 ( UpperOrLower uplo, Matrix<T>& A, Int to, Int from, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
@@ -262,9 +262,9 @@ void SymmetricSwap
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( to > from )
-        std::swap( to, from ); 
+        std::swap( to, from );
     if( uplo == LOWER )
-    { 
+    {
         // Bottom swap
         if( from+1 < n )
         {
@@ -296,7 +296,7 @@ void SymmetricSwap
         if( to > 0 )
         {
             auto ALeft = A( IR(0,n), IR(0,to) );
-            RowSwap( ALeft, to, from ); 
+            RowSwap( ALeft, to, from );
         }
     }
     else
@@ -332,18 +332,18 @@ void SymmetricSwap
         if( to > 0 )
         {
             auto ATop = A( IR(0,to), IR(0,n) );
-            ColSwap( ATop, to, from ); 
+            ColSwap( ATop, to, from );
         }
     }
 }
 
 template<typename T>
 void SymmetricSwap
-( UpperOrLower uplo, AbstractDistMatrix<T>& A, 
+( UpperOrLower uplo, AbstractDistMatrix<T>& A,
   Int to, Int from, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( to < 0 || to >= A.Height() || from < 0 || from >= A.Height() )
@@ -364,7 +364,7 @@ void SymmetricSwap
     if( to > from )
         std::swap( to, from );
     if( uplo == LOWER )
-    { 
+    {
         // Bottom swap
         if( from+1 < n )
         {
@@ -400,7 +400,7 @@ void SymmetricSwap
         {
             ADMPtr ALeft( A.Construct( A.Grid(), A.Root() ) );
             View( *ALeft, A, IR(0,n), IR(0,to) );
-            RowSwap( *ALeft, to, from ); 
+            RowSwap( *ALeft, to, from );
         }
     }
     else
@@ -440,7 +440,7 @@ void SymmetricSwap
         {
             ADMPtr ATop( A.Construct( A.Grid(), A.Root() ) );
             View( *ATop, A, IR(0,to), IR(0,n) );
-            ColSwap( *ATop, to, from ); 
+            ColSwap( *ATop, to, from );
         }
     }
 }
@@ -448,7 +448,7 @@ void SymmetricSwap
 template<typename T>
 void HermitianSwap( UpperOrLower uplo, Matrix<T>& A, Int to, Int from )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSwap( uplo, A, to, from, true );
 }
 
@@ -456,7 +456,7 @@ template<typename T>
 void HermitianSwap
 ( UpperOrLower uplo, AbstractDistMatrix<T>& A, Int to, Int from )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     SymmetricSwap( uplo, A, to, from, true );
 }
 

@@ -21,14 +21,14 @@ void Trr
         Matrix<T>& A, 
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("x and y must be of width 1");
     )
     const Int m = A.Height();
     const Int n = A.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Height() != m || y.Height() != n )
           LogicError("x and y must conform with A");
     )
@@ -69,8 +69,8 @@ void Trr
         AbstractDistMatrix<T>& APre,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("x and y must be of width 1");
     )
@@ -81,7 +81,7 @@ void Trr
     const Grid& g = A.Grid();
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( x.Height() != A.Height() || y.Height() != A.Width() )
           LogicError("x and y must conform with A");
     )

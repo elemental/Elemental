@@ -2,14 +2,14 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_HPP
 #define EL_CORE_HPP
 
-// This would ideally be included within core/imports/mpi.hpp, but it is 
+// This would ideally be included within core/imports/mpi.hpp, but it is
 // well-known that this must often be included first.
 #include <mpi.h>
 
@@ -31,16 +31,12 @@
 #include <type_traits> // std::enable_if
 #include <vector>
 
-// The DEBUG_ONLY and RELEASE_ONLY macros are, to the best of my knowledge, 
-// the only preprocessor names defined by Elemental that is not namespaced 
-// with "EL". Given how frequently they are used, I will leave it as-is 
-// unless/until a user/developer complains.
 #ifdef EL_RELEASE
-# define DEBUG_ONLY(cmd) 
-# define RELEASE_ONLY(cmd) cmd;
+# define EL_DEBUG_ONLY(cmd)
+# define EL_RELEASE_ONLY(cmd) cmd;
 #else
-# define DEBUG_ONLY(cmd) cmd;
-# define RELEASE_ONLY(cmd)
+# define EL_DEBUG_ONLY(cmd) cmd;
+# define EL_RELEASE_ONLY(cmd)
 #endif
 
 #ifdef EL_HAVE_NO_EXCEPT
@@ -58,8 +54,6 @@
 #define EL_CONCAT2(name1,name2) name1 ## name2
 #define EL_CONCAT(name1,name2) EL_CONCAT2(name1,name2)
 
-// TODO: Think of how to better decouple the following components
-
 #ifdef EL_HAVE_QUADMATH
 #include <quadmath.h>
 #endif
@@ -68,7 +62,7 @@ namespace El {
 
 typedef unsigned char byte;
 
-// If these are changes, you must make sure that they have 
+// If these are changes, you must make sure that they have
 // existing MPI datatypes. This is only sometimes true for 'long long'
 #ifdef EL_USE_64BIT_INTS
 typedef long long int Int;
@@ -159,6 +153,33 @@ template<> struct IsScalar<BigFloat>
 template<typename T> struct IsScalar<Complex<T>>
 { static const bool value=IsScalar<T>::value; };
 
+// For querying whether an element's type is a field
+// -------------------------------------------------
+template<typename T> struct IsField
+{ static const bool value=false; };
+template<> struct IsField<float>
+{ static const bool value=true; };
+template<> struct IsField<double>
+{ static const bool value=true; };
+template<> struct IsField<long double>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QD
+template<> struct IsField<DoubleDouble>
+{ static const bool value=true; };
+template<> struct IsField<QuadDouble>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_QUAD
+template<> struct IsField<Quad>
+{ static const bool value=true; };
+#endif
+#ifdef EL_HAVE_MPC
+template<> struct IsField<BigFloat>
+{ static const bool value=true; };
+#endif
+template<typename T> struct IsField<Complex<T>>
+{ static const bool value=IsField<T>::value; };
+
 // For querying whether an element's type is supported by the STL's math
 // ---------------------------------------------------------------------
 template<typename T> struct IsStdScalar
@@ -187,6 +208,23 @@ template<> struct IsStdScalar<Quad>
 #endif
 template<typename T> struct IsStdScalar<Complex<T>>
 { static const bool value=IsStdScalar<T>::value; };
+
+// For querying whether an element's type is a field supported by STL
+// ------------------------------------------------------------------
+template<typename T> struct IsStdField
+{ static const bool value=false; };
+template<> struct IsStdField<float>
+{ static const bool value=true; };
+template<> struct IsStdField<double>
+{ static const bool value=true; };
+template<> struct IsStdField<long double>
+{ static const bool value=true; };
+#ifdef EL_HAVE_QUAD
+template<> struct IsStdField<Quad>
+{ static const bool value=true; };
+#endif
+template<typename T> struct IsStdField<Complex<T>>
+{ static const bool value=IsStdField<T>::value; };
 
 } // namespace El
 
@@ -266,5 +304,8 @@ class DistMatrix;
 #include <El/core/DistMap.hpp>
 #include <El/core/DistMultiVec/impl.hpp>
 #include <El/core/DistSparseMatrix/impl.hpp>
+
+#include <El/core/Permutation.hpp>
+#include <El/core/DistPermutation.hpp>
 
 #endif // ifndef EL_CORE_HPP

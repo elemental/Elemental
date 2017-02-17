@@ -93,7 +93,7 @@ if testMehrotra:
   El.LPAffine(A,G,b,c,h,x,y,z,s,ctrl)
   endMehrotra = El.mpi.Time()
   if worldRank == 0:
-    print "Mehrotra time:", endMehrotra-startMehrotra
+    print('Mehrotra time: {} seconds'.format(endMehrotra-startMehrotra))
 
   if display:
     El.Display( x, "x Mehrotra" )
@@ -103,7 +103,7 @@ if testMehrotra:
 
   obj = El.Dot(c,x)
   if worldRank == 0:
-    print "Mehrotra c^T x =", obj
+    print('Mehrotra c^T x = {}'.format(obj))
 
 if testIPF:
   ctrl.approach = El.LP_IPF
@@ -119,7 +119,7 @@ if testIPF:
   El.LPAffine(A,G,b,c,h,x,y,z,s,ctrl)
   endIPF = El.mpi.Time()
   if worldRank == 0:
-    print "IPF time:", endIPF-startIPF
+    print('IPF time: {} seconds'.format(endIPF-startIPF))
 
   if display:
     El.Display( x, "x IPF" )
@@ -129,9 +129,6 @@ if testIPF:
 
   obj = El.Dot(c,x)
   if worldRank == 0:
-    print "IPF c^T x =", obj
+    print('IPF c^T x = {}'.format(obj))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

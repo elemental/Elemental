@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,12 +12,12 @@ namespace El {
 namespace qp {
 namespace direct {
 
-// Form 
+// Form
 //
 //    | Q + (x <> z)  A^T | | dx | = | -r_c - x <> r_mu |,
 //    |      A         0  | | dy |   | -r_b             |
 //
-// where 
+// where
 //
 //    r_b  = A x - b,
 //    r_c  = Q x + A^T y - z + c,
@@ -31,12 +31,12 @@ namespace direct {
 template<typename Real>
 void AugmentedKKT
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, 
+  const Matrix<Real>& A,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -56,12 +56,12 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& A,
   const ElementalMatrix<Real>& x,
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -84,14 +84,14 @@ void AugmentedKKT
 template<typename Real>
 void AugmentedKKT
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
         Real gamma,
         Real delta,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumEntries();
@@ -113,7 +113,7 @@ void AugmentedKKT
     if( onlyLower )
         J.Reserve( numEntriesA + numUsedEntriesQ + n+m );
     else
-        J.Reserve( 2*numEntriesA + numUsedEntriesQ + n+m ); 
+        J.Reserve( 2*numEntriesA + numUsedEntriesQ + n+m );
 
     // x o inv(z) + gamma^2*I updates
     for( Int j=0; j<n; ++j )
@@ -138,7 +138,7 @@ void AugmentedKKT
             J.QueueUpdate( A.Col(e), A.Row(e)+n, A.Value(e) );
     }
 
-    // -delta^2*I 
+    // -delta^2*I
     for( Int i=0; i<m; ++i )
         J.QueueUpdate( i+n, i+n, -delta*delta );
 
@@ -156,7 +156,7 @@ void AugmentedKKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
@@ -164,7 +164,7 @@ void AugmentedKKT
     auto& xLoc = x.LockedMatrix();
     auto& zLoc = z.LockedMatrix();
 
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, m+n, m+n );
     const Int JLocalHeight = J.LocalHeight();
 
@@ -172,9 +172,9 @@ void AugmentedKKT
     // =====================================
     Int numEntries = 0;
     numEntries += numEntriesA;
-    if( !onlyLower ) 
+    if( !onlyLower )
         numEntries += numEntriesA;
-    numEntries += x.LocalHeight(); 
+    numEntries += x.LocalHeight();
     for( Int e=0; e<numEntriesQ; ++e )
     {
         const Int i = Q.Row(e);
@@ -234,13 +234,13 @@ void AugmentedKKT
 
 template<typename Real>
 void AugmentedKKTRHS
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
   const Matrix<Real>& rc,
-  const Matrix<Real>& rb, 
+  const Matrix<Real>& rb,
   const Matrix<Real>& rmu,
         Matrix<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rmu.Height();
     const IR xInd(0,n), yInd(n,n+m);
@@ -263,13 +263,13 @@ void AugmentedKKTRHS
 
 template<typename Real>
 void AugmentedKKTRHS
-( const ElementalMatrix<Real>& x, 
+( const ElementalMatrix<Real>& x,
   const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rb,
   const ElementalMatrix<Real>& rmu,
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
@@ -304,11 +304,11 @@ template<typename Real>
 void AugmentedKKTRHS
 ( const DistMultiVec<Real>& x,
   const DistMultiVec<Real>& rc,
-  const DistMultiVec<Real>& rb, 
-  const DistMultiVec<Real>& rmu, 
+  const DistMultiVec<Real>& rb,
+  const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = rb.Height();
     const Int n = x.Height();
     auto& xLoc = x.LockedMatrix();
@@ -316,7 +316,7 @@ void AugmentedKKTRHS
     auto& rbLoc = rb.LockedMatrix();
     auto& rmuLoc = rmu.LockedMatrix();
 
-    d.SetComm( x.Comm() );
+    d.SetGrid( x.Grid() );
     Zeros( d, m+n, 1 );
 
     d.Reserve( rc.LocalHeight()+rb.LocalHeight() );
@@ -342,10 +342,10 @@ void ExpandAugmentedSolution
   const Matrix<Real>& rmu,
   const Matrix<Real>& d,
         Matrix<Real>& dx,
-        Matrix<Real>& dy, 
+        Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
 
@@ -370,10 +370,10 @@ void ExpandAugmentedSolution
   const ElementalMatrix<Real>& rmu,
   const ElementalMatrix<Real>& dPre,
         ElementalMatrix<Real>& dx,
-        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.GetLocked();
@@ -402,16 +402,16 @@ void ExpandAugmentedSolution
   const DistMultiVec<Real>& rmu,
   const DistMultiVec<Real>& d,
         DistMultiVec<Real>& dx,
-        DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rmu.Height();
     const Int m = d.Height() - n;
-    mpi::Comm comm = z.Comm();
-    dx.SetComm( comm );
-    dy.SetComm( comm );
-    dz.SetComm( comm );
+    const Grid& grid = z.Grid();
+    dx.SetGrid( grid );
+    dy.SetGrid( grid );
+    dz.SetGrid( grid );
 
     auto& dLoc = d.LockedMatrix();
 

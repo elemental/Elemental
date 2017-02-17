@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void KMS( Matrix<T>& K, Int n, T rho )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T
@@ -27,7 +27,7 @@ void KMS( Matrix<T>& K, Int n, T rho )
 template<typename T>
 void KMS( AbstractDistMatrix<T>& K, Int n, T rho )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     K.Resize( n, n );
     auto kmsFill = 
       [=]( Int i, Int j ) -> T

@@ -8,7 +8,6 @@
 #
 from util          import *
 from reflect       import *
-from perm          import *
 from factor        import *
 from condense      import *
 from spectral      import *

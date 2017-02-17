@@ -64,42 +64,23 @@ namespace El {
 namespace blacs { 
 
 template<typename scalarType>
-inline int Handle( const AbstractDistMatrix<scalarType>& A )
-{ return Handle( A.DistComm().comm ); }
-
-template<typename scalarType>
-inline int GridInit( int bHandle, const AbstractDistMatrix<scalarType>& A )
+inline int Context( const AbstractDistMatrix<scalarType>& A )
 {
     if( A.ColDist() != MC || A.RowDist() != MR )
         LogicError
         ("Only (MC,MR) distributions are currently supported with ScaLAPACK");
-    const int context =
-      GridInit
-      ( bHandle, A.Grid().Order()==COLUMN_MAJOR, A.ColStride(), A.RowStride() );
-    DEBUG_ONLY(
-      if( A.ColStride() != GridHeight(context) )
-          LogicError("Grid height did not match BLACS");
-      if( A.RowStride() != GridWidth(context) )
-          LogicError("Grid width did not match BLACS");
-      if( A.ColRank() != GridRow(context) )
-          LogicError("Grid row did not match BLACS");
-      if( A.RowRank() != GridCol(context) )
-          LogicError("Grid col did not match BLACS");
-    )
-    return context;
+    return A.Grid().BlacsMCMRContext();
 }
 
 } // namespace blacs
 
 template<typename scalarType>
 inline typename blacs::Desc
-FillDesc( const AbstractDistMatrix<scalarType>& A, int context )
+FillDesc( const AbstractDistMatrix<scalarType>& A )
 {
     if( A.ColCut() != 0 || A.RowCut() != 0 )
         LogicError("Cannot produce a meaningful descriptor if nonzero cut");
-    if( A.ColDist() != MC || A.RowDist() != MR )
-        LogicError
-        ("Only (MC,MR) distributions are currently supported with ScaLAPACK");
+    const int context = blacs::Context( A );
     typename blacs::Desc desc =
         { 1, context, int(A.Height()), int(A.Width()),
           int(A.BlockHeight()), int(A.BlockWidth()),

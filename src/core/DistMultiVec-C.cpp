@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -15,8 +15,8 @@ extern "C" {
 #define C_PROTO(SIG,SIGBASE,T) \
   /* Constructors and destructors */ \
   ElError ElDistMultiVecCreate_ ## SIG \
-  ( ElDistMultiVec_ ## SIG * A, MPI_Comm comm ) \
-  { EL_TRY( *A = CReflect( new DistMultiVec<T>(mpi::Comm(comm)) ) ) } \
+  ( ElDistMultiVec_ ## SIG * A, ElConstGrid grid ) \
+  { EL_TRY( *A = CReflect( new DistMultiVec<T>(*CReflect(grid)) ) ) } \
   ElError ElDistMultiVecDestroy_ ## SIG ( ElConstDistMultiVec_ ## SIG A ) \
   { EL_TRY( delete CReflect(A) ) } \
   /* Assignment and reconfiguration */ \
@@ -25,9 +25,9 @@ extern "C" {
   ElError ElDistMultiVecResize_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, ElInt height, ElInt width ) \
   { EL_TRY( CReflect(A)->Resize(height,width) ) } \
-  ElError ElDistMultiVecSetComm_ ## SIG \
-  ( ElDistMultiVec_ ## SIG A, MPI_Comm comm ) \
-  { EL_TRY( CReflect(A)->SetComm(mpi::Comm(comm)) ) } \
+  ElError ElDistMultiVecSetGrid_ ## SIG \
+  ( ElDistMultiVec_ ## SIG A, ElConstGrid grid ) \
+  { EL_TRY( CReflect(A)->SetGrid(*CReflect(grid)) ) } \
   /* Queries */ \
   ElError ElDistMultiVecHeight_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElInt* height ) \
@@ -47,9 +47,9 @@ extern "C" {
   ElError ElDistMultiVecLockedMatrix_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElConstMatrix_ ## SIG * ALoc ) \
   { EL_TRY( *ALoc = CReflect(&CReflect(A)->LockedMatrix()) ) } \
-  ElError ElDistMultiVecComm_ ## SIG \
-  ( ElConstDistMultiVec_ ## SIG A, MPI_Comm* comm ) \
-  { EL_TRY( *comm = CReflect(A)->Comm().comm ) } \
+  ElError ElDistMultiVecGrid_ ## SIG \
+  ( ElConstDistMultiVec_ ## SIG A, ElConstGrid* grid ) \
+  { EL_TRY( *grid = CReflect(&CReflect(A)->Grid()) ) } \
   ElError ElDistMultiVecBlocksize_ ## SIG \
   ( ElConstDistMultiVec_ ## SIG A, ElInt* blocksize ) \
   { EL_TRY( *blocksize = CReflect(A)->Blocksize() ) } \

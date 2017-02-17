@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_MAKESYMMETRIC_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     if( A.Height() != n )
         LogicError("Cannot make non-square matrix symmetric");
@@ -31,10 +31,10 @@ void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate )
             for( Int i=j+1; i<n; ++i )
             {
                 if( conjugate )
-                    ABuf[j+i*ldim] = Conj(ABuf[i+j*ldim]); 
+                    ABuf[j+i*ldim] = Conj(ABuf[i+j*ldim]);
                 else
                     ABuf[j+i*ldim] = ABuf[i+j*ldim];
-            }    
+            }
         }
     }
     else
@@ -56,7 +56,7 @@ template<typename T>
 void MakeSymmetric
 ( UpperOrLower uplo, ElementalMatrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -75,7 +75,7 @@ void MakeSymmetric
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -110,7 +110,7 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
     const Int* tBuf = A.LockedTargetBuffer();
     T* vBuf = A.ValueBuffer();
 
-    for( Int k=0; k<numEntries; ++k ) 
+    for( Int k=0; k<numEntries; ++k )
     {
         if( sBuf[k] != tBuf[k] )
         {
@@ -126,7 +126,7 @@ void MakeSymmetric( UpperOrLower uplo, SparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Cannot make non-square matrix symmetric");
 
@@ -179,28 +179,28 @@ void MakeSymmetric( UpperOrLower uplo, DistSparseMatrix<T>& A, bool conjugate )
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, ElementalMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, SparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 
 template<typename T>
 void MakeHermitian( UpperOrLower uplo, DistSparseMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeSymmetric( uplo, A, true );
 }
 

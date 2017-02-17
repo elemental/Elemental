@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -12,10 +12,10 @@
 
 namespace El {
 
-template<typename S,typename T> 
+template<typename S,typename T>
 void Diagonal( Matrix<S>& D, const vector<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -23,10 +23,10 @@ void Diagonal( Matrix<S>& D, const vector<T>& d )
         D(j,j) = d[j];
 }
 
-template<typename S,typename T> 
+template<typename S,typename T>
 void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -39,7 +39,7 @@ void Diagonal( Matrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.size();
     Zeros( D, n, n );
 
@@ -54,7 +54,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const vector<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -71,7 +71,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -92,7 +92,7 @@ void Diagonal( AbstractDistMatrix<S>& D, const AbstractDistMatrix<T>& d )
 template<typename S,typename T>
 void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
@@ -106,13 +106,13 @@ void Diagonal( SparseMatrix<S>& D, const Matrix<T>& d )
 template<typename S,typename T>
 void Diagonal( DistSparseMatrix<S>& D, const DistMultiVec<T>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
     const Int n = d.Height();
-    D.SetComm( d.Comm() );
+    D.SetGrid( d.Grid() );
     Zeros( D, n, n );
-    const Int localHeight = d.LocalHeight(); 
+    const Int localHeight = d.LocalHeight();
     D.Reserve( localHeight );
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {

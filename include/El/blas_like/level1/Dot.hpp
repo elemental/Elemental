@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_DOT_HPP
@@ -14,30 +14,30 @@ namespace El {
 template<typename T>
 T Dot( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
 template<typename T>
 T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HilbertSchmidt( A, B );
 }
 
-// TODO: Think about using a more stable accumulation algorithm?
+// TODO(poulson): Think about using a more stable accumulation algorithm?
 
-template<typename T> 
+template<typename T>
 T Dotu( const Matrix<T>& A, const Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     T sum(0);
@@ -49,17 +49,17 @@ T Dotu( const Matrix<T>& A, const Matrix<T>& B )
     return sum;
 }
 
-template<typename T> 
+template<typename T>
 T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("Matrices must be the same size");
     AssertSameGrids( A, B );
     if( A.DistData().colDist != B.DistData().colDist ||
         A.DistData().rowDist != B.DistData().rowDist )
         LogicError("Matrices must have the same distribution");
-    if( A.ColAlign() != B.ColAlign() || 
+    if( A.ColAlign() != B.ColAlign() ||
         A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
 
@@ -83,8 +83,8 @@ T Dotu( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
 template<typename T>
 T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
 {
-    DEBUG_CSE
-    if( !mpi::Congruent( A.Comm(), B.Comm() ) )
+    EL_DEBUG_CSE
+    if( !mpi::Congruent( A.Grid().Comm(), B.Grid().Comm() ) )
         LogicError("A and B must be congruent");
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         LogicError("A and B must have the same dimensions");
@@ -94,14 +94,14 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
         LogicError("A and B must own the same rows");
 
     T localInnerProd = 0;
-    const Int localHeight = A.LocalHeight(); 
+    const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
     auto& ALoc = A.LockedMatrix();
     auto& BLoc = B.LockedMatrix();
     for( Int j=0; j<width; ++j )
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )    
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             localInnerProd += ALoc(iLoc,j)*BLoc(iLoc,j);
-    return mpi::AllReduce( localInnerProd, A.Comm() );
+    return mpi::AllReduce( localInnerProd, A.Grid().Comm() );
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1

@@ -27,7 +27,7 @@ template<typename F>
 void Riccati
 ( Matrix<F>& W, Matrix<F>& X, SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Sign( W, ctrl );
     const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
@@ -52,7 +52,7 @@ void Riccati
   ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<F,F,MC,MR> WProx( WPre );
     auto& W = WProx.Get();
@@ -85,8 +85,8 @@ void Riccati
         Matrix<F>& X,
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( K.Height() != K.Width() )
@@ -122,8 +122,8 @@ void Riccati
         ElementalMatrix<F>& X, 
   SignCtrl<Base<F>> ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
       if( K.Height() != K.Width() )

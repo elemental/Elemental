@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,15 +13,16 @@ namespace soc {
 
 // Members of second-order cones are stored contiguously within the column
 // vector x, with the corresponding order of the cone each member belongs to
-// stored in the same index of 'order', and the first index of the cone 
+// stored in the same index of 'order', and the first index of the cone
 // being listed in the same index of 'firstInd'.
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside
-( const Matrix<Real>& x, 
+( const Matrix<Real>& x,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<Real> d;
     soc::Dets( x, d, orders, firstInds );
 
@@ -41,14 +42,15 @@ Int NumOutside
     return numNonSO;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside
-( const ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+( const AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -80,16 +82,18 @@ Int NumOutside
     return mpi::AllReduce( numLocalNonSOC, x.DistComm() );
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 Int NumOutside
-( const DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
+( const DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+    const Grid& grid = x.Grid();
 
-    DistMultiVec<Real> d(x.Comm());
+    DistMultiVec<Real> d(grid);
     soc::Dets( x, d, orders, firstInds, cutoff );
 
     Int numLocalNonSOC = 0;
@@ -102,7 +106,7 @@ Int NumOutside
         if( i == firstIndsLoc(iLoc) && dLoc(iLoc) < Real(0) )
             ++numLocalNonSOC;
     }
-    return mpi::AllReduce( numLocalNonSOC, x.Comm() );
+    return mpi::AllReduce( numLocalNonSOC, grid.Comm() );
 }
 
 #define PROTO(Real) \
@@ -111,9 +115,9 @@ Int NumOutside
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template Int NumOutside \
-  ( const ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  ( const AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Int cutoff ); \
   template Int NumOutside \
   ( const DistMultiVec<Real>& x, \
@@ -127,6 +131,6 @@ Int NumOutside
 #define EL_ENABLE_QUADDOUBLE
 #define EL_ENABLE_QUAD
 #define EL_ENABLE_BIGFLOAT
-#include <El/macros/Instantiate.h> 
+#include <El/macros/Instantiate.h>
 } // namespace soc
 } // namespace El

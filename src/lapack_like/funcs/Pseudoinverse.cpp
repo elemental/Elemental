@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,18 +12,18 @@ namespace El {
 
 // Replace A with its pseudoinverse
 
-template<typename F>
-void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
+template<typename Field>
+void Pseudoinverse( Matrix<Field>& A, Base<Field> tolerance )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real eps = limits::Epsilon<Real>();
 
     // Get the SVD of A
     Matrix<Real> s;
-    Matrix<F> U, V;
+    Matrix<Field> U, V;
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
     ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
@@ -37,20 +37,20 @@ void Pseudoinverse( Matrix<F>& A, Base<F> tolerance )
     DiagonalSolve( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Gemm( NORMAL, ADJOINT, F(1), V, U, A );
+    Gemm( NORMAL, ADJOINT, Field(1), V, U, A );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianPseudoinverse
-( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance )
+( UpperOrLower uplo, Matrix<Field>& A, Base<Field> tolerance )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     // Get the EVD of A
-    // TODO: Use a relative eigenvalue lower bound
+    // TODO(poulson): Use a relative eigenvalue lower bound
     Matrix<Real> w;
-    Matrix<F> Z;
+    Matrix<Field> Z;
     HermitianEig( uplo, A, w, Z );
 
     if( tolerance == Real(0) )
@@ -62,21 +62,22 @@ void HermitianPseudoinverse
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    auto omegaMap = 
-      [=]( Real omega ) { return ( omega < tolerance ? Real(0) : 1/omega ); };
-    EntrywiseMap( w, function<Real(Real)>(omegaMap) );
+    auto omegaMap =
+      [=]( const Real& omega )
+      { return ( omega < tolerance ? Real(0) : 1/omega ); };
+    EntrywiseMap( w, MakeFunction(omegaMap) );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-template<typename F>
-void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
+template<typename Field>
+void Pseudoinverse( AbstractDistMatrix<Field>& APre, Base<Field> tolerance )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     const Int m = A.Height();
@@ -87,7 +88,7 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
 
     // Get the SVD of A
     DistMatrix<Real,VR,STAR> s(g);
-    DistMatrix<F> U(g), V(g);
+    DistMatrix<Field> U(g), V(g);
     SVDCtrl<Real> ctrl;
     ctrl.overwrite = true;
     ctrl.bidiagSVDCtrl.approach = COMPACT_SVD;
@@ -101,24 +102,24 @@ void Pseudoinverse( ElementalMatrix<F>& APre, Base<F> tolerance )
     DiagonalSolve( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Gemm( NORMAL, ADJOINT, F(1), V, U, A );
+    Gemm( NORMAL, ADJOINT, Field(1), V, U, A );
 }
 
-template<typename F>
+template<typename Field>
 void HermitianPseudoinverse
-( UpperOrLower uplo, ElementalMatrix<F>& APre, Base<F> tolerance )
+( UpperOrLower uplo, AbstractDistMatrix<Field>& APre, Base<Field> tolerance )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.Get();
     const Grid& g = A.Grid();
 
     // Get the EVD of A
-    // TODO: Use a relative eigenvalue lower-bound
+    // TODO(poulson): Use a relative eigenvalue lower-bound
     DistMatrix<Real,VR,STAR> w(g);
-    DistMatrix<F> Z(g);
+    DistMatrix<Field> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     if( tolerance == Real(0) )
@@ -130,21 +131,23 @@ void HermitianPseudoinverse
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    auto omegaMap = 
-      [=]( Real omega ) { return ( omega < tolerance ? Real(0) : 1/omega ); };
-    EntrywiseMap( w, function<Real(Real)>(omegaMap) );
+    auto omegaMap =
+      [=]( const Real& omega )
+      { return ( omega < tolerance ? Real(0) : 1/omega ); };
+    EntrywiseMap( w, MakeFunction(omegaMap) );
 
     // Form the pseudoinverse
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-#define PROTO(F) \
-  template void Pseudoinverse( Matrix<F>& A, Base<F> tolerance ); \
-  template void Pseudoinverse( ElementalMatrix<F>& A, Base<F> tolerance ); \
+#define PROTO(Field) \
+  template void Pseudoinverse( Matrix<Field>& A, Base<Field> tolerance ); \
+  template void Pseudoinverse \
+  ( AbstractDistMatrix<Field>& A, Base<Field> tolerance ); \
   template void HermitianPseudoinverse \
-  ( UpperOrLower uplo, Matrix<F>& A, Base<F> tolerance ); \
+  ( UpperOrLower uplo, Matrix<Field>& A, Base<Field> tolerance ); \
   template void HermitianPseudoinverse \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, Base<F> tolerance );
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, Base<Field> tolerance );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

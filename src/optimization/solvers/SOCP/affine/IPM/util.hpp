@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -17,86 +17,86 @@ namespace affine {
 // ==========
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& G,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z, 
+        Matrix<Real>& z,
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b, 
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x, 
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& s,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& b,
+  const DistMatrix<Real>& c,
+  const DistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& x,
+        DistMatrix<Real>& y,
+        DistMatrix<Real>& z,
+        DistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift, Int cutoff );
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z, 
+        Matrix<Real>& z,
         Matrix<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift, Int cutoffPar, 
+  bool primalInit, bool dualInit, bool standardShift, Int cutoffPar,
   const RegSolveCtrl<Real>& solveCtrl );
 
 // Full system
 // ===========
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& G,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& J, 
+        Matrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& w,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& J, 
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& w,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& J,
   bool onlyLower=true, Int cutoff=1000 );
 template<typename Real>
 void KKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
   const Matrix<Real>& w,
   const Matrix<Int>& orders,
@@ -104,7 +104,7 @@ void KKT
   const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower=false );
 template<typename Real>
 void StaticKKT
@@ -129,11 +129,11 @@ void FinishKKT
   const Matrix<Int>& origToSparseOrders,
   const Matrix<Int>& origToSparseFirstInds,
         Int kSparse,
-        SparseMatrix<Real>& J, 
+        SparseMatrix<Real>& J,
   bool onlyLower=false );
 template<typename Real>
 void KKT
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
   const DistMultiVec<Real>& w,
   const DistMultiVec<Int>& orders,
@@ -141,7 +141,7 @@ void KKT
   const DistMultiVec<Int>& origToSparseOrders,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
-        DistSparseMatrix<Real>& J, 
+        DistSparseMatrix<Real>& J,
   bool onlyLower=false, Int cutoffPar=1000 );
 template<typename Real>
 void StaticKKT
@@ -166,14 +166,14 @@ void FinishKKT
   const DistMultiVec<Int>& origToSparseOrders,
   const DistMultiVec<Int>& origToSparseFirstInds,
         Int kSparse,
-        DistSparseMatrix<Real>& J, 
+        DistSparseMatrix<Real>& J,
   bool onlyLower=false, Int cutoffPar=1000 );
 
 template<typename Real>
 void KKTRHS
-( const Matrix<Real>& rc, 
+( const Matrix<Real>& rc,
   const Matrix<Real>& rb,
-  const Matrix<Real>& rh, 
+  const Matrix<Real>& rh,
   const Matrix<Real>& rmu,
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,
@@ -181,20 +181,20 @@ void KKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void KKTRHS
-( const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb,
-  const ElementalMatrix<Real>& rh,
-  const ElementalMatrix<Real>& rmu,
-  const ElementalMatrix<Real>& wRoot,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& d,
+( const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rb,
+  const DistMatrix<Real>& rh,
+  const DistMatrix<Real>& rmu,
+  const DistMatrix<Real>& wRoot,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        AbstractDistMatrix<Real>& d,
   Int cutoff=1000 );
 template<typename Real>
 void KKTRHS
-( const Matrix<Real>& rc, 
+( const Matrix<Real>& rc,
   const Matrix<Real>& rb,
-  const Matrix<Real>& rh, 
+  const Matrix<Real>& rh,
   const Matrix<Real>& rmu,
   const Matrix<Real>& wRoot,
   const Matrix<Int>& orders,

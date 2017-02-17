@@ -16,8 +16,12 @@ import Grid as G
 class DistData(ctypes.Structure):
   _fields_ = [('colDist',c_uint),
               ('rowDist',c_uint), 
+              ('blockHeight',iType),
+              ('blockWidth',iType),
               ('colAlign',c_int),
               ('rowAlign',c_int),
+              ('colCut',iType),
+              ('rowCut',iType),
               ('root',c_int),
               ('grid',c_void_p)]
 
@@ -31,7 +35,7 @@ class DistMatrix(object):
   lib.ElDistMatrixCreateSpecific_c.argtypes = \
   lib.ElDistMatrixCreateSpecific_z.argtypes = \
     [c_uint,c_uint,c_void_p,POINTER(c_void_p)]
-  def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.DefaultGrid()):
+  def __init__(self,tag=dTag,colDist=MC,rowDist=MR,grid=G.Grid.Default()):
     self.obj = c_void_p()
     CheckTag(tag)
     args = [colDist,rowDist,grid.obj,pointer(self.obj)]
@@ -644,7 +648,7 @@ class DistMatrix(object):
   lib.ElDistMatrixGrid_z.argtypes = \
     [c_void_p,POINTER(c_void_p)]
   def Grid(self):
-    grid = G.Grid()
+    grid = G.Grid(create=False)
     args = [self.obj,pointer(grid.obj)]
     if   self.tag == iTag: lib.ElDistMatrixGrid_i(*args)
     elif self.tag == sTag: lib.ElDistMatrixGrid_s(*args)
@@ -920,7 +924,8 @@ class DistMatrix(object):
     else: DataExcept()
     return rank.value
 
-  # HERE
+  # Return this process's rank in the cross communicator
+  # ----------------------------------------------------
   lib.ElDistMatrixCrossRank_i.argtypes = \
   lib.ElDistMatrixCrossRank_s.argtypes = \
   lib.ElDistMatrixCrossRank_d.argtypes = \
@@ -938,6 +943,8 @@ class DistMatrix(object):
     else: DataExcept()
     return rank.value
 
+  # Return this process's rank in the redundant communicator
+  # --------------------------------------------------------
   lib.ElDistMatrixRedundantRank_i.argtypes = \
   lib.ElDistMatrixRedundantRank_s.argtypes = \
   lib.ElDistMatrixRedundantRank_d.argtypes = \
@@ -955,6 +962,8 @@ class DistMatrix(object):
     else: DataExcept()
     return rank.value
 
+  # Return the rank of the process in the cross comm. that owns the data
+  # --------------------------------------------------------------------
   lib.ElDistMatrixRoot_i.argtypes = \
   lib.ElDistMatrixRoot_s.argtypes = \
   lib.ElDistMatrixRoot_d.argtypes = \
@@ -972,6 +981,8 @@ class DistMatrix(object):
     else: DataExcept()
     return root.value
 
+  # Return True if this process is in the team that is assigned data
+  # ----------------------------------------------------------------
   lib.ElDistMatrixParticipating_i.argtypes = \
   lib.ElDistMatrixParticipating_s.argtypes = \
   lib.ElDistMatrixParticipating_d.argtypes = \
@@ -989,6 +1000,8 @@ class DistMatrix(object):
     else: DataExcept()
     return partic.value
 
+  # Return the rank (in the column communicator) of the process owning row 'i'
+  # --------------------------------------------------------------------------
   lib.ElDistMatrixRowOwner_i.argtypes = \
   lib.ElDistMatrixRowOwner_s.argtypes = \
   lib.ElDistMatrixRowOwner_d.argtypes = \
@@ -1006,6 +1019,8 @@ class DistMatrix(object):
     else: DataExcept()
     return owner.value
 
+  # Return the rank (in the row communicator) of the process owning column 'j'
+  # --------------------------------------------------------------------------
   lib.ElDistMatrixColOwner_i.argtypes = \
   lib.ElDistMatrixColOwner_s.argtypes = \
   lib.ElDistMatrixColOwner_d.argtypes = \
@@ -1023,6 +1038,8 @@ class DistMatrix(object):
     else: DataExcept()
     return owner.value
 
+  # Return the rank (in the dist. comm.) of the process owning entry (i,j)
+  # ----------------------------------------------------------------------
   lib.ElDistMatrixOwner_i.argtypes = \
   lib.ElDistMatrixOwner_s.argtypes = \
   lib.ElDistMatrixOwner_d.argtypes = \
@@ -1039,6 +1056,8 @@ class DistMatrix(object):
     elif self.tag == zTag: lib.ElDistMatrixOwner_z(*args)
     else: DataExcept()
     return owner.value
+
+  # NOTE(poulson): Short descriptions still need to be added from here down
 
   lib.ElDistMatrixLocalRow_i.argtypes = \
   lib.ElDistMatrixLocalRow_s.argtypes = \

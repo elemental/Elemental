@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_TRANSPOSECONTRACT_HPP
@@ -16,7 +16,7 @@ void TransposeContract
 ( const ElementalMatrix<T>& A,
         ElementalMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == V && A.RowDist() == Partial(U) )
@@ -25,7 +25,7 @@ void TransposeContract
     }
     else
     {
-        unique_ptr<ElementalMatrix<T>> 
+        unique_ptr<ElementalMatrix<T>>
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, true );
@@ -47,7 +47,7 @@ void TransposeContract
 ( const BlockMatrix<T>& A,
         BlockMatrix<T>& B, bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Dist U = B.ColDist();
     const Dist V = B.RowDist();
     if( A.ColDist() == V && A.RowDist() == Partial(U) )
@@ -56,7 +56,7 @@ void TransposeContract
     }
     else
     {
-        unique_ptr<BlockMatrix<T>> 
+        unique_ptr<BlockMatrix<T>>
             ASumFilt( B.ConstructTranspose(B.Grid(),B.Root()) );
         if( B.ColConstrained() )
             ASumFilt->AlignRowsWith( B, true );
@@ -76,7 +76,7 @@ void TransposeContract
 template<typename T>
 void AdjointContract( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeContract( A, B, true );
 }
 
@@ -85,7 +85,7 @@ void AdjointContract
 ( const BlockMatrix<T>& A,
         BlockMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeContract( A, B, true );
 }
 

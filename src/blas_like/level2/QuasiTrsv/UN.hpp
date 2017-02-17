@@ -13,8 +13,8 @@ namespace quasitrsv {
 template<typename F>
 void UNUnb( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("U must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -93,8 +93,8 @@ void UNUnb( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 template<typename F>
 void UN( const Matrix<F>& U, Matrix<F>& x, bool checkIfSingular=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( U.Height() != U.Width() )
           LogicError("U must be square");
       if( x.Width() != 1 && x.Height() != 1 )
@@ -147,8 +147,8 @@ void UN
         AbstractDistMatrix<F>& xPre,
   bool checkIfSingular=false )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( UPre, xPre );
       if( UPre.Height() != UPre.Width() )
           LogicError("U must be square");

@@ -69,14 +69,14 @@ DNorm = El.FrobeniusNorm( D )
 
 ctrl = El.LeastSquaresCtrl_d()
 ctrl.progress = True
-ctrl.solveCtrl.relTol = 1e-10
-ctrl.solveCtrl.relTolRefine = 1e-12
-ctrl.solveCtrl.progress = True
+ctrl.sqsdCtrl.solveCtrl.relTol = 1e-10
+ctrl.sqsdCtrl.solveCtrl.relTolRefine = 1e-12
+ctrl.sqsdCtrl.solveCtrl.progress = True
 
 startLSE = El.mpi.Time()
 X = El.LSE(A,B,C,D,ctrl)
 endLSE = El.mpi.Time()
-print "LSE time:", endLSE-startLSE, "seconds"
+print('LSE time: {} seconds'.format(endLSE-startLSE))
 if display:
   El.Display( X, "X" )
 
@@ -87,14 +87,14 @@ El.Multiply( El.NORMAL, -1., A, X, 1., E )
 residNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "C - A X" )
-print "|| C - A X ||_F / || C ||_F =", residNorm/CNorm
+print('|| C - A X ||_F / || C ||_F = {}'.format(residNorm/CNorm))
 
 El.Copy( D, E )
 El.Multiply( El.NORMAL, -1., B, X, 1., E )
 equalNorm = El.FrobeniusNorm( E )
 if display:
   El.Display( E, "D - B X" )
-print "|| D - B X ||_F / || D ||_F =", equalNorm/DNorm
+print('|| D - B X ||_F / || D ||_F = '.format(equalNorm/DNorm))
 
 # Now try solving a weighted least squares problem
 # (as lambda -> infinity, the exact solution converges to that of LSE)
@@ -117,14 +117,16 @@ def SolveWeighted(A,B,C,D,lambd):
   residNorm = El.FrobeniusNorm( E )
   if display:
     El.Display( E, "C - A X" )
-  print "lambda=", lambd, ": || C - A X ||_F / || C ||_F =", residNorm/CNorm
+  print('lambda={}: || C - A X ||_F / || C ||_F = {}'.format(lambd,
+    residNorm/CNorm))
 
   El.Copy( D, E )
   El.Multiply( El.NORMAL, -1., B, X, 1., E )
   equalNorm = El.FrobeniusNorm( E )
   if display:
     El.Display( E, "D - B X" )
-  print "lambda=", lambd, ": || D - B X ||_F / || D ||_F =", equalNorm/DNorm
+  print('lambda={}: || D - B X ||_F / || D ||_F = {}'.format(lambd,
+    equalNorm/DNorm))
 
 SolveWeighted(A,B,C,D,1)
 SolveWeighted(A,B,C,D,10)
@@ -134,6 +136,4 @@ SolveWeighted(A,B,C,D,10000)
 SolveWeighted(A,B,C,D,100000)
 SolveWeighted(A,B,C,D,1000000)
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-raw_input('Press Enter to exit')

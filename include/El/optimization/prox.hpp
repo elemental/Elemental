@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_OPTIMIZATION_PROX_HPP
@@ -17,28 +17,34 @@ namespace El {
 // Clipping
 // --------
 template<typename Real>
-void LowerClip( Matrix<Real>& X, Real lowerBound=0 );
+void LowerClip( Matrix<Real>& X, const Real& lowerBound=0 );
 template<typename Real>
-void LowerClip( AbstractDistMatrix<Real>& X, Real lowerBound=0 );
+void LowerClip( AbstractDistMatrix<Real>& X, const Real& lowerBound=0 );
 template<typename Real>
-void LowerClip( DistMultiVec<Real>& X, Real lowerBound=0 );
+void LowerClip( DistMultiVec<Real>& X, const Real& lowerBound=0 );
 
 template<typename Real>
-void UpperClip( Matrix<Real>& X, Real upperBound=0 );
+void UpperClip( Matrix<Real>& X, const Real& upperBound=0 );
 template<typename Real>
-void UpperClip( AbstractDistMatrix<Real>& X, Real upperBound=0 );
+void UpperClip( AbstractDistMatrix<Real>& X, const Real& upperBound=0 );
 template<typename Real>
-void UpperClip( DistMultiVec<Real>& X, Real upperBound=0 );
+void UpperClip( DistMultiVec<Real>& X, const Real& upperBound=0 );
 
 template<typename Real>
 void Clip
-( Matrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
+( Matrix<Real>& X,
+  const Real& lowerBound=0,
+  const Real& upperBound=1 );
 template<typename Real>
 void Clip
-( AbstractDistMatrix<Real>& X, Real lowerBound=0, Real upperBound=1 );
+( AbstractDistMatrix<Real>& X,
+  const Real& lowerBound=0,
+  const Real& upperBound=1 );
 template<typename Real>
 void Clip
-( DistMultiVec<Real>& X, Real lowerBound=0, Real upperBound=1 );
+( DistMultiVec<Real>& X,
+  const Real& lowerBound=0,
+  const Real& upperBound=1 );
 
 // Frobenius-norm proximal map
 // ---------------------------
@@ -46,18 +52,18 @@ void Clip
 //     arg min || A ||_F + rho/2 || A - A0 ||_F^2
 //        A
 // where A0 in the input matrix.
-template<typename F>
-void FrobeniusProx( Matrix<F>& A, Base<F> rho );
-template<typename F>
-void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> rho );
+template<typename Field>
+void FrobeniusProx( Matrix<Field>& A, const Base<Field>& rho );
+template<typename Field>
+void FrobeniusProx( AbstractDistMatrix<Field>& A, const Base<Field>& rho );
 
 // Hinge-loss proximal map
 // -----------------------
-// TODO: Description
+// TODO(poulson): Description
 template<typename Real>
-void HingeLossProx( Matrix<Real>& A, Real rho );
+void HingeLossProx( Matrix<Real>& A, const Real& rho );
 template<typename Real>
-void HingeLossProx( AbstractDistMatrix<Real>& A, Real rho );
+void HingeLossProx( AbstractDistMatrix<Real>& A, const Real& rho );
 
 // Logistic proximal map
 // ---------------------
@@ -66,49 +72,91 @@ void HingeLossProx( AbstractDistMatrix<Real>& A, Real rho );
 //       A
 // where A0 is the input matrix.
 template<typename Real>
-void LogisticProx( Matrix<Real>& A, Real rho, Int numIts=5 );
+void LogisticProx
+( Matrix<Real>& A, const Real& rho, Int numIts=5 );
 template<typename Real>
-void LogisticProx( AbstractDistMatrix<Real>& A, Real rho, Int numIts=5 );
+void LogisticProx
+( AbstractDistMatrix<Real>& A, const Real& rho, Int numIts=5 );
 
 // Singular-value soft thresholding
 // --------------------------------
-template<typename F>
-Int SVT( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int SVT( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int SVT( Matrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
-template<typename F>
+template<typename Field>
 Int SVT
-( ElementalMatrix<F>& A, Base<F> rho, Int relaxedRank, bool relative=false );
-template<typename F,Dist U>
-Int SVT( DistMatrix<F,U,STAR>& A, Base<F> rho, bool relative=false );
+( Matrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
+template<typename Field>
+Int SVT
+( AbstractDistMatrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
+template<typename Field>
+Int SVT
+( Matrix<Field>& A,
+  const Base<Field>& rho,
+  Int relaxedRank,
+  bool relative=false );
+template<typename Field>
+Int SVT
+( AbstractDistMatrix<Field>& A,
+  const Base<Field>& rho,
+  Int relaxedRank,
+  bool relative=false );
+template<typename Field,Dist U>
+Int SVT
+( DistMatrix<Field,U,STAR>& A,
+  const Base<Field>& rho,
+  bool relative=false );
 
 namespace svt {
 
-// TODO: Add SVT control structure
+// TODO(poulson): Add SVT control structure
 
-template<typename F>
-Int Cross( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int Cross( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int Cross( DistMatrix<F,VC,STAR>& A, Base<F> rho, bool relative=false );
+template<typename Field>
+Int Cross
+( Matrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
+template<typename Field>
+Int Cross
+( AbstractDistMatrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
+template<typename Field>
+Int Cross
+( DistMatrix<Field,VC,STAR>& A,
+  const Base<Field>& rho,
+  bool relative=false );
 
-template<typename F>
-Int Normal( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
-Int Normal( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
+template<typename Field>
+Int Normal
+( Matrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
+template<typename Field>
+Int Normal
+( AbstractDistMatrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
 
-template<typename F>
+template<typename Field>
 Int PivotedQR
-( Matrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
-template<typename F>
+( Matrix<Field>& A,
+  const Base<Field>& rho,
+  Int numSteps,
+  bool relative=false );
+template<typename Field>
 Int PivotedQR
-( ElementalMatrix<F>& A, Base<F> rho, Int numSteps, bool relative=false );
+( AbstractDistMatrix<Field>& A,
+  const Base<Field>& rho,
+  Int numSteps,
+  bool relative=false );
 
-template<typename F>
-Int TSQR( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
+template<typename Field>
+Int TSQR
+( AbstractDistMatrix<Field>& A,
+  const Base<Field>& rho,
+  bool relative=false );
 
 } // namespace svt
 
@@ -116,17 +164,17 @@ Int TSQR( ElementalMatrix<F>& A, Base<F> rho, bool relative=false );
 // -----------------
 // Returns the solution to
 //     arg min || vec(A) ||_1 + rho/2 || A - A0 ||_F^2
-//        A 
+//        A
 // where A0 is the input matrix.
-template<typename F>
-F SoftThreshold( F alpha, Base<F> rho );
+template<typename Field>
+Field SoftThreshold( const Field& alpha, const Base<Field>& rho );
 
-template<typename F>
+template<typename Field>
 void SoftThreshold
-( Matrix<F>& A, Base<F> rho, bool relative=false );
-template<typename F>
+( Matrix<Field>& A, const Base<Field>& rho, bool relative=false );
+template<typename Field>
 void SoftThreshold
-( AbstractDistMatrix<F>& A, Base<F> rho, bool relative=false );
+( AbstractDistMatrix<Field>& A, const Base<Field>& rho, bool relative=false );
 
 } // namespace El
 

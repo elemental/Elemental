@@ -14,7 +14,7 @@ namespace El {
 template<typename Real>
 Real Choose( Int n, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 0 || k > n )
         LogicError("Choose(",n,",",k,") is not defined");
 
@@ -25,7 +25,7 @@ Real Choose( Int n, Int k )
     if( n-k < k )
         k = n-k;
 
-    // Accumulate the product (TODO: Use higher precision?)
+    // Accumulate the product (TODO(poulson): Use higher precision?)
     Real product = 1;
     for( Int j=0; j<k; ++j )
         product *= Real(n-j)/Real(k-j);
@@ -36,7 +36,7 @@ Real Choose( Int n, Int k )
 template<typename Real>
 Real LogChoose( Int n, Int k )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( k < 0 || k > n )
         LogicError("Choose(",n,",",k,") is not defined");
 
@@ -51,24 +51,24 @@ Real LogChoose( Int n, Int k )
     if( n-k < k )
         k = n-k;
 
-    // Accumulate the log of the product (TODO: Use higher precision?)
+    // Accumulate the log of the product (TODO(poulson): Use higher precision?)
     Real logProd = 0;
     for( Int j=0; j<k; ++j )
         logProd += Log(Real(n-j)/Real(k-j));
-    // logProd += Log(Real(n-j)) - Log(Real(k-j)).
 
     return logProd;
 }
 
 // Compute log( choose(n,k) ) for k=0,...,n in quadratic time
-// TODO: Use the formula from LogChoose to compute the relevant partial 
-//       summations in linear time (which should allow for the final solution 
-//       to be evaluated in linear time).
-// TODO: A parallel prefix version of this algorithm.
+// TODO(poulson): Use the formula from LogChoose to compute the relevant partial
+// summations in linear time (which should allow for the final solution to be
+// evaluated in linear time).
+//
+// TODO(poulson): A parallel prefix version of this algorithm.
 template<typename Real>
 vector<Real> LogBinomial( Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<Real> binom(n+1,0), binomTmp(n+1,0);
     for( Int j=1; j<=n; ++j )
     {
@@ -82,11 +82,11 @@ vector<Real> LogBinomial( Int n )
 // This is unfortunately quadratic time
 // Compute log( alpha_j ) for j=1,...,n
 //
-// TODO: Attempt to reduce this to linear time.
+// TODO(poulson): Attempt to reduce this to linear time.
 template<typename Real>
 vector<Real> LogEulerian( Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<Real> euler(n,0), eulerTmp(n,0);
     for( Int j=1; j<n; ++j )
     {
@@ -112,8 +112,8 @@ T UnitCell()
 template<typename Real,typename>
 Real SampleUniformNaive( const Real& a, const Real& b )
 {
-    // TODO: A better general-purpose uniform random number generator
-    //       that draws random bits?
+    // TODO(poulson): A better general-purpose uniform random number generator
+    // that draws random bits?
 #ifdef EL_HAVE_CXX11RANDOM
     std::mt19937& gen = Generator();
     std::uniform_real_distribution<long double>

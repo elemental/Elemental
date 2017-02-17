@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_TRANSPOSEAXPY_HPP
@@ -18,7 +18,7 @@ void TransposeAxpy
         Matrix<T>& Y,
         bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const T alpha = T(alphaS);
     const Int mX = X.Height();
     const Int nX = X.Width();
@@ -34,7 +34,7 @@ void TransposeAxpy
         const Int lengthX = ( nX==1 ? mX : nX );
         const Int incX = ( nX==1 ? 1  : ldX );
         const Int incY = ( nY==1 ? 1  : ldY );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int mY = Y.Height();
           const Int lengthY = ( nY==1 ? mY : nY );
           if( lengthX != lengthY )
@@ -48,7 +48,7 @@ void TransposeAxpy
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           const Int mY = Y.Height();
           if( mX != nY || nX != mY )
               LogicError("Nonconformal TransposeAxpy");
@@ -83,13 +83,13 @@ void TransposeAxpy
         SparseMatrix<T>& Y,
         bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( X.Height() != Y.Width() || X.Width() != Y.Height() )
         LogicError("X and Y must have transposed dimensions");
     const T alpha = T(alphaS);
     const Int numEntries = X.NumEntries();
     Y.Reserve( Y.NumEntries()+numEntries );
-    for( Int k=0; k<numEntries; ++k ) 
+    for( Int k=0; k<numEntries; ++k )
     {
         const T value = alpha*( conjugate ? Conj(X.Value(k)) : X.Value(k) );
         Y.QueueUpdate( X.Col(k), X.Row(k), value );
@@ -104,16 +104,16 @@ void TransposeAxpy
         ElementalMatrix<T>& B,
         bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B );
       if( A.Height() != B.Width() || A.Width() != B.Height() )
           LogicError("A and B must have transposed dimensions");
     )
     const T alpha = T(alphaS);
 
-    const ElementalData ADistData = A.DistData();
-    const ElementalData BDistData = B.DistData();
+    const DistData& ADistData = A.DistData();
+    const DistData& BDistData = B.DistData();
     if( ADistData.colDist == BDistData.rowDist &&
         ADistData.rowDist == BDistData.colDist &&
         ADistData.colAlign==BDistData.rowAlign &&
@@ -139,12 +139,12 @@ void TransposeAxpy
         DistSparseMatrix<T>& B,
         bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != B.Width() || A.Width() != B.Height() )
         LogicError("A and B must have transposed dimensions");
-    if( A.Comm() != B.Comm() )
+    if( A.Grid().Comm() != B.Grid().Comm() )
         LogicError("A and B must have the same communicator");
-    
+
     const Int numLocalEntries = A.NumLocalEntries();
 
     T alpha(alphaS);
@@ -159,14 +159,14 @@ void TransposeAxpy
 template<typename T,typename S>
 void AdjointAxpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 
 template<typename T,typename S>
 void AdjointAxpy( S alphaS, const SparseMatrix<T>& X, SparseMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 
@@ -174,7 +174,7 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alphaS, const ElementalMatrix<T>& X, ElementalMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 
@@ -182,7 +182,7 @@ template<typename T,typename S>
 void AdjointAxpy
 ( S alphaS, const DistSparseMatrix<T>& X, DistSparseMatrix<T>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     TransposeAxpy( alphaS, X, Y, true );
 }
 

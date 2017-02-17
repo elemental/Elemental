@@ -2,27 +2,27 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 #include "./Util.hpp"
 
-// The following routines are adaptations of the approach uses by 
-// Saunders et al. (originally recommended by Joseph Fourer) for iteratively 
+// The following routines are adaptations of the approach uses by
+// Saunders et al. (originally recommended by Joseph Fourer) for iteratively
 // rescaling the columns and rows by their approximate geometric means in order
 // to better scale the original problem. After this iteration is finished,
-// the columns or rows are rescaled so that their maximum entry has magnitude 
+// the columns or rows are rescaled so that their maximum entry has magnitude
 // one (unless the row/column is identically zero).
 //
 // The implementation of Saunders et al. is commonly referred to as either
-// gmscale.m or gmscal.m. 
+// gmscale.m or gmscal.m.
 
 namespace El {
 
 template<typename Real>
-Real DampScaling( Real alpha )
+Real DampScaling( const Real& alpha )
 {
     static const Real tol = Pow(limits::Epsilon<Real>(),Real(0.33));
     if( alpha == Real(0) )
@@ -32,23 +32,24 @@ Real DampScaling( Real alpha )
 }
 
 template<typename Real>
-Real SquareRootScaling( Real alpha )
+Real SquareRootScaling( const Real& alpha )
 {
     return Sqrt(alpha);
 }
 
-template<typename F>
-void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
+template<typename Field>
+void SymmetricGeomEquil
+( Matrix<Field>& A, Matrix<Base<Field>>& d, bool progress )
 {
-    DEBUG_CSE
-    // TODO: Ensure A is symmetric
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    // TODO(poulson): Ensure A is symmetric
+    typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 10;
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -69,7 +70,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
     for( Int iter=0; iter<maxIter; ++iter )
     {
         // Geometrically equilibrate the columns
-        // TODO: Reimplement this as a standalone routine?
+        // TODO(poulson): Reimplement this as a standalone routine?
         for( Int j=0; j<n; ++j )
         {
             auto aCol = A( ALL, IR(j) );
@@ -80,8 +81,8 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
             const Real scale = Max(propScale,sqrtDamp*maxColAbsVal);
             scales(j) = scale;
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
@@ -90,7 +91,7 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/"
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -115,18 +116,18 @@ void SymmetricGeomEquil( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress )
-        cout << "    Final ratio is " << newMaxAbsVal << "/" 
+        cout << "    Final ratio is " << newMaxAbsVal << "/"
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricGeomEquil
-( ElementalMatrix<F>& APre, 
-  ElementalMatrix<Base<F>>& dPre,
+( AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Base<Field>>& dPre,
   bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     ElementalProxyCtrl control;
     control.colConstrain = true;
@@ -134,7 +135,7 @@ void SymmetricGeomEquil
     control.colAlign = 0;
     control.rowAlign = 0;
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre, control );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre, control );
     DistMatrixWriteProxy<Real,Real,MC,STAR> dProx( dPre, control );
     auto& A = AProx.Get();
     auto& d = dProx.Get();
@@ -144,12 +145,12 @@ void SymmetricGeomEquil
     const Int nLocal = A.LocalWidth();
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 10;
     const Real relTol = Real(9)/Real(10);
 
-    // TODO: Incorporate damping
+    // TODO(poulson): Incorporate damping
     //const Real damp = Real(1)/Real(1000);
     //const Real sqrtDamp = Sqrt(damp);
 
@@ -169,12 +170,12 @@ void SymmetricGeomEquil
     {
         // Geometrically equilibrate the columns
         // -------------------------------------
-        // TODO: Remove GeometricColumnScaling
-        GeometricColumnScaling( A, scales ); 
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        // TODO(poulson): Remove GeometricColumnScaling
+        GeometricColumnScaling( A, scales );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        // TODO: SymmetricDiagonalSolve
+        // TODO(poulson): SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
 
@@ -183,7 +184,7 @@ void SymmetricGeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && A.Grid().Rank() == 0 )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/"
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -207,7 +208,7 @@ void SymmetricGeomEquil
         }
         mpi::AllReduce( scales.Buffer(), nLocal, mpi::MAX, A.ColComm() );
         DiagonalScale( LEFT, NORMAL, scales, d );
-        // TODO: SymmetricDiagonalSolve
+        // TODO(poulson): SymmetricDiagonalSolve
         DiagonalSolve( RIGHT, NORMAL, scales, A );
         DiagonalSolve( LEFT, NORMAL, scales, A );
     }
@@ -215,25 +216,25 @@ void SymmetricGeomEquil
     const Real newMaxAbsVal = newMaxAbs.value;
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
-    if( progress && A.Grid().Rank() == 0 ) 
+    if( progress && A.Grid().Rank() == 0 )
         cout << "    Final ratio is " << newMaxAbsVal << "/"
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricGeomEquil
-( SparseMatrix<F>& A,
-  Matrix<Base<F>>& d,
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 10;
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -264,8 +265,8 @@ void SymmetricGeomEquil
             const Real scale = Max(propScale,sqrtDamp*maxAbs);
             scales(j) = scale;
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
@@ -276,7 +277,7 @@ void SymmetricGeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/"
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -303,27 +304,27 @@ void SymmetricGeomEquil
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress )
-        cout << "    Final ratio is " << newMaxAbsVal << "/" 
+        cout << "    Final ratio is " << newMaxAbsVal << "/"
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricGeomEquil
-( DistSparseMatrix<F>& A,
-  DistMultiVec<Base<F>>& d,
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& d,
   bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
-    d.SetComm( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
+    d.SetGrid( grid );
     Ones( d, n, 1 );
 
-    // TODO: Expose these as control parameters
+    // TODO(poulson): Expose these as control parameters
     const Int minIter = 3;
-    const Int maxIter = 10; 
+    const Int maxIter = 10;
     const Real damp = Real(1)/Real(1000);
     const Real relTol = Real(9)/Real(10);
 
@@ -338,7 +339,7 @@ void SymmetricGeomEquil
         cout << "    Original ratio is " << maxAbsVal << "/" << minAbsVal << "="
              << ratio << endl;
 
-    DistMultiVec<Real> scales(comm), rowMaxAbs(comm), rowMinAbs(comm);
+    DistMultiVec<Real> scales(grid), rowMaxAbs(grid), rowMinAbs(grid);
     Zeros( scales, n, 1 );
     auto& scalesLoc = scales.Matrix();
     const Real sqrtDamp = Sqrt(damp);
@@ -359,8 +360,8 @@ void SymmetricGeomEquil
             const Real scale = Max(propScale,sqrtDamp*maxAbs);
             scalesLoc(iLoc) = scale;
         }
-        EntrywiseMap( scales, function<Real(Real)>(DampScaling<Real>) );
-        EntrywiseMap( scales, function<Real(Real)>(SquareRootScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(DampScaling<Real>) );
+        EntrywiseMap( scales, MakeFunction(SquareRootScaling<Real>) );
         DiagonalScale( LEFT, NORMAL, scales, d );
         SymmetricDiagonalSolve( scales, A );
 
@@ -371,7 +372,7 @@ void SymmetricGeomEquil
         const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
         const Real newRatio = newMaxAbsVal / newMinAbsVal;
         if( progress && commRank == 0 )
-            cout << "    New ratio is " << newMaxAbsVal << "/" 
+            cout << "    New ratio is " << newMaxAbsVal << "/"
                  << newMinAbsVal << "=" << newRatio << endl;
         if( iter >= minIter && newRatio >= ratio*relTol )
             break;
@@ -399,20 +400,20 @@ void SymmetricGeomEquil
     const Real newMinAbsVal = MinAbsNonzero( A, newMaxAbsVal );
     const Real newRatio = newMaxAbsVal / newMinAbsVal;
     if( progress && commRank == 0 )
-        cout << "    Final ratio is " << newMaxAbsVal << "/" 
+        cout << "    Final ratio is " << newMaxAbsVal << "/"
              << newMinAbsVal << "=" << newRatio << endl;
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void SymmetricGeomEquil \
-  ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
+  ( Matrix<Field>& A, Matrix<Base<Field>>& d, bool progress ); \
   template void SymmetricGeomEquil \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<Base<F>>& d, bool progress ); \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Base<Field>>& d, bool progress ); \
   template void SymmetricGeomEquil \
-  ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
+  ( SparseMatrix<Field>& A, Matrix<Base<Field>>& d, bool progress ); \
   template void SymmetricGeomEquil \
-  ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, bool progress );
+  ( DistSparseMatrix<Field>& A, DistMultiVec<Base<Field>>& d, bool progress );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

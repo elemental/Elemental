@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_HPP
@@ -18,27 +18,28 @@ namespace El {
 template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-    B.Resize( height, width ); 
+    B.Resize( height, width );
 
     lapack::Copy
     ( 'F', A.Height(), A.Width(),
       A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const Matrix<S>& A, Matrix<T>& B )
 {
-    DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EL_DEBUG_CSE
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
 template<typename T,Dist U,Dist V>
 void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B = A;
 }
 
@@ -47,7 +48,7 @@ void Copy( const ElementalMatrix<T>& A, DistMatrix<T,U,V>& B )
 template<typename S,typename T,Dist U,Dist V>
 void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.RootConstrained() )
@@ -56,7 +57,7 @@ void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
             B.AlignCols( A.ColAlign() );
         if( !B.RowConstrained() )
             B.AlignRows( A.RowAlign() );
-        if( A.Root() == B.Root() && 
+        if( A.Root() == B.Root() &&
             A.ColAlign() == B.ColAlign() && A.RowAlign() == B.RowAlign() )
         {
             B.Resize( A.Height(), A.Width() );
@@ -74,7 +75,7 @@ void Copy( const ElementalMatrix<S>& A, DistMatrix<T,U,V>& B )
 template<typename T,Dist U,Dist V>
 void Copy( const BlockMatrix<T>& A, DistMatrix<T,U,V,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B = A;
 }
 
@@ -83,7 +84,7 @@ void Copy( const BlockMatrix<T>& A, DistMatrix<T,U,V,BLOCK>& B )
 template<typename S,typename T,Dist U,Dist V>
 void Copy( const BlockMatrix<S>& A, DistMatrix<T,U,V,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Grid() == B.Grid() && A.ColDist() == U && A.RowDist() == V )
     {
         if( !B.RootConstrained() )
@@ -92,9 +93,9 @@ void Copy( const BlockMatrix<S>& A, DistMatrix<T,U,V,BLOCK>& B )
             B.AlignColsWith( A.DistData() );
         if( !B.RowConstrained() )
             B.AlignRowsWith( A.DistData() );
-        if( A.Root() == B.Root() && 
-            A.ColAlign() == B.ColAlign() && 
-            A.RowAlign() == B.RowAlign() && 
+        if( A.Root() == B.Root() &&
+            A.ColAlign() == B.ColAlign() &&
+            A.RowAlign() == B.RowAlign() &&
             A.ColCut() == B.ColCut() &&
             A.RowCut() == B.RowCut() )
         {
@@ -110,13 +111,15 @@ void Copy( const BlockMatrix<S>& A, DistMatrix<T,U,V,BLOCK>& B )
     Copy( BOrig.LockedMatrix(), B.Matrix() );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 {
-    DEBUG_CSE
-    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST>&>(B); \
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      B.ColDist() == CDIST && B.RowDist() == RDIST && ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,ELEMENT>&>(B); \
         Copy( A, BCast );
     #include <El/macros/GuardAndPayload.h>
 }
@@ -124,7 +127,7 @@ void Copy( const ElementalMatrix<S>& A, ElementalMatrix<T>& B )
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
     if( wrapA == ELEMENT && wrapB == ELEMENT )
     {
@@ -138,16 +141,17 @@ void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
         auto& BCast = static_cast<BlockMatrix<T>&>(B);
         Copy( ACast, BCast );
     }
-    else 
+    else
     {
         copy::GeneralPurpose( A, B );
     }
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const DistWrap wrapA=A.Wrap(), wrapB=B.Wrap();
     if( wrapA == ELEMENT && wrapB == ELEMENT )
     {
@@ -161,18 +165,20 @@ void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B )
         auto& BCast = static_cast<BlockMatrix<T>&>(B);
         Copy( ACast, BCast );
     }
-    else 
+    else
     {
         copy::GeneralPurpose( A, B );
     }
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B )
 {
-    DEBUG_CSE
-    #define GUARD(CDIST,RDIST) B.ColDist() == CDIST && B.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      B.ColDist() == CDIST && B.RowDist() == RDIST && BLOCK == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& BCast = static_cast<DistMatrix<T,CDIST,RDIST,BLOCK>&>(B); \
       Copy( A, BCast );
     #include <El/macros/GuardAndPayload.h>
@@ -182,7 +188,7 @@ template<typename T>
 void CopyFromRoot
 ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.CrossRank() != B.Root() )
         LogicError("Called CopyFromRoot from non-root");
     B.Resize( A.Height(), A.Width() );
@@ -193,7 +199,7 @@ void CopyFromRoot
 template<typename T>
 void CopyFromNonRoot( DistMatrix<T,CIRC,CIRC>& B, bool includingViewers )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.CrossRank() == B.Root() )
         LogicError("Called CopyFromNonRoot from root");
     B.MakeSizeConsistent( includingViewers );
@@ -204,7 +210,7 @@ void CopyFromRoot
 ( const Matrix<T>& A, DistMatrix<T,CIRC,CIRC,BLOCK>& B,
   bool includingViewers )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.CrossRank() != B.Root() )
         LogicError("Called CopyFromRoot from non-root");
     B.Resize( A.Height(), A.Width() );
@@ -216,7 +222,7 @@ template<typename T>
 void CopyFromNonRoot
 ( DistMatrix<T,CIRC,CIRC,BLOCK>& B, bool includingViewers )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( B.CrossRank() == B.Root() )
         LogicError("Called CopyFromNonRoot from root");
     B.MakeSizeConsistent( includingViewers );
@@ -225,31 +231,33 @@ void CopyFromNonRoot
 template<typename T>
 void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B = A;
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B )
 {
-    DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EL_DEBUG_CSE
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
     const S* AValBuf = A.LockedValueBuffer();
     const Int* ARowBuf = A.LockedSourceBuffer();
     const Int* AColBuf = A.LockedTargetBuffer();
-    
+
     T* BBuf = B.Buffer();
     const Int BLDim = B.LDim();
-    
+
     B.Resize( m, n );
     Zero( B );
     for( Int e=0; e<numEntries; ++e )
@@ -259,21 +267,23 @@ void Copy( const SparseMatrix<S>& A, Matrix<T>& B )
 template<typename T>
 void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     B = A;
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B )
 {
-    DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EL_DEBUG_CSE
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntries = A.NumLocalEntries();
@@ -288,14 +298,14 @@ void Copy( const DistSparseMatrix<S>& A, AbstractDistMatrix<T>& B )
 template<typename T>
 void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
 {
-    DEBUG_CSE
-    const mpi::Comm comm = ADist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    EL_DEBUG_CSE
+    const Grid& grid = ADist.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     const int numLocalEntries = ADist.NumLocalEntries();
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     const int numEntries = Scan( entrySizes, entryOffs );
 
@@ -306,66 +316,67 @@ void CopyFromRoot( const DistSparseMatrix<T>& ADist, SparseMatrix<T>& A )
     A.vals_.resize( numEntries );
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
-      A.SourceBuffer(), entrySizes.data(), entryOffs.data(), 
-      commRank, comm );
+      A.SourceBuffer(), entrySizes.data(), entryOffs.data(),
+      commRank, grid.Comm() );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
-      A.TargetBuffer(), entrySizes.data(), entryOffs.data(), 
-      commRank, comm );
+      A.TargetBuffer(), entrySizes.data(), entryOffs.data(),
+      commRank, grid.Comm() );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
-      A.ValueBuffer(), entrySizes.data(), entryOffs.data(), 
-      commRank, comm );
+      A.ValueBuffer(), entrySizes.data(), entryOffs.data(),
+      commRank, grid.Comm() );
     A.ProcessQueues();
 }
 
 template<typename T>
 void CopyFromNonRoot( const DistSparseMatrix<T>& ADist, int root )
 {
-    DEBUG_CSE
-    const mpi::Comm comm = ADist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    EL_DEBUG_CSE
+    const Grid& grid = ADist.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
     if( commRank == root )
         LogicError("Root called CopyFromNonRoot");
 
     const int numLocalEntries = ADist.NumLocalEntries();
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     Scan( entrySizes, entryOffs );
 
     mpi::Gather
     ( ADist.LockedSourceBuffer(), numLocalEntries,
-      (Int*)0, entrySizes.data(), entryOffs.data(), root, comm );
+      (Int*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     mpi::Gather
     ( ADist.LockedTargetBuffer(), numLocalEntries,
-      (Int*)0, entrySizes.data(), entryOffs.data(), root, comm );
+      (Int*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     mpi::Gather
     ( ADist.LockedValueBuffer(), numLocalEntries,
-      (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
+      (T*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
 }
 
 template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B )
 {
-    DEBUG_CSE
-    B.SetComm( A.Comm() );
+    EL_DEBUG_CSE
+    B.SetGrid( A.Grid() );
     B.Resize( A.Height(), A.Width() );
     B.Matrix() = A.LockedMatrix();
 }
 
-template<typename S,typename T,typename>
+template<typename S,typename T,
+         typename/*=EnableIf<CanCast<S,T>>*/>
 void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B )
 {
-    DEBUG_CSE
-    EntrywiseMap( A, B, function<T(S)>(&Caster<S,T>::Cast) );
+    EL_DEBUG_CSE
+    EntrywiseMap( A, B, MakeFunction(Caster<S,T>::Cast) );
 }
 
 template<typename T>
 void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
@@ -385,13 +396,12 @@ void Copy( const DistMultiVec<T>& A, AbstractDistMatrix<T>& B )
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
-    mpi::Comm comm = A.Grid().Comm();
-    B.SetComm( comm );
+    B.SetGrid( A.Grid() );
     B.Resize( m, n );
     Zero( B );
     B.Reserve( mLoc*nLoc );
@@ -411,20 +421,21 @@ void Copy( const AbstractDistMatrix<T>& A, DistMultiVec<T>& B )
 template<typename T>
 void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XDist.Height();
     const Int n = XDist.Width();
     X.Resize( m, n, Max(m,1) );
     if( Min(m,n) == 0 )
         return;
 
-    const mpi::Comm comm = XDist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = XDist.Grid();
+    Output("grid.Size()=",grid.Size());
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
 
     const int numLocalEntries = XDist.LocalHeight()*n;
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     const int numEntries = Scan( entrySizes, entryOffs );
 
@@ -436,8 +447,8 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
     {
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
-          recvBuf.data(), entrySizes.data(), entryOffs.data(), 
-          commRank, comm );
+          recvBuf.data(), entrySizes.data(), entryOffs.data(),
+          commRank, grid.Comm() );
     }
     else
     {
@@ -448,8 +459,8 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
-          recvBuf.data(), entrySizes.data(), entryOffs.data(), 
-          commRank, comm );
+          recvBuf.data(), entrySizes.data(), entryOffs.data(),
+          commRank, grid.Comm() );
     }
     for( Int q=0; q<commSize; ++q )
     {
@@ -463,21 +474,21 @@ void CopyFromRoot( const DistMultiVec<T>& XDist, Matrix<T>& X )
 template<typename T>
 void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = XDist.Height();
     const Int n = XDist.Width();
     if( Min(m,n) == 0 )
         return;
 
-    const mpi::Comm comm = XDist.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = XDist.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
     if( commRank == root )
         LogicError("Called CopyFromNonRoot from root");
 
     const int numLocalEntries = XDist.LocalHeight()*XDist.Width();
     vector<int> entrySizes(commSize);
-    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, comm );
+    mpi::AllGather( &numLocalEntries, 1, entrySizes.data(), 1, grid.Comm() );
     vector<int> entryOffs;
     Scan( entrySizes, entryOffs );
 
@@ -486,7 +497,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
     {
         mpi::Gather
         ( XDistLoc.LockedBuffer(), numLocalEntries,
-          (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
+          (T*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     }
     else
     {
@@ -497,7 +508,7 @@ void CopyFromNonRoot( const DistMultiVec<T>& XDist, int root )
                 sendBuf[iLoc+jLoc*XDistLoc.Height()] = XDistLoc(iLoc,jLoc);
         mpi::Gather
         ( sendBuf.data(), numLocalEntries,
-          (T*)0, entrySizes.data(), entryOffs.data(), root, comm );
+          (T*)0, entrySizes.data(), entryOffs.data(), root, grid.Comm() );
     }
 }
 

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LAPACK_SPECTRAL_C_H
@@ -80,9 +80,9 @@ EL_EXPORT ElError ElSecularSVDCtrlDefault_d
 /* Hermitian tridiagonal eigensolvers
    ================================== */
 typedef enum {
-  EL_HERM_TRIDIAG_EIG_QR = 0,
-  EL_HERM_TRIDIAG_EIG_DC = 1,
-  EL_HERM_TRIDIAG_EIG_MRRR = 2
+  EL_HERM_TRIDIAG_EIG_QR=0,
+  EL_HERM_TRIDIAG_EIG_DC=1,
+  EL_HERM_TRIDIAG_EIG_MRRR=2
 } ElHermitianTridiagEigAlg;
 
 /* HermitianEigSubset */
@@ -110,6 +110,7 @@ typedef struct {
   ElInt maxIterPerEig;
   bool demandConverged;
   bool fullAccuracyTwoByTwo;
+  bool broadcast;
 } ElHermitianTridiagEigQRCtrl;
 EL_EXPORT ElError ElHermitianTridiagEigQRCtrlDefault
 ( ElHermitianTridiagEigQRCtrl* ctrl );
@@ -192,16 +193,16 @@ EL_EXPORT ElError ElHermitianTridiagEigPair_z
 ( ElMatrix_d d, ElMatrix_z dSub, ElMatrix_d w, ElMatrix_z Q );
 
 EL_EXPORT ElError ElHermitianTridiagEigPairDist_s
-( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub, 
+( ElConstDistMatrix_s d, ElConstDistMatrix_s dSub,
   ElDistMatrix_s w, ElDistMatrix_s Q );
 EL_EXPORT ElError ElHermitianTridiagEigPairDist_d
-( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub, 
+( ElConstDistMatrix_d d, ElConstDistMatrix_d dSub,
   ElDistMatrix_d w, ElDistMatrix_d Q );
 EL_EXPORT ElError ElHermitianTridiagEigPairDist_c
-( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub, 
+( ElConstDistMatrix_s d, ElConstDistMatrix_c dSub,
   ElDistMatrix_s w, ElDistMatrix_c Q );
 EL_EXPORT ElError ElHermitianTridiagEigPairDist_z
-( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub, 
+( ElConstDistMatrix_d d, ElConstDistMatrix_z dSub,
   ElDistMatrix_d w, ElDistMatrix_z Q );
 
 /* TODO: Expert version */
@@ -282,7 +283,7 @@ EL_EXPORT ElError ElHermitianEigDist_z
 
 /* TODO: Expert version */
 
-/* Compute the entire eigenvalue decomposition 
+/* Compute the entire eigenvalue decomposition
    ------------------------------------------- */
 EL_EXPORT ElError ElHermitianEigPair_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_s Q );
@@ -329,7 +330,7 @@ EL_EXPORT ElError ElSkewHermitianEigDist_z
 
 /* TODO: Expert version */
 
-/* Compute the entire eigenvalue decomposition 
+/* Compute the entire eigenvalue decomposition
    ------------------------------------------- */
 EL_EXPORT ElError ElSkewHermitianEigPair_s
 ( ElUpperOrLower uplo, ElMatrix_s A, ElMatrix_s w, ElMatrix_c Q );
@@ -356,66 +357,66 @@ EL_EXPORT ElError ElSkewHermitianEigPairDist_z
 /* Pencil */
 typedef enum {
   EL_AXBX=1,
-  EL_ABX=2, 
+  EL_ABX=2,
   EL_BAX=3
 } ElPencil;
 
 /* Compute all of the eigenvalues
    ------------------------------ */
 EL_EXPORT ElError ElHermitianGenDefEig_s
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_s A, ElMatrix_s B, ElMatrix_s w );
 EL_EXPORT ElError ElHermitianGenDefEig_d
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_d A, ElMatrix_d B, ElMatrix_d w );
 EL_EXPORT ElError ElHermitianGenDefEig_c
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_c A, ElMatrix_c B, ElMatrix_s w );
 EL_EXPORT ElError ElHermitianGenDefEig_z
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w );
 
 EL_EXPORT ElError ElHermitianGenDefEigDist_s
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w );
 EL_EXPORT ElError ElHermitianGenDefEigDist_d
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w );
 EL_EXPORT ElError ElHermitianGenDefEigDist_c
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w );
 EL_EXPORT ElError ElHermitianGenDefEigDist_z
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w );
 
 /* TODO: Expert version */
 
-/* Compute the entire eigenvalue decomposition 
+/* Compute the entire eigenvalue decomposition
    ------------------------------------------- */
 EL_EXPORT ElError ElHermitianGenDefEigPair_s
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_s A, ElMatrix_s B, ElMatrix_s w, ElMatrix_s X );
 EL_EXPORT ElError ElHermitianGenDefEigPair_d
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_d A, ElMatrix_d B, ElMatrix_d w, ElMatrix_d X );
 EL_EXPORT ElError ElHermitianGenDefEigPair_c
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_c A, ElMatrix_c B, ElMatrix_s w, ElMatrix_c X );
 EL_EXPORT ElError ElHermitianGenDefEigPair_z
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElMatrix_z A, ElMatrix_z B, ElMatrix_d w, ElMatrix_z X );
 
 EL_EXPORT ElError ElHermitianGenDefEigPairDist_s
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_s A, ElDistMatrix_s B, ElDistMatrix_s w, ElDistMatrix_s X );
 EL_EXPORT ElError ElHermitianGenDefEigPairDist_d
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_d A, ElDistMatrix_d B, ElDistMatrix_d w, ElDistMatrix_d X );
 EL_EXPORT ElError ElHermitianGenDefEigPairDist_c
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_c A, ElDistMatrix_c B, ElDistMatrix_s w, ElDistMatrix_c X );
 EL_EXPORT ElError ElHermitianGenDefEigPairDist_z
-( ElPencil pencil, ElUpperOrLower uplo, 
+( ElPencil pencil, ElUpperOrLower uplo,
   ElDistMatrix_z A, ElDistMatrix_z B, ElDistMatrix_d w, ElDistMatrix_z X );
 
 /* TODO: Expert version */
@@ -474,25 +475,25 @@ EL_EXPORT ElError ElHermitianSVDDist_s
 ( ElUpperOrLower uplo,
   ElConstDistMatrix_s A,
   ElDistMatrix_s U,
-  ElDistMatrix_s s, 
+  ElDistMatrix_s s,
   ElDistMatrix_s V );
 EL_EXPORT ElError ElHermitianSVDDist_d
 ( ElUpperOrLower uplo,
   ElConstDistMatrix_d A,
   ElDistMatrix_d U,
-  ElDistMatrix_d s, 
+  ElDistMatrix_d s,
   ElDistMatrix_d V );
 EL_EXPORT ElError ElHermitianSVDDist_c
 ( ElUpperOrLower uplo,
   ElConstDistMatrix_c A,
   ElDistMatrix_c U,
-  ElDistMatrix_s s, 
+  ElDistMatrix_s s,
   ElDistMatrix_c V );
 EL_EXPORT ElError ElHermitianSVDDist_z
 ( ElUpperOrLower uplo,
   ElConstDistMatrix_z A,
   ElDistMatrix_z U,
-  ElDistMatrix_d s, 
+  ElDistMatrix_d s,
   ElDistMatrix_z V );
 
 /* TODO: Expert versions */
@@ -587,12 +588,40 @@ EL_EXPORT ElError ElHermitianPolarDecompDist_z
 
 /* Schur decomposition
    =================== */
-/* HessQRCtrl */
+typedef enum {
+  EL_HESSENBERG_SCHUR_AED=0,
+  EL_HESSENBERG_SCHUR_MULTIBULGE=1,
+  EL_HESSENBERG_SCHUR_SIMPLE=2
+} ElHessenbergSchurAlg;
+
+/* HessenbergSchurCtrl */
 typedef struct {
-  bool distAED;
-  ElInt blockHeight, blockWidth;
-} ElHessQRCtrl;
-EL_EXPORT ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl );
+  ElInt winBeg;
+  ElInt winEnd;
+  bool fullTriangle;
+  bool wantSchurVecs;
+  bool accumulateSchurVecs;
+  bool demandConverged;
+
+  ElHessenbergSchurAlg alg;
+  bool recursiveAED;
+  bool accumulateReflections;
+  bool sortShifts;
+
+  bool progress;
+
+  ElInt minMultiBulgeSize;
+  ElInt minDistMultiBulgeSize;
+
+  ElInt (*numShifts)(ElInt,ElInt);
+  ElInt (*deflationSize)(ElInt,ElInt,ElInt);
+  ElInt (*sufficientDeflation)(ElInt);
+
+  bool scalapack;
+  ElInt blockHeight;
+  ElInt (*numBulgesPerBlock)(ElInt);
+} ElHessenbergSchurCtrl;
+EL_EXPORT ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl );
 
 /* SDCCtrl */
 typedef struct {
@@ -620,7 +649,7 @@ EL_EXPORT ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl );
 /* SchurCtrl */
 typedef struct {
   bool useSDC;
-  ElHessQRCtrl qrCtrl;
+  ElHessenbergSchurCtrl hessSchurCtrl;
   ElSDCCtrl_s sdcCtrl;
   bool time;
 } ElSchurCtrl_s;
@@ -628,7 +657,7 @@ EL_EXPORT ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl );
 
 typedef struct {
   bool useSDC;
-  ElHessQRCtrl qrCtrl;
+  ElHessenbergSchurCtrl hessSchurCtrl;
   ElSDCCtrl_d sdcCtrl;
   bool time;
 } ElSchurCtrl_d;
@@ -722,6 +751,7 @@ typedef struct {
   bool looseMinSingValEst;
   bool useFLAME;
   bool useLAPACK;
+  bool broadcast;
 } ElBidiagSVDQRCtrl;
 EL_EXPORT ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl );
 
@@ -918,64 +948,64 @@ EL_EXPORT ElError ElProductLanczosDistSparse_z
 
 EL_EXPORT ElError ElProductLanczosDecompSparse_s
 ( ElConstSparseMatrix_s A, ElMatrix_s V,
-  ElMatrix_s T,            ElMatrix_s v, 
+  ElMatrix_s T,            ElMatrix_s v,
   float* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompSparse_d
 ( ElConstSparseMatrix_d A, ElMatrix_d V,
-  ElMatrix_d T,            ElMatrix_d v, 
+  ElMatrix_d T,            ElMatrix_d v,
   double* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompSparse_c
 ( ElConstSparseMatrix_c A, ElMatrix_c V,
-  ElMatrix_s T,            ElMatrix_c v, 
+  ElMatrix_s T,            ElMatrix_c v,
   float* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompSparse_z
 ( ElConstSparseMatrix_z A, ElMatrix_z V,
-  ElMatrix_d T,            ElMatrix_z v, 
+  ElMatrix_d T,            ElMatrix_z v,
   double* beta, ElInt basisSize );
 
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_s
 ( ElConstDistSparseMatrix_s A, ElDistMultiVec_s V,
-  ElDistMatrix_s T,            ElDistMultiVec_s v, 
+  ElDistMatrix_s T,            ElDistMultiVec_s v,
   float* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_d
 ( ElConstDistSparseMatrix_d A, ElDistMultiVec_d V,
-  ElDistMatrix_d T,            ElDistMultiVec_d v, 
+  ElDistMatrix_d T,            ElDistMultiVec_d v,
   double* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_c
 ( ElConstDistSparseMatrix_c A, ElDistMultiVec_c V,
-  ElDistMatrix_s T,            ElDistMultiVec_c v, 
+  ElDistMatrix_s T,            ElDistMultiVec_c v,
   float* beta, ElInt basisSize );
 EL_EXPORT ElError ElProductLanczosDecompDistSparse_z
 ( ElConstDistSparseMatrix_z A, ElDistMultiVec_z V,
-  ElDistMatrix_d T,            ElDistMultiVec_z v, 
+  ElDistMatrix_d T,            ElDistMultiVec_z v,
   double* beta, ElInt basisSize );
 
 /* Extremal singular value estimation
    ================================== */
 EL_EXPORT ElError ElExtremalSingValEstSparse_s
-( ElConstSparseMatrix_s A, ElInt basisSize, 
+( ElConstSparseMatrix_s A, ElInt basisSize,
   float* sigMin, float* sigMax );
 EL_EXPORT ElError ElExtremalSingValEstSparse_d
-( ElConstSparseMatrix_d A, ElInt basisSize, 
+( ElConstSparseMatrix_d A, ElInt basisSize,
   double* sigMin, double* sigMax );
 EL_EXPORT ElError ElExtremalSingValEstSparse_c
-( ElConstSparseMatrix_c A, ElInt basisSize, 
+( ElConstSparseMatrix_c A, ElInt basisSize,
   float* sigMin, float* sigMax );
 EL_EXPORT ElError ElExtremalSingValEstSparse_z
-( ElConstSparseMatrix_z A, ElInt basisSize, 
+( ElConstSparseMatrix_z A, ElInt basisSize,
   double* sigMin, double* sigMax );
 
 EL_EXPORT ElError ElExtremalSingValEstDistSparse_s
-( ElConstDistSparseMatrix_s A, ElInt basisSize, 
+( ElConstDistSparseMatrix_s A, ElInt basisSize,
   float* sigMin, float* sigMax );
 EL_EXPORT ElError ElExtremalSingValEstDistSparse_d
-( ElConstDistSparseMatrix_d A, ElInt basisSize, 
+( ElConstDistSparseMatrix_d A, ElInt basisSize,
   double* sigMin, double* sigMax );
 EL_EXPORT ElError ElExtremalSingValEstDistSparse_c
-( ElConstDistSparseMatrix_c A, ElInt basisSize, 
+( ElConstDistSparseMatrix_c A, ElInt basisSize,
   float* sigMin, float* sigMax );
 EL_EXPORT ElError ElExtremalSingValEstDistSparse_z
-( ElConstDistSparseMatrix_z A, ElInt basisSize, 
+( ElConstDistSparseMatrix_z A, ElInt basisSize,
   double* sigMin, double* sigMax );
 
 /* Pseudospectra
@@ -1061,7 +1091,10 @@ typedef struct {
 } ElSpectralBox_d;
 
 /* (Pseudo-)Spectral portrait
-   -------------------------- */ 
+   -------------------------- */
+
+/* Square
+   ^^^^^^ */
 EL_EXPORT ElError ElSpectralPortrait_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElSpectralBox_s* box );
@@ -1088,8 +1121,8 @@ EL_EXPORT ElError ElSpectralPortraitDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
   ElInt realSize, ElInt imagSize, ElSpectralBox_d* box );
 
-/* Expert version
-   ^^^^^^^^^^^^^^ */
+/* Expert interface
+   ~~~~~~~~~~~~~~~~ */
 EL_EXPORT ElError ElSpectralPortraitX_s
 ( ElConstMatrix_s A, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
   ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
@@ -1105,19 +1138,53 @@ EL_EXPORT ElError ElSpectralPortraitX_z
 
 EL_EXPORT ElError ElSpectralPortraitXDist_s
 ( ElConstDistMatrix_s A, ElDistMatrix_s invNormMap,
-  ElInt realSize, ElInt imagSize, 
+  ElInt realSize, ElInt imagSize,
   ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_d
 ( ElConstDistMatrix_d A, ElDistMatrix_d invNormMap,
-  ElInt realSize, ElInt imagSize, 
+  ElInt realSize, ElInt imagSize,
   ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_c
 ( ElConstDistMatrix_c A, ElDistMatrix_s invNormMap,
-  ElInt realSize, ElInt imagSize, 
+  ElInt realSize, ElInt imagSize,
   ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
 EL_EXPORT ElError ElSpectralPortraitXDist_z
 ( ElConstDistMatrix_z A, ElDistMatrix_d invNormMap,
-  ElInt realSize, ElInt imagSize, 
+  ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
+
+/* Triangular
+   ^^^^^^^^^^ */
+EL_EXPORT ElError ElTriangularSpectralPortrait_c
+( ElConstMatrix_c U, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box );
+EL_EXPORT ElError ElTriangularSpectralPortrait_z
+( ElConstMatrix_z U, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box );
+
+EL_EXPORT ElError ElTriangularSpectralPortraitDist_c
+( ElConstDistMatrix_c U, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize, ElSpectralBox_s* box );
+EL_EXPORT ElError ElTriangularSpectralPortraitDist_z
+( ElConstDistMatrix_z U, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize, ElSpectralBox_d* box );
+
+/* Expert interface
+   ~~~~~~~~~~~~~~~~ */
+EL_EXPORT ElError ElTriangularSpectralPortraitX_c
+( ElConstMatrix_c U, ElMatrix_s invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElTriangularSpectralPortraitX_z
+( ElConstMatrix_z U, ElMatrix_d invNormMap, ElInt realSize, ElInt imagSize,
+  ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
+
+EL_EXPORT ElError ElTriangularSpectralPortraitXDist_c
+( ElConstDistMatrix_c U, ElDistMatrix_s invNormMap,
+  ElInt realSize, ElInt imagSize,
+  ElSpectralBox_s* box, ElPseudospecCtrl_s ctrl );
+EL_EXPORT ElError ElTriangularSpectralPortraitXDist_z
+( ElConstDistMatrix_z U, ElDistMatrix_d invNormMap,
+  ElInt realSize, ElInt imagSize,
   ElSpectralBox_d* box, ElPseudospecCtrl_d ctrl );
 
 /* (Pseudo-)Spectral window

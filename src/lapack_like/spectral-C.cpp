@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -98,6 +98,7 @@ ElError ElHermitianTridiagEigQRCtrlDefault( ElHermitianTridiagEigQRCtrl* ctrl )
     ctrl->maxIterPerEig = 30;
     ctrl->demandConverged = true;
     ctrl->fullAccuracyTwoByTwo = true;
+    ctrl->broadcast = true;
     return EL_SUCCESS;
 }
 
@@ -228,6 +229,7 @@ ElError ElBidiagSVDQRCtrlDefault( ElBidiagSVDQRCtrl* ctrl )
     ctrl->looseMinSingValEst = true;
     ctrl->useFLAME = false;
     ctrl->useLAPACK = false;
+    ctrl->broadcast = true;
     return EL_SUCCESS;
 }
 
@@ -311,12 +313,33 @@ ElError ElSVDCtrlDefault_d( ElSVDCtrl_d* ctrl )
     return EL_SUCCESS;
 }
 
-/* HessQRCtrl */
-ElError ElHessQRCtrlDefault( ElHessQRCtrl* ctrl )
+/* HessenbergSchurCtrl */
+ElError ElHessenbergSchurCtrlDefault( ElHessenbergSchurCtrl* ctrl )
 {
-    ctrl->distAED = false;
+    ctrl->winBeg = 0;
+    ctrl->winEnd = END;
+    ctrl->fullTriangle = true;
+    ctrl->wantSchurVecs = false;
+    ctrl->accumulateSchurVecs = false;
+    ctrl->demandConverged = true;
+
+    ctrl->alg = EL_HESSENBERG_SCHUR_AED;
+    ctrl->recursiveAED = true;
+    ctrl->accumulateReflections = true;
+    ctrl->sortShifts = true;
+
+    ctrl->progress = false;
+
+    ctrl->minMultiBulgeSize = 75;
+    ctrl->minDistMultiBulgeSize = 400;
+    ctrl->numShifts = &hess_schur::aed::NumShifts;
+    ctrl->deflationSize = &hess_schur::aed::DeflationSize;
+    ctrl->sufficientDeflation = &hess_schur::aed::SufficientDeflation;
+
+    ctrl->scalapack = false;
     ctrl->blockHeight = DefaultBlockHeight();
-    ctrl->blockWidth = DefaultBlockWidth();
+    ctrl->numBulgesPerBlock = &hess_schur::multibulge::NumBulgesPerBlock;
+
     return EL_SUCCESS;
 }
 
@@ -350,18 +373,18 @@ ElError ElSDCCtrlDefault_d( ElSDCCtrl_d* ctrl )
 ElError ElSchurCtrlDefault_s( ElSchurCtrl_s* ctrl )
 {
     ctrl->useSDC = false;
-    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_s( &ctrl->sdcCtrl );
     ctrl->time = false;
-    return EL_SUCCESS; 
+    return EL_SUCCESS;
 }
 ElError ElSchurCtrlDefault_d( ElSchurCtrl_d* ctrl )
 {
     ctrl->useSDC = false;
-    ElHessQRCtrlDefault( &ctrl->qrCtrl );
+    ElHessenbergSchurCtrlDefault( &ctrl->hessSchurCtrl );
     ElSDCCtrlDefault_d( &ctrl->sdcCtrl );
     ctrl->time = false;
-    return EL_SUCCESS; 
+    return EL_SUCCESS;
 }
 
 ElError ElSnapshotCtrlDefault( ElSnapshotCtrl* ctrl )
@@ -726,41 +749,62 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
   { EL_TRY( Eig( *CReflect(A), *CReflect(w), *CReflect(X) ) ) } \
   /* Schur decomposition
      =================== */ \
-  /* Compute the eigenvalues (and possibly Schur factor) 
+  /* Compute the eigenvalues (and possibly Schur factor)
      --------------------------------------------------- */ \
   ElError ElSchur_ ## SIGBASE \
   ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   ElError ElSchurDist_ ## SIGBASE \
   ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   ElError ElSchur_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   ElError ElSchurDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), ctrl ) ) } \
   /* Compute the eigvalues and Schur vectors (and possibly Schur factor)
      ------------------------------------------------------------------- */ \
   ElError ElSchurDecomp_ ## SIGBASE \
   ( ElMatrix_ ## SIGBASE A, ElMatrix_ ## SIG w, ElMatrix_ ## SIGBASE Q, \
     bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) } \
   ElError ElSchurDecompDist_ ## SIGBASE \
   ( ElDistMatrix_ ## SIGBASE A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIGBASE Q, bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) } \
   ElError ElSchurDecomp_ ## SIG \
   ( ElMatrix_ ## SIG A, ElMatrix_ ## SIG w, \
     ElMatrix_ ## SIG Q, bool fullTriangle ) \
-  { EL_TRY( Schur( \
-      *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) } \
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) } \
   ElError ElSchurDecompDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, ElDistMatrix_ ## SIG w, \
     ElDistMatrix_ ## SIG Q, bool fullTriangle ) \
-  { EL_TRY( Schur( *CReflect(A), *CReflect(w), *CReflect(Q), fullTriangle ) ) }\
+  { EL_TRY( \
+      SchurCtrl<Base<F>> ctrl; \
+      ctrl.hessSchurCtrl.fullTriangle = fullTriangle; \
+      Schur( *CReflect(A), *CReflect(w), *CReflect(Q), ctrl ) ) }\
   /* SkewHermitianEig
      ================ */ \
   /* Return all eigenpairs
@@ -789,6 +833,8 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
      ============= */ \
   /* (Pseudo-)Spectral portrait
      -------------------------- */ \
+  /* Square
+     ^^^^^^ */ \
   ElError ElSpectralPortrait_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC ) \
@@ -821,7 +867,7 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
       SpectralPortrait( *CReflect(A), *CReflect(invNormMap), \
         realSize, imagSize, box ); \
       *boxC = CReflect(box) ) } \
-  /* Expert version */ \
+  /* Expert interface */ \
   ElError ElSpectralPortraitX_ ## SIGBASE \
   ( ElConstMatrix_ ## SIGBASE A, ElMatrix_ ## SIGBASE invNormMap, \
     ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC, \
@@ -860,6 +906,45 @@ ElError ElPseudospecCtrlDestroy_d( const ElPseudospecCtrl_d* ctrl )
       SpectralBox<Base<F>> box; \
       SpectralPortrait( \
         *CReflect(A), *CReflect(invNormMap), realSize, imagSize, box, \
+        CReflect(ctrl) ); \
+      *boxC = CReflect(box) ) } \
+  /* Triangular
+     ^^^^^^^^^^ */ \
+  ElError ElTriangularSpectralPortrait_ ## SIG \
+  ( ElConstMatrix_ ## SIG U, ElMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( *CReflect(U), *CReflect(invNormMap), \
+        realSize, imagSize, box ); \
+      *boxC = CReflect(box) ) } \
+  ElError ElTriangularSpectralPortraitDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG U, ElDistMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( *CReflect(U), *CReflect(invNormMap), \
+        realSize, imagSize, box ); \
+      *boxC = CReflect(box) ) } \
+  /* Expert interface */ \
+  ElError ElTriangularSpectralPortraitX_ ## SIG \
+  ( ElConstMatrix_ ## SIG U, ElMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC, \
+    ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( \
+        *CReflect(U), *CReflect(invNormMap), realSize, imagSize, box, \
+        CReflect(ctrl) ); \
+      *boxC = CReflect(box) ) } \
+  ElError ElTriangularSpectralPortraitXDist_ ## SIG \
+  ( ElConstDistMatrix_ ## SIG U, ElDistMatrix_ ## SIGBASE invNormMap, \
+    ElInt realSize, ElInt imagSize, ElSpectralBox_ ## SIGBASE* boxC, \
+    ElPseudospecCtrl_ ## SIGBASE ctrl ) \
+  { EL_TRY( \
+      SpectralBox<Base<F>> box; \
+      SpectralPortrait( \
+        *CReflect(U), *CReflect(invNormMap), realSize, imagSize, box, \
         CReflect(ctrl) ); \
       *boxC = CReflect(box) ) } \
   /* (Pseudo-)Spectral window

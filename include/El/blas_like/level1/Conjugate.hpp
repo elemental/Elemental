@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_CONJUGATE_HPP
@@ -18,7 +18,7 @@ void Conjugate( Matrix<Real>& A )
 template<typename Real>
 void Conjugate( Matrix<Complex<Real>>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
@@ -29,7 +29,7 @@ void Conjugate( Matrix<Complex<Real>>& A )
 template<typename T>
 void Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
@@ -41,14 +41,14 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B )
 template<typename T>
 void Conjugate( AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Conjugate( A.Matrix() );
 }
 
 template<typename T>
-void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
+void Conjugate( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Copy( A, B );
     Conjugate( B );
 }
@@ -67,7 +67,7 @@ void Conjugate( const ElementalMatrix<T>& A, ElementalMatrix<T>& B )
   EL_EXTERN template void Conjugate \
   ( AbstractDistMatrix<T>& A ); \
   EL_EXTERN template void Conjugate \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& B );
+  ( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

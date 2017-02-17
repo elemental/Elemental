@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -26,15 +26,15 @@ namespace El {
 // -----------
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     const Grid& grid = A.Grid();
     if( grid.Height() == grid.Width() )
     {
         const int gridDim = grid.Height();
-        const int sendRank = this->ColOwner(A.RowShift()) + 
+        const int sendRank = this->ColOwner(A.RowShift()) +
                              this->RowOwner(A.ColShift())*gridDim;
-        const int recvRank = A.RowOwner(this->ColShift()) + 
+        const int recvRank = A.RowOwner(this->ColShift()) +
                              A.ColOwner(this->RowShift())*gridDim;
         copy::Exchange( A, *this, sendRank, recvRank, grid.VCComm() );
     }
@@ -47,8 +47,8 @@ DM& DM::operator=( const DistMatrix<T,MC,MR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,VC,STAR> A_VC_STAR( A );
     DistMatrix<T,VR,STAR> A_VR_STAR( this->Grid() );
     A_VR_STAR.AlignColsWith(*this);
@@ -60,8 +60,8 @@ DM& DM::operator=( const DistMatrix<T,MC,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VR> A_STAR_VR( A );
     DistMatrix<T,STAR,VC> A_STAR_VC( this->Grid() );
     A_STAR_VC.AlignRowsWith(*this);
@@ -74,7 +74,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,MR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -82,8 +82,8 @@ DM& DM::operator=( const DistMatrix<T,MD,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     // TODO: More efficient implementation
     copy::GeneralPurpose( A, *this );
     return *this;
@@ -91,24 +91,24 @@ DM& DM::operator=( const DistMatrix<T,STAR,MD>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,MR,STAR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::RowFilter( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,MC>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::ColFilter( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,VR,STAR> A_VR_STAR( A );
     *this = A_VR_STAR;
     return *this;
@@ -116,24 +116,24 @@ DM& DM::operator=( const DistMatrix<T,VC,STAR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VC>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::RowAllToAllPromote( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,VR,STAR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::ColAllToAllPromote( A, *this );
     return *this;
 }
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     DistMatrix<T,STAR,VC> A_STAR_VC( A );
     *this = A_STAR_VC;
     return *this;
@@ -141,8 +141,8 @@ DM& DM::operator=( const DistMatrix<T,STAR,VR>& A )
 
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
-{ 
-    DEBUG_CSE
+{
+    EL_DEBUG_CSE
     copy::Filter( A, *this );
     return *this;
 }
@@ -150,7 +150,7 @@ DM& DM::operator=( const DistMatrix<T,STAR,STAR>& A )
 template<typename T>
 DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     copy::Scatter( A, *this );
     return *this;
 }
@@ -158,10 +158,11 @@ DM& DM::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 template<typename T>
 DM& DM::operator=( const ElementalMatrix<T>& A )
 {
-    DEBUG_CSE
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      ELEMENT == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
       *this = ACast;
     #include "El/macros/GuardAndPayload.h"
@@ -191,7 +192,7 @@ mpi::Comm DM::PartialColComm() const EL_NO_EXCEPT { return this->ColComm(); }
 template<typename T>
 mpi::Comm DM::PartialRowComm() const EL_NO_EXCEPT { return this->RowComm(); }
 template<typename T>
-mpi::Comm DM::PartialUnionColComm() const EL_NO_EXCEPT 
+mpi::Comm DM::PartialUnionColComm() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? mpi::COMM_SELF : mpi::COMM_NULL ); }
 template<typename T>
 mpi::Comm DM::PartialUnionRowComm() const EL_NO_EXCEPT
@@ -233,7 +234,7 @@ int DM::PartialColRank() const EL_NO_EXCEPT { return this->ColRank(); }
 template<typename T>
 int DM::PartialRowRank() const EL_NO_EXCEPT { return this->RowRank(); }
 template<typename T>
-int DM::PartialUnionColRank() const EL_NO_EXCEPT 
+int DM::PartialUnionColRank() const EL_NO_EXCEPT
 { return ( this->Grid().InGrid() ? 0 : mpi::UNDEFINED ); }
 template<typename T>
 int DM::PartialUnionRowRank() const EL_NO_EXCEPT

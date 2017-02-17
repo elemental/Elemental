@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,13 +13,13 @@ namespace El {
 template<typename Real>
 void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
-    const C phi = Sqrt( C(0,omega/pi) ); 
-    
+    const C phi = Sqrt( C(0,omega/pi) );
+
     // Compute Gauss quadrature points and weights
-    Matrix<Real> d, e; 
+    Matrix<Real> d, e;
     Zeros( d, n, 1 );
     e.Resize( n-1, 1 );
     for( Int j=0; j<n-1; ++j )
@@ -60,19 +60,19 @@ void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega )
 }
 
 template<typename Real>
-void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
+void FoxLi( AbstractDistMatrix<Complex<Real>>& APre, Int n, Real omega )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
     const Real pi = 4*Atan( Real(1) );
-    const C phi = Sqrt( C(0,omega/pi) ); 
+    const C phi = Sqrt( C(0,omega/pi) );
 
     DistMatrixWriteProxy<C,C,MC,MR> AProx( APre );
     auto& A = AProx.Get();
-    
+
     // Compute Gauss quadrature points and weights
     const Grid& g = A.Grid();
-    DistMatrix<Real,VR,STAR> d(g), e(g); 
+    DistMatrix<Real,VR,STAR> d(g), e(g);
     Zeros( d, n, 1 );
     e.Resize( n-1, 1 );
     auto& eLoc = e.Matrix();
@@ -101,7 +101,7 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
     A.Resize( n, n );
     DistMatrix<Real,MC,STAR> x_MC( A.Grid() );
     DistMatrix<Real,MR,STAR> x_MR( A.Grid() );
-    x_MC.AlignWith( A ); 
+    x_MC.AlignWith( A );
     x_MR.AlignWith( A );
     x_MC = x;
     x_MR = x;
@@ -130,7 +130,7 @@ void FoxLi( ElementalMatrix<Complex<Real>>& APre, Int n, Real omega )
 #define PROTO(Real) \
   template void FoxLi( Matrix<Complex<Real>>& A, Int n, Real omega ); \
   template void FoxLi \
-  ( ElementalMatrix<Complex<Real>>& A, Int n, Real omega );
+  ( AbstractDistMatrix<Complex<Real>>& A, Int n, Real omega );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

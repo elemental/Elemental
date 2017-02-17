@@ -24,8 +24,8 @@ void LocalAccumulateRLN
   const DistMatrix<T,STAR,MC  >& X,
         DistMatrix<T,MR,  STAR>& ZTrans )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( L, X, ZTrans );
       if( L.Height() != L.Width() ||
           L.Height() != X.Width() ||
@@ -74,8 +74,8 @@ void RLNA
   const AbstractDistMatrix<T>& LPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( LPre, XPre );
       // TODO: More checks
     )
@@ -124,8 +124,8 @@ void RLNCOld
   const AbstractDistMatrix<T>& LPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -175,8 +175,8 @@ void RLNC
   const AbstractDistMatrix<T>& LPre,
         AbstractDistMatrix<T>& XPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( LPre, XPre );
       if( LPre.Height() != LPre.Width() || XPre.Width() != LPre.Height() )
           LogicError
@@ -231,7 +231,7 @@ void RLN
   const AbstractDistMatrix<T>& L,
         AbstractDistMatrix<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         RLNA( diag, L, X );

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_GETDIAGONAL_HPP
@@ -14,8 +14,8 @@ namespace El {
 template<typename T>
 void GetDiagonal( const Matrix<T>& A, Matrix<T>& d, Int offset )
 {
-    DEBUG_CSE
-    function<T(T)> identity( []( T alpha ) { return alpha; } ); 
+    EL_DEBUG_CSE
+    function<T(const T&)> identity( []( const T& alpha ) { return alpha; } );
     GetMappedDiagonal( A, d, identity, offset );
 }
 
@@ -23,9 +23,9 @@ template<typename T>
 void GetRealPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
-    function<Base<T>(T)> realPart
-    ( []( T alpha ) { return RealPart(alpha); } ); 
+    EL_DEBUG_CSE
+    function<Base<T>(const T&)> realPart
+    ( []( const T& alpha ) { return RealPart(alpha); } );
     GetMappedDiagonal( A, d, realPart, offset );
 }
 
@@ -33,9 +33,9 @@ template<typename T>
 void GetImagPartOfDiagonal
 ( const Matrix<T>& A, Matrix<Base<T>>& d, Int offset )
 {
-    DEBUG_CSE
-    function<Base<T>(T)> imagPart
-    ( []( T alpha ) { return ImagPart(alpha); } ); 
+    EL_DEBUG_CSE
+    function<Base<T>(const T&)> imagPart
+    ( []( const T& alpha ) { return ImagPart(alpha); } );
     GetMappedDiagonal( A, d, imagPart, offset );
 }
 
@@ -63,72 +63,75 @@ Matrix<Base<T>> GetImagPartOfDiagonal( const Matrix<T>& A, Int offset )
     return d;
 }
 
-// TODO: SparseMatrix implementation
+// TODO(poulson): SparseMatrix implementation
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void GetDiagonal
-( const DistMatrix<T,U,V>& A, ElementalMatrix<T>& d, Int offset )
-{ 
-    DEBUG_CSE
-    function<T(T)> identity( []( T alpha ) { return alpha; } );
+( const DistMatrix<T,U,V,wrap>& A, AbstractDistMatrix<T>& d, Int offset )
+{
+    EL_DEBUG_CSE
+    function<T(const T&)> identity( []( const T& alpha ) { return alpha; } );
     GetMappedDiagonal( A, d, identity, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void GetRealPartOfDiagonal
-( const DistMatrix<T,U,V>& A, ElementalMatrix<Base<T>>& d, Int offset )
-{ 
-    DEBUG_CSE
-    function<Base<T>(T)> realPart
-    ( []( T alpha ) { return RealPart(alpha); } );
+( const DistMatrix<T,U,V,wrap>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
+{
+    EL_DEBUG_CSE
+    function<Base<T>(const T&)> realPart
+    ( []( const T& alpha ) { return RealPart(alpha); } );
     GetMappedDiagonal( A, d, realPart, offset );
 }
 
-template<typename T,Dist U,Dist V>
+template<typename T,Dist U,Dist V,DistWrap wrap>
 void GetImagPartOfDiagonal
-( const DistMatrix<T,U,V>& A, ElementalMatrix<Base<T>>& d, Int offset )
-{ 
-    DEBUG_CSE
-    function<Base<T>(T)> imagPart
-    ( []( T alpha ) { return ImagPart(alpha); } );
+( const DistMatrix<T,U,V,wrap>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
+{
+    EL_DEBUG_CSE
+    function<Base<T>(const T&)> imagPart
+    ( []( const T& alpha ) { return ImagPart(alpha); } );
     GetMappedDiagonal( A, d, imagPart, offset );
 }
 
 template<typename T>
 void GetDiagonal
-( const ElementalMatrix<T>& A, ElementalMatrix<T>& d, Int offset )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       GetDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
 void GetRealPartOfDiagonal
-( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& d, Int offset )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       GetRealPartOfDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
 
 template<typename T>
 void GetImagPartOfDiagonal
-( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& d, Int offset )
+( const AbstractDistMatrix<T>& A, AbstractDistMatrix<Base<T>>& d, Int offset )
 {
     // Manual dynamic dispatch
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
       GetImagPartOfDiagonal( ACast, d, offset );
     #include <El/macros/GuardAndPayload.h>
 }
@@ -138,6 +141,17 @@ DistMatrix<T,DiagCol<U,V>(),DiagRow<U,V>()>
 GetDiagonal( const DistMatrix<T,U,V>& A, Int offset )
 {
     DistMatrix<T,DiagCol<U,V>(),DiagRow<U,V>()> d(A.Grid());
+    GetDiagonal( A, d, offset );
+    return d;
+}
+
+// TODO(poulson): Use a different output distribution after BlockMatrix has
+// better operator= coverage
+template<typename T,Dist U,Dist V>
+DistMatrix<T,MC,STAR>
+GetDiagonal( const DistMatrix<T,U,V,BLOCK>& A, Int offset )
+{
+    DistMatrix<T,MC,STAR> d(A.Grid());
     GetDiagonal( A, d, offset );
     return d;
 }
@@ -152,10 +166,28 @@ GetRealPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset )
 }
 
 template<typename T,Dist U,Dist V>
+DistMatrix<Base<T>,MC,STAR>
+GetRealPartOfDiagonal( const DistMatrix<T,U,V,BLOCK>& A, Int offset )
+{
+    DistMatrix<Base<T>,MC,STAR> d(A.Grid());
+    GetRealPartOfDiagonal( A, d, offset );
+    return d;
+}
+
+template<typename T,Dist U,Dist V>
 DistMatrix<Base<T>,DiagCol<U,V>(),DiagRow<U,V>()>
 GetImagPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset )
 {
     DistMatrix<Base<T>,DiagCol<U,V>(),DiagRow<U,V>()> d(A.Grid());
+    GetImagPartOfDiagonal( A, d, offset );
+    return d;
+}
+
+template<typename T,Dist U,Dist V>
+DistMatrix<Base<T>,MC,STAR>
+GetImagPartOfDiagonal( const DistMatrix<T,U,V,BLOCK>& A, Int offset )
+{
+    DistMatrix<Base<T>,MC,STAR> d(A.Grid());
     GetImagPartOfDiagonal( A, d, offset );
     return d;
 }
@@ -182,11 +214,17 @@ GetImagPartOfDiagonal( const DistMatrix<T,U,V>& A, Int offset )
   EL_EXTERN template Matrix<Base<T>> GetImagPartOfDiagonal \
   ( const Matrix<T>& A, Int offset ); \
   EL_EXTERN template void GetDiagonal \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<T>& d, Int offset ); \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& d, \
+    Int offset ); \
   EL_EXTERN template void GetRealPartOfDiagonal \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& d, Int offset ); \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<Base<T>>& d, \
+    Int offset ); \
   EL_EXTERN template void GetImagPartOfDiagonal \
-  ( const ElementalMatrix<T>& A, ElementalMatrix<Base<T>>& d, Int offset );
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<Base<T>>& d, \
+    Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

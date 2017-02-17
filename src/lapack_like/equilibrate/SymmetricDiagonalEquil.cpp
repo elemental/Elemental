@@ -2,74 +2,79 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
+template<typename Field>
 void SymmetricDiagonalEquil
-( Matrix<F>& A, Matrix<Base<F>>& d, bool progress )
+( Matrix<Field>& A,
+  Matrix<Base<Field>>& d,
+  bool progress )
 {
-    DEBUG_CSE
-    // TODO: Ensure A is square
+    EL_DEBUG_CSE
+    // TODO(poulson): Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
     if( progress )
         Output("Diagonal equilibration not yet enabled for dense matrices");
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricDiagonalEquil
-( ElementalMatrix<F>& A, ElementalMatrix<Base<F>>& d, bool progress )
+( AbstractDistMatrix<Field>& A,
+  AbstractDistMatrix<Base<Field>>& d,
+  bool progress )
 {
-    DEBUG_CSE
-    // TODO: Ensure A is square
+    EL_DEBUG_CSE
+    // TODO(poulson): Ensure A is square
     const Int n = A.Height();
     Ones( d, n, 1 );
     if( progress )
         Output("Diagonal equilibration not yet enabled for dense matrices");
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricDiagonalEquil
-( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress )
+( SparseMatrix<Field>& A,
+  Matrix<Base<Field>>& d,
+  bool progress )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    auto maxSqrtLambda = []( F delta ) 
-                         { return Sqrt(Max(Abs(delta),Real(1))); };
-    function<Real(F)> maxSqrt( maxSqrtLambda );
-    GetMappedDiagonal( A, d, maxSqrt );
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    auto maxSqrt = []( const Field& delta )
+      { return Sqrt(Max(Abs(delta),Real(1))); };
+    GetMappedDiagonal( A, d, MakeFunction(maxSqrt) );
     if( progress )
     {
-        const Real maxNorm = MaxNorm( d ); 
+        const Real maxNorm = MaxNorm( d );
         Output("  || d ||_max = ",maxNorm);
     }
     SymmetricDiagonalSolve( d, A );
 }
 
-template<typename F>
+template<typename Field>
 void SymmetricDiagonalEquil
-( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, 
+( DistSparseMatrix<Field>& A,
+  DistMultiVec<Base<Field>>& d,
   bool progress, bool time )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank(comm);
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
     Timer timer;
 
-    d.SetComm( comm );
-    auto maxSqrtLambda = []( F delta )
-                         { return Sqrt(Max(Abs(delta),Real(1))); };
-    function<Real(F)> maxSqrt( maxSqrtLambda );
+    d.SetGrid( grid );
+    auto maxSqrt = []( const Field& delta )
+      { return Sqrt(Max(Abs(delta),Real(1))); };
     if( commRank == 0 && time )
         timer.Start();
-    GetMappedDiagonal( A, d, maxSqrt );
+    GetMappedDiagonal( A, d, MakeFunction(maxSqrt) );
     if( commRank == 0 && time )
         Output("  Get mapped diag time: ",timer.Stop());
     if( commRank == 0 && time )
@@ -80,21 +85,27 @@ void SymmetricDiagonalEquil
     if( progress )
     {
         const Real maxNorm = MaxNorm( d );
-        if( commRank == 0 ) 
-            Output("  || d ||_max = ",maxNorm); 
+        if( commRank == 0 )
+            Output("  || d ||_max = ",maxNorm);
     }
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void SymmetricDiagonalEquil \
-  ( Matrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
-  template void SymmetricDiagonalEquil \
-  ( ElementalMatrix<F>& A,  ElementalMatrix<Base<F>>& d, \
+  ( Matrix<Field>& A, \
+    Matrix<Base<Field>>& d, \
     bool progress ); \
   template void SymmetricDiagonalEquil \
-  ( SparseMatrix<F>& A, Matrix<Base<F>>& d, bool progress ); \
+  ( AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Base<Field>>& d, \
+    bool progress ); \
   template void SymmetricDiagonalEquil \
-  ( DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& d, \
+  ( SparseMatrix<Field>& A, \
+    Matrix<Base<Field>>& d, \
+    bool progress ); \
+  template void SymmetricDiagonalEquil \
+  ( DistSparseMatrix<Field>& A, \
+    DistMultiVec<Base<Field>>& d, \
     bool progress, bool time );
 
 #define EL_NO_INT_PROTO

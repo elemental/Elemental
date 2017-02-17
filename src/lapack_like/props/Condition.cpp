@@ -2,19 +2,19 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
-Base<F> Condition( const Matrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> Condition( const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     case FROBENIUS_NORM:
@@ -38,11 +38,11 @@ Base<F> Condition( const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F> 
-Base<F> Condition( const ElementalMatrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> Condition( const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     case FROBENIUS_NORM:
@@ -66,9 +66,10 @@ Base<F> Condition( const ElementalMatrix<F>& A, NormType type )
     return norm;
 }
 
-#define PROTO(F) \
-  template Base<F> Condition( const Matrix<F>& A, NormType type ); \
-  template Base<F> Condition( const ElementalMatrix<F>& A, NormType type );
+#define PROTO(Field) \
+  template Base<Field> Condition( const Matrix<Field>& A, NormType type ); \
+  template Base<Field> \
+  Condition( const AbstractDistMatrix<Field>& A, NormType type );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

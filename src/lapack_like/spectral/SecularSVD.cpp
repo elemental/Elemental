@@ -8,6 +8,18 @@
 */
 #include <El.hpp>
 
+// As discussed in FP_Consistency_070816.pdf, which is linked from
+//
+// <https://software.intel.com/en-us/articles/consistency-of-floating-point-results-using-the-intel-compiler>,
+//
+// the Intel compilers do not preserve evaluation order by default and may issue
+// an FMA that ignores parentheses. The following pragmas avoid this behavior.
+//
+#ifdef __INTEL_COMPILER
+#pragma float_control (precise, on)
+#pragma float_control (source, on)
+#endif
+
 #include "./SecularSVD/TwoByTwo.hpp"
 
 namespace El {
@@ -98,7 +110,7 @@ void EvaluateSecular
         State<Real>& state,
   bool penalizeDerivative=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Int n = z.Height();
     const Int origin = state.origin;
@@ -161,7 +173,7 @@ void EvaluateSecularLast
         LastState<Real>& state,
   bool penalizeDerivative=false )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real one(1);
     const Int n = z.Height();
     const Int origin = n-1;
@@ -207,7 +219,7 @@ void SecularInitialGuess
         State<Real>& state,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1);
     const Int k = whichValue;
     const Int n = d.Height();
@@ -377,7 +389,7 @@ void SecularInitialGuessLast
         LastState<Real>& state,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     const Real zero(0), one(1);
     const Real rhoInv = one / rho;
@@ -505,7 +517,7 @@ void SecularUpdate
         SecularSVDInfo& info,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = d.Height();
     const Int k = whichValue;
@@ -892,7 +904,7 @@ void SecularUpdateLast
         LastState<Real>& state,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Int n = state.dPlusShift.Height();
     const Int origin = n-1;
@@ -1020,12 +1032,12 @@ SecularInner
         State<Real>& state,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0);
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( k == n-1 )
           LogicError("SecularInner meant for inner singular values");
       if( n <= 2 )
@@ -1080,7 +1092,7 @@ SecularInner
     initialize = false;
     while( true )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( !limits::IsFinite(state.sigmaEst) )
           {
               RuntimeError("Produced non-finite sigmaEst=",state.sigmaEst);
@@ -1123,11 +1135,11 @@ SecularLast
         LastState<Real>& state,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real eps = limits::Epsilon<Real>();
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( k != n-1 )
           LogicError("SecularLast meant for largest singular value");
       if( n <= 2 )
@@ -1200,10 +1212,10 @@ SecularSingularValue
         Real& singularValue,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
           LogicError("Invalid singular value request");
@@ -1259,10 +1271,10 @@ SecularSingularValue
         Matrix<Real>& dPlusShift,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int k = whichValue;
     const Int n = d.Height();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Real zero(0);
       if( k < 0 || k >= n )
           LogicError("Invalid singular value request");
@@ -1330,7 +1342,7 @@ SecularSVD
         Matrix<Real>& V,
   const SecularSVDCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = d.Height();
     SecularSVDInfo info;
 

@@ -398,7 +398,7 @@ namespace scalapack {
 // --------
 void Cholesky( char uplo, int n, float* A, const int* descA )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pspotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -407,7 +407,7 @@ void Cholesky( char uplo, int n, float* A, const int* descA )
 
 void Cholesky( char uplo, int n, double* A, const int* descA )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pdpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -416,7 +416,7 @@ void Cholesky( char uplo, int n, double* A, const int* descA )
 
 void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pcpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -425,7 +425,7 @@ void Cholesky( char uplo, int n, scomplex* A, const int* descA )
 
 void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1,jA=1,info;
     EL_SCALAPACK(pzpotrf)( &uplo, &n, A, &iA, &jA, descA, &info );
     if( info != 0 )
@@ -436,7 +436,7 @@ void Cholesky( char uplo, int n, dcomplex* A, const int* descA )
 // --
 void QR( int m, int n, float* A, const int* descA, float* tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -454,7 +454,7 @@ void QR( int m, int n, float* A, const int* descA, float* tau )
 
 void QR( int m, int n, double* A, const int* descA, double* tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -472,7 +472,7 @@ void QR( int m, int n, double* A, const int* descA, double* tau )
 
 void QR( int m, int n, scomplex* A, const int* descA, scomplex* tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -490,7 +490,7 @@ void QR( int m, int n, scomplex* A, const int* descA, scomplex* tau )
 
 void QR( int m, int n, dcomplex* A, const int* descA, dcomplex* tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, info;
 
     int lwork=-1;
@@ -518,7 +518,7 @@ void LinearSolve
   int* ipiv,
   float* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(psgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -532,7 +532,7 @@ void LinearSolve
   int* ipiv,
   double* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(pdgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -546,7 +546,7 @@ void LinearSolve
   int* ipiv,
   scomplex* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(pcgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -560,7 +560,7 @@ void LinearSolve
   int* ipiv,
   dcomplex* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iB=1, jB=1, info;
     EL_SCALAPACK(pzgesv)
     ( &n, &numRhs, A, &iA, &jA, descA, ipiv, B, &iB, &jB, descB, &info );
@@ -579,7 +579,7 @@ void LinearSolve
 void HermitianEig
 ( char uplo, int n, float* A, const int* descA, float* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -626,7 +626,7 @@ void HermitianEig
 void HermitianEig
 ( char uplo, int n, double* A, const int* descA, double* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -673,7 +673,7 @@ void HermitianEig
 void HermitianEig
 ( char uplo, int n, scomplex* A, const int* descA, float* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -725,7 +725,7 @@ void HermitianEig
 void HermitianEig
 ( char uplo, int n, dcomplex* A, const int* descA, double* w )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='N', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -782,7 +782,7 @@ void HermitianEig
   float* w,
   float* Z, const int* descZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -831,7 +831,7 @@ void HermitianEig
   double* w,
   double* Z, const int* descZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -880,7 +880,7 @@ void HermitianEig
   float* w,
   scomplex* Z, const int* descZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -934,7 +934,7 @@ void HermitianEig
   double* w,
   dcomplex* Z, const int* descZ )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     char jobZ='V', range='A';
     int iA=1, jA=1, iZ=1, jZ=1,
         iL, iU,
@@ -989,7 +989,7 @@ void HermitianEig
 // ^^^^^^^^^^^^^^^
 void SingularValues( int m, int n, float* A, const int* descA, float* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     float* U=nullptr;
@@ -1024,7 +1024,7 @@ void SingularValues( int m, int n, float* A, const int* descA, float* s )
 
 void SingularValues( int m, int n, double* A, const int* descA, double* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     double* U=nullptr;
@@ -1059,7 +1059,7 @@ void SingularValues( int m, int n, double* A, const int* descA, double* s )
 
 void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     scomplex* U=nullptr;
@@ -1104,7 +1104,7 @@ void SingularValues( int m, int n, scomplex* A, const int* descA, float* s )
 
 void SingularValues( int m, int n, dcomplex* A, const int* descA, double* s )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const char jobU='N', jobVH='N';
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
     dcomplex* U=nullptr;
@@ -1157,7 +1157,7 @@ void SVD
   float* U, const int* descU,
   float* VH, const int* descVH )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     // Workspace query
@@ -1195,7 +1195,7 @@ void SVD
   double* U, const int* descU,
   double* VH, const int* descVH )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     // Workspace query
@@ -1233,7 +1233,7 @@ void SVD
   scomplex* U, const int* descU,
   scomplex* VH, const int* descVH )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     const int maxDim = Max(m,n);
@@ -1274,7 +1274,7 @@ void SVD
   dcomplex* U, const int* descU,
   dcomplex* VH, const int* descVH )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int iA=1, jA=1, iU=1, jU=1, iVH=1, jVH=1, info;
 
     const int maxDim = Max(m,n);
@@ -1352,7 +1352,7 @@ void TwoSidedTrsm
         float* A, const int* descA, 
   const float* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
@@ -1377,7 +1377,7 @@ void TwoSidedTrsm
         double* A, const int* descA, 
   const double* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
@@ -1402,7 +1402,7 @@ void TwoSidedTrsm
         scomplex* A, const int* descA, 
   const scomplex* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
@@ -1428,7 +1428,7 @@ void TwoSidedTrsm
         dcomplex* A, const int* descA, 
   const dcomplex* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=1,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
@@ -1456,7 +1456,7 @@ void TwoSidedTrmm
         float* A, const int* descA, 
   const float* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale, dummyWork;
     EL_SCALAPACK(pssyngst)
@@ -1481,7 +1481,7 @@ void TwoSidedTrmm
         double* A, const int* descA, 
   const double* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale, dummyWork;
     EL_SCALAPACK(pdsyngst)
@@ -1506,7 +1506,7 @@ void TwoSidedTrmm
         scomplex* A, const int* descA, 
   const scomplex* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     float scale;
     scomplex dummyWork;
@@ -1532,7 +1532,7 @@ void TwoSidedTrmm
         dcomplex* A, const int* descA, 
   const dcomplex* B, const int* descB )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     int typeB=2,iA=1,jA=1,iB=1,jB=1,workSize=-1,info;
     double scale;
     dcomplex dummyWork;
@@ -1558,7 +1558,7 @@ void TwoSidedTrmm
 void HessenbergSchur
 ( int n, float* H, const int* descH, scomplex* w, bool fullTriangle, bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<float> wr(n), wi(n);
     int descQ[9] = 
@@ -1634,7 +1634,7 @@ void HessenbergSchur
 void HessenbergSchur
 ( int n, double* H, const int* descH, dcomplex* w, bool fullTriangle, bool aed )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<double> wr(n), wi(n);
     int descQ[9] = 
@@ -1710,7 +1710,7 @@ void HessenbergSchur
 ( int n, scomplex* H, const int* descH, scomplex* w, bool fullTriangle, 
   bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                    wantz=FORTRAN_FALSE;
     if( aed )
@@ -1744,7 +1744,7 @@ void HessenbergSchur
 ( int n, dcomplex* H, const int* descH, dcomplex* w, bool fullTriangle,
   bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     FortranLogical wantt=(fullTriangle ? FORTRAN_TRUE : FORTRAN_FALSE), 
                    wantz=FORTRAN_FALSE;
     if( aed )
@@ -1778,7 +1778,7 @@ void HessenbergSchur
 ( int n, float* H, const int* descH, scomplex* w, float* Q, const int* descQ, 
   bool fullTriangle, bool multiplyQ, bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<float> wr(n), wi(n);
     int info;
@@ -1863,7 +1863,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int ilo=1, ihi=n;
     vector<double> wr(n), wi(n);
     int info;
@@ -1948,7 +1948,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
@@ -1987,7 +1987,7 @@ void HessenbergSchur
   bool multiplyQ,
   bool aed ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( !multiplyQ )
         LogicError("Forcing the matrix to identity is not yet supported");
     if( aed )
@@ -2021,25 +2021,25 @@ void HessenbergSchur
 // -------------------------------------------------
 void HessenbergEig( int n, float* H, const int* descH, scomplex* w ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, double* H, const int* descH, dcomplex* w ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, scomplex* H, const int* descH, scomplex* w ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 
 void HessenbergEig( int n, dcomplex* H, const int* descH, dcomplex* w ) 
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     HessenbergSchur( n, H, descH, w, false );
 }
 

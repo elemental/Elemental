@@ -2,32 +2,32 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F> 
+template<typename Field>
 void TestCorrectness
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
-  const Matrix<F>& A,
-  const Matrix<F>& AOrig,
+  const Matrix<Field>& A,
+  const Matrix<Field>& AOrig,
   bool print )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = AOrig.Height();
     const Real oneNormA = OneNorm( AOrig );
     const Real eps = limits::Epsilon<Real>();
 
     // Test I - inv(A) A
-    Matrix<F> X;
+    Matrix<Field> X;
     X = AOrig;
     MakeTrapezoidal( uplo, X );
-    Trmm( LEFT, uplo, NORMAL, diag, F(1), A, X );
-    ShiftDiagonal( X, F(-1) );
+    Trmm( LEFT, uplo, NORMAL, diag, Field(1), A, X );
+    ShiftDiagonal( X, Field(-1) );
 
     const Real maxError = MaxNorm( X );
     const Real relError = maxError / (eps*m*oneNormA);
@@ -38,26 +38,26 @@ void TestCorrectness
         LogicError("Unacceptably large relative error");
 }
 
-template<typename F> 
+template<typename Field>
 void TestCorrectness
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
-  const DistMatrix<F>& A,
-  const DistMatrix<F>& AOrig,
+  const DistMatrix<Field>& A,
+  const DistMatrix<Field>& AOrig,
   bool print )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
     const Real oneNormA = OneNorm( AOrig );
     const Real eps = limits::Epsilon<Real>();
 
     // Test I - inv(A) A
-    DistMatrix<F> X(g);
+    DistMatrix<Field> X(g);
     X = AOrig;
     MakeTrapezoidal( uplo, X );
-    Trmm( LEFT, uplo, NORMAL, diag, F(1), A, X );
-    ShiftDiagonal( X, F(-1) );
+    Trmm( LEFT, uplo, NORMAL, diag, Field(1), A, X );
+    ShiftDiagonal( X, Field(-1) );
 
     const Real maxError = MaxNorm( X );
     const Real relError = maxError / (eps*m*oneNormA);
@@ -70,7 +70,7 @@ void TestCorrectness
         LogicError("Unacceptably large relative error");
 }
 
-template<typename F> 
+template<typename Field>
 void TestTriangularInverse
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
@@ -78,13 +78,13 @@ void TestTriangularInverse
   bool correctness,
   bool print )
 {
-    Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<Field>());
     PushIndent();
 
-    Matrix<F> A, AOrig;
+    Matrix<Field> A, AOrig;
     Uniform( A, m, m );
     MakeTrapezoidal( uplo, A );
-    ShiftDiagonal( A, F(3) );
+    ShiftDiagonal( A, Field(3) );
     if( correctness )
         AOrig = A;
     if( print )
@@ -96,7 +96,7 @@ void TestTriangularInverse
     TriangularInverse( uplo, diag, A );
     const double runTime = timer.Stop();
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    const double gFlops = IsComplex<Field>::value ? 4*realGFlops : realGFlops;
     Output("Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( A, "A after inversion" );
@@ -105,7 +105,7 @@ void TestTriangularInverse
     PopIndent();
 }
 
-template<typename F> 
+template<typename Field>
 void TestTriangularInverse
 ( const Grid& g,
   UpperOrLower uplo,
@@ -114,13 +114,13 @@ void TestTriangularInverse
   bool correctness,
   bool print )
 {
-    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<Field>());
     PushIndent();
 
-    DistMatrix<F> A(g), AOrig(g);
+    DistMatrix<Field> A(g), AOrig(g);
     Uniform( A, m, m );
     MakeTrapezoidal( uplo, A );
-    ShiftDiagonal( A, F(3) );
+    ShiftDiagonal( A, Field(3) );
     if( correctness )
         AOrig = A;
     if( print )
@@ -134,7 +134,7 @@ void TestTriangularInverse
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    const double gFlops = IsComplex<Field>::value ? 4*realGFlops : realGFlops;
     OutputFromRoot(g.Comm(),"Time = ",runTime," seconds (",gFlops," GFlop/s)");
     if( print )
         Print( A, "A after inversion" );
@@ -143,7 +143,7 @@ void TestTriangularInverse
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -175,7 +175,7 @@ main( int argc, char* argv[] )
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
         SetBlocksize( nb );

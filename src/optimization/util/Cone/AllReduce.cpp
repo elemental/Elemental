@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -28,13 +28,13 @@ OpToReduce( mpi::Op op )
     return reduce;
 }
 
-template<typename F>
-EnableIf<IsComplex<F>,function<F(F,F)>>
+template<typename Field>
+EnableIf<IsComplex<Field>,function<Field(Field,Field)>>
 OpToReduce( mpi::Op op )
 {
-    function<F(F,F)> reduce;
+    function<Field(Field,Field)> reduce;
     if( op == mpi::SUM )
-        reduce = []( F alpha, F beta ) { return alpha+beta; };
+        reduce = []( Field alpha, Field beta ) { return alpha+beta; };
     else
         LogicError("Unsupported cone::AllReduce operation");
     return reduce;
@@ -44,21 +44,21 @@ OpToReduce( mpi::Op op )
 
 namespace cone {
 
-template<typename F>
+template<typename Field>
 void AllReduce
-(       Matrix<F>& x, 
-  const Matrix<Int>& orders, 
+(       Matrix<Field>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
         mpi::Op op )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    auto reduce = OpToReduce<F>( op );
+    auto reduce = OpToReduce<Field>( op );
     for( Int i=0; i<height; )
     {
         const Int order = orders(i);
@@ -66,7 +66,7 @@ void AllReduce
         if( i != firstInd )
             LogicError("Inconsistency in orders and firstInds");
 
-        F coneRes = x(i);
+        Field coneRes = x(i);
         for( Int j=i+1; j<i+order; ++j )
             coneRes = reduce(coneRes,x(j));
         for( Int j=i; j<i+order; ++j )
@@ -76,22 +76,22 @@ void AllReduce
     }
 }
 
-template<typename F>
+template<typename Field>
 void AllReduce
-(       ElementalMatrix<F>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+(       AbstractDistMatrix<Field>& xPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   mpi::Op op,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    DistMatrixReadProxy<F,F,VC,STAR>
+    DistMatrixReadProxy<Field,Field,VC,STAR>
       xProx( xPre, ctrl );
     DistMatrixReadProxy<Int,Int,VC,STAR>
       ordersProx( ordersPre, ctrl ),
@@ -101,24 +101,24 @@ void AllReduce
     auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    auto reduce = OpToReduce<F>( op );
+    auto reduce = OpToReduce<Field>( op );
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    const int commSize = mpi::Size(comm);
+    const int commSize = x.DistSize();
 
-          F* xBuf = x.Buffer();
+          Field* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
     // Perform an mpi::AllToAll to scatter all of the cone roots of
-    // order less than or equal to the cutoff 
-    // TODO: Find a better strategy
+    // order less than or equal to the cutoff
+    // TODO(poulson): Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
 
     // Handle all cones with order <= cutoff
@@ -128,7 +128,7 @@ void AllReduce
     // -----------------------------------------------
     {
         // For now, we will simply Gather each cone to each root rather than
-        // performing a local reduction beforehand (TODO: do this)
+        // performing a local reduction beforehand (TODO(poulson): do this)
 
         // Compute the metadata
         // ^^^^^^^^^^^^^^^^^^^^
@@ -144,19 +144,18 @@ void AllReduce
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
-                // TODO: Don't count this if we also own the root
+                // TODO(poulson): Don't count this if we also own the root
                 ++sendCounts[owner];
             }
         }
         vector<int> recvCounts(commSize);
-        mpi::AllToAll
-        ( sendCounts.data(), 1, recvCounts.data(), 1, x.DistComm() );
-        
+        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, comm );
+
         // Pack the data
         // ^^^^^^^^^^^^^
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<F> sendBuf(totalSend);
+        vector<Field> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
@@ -169,19 +168,19 @@ void AllReduce
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
-                // TODO: Don't pack if we also own the root
+                // TODO(poulson): Don't pack if we also own the root
                 sendBuf[offs[owner]++] = xBuf[iLoc];
             }
         }
 
         // Exchange the data
-        // ^^^^^^^^^^^^^^^^^ 
+        // ^^^^^^^^^^^^^^^^^
         vector<int> recvOffs;
         const int totalRecv = Scan( recvCounts, recvOffs );
-        vector<F> recvBuf(totalRecv);
+        vector<Field> recvBuf(totalRecv);
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), x.DistComm() );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), comm );
 
         // Locally reduce on the roots
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -196,11 +195,11 @@ void AllReduce
             const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
-                F coneRes = xBuf[iLoc];
+                Field coneRes = xBuf[iLoc];
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
-                    // TODO: Pull locally if locally owned
+                    // TODO(poulson): Pull locally if locally owned
                     coneRes = reduce(coneRes,recvBuf[offs[owner]++]);
                 }
                 xBuf[iLoc] = coneRes;
@@ -278,48 +277,47 @@ void AllReduce
         const Int i = recvData[2*largeCone+0];
         const Int order = recvData[2*largeCone+1];
         auto xCone = x( IR(i,i+order), ALL );
-        F* xConeBuf = xCone.Buffer();
+        Field* xConeBuf = xCone.Buffer();
 
         // Compute our local result in this cone
-        F localConeRes = 0;
+        Field localConeRes = 0;
         const Int xConeLocalHeight = xCone.LocalHeight();
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
             localConeRes = reduce(localConeRes,xConeBuf[iLoc]);
 
         // Compute the maximum for this cone
-        const F coneRes = mpi::AllReduce( localConeRes, op, x.DistComm() );
+        const Field coneRes = mpi::AllReduce( localConeRes, op, comm );
         for( Int iLoc=0; iLoc<xConeLocalHeight; ++iLoc )
             xConeBuf[iLoc] = coneRes;
     }
 }
 
-template<typename F>
+template<typename Field>
 void AllReduce
-(       DistMultiVec<F>& x, 
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, 
+(       DistMultiVec<Field>& x,
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
   mpi::Op op, Int cutoff )
 {
-    DEBUG_CSE
-
-    // TODO: Check that the communicators are congruent
-    mpi::Comm comm = x.Comm();
-    const int commSize = mpi::Size(comm);
+    EL_DEBUG_CSE
+    // TODO(poulson): Check that the communicators are congruent
+    const Grid& grid = x.Grid();
+    const int commSize = grid.Size();
     const int localHeight = x.LocalHeight();
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    auto reduce = OpToReduce<F>( op );
+    auto reduce = OpToReduce<Field>( op );
 
-          F* xBuf = x.Matrix().Buffer();
+          Field* xBuf = x.Matrix().Buffer();
     const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
-    // TODO: Find a better strategy
+    // TODO(poulson): Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
 
     // Handle all cones with order <= cutoff
@@ -329,7 +327,7 @@ void AllReduce
     // -----------------------------------------------
     {
         // For now, we will simply Gather each cone to each root rather than
-        // performing a local reduction beforehand (TODO: do this)
+        // performing a local reduction beforehand (TODO(poulson): do this)
 
         // Compute the metadata
         // ^^^^^^^^^^^^^^^^^^^^
@@ -345,18 +343,19 @@ void AllReduce
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
-                // TODO: Don't count this if we also own the root
+                // TODO(poulson): Don't count this if we also own the root
                 ++sendCounts[owner];
             }
         }
         vector<int> recvCounts(commSize);
-        mpi::AllToAll( sendCounts.data(), 1, recvCounts.data(), 1, x.Comm() );
-        
+        mpi::AllToAll
+        ( sendCounts.data(), 1, recvCounts.data(), 1, grid.Comm() );
+
         // Pack the data
         // ^^^^^^^^^^^^^
         vector<int> sendOffs;
         const int totalSend = Scan( sendCounts, sendOffs );
-        vector<F> sendBuf(totalSend);
+        vector<Field> sendBuf(totalSend);
         auto offs = sendOffs;
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
@@ -369,19 +368,19 @@ void AllReduce
             if( i != firstInd )
             {
                 const Int owner = firstInds.RowOwner(firstInd);
-                // TODO: Don't pack if we also own the root
+                // TODO(poulson): Don't pack if we also own the root
                 sendBuf[offs[owner]++] = xBuf[iLoc];
             }
         }
 
         // Exchange the data
-        // ^^^^^^^^^^^^^^^^^ 
+        // ^^^^^^^^^^^^^^^^^
         vector<int> recvOffs;
         const int totalRecv = Scan( recvCounts, recvOffs );
-        vector<F> recvBuf(totalRecv);
+        vector<Field> recvBuf(totalRecv);
         mpi::AllToAll
         ( sendBuf.data(), sendCounts.data(), sendOffs.data(),
-          recvBuf.data(), recvCounts.data(), recvOffs.data(), x.Comm() );
+          recvBuf.data(), recvCounts.data(), recvOffs.data(), grid.Comm() );
 
         // Compute the maxima on the roots
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -396,11 +395,11 @@ void AllReduce
             const Int firstInd = firstIndBuf[iLoc];
             if( i == firstInd )
             {
-                F coneRes = xBuf[iLoc];
+                Field coneRes = xBuf[iLoc];
                 for( Int j=i+1; j<i+order; ++j )
                 {
                     const Int owner = firstInds.RowOwner(j);
-                    // TODO: Pull locally if locally owned
+                    // TODO(poulson): Pull locally if locally owned
                     coneRes = reduce(coneRes,recvBuf[offs[owner]++]);
                 }
                 xBuf[iLoc] = coneRes;
@@ -466,45 +465,45 @@ void AllReduce
     }
     const int numSendInts = sendData.size();
     vector<int> numRecvInts(commSize);
-    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, comm );
+    mpi::AllGather( &numSendInts, 1, numRecvInts.data(), 1, grid.Comm() );
     vector<int> recvOffs;
-    const int totalRecv = Scan( numRecvInts, recvOffs ); 
+    const int totalRecv = Scan( numRecvInts, recvOffs );
     vector<Int> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendInts,
-      recvData.data(), numRecvInts.data(), recvOffs.data(), comm );
+      recvData.data(), numRecvInts.data(), recvOffs.data(), grid.Comm() );
     for( Int largeCone=0; largeCone<totalRecv/2; ++largeCone )
     {
         const Int i = recvData[2*largeCone+0];
         const Int order = recvData[2*largeCone+1];
 
         // Compute our local result in this cone
-        F localConeRes = 0;
+        Field localConeRes = 0;
         const Int iFirst = x.FirstLocalRow();
         const Int iLast = iFirst + x.LocalHeight();
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
             localConeRes = reduce(localConeRes,xBuf[j-iFirst]);
 
         // Compute the maximum for this cone
-        const F coneRes = mpi::AllReduce( localConeRes, op, x.Comm() );
+        const Field coneRes = mpi::AllReduce( localConeRes, op, grid.Comm() );
         for( Int j=Max(iFirst,i); j<Min(iLast,i+order); ++j )
             xBuf[j-iFirst] = coneRes;
     }
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void AllReduce \
-  (       Matrix<F>& x, \
+  (       Matrix<Field>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds, \
     mpi::Op op ); \
   template void AllReduce \
-  (       ElementalMatrix<F>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  (       AbstractDistMatrix<Field>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     mpi::Op op, Int cutoff ); \
   template void AllReduce \
-  (       DistMultiVec<F>& x, \
+  (       DistMultiVec<Field>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, \
     mpi::Op op, Int cutoff );

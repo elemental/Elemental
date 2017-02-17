@@ -2,71 +2,60 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
-#include "./SVM/ADMM.hpp"
 #include "./SVM/IPM.hpp"
 
 namespace El {
 
 template<typename Real>
 void SVM
-( const Matrix<Real>& A, 
-  const Matrix<Real>& d, 
+( const Matrix<Real>& A,
+  const Matrix<Real>& d,
         Real lambda,
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-    if( ctrl.useIPM )
-        svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
-    else
-        svm::ADMM( A, d, lambda, x, ctrl.modelFitCtrl );
+    EL_DEBUG_CSE
+    svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
 template<typename Real>
 void SVM
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& d, 
-        Real lambda, 
-        ElementalMatrix<Real>& x, 
+( const AbstractDistMatrix<Real>& A,
+  const AbstractDistMatrix<Real>& d,
+        Real lambda,
+        AbstractDistMatrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-    if( ctrl.useIPM )
-        svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
-    else
-        svm::ADMM( A, d, lambda, x, ctrl.modelFitCtrl );
+    EL_DEBUG_CSE
+    svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
 template<typename Real>
 void SVM
 ( const SparseMatrix<Real>& A,
-  const Matrix<Real>& d, 
+  const Matrix<Real>& d,
         Real lambda,
         Matrix<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-    if( !ctrl.useIPM )
-        LogicError("ADMM SVM not yet supported for sparse matrices"); 
+    EL_DEBUG_CSE
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
 template<typename Real>
 void SVM
 ( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& d, 
+  const DistMultiVec<Real>& d,
         Real lambda,
         DistMultiVec<Real>& x,
   const SVMCtrl<Real>& ctrl )
 {
-    DEBUG_CSE
-    if( !ctrl.useIPM )
-        LogicError("ADMM SVM not yet supported for sparse matrices"); 
+    EL_DEBUG_CSE
     svm::IPM( A, d, lambda, x, ctrl.ipmCtrl );
 }
 
@@ -78,10 +67,10 @@ void SVM
           Matrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& d, \
+  ( const AbstractDistMatrix<Real>& A, \
+    const AbstractDistMatrix<Real>& d, \
           Real lambda, \
-          ElementalMatrix<Real>& x, \
+          AbstractDistMatrix<Real>& x, \
     const SVMCtrl<Real>& ctrl ); \
   template void SVM \
   ( const SparseMatrix<Real>& A, \

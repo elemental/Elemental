@@ -2,34 +2,34 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 #include "El/core/FlamePart.hpp"
 
-// This file implements both dense and sparse-direct solutions of 
+// This file implements both dense and sparse-direct solutions of
 // General (Gauss-Markov) Linear Model (GLM):
 //
-//     min_{x,y} || y ||_2 such that A x + B y = d. 
+//     min_{x,y} || y ||_2 such that A x + B y = d.
 //
-// For dense instances of the problem, where A is m x n and B is m x p, 
-// we assume that n <= m <= n+p as well as that A has full column rank, n, and 
+// For dense instances of the problem, where A is m x n and B is m x p,
+// we assume that n <= m <= n+p as well as that A has full column rank, n, and
 // [A B] has full row rank, m.
 //
 // A Generalized QR factorization of (A,B),
 //     A = Q R = Q | R11 |, B = Q T Z = Q | T11 T12 | Z,
 //                 | 0   |                |   0 T22 |
 // where Q and Z are unitary and R and T are upper-trapezoidal, allows us to
-// re-express the constraint as 
+// re-express the constraint as
 //     (Q^H d) = | R11 | x + | T11 T12 | (Z y).
 //               |   0 |     |   0 T22 |
 // which is re-written as
 //      | g1 | = | R11 x + T11 c1 + T12 c2 |
 //      | g2 |   |                  T22 c2 |.
-// Since || c ||_2 == || Z y ||_2 = || y ||_2 is to be minimized, and c2 is 
+// Since || c ||_2 == || Z y ||_2 = || y ||_2 is to be minimized, and c2 is
 // fixed, our only freedom is in the choice of c1, which we set to zero.
 // Then all that is left is to solve
 //      R11 x = g1 - T12 c2
@@ -53,12 +53,12 @@ namespace El {
 
 namespace glm {
 
-// For the following two routines, on exit, A and B are overwritten with their 
+// For the following two routines, on exit, A and B are overwritten with their
 // implicit Generalized QR factorization and D is overwritten with X
-template<typename F> 
+template<typename F>
 void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int p = B.Width();
@@ -99,8 +99,8 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
 
     // G1 := G1 - T12 C2
     Gemm( NORMAL, NORMAL, F(-1), T12, C2, F(1), G1 );
-    
-    // Solve R11 X = G1 
+
+    // Solve R11 X = G1
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R11, G1, checkIfSingular );
     D.Resize( n, numRhs );
 
@@ -108,14 +108,14 @@ void Overwrite( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y )
     rq::ApplyQ( LEFT, ADJOINT, B, tB, dB, Y );
 }
 
-template<typename F> 
+template<typename F>
 void Overwrite
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& BPre, 
-  ElementalMatrix<F>& DPre,
-  ElementalMatrix<F>& YPre )
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& BPre,
+  AbstractDistMatrix<F>& DPre,
+  AbstractDistMatrix<F>& YPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR>
       AProx( APre ),
@@ -172,7 +172,7 @@ void Overwrite
 
     // G1 := G1 - T12 C2
     Gemm( NORMAL, NORMAL, F(-1), T12, C2, F(1), G1 );
-    
+
     // Solve R11 X = G1
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R11, G1, checkIfSingular );
     D.Resize( n, numRhs );
@@ -183,29 +183,29 @@ void Overwrite
 
 } // namespace glm
 
-template<typename F> 
+template<typename F>
 void GLM
 ( const Matrix<F>& A,
-  const Matrix<F>& B, 
-  const Matrix<F>& D, 
+  const Matrix<F>& B,
+  const Matrix<F>& D,
         Matrix<F>& X,
         Matrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Matrix<F> ACopy( A ), BCopy( B );
     X = D;
     glm::Overwrite( ACopy, BCopy, X, Y );
 }
 
-template<typename F> 
+template<typename F>
 void GLM
-( const ElementalMatrix<F>& A,
-  const ElementalMatrix<F>& B, 
-  const ElementalMatrix<F>& D, 
-        ElementalMatrix<F>& X,
-        ElementalMatrix<F>& Y )
+( const AbstractDistMatrix<F>& A,
+  const AbstractDistMatrix<F>& B,
+  const AbstractDistMatrix<F>& D,
+        AbstractDistMatrix<F>& X,
+        AbstractDistMatrix<F>& Y )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     DistMatrix<F> ACopy( A ), BCopy( B );
     Copy( D, X );
     glm::Overwrite( ACopy, BCopy, X, Y );
@@ -217,10 +217,10 @@ void GLM
   const SparseMatrix<F>& B,
   const Matrix<F>& D,
         Matrix<F>& X,
-        Matrix<F>& Y, 
+        Matrix<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();
@@ -235,10 +235,10 @@ void GLM
     HCat( A, B, W );
     if( ctrl.equilibrate )
     {
-        RowTwoNorms( W, dR ); 
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dR, function<Real(Real)>(normMap) );
+        RowTwoNorms( W, dR );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dR, MakeFunction(normMap) );
         DiagonalSolve( LEFT, NORMAL, dR, W );
     }
     else
@@ -290,40 +290,9 @@ void GLM
         J.QueueUpdate( e+m+n, e+m+n, -ctrl.alpha );
     J.ProcessQueues();
 
-    // Add the temporary, a priori regularization
-    // ==========================================
-    Matrix<Real> regTmp, regPerm;
-    Zeros( regTmp, m+n+k, 1 );
-    Zeros( regPerm, m+n+k, 1 );
-    for( Int i=0; i<m; ++i )
-    {
-        regTmp(i) = ctrl.reg0Tmp*ctrl.reg0Tmp;
-        regPerm(i) = ctrl.reg0Perm*ctrl.reg0Perm;
-    }
-    for( Int i=m; i<m+n+k; ++i )
-    {
-        regTmp(i) = -ctrl.reg1Tmp*ctrl.reg1Tmp;
-        regPerm(i) = -ctrl.reg1Perm*ctrl.reg1Perm;
-    }
-    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
-    SparseMatrix<F> JOrig;
-    JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-
-    // Factor the regularized system
-    // =============================
-    vector<Int> map, invMap;
-    ldl::NodeInfo info;
-    ldl::Separator rootSep;
-    ldl::NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-    ldl::Front<F> JFront( J, map, info );
-    LDL( info, JFront );
-
-    // Solve the linear systems
-    // ========================
-    reg_ldl::SolveAfter
-    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
+    // Solve the Symmetric Quasi-SemiDefinite system
+    // =============================================
+    SQSDSolve( m, J, G, ctrl.sqsdCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -344,27 +313,27 @@ void GLM
         DistMultiVec<F>& Y,
   const LeastSquaresCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
 
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = B.Width();
     const Int numRHS = D.Width();
-    mpi::Comm comm = A.Comm();
-    const int commRank = mpi::Rank( comm );
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
 
     // Rescale the rows of W := [ A, B ]
     // ===============================
-    DistMultiVec<Real> dR(comm);
-    DistSparseMatrix<F> W(comm);
+    DistMultiVec<Real> dR(grid);
+    DistSparseMatrix<F> W(grid);
     HCat( A, B, W );
     if( ctrl.equilibrate )
     {
         RowTwoNorms( W, dR );
-        auto normMap = []( Real beta )
-          { return ( beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta ); };
-        EntrywiseMap( dR, function<Real(Real)>(normMap) );
+        auto normMap = []( const Real& beta )
+          { return beta < Sqrt(limits::Epsilon<Real>()) ? Real(1) : beta; };
+        EntrywiseMap( dR, MakeFunction(normMap) );
         DiagonalSolve( LEFT, NORMAL, dR, W );
     }
     else
@@ -384,7 +353,7 @@ void GLM
     // Form the augmented RHS
     // ======================
     //   G = [ D/alpha; 0; 0 ]
-    DistMultiVec<F> G(comm);
+    DistMultiVec<F> G(grid);
     Zeros( G, m+n+k, numRHS );
     X = D;
     X *= F(1)/ctrl.alpha;
@@ -410,7 +379,7 @@ void GLM
     //         | B^H  0  -alpha*I |
     //
     const Int numEntriesW = W.NumLocalEntries();
-    DistSparseMatrix<F> J(comm);
+    DistSparseMatrix<F> J(grid);
     Zeros( J, m+n+k, m+n+k );
     {
         const Int JLocalHeight = J.LocalHeight();
@@ -443,45 +412,9 @@ void GLM
         J.ProcessQueues();
     }
 
-    // Add the a priori regularization
-    // ===============================
-    DistMultiVec<Real> regTmp(comm), regPerm(comm);
-    Zeros( regTmp, m+n+k, 1 );
-    Zeros( regPerm, m+n+k, 1 );
-    const Int regLocalHeight = regTmp.LocalHeight();
-    for( Int iLoc=0; iLoc<regLocalHeight; ++iLoc )
-    {
-        const Int i = regTmp.GlobalRow(iLoc);
-        if( i < m )
-        {
-            regTmp.Set( i, 0, ctrl.reg0Tmp*ctrl.reg0Tmp );
-            regPerm.Set( i, 0, ctrl.reg0Perm*ctrl.reg0Perm );
-        }
-        else
-        {
-            regTmp.Set( i, 0, -ctrl.reg1Tmp*ctrl.reg1Tmp );
-            regPerm.Set( i, 0, -ctrl.reg1Perm*ctrl.reg1Perm );
-        }
-    }
-    UpdateRealPartOfDiagonal( J, Real(1), regPerm );
-    DistSparseMatrix<F> JOrig(comm);
-    JOrig = J;
-    UpdateRealPartOfDiagonal( J, Real(1), regTmp );
-
-    // Factor the regularized system
-    // =============================
-    DistMap map, invMap;
-    ldl::DistNodeInfo info;
-    ldl::DistSeparator rootSep;
-    ldl::NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-    ldl::DistFront<F> JFront( J, map, rootSep, info );
-    LDL( info, JFront );
-
-    // Solve the linear systems
-    // ========================
-    reg_ldl::SolveAfter
-    ( JOrig, regTmp, invMap, info, JFront, G, ctrl.solveCtrl );
+    // Solve the Symmetric Quasi-SemiDefinite system
+    // =============================================
+    SQSDSolve( m, J, G, ctrl.sqsdCtrl );
 
     // Extract X and Y from G = [ Z; X/alpha; Y/alpha ]
     // ================================================
@@ -497,10 +430,10 @@ void GLM
   template void glm::Overwrite \
   ( Matrix<F>& A, Matrix<F>& B, Matrix<F>& D, Matrix<F>& Y ); \
   template void glm::Overwrite \
-  ( ElementalMatrix<F>& A, \
-    ElementalMatrix<F>& B, \
-    ElementalMatrix<F>& D, \
-    ElementalMatrix<F>& Y ); \
+  ( AbstractDistMatrix<F>& A, \
+    AbstractDistMatrix<F>& B, \
+    AbstractDistMatrix<F>& D, \
+    AbstractDistMatrix<F>& Y ); \
   template void GLM \
   ( const Matrix<F>& A, \
     const Matrix<F>& B, \
@@ -508,11 +441,11 @@ void GLM
           Matrix<F>& X, \
           Matrix<F>& Y ); \
   template void GLM \
-  ( const ElementalMatrix<F>& A, \
-    const ElementalMatrix<F>& B, \
-    const ElementalMatrix<F>& D, \
-          ElementalMatrix<F>& X, \
-          ElementalMatrix<F>& Y ); \
+  ( const AbstractDistMatrix<F>& A, \
+    const AbstractDistMatrix<F>& B, \
+    const AbstractDistMatrix<F>& D, \
+          AbstractDistMatrix<F>& X, \
+          AbstractDistMatrix<F>& Y ); \
   template void GLM \
   ( const SparseMatrix<F>& A, \
     const SparseMatrix<F>& B, \

@@ -2,15 +2,15 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 //
 // Please see <http://perception.csl.illinois.edu/matrix-rank/sample_code.html>
-// for references and documentation on the Augmented Lagrange Multiplier (ALM) 
+// for references and documentation on the Augmented Lagrange Multiplier (ALM)
 // and Alternating Direction Method of Multipliers (ADMM) for Robust PCA.
 //
 
@@ -18,54 +18,57 @@ namespace El {
 
 namespace rpca {
 
-template<typename F>
-void NormalizeEntries( Matrix<F>& A )
-{ 
-    auto unitMap = []( F alpha ) 
-                   { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
-    EntrywiseMap( A, function<F(F)>(unitMap) );
+template<typename Field>
+void NormalizeEntries( Matrix<Field>& A )
+{
+    auto unitMap = []( const Field& alpha )
+      { return alpha==Field(0) ? Field(1) : alpha/Abs(alpha); };
+    EntrywiseMap( A, MakeFunction(unitMap) );
 }
 
-template<typename F>
-void NormalizeEntries( ElementalMatrix<F>& A )
-{ 
-    auto unitMap = []( F alpha ) 
-                   { return alpha==F(0) ? F(1) : alpha/Abs(alpha); };
-    EntrywiseMap( A, function<F(F)>(unitMap) );
+template<typename Field>
+void NormalizeEntries( AbstractDistMatrix<Field>& A )
+{
+    auto unitMap = []( const Field& alpha )
+      { return alpha==Field(0) ? Field(1) : alpha/Abs(alpha); };
+    EntrywiseMap( A, MakeFunction(unitMap) );
 }
 
 // NOTE: If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))
 
-template<typename F>
+template<typename Field>
 void ADMM
-( const Matrix<F>& M, 
-        Matrix<F>& L,
-        Matrix<F>& S, 
-  const RPCACtrl<Base<F>>& ctrl )
+( const Matrix<Field>& M,
+        Matrix<Field>& L,
+        Matrix<Field>& S,
+  const RPCACtrl<Base<Field>>& ctrl )
 {
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
-    const Base<F> tau = 
+    const Real tau =
         ( ctrl.tau <= Real(0) ? Real(1)/sqrt(Real(Max(m,n))) : ctrl.tau );
     if( ctrl.beta <= Real(0) )
         LogicError("beta cannot be non-positive");
     if( ctrl.tol <= Real(0) )
         LogicError("tol cannot be non-positive");
-    const Base<F> beta = ctrl.beta;
-    const Base<F> tol = ctrl.tol;
+    const Real beta = ctrl.beta;
+    const Real tol = ctrl.tol;
 
     const double startTime = mpi::Time();
-    Matrix<F> E, Y;
+    Matrix<Field> E, Y;
     Zeros( Y, m, n );
 
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress )
-        cout << "|| M ||_F = " << frobM << "\n"
-             << "|| M ||_max = " << maxM << endl;
+    {
+        Output("|| M ||_F = ",frobM);
+        Output("|| M ||_max = ",maxM);
+    }
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -78,100 +81,100 @@ void ADMM
         // ST_{tau/beta}(M - L + Y/beta)
         S = M;
         S -= L;
-        Axpy( F(1)/beta, Y, S );
+        Axpy( Field(1)/beta, Y, S );
         SoftThreshold( S, tau/beta );
         const Int numNonzeros = ZeroNorm( S );
 
         // SVT_{1/beta}(M - S + Y/beta)
         L = M;
         L -= S;
-        Axpy( F(1)/beta, Y, L );
+        Axpy( Field(1)/beta, Y, L );
         Int rank;
         if( ctrl.usePivQR )
             rank = SVT( L, Real(1)/beta, ctrl.numPivSteps );
         else
             rank = SVT( L, Real(1)/beta );
-      
+
         // E := M - (L + S)
-        E = M;    
+        E = M;
         E -= L;
         E -= S;
         const Real frobE = FrobeniusNorm( E );
 
-        if( frobE/frobM <= tol )            
+        if( frobE/frobM <= tol )
         {
             if( ctrl.progress )
-                cout << "Converged after " << numIts << " iterations "
-                     << " with rank=" << rank 
-                     << ", numNonzeros=" << numNonzeros << " and "
-                     << "|| E ||_F / || M ||_F = " << frobE/frobM
-                     << ", and " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                ("Converged after ",numIts," iterations "," with rank=",rank,
+                 ", numNonzeros=",numNonzeros," and || E ||_F / || M ||_F = ",
+                 frobE/frobM,", and ",mpi::Time()-startTime," total secs");
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress )
-                cout << "Aborting after " << numIts << " iterations and "
-                     << mpi::Time()-startTime << " total secs" 
-                     << endl;
+                Output
+                ("Aborting after ",numIts," iterations and ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else
         {
             if( ctrl.progress )
-                cout << numIts << ": || E ||_F / || M ||_F = " 
-                     << frobE/frobM << ", rank=" << rank 
-                     << ", numNonzeros=" << numNonzeros 
-                     << ", " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                (numIts,": || E ||_F / || M ||_F = ",frobE/frobM,", rank=",rank,
+                 ", numNonzeros=",numNonzeros,", ",mpi::Time()-startTime,
+                 " total secs");
         }
-        
+
         // Y := Y + beta E
         Axpy( beta, E, Y );
     }
 }
 
-template<typename F>
+template<typename Field>
 void ADMM
-( const ElementalMatrix<F>& MPre,
-        ElementalMatrix<F>& LPre, 
-        ElementalMatrix<F>& SPre,
-  const RPCACtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& MPre,
+        AbstractDistMatrix<Field>& LPre,
+        AbstractDistMatrix<Field>& SPre,
+  const RPCACtrl<Base<Field>>& ctrl )
 {
-    DistMatrixReadProxy<F,F,MC,MR>
+    EL_DEBUG_CSE
+    DistMatrixReadProxy<Field,Field,MC,MR>
       MProx( MPre );
-    DistMatrixWriteProxy<F,F,MC,MR>
+    DistMatrixWriteProxy<Field,Field,MC,MR>
       LProx( LPre ),
       SProx( SPre );
     auto& M = MProx.GetLocked();
     auto& L = LProx.Get();
     auto& S = SProx.Get();
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
     const int commRank = mpi::Rank( M.Grid().Comm() );
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
-    const Base<F> tau = 
+    const Real tau =
         ( ctrl.tau <= Real(0) ? Real(1)/sqrt(Real(Max(m,n))) : ctrl.tau );
     if( ctrl.beta <= Real(0) )
         LogicError("beta cannot be non-positive");
     if( ctrl.tol <= Real(0) )
         LogicError("tol cannot be non-positive");
-    const Base<F> beta = ctrl.beta;
-    const Base<F> tol = ctrl.tol;
+    const Real beta = ctrl.beta;
+    const Real tol = ctrl.tol;
 
     const double startTime = mpi::Time();
-    DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
+    DistMatrix<Field> E( M.Grid() ), Y( M.Grid() );
     Zeros( Y, m, n );
 
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress && commRank == 0 )
-        cout << "|| M ||_F = " << frobM << "\n"
-             << "|| M ||_max = " << maxM << endl;
+    {
+        Output("|| M ||_F = ",frobM);
+        Output("|| M ||_max = ",maxM);
+    }
 
     Zeros( L, m, n );
     Zeros( S, m, n );
@@ -184,55 +187,52 @@ void ADMM
         // ST_{tau/beta}(M - L + Y/beta)
         S = M;
         S -= L;
-        Axpy( F(1)/beta, Y, S );
+        Axpy( Field(1)/beta, Y, S );
         SoftThreshold( S, tau/beta );
         const Int numNonzeros = ZeroNorm( S );
 
         // SVT_{1/beta}(M - S + Y/beta)
         L = M;
         L -= S;
-        Axpy( F(1)/beta, Y, L );
+        Axpy( Field(1)/beta, Y, L );
         Int rank;
         if( ctrl.usePivQR )
             rank = SVT( L, Real(1)/beta, ctrl.numPivSteps );
         else
             rank = SVT( L, Real(1)/beta );
-      
+
         // E := M - (L + S)
-        E = M;    
+        E = M;
         E -= L;
         E -= S;
         const Real frobE = FrobeniusNorm( E );
 
-        if( frobE/frobM <= tol )            
+        if( frobE/frobM <= tol )
         {
             if( ctrl.progress && commRank == 0 )
-                cout << "Converged after " << numIts << " iterations "
-                     << " with rank=" << rank 
-                     << ", numNonzeros=" << numNonzeros << " and "
-                     << "|| E ||_F / || M ||_F = " << frobE/frobM
-                     << ", and " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                ("Converged after ",numIts," iterations with rank=",rank,
+                 ", numNonzeros=",numNonzeros," and || E ||_F / || M ||_F = ",
+                 frobE/frobM,", and ",mpi::Time()-startTime," total secs");
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress && commRank == 0 )
-                cout << "Aborting after " << numIts << " iterations and "
-                     << mpi::Time()-startTime << " total secs" 
-                     << endl;
+                Output
+                ("Aborting after ",numIts," iterations and ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else
         {
             if( ctrl.progress && commRank == 0 )
-                cout << numIts << ": || E ||_F / || M ||_F = " 
-                     << frobE/frobM << ", rank=" << rank 
-                     << ", numNonzeros=" << numNonzeros 
-                     << ", " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                (numIts,": || E ||_F / || M ||_F = ",frobE/frobM,", rank=",
+                 rank,", numNonzeros=",numNonzeros,", ",mpi::Time()-startTime,
+                 " total secs");
         }
-        
+
         // Y := Y + beta E
         Axpy( beta, E, Y );
     }
@@ -240,54 +240,56 @@ void ADMM
 
 // NOTE: If 'beta' or 'tau' is zero, then an estimate is used instead
 
-template<typename F>
+template<typename Field>
 void ALM
-( const Matrix<F>& M,
-        Matrix<F>& L,
-        Matrix<F>& S, 
-  const RPCACtrl<Base<F>>& ctrl )
+( const Matrix<Field>& M,
+        Matrix<Field>& L,
+        Matrix<Field>& S,
+  const RPCACtrl<Base<Field>>& ctrl )
 {
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
-    const Base<F> tau = 
+    const Real tau =
       ( ctrl.tau <= Real(0) ? Real(1) / sqrt(Real(Max(m,n))) :
         ctrl.tau );
     if( ctrl.tol <= Real(0) )
         LogicError("tol cannot be non-positive");
-    const Base<F> tol = ctrl.tol;
+    const Real tol = ctrl.tol;
 
     const double startTime = mpi::Time();
 
-    Matrix<F> Y( M );
+    Matrix<Field> Y( M );
     NormalizeEntries( Y );
     const Real twoNorm = TwoNorm( Y );
     const Real maxNorm = MaxNorm( Y );
-    const Real infNorm = maxNorm / tau; 
+    const Real infNorm = maxNorm / tau;
     const Real dualNorm = Max( twoNorm, infNorm );
-    Y *= F(1)/dualNorm;
+    Y *= Field(1)/dualNorm;
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
-    Base<F> beta = 
-      ( ctrl.beta <= Real(0) ? Real(1) / (2*twoNorm) : ctrl.beta );
+    Real beta = ( ctrl.beta <= Real(0) ? Real(1) / (2*twoNorm) : ctrl.beta );
 
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress )
-        cout << "|| M ||_F = " << frobM << "\n"
-             << "|| M ||_max = " << maxM << endl;
+    {
+        Output("|| M ||_F = ",frobM);
+        Output("|| M ||_max = ",maxM);
+    }
 
     Zeros( L, m, n );
     Zeros( S, m, n );
 
     Int numIts=0, numPrimalIts=0;
-    Matrix<F> LLast, SLast, E;
+    Matrix<Field> LLast, SLast, E;
     while( true )
     {
         ++numIts;
-       
+
         Int rank, numNonzeros;
         while( true )
         {
@@ -299,14 +301,14 @@ void ALM
             // ST_{tau/beta}(M - L + Y/beta)
             S = M;
             S -= L;
-            Axpy( F(1)/beta, Y, S );
+            Axpy( Field(1)/beta, Y, S );
             SoftThreshold( S, tau/beta );
             numNonzeros = ZeroNorm( S );
 
             // SVT_{1/beta}(M - S + Y/beta)
             L = M;
             L -= S;
-            Axpy( F(1)/beta, Y, L );
+            Axpy( Field(1)/beta, Y, L );
             if( ctrl.usePivQR )
                 rank = SVT( L, Real(1)/beta, ctrl.numPivSteps );
             else
@@ -320,125 +322,123 @@ void ALM
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
                 if( ctrl.progress )
-                    cout << "Primal loop converged: " 
-                         << mpi::Time()-startTime << " total secs"
-                         << endl;
+                    Output
+                    ("Primal loop converged: ",mpi::Time()-startTime,
+                     " total secs");
                 break;
             }
-            else 
+            else
             {
                 if( ctrl.progress )
-                    cout << "  " << numPrimalIts 
-                         << ": \n"
-                         << "   || Delta L ||_F / || M ||_F = " 
-                         << frobLDiff/frobM << "\n"
-                         << "   || Delta S ||_F / || M ||_F = "
-                         << frobSDiff/frobM << "\n"
-                         << "   rank=" << rank
-                         << ", numNonzeros=" << numNonzeros 
-                         << ", " << mpi::Time()-startTime << " total secs" 
-                         << endl;
-            } 
+                {
+                    Output("  ",numPrimalIts,": ");
+                    Output("   || Delta L ||_F / || M ||_F = ",frobLDiff/frobM);
+                    Output("   || Delta S ||_F / || M ||_F = ",frobSDiff/frobM);
+                    Output
+                    ("   rank=",rank,", numNonzeros=",numNonzeros,", ",
+                     mpi::Time()-startTime," total secs");
+                }
+            }
         }
 
         // E := M - (L + S)
-        E = M;    
+        E = M;
         E -= L;
         E -= S;
         const Real frobE = FrobeniusNorm( E );
 
-        if( frobE/frobM <= tol )            
+        if( frobE/frobM <= tol )
         {
             if( ctrl.progress )
-                cout << "Converged after " << numIts << " iterations and "
-                     << numPrimalIts << " primal iterations with rank=" 
-                     << rank << ", numNonzeros=" << numNonzeros << " and "
-                     << "|| E ||_F / || M ||_F = " << frobE/frobM
-                     << ", " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                ("Converged after ",numIts," iterations and ",numPrimalIts,
+                 " primal iterations with rank=",rank,", numNonzeros=",
+                 numNonzeros," and || E ||_F / || M ||_F = ",frobE/frobM,", ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress )
-                cout << "Aborting after " << numIts << " iterations and "
-                     << mpi::Time()-startTime << " total secs" 
-                     << endl;
+                Output
+                ("Aborting after ",numIts," iterations and ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else
         {
             if( ctrl.progress )
-                cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
-                     << frobE/frobM << ", rank=" << rank 
-                     << ", numNonzeros=" << numNonzeros << ", "
-                     << mpi::Time()-startTime << " total secs" 
-                     << endl;
+                Output
+                (numPrimalIts,": || E ||_F / || M ||_F = ",frobE/frobM,
+                 ", rank=",rank,", numNonzeros=",numNonzeros,", ",
+                 mpi::Time()-startTime," total secs");
         }
-        
+
         // Y := Y + beta E
         Axpy( beta, E, Y );
         beta *= ctrl.rho;
     }
 }
 
-template<typename F>
+template<typename Field>
 void ALM
-( const ElementalMatrix<F>& MPre, 
-        ElementalMatrix<F>& LPre,
-        ElementalMatrix<F>& SPre, 
-  const RPCACtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& MPre,
+        AbstractDistMatrix<Field>& LPre,
+        AbstractDistMatrix<Field>& SPre,
+  const RPCACtrl<Base<Field>>& ctrl )
 {
-    DistMatrixReadProxy<F,F,MC,MR>
+    DistMatrixReadProxy<Field,Field,MC,MR>
       MProx( MPre );
-    DistMatrixWriteProxy<F,F,MC,MR>
+    DistMatrixWriteProxy<Field,Field,MC,MR>
       LProx( LPre ),
       SProx( SPre );
     auto& M = MProx.GetLocked();
     auto& L = LProx.Get();
     auto& S = SProx.Get();
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = M.Height();
     const Int n = M.Width();
     const int commRank = mpi::Rank( M.Grid().Comm() );
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
-    const Base<F> tau = 
+    const Real tau =
       ( ctrl.tau <= Real(0) ? Real(1) / sqrt(Real(Max(m,n))) : ctrl.tau );
     if( ctrl.tol <= Real(0) )
         LogicError("tol cannot be non-positive");
-    const Base<F> tol = ctrl.tol;
+    const Real tol = ctrl.tol;
 
     const double startTime = mpi::Time();
 
-    DistMatrix<F> Y( M );
+    DistMatrix<Field> Y( M );
     NormalizeEntries( Y );
     const Real twoNorm = TwoNorm( Y );
     const Real maxNorm = MaxNorm( Y );
-    const Real infNorm = maxNorm / tau; 
+    const Real infNorm = maxNorm / tau;
     const Real dualNorm = Max( twoNorm, infNorm );
-    Y *= F(1)/dualNorm;
+    Y *= Field(1)/dualNorm;
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
-    Base<F> beta = 
+    Real beta =
       ( ctrl.beta <= Real(0) ? Real(1) / (2*twoNorm) : ctrl.beta );
 
     const Real frobM = FrobeniusNorm( M );
     const Real maxM = MaxNorm( M );
     if( ctrl.progress && commRank == 0 )
-        cout << "|| M ||_F = " << frobM << "\n"
-             << "|| M ||_max = " << maxM << endl;
+    {
+        Output("|| M ||_F = ",frobM);
+        Output("|| M ||_max = ",maxM);
+    }
 
     Zeros( L, m, n );
     Zeros( S, m, n );
 
     Int numIts=0, numPrimalIts=0;
-    DistMatrix<F> LLast( M.Grid() ), SLast( M.Grid() ), E( M.Grid() );
+    DistMatrix<Field> LLast( M.Grid() ), SLast( M.Grid() ), E( M.Grid() );
     while( true )
     {
         ++numIts;
-       
+
         Int rank, numNonzeros;
         while( true )
         {
@@ -450,14 +450,14 @@ void ALM
             // ST_{tau/beta}(M - L + Y/beta)
             S = M;
             S -= L;
-            Axpy( F(1)/beta, Y, S );
+            Axpy( Field(1)/beta, Y, S );
             SoftThreshold( S, tau/beta );
             numNonzeros = ZeroNorm( S );
 
             // SVT_{1/beta}(M - S + Y/beta)
             L = M;
             L -= S;
-            Axpy( F(1)/beta, Y, L );
+            Axpy( Field(1)/beta, Y, L );
             if( ctrl.usePivQR )
                 rank = SVT( L, Real(1)/beta, ctrl.numPivSteps );
             else
@@ -471,60 +471,58 @@ void ALM
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
                 if( ctrl.progress && commRank == 0 )
-                    cout << "Primal loop converged: " 
-                         << mpi::Time()-startTime << " total secs" << endl;
+                    Output
+                    ("Primal loop converged: ",mpi::Time()-startTime,
+                     " total secs");
                 break;
             }
-            else 
+            else
             {
                 if( ctrl.progress && commRank == 0 )
-                    cout << "  " << numPrimalIts 
-                         << ": \n"
-                         << "   || Delta L ||_F / || M ||_F = " 
-                         << frobLDiff/frobM << "\n"
-                         << "   || Delta S ||_F / || M ||_F = "
-                         << frobSDiff/frobM << "\n"
-                         << "   rank=" << rank
-                         << ", numNonzeros=" << numNonzeros 
-                         << ", " << mpi::Time()-startTime << " total secs" 
-                         << endl;
-            } 
+                {
+                    Output("  ",numPrimalIts,":");
+                    Output("   || Delta L ||_F / || M ||_F = ",frobLDiff/frobM);
+                    Output("   || Delta S ||_F / || M ||_F = ",frobSDiff/frobM);
+                    Output
+                    ("   rank=",rank,", numNonzeros=",numNonzeros,
+                     ", ",mpi::Time()-startTime," total secs");
+                }
+            }
         }
 
         // E := M - (L + S)
-        E = M;    
+        E = M;
         E -= L;
         E -= S;
         const Real frobE = FrobeniusNorm( E );
 
-        if( frobE/frobM <= tol )            
+        if( frobE/frobM <= tol )
         {
             if( ctrl.progress && commRank == 0 )
-                cout << "Converged after " << numIts << " iterations and "
-                     << numPrimalIts << " primal iterations with rank=" 
-                     << rank << ", numNonzeros=" << numNonzeros << " and "
-                     << "|| E ||_F / || M ||_F = " << frobE/frobM
-                     << ", " << mpi::Time()-startTime << " total secs"
-                     << endl;
+                Output
+                ("Converged after ",numIts," iterations and ",numPrimalIts,
+                 " primal iterations with rank=",rank,", numNonzeros=",
+                 numNonzeros," and || E ||_F / || M ||_F = ",frobE/frobM,
+                 ", ",mpi::Time()-startTime," total secs");
             break;
         }
         else if( numIts >= ctrl.maxIts )
         {
             if( ctrl.progress && commRank == 0 )
-                cout << "Aborting after " << numIts << " iterations and "
-                     << mpi::Time()-startTime << " total secs" << endl;
+                Output
+                ("Aborting after ",numIts," iterations and ",
+                 mpi::Time()-startTime," total secs");
             break;
         }
         else
         {
             if( ctrl.progress && commRank == 0 )
-                cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
-                     << frobE/frobM << ", rank=" << rank 
-                     << ", numNonzeros=" << numNonzeros << ", "
-                     << mpi::Time()-startTime << " total secs" 
-                     << endl;
+                Output
+                (numPrimalIts,": || E ||_F / || M ||_F = ",frobE/frobM,
+                 ", rank=",rank,", numNonzeros=",numNonzeros,", ",
+                 mpi::Time()-startTime," total secs");
         }
-        
+
         // Y := Y + beta E
         Axpy( beta, E, Y );
         beta *= ctrl.rho;
@@ -533,45 +531,45 @@ void ALM
 
 } // namespace rpca
 
-template<typename F>
+template<typename Field>
 void RPCA
-( const Matrix<F>& M,
-        Matrix<F>& L,
-        Matrix<F>& S,
-  const RPCACtrl<Base<F>>& ctrl )
+( const Matrix<Field>& M,
+        Matrix<Field>& L,
+        Matrix<Field>& S,
+  const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.useALM )
-        rpca::ALM( M, L, S, ctrl ); 
+        rpca::ALM( M, L, S, ctrl );
     else
         rpca::ADMM( M, L, S, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 void RPCA
-( const ElementalMatrix<F>& M,
-        ElementalMatrix<F>& L, 
-        ElementalMatrix<F>& S,
-  const RPCACtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& M,
+        AbstractDistMatrix<Field>& L,
+        AbstractDistMatrix<Field>& S,
+  const RPCACtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( ctrl.useALM )
-        rpca::ALM( M, L, S, ctrl ); 
+        rpca::ALM( M, L, S, ctrl );
     else
         rpca::ADMM( M, L, S, ctrl );
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void RPCA \
-  ( const Matrix<F>& M, \
-          Matrix<F>& L, \
-          Matrix<F>& S, \
-    const RPCACtrl<Base<F>>& ctrl ); \
+  ( const Matrix<Field>& M, \
+          Matrix<Field>& L, \
+          Matrix<Field>& S, \
+    const RPCACtrl<Base<Field>>& ctrl ); \
   template void RPCA \
-  ( const ElementalMatrix<F>& M, \
-          ElementalMatrix<F>& L, \
-          ElementalMatrix<F>& S, \
-    const RPCACtrl<Base<F>>& ctrl );
+  ( const AbstractDistMatrix<Field>& M, \
+          AbstractDistMatrix<Field>& L, \
+          AbstractDistMatrix<Field>& S, \
+    const RPCACtrl<Base<Field>>& ctrl );
 
 #define EL_NO_INT_PROTO
 #include <El/macros/Instantiate.h>

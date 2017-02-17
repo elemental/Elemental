@@ -2,20 +2,20 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
-Base<F> FrobeniusCondition( const Matrix<F>& A )
+template<typename Field>
+Base<Field> FrobeniusCondition( const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    Matrix<F> B( A );
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    Matrix<Field> B( A );
     const Real oneNorm = FrobeniusNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e )
@@ -24,12 +24,12 @@ Base<F> FrobeniusCondition( const Matrix<F>& A )
     return oneNorm*oneNormInv;
 }
 
-template<typename F> 
-Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
+template<typename Field>
+Base<Field> FrobeniusCondition( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    DistMatrix<F> B( A );
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    DistMatrix<Field> B( A );
     const Real oneNorm = FrobeniusNorm( B );
     try { Inverse( B ); }
     catch( SingularMatrixException& e )
@@ -38,9 +38,9 @@ Base<F> FrobeniusCondition( const ElementalMatrix<F>& A )
     return oneNorm*oneNormInv;
 }
 
-#define PROTO(F) \
-  template Base<F> FrobeniusCondition( const Matrix<F>& A ); \
-  template Base<F> FrobeniusCondition( const ElementalMatrix<F>& A );
+#define PROTO(Field) \
+  template Base<Field> FrobeniusCondition( const Matrix<Field>& A ); \
+  template Base<Field> FrobeniusCondition( const AbstractDistMatrix<Field>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

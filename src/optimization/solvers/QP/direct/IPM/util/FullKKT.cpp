@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -25,7 +25,7 @@ namespace direct {
 //   |  A 0        0    | | dy |   |   -rb    |,
 //   | -I 0   (-z <> x) | | dz | = | z <> rmu |
 //
-// where 
+// where
 //
 //   rc = Q x + A^T y - z + c,
 //   rb = A x - b,
@@ -34,20 +34,20 @@ namespace direct {
 template<typename Real>
 void KKT
 ( const Matrix<Real>& Q,
-  const Matrix<Real>& A, 
+  const Matrix<Real>& A,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
     Zeros( J, 2*n+m, 2*n+m );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
-    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
-    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
-    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
     // Jxx := Q
     // ========
@@ -74,7 +74,7 @@ void KKT
     {
         // Jxy := A^T
         // ==========
-        Transpose( A, Jxy ); 
+        Transpose( A, Jxy );
 
         // Jxz := -I
         // =========
@@ -86,12 +86,12 @@ void KKT
 template<typename Real>
 void KKT
 ( const ElementalMatrix<Real>& Q,
-  const ElementalMatrix<Real>& A, 
+  const ElementalMatrix<Real>& A,
   const ElementalMatrix<Real>& x,
   const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& JPre, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -140,7 +140,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const SparseMatrix<Real>& Q,
-  const SparseMatrix<Real>& A, 
+  const SparseMatrix<Real>& A,
         Real gamma,
         Real delta,
         Real beta,
@@ -148,7 +148,7 @@ void KKT
   const Matrix<Real>& z,
         SparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
 
@@ -223,7 +223,7 @@ void KKT
 template<typename Real>
 void KKT
 ( const DistSparseMatrix<Real>& Q,
-  const DistSparseMatrix<Real>& A, 
+  const DistSparseMatrix<Real>& A,
         Real gamma,
         Real delta,
         Real beta,
@@ -231,12 +231,12 @@ void KKT
   const DistMultiVec<Real>& z,
         DistSparseMatrix<Real>& J, bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int numEntriesQ = Q.NumLocalEntries();
     const Int numEntriesA = A.NumLocalEntries();
-    J.SetComm( A.Comm() );
+    J.SetGrid( A.Grid() );
     Zeros( J, m+2*n, m+2*n );
 
     const Int xLocalHeight = x.LocalHeight();
@@ -269,7 +269,7 @@ void KKT
             if( !onlyLower )
                 ++analyticUpdates; // for -I
         }
-        else if( i < n+m ) 
+        else if( i < n+m )
         {
             ++analyticUpdates; // for -delta^2*I
         }
@@ -302,7 +302,7 @@ void KKT
     {
         const Int i = Q.Row(e);
         const Int j = Q.Col(e);
-        if( i >= j || !onlyLower ) 
+        if( i >= j || !onlyLower )
             J.QueueUpdate( i, j, Q.Value(e) );
     }
     // Pack A
@@ -312,7 +312,7 @@ void KKT
         const Int i = A.Row(e) + n;
         const Int j = A.Col(e);
         J.QueueUpdate( i, j, A.Value(e) );
-        if( !onlyLower ) 
+        if( !onlyLower )
             J.QueueUpdate( j, i, A.Value(e) );
     }
     // Pack -inv(z) o x - beta^2*I
@@ -330,12 +330,12 @@ void KKT
 template<typename Real>
 void KKTRHS
 ( const Matrix<Real>& rc,
-  const Matrix<Real>& rb, 
+  const Matrix<Real>& rb,
   const Matrix<Real>& rmu,
-  const Matrix<Real>& z, 
+  const Matrix<Real>& z,
         Matrix<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rc.Height();
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,2*n+m);
@@ -357,12 +357,12 @@ void KKTRHS
 template<typename Real>
 void KKTRHS
 ( const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb, 
+  const ElementalMatrix<Real>& rb,
   const ElementalMatrix<Real>& rmu,
-  const ElementalMatrix<Real>& z, 
+  const ElementalMatrix<Real>& z,
         ElementalMatrix<Real>& dPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixWriteProxy<Real,Real,MC,MR> dProx( dPre );
     auto& d = dProx.Get();
@@ -388,15 +388,15 @@ void KKTRHS
 template<typename Real>
 void KKTRHS
 ( const DistMultiVec<Real>& rc,
-  const DistMultiVec<Real>& rb, 
+  const DistMultiVec<Real>& rb,
   const DistMultiVec<Real>& rmu,
-  const DistMultiVec<Real>& z, 
+  const DistMultiVec<Real>& z,
         DistMultiVec<Real>& d )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = rb.Height();
     const Int n = rc.Height();
-    d.SetComm( rmu.Comm() );
+    d.SetGrid( rmu.Grid() );
     Zeros( d, m+2*n, 1 );
 
     d.Reserve( rc.LocalHeight()+rb.LocalHeight()+rmu.LocalHeight() );
@@ -423,37 +423,37 @@ void KKTRHS
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
-  const Matrix<Real>& d, 
+( Int m, Int n,
+  const Matrix<Real>& d,
         Matrix<Real>& dx,
-        Matrix<Real>& dy, 
+        Matrix<Real>& dy,
         Matrix<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
-  const ElementalMatrix<Real>& d, 
+( Int m, Int n,
+  const ElementalMatrix<Real>& d,
         ElementalMatrix<Real>& dx,
-        ElementalMatrix<Real>& dy, 
+        ElementalMatrix<Real>& dy,
         ElementalMatrix<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 
 template<typename Real>
 void ExpandSolution
-( Int m, Int n, 
-  const DistMultiVec<Real>& d, 
+( Int m, Int n,
+  const DistMultiVec<Real>& d,
         DistMultiVec<Real>& dx,
-        DistMultiVec<Real>& dy, 
+        DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     qp::affine::ExpandCoreSolution( m, n, n, d, dx, dy, dz );
 }
 

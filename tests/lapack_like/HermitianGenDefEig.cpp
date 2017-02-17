@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -72,7 +72,7 @@ void TestCorrectness
         // Set Z := Z - XW = ABX - XW
         for( Int j=0; j<Z.Width(); ++j )
         {
-            const Real omega = w(j); 
+            const Real omega = w(j);
             for( Int i=0; i<Z.Height(); ++i )
             {
                 Z(i,j) -= omega*X(i,j);
@@ -112,7 +112,7 @@ void TestCorrectness
         // Set Z := Z - XW = BAX-XW
         for( Int j=0; j<Z.Width(); ++j )
         {
-            const Real omega = w(j); 
+            const Real omega = w(j);
             for( Int i=0; i<Z.Height(); ++i )
             {
                 Z(i,j) -= omega*X(i,j);
@@ -162,7 +162,7 @@ void TestCorrectness
     const Real oneNormA = HermitianOneNorm( uplo, AOrig );
     const Real oneNormB = HermitianOneNorm( uplo, BOrig );
 
-    DistMatrix<Real,MR,STAR> w_MR_STAR(true,X.RowAlign(),g); 
+    DistMatrix<Real,MR,STAR> w_MR_STAR(true,X.RowAlign(),g);
     w_MR_STAR = w;
 
     if( pencil == AXBX )
@@ -217,7 +217,7 @@ void TestCorrectness
               Matrix<F>& ZLoc = Z.Matrix();
         for( Int jLoc=0; jLoc<ZLoc.Width(); ++jLoc )
         {
-            const Real omega = w_MR_STARLoc(jLoc); 
+            const Real omega = w_MR_STARLoc(jLoc);
             for( Int iLoc=0; iLoc<ZLoc.Height(); ++iLoc )
             {
                 ZLoc(iLoc,jLoc) -= omega*XLoc(iLoc,jLoc);
@@ -264,7 +264,7 @@ void TestCorrectness
               Matrix<F>& ZLoc = Z.Matrix();
         for( Int jLoc=0; jLoc<ZLoc.Width(); ++jLoc )
         {
-            const Real omega = w_MR_STARLoc(jLoc); 
+            const Real omega = w_MR_STARLoc(jLoc);
             for( Int iLoc=0; iLoc<ZLoc.Height(); ++iLoc )
             {
                 ZLoc(iLoc,jLoc) -= omega*XLoc(iLoc,jLoc);
@@ -317,7 +317,7 @@ void TestHermitianGenDefEigSequential
     HermitianUniformSpectrum( A, m, 1, 10 );
     if( pencil == BAX )
     {
-        // Because we will multiply by L three times, generate HPD B more 
+        // Because we will multiply by L three times, generate HPD B more
         // carefully than just adding m to its diagonal entries.
         Zeros( B, m, m );
         Matrix<F> C;
@@ -366,7 +366,7 @@ void TestHermitianGenDefEig
   bool onlyEigvals,
   bool correctness,
   bool print,
-  const Grid& g, 
+  const Grid& g,
   const HermitianEigCtrl<F>& ctrl )
 {
     typedef Base<F> Real;
@@ -379,7 +379,7 @@ void TestHermitianGenDefEig
     HermitianUniformSpectrum( A, m, 1, 10 );
     if( pencil == BAX )
     {
-        // Because we will multiply by L three times, generate HPD B more 
+        // Because we will multiply by L three times, generate HPD B more
         // carefully than just adding m to its diagonal entries.
         Zeros( B, m, m );
         DistMatrix<F> C(g);
@@ -460,7 +460,7 @@ void TestSuite
     ctrl.tridiagEigCtrl.alg = ctrlDbl.tridiagEigCtrl.alg;
     ctrl.tridiagEigCtrl.subset = subset;
 
-    if( sequential )
+    if( sequential && g.Rank() == 0 )
     {
         TestHermitianGenDefEigSequential<F>
         ( m, uplo, pencil, onlyEigvals, correctness, print, ctrl );
@@ -493,7 +493,7 @@ void TestSuite
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -508,7 +508,7 @@ main( int argc, char* argv[] )
              "1 is A x = lambda B x, "
              "2 is A B x = lambda x, "
              "3 is B A x = lambda x",1);
-        const bool onlyEigvals = Input 
+        const bool onlyEigvals = Input
             ("--onlyEigvals","only compute eigenvalues?",false);
         const char range = Input
             ("--range",
@@ -523,11 +523,11 @@ main( int argc, char* argv[] )
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const Int nbLocal = Input("--nbLocal","local blocksize",32);
-        const bool avoidTrmv = 
+        const bool avoidTrmv =
             Input("--avoidTrmv","avoid Trmv based Symv",true);
         const bool useScaLAPACK =
           Input("--useScaLAPACK","test ScaLAPACK?",false);
-        const Int algInt = Input("--algInt","0: QR, 1: D&C, 2: MRRR",1); 
+        const Int algInt = Input("--algInt","0: QR, 1: D&C, 2: MRRR",1);
         const bool sequential =
           Input("--sequential","test sequential?",true);
         const bool distributed =
@@ -542,7 +542,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( r == 0 )
-            r = Grid::FindFactor( commSize );
+            r = Grid::DefaultHeight( commSize );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, r, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );

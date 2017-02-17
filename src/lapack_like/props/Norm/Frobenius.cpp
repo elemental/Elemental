@@ -2,19 +2,19 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
-Base<F> FrobeniusNorm( const Matrix<F>& A )
+template<typename Field>
+Base<Field> FrobeniusNorm( const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
     const Int width = A.Width();
@@ -25,28 +25,28 @@ Base<F> FrobeniusNorm( const Matrix<F>& A )
     return scale*Sqrt(scaledSquare);
 }
 
-template<typename F> 
-Base<F> FrobeniusNorm( const SparseMatrix<F>& A )
+template<typename Field>
+Base<Field> FrobeniusNorm( const SparseMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
     const Int numEntries = A.NumEntries();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     for( Int k=0; k<numEntries; ++k )
         UpdateScaledSquare( valBuf[k], scale, scaledSquare );
     return scale*Sqrt(scaledSquare);
 }
 
-template<typename F>
-Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Field>
+Base<Field> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
     const Int height = A.Height();
@@ -78,21 +78,22 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
     return scale*Sqrt(scaledSquare);
 }
 
-template<typename F> 
-Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
+template<typename Field>
+Base<Field>
+HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real scale = 0;
     Real scaledSquare = 1;
     const Int numEntries = A.NumEntries();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     for( Int k=0; k<numEntries; ++k )
     {
         const Int i = A.Row(k);
         const Int j = A.Col(k);
         if( (uplo==LOWER && i>j) || (uplo==UPPER && i<j) )
-        { 
+        {
             UpdateScaledSquare( valBuf[k], scale, scaledSquare );
             UpdateScaledSquare( valBuf[k], scale, scaledSquare );
         }
@@ -104,17 +105,18 @@ Base<F> HermitianFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
     return scale*Sqrt(scaledSquare);
 }
 
-template<typename F>
-Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Field>
+Base<Field> SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> SymmetricFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<F>& A )
+template<typename Field>
+Base<Field>
+SymmetricFrobeniusNorm( UpperOrLower uplo, const SparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
@@ -139,23 +141,23 @@ Real NormFromScaledSquare
       return 0;
 }
 
-template<typename F> 
-Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
+template<typename Field>
+Base<Field> FrobeniusNorm( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real norm;
     if( A.Participating() )
     {
         Real localScale=0, localScaledSquare=1;
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        const Matrix<F>& ALoc = A.LockedMatrix();
+        const Matrix<Field>& ALoc = A.LockedMatrix();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 UpdateScaledSquare
                 ( ALoc(iLoc,jLoc), localScale, localScaledSquare );
-        
+
         norm = NormFromScaledSquare
           ( localScale, localScaledSquare, A.DistComm() );
     }
@@ -163,29 +165,30 @@ Base<F> FrobeniusNorm( const AbstractDistMatrix<F>& A )
     return norm;
 }
 
-template<typename F> 
-Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A )
+template<typename Field>
+Base<Field> FrobeniusNorm( const DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real localScale=0, localScaledSquare=1;
     const Int numLocalEntries = A.NumLocalEntries();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     for( Int k=0; k<numLocalEntries; ++k )
         UpdateScaledSquare( valBuf[k], localScale, localScaledSquare );
 
-    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
+    return NormFromScaledSquare
+      ( localScale, localScaledSquare, A.Grid().Comm() );
 }
 
-template<typename F>
-Base<F> HermitianFrobeniusNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename Field>
+Base<Field> HermitianFrobeniusNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square.");
 
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     Real norm;
     if( A.Participating() )
     {
@@ -193,7 +196,7 @@ Base<F> HermitianFrobeniusNorm
         Real localScaledSquare = 1;
         const Int localWidth = A.LocalWidth();
         const Int localHeight = A.LocalHeight();
-        const Matrix<F>& ALoc = A.LockedMatrix();
+        const Matrix<Field>& ALoc = A.LockedMatrix();
         if( uplo == UPPER )
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -236,23 +239,23 @@ Base<F> HermitianFrobeniusNorm
     return norm;
 }
 
-template<typename F> 
-Base<F> HermitianFrobeniusNorm
-( UpperOrLower uplo, const DistSparseMatrix<F>& A )
+template<typename Field>
+Base<Field> HermitianFrobeniusNorm
+( UpperOrLower uplo, const DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
     Real localScale=0, localScaledSquare=1;
     const Int numLocalEntries = A.NumLocalEntries();
     const Int* rowBuf = A.LockedSourceBuffer();
     const Int* colBuf = A.LockedTargetBuffer();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     for( Int k=0; k<numLocalEntries; ++k )
     {
         const Int i = rowBuf[k];
         const Int j = colBuf[k];
-        const F value = valBuf[k];
+        const Field value = valBuf[k];
         if( (uplo==UPPER && i<j) || (uplo==LOWER && i>j) )
         {
             UpdateScaledSquare( value, localScale, localScaledSquare );
@@ -262,63 +265,65 @@ Base<F> HermitianFrobeniusNorm
             UpdateScaledSquare( value, localScale, localScaledSquare );
     }
 
-    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
+    return NormFromScaledSquare
+      ( localScale, localScaledSquare, A.Grid().Comm() );
 }
 
-template<typename F>
-Base<F> SymmetricFrobeniusNorm
-( UpperOrLower uplo, const AbstractDistMatrix<F>& A )
+template<typename Field>
+Base<Field> SymmetricFrobeniusNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
-template<typename F>
-Base<F> SymmetricFrobeniusNorm
-( UpperOrLower uplo, const DistSparseMatrix<F>& A )
+template<typename Field>
+Base<Field> SymmetricFrobeniusNorm
+( UpperOrLower uplo, const DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return HermitianFrobeniusNorm( uplo, A );
 }
 
-template<typename F> 
-Base<F> FrobeniusNorm( const DistMultiVec<F>& A )
+template<typename Field>
+Base<Field> FrobeniusNorm( const DistMultiVec<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Real localScale=0, localScaledSquare=1;
     const Int localHeight = A.LocalHeight();
     const Int width = A.Width();
-    const Matrix<F>& ALoc = A.LockedMatrix();
+    const Matrix<Field>& ALoc = A.LockedMatrix();
     for( Int j=0; j<width; ++j )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             UpdateScaledSquare( ALoc(iLoc,j), localScale, localScaledSquare );
 
-    return NormFromScaledSquare( localScale, localScaledSquare, A.Comm() );
+    return NormFromScaledSquare
+      ( localScale, localScaledSquare, A.Grid().Comm() );
 }
 
-#define PROTO(F) \
-  template Base<F> FrobeniusNorm( const Matrix<F>& A ); \
-  template Base<F> FrobeniusNorm ( const AbstractDistMatrix<F>& A ); \
-  template Base<F> FrobeniusNorm( const SparseMatrix<F>& A ); \
-  template Base<F> FrobeniusNorm( const DistSparseMatrix<F>& A ); \
-  template Base<F> FrobeniusNorm ( const DistMultiVec<F>& A ); \
-  template Base<F> HermitianFrobeniusNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Base<F> HermitianFrobeniusNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
-  template Base<F> HermitianFrobeniusNorm \
-  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
-  template Base<F> HermitianFrobeniusNorm \
-  ( UpperOrLower uplo, const DistSparseMatrix<F>& A ); \
-  template Base<F> SymmetricFrobeniusNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Base<F> SymmetricFrobeniusNorm \
-  ( UpperOrLower uplo, const AbstractDistMatrix<F>& A ); \
-  template Base<F> SymmetricFrobeniusNorm \
-  ( UpperOrLower uplo, const SparseMatrix<F>& A ); \
-  template Base<F> SymmetricFrobeniusNorm \
-  ( UpperOrLower uplo, const DistSparseMatrix<F>& A );
+#define PROTO(Field) \
+  template Base<Field> FrobeniusNorm( const Matrix<Field>& A ); \
+  template Base<Field> FrobeniusNorm ( const AbstractDistMatrix<Field>& A ); \
+  template Base<Field> FrobeniusNorm( const SparseMatrix<Field>& A ); \
+  template Base<Field> FrobeniusNorm( const DistSparseMatrix<Field>& A ); \
+  template Base<Field> FrobeniusNorm ( const DistMultiVec<Field>& A ); \
+  template Base<Field> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const Matrix<Field>& A ); \
+  template Base<Field> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A ); \
+  template Base<Field> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const SparseMatrix<Field>& A ); \
+  template Base<Field> HermitianFrobeniusNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<Field>& A ); \
+  template Base<Field> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const Matrix<Field>& A ); \
+  template Base<Field> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A ); \
+  template Base<Field> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const SparseMatrix<Field>& A ); \
+  template Base<Field> SymmetricFrobeniusNorm \
+  ( UpperOrLower uplo, const DistSparseMatrix<Field>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

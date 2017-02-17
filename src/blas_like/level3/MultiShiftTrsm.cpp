@@ -23,7 +23,7 @@ void MultiShiftTrsm
   const Matrix<F>& shifts,
         Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == UPPER )
     {
@@ -46,7 +46,7 @@ void MultiShiftTrsm
   const AbstractDistMatrix<F>& shifts, 
         AbstractDistMatrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == UPPER )
     {

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_MAKEREAL_HPP
@@ -18,7 +18,7 @@ void MakeReal( Matrix<Real>& A )
 template<typename Real>
 void MakeReal( Matrix<Complex<Real>>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Complex<Real>* ABuffer = A.Buffer();
     const Int height = A.Height();
     const Int width = A.Width();
@@ -31,7 +31,7 @@ void MakeReal( Matrix<Complex<Real>>& A )
 template<typename T>
 void MakeReal( AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     MakeReal( A.Matrix() );
 }
 
@@ -43,7 +43,7 @@ void MakeReal( AbstractDistMatrix<T>& A )
 
 #define PROTO(T) \
   EL_EXTERN template void MakeReal( Matrix<T>& A ); \
-  EL_EXTERN template void MakeReal( AbstractDistMatrix<T>& A ); 
+  EL_EXTERN template void MakeReal( AbstractDistMatrix<T>& A );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

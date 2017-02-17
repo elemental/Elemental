@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_PIVOTED_UNBLOCKED_HPP
@@ -17,11 +17,11 @@ template<typename F>
 LDLPivot
 Select( const Matrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
-    case BUNCH_KAUFMAN_A: 
+    case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C: pivot = BunchKaufmanA( A, gamma ); break;
     case BUNCH_KAUFMAN_D: pivot = BunchKaufmanD( A, gamma ); break;
     case BUNCH_PARLETT:   pivot = BunchParlett( A, gamma ); break;
@@ -34,11 +34,11 @@ template<typename F>
 LDLPivot
 Select( const DistMatrix<F>& A, LDLPivotType pivotType, Base<F> gamma )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LDLPivot pivot;
     switch( pivotType )
     {
-    case BUNCH_KAUFMAN_A: 
+    case BUNCH_KAUFMAN_A:
     case BUNCH_KAUFMAN_C: pivot = BunchKaufmanA( A, gamma ); break;
     case BUNCH_KAUFMAN_D: pivot = BunchKaufmanD( A, gamma ); break;
     case BUNCH_PARLETT:   pivot = BunchParlett( A, gamma ); break;
@@ -58,8 +58,8 @@ Unblocked
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -137,15 +137,15 @@ Unblocked
 template<typename F>
 void
 Unblocked
-( ElementalMatrix<F>& APre,
-  ElementalMatrix<F>& dSub, 
+( AbstractDistMatrix<F>& APre,
+  AbstractDistMatrix<F>& dSub,
   DistPermutation& P,
-  bool conjugate=false, 
+  bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   Base<F> gamma=0 )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( APre.Height() != APre.Width() )
           LogicError("A must be square");
       AssertSameGrids( APre, dSub );

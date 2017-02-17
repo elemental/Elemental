@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_DIAGONALSOLVE_HPP
@@ -15,17 +15,17 @@ template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side,
   Orientation orientation,
-  const Matrix<FDiag>& d, 
-        Matrix<F>& A, 
+  const Matrix<FDiag>& d,
+        Matrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const bool conj = ( orientation == ADJOINT );
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != m )
               LogicError("Invalid left diagonal solve dimension");
         )
@@ -41,7 +41,7 @@ void DiagonalSolve
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != n )
               LogicError("Invalid right diagonal solve dimension");
         )
@@ -59,29 +59,29 @@ void DiagonalSolve
 
 template<typename F>
 void SymmetricDiagonalSolve
-( const Matrix<Base<F>>& d, 
+( const Matrix<Base<F>>& d,
         Matrix<F>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( d.Height() != n )
           LogicError("Invalid symmetric diagonal solve dimension");
     )
     for( Int j=0; j<n; ++j )
-        for( Int i=0; i<n; ++i ) 
+        for( Int i=0; i<n; ++i )
             A(i,j) /= d(i)*d(j);
 }
 
 template<typename FDiag,typename F,Dist U,Dist V>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<FDiag>& dPre, 
+  const AbstractDistMatrix<FDiag>& dPre,
         DistMatrix<F,U,V>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( dPre, A );
     )
     if( side == LEFT )
@@ -114,17 +114,65 @@ void DiagonalSolve
     }
 }
 
+template<typename FDiag,typename F,Dist U,Dist V>
+void DiagonalSolve
+( LeftOrRight side, Orientation orientation,
+  const AbstractDistMatrix<FDiag>& dPre,
+        DistMatrix<F,U,V,BLOCK>& A,
+  bool checkIfSingular )
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      AssertSameGrids( dPre, A );
+    )
+    if( side == LEFT )
+    {
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.ColAlign();
+        ctrl.blockHeight = A.BlockHeight();
+        ctrl.colCut = A.ColCut();
+
+        DistMatrixReadProxy<FDiag,FDiag,U,Collect<V>(),BLOCK>
+          dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
+        DiagonalSolve
+        ( LEFT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
+    }
+    else
+    {
+        ProxyCtrl ctrl;
+        ctrl.rootConstrain = true;
+        ctrl.colConstrain = true;
+        ctrl.root = A.Root();
+        ctrl.colAlign = A.RowAlign();
+        ctrl.blockHeight = A.BlockWidth();
+        ctrl.colCut = A.RowCut();
+
+        DistMatrixReadProxy<FDiag,FDiag,V,Collect<U>(),BLOCK>
+          dProx( dPre, ctrl );
+        auto& d = dProx.GetLocked();
+
+        DiagonalSolve
+        ( RIGHT, orientation, d.LockedMatrix(), A.Matrix(), checkIfSingular );
+    }
+}
+
 template<typename FDiag,typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const ElementalMatrix<FDiag>& d,
-        ElementalMatrix<F>& A,
+  const AbstractDistMatrix<FDiag>& d,
+        AbstractDistMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
-        auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST>&>(A); \
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+        auto& ACast = static_cast<DistMatrix<F,CDIST,RDIST,WRAP>&>(A); \
         DiagonalSolve( side, orientation, d, ACast, checkIfSingular );
     #include <El/macros/GuardAndPayload.h>
 }
@@ -136,8 +184,8 @@ void DiagonalSolve
         SparseMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
     )
@@ -149,7 +197,7 @@ void DiagonalSolve
     const FDiag* dBuf = d.LockedBuffer();
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The size of d must match the height of A");
         )
@@ -164,7 +212,7 @@ void DiagonalSolve
     }
     else
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Width() )
               LogicError("The size of d must match the width of A");
         )
@@ -182,8 +230,8 @@ void DiagonalSolve
 template<typename F>
 void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
@@ -204,7 +252,7 @@ void SymmetricDiagonalSolve( const Matrix<Base<F>>& d, SparseMatrix<F>& A )
         const Int j = colBuf[k];
         const Real deltaRow = dBuf[i];
         const Real deltaCol = dBuf[j];
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( deltaRow*deltaCol == Real(0) )
               throw SingularMatrixException();
         )
@@ -219,11 +267,11 @@ void DiagonalSolve
         DistSparseMatrix<F>& A,
   bool checkIfSingular )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
-      if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+      if( !mpi::Congruent( d.Grid().Comm(), A.Grid().Comm() ) )
           LogicError("Communicators must be congruent");
     )
     const bool conjugate = ( orientation == ADJOINT );
@@ -237,7 +285,7 @@ void DiagonalSolve
 
     if( side == LEFT )
     {
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( d.Height() != A.Height() )
               LogicError("The length of d must match the height of A");
         )
@@ -247,7 +295,7 @@ void DiagonalSolve
             const Int i = rBuf[k];
             const Int iLoc = i - firstLocalRow;
             const F delta = ( conjugate ? Conj(dBuf[iLoc]) : dBuf[iLoc] );
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( checkIfSingular && delta == F(0) )
                   throw SingularMatrixException();
             )
@@ -274,8 +322,8 @@ void DiagonalSolve
         FastResize( recvVals, meta.numRecvInds );
         mpi::AllToAll
         ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
-          A.Comm() );
+          recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+          A.Grid().Comm() );
 
         // Loop over the entries of A and rescale
         for( Int k=0; k<numEntries; ++k )
@@ -288,13 +336,13 @@ void SymmetricDiagonalSolve
 ( const DistMultiVec<Base<F>>& d,
         DistSparseMatrix<F>& A )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( d.Width() != 1 )
           LogicError("d must be a column vector");
       if( d.Height() != A.Height() )
           LogicError("The length of d must match the height of A");
-      if( !mpi::Congruent( d.Comm(), A.Comm() ) )
+      if( !mpi::Congruent( d.Grid().Comm(), A.Grid().Comm() ) )
           LogicError("Communicators must be congruent");
     )
     typedef Base<F> Real;
@@ -322,8 +370,8 @@ void SymmetricDiagonalSolve
     vector<Real> recvVals( meta.numRecvInds );
     mpi::AllToAll
     ( sendVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(), 
-      A.Comm() );
+      recvVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
+      A.Grid().Comm() );
 
     // Loop over the entries of A and rescale
     for( Int k=0; k<numEntries; ++k )
@@ -341,10 +389,10 @@ void DiagonalSolve
         DistMultiVec<F>& X,
   bool checkIfSingular )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( d.Width() != 1 )
         LogicError("d must be a column vector");
-    if( !mpi::Congruent( d.Comm(), X.Comm() ) )
+    if( !mpi::Congruent( d.Grid().Comm(), X.Grid().Comm() ) )
         LogicError("Communicators must be congruent");
     if( side != LEFT )
         LogicError("Only the 'LEFT' argument is currently supported");
@@ -358,9 +406,9 @@ void DiagonalSolve
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const F delta = ( conjugate ? Conj(dLoc(iLoc)) : dLoc(iLoc) );
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( checkIfSingular && delta == F(0) )
-              throw SingularMatrixException(); 
+              throw SingularMatrixException();
         )
         for( Int j=0; j<width; ++j )
             XLoc(iLoc,j) /= delta;
@@ -386,8 +434,8 @@ void DiagonalSolve
   EL_EXTERN template void DiagonalSolve \
   ( LeftOrRight side, \
     Orientation orientation, \
-    const ElementalMatrix<F>& d, \
-          ElementalMatrix<F>& A, \
+    const AbstractDistMatrix<F>& d, \
+          AbstractDistMatrix<F>& A, \
     bool checkIfSingular ); \
   EL_EXTERN template void DiagonalSolve \
   ( LeftOrRight side, \

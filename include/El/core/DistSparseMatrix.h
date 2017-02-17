@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_DISTSPARSEMATRIX_C_H
@@ -30,18 +30,18 @@ typedef const struct ElDistSparseMatrix_zDummy* ElConstDistSparseMatrix_z;
 /* Constructors and destructors
    ============================ */
 
-/* DistSparseMatrix<T>::DistSparseMatrix()
-   --------------------------------------- */
+/* DistSparseMatrix<T>::DistSparseMatrix( const Grid& grid )
+   --------------------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixCreate_i
-( ElDistSparseMatrix_i* A, MPI_Comm comm );
+( ElDistSparseMatrix_i* A, ElConstGrid grid );
 EL_EXPORT ElError ElDistSparseMatrixCreate_s
-( ElDistSparseMatrix_s* A, MPI_Comm comm );
+( ElDistSparseMatrix_s* A, ElConstGrid grid );
 EL_EXPORT ElError ElDistSparseMatrixCreate_d
-( ElDistSparseMatrix_d* A, MPI_Comm comm );
+( ElDistSparseMatrix_d* A, ElConstGrid grid );
 EL_EXPORT ElError ElDistSparseMatrixCreate_c
-( ElDistSparseMatrix_c* A, MPI_Comm comm );
+( ElDistSparseMatrix_c* A, ElConstGrid grid );
 EL_EXPORT ElError ElDistSparseMatrixCreate_z
-( ElDistSparseMatrix_z* A, MPI_Comm comm );
+( ElDistSparseMatrix_z* A, ElConstGrid grid );
 
 /* DistSparseMatrix<T>::~DistSparseMatrix()
    ---------------------------------------- */
@@ -75,18 +75,18 @@ EL_EXPORT ElError ElDistSparseMatrixResize_c
 EL_EXPORT ElError ElDistSparseMatrixResize_z
 ( ElDistSparseMatrix_z A, ElInt height, ElInt width );
 
-/* void DistSparseMatrix<T>::SetComm( mpi::Comm comm )
-   --------------------------------------------------- */
-EL_EXPORT ElError ElDistSparseMatrixSetComm_i
-( ElDistSparseMatrix_i A, MPI_Comm comm );
-EL_EXPORT ElError ElDistSparseMatrixSetComm_s
-( ElDistSparseMatrix_s A, MPI_Comm comm );
-EL_EXPORT ElError ElDistSparseMatrixSetComm_d
-( ElDistSparseMatrix_d A, MPI_Comm comm );
-EL_EXPORT ElError ElDistSparseMatrixSetComm_c
-( ElDistSparseMatrix_c A, MPI_Comm comm );
-EL_EXPORT ElError ElDistSparseMatrixSetComm_z
-( ElDistSparseMatrix_z A, MPI_Comm comm );
+/* void DistSparseMatrix<T>::SetGrid( const Grid& grid )
+   ----------------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixSetGrid_i
+( ElDistSparseMatrix_i A, ElConstGrid grid );
+EL_EXPORT ElError ElDistSparseMatrixSetGrid_s
+( ElDistSparseMatrix_s A, ElConstGrid grid );
+EL_EXPORT ElError ElDistSparseMatrixSetGrid_d
+( ElDistSparseMatrix_d A, ElConstGrid grid );
+EL_EXPORT ElError ElDistSparseMatrixSetGrid_c
+( ElDistSparseMatrix_c A, ElConstGrid grid );
+EL_EXPORT ElError ElDistSparseMatrixSetGrid_z
+( ElDistSparseMatrix_z A, ElConstGrid grid );
 
 /* void DistSparseMatrix<T>::Reserve
    ( Int numLocalEntries, Int numRemoteEntries )
@@ -158,19 +158,19 @@ EL_EXPORT ElError ElDistSparseMatrixZeroLocal_z
    ( Int row, Int col, T value, bool passive )
    ------------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_i
-( ElDistSparseMatrix_i A, 
+( ElDistSparseMatrix_i A,
   ElInt row, ElInt col, ElInt value, bool passive );
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_s
-( ElDistSparseMatrix_s A, 
+( ElDistSparseMatrix_s A,
   ElInt row, ElInt col, float value, bool passive );
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_d
-( ElDistSparseMatrix_d A, 
+( ElDistSparseMatrix_d A,
   ElInt row, ElInt col, double value, bool passive );
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_c
-( ElDistSparseMatrix_c A, 
+( ElDistSparseMatrix_c A,
   ElInt row, ElInt col, complex_float value, bool passive );
 EL_EXPORT ElError ElDistSparseMatrixQueueUpdate_z
-( ElDistSparseMatrix_z A, 
+( ElDistSparseMatrix_z A,
   ElInt row, ElInt col, complex_double value, bool passive );
 
 /* void DistSparseMatrix<T>::QueueLocalUpdate
@@ -214,7 +214,7 @@ EL_EXPORT ElError ElDistSparseMatrixQueueLocalZero_z
 ( ElDistSparseMatrix_z A, ElInt localRow, ElInt col );
 
 /* void DistSparseMatrix<T>::ProcessQueues()
-   ----------------------------------------- */ 
+   ----------------------------------------- */
 EL_EXPORT ElError ElDistSparseMatrixProcessQueues_i( ElDistSparseMatrix_i A );
 EL_EXPORT ElError ElDistSparseMatrixProcessQueues_s( ElDistSparseMatrix_s A );
 EL_EXPORT ElError ElDistSparseMatrixProcessQueues_d( ElDistSparseMatrix_d A );
@@ -223,15 +223,15 @@ EL_EXPORT ElError ElDistSparseMatrixProcessQueues_z( ElDistSparseMatrix_z A );
 
 /* void DistSparseMatrix<T>::ProcessLocalQueues()
    ---------------------------------------------- */
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElDistSparseMatrixProcessLocalQueues_i( ElDistSparseMatrix_i A );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElDistSparseMatrixProcessLocalQueues_s( ElDistSparseMatrix_s A );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElDistSparseMatrixProcessLocalQueues_d( ElDistSparseMatrix_d A );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElDistSparseMatrixProcessLocalQueues_c( ElDistSparseMatrix_c A );
-EL_EXPORT ElError 
+EL_EXPORT ElError
 ElDistSparseMatrixProcessLocalQueues_z( ElDistSparseMatrix_z A );
 
 /* Queries
@@ -354,18 +354,18 @@ EL_EXPORT ElError ElDistSparseMatrixConsistent_c
 EL_EXPORT ElError ElDistSparseMatrixConsistent_z
 ( ElConstDistSparseMatrix_z A, bool* consistent );
 
-/* mpi::Comm DistSparseMatrix<T>::Comm() const
-   ------------------------------------------- */
-EL_EXPORT ElError ElDistSparseMatrixComm_i
-( ElConstDistSparseMatrix_i A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistSparseMatrixComm_s
-( ElConstDistSparseMatrix_s A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistSparseMatrixComm_d
-( ElConstDistSparseMatrix_d A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistSparseMatrixComm_c
-( ElConstDistSparseMatrix_c A, MPI_Comm* comm );
-EL_EXPORT ElError ElDistSparseMatrixComm_z
-( ElConstDistSparseMatrix_z A, MPI_Comm* comm );
+/* const Grid& DistSparseMatrix<T>::Grid() const
+   --------------------------------------------- */
+EL_EXPORT ElError ElDistSparseMatrixGrid_i
+( ElConstDistSparseMatrix_i A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistSparseMatrixGrid_s
+( ElConstDistSparseMatrix_s A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistSparseMatrixGrid_d
+( ElConstDistSparseMatrix_d A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistSparseMatrixGrid_c
+( ElConstDistSparseMatrix_c A, ElConstGrid* grid );
+EL_EXPORT ElError ElDistSparseMatrixGrid_z
+( ElConstDistSparseMatrix_z A, ElConstGrid* grid );
 
 /* Int DistSparseMatrix<T>::Blocksize() const
    ------------------------------------------ */

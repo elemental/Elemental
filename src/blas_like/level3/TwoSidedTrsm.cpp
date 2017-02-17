@@ -21,7 +21,7 @@ void TwoSidedTrsm
         Matrix<F>& A,
   const Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -34,7 +34,7 @@ void TwoSidedTrsm
         AbstractDistMatrix<F>& A,
   const AbstractDistMatrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER )
         twotrsm::LVar4( diag, A, B );
     else
@@ -63,15 +63,12 @@ void ScaLAPACKHelper
     AssertScaLAPACKSupport();
 #ifdef EL_HAVE_SCALAPACK
     const Int n = A.Height();
-    const int bHandle = blacs::Handle( A );
-    const int context = blacs::GridInit( bHandle, A );
-    auto descA = FillDesc( A, context );
-    auto descB = FillDesc( B, context );
     const char uploChar = UpperOrLowerToChar( uplo );
+
+    auto descA = FillDesc( A );
+    auto descB = FillDesc( B );
     scalapack::TwoSidedTrsm
     ( uploChar, n, A.Buffer(), descA.data(), B.LockedBuffer(), descB.data() ); 
-    blacs::FreeGrid( context );
-    blacs::FreeHandle( bHandle );
 #endif
 }
 
@@ -92,7 +89,7 @@ void TwoSidedTrsm
         DistMatrix<F,MC,MR,BLOCK>& A,
   const DistMatrix<F,MC,MR,BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     twotrsm::ScaLAPACKHelper( uplo, diag, A, B );
 }
 

@@ -15,7 +15,7 @@ namespace El {
 template<typename T> 
 void JordanCholesky( Matrix<T>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zeros( A, n, n );
 
     // Set the main diagonal equal to five everywhere but the top-left entry
@@ -31,7 +31,7 @@ void JordanCholesky( Matrix<T>& A, Int n )
 template<typename T>
 void JordanCholesky( AbstractDistMatrix<T>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zeros( A, n, n );
 
     // Set the main diagonal equal to five everywhere but the top-left entry
@@ -47,7 +47,7 @@ void JordanCholesky( AbstractDistMatrix<T>& A, Int n )
 template<typename T>
 void JordanCholesky( SparseMatrix<T>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zeros( A, n, n );
     A.Reserve( 3*n );
     
@@ -68,7 +68,7 @@ void JordanCholesky( SparseMatrix<T>& A, Int n )
 template<typename T>
 void JordanCholesky( DistSparseMatrix<T>& A, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zeros( A, n, n );
 
     const Int localHeight = A.LocalHeight();

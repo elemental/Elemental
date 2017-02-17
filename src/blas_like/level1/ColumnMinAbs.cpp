@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -11,52 +11,52 @@
 
 namespace El {
 
-template<typename F>
-void ColumnMinAbs( const Matrix<F>& X, Matrix<Base<F>>& mins )
+template<typename Ring>
+void ColumnMinAbs( const Matrix<Ring>& X, Matrix<Base<Ring>>& mins )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     const Int m = X.Height();
     const Int n = X.Width();
     mins.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
     {
-        Real colMin = limits::Max<Real>();
+        RealRing colMin = limits::Max<RealRing>();
         for( Int i=0; i<m; ++i )
             colMin = Min(colMin,Abs(X.Get(i,j)));
         mins.Set( j, 0, colMin );
     }
 }
 
-template<typename F>
+template<typename Ring>
 void ColumnMinAbsNonzero
-( const Matrix<F>& X, 
-  const Matrix<Base<F>>& upperBounds,
-        Matrix<Base<F>>& mins )
+( const Matrix<Ring>& X,
+  const Matrix<Base<Ring>>& upperBounds,
+        Matrix<Base<Ring>>& mins )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     const Int m = X.Height();
     const Int n = X.Width();
     mins.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
     {
-        Real colMin = upperBounds.Get(j,0);
+        RealRing colMin = upperBounds.Get(j,0);
         for( Int i=0; i<m; ++i )
         {
-            Real absVal = Abs(X.Get(i,j));
-            if( absVal > Real(0) )
+            RealRing absVal = Abs(X.Get(i,j));
+            if( absVal > RealRing(0) )
                 colMin = Min(colMin,absVal);
         }
         mins.Set( j, 0, colMin );
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Ring,Dist U,Dist V>
 void ColumnMinAbs
-( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,V,STAR>& mins )
+( const DistMatrix<Ring,U,V>& A, DistMatrix<Base<Ring>,V,STAR>& mins )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     mins.AlignWith( A );
     mins.Resize( n, 1 );
@@ -64,13 +64,13 @@ void ColumnMinAbs
     AllReduce( mins.Matrix(), A.ColComm(), mpi::MIN );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Ring,Dist U,Dist V>
 void ColumnMinAbsNonzero
-( const DistMatrix<F,U,V>& A, 
-  const DistMatrix<Base<F>,V,STAR>& upperBounds,
-        DistMatrix<Base<F>,V,STAR>& mins )
+( const DistMatrix<Ring,U,V>& A,
+  const DistMatrix<Base<Ring>,V,STAR>& upperBounds,
+        DistMatrix<Base<Ring>,V,STAR>& mins )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( upperBounds.ColAlign() != A.RowAlign() )
         LogicError("upperBounds was not properly aligned");
     const Int n = A.Width();
@@ -81,103 +81,103 @@ void ColumnMinAbsNonzero
     AllReduce( mins.Matrix(), A.ColComm(), mpi::MIN );
 }
 
-template<typename F>
-void ColumnMinAbs( const DistMultiVec<F>& X, Matrix<Base<F>>& mins )
+template<typename Ring>
+void ColumnMinAbs( const DistMultiVec<Ring>& X, Matrix<Base<Ring>>& mins )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ColumnMinAbs( X.LockedMatrix(), mins );
-    AllReduce( mins, X.Comm(), mpi::MIN );
+    AllReduce( mins, X.Grid().Comm(), mpi::MIN );
 }
 
-template<typename F>
+template<typename Ring>
 void ColumnMinAbsNonzero
-( const DistMultiVec<F>& X, 
-  const Matrix<Base<F>>& upperBounds, 
-        Matrix<Base<F>>& mins )
+( const DistMultiVec<Ring>& X,
+  const Matrix<Base<Ring>>& upperBounds,
+        Matrix<Base<Ring>>& mins )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ColumnMinAbsNonzero( X.LockedMatrix(), upperBounds, mins );
-    AllReduce( mins, X.Comm(), mpi::MIN );
+    AllReduce( mins, X.Grid().Comm(), mpi::MIN );
 }
 
-template<typename F>
-void ColumnMinAbs( const SparseMatrix<F>& A, Matrix<Base<F>>& mins )
+template<typename Ring>
+void ColumnMinAbs( const SparseMatrix<Ring>& A, Matrix<Base<Ring>>& mins )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
     /*
-    SparseMatrix<F> ATrans;
+    SparseMatrix<Ring> ATrans;
     Transpose( A, ATrans );
     RowMinAbs( ATrans, mins );
     */
 
-    // TODO: Verify this implementation
+    // TODO(poulson): Verify this implementation
 
     // Form the maxima
     // ---------------
-    typedef Base<F> Real;
+    typedef Base<Ring> RealRing;
     const Int m = A.Height();
     const Int n = A.Width();
     mins.Resize( n, 1 );
-    Fill( mins, limits::Max<Real>() );
+    Fill( mins, limits::Max<RealRing>() );
     const Int* colBuf = A.LockedTargetBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
-    const F* values = A.LockedValueBuffer();
-    Real* minBuf = mins.Buffer(); 
+    const Ring* values = A.LockedValueBuffer();
+    RealRing* minBuf = mins.Buffer();
     for( Int i=0; i<m; ++i )
         for( Int e=offsetBuf[i]; e<offsetBuf[i+1]; ++e )
             minBuf[colBuf[e]] =
               Min(minBuf[colBuf[e]],Abs(values[e]));
 }
 
-template<typename F>
+template<typename Ring>
 void ColumnMinAbsNonzero
-( const SparseMatrix<F>& A, 
-  const Matrix<Base<F>>& upperBounds,
-        Matrix<Base<F>>& mins )
+( const SparseMatrix<Ring>& A,
+  const Matrix<Base<Ring>>& upperBounds,
+        Matrix<Base<Ring>>& mins )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
     /*
-    SparseMatrix<F> ATrans;
+    SparseMatrix<Ring> ATrans;
     Transpose( A, ATrans );
     RowMinAbsNonzero( ATrans, upperBounds, mins );
     */
 
-    // TODO: Verify this implementation
+    // TODO(poulson): Verify this implementation
 
     // Form the maxima
     // ---------------
-    typedef Base<F> Real;
+    typedef Base<Ring> RealRing;
     const Int m = A.Height();
     mins = upperBounds;
     const Int* colBuf = A.LockedTargetBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
-    const F* values = A.LockedValueBuffer();
-    Real* minBuf = mins.Buffer(); 
+    const Ring* values = A.LockedValueBuffer();
+    RealRing* minBuf = mins.Buffer();
     for( Int i=0; i<m; ++i )
     {
         for( Int e=offsetBuf[i]; e<offsetBuf[i+1]; ++e )
         {
-            const Real absVal = Abs(values[e]);
-            if( absVal > Real(0) )
+            const RealRing absVal = Abs(values[e]);
+            if( absVal > RealRing(0) )
                 minBuf[colBuf[e]] = Min(minBuf[colBuf[e]],absVal);
         }
     }
 }
 
-template<typename F>
+template<typename Ring>
 void ColumnMinAbs
-( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins )
+( const DistSparseMatrix<Ring>& A, DistMultiVec<Base<Ring>>& mins )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
     /*
-    DistSparseMatrix<F> ATrans(A.Comm());
+    DistSparseMatrix<Ring> ATrans(A.Grid());
     Transpose( A, ATrans );
     RowMinAbs( ATrans, mins );
     */
@@ -185,36 +185,36 @@ void ColumnMinAbs
     // Modify the communication pattern from an adjoint Multiply
     // =========================================================
     mins.Resize( A.Width(), 1 );
-    Fill( mins, limits::Max<Real>() );
+    Fill( mins, limits::Max<RealRing>() );
     A.InitializeMultMeta();
     const auto& meta = A.LockedDistGraph().multMeta;
 
-    // Pack the send values 
+    // Pack the send values
     // --------------------
-    vector<Real> sendVals( meta.numRecvInds, limits::Max<Real>() );
+    vector<RealRing> sendVals( meta.numRecvInds, limits::Max<RealRing>() );
     {
         const Int ALocalHeight = A.LocalHeight();
         const Int* offsetBuf = A.LockedOffsetBuffer();
-        const F* values = A.LockedValueBuffer();
+        const Ring* values = A.LockedValueBuffer();
         for( Int i=0; i<ALocalHeight; ++i )
             for( Int e=offsetBuf[i]; e<offsetBuf[i+1]; ++e )
-                sendVals[meta.colOffs[e]] = 
+                sendVals[meta.colOffs[e]] =
                   Min(sendVals[meta.colOffs[e]],Abs(values[e]));
     }
 
     // Inject the updates into the network
     // -----------------------------------
     const Int numRecvInds = meta.sendInds.size();
-    vector<Real> recvVals( numRecvInds );
+    vector<RealRing> recvVals( numRecvInds );
     mpi::AllToAll
     ( sendVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
       recvVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-      A.Comm() );
+      A.Grid().Comm() );
 
     // Form the maxima over all the values received
     // --------------------------------------------
     const Int firstLocalRow = mins.FirstLocalRow();
-    Real* minBuf = mins.Matrix().Buffer();
+    RealRing* minBuf = mins.Matrix().Buffer();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
@@ -223,18 +223,18 @@ void ColumnMinAbs
     }
 }
 
-template<typename F>
+template<typename Ring>
 void ColumnMinAbsNonzero
-( const DistSparseMatrix<F>& A, 
-  const DistMultiVec<Base<F>>& upperBounds,
-        DistMultiVec<Base<F>>& mins )
+( const DistSparseMatrix<Ring>& A,
+  const DistMultiVec<Base<Ring>>& upperBounds,
+        DistMultiVec<Base<Ring>>& mins )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Ring> RealRing;
     // Explicitly forming the transpose is overkill...
     // The following would be correct but is best avoided.
     /*
-    DistSparseMatrix<F> ATrans(A.Comm());
+    DistSparseMatrix<Ring> ATrans(A.Grid());
     Transpose( A, ATrans );
     RowMinAbsNonzero( ATrans, upperBounds, mins );
     */
@@ -245,20 +245,20 @@ void ColumnMinAbsNonzero
     A.InitializeMultMeta();
     const auto& meta = A.LockedDistGraph().multMeta;
 
-    // Pack the send values 
+    // Pack the send values
     // --------------------
-    vector<Real> sendVals( meta.numRecvInds, limits::Max<Real>() );
+    vector<RealRing> sendVals( meta.numRecvInds, limits::Max<RealRing>() );
     {
         const Int ALocalHeight = A.LocalHeight();
         const Int* offsetBuf = A.LockedOffsetBuffer();
-        const F* values = A.LockedValueBuffer();
+        const Ring* values = A.LockedValueBuffer();
         for( Int i=0; i<ALocalHeight; ++i )
         {
             for( Int e=offsetBuf[i]; e<offsetBuf[i+1]; ++e )
             {
-                const Real absVal = Abs(values[e]);
-                if( absVal > Real(0) )
-                    sendVals[meta.colOffs[e]] = 
+                const RealRing absVal = Abs(values[e]);
+                if( absVal > RealRing(0) )
+                    sendVals[meta.colOffs[e]] =
                       Min(sendVals[meta.colOffs[e]],absVal);
             }
         }
@@ -267,16 +267,16 @@ void ColumnMinAbsNonzero
     // Inject the updates into the network
     // -----------------------------------
     const Int numRecvInds = meta.sendInds.size();
-    vector<Real> recvVals( numRecvInds );
+    vector<RealRing> recvVals( numRecvInds );
     mpi::AllToAll
     ( sendVals.data(), meta.recvSizes.data(), meta.recvOffs.data(),
       recvVals.data(), meta.sendSizes.data(), meta.sendOffs.data(),
-      A.Comm() );
+      A.Grid().Comm() );
 
     // Form the maxima over all the values received
     // --------------------------------------------
     const Int firstLocalRow = mins.FirstLocalRow();
-    Real* minBuf = mins.Matrix().Buffer();
+    RealRing* minBuf = mins.Matrix().Buffer();
     for( Int s=0; s<numRecvInds; ++s )
     {
         const Int i = meta.sendInds[s];
@@ -285,52 +285,52 @@ void ColumnMinAbsNonzero
     }
 }
 
-#define PROTO_DIST(F,U,V) \
+#define PROTO_DIST(Ring,U,V) \
   template void ColumnMinAbs \
-  ( const DistMatrix<F,U,V>& X, DistMatrix<Base<F>,V,STAR>& mins ); \
+  ( const DistMatrix<Ring,U,V>& X, DistMatrix<Base<Ring>,V,STAR>& mins ); \
   template void ColumnMinAbsNonzero \
-  ( const DistMatrix<F,U,V>& X, \
-    const DistMatrix<Base<F>,V,STAR>& upperBounds, \
-          DistMatrix<Base<F>,V,STAR>& mins );
+  ( const DistMatrix<Ring,U,V>& X, \
+    const DistMatrix<Base<Ring>,V,STAR>& upperBounds, \
+          DistMatrix<Base<Ring>,V,STAR>& mins );
 
-#define PROTO(F) \
+#define PROTO(Ring) \
   template void ColumnMinAbs \
-  ( const Matrix<F>& X, Matrix<Base<F>>& mins ); \
+  ( const Matrix<Ring>& X, Matrix<Base<Ring>>& mins ); \
   template void ColumnMinAbsNonzero \
-  ( const Matrix<F>& X, \
-    const Matrix<Base<F>>& upperBounds, \
-          Matrix<Base<F>>& mins ); \
+  ( const Matrix<Ring>& X, \
+    const Matrix<Base<Ring>>& upperBounds, \
+          Matrix<Base<Ring>>& mins ); \
   template void ColumnMinAbs \
-  ( const SparseMatrix<F>& A, Matrix<Base<F>>& mins ); \
+  ( const SparseMatrix<Ring>& A, Matrix<Base<Ring>>& mins ); \
   template void ColumnMinAbsNonzero \
-  ( const SparseMatrix<F>& A, \
-    const Matrix<Base<F>>& upperBounds, \
-          Matrix<Base<F>>& mins ); \
+  ( const SparseMatrix<Ring>& A, \
+    const Matrix<Base<Ring>>& upperBounds, \
+          Matrix<Base<Ring>>& mins ); \
   template void ColumnMinAbs \
-  ( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& mins ); \
+  ( const DistSparseMatrix<Ring>& A, DistMultiVec<Base<Ring>>& mins ); \
   template void ColumnMinAbsNonzero \
-  ( const DistSparseMatrix<F>& A, \
-    const DistMultiVec<Base<F>>& upperBounds, \
-          DistMultiVec<Base<F>>& mins ); \
+  ( const DistSparseMatrix<Ring>& A, \
+    const DistMultiVec<Base<Ring>>& upperBounds, \
+          DistMultiVec<Base<Ring>>& mins ); \
   template void ColumnMinAbs \
-  ( const DistMultiVec<F>& X, Matrix<Base<F>>& mins ); \
+  ( const DistMultiVec<Ring>& X, Matrix<Base<Ring>>& mins ); \
   template void ColumnMinAbsNonzero \
-  ( const DistMultiVec<F>& X, \
-    const Matrix<Base<F>>& upperBounds, \
-          Matrix<Base<F>>& mins ); \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  ( const DistMultiVec<Ring>& X, \
+    const Matrix<Base<Ring>>& upperBounds, \
+          Matrix<Base<Ring>>& mins ); \
+  PROTO_DIST(Ring,MC,  MR  ) \
+  PROTO_DIST(Ring,MC,  STAR) \
+  PROTO_DIST(Ring,MD,  STAR) \
+  PROTO_DIST(Ring,MR,  MC  ) \
+  PROTO_DIST(Ring,MR,  STAR) \
+  PROTO_DIST(Ring,STAR,MC  ) \
+  PROTO_DIST(Ring,STAR,MD  ) \
+  PROTO_DIST(Ring,STAR,MR  ) \
+  PROTO_DIST(Ring,STAR,STAR) \
+  PROTO_DIST(Ring,STAR,VC  ) \
+  PROTO_DIST(Ring,STAR,VR  ) \
+  PROTO_DIST(Ring,VC,  STAR) \
+  PROTO_DIST(Ring,VR,  STAR)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

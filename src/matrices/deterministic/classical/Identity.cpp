@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -12,10 +12,10 @@
 
 namespace El {
 
-template<typename T> 
+template<typename T>
 void MakeIdentity( Matrix<T>& I )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zero( I );
     FillDiagonal( I, T(1) );
 }
@@ -23,7 +23,7 @@ void MakeIdentity( Matrix<T>& I )
 template<typename T>
 void MakeIdentity( AbstractDistMatrix<T>& I )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zero( I );
     FillDiagonal( I, T(1) );
 }
@@ -31,7 +31,7 @@ void MakeIdentity( AbstractDistMatrix<T>& I )
 template<typename T>
 void Identity( Matrix<T>& I, Int m, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     I.Resize( m, n );
     MakeIdentity( I );
 }
@@ -39,7 +39,7 @@ void Identity( Matrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( AbstractDistMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     I.Resize( m, n );
     MakeIdentity( I );
 }
@@ -47,7 +47,7 @@ void Identity( AbstractDistMatrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( SparseMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zeros( I, m, n );
     I.Reserve( Min(m,n) );
     for( Int j=0; j<Min(m,n); ++j )
@@ -58,13 +58,13 @@ void Identity( SparseMatrix<T>& I, Int m, Int n )
 template<typename T>
 void Identity( DistSparseMatrix<T>& I, Int m, Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Zeros( I, m, n );
     const Int localHeight = I.LocalHeight();
 
     // We could reserve less for tall matrices, but this should suffice
     I.Reserve( localHeight );
-   
+
     for( Int iLoc=0; iLoc<I.LocalHeight(); ++iLoc )
     {
         const Int i = I.GlobalRow(iLoc);

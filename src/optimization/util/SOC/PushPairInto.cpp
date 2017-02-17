@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,23 +11,24 @@
 namespace El {
 namespace soc {
 
-// TODO: Lower-level access
+// TODO(poulson): Lower-level access
 
 // NOTE: It would be possible to recompute the Nesterov-Todd scaling only for
-//       the (almost certainly small) number of modified subcones, but this 
+//       the (almost certainly small) number of modified subcones, but this
 //       would require a non-trivial amount of additional code for a relatively
 //       rare and comparatively inexpensive operation.
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushPairInto
-(       Matrix<Real>& s, 
+(       Matrix<Real>& s,
         Matrix<Real>& z,
   const Matrix<Real>& w,
-  const Matrix<Int>& orders, 
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
   Real wMaxNormLimit )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Matrix<Real> sLower, zLower;
     soc::LowerNorms( s, sLower, orders, firstInds );
@@ -38,23 +39,24 @@ void PushPairInto
     {
         if( i == firstInds(i) && w(i) > wMaxNormLimit )
         {
-            // TODO: Switch to a non-adhoc modification     
+            // TODO(poulson): Switch to a non-adhoc modification
             s(i) += Real(1)/wMaxNormLimit;
             z(i) += Real(1)/wMaxNormLimit;
         }
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushPairInto
-(       ElementalMatrix<Real>& sPre, 
-        ElementalMatrix<Real>& zPre,
-  const ElementalMatrix<Real>& wPre,
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+(       AbstractDistMatrix<Real>& sPre,
+        AbstractDistMatrix<Real>& zPre,
+  const AbstractDistMatrix<Real>& wPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( sPre, zPre, wPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -89,25 +91,26 @@ void PushPairInto
         const Int i = s.GlobalRow(iLoc);
         if( i == firstIndsLoc(iLoc) && wLoc(iLoc) > wMaxNormLimit )
         {
-            // TODO: Switch to a non-adhoc modification     
+            // TODO(poulson): Switch to a non-adhoc modification
             sLoc(iLoc) += Real(1)/wMaxNormLimit;
             zLoc(iLoc) += Real(1)/wMaxNormLimit;
         }
     }
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void PushPairInto
-(       DistMultiVec<Real>& s, 
+(       DistMultiVec<Real>& s,
         DistMultiVec<Real>& z,
   const DistMultiVec<Real>& w,
-  const DistMultiVec<Int>& orders, 
-  const DistMultiVec<Int>& firstInds, 
+  const DistMultiVec<Int>& orders,
+  const DistMultiVec<Int>& firstInds,
   Real wMaxNormLimit, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMultiVec<Real> sLower(s.Comm()), zLower(z.Comm());
+    DistMultiVec<Real> sLower(s.Grid()), zLower(z.Grid());
     soc::LowerNorms( s, sLower, orders, firstInds, cutoff );
     soc::LowerNorms( z, zLower, orders, firstInds, cutoff );
 
@@ -121,7 +124,7 @@ void PushPairInto
         const Int i = s.GlobalRow(iLoc);
         if( i == firstIndsLoc(iLoc) && wLoc(iLoc) > wMaxNormLimit )
         {
-            // TODO: Switch to a non-adhoc modification     
+            // TODO(poulson): Switch to a non-adhoc modification
             sLoc(iLoc) += Real(1)/wMaxNormLimit;
             zLoc(iLoc) += Real(1)/wMaxNormLimit;
         }
@@ -137,11 +140,11 @@ void PushPairInto
     const Matrix<Int>& firstInds, \
     Real wMaxNormLimit ); \
   template void PushPairInto \
-  (       ElementalMatrix<Real>& s, \
-          ElementalMatrix<Real>& z, \
-    const ElementalMatrix<Real>& w, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
+  (       AbstractDistMatrix<Real>& s, \
+          AbstractDistMatrix<Real>& z, \
+    const AbstractDistMatrix<Real>& w, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
     Real wMaxNormLimit, Int cutoff ); \
   template void PushPairInto \
   (       DistMultiVec<Real>& s, \

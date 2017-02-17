@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_CORE_SPARSEMATRIX_DECL_HPP
@@ -14,9 +22,9 @@
 namespace El {
 
 // Forward declaration for constructor
-template<typename T> class DistSparseMatrix;
+template<typename Ring> class DistSparseMatrix;
 
-template<typename T>
+template<typename Ring>
 class SparseMatrix
 {
 public:
@@ -24,10 +32,10 @@ public:
     // ============================
     SparseMatrix();
     SparseMatrix( Int height, Int width );
-    SparseMatrix( const SparseMatrix<T>& A );
+    SparseMatrix( const SparseMatrix<Ring>& A );
     // NOTE: This requires A to be distributed over a single process
-    SparseMatrix( const DistSparseMatrix<T>& A );
-    // TODO: Move constructor
+    SparseMatrix( const DistSparseMatrix<Ring>& A );
+    // TODO(poulson): Move constructor
     ~SparseMatrix();
 
     // Assignment and reconfiguration
@@ -48,14 +56,15 @@ public:
 
     // Expensive independent updates and explicit zeroing
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    void Update( const Entry<T>& entry );
-    void Update( Int row, Int col, T value );
+    void Update( const Entry<Ring>& entry );
+    void Update( Int row, Int col, const Ring& value );
     void Zero( Int row, Int col );
 
     // Batch updating and zeroing (recommended)
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    void QueueUpdate( const Entry<T>& entry ) EL_NO_RELEASE_EXCEPT;
-    void QueueUpdate( Int row, Int col, T value ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate( const Entry<Ring>& entry ) EL_NO_RELEASE_EXCEPT;
+    void QueueUpdate
+    ( Int row, Int col, const Ring& value ) EL_NO_RELEASE_EXCEPT;
     void QueueZero( Int row, Int col ) EL_NO_RELEASE_EXCEPT;
     void ProcessQueues();
 
@@ -65,30 +74,30 @@ public:
     // Make a copy
     // -----------
     // For copying one matrix to another
-    const SparseMatrix<T>& operator=( const SparseMatrix<T>& A );
+    const SparseMatrix<Ring>& operator=( const SparseMatrix<Ring>& A );
     // NOTE: This requires A to be distributed over a single process
-    const SparseMatrix<T>& operator=( const DistSparseMatrix<T>& A );
-    // TODO: Move assignment
+    const SparseMatrix<Ring>& operator=( const DistSparseMatrix<Ring>& A );
+    // TODO(poulson): Move assignment
 
     // Make a copy of a submatrix
     // --------------------------
-    SparseMatrix<T> operator()
+    SparseMatrix<Ring> operator()
     ( Range<Int> I, Range<Int> J ) const;
-    SparseMatrix<T> operator()
+    SparseMatrix<Ring> operator()
     ( Range<Int> I, const vector<Int>& J ) const;
-    SparseMatrix<T> operator()
+    SparseMatrix<Ring> operator()
     ( const vector<Int>& I, Range<Int> J ) const;
-    SparseMatrix<T> operator()
+    SparseMatrix<Ring> operator()
     ( const vector<Int>& I, const vector<Int>& J ) const;
 
     // Rescaling
     // ---------
-    const SparseMatrix<T>& operator*=( T alpha );
+    const SparseMatrix<Ring>& operator*=( const Ring& alpha );
 
     // Addition/subtraction
     // --------------------
-    const SparseMatrix<T>& operator+=( const SparseMatrix<T>& A );
-    const SparseMatrix<T>& operator-=( const SparseMatrix<T>& A );
+    const SparseMatrix<Ring>& operator+=( const SparseMatrix<Ring>& A );
+    const SparseMatrix<Ring>& operator-=( const SparseMatrix<Ring>& A );
 
     // For manually modifying data
     void ForceNumEntries( Int numEntries );
@@ -96,11 +105,11 @@ public:
     Int* SourceBuffer() EL_NO_EXCEPT;
     Int* TargetBuffer() EL_NO_EXCEPT;
     Int* OffsetBuffer() EL_NO_EXCEPT;
-    T* ValueBuffer() EL_NO_EXCEPT;
+    Ring* ValueBuffer() EL_NO_EXCEPT;
     const Int* LockedSourceBuffer() const EL_NO_EXCEPT;
     const Int* LockedTargetBuffer() const EL_NO_EXCEPT;
     const Int* LockedOffsetBuffer() const EL_NO_EXCEPT;
-    const T* LockedValueBuffer() const EL_NO_EXCEPT;
+    const Ring* LockedValueBuffer() const EL_NO_EXCEPT;
 
     // Queries
     // =======
@@ -119,9 +128,9 @@ public:
     // ---------------------
     Int Row( Int index ) const EL_NO_RELEASE_EXCEPT;
     Int Col( Int index ) const EL_NO_RELEASE_EXCEPT;
-    T Value( Int index ) const EL_NO_RELEASE_EXCEPT;
-    T Get( Int row, Int col ) const EL_NO_RELEASE_EXCEPT;
-    void Set( Int row, Int col, T val ) EL_NO_RELEASE_EXCEPT;
+    Ring Value( Int index ) const EL_NO_RELEASE_EXCEPT;
+    Ring Get( Int row, Int col ) const EL_NO_RELEASE_EXCEPT;
+    void Set( Int row, Int col, const Ring& val ) EL_NO_RELEASE_EXCEPT;
     Int RowOffset( Int row ) const EL_NO_RELEASE_EXCEPT;
     Int Offset( Int row, Int col ) const EL_NO_RELEASE_EXCEPT;
     Int NumConnections( Int row ) const EL_NO_RELEASE_EXCEPT;
@@ -130,22 +139,18 @@ public:
 
 private:
     El::Graph graph_;
-    vector<T> vals_;
+    vector<Ring> vals_;
 
     struct CompareEntriesFunctor
     {
-        bool operator()(const Entry<T>& a, const Entry<T>& b ) 
+        bool operator()(const Entry<Ring>& a, const Entry<Ring>& b )
         { return a.i < b.i || (a.i == b.i && a.j < b.j); }
     };
 
     template<typename U> friend class DistSparseMatrix;
-    template<typename U> 
+    template<typename U>
     friend void CopyFromRoot
     ( const DistSparseMatrix<U>& ADist, SparseMatrix<U>& A );
-
-    template<typename U,typename V>
-    friend void EntrywiseMap
-    ( const SparseMatrix<U>& A, SparseMatrix<V>& B, function<V(U)> func );
 };
 
 } // namespace El

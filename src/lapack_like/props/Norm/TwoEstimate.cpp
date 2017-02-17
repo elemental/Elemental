@@ -2,39 +2,40 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
-Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
+template<typename Field>
+Base<Field>
+TwoNormEstimate( const Matrix<Field>& A, Base<Field> tol, Int maxIts )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
 
-    Matrix<F> x, y;
+    Matrix<Field> x, y;
     Gaussian( y, n, 1 );
-    
+
     Int numIts=0;
     Real estimate=0, lastEst;
     do
     {
         lastEst = estimate;
-        Gemv( NORMAL, F(1), A, y, x );
+        Gemv( NORMAL, Field(1), A, y, x );
         Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
         {
-            Gaussian( x, m, 1 );    
+            Gaussian( x, m, 1 );
             xNorm = FrobeniusNorm( x );
         }
         x *= Real(1)/xNorm;
-        Gemv( ADJOINT, F(1), A, x, y );
+        Gemv( ADJOINT, Field(1), A, x, y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*Max(m,n) );
 
@@ -44,37 +45,37 @@ Base<F> TwoNormEstimate( const Matrix<F>& A, Base<F> tol, Int maxIts )
     return estimate;
 }
 
-template<typename F>
-Base<F> TwoNormEstimate
-( const ElementalMatrix<F>& APre, Base<F> tol, Int maxIts )
+template<typename Field>
+Base<Field> TwoNormEstimate
+( const AbstractDistMatrix<Field>& APre, Base<Field> tol, Int maxIts )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
 
     const Int m = A.Height();
     const Int n = A.Width();
 
     const Grid& g = APre.Grid();
-    DistMatrix<F> x(g), y(g);
+    DistMatrix<Field> x(g), y(g);
     Gaussian( y, n, 1 );
-    
+
     Int numIts=0;
     Real estimate=0, lastEst;
     do
     {
         lastEst = estimate;
-        Gemv( NORMAL, F(1), A, y, x );
+        Gemv( NORMAL, Field(1), A, y, x );
         Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
         {
-            Gaussian( x, m, 1 );    
+            Gaussian( x, m, 1 );
             xNorm = FrobeniusNorm( x );
         }
         x *= Real(1)/xNorm;
-        Gemv( ADJOINT, F(1), A, x, y );
+        Gemv( ADJOINT, Field(1), A, x, y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*Max(m,n) );
 
@@ -84,63 +85,65 @@ Base<F> TwoNormEstimate
     return estimate;
 }
 
-template<typename F>
-Base<F> TwoNormEstimate( const SparseMatrix<F>& A, Int basisSize )
+template<typename Field>
+Base<Field> TwoNormEstimate( const SparseMatrix<Field>& A, Int basisSize )
 {
     auto extremal = ExtremalSingValEst( A, basisSize );
     return extremal.second;
 }
 
-template<typename F>
-Base<F> TwoNormEstimate( const DistSparseMatrix<F>& A, Int basisSize )
+template<typename Field>
+Base<Field> TwoNormEstimate( const DistSparseMatrix<Field>& A, Int basisSize )
 {
     auto extremal = ExtremalSingValEst( A, basisSize );
     return extremal.second;
 }
 
-template<typename F>
-Base<F> HermitianTwoNormEstimate( const SparseMatrix<F>& A, Int basisSize )
+template<typename Field>
+Base<Field>
+HermitianTwoNormEstimate( const SparseMatrix<Field>& A, Int basisSize )
 {
     auto extremal = HermitianExtremalSingValEst( A, basisSize );
     return extremal.second;
 }
 
-template<typename F>
-Base<F> HermitianTwoNormEstimate( const DistSparseMatrix<F>& A, Int basisSize )
+template<typename Field>
+Base<Field>
+HermitianTwoNormEstimate( const DistSparseMatrix<Field>& A, Int basisSize )
 {
     auto extremal = HermitianExtremalSingValEst( A, basisSize );
     return extremal.second;
 }
 
-template<typename F>
-Base<F> HermitianTwoNormEstimate
+template<typename Field>
+Base<Field> HermitianTwoNormEstimate
 ( UpperOrLower uplo,
-  const Matrix<F>& A,
-  Base<F> tol,
+  const Matrix<Field>& A,
+  Base<Field> tol,
   Int maxIts )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
 
-    Matrix<F> x, y;
+    Matrix<Field> x, y;
     Zeros( x, n, 1 );
     Gaussian( y, n, 1 );
-    
+
     Int numIts=0;
     Real estimate=0, lastEst;
     do
     {
         lastEst = estimate;
-        Hemv( uplo, F(1), A, y, F(0), x );
+        Hemv( uplo, Field(1), A, y, Field(0), x );
         Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
         {
-            Gaussian( x, n, 1 );    
+            Gaussian( x, n, 1 );
             xNorm = FrobeniusNorm( x );
         }
         x *= Real(1)/xNorm;
-        Hemv( uplo, F(1), A, x, F(0), y );
+        Hemv( uplo, Field(1), A, x, Field(0), y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
 
@@ -150,40 +153,40 @@ Base<F> HermitianTwoNormEstimate
     return estimate;
 }
 
-template<typename F>
-Base<F> HermitianTwoNormEstimate
+template<typename Field>
+Base<Field> HermitianTwoNormEstimate
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& APre,
-  Base<F> tol, 
+  const AbstractDistMatrix<Field>& APre,
+  Base<Field> tol,
   Int maxIts )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
 
     const Int n = A.Height();
 
     const Grid& g = APre.Grid();
-    DistMatrix<F> x(g), y(g);
+    DistMatrix<Field> x(g), y(g);
     Zeros( x, n, 1 );
     Gaussian( y, n, 1 );
-    
+
     Int numIts=0;
     Real estimate=0, lastEst;
     do
     {
         lastEst = estimate;
-        Hemv( uplo, F(1), A, y, F(0), x );
+        Hemv( uplo, Field(1), A, y, Field(0), x );
         Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
         {
-            Gaussian( x, n, 1 );    
+            Gaussian( x, n, 1 );
             xNorm = FrobeniusNorm( x );
         }
         x *= Real(1)/xNorm;
-        Hemv( uplo, F(1), A, x, F(0), y );
+        Hemv( uplo, Field(1), A, x, Field(0), y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
 
@@ -193,33 +196,33 @@ Base<F> HermitianTwoNormEstimate
     return estimate;
 }
 
-template<typename F>
-Base<F> SymmetricTwoNormEstimate
-( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts )
+template<typename Field>
+Base<Field> SymmetricTwoNormEstimate
+( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> tol, Int maxIts )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int n = A.Height();
 
-    Matrix<F> x, y;
+    Matrix<Field> x, y;
     Zeros( x, n, 1 );
     Gaussian( y, n, 1 );
-    
+
     Int numIts=0;
     Real estimate=0, lastEst;
     do
     {
         lastEst = estimate;
-        Symv( uplo, F(1), A, y, F(0), x );
+        Symv( uplo, Field(1), A, y, Field(0), x );
         Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
         {
-            Gaussian( x, n, 1 );    
+            Gaussian( x, n, 1 );
             xNorm = FrobeniusNorm( x );
         }
         x *= Real(1)/xNorm;
         Conjugate( x );
-        Symv( uplo, F(1), A, x, F(0), y );
+        Symv( uplo, Field(1), A, x, Field(0), y );
         Conjugate( y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
@@ -230,41 +233,41 @@ Base<F> SymmetricTwoNormEstimate
     return estimate;
 }
 
-template<typename F>
-Base<F> SymmetricTwoNormEstimate
+template<typename Field>
+Base<Field> SymmetricTwoNormEstimate
 ( UpperOrLower uplo,
-  const ElementalMatrix<F>& APre,
-  Base<F> tol, 
+  const AbstractDistMatrix<Field>& APre,
+  Base<Field> tol,
   Int maxIts )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
 
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
+    DistMatrixReadProxy<Field,Field,MC,MR> AProx( APre );
     auto& A = AProx.GetLocked();
 
     const Int n = A.Height();
 
     const Grid& g = APre.Grid();
-    DistMatrix<F> x(g), y(g);
+    DistMatrix<Field> x(g), y(g);
     Zeros( x, n, 1 );
     Gaussian( y, n, 1 );
-    
+
     Int numIts=0;
     Real estimate=0, lastEst;
     do
     {
         lastEst = estimate;
-        Symv( uplo, F(1), A, y, F(0), x );
+        Symv( uplo, Field(1), A, y, Field(0), x );
         Real xNorm = FrobeniusNorm( x );
         if( xNorm == Real(0) )
         {
-            Gaussian( x, n, 1 );    
+            Gaussian( x, n, 1 );
             xNorm = FrobeniusNorm( x );
         }
         x *= Real(1)/xNorm;
         Conjugate( x );
-        Symv( uplo, F(1), A, x, F(0), y );
+        Symv( uplo, Field(1), A, x, Field(0), y );
         Conjugate( y );
         estimate = FrobeniusNorm( y );
     } while( ++numIts < maxIts && Abs(estimate-lastEst) > tol*n );
@@ -275,28 +278,28 @@ Base<F> SymmetricTwoNormEstimate
     return estimate;
 }
 
-#define PROTO(F) \
-  template Base<F> TwoNormEstimate \
-  ( const Matrix<F>& A, Base<F> tol, Int maxIts ); \
-  template Base<F> TwoNormEstimate \
-  ( const ElementalMatrix<F>& A, Base<F> tol, Int maxIts ); \
-  template Base<F> TwoNormEstimate \
-  ( const SparseMatrix<F>& A, Int basisSize ); \
-  template Base<F> TwoNormEstimate \
-  ( const DistSparseMatrix<F>& A, Int basisSize ); \
-  template Base<F> HermitianTwoNormEstimate \
-  ( const SparseMatrix<F>& A, Int basisSize ); \
-  template Base<F> HermitianTwoNormEstimate \
-  ( const DistSparseMatrix<F>& A, Int basisSize ); \
-  template Base<F> HermitianTwoNormEstimate \
-  ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
-  template Base<F> HermitianTwoNormEstimate \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> tol, \
+#define PROTO(Field) \
+  template Base<Field> TwoNormEstimate \
+  ( const Matrix<Field>& A, Base<Field> tol, Int maxIts ); \
+  template Base<Field> TwoNormEstimate \
+  ( const AbstractDistMatrix<Field>& A, Base<Field> tol, Int maxIts ); \
+  template Base<Field> TwoNormEstimate \
+  ( const SparseMatrix<Field>& A, Int basisSize ); \
+  template Base<Field> TwoNormEstimate \
+  ( const DistSparseMatrix<Field>& A, Int basisSize ); \
+  template Base<Field> HermitianTwoNormEstimate \
+  ( const SparseMatrix<Field>& A, Int basisSize ); \
+  template Base<Field> HermitianTwoNormEstimate \
+  ( const DistSparseMatrix<Field>& A, Int basisSize ); \
+  template Base<Field> HermitianTwoNormEstimate \
+  ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> tol, Int maxIts ); \
+  template Base<Field> HermitianTwoNormEstimate \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Base<Field> tol, \
     Int maxIts ); \
-  template Base<F> SymmetricTwoNormEstimate \
-  ( UpperOrLower uplo, const Matrix<F>& A, Base<F> tol, Int maxIts ); \
-  template Base<F> SymmetricTwoNormEstimate \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Base<F> tol, \
+  template Base<Field> SymmetricTwoNormEstimate \
+  ( UpperOrLower uplo, const Matrix<Field>& A, Base<Field> tol, Int maxIts ); \
+  template Base<Field> SymmetricTwoNormEstimate \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Base<Field> tol, \
     Int maxIts );
 
 #define EL_NO_INT_PROTO

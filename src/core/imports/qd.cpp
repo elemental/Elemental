@@ -31,7 +31,7 @@ void FinalizeQD()
 // TODO: Use a single templated implementation?
 DoubleDouble::operator long double() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     long double alpha = x[0];
     alpha += x[1];
     return alpha;
@@ -40,7 +40,7 @@ DoubleDouble::operator long double() const
 #ifdef EL_HAVE_QUAD
 DoubleDouble::operator Quad() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Quad alpha = x[0];
     alpha += x[1];
     return alpha;
@@ -50,7 +50,7 @@ DoubleDouble::operator Quad() const
 // TODO: Use a single templated implementation?
 QuadDouble::operator long double() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     long double alpha = x[0];
     for( Int j=1; j<4; ++j )
         alpha += x[j];
@@ -60,7 +60,7 @@ QuadDouble::operator long double() const
 #ifdef EL_HAVE_QUAD
 QuadDouble::operator Quad() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Quad alpha = x[0];
     for( Int j=1; j<4; ++j )
         alpha += x[j];
@@ -71,7 +71,7 @@ QuadDouble::operator Quad() const
 #ifdef EL_HAVE_MPC
 DoubleDouble::operator BigFloat() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BigFloat alpha( x[0] );
     alpha += x[1];
     return alpha;
@@ -79,7 +79,7 @@ DoubleDouble::operator BigFloat() const
 
 QuadDouble::operator BigFloat() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BigFloat alpha( x[0] );
     for( Int j=1; j<4; ++j )
         alpha += x[j];

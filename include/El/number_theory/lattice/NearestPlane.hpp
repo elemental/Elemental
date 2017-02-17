@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LATTICE_NEAREST_PLANE_HPP
@@ -22,7 +22,7 @@ void NearestPlane
         Matrix<F>& Y,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = B.Height();
     const Int n = B.Width();
     const Int numRHS = T.Width();
@@ -35,7 +35,7 @@ void NearestPlane
     // Run Babai's nearest plane algorithm on each column of Y.
     // The result is an approximation of the difference between each column
     // of Y and the nearest lattice point.
-    // TODO: Extract this into a separate routine that is shared with LLL
+    // TODO(poulson): Extract this into a separate routine shared with LLL
     vector<F> xBuf(n);
     for( Int j=0; j<numRHS; ++j )
     {
@@ -61,7 +61,7 @@ void NearestPlane
             xBuf[i] = chi;
         }
         const float nonzeroRatio = float(numNonzero)/float(n);
-        if( nonzeroRatio >= ctrl.blockingThresh )    
+        if( nonzeroRatio >= ctrl.blockingThresh )
         {
             blas::Gemv
             ( 'N', m, n,
@@ -86,7 +86,7 @@ void NearestPlane
 
     // Y := T - Y
     Y *= -1;
-    Y += T; 
+    Y += T;
 }
 
 template<typename F>
@@ -96,10 +96,7 @@ void NearestPlane
         Matrix<F>& Y,
   const LLLCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
-    const Int m = B.Height();
-    const Int n = B.Width();
-    const Int numRHS = T.Width();
+    EL_DEBUG_CSE
 
     // LLL-reduce B
     Matrix<F> BRed( B ), QR, t;

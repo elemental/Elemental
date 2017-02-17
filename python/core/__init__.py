@@ -18,3 +18,4 @@ from DistGraph        import *
 from SparseMatrix     import *
 from DistSparseMatrix import *
 from DistMultiVec     import *
+from Permutation      import *

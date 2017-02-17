@@ -28,6 +28,8 @@
 #include <El/core/SparseMatrix.h>
 #include <El/core/DistSparseMatrix.h>
 #include <El/core/DistMultiVec.h>
+#include <El/core/Permutation.h>
+
 #include <El/core/View.h>
 #include <El/core/FlamePart/Merge.h>
 #include <El/core/FlamePart/Partition.h>

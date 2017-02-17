@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace direct {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2], which, in the case that G = -I and h = 0,
 //
 // 1) Minimize || x ||^2, s.t. A x = b  by solving
@@ -37,13 +37,13 @@ namespace direct {
 //    | A  0   0 | | y | = |  0 |,
 //    |-I  0  -I | | z |   |  0 |
 //
-//    where 'u = -z' is an unused dummy variable. A Schur-complement 
+//    where 'u = -z' is an unused dummy variable. A Schur-complement
 //    manipulation yields
 //
 //    | I A^T | | -z |   | -c |
 //    | A  0  | |  y | = |  0 |.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min(x), and
 //      alpha_d := -min(z).
@@ -53,12 +53,12 @@ namespace direct {
 //      x := ( alpha_p > -sqrt(eps)*Max(1,||x||_2) ? x + (1+alpha_p)e : x )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision, 'e' is a vector of all ones 
-//    (for more general conic optimization problems, it is the product of 
-//    identity elements from the Jordan algebras whose squares yield the 
+//    where 'eps' is the machine precision, 'e' is a vector of all ones
+//    (for more general conic optimization problems, it is the product of
+//    identity elements from the Jordan algebras whose squares yield the
 //    relevant cone.
 //
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we also provide
 //    the ability to instead use an entrywise lower clip.
 //
@@ -73,32 +73,28 @@ namespace direct {
 
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A, 
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
   bool primalInit,
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
-    const Int m = A.Height();
-    const Int n = A.Width();
-    if( primalInit ) 
-        if( x.Height() != n || x.Width() != 1 )
+    EL_DEBUG_CSE
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    if( primalInit )
+        if( solution.x.Height() != n || solution.x.Width() != 1 )
             LogicError("x was of the wrong size");
     if( dualInit )
     {
-        if( y.Height() != m || y.Width() != 1 )
+        if( solution.y.Height() != m || solution.y.Width() != 1 )
             LogicError("y was of the wrong size");
-        if( z.Height() != n || z.Width() != 1 )
+        if( solution.z.Height() != n || solution.z.Width() != 1 )
             LogicError("z was of the wrong size");
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -106,7 +102,7 @@ void Initialize
     // ===================
     Matrix<Real> J, ones;
     Ones( ones, n, 1 );
-    AugmentedKKT( A, ones, ones, J );
+    AugmentedKKT( problem.A, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
@@ -114,8 +110,9 @@ void Initialize
     Permutation p;
     LDL( J, dSub, p, false );
 
-    Matrix<Real> rc, rb, rmu, u, v, d;
-    Zeros( rmu, n, 1 );
+    DirectLPResidual<Matrix<Real>> residual;
+    Matrix<Real> u, v, d;
+    Zeros( residual.dualConic, n, 1 );
     if( !primalInit )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -124,107 +121,111 @@ void Initialize
         //    | A  0  | | u | = | b |,
         //
         // where 'u' is an unused dummy variable.
-        Zeros( rc, n, 1 );
-        rb = b;
-        rb *= -1;
-        Zeros( rmu, n, 1 );
-        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+        Zeros( residual.dualEquality, n, 1 );
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Zeros( residual.dualConic, n, 1 );
+        AugmentedKKTRHS
+        ( ones, residual.dualEquality, residual.primalEquality,
+          residual.dualConic, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
+        ExpandAugmentedSolution
+        ( ones, ones, residual.dualConic, d, solution.x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c = 0 by solving
         //
         //    | I A^T | | -z |   | -c |
         //    | A  0  | |  y | = |  0 |.
-        rc = c;
-        Zeros( rb, m, 1 );
-        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+        residual.dualEquality = problem.c;
+        Zeros( residual.primalEquality, m, 1 );
+        AugmentedKKTRHS
+        ( ones, residual.dualEquality, residual.primalEquality,
+          residual.dualConic, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
-        z *= -1;
+        ExpandAugmentedSolution
+        ( ones, ones, residual.dualConic, d, solution.z, solution.y, u );
+        solution.z *= -1;
     }
 
     const Real epsilon = limits::Epsilon<Real>();
-    const Real xNorm = Nrm2( x );
-    const Real zNorm = Nrm2( z );
+    const Real xNorm = Nrm2( solution.x );
+    const Real zNorm = Nrm2( solution.z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : x + alpha*e >= 0 }
         // -------------------------------------------
-        const auto xMinPair = VectorMinLoc( x );
+        const auto xMinPair = VectorMinLoc( solution.x );
         const Real alphaPrimal = -xMinPair.value;
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized x was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const auto zMinPair = VectorMinLoc( z );
+        const auto zMinPair = VectorMinLoc( solution.z );
         const Real alphaDual = -zMinPair.value;
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
         if( alphaPrimal >= -gammaPrimal )
-            Shift( x, alphaPrimal+1 );
+            Shift( solution.x, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
-            Shift( z, alphaDual+1 );
+            Shift( solution.z, alphaDual+1 );
     }
     else
     {
-        LowerClip( x, gammaPrimal );
-        LowerClip( z, gammaDual   );
+        LowerClip( solution.x, gammaPrimal );
+        LowerClip( solution.z, gammaDual   );
     }
 }
 
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z,
+( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        DirectLPSolution<DistMatrix<Real>>& solution,
   bool primalInit,
   bool dualInit,
   bool standardShift )
 {
-    DEBUG_CSE
-    const Int m = A.Height();
-    const Int n = A.Width();
-    const Grid& g = A.Grid();
+    EL_DEBUG_CSE
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Grid& grid = problem.A.Grid();
     if( primalInit )
-        if( x.Height() != n || x.Width() != 1 )
+        if( solution.x.Height() != n || solution.x.Width() != 1 )
             LogicError("x was of the wrong size");
     if( dualInit )
     {
-        if( y.Height() != m || y.Width() != 1 )
+        if( solution.y.Height() != m || solution.y.Width() != 1 )
             LogicError("y was of the wrong size");
-        if( z.Height() != n || z.Width() != 1 )
+        if( solution.z.Height() != n || solution.z.Width() != 1 )
             LogicError("z was of the wrong size");
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
     // Form the KKT matrix
     // ===================
-    DistMatrix<Real> J(g), ones(g);
+    DistMatrix<Real> J(grid), ones(grid);
     Ones( ones, n, 1 );
-    AugmentedKKT( A, ones, ones, J );
+    AugmentedKKT( problem.A, ones, ones, J );
 
     // Factor the KKT matrix
     // =====================
-    DistMatrix<Real> dSub(g);
-    DistPermutation p(g);
+    DistMatrix<Real> dSub(grid);
+    DistPermutation p(grid);
     LDL( J, dSub, p, false );
 
-    DistMatrix<Real> rc(g), rb(g), rmu(g), u(g), v(g), d(g);
-    Zeros( rmu, n, 1 );
+    DirectLPResidual<DistMatrix<Real>> residual;
+    ForceSimpleAlignments( residual, grid );
+    Zeros( residual.dualConic, n, 1 );
+    DistMatrix<Real> u(grid), v(grid), d(grid);
     if( !primalInit )
     {
         // Minimize || x ||^2, s.t. A x = b  by solving
@@ -233,168 +234,132 @@ void Initialize
         //    | A  0  | | u | = | b |,
         //
         // where 'u' is an unused dummy variable.
-        Zeros( rc, n, 1 );
-        rb = b;
-        rb *= -1;
-        Zeros( rmu, n, 1 );
-        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+        Zeros( residual.dualEquality, n, 1 );
+        residual.primalEquality = problem.b;
+        residual.primalEquality *= -1;
+        Zeros( residual.dualConic, n, 1 );
+        AugmentedKKTRHS
+        ( ones, residual.dualEquality, residual.primalEquality,
+          residual.dualConic, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandAugmentedSolution( ones, ones, rmu, d, x, u, v );
+        ExpandAugmentedSolution
+        ( ones, ones, residual.dualConic, d, solution.x, u, v );
     }
-    if( !dualInit ) 
+    if( !dualInit )
     {
         // Minimize || z ||^2, s.t. A^T y - z + c = 0 by solving
         //
         //    | I A^T | | -z |   | -c |
         //    | A  0  | |  y | = |  0 |.
-        rc = c;
-        Zeros( rb, m, 1 );
-        AugmentedKKTRHS( ones, rc, rb, rmu, d );
+        residual.dualEquality = problem.c;
+        Zeros( residual.primalEquality, m, 1 );
+        AugmentedKKTRHS
+        ( ones, residual.dualEquality, residual.primalEquality,
+          residual.dualConic, d );
         ldl::SolveAfter( J, dSub, p, d, false );
-        ExpandAugmentedSolution( ones, ones, rmu, d, z, y, u );
-        z *= -1;
+        ExpandAugmentedSolution
+        ( ones, ones, residual.dualConic, d, solution.z, solution.y, u );
+        solution.z *= -1;
     }
 
     const Real epsilon = limits::Epsilon<Real>();
-    const Real xNorm = Nrm2( x );
-    const Real zNorm = Nrm2( z );
+    const Real xNorm = Nrm2( solution.x );
+    const Real zNorm = Nrm2( solution.z );
     const Real gammaPrimal = Sqrt(epsilon)*Max(xNorm,Real(1));
     const Real gammaDual   = Sqrt(epsilon)*Max(zNorm,Real(1));
     if( standardShift )
     {
         // alpha_p := min { alpha : x + alpha*e >= 0 }
         // -------------------------------------------
-        const auto xMinPair = VectorMinLoc( x );
+        const auto xMinPair = VectorMinLoc( solution.x );
         const Real alphaPrimal = -xMinPair.value;
         if( alphaPrimal >= Real(0) && primalInit )
             RuntimeError("initialized x was non-positive");
 
         // alpha_d := min { alpha : z + alpha*e >= 0 }
         // -------------------------------------------
-        const auto zMinPair = VectorMinLoc( z );
+        const auto zMinPair = VectorMinLoc( solution.z );
         const Real alphaDual = -zMinPair.value;
         if( alphaDual >= Real(0) && dualInit )
             RuntimeError("initialized z was non-positive");
 
         if( alphaPrimal >= -gammaPrimal )
-            Shift( x, alphaPrimal+1 );
+            Shift( solution.x, alphaPrimal+1 );
         if( alphaDual >= -gammaDual )
-            Shift( z, alphaDual+1 );
+            Shift( solution.z, alphaDual+1 );
     }
     else
     {
-        LowerClip( x, gammaPrimal );
-        LowerClip( z, gammaDual   );
+        LowerClip( solution.x, gammaPrimal );
+        LowerClip( solution.z, gammaDual   );
     }
 }
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A, 
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-        Matrix<Real>& x,
-        Matrix<Real>& y,
-        Matrix<Real>& z,
-        vector<Int>& map,
-        vector<Int>& invMap, 
-        ldl::Separator& rootSep,
-        ldl::NodeInfo& info,
+( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
+        SparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
-  bool standardShift,  
+  bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
-    const Int n = A.Width();
+    EL_DEBUG_CSE
+    const Int n = problem.A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
     qp::direct::Initialize
-    ( Q, A, b, c, x, y, z, map, invMap, rootSep, info,
+    ( Q, problem.A, problem.b, problem.c, solution.x, solution.y, solution.z,
+      sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A, 
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z,
-        DistMap& map,
-        DistMap& invMap, 
-        ldl::DistSeparator& rootSep,
-        ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources,
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        DirectLPSolution<DistMultiVec<Real>>& solution,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit,
   bool dualInit,
-  bool standardShift, 
+  bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
-    const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
+    EL_DEBUG_CSE
+    const Int n = problem.A.Width();
+    DistSparseMatrix<Real> Q(problem.A.Grid());
     Q.Resize( n, n );
     qp::direct::Initialize
-    ( Q, A, b, c, x, y, z, map, invMap, rootSep, info, 
-      mappedSources, mappedTargets, colOffs,
+    ( Q, problem.A, problem.b, problem.c, solution.x, solution.y, solution.z,
+      sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );
 }
 
 #define PROTO(Real) \
   template void Initialize \
-  ( const Matrix<Real>& A, \
-    const Matrix<Real>& b, \
-    const Matrix<Real>& c, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
+  ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+          DirectLPSolution<Matrix<Real>>& solution, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift ); \
   template void Initialize \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-          ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
+  ( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+          DirectLPSolution<DistMatrix<Real>>& solution, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift ); \
   template void Initialize \
-  ( const SparseMatrix<Real>& A, \
-    const Matrix<Real>& b, \
-    const Matrix<Real>& c, \
-          Matrix<Real>& x, \
-          Matrix<Real>& y, \
-          Matrix<Real>& z, \
-          vector<Int>& map, \
-          vector<Int>& invMap, \
-          ldl::Separator& rootSep, \
-          ldl::NodeInfo& info, \
+  ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+          DirectLPSolution<Matrix<Real>>& solution, \
+          SparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift, \
     const RegSolveCtrl<Real>& solveCtrl ); \
   template void Initialize \
-  ( const DistSparseMatrix<Real>& A, \
-    const DistMultiVec<Real>& b, \
-    const DistMultiVec<Real>& c, \
-          DistMultiVec<Real>& x, \
-          DistMultiVec<Real>& y, \
-          DistMultiVec<Real>& z, \
-          DistMap& map, \
-          DistMap& invMap, \
-          ldl::DistSeparator& rootSep, \
-          ldl::DistNodeInfo& info, \
-          vector<Int>& mappedSources, \
-          vector<Int>& mappedTargets, \
-          vector<Int>& colOffs, \
+  ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+          DirectLPSolution<DistMultiVec<Real>>& solution, \
+          DistSparseLDLFactorization<Real>& sparseLDLFact, \
     bool primalInit, \
     bool dualInit, \
     bool standardShift, \

@@ -2,49 +2,49 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
-Base<F> Coherence( const Matrix<F>& A )
+template<typename Field>
+Base<Field> Coherence( const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    Matrix<F> B( A );
-    Matrix<Base<F>> norms;
+    EL_DEBUG_CSE
+    Matrix<Field> B( A );
+    Matrix<Base<Field>> norms;
     ColumnTwoNorms( B, norms );
 
     DiagonalSolve( RIGHT, NORMAL, norms, B, true );
-    Matrix<F> C;
+    Matrix<Field> C;
     Identity( C, A.Width(), A.Width() );
-    Herk( UPPER, ADJOINT, Base<F>(-1), B, Base<F>(1), C );
+    Herk( UPPER, ADJOINT, Base<Field>(-1), B, Base<Field>(1), C );
 
     return HermitianMaxNorm( UPPER, C );
 }
 
-template<typename F>
-Base<F> Coherence( const ElementalMatrix<F>& A )
+template<typename Field>
+Base<Field> Coherence( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    DistMatrix<F> B( A );
-    DistMatrix<Base<F>,MR,STAR> norms(B.Grid());
+    EL_DEBUG_CSE
+    DistMatrix<Field> B( A );
+    DistMatrix<Base<Field>,MR,STAR> norms(B.Grid());
     ColumnTwoNorms( B, norms );
 
     DiagonalSolve( RIGHT, NORMAL, norms, B, true );
-    DistMatrix<F> C(B.Grid());
+    DistMatrix<Field> C(B.Grid());
     Identity( C, A.Width(), A.Width() );
-    Herk( UPPER, ADJOINT, Base<F>(-1), B, Base<F>(1), C );
+    Herk( UPPER, ADJOINT, Base<Field>(-1), B, Base<Field>(1), C );
 
     return HermitianMaxNorm( UPPER, C );
 }
 
-#define PROTO(F) \
-  template Base<F> Coherence( const Matrix<F>& A ); \
-  template Base<F> Coherence( const ElementalMatrix<F>& A );
+#define PROTO(Field) \
+  template Base<Field> Coherence( const Matrix<Field>& A ); \
+  template Base<Field> Coherence( const AbstractDistMatrix<Field>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

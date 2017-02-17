@@ -2,8 +2,8 @@
 #  Copyright (c) 2009-2016, Jack Poulson
 #  All rights reserved.
 #
-#  This file is part of Elemental and is under the BSD 2-Clause License, 
-#  which can be found in the LICENSE file in the root directory, or at 
+#  This file is part of Elemental and is under the BSD 2-Clause License,
+#  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
 from ..core import *
@@ -12,19 +12,34 @@ import ctypes
 
 # Least squares
 # =============
-class LeastSquaresCtrl_s(ctypes.Structure):
-  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",sType),
+class SQSDCtrl_s(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),
+              ("canOverwrite",bType),
               ("reg0Tmp",sType),("reg0Perm",sType),
               ("reg1Tmp",sType),("reg1Perm",sType),
               ("solveCtrl",RegSolveCtrl_s),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
-    lib.ElLeastSquaresCtrlDefault_s(pointer(self))
-class LeastSquaresCtrl_d(ctypes.Structure):
-  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",dType),
+    lib.ElSQSDCtrlDefault_s(pointer(self))
+class SQSDCtrl_d(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),
+              ("canOverwrite",bType),
               ("reg0Tmp",dType),("reg0Perm",dType),
               ("reg1Tmp",dType),("reg1Perm",dType),
               ("solveCtrl",RegSolveCtrl_d),
+              ("equilibrate",bType),("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElSQSDCtrlDefault_d(pointer(self))
+
+class LeastSquaresCtrl_s(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",sType),
+              ("sqsdCtrl",SQSDCtrl_s),
+              ("equilibrate",bType),("progress",bType),("time",bType)]
+  def __init__(self):
+    lib.ElLeastSquaresCtrlDefault_s(pointer(self))
+class LeastSquaresCtrl_d(ctypes.Structure):
+  _fields_ = [("scaleTwoNorm",bType),("basisSize",iType),("alpha",dType),
+              ("sqsdCtrl",SQSDCtrl_d),
               ("equilibrate",bType),("progress",bType),("time",bType)]
   def __init__(self):
     lib.ElLeastSquaresCtrlDefault_d(pointer(self))
@@ -90,16 +105,16 @@ def LeastSquares(A,B,ctrl=None,orient=NORMAL):
     X = Matrix(A.tag)
     args = [orient,A.obj,B.obj,X.obj]
     argsCtrl = [orient,A.obj,B.obj,X.obj,ctrl]
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl==None: lib.ElLeastSquaresSparse_s(*args)
       else:          lib.ElLeastSquaresXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl==None: lib.ElLeastSquaresSparse_d(*args)
       else:          lib.ElLeastSquaresXSparse_d(*argsCtrl)
-    elif A.tag == cTag: 
+    elif A.tag == cTag:
       if ctrl==None: lib.ElLeastSquaresSparse_c(*args)
       else:          lib.ElLeastSquaresXSparse_c(*argsCtrl)
-    elif A.tag == zTag: 
+    elif A.tag == zTag:
       if ctrl==None: lib.ElLeastSquaresSparse_z(*args)
       else:          lib.ElLeastSquaresXSparse_z(*argsCtrl)
     else: DataExcept()
@@ -107,19 +122,19 @@ def LeastSquares(A,B,ctrl=None,orient=NORMAL):
   elif type(A) is DistSparseMatrix:
     if type(B) is not DistMultiVec:
       raise Exception('RHS was expected to be a DistMultiVec')
-    X = DistMultiVec(A.tag,A.Comm())
+    X = DistMultiVec(A.tag,A.Grid())
     args = [orient,A.obj,B.obj,X.obj]
     argsCtrl = [orient,A.obj,B.obj,X.obj,ctrl]
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl==None: lib.ElLeastSquaresDistSparse_s(*args)
       else:          lib.ElLeastSquaresXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl==None: lib.ElLeastSquaresDistSparse_d(*args)
       else:          lib.ElLeastSquaresXDistSparse_d(*argsCtrl)
-    elif A.tag == cTag: 
+    elif A.tag == cTag:
       if ctrl==None: lib.ElLeastSquaresDistSparse_c(*args)
       else:          lib.ElLeastSquaresXDistSparse_c(*argsCtrl)
-    elif A.tag == zTag: 
+    elif A.tag == zTag:
       if ctrl==None: lib.ElLeastSquaresDistSparse_z(*args)
       else:          lib.ElLeastSquaresXDistSparse_z(*argsCtrl)
     else: DataExcept()
@@ -191,7 +206,7 @@ def Ridge(A,B,gamma,orient=NORMAL,alg=RIDGE_CHOLESKY):
   elif type(A) is DistSparseMatrix:
     if type(B) is not DistMultiVec:
       raise Exception('Expected RHS to be a DistMultiVec')
-    X = DistMultiVec(A.tag,A.Comm())
+    X = DistMultiVec(A.tag,A.Grid())
     args = [orient,A.obj,B.obj,gamma,X.obj]
     if   A.tag == sTag: lib.ElRidgeDistSparse_s(*args)
     elif A.tag == dTag: lib.ElRidgeDistSparse_d(*args)
@@ -265,7 +280,7 @@ def Tikhonov(A,B,G,orient=NORMAL,alg=TIKHONOV_CHOLESKY):
   elif type(A) is DistSparseMatrix:
     if type(B) is not DistMultiVec:
       raise Exception('Expected RHS to be a DistMultiVec')
-    X = DistMultiVec(A.tag,A.Comm())
+    X = DistMultiVec(A.tag,A.Grid())
     args = [orient,A.obj,B.obj,G.obj,X.obj]
     if   A.tag == sTag: lib.ElTikhonovDistSparse_s(*args)
     elif A.tag == dTag: lib.ElTikhonovDistSparse_d(*args)
@@ -340,16 +355,16 @@ def LSE(A,B,C,D,ctrl=None):
     X = Matrix(A.tag)
     args = [A.obj,B.obj,C.obj,D.obj,X.obj]
     argsCtrl = [A.obj,B.obj,C.obj,D.obj,X.obj,ctrl]
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl==None: lib.ElLSESparse_s(*args)
       else:          lib.ElLSEXSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl==None: lib.ElLSESparse_d(*args)
       else:          lib.ElLSEXSparse_d(*argsCtrl)
-    elif A.tag == cTag: 
+    elif A.tag == cTag:
       if ctrl==None: lib.ElLSESparse_c(*args)
       else:          lib.ElLSEXSparse_c(*argsCtrl)
-    elif A.tag == zTag: 
+    elif A.tag == zTag:
       if ctrl==None: lib.ElLSESparse_z(*args)
       else:          lib.ElLSEXSparse_z(*argsCtrl)
     else: DataExcept()
@@ -357,19 +372,19 @@ def LSE(A,B,C,D,ctrl=None):
   elif type(A) is DistSparseMatrix:
     if type(C) is not DistMultiVec:
       raise Exception('Expected C to be a DistMultiVec')
-    X = DistMultiVec(A.tag,A.Comm())
+    X = DistMultiVec(A.tag,A.Grid())
     args = [A.obj,B.obj,C.obj,D.obj,X.obj]
     argsCtrl = [A.obj,B.obj,C.obj,D.obj,X.obj,ctrl]
-    if   A.tag == sTag: 
+    if   A.tag == sTag:
       if ctrl==None: lib.ElLSEDistSparse_s(*args)
       else:          lib.ElLSEXDistSparse_s(*argsCtrl)
-    elif A.tag == dTag: 
+    elif A.tag == dTag:
       if ctrl==None: lib.ElLSEDistSparse_d(*args)
       else:          lib.ElLSEXDistSparse_d(*argsCtrl)
-    elif A.tag == cTag: 
+    elif A.tag == cTag:
       if ctrl==None: lib.ElLSEDistSparse_c(*args)
       else:          lib.ElLSEXDistSparse_c(*argsCtrl)
-    elif A.tag == zTag: 
+    elif A.tag == zTag:
       if ctrl==None: lib.ElLSEDistSparse_z(*args)
       else:          lib.ElLSEXDistSparse_z(*argsCtrl)
     else: DataExcept()

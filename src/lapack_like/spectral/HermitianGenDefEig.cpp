@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,18 +13,18 @@ namespace El {
 // Compute eigenvalues
 // ===================
 
-template<typename F>
+template<typename Field>
 HermitianEigInfo
 HermitianGenDefEig
 ( Pencil pencil,
-  UpperOrLower uplo, 
-  Matrix<F>& A,
-  Matrix<F>& B,
-  Matrix<Base<F>>& w,
-  const HermitianEigCtrl<F>& ctrl )
+  UpperOrLower uplo,
+  Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Base<Field>>& w,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() || B.Height() != B.Width() )
           LogicError("Hermitian matrices must be square.");
     )
@@ -37,24 +37,24 @@ HermitianGenDefEig
     return HermitianEig( uplo, A, w, ctrl );
 }
 
-template<typename F>
+template<typename Field>
 HermitianEigInfo
 HermitianGenDefEig
 ( Pencil pencil,
-  UpperOrLower uplo, 
-  AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre,
-  AbstractDistMatrix<Base<F>>& w,
-  const HermitianEigCtrl<F>& ctrl )
+  UpperOrLower uplo,
+  AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& BPre,
+  AbstractDistMatrix<Base<Field>>& w,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, BPre, w );
       if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
           LogicError("Hermitian matrices must be square.");
     )
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre ), BProx( BPre );
     auto& A = AProx.Get();
     auto& B = BProx.Get();
 
@@ -69,19 +69,19 @@ HermitianGenDefEig
 // Compute eigenpairs
 // ==================
 
-template<typename F> 
+template<typename Field>
 HermitianEigInfo
 HermitianGenDefEig
 ( Pencil pencil,
-  UpperOrLower uplo, 
-  Matrix<F>& A,
-  Matrix<F>& B,
-  Matrix<Base<F>>& w,
-  Matrix<F>& X,
-  const HermitianEigCtrl<F>& ctrl )
+  UpperOrLower uplo,
+  Matrix<Field>& A,
+  Matrix<Field>& B,
+  Matrix<Base<Field>>& w,
+  Matrix<Field>& X,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() || B.Height() != B.Width() )
           LogicError("Hermitian matrices must be square.");
     )
@@ -95,36 +95,36 @@ HermitianGenDefEig
     if( pencil == AXBX || pencil == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
-        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, Field(1), B, X );
     }
     else /* pencil == BAX */
     {
         const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
-        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, Field(1), B, X );
     }
     return info;
 }
 
-template<typename F> 
+template<typename Field>
 HermitianEigInfo
 HermitianGenDefEig
 ( Pencil pencil,
-  UpperOrLower uplo, 
-  AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<F>& BPre,
-  AbstractDistMatrix<Base<F>>& w,
-  AbstractDistMatrix<F>& XPre,
-  const HermitianEigCtrl<F>& ctrl )
+  UpperOrLower uplo,
+  AbstractDistMatrix<Field>& APre,
+  AbstractDistMatrix<Field>& BPre,
+  AbstractDistMatrix<Base<Field>>& w,
+  AbstractDistMatrix<Field>& XPre,
+  const HermitianEigCtrl<Field>& ctrl )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, BPre, w, XPre );
       if( APre.Height() != APre.Width() || BPre.Height() != BPre.Width() )
           LogicError("Hermitian matrices must be square.");
     )
 
-    DistMatrixReadWriteProxy<F,F,MC,MR> AProx( APre ), BProx( BPre );
-    DistMatrixWriteProxy<F,F,MC,MR> XProx( XPre );
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre ), BProx( BPre );
+    DistMatrixWriteProxy<Field,Field,MC,MR> XProx( XPre );
     auto& A = AProx.Get();
     auto& B = BProx.Get();
     auto& X = XProx.Get();
@@ -138,47 +138,47 @@ HermitianGenDefEig
     if( pencil == AXBX || pencil == ABX )
     {
         const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
-        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, Field(1), B, X );
     }
     else /* pencil == BAX */
     {
         const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
-        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, Field(1), B, X );
     }
     return info;
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
-    Matrix<F>& A, \
-    Matrix<F>& B, \
-    Matrix<Base<F>>& w, \
-    const HermitianEigCtrl<F>& ctrl ); \
+    Matrix<Field>& A, \
+    Matrix<Field>& B, \
+    Matrix<Base<Field>>& w, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
-    AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<Base<F>>& w, \
-    const HermitianEigCtrl<F>& ctrl ); \
+    AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Field>& B, \
+    AbstractDistMatrix<Base<Field>>& w, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
-    Matrix<F>& A, \
-    Matrix<F>& B, \
-    Matrix<Base<F>>& w, \
-    Matrix<F>& X, \
-    const HermitianEigCtrl<F>& ctrl ); \
+    Matrix<Field>& A, \
+    Matrix<Field>& B, \
+    Matrix<Base<Field>>& w, \
+    Matrix<Field>& X, \
+    const HermitianEigCtrl<Field>& ctrl ); \
   template HermitianEigInfo HermitianGenDefEig \
   ( Pencil pencil, \
     UpperOrLower uplo, \
-    AbstractDistMatrix<F>& A, \
-    AbstractDistMatrix<F>& B, \
-    AbstractDistMatrix<Base<F>>& w, \
-    AbstractDistMatrix<F>& X, \
-    const HermitianEigCtrl<F>& ctrl );
+    AbstractDistMatrix<Field>& A, \
+    AbstractDistMatrix<Field>& B, \
+    AbstractDistMatrix<Base<Field>>& w, \
+    AbstractDistMatrix<Field>& X, \
+    const HermitianEigCtrl<Field>& ctrl );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_QUAD

@@ -35,13 +35,13 @@ ctrl.ipmCtrl.mehrotraCtrl.progress = True
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)
   if worldRank == 0:
-    print "lambda =", lambd
+    print('lambda = {}'.format(lambd))
 
   startBPDN = El.mpi.Time()
   x = El.BPDN( A, b, lambd, ctrl )
   endBPDN = El.mpi.Time()
   if worldRank == 0:
-    print "BPDN time:", endBPDN-startBPDN, "seconds"
+    print('BPDN time: {} seconds'.format(endBPDN-startBPDN))
   if display:
     El.Display( x, "x" )
 
@@ -53,10 +53,7 @@ for j in xrange(0,numLambdas):
     El.Display( e, "e" )
   eTwoNorm = El.Nrm2( e )
   if worldRank == 0:
-    print "|| x ||_1       =", xOneNorm
-    print "|| A x - b ||_2 =", eTwoNorm
+    print('|| x ||_1       = {}'.format(xOneNorm))
+    print('|| A x - b ||_2 = {}'.format(eTwoNorm))
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

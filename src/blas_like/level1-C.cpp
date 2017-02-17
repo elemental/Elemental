@@ -210,35 +210,35 @@ ElError ElGetSubgraphDist
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapSparse_ ## SIG \
   ( ElSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDistSparse_ ## SIG \
   ( ElDistSparseMatrix_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElEntrywiseMapDistMultiVec_ ## SIG \
   ( ElDistMultiVec_ ## SIG A, CREFLECT(T) (*func)(CREFLECT(T)) ) \
   { try { \
       auto newMap = [&]( T alpha ) \
         { return CReflect(func(CReflect(alpha))); }; \
-      EntrywiseMap( *CReflect(A), function<T(T)>(newMap) ); \
+      EntrywiseMap( *CReflect(A), function<T(const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Fill */ \
   ElError ElFill_ ## SIG \
@@ -351,7 +351,7 @@ ElError ElGetSubgraphDist
       auto newMap = [&]( Int i, Int j, T alpha ) \
         { return CReflect(func(i,j,CReflect(alpha))); }; \
       IndexDependentMap \
-      ( *CReflect(A), function<T(Int,Int,T)>(newMap) ); \
+      ( *CReflect(A), function<T(Int,Int,const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   ElError ElIndexDependentMapDist_ ## SIG \
   ( ElDistMatrix_ ## SIG A, CREFLECT(T) (*func)(ElInt,ElInt,CREFLECT(T)) ) \
@@ -359,7 +359,7 @@ ElError ElGetSubgraphDist
       auto newMap = [&]( Int i, Int j, T alpha ) \
         { return CReflect(func(i,j,CReflect(alpha))); }; \
       IndexDependentMap \
-      ( *CReflect(A), function<T(Int,Int,T)>(newMap) ); \
+      ( *CReflect(A), function<T(Int,Int,const T&)>(newMap) ); \
     } EL_CATCH; return EL_SUCCESS; } \
   /* Kronecker */ \
   ElError ElKronecker_ ## SIG \

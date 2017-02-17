@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LU_MOD_HPP
@@ -11,7 +11,7 @@
 
 namespace El {
 
-// Begin with an LU factorization with partial pivoting, 
+// Begin with an LU factorization with partial pivoting,
 //     A = P^T L U,
 // and turn it into a partially-pivoted LU factorization of
 //     A + u v',
@@ -19,7 +19,7 @@ namespace El {
 //     (A + u v') = (PNew)^T L ( U + w v'),
 // w = inv(L) P u.
 
-// Please see subsection 2.1 from 
+// Please see subsection 2.1 from
 //     Peter Stange, Andreas Griewank, and Matthias Bollhofer,
 //     "On the efficient update of rectangular LU factorizations subject to
 //      low rank modifications"
@@ -36,16 +36,18 @@ namespace El {
 //       LUMod( A, P, u, v, conjugate, tau );
 //
 
+namespace lu {
+
 template<typename F>
-void LUMod
+void RankOneMod
 ( Matrix<F>& A,
-        Permutation& P, 
+        Permutation& P,
   const Matrix<F>& u,
   const Matrix<F>& v,
   bool conjugate,
   Base<F> tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = A.Height();
     const Int n = A.Width();
@@ -71,7 +73,7 @@ void LUMod
     {
         // Decide if we should pivot the i'th and i+1'th rows of w
         const F lambdaSub = A(i+1,i);
-        const F ups_ii = A(i,i); 
+        const F ups_ii = A(i,i);
         const F omega_i = w(i);
         const F omega_ip1 = w(i+1);
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
@@ -92,19 +94,19 @@ void LUMod
             // P := P_i P
             P.Swap( i, i+1 );
 
-            // Simultaneously perform 
+            // Simultaneously perform
             //   U := P_i U and
             //   L := P_i L P_i^T
             //
             // Then update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             //     w := T_{i,L} P_i w,
             // where T_{i,L} is the Gauss transform which zeros (P_i w)_{i+1}.
-            // 
+            //
             // More succinctly,
             //     gamma    := w(i) / w(i+1),
-            //     w(i)     := w(i+1), 
+            //     w(i)     := w(i+1),
             //     w(i+1)   := 0,
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
@@ -122,8 +124,8 @@ void LUMod
             Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
-            //     L := L T_{i,U}^{-1} D^{-1}, 
-            // where D is diagonal and responsible for forcing L(i,i) and 
+            //     L := L T_{i,U}^{-1} D^{-1},
+            // where D is diagonal and responsible for forcing L(i,i) and
             // L(i+1,i+1) back to 1. The effect on L is:
             //     eta       := L(i,i+1)/L(i,i),
             //     L(:,i+1)  -= eta L(:,i),
@@ -159,10 +161,10 @@ void LUMod
         {
             // Update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             //     w := T_{i,L} w,
             // where T_{i,L} is the Gauss transform which zeros w_{i+1}.
-            // 
+            //
             // More succinctly,
             //     gamma    := w(i+1) / w(i),
             //     L(:,i)   += gamma L(:,i+1),
@@ -179,14 +181,14 @@ void LUMod
     // Add the modified w v' into U
     {
         auto a0 = A( IR(0), ALL );
-        const F omega_0 = w(0); 
+        const F omega_0 = w(0);
         Matrix<F> vTrans;
         Transpose( v, vTrans, conjugate );
         Axpy( omega_0, vTrans, a0 );
     }
 
     // Transform U from upper-Hessenberg to upper-triangular form
-    for( Int i=0; i<minDim-1; ++i ) 
+    for( Int i=0; i<minDim-1; ++i )
     {
         // Decide if we should pivot the i'th and i+1'th rows U
         const F lambdaSub = A(i+1,i);
@@ -210,15 +212,15 @@ void LUMod
             // P := P_i P
             P.Swap( i, i+1 );
 
-            // Simultaneously perform 
+            // Simultaneously perform
             //   U := P_i U and
             //   L := P_i L P_i^T
             //
             // Then update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             // where T_{i,L} is the Gauss transform which zeros U(i+1,i).
-            // 
+            //
             // More succinctly,
             //     gamma    := U(i+1,i) / U(i,i),
             //     L(:,i)   += gamma L(:,i+1),
@@ -237,8 +239,8 @@ void LUMod
             Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
-            //     L := L T_{i,U}^{-1} D^{-1}, 
-            // where D is diagonal and responsible for forcing L(i,i) and 
+            //     L := L T_{i,U}^{-1} D^{-1},
+            // where D is diagonal and responsible for forcing L(i,i) and
             // L(i+1,i+1) back to 1. The effect on L is:
             //     eta       := L(i,i+1)/L(i,i),
             //     L(:,i+1)  -= eta L(:,i),
@@ -268,9 +270,9 @@ void LUMod
         {
             // Update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             // where T_{i,L} is the Gauss transform which zeros U(i+1,i).
-            // 
+            //
             // More succinctly,
             //     gamma    := U(i+1,i)/ U(i,i),
             //     L(:,i)   += gamma L(:,i+1),
@@ -284,15 +286,15 @@ void LUMod
 }
 
 template<typename F>
-void LUMod
-(       ElementalMatrix<F>& APre,
+void RankOneMod
+(       AbstractDistMatrix<F>& APre,
         DistPermutation& P,
-  const ElementalMatrix<F>& u,
-  const ElementalMatrix<F>& v, 
+  const AbstractDistMatrix<F>& u,
+  const AbstractDistMatrix<F>& v,
   bool conjugate,
   Base<F> tau )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Grid& g = APre.Grid();
     typedef Base<F> Real;
 
@@ -312,7 +314,7 @@ void LUMod
     AssertSameGrids( A, u, v );
 
     // w := inv(L) P u
-    // TODO: Consider locally maintaining all of w to avoid unnecessarily 
+    // TODO: Consider locally maintaining all of w to avoid unnecessarily
     //       broadcasting at every iteration.
     DistMatrix<F> w( u );
     P.PermuteRows( w );
@@ -329,7 +331,7 @@ void LUMod
     {
         // Decide if we should pivot the i'th and i+1'th rows of w
         const F lambdaSub = A.Get(i+1,i);
-        const F ups_ii = A.Get(i,i); 
+        const F ups_ii = A.Get(i,i);
         const F omega_i = w.Get( i, 0 );
         const F omega_ip1 = w.Get( i+1, 0 );
         const Real rightTerm = Abs(lambdaSub*omega_i+omega_ip1);
@@ -350,19 +352,19 @@ void LUMod
             // P := P_i P
             P.Swap( i, i+1 );
 
-            // Simultaneously perform 
+            // Simultaneously perform
             //   U := P_i U and
             //   L := P_i L P_i^T
             //
             // Then update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             //     w := T_{i,L} P_i w,
             // where T_{i,L} is the Gauss transform which zeros (P_i w)_{i+1}.
-            // 
+            //
             // More succinctly,
             //     gamma    := w(i) / w(i+1),
-            //     w(i)     := w(i+1), 
+            //     w(i)     := w(i+1),
             //     w(i+1)   := 0,
             //     L(:,i)   += gamma L(:,i+1),
             //     U(i+1,:) -= gamma U(i,:).
@@ -380,8 +382,8 @@ void LUMod
             Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
-            //     L := L T_{i,U}^{-1} D^{-1}, 
-            // where D is diagonal and responsible for forcing L(i,i) and 
+            //     L := L T_{i,U}^{-1} D^{-1},
+            // where D is diagonal and responsible for forcing L(i,i) and
             // L(i+1,i+1) back to 1. The effect on L is:
             //     eta       := L(i,i+1)/L(i,i),
             //     L(:,i+1)  -= eta L(:,i),
@@ -417,10 +419,10 @@ void LUMod
         {
             // Update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             //     w := T_{i,L} w,
             // where T_{i,L} is the Gauss transform which zeros w_{i+1}.
-            // 
+            //
             // More succinctly,
             //     gamma    := w(i+1) / w(i),
             //     L(:,i)   += gamma L(:,i+1),
@@ -437,7 +439,7 @@ void LUMod
     // Add the modified w v' into U
     {
         auto a0 = A( IR(0), ALL );
-        const F omega_0 = w.Get( 0, 0 ); 
+        const F omega_0 = w.Get( 0, 0 );
         DistMatrix<F> vTrans(g);
         vTrans.AlignWith( a0 );
         Transpose( v, vTrans, conjugate );
@@ -445,7 +447,7 @@ void LUMod
     }
 
     // Transform U from upper-Hessenberg to upper-triangular form
-    for( Int i=0; i<minDim-1; ++i ) 
+    for( Int i=0; i<minDim-1; ++i )
     {
         // Decide if we should pivot the i'th and i+1'th rows U
         const F lambdaSub = A.Get( i+1, i );
@@ -469,15 +471,15 @@ void LUMod
             // P := P_i P
             P.Swap( i, i+1 );
 
-            // Simultaneously perform 
+            // Simultaneously perform
             //   U := P_i U and
             //   L := P_i L P_i^T
             //
             // Then update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             // where T_{i,L} is the Gauss transform which zeros U(i+1,i).
-            // 
+            //
             // More succinctly,
             //     gamma    := U(i+1,i) / U(i,i),
             //     L(:,i)   += gamma L(:,i+1),
@@ -496,8 +498,8 @@ void LUMod
             Axpy( -gamma, uip1RCopy, uip1R );
 
             // Force L back to *unit* lower-triangular form via the transform
-            //     L := L T_{i,U}^{-1} D^{-1}, 
-            // where D is diagonal and responsible for forcing L(i,i) and 
+            //     L := L T_{i,U}^{-1} D^{-1},
+            // where D is diagonal and responsible for forcing L(i,i) and
             // L(i+1,i+1) back to 1. The effect on L is:
             //     eta       := L(i,i+1)/L(i,i),
             //     L(:,i+1)  -= eta L(:,i),
@@ -526,9 +528,9 @@ void LUMod
         {
             // Update
             //     L := L T_{i,L}^{-1},
-            //     U := T_{i,L} U, 
+            //     U := T_{i,L} U,
             // where T_{i,L} is the Gauss transform which zeros U(i+1,i).
-            // 
+            //
             // More succinctly,
             //     gamma    := U(i+1,i)/ U(i,i),
             //     L(:,i)   += gamma L(:,i+1),
@@ -539,6 +541,50 @@ void LUMod
             Axpy( -gamma, uiR, uip1R );
         }
     }
+}
+
+} // namespace lu
+
+template<typename Field>
+void LUMod
+( Matrix<Field>& A,
+        Permutation& P,
+  const Matrix<Field>& U,
+  const Matrix<Field>& V,
+  bool conjugate,
+  Base<Field> tau )
+{
+    EL_DEBUG_CSE
+    // TODO(poulson): Add a higher-rank implementation.
+    const Int updateRank = U.Width();
+    for( Int j=0; j<updateRank; ++j)
+        lu::RankOneMod( A, P, U(ALL,IR(j)), V(ALL,IR(j)), conjugate, tau );
+}
+
+template<typename Field>
+void LUMod
+(       AbstractDistMatrix<Field>& APre,
+        DistPermutation& P,
+  const AbstractDistMatrix<Field>& UPre,
+  const AbstractDistMatrix<Field>& VPre,
+  bool conjugate,
+  Base<Field> tau )
+{
+    EL_DEBUG_CSE
+
+    DistMatrixReadWriteProxy<Field,Field,MC,MR> AProx( APre );
+    auto& A = AProx.Get();
+
+    DistMatrixReadProxy<Field,Field,MC,MR> UProx( UPre );
+    auto& U = UProx.GetLocked();
+
+    DistMatrixReadProxy<Field,Field,MC,MR> VProx( VPre );
+    auto& V = VProx.GetLocked();
+
+    // TODO(poulson): Add a higher-rank implementation.
+    const Int updateRank = U.Width();
+    for( Int j=0; j<updateRank; ++j)
+        lu::RankOneMod( A, P, U(ALL,IR(j)), V(ALL,IR(j)), conjugate, tau );
 }
 
 } // namespace El

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -16,7 +16,7 @@ namespace affine {
 
 //
 // Despite the fact that the CVXOPT documentation [1] suggests a single-stage
-// procedure for initializing (x,y,z,s), a post-processed two-stage procedure 
+// procedure for initializing (x,y,z,s), a post-processed two-stage procedure
 // is currently used by the code [2]:
 //
 // 1) Minimize || G x - h ||^2, s.t. A x = b  by solving
@@ -35,7 +35,7 @@ namespace affine {
 //
 //    where 'u' is an unused dummy variable.
 //
-// 3) Set 
+// 3) Set
 //
 //      alpha_p := -min_i min eig(s_i),
 //      alpha_d := -min_i min eig(z_i),
@@ -48,11 +48,11 @@ namespace affine {
 //      s := ( alpha_p > -sqrt(eps)*Max(1,||s||_2) ? s + (1+alpha_p)e : s )
 //      z := ( alpha_d > -sqrt(eps)*Max(1,||z||_2) ? z + (1+alpha_d)e : z ),
 //
-//    where 'eps' is the machine precision and 'e' is the identity of the 
+//    where 'eps' is the machine precision and 'e' is the identity of the
 //    product cone.
 //
-//    TODO: 
-//    Since the post-processing in step (3) has a large discontinuity as the 
+//    TODO(poulson):
+//    Since the post-processing in step (3) has a large discontinuity as the
 //    minimum entry approaches sqrt(eps)*Max(1,||q||_2), we can also provide
 //    the ability to instead use an per-subcone lower clip.
 //
@@ -67,20 +67,20 @@ namespace affine {
 
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& G,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z, 
+        Matrix<Real>& z,
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
@@ -100,7 +100,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -189,26 +189,26 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& b, 
-  const ElementalMatrix<Real>& c,
-  const ElementalMatrix<Real>& h,
-  const ElementalMatrix<Int>& orders,
-  const ElementalMatrix<Int>& firstInds,
-        ElementalMatrix<Real>& x, 
-        ElementalMatrix<Real>& y,
-        ElementalMatrix<Real>& z, 
-        ElementalMatrix<Real>& s,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& b,
+  const DistMatrix<Real>& c,
+  const DistMatrix<Real>& h,
+  const AbstractDistMatrix<Int>& orders,
+  const AbstractDistMatrix<Int>& firstInds,
+        DistMatrix<Real>& x,
+        DistMatrix<Real>& y,
+        DistMatrix<Real>& z,
+        DistMatrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
     const Grid& g = A.Grid();
-    if( primalInit ) 
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -224,7 +224,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -312,23 +312,23 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
   const SparseMatrix<Real>& G,
-  const Matrix<Real>& b, 
+  const Matrix<Real>& b,
   const Matrix<Real>& c,
   const Matrix<Real>& h,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds,
-        Matrix<Real>& x, 
+        Matrix<Real>& x,
         Matrix<Real>& y,
-        Matrix<Real>& z, 
+        Matrix<Real>& z,
         Matrix<Real>& s,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    // TODO: Expose as control parameters
+    // TODO(poulson): Expose as control parameters
     const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
     const Real delta = Pow(eps,Real(0.25));
@@ -340,7 +340,7 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    if( primalInit ) 
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -356,7 +356,7 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
@@ -383,15 +383,11 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    vector<Int> map, invMap;
-    ldl::Separator rootSep;
-    ldl::NodeInfo info;
-    NestedDissection( J.LockedGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
-
-    ldl::Front<Real> JFront;
-    JFront.Pull( J, map, info );
-    LDL( info, JFront );
+    SparseLDLFactorization<Real> sparseLDLFact;
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor();
 
     Matrix<Real> rc, rb, rh, rmu, u, d;
     Zeros( rmu, k, 1 );
@@ -412,7 +408,7 @@ void Initialize
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -432,7 +428,7 @@ void Initialize
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
 
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -469,24 +465,24 @@ void Initialize
 
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
   const DistSparseMatrix<Real>& G,
-  const DistMultiVec<Real>& b, 
+  const DistMultiVec<Real>& b,
   const DistMultiVec<Real>& c,
   const DistMultiVec<Real>& h,
   const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds,
-        DistMultiVec<Real>& x, 
+        DistMultiVec<Real>& x,
         DistMultiVec<Real>& y,
-        DistMultiVec<Real>& z, 
+        DistMultiVec<Real>& z,
         DistMultiVec<Real>& s,
-  bool primalInit, bool dualInit, bool standardShift, 
+  bool primalInit, bool dualInit, bool standardShift,
   Int cutoffPar,
   const RegSolveCtrl<Real>& solveCtrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    // TODO: Expose as control parameters
+    // TODO(poulson): Expose as control parameters
     const Real eps = limits::Epsilon<Real>();
     const Real gamma = Pow(eps,Real(0.25));
     const Real delta = Pow(eps,Real(0.25));
@@ -498,8 +494,8 @@ void Initialize
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-    mpi::Comm comm = A.Comm();
-    if( primalInit ) 
+    const Grid& grid = A.Grid();
+    if( primalInit )
     {
         if( x.Height() != n || x.Width() != 1 )
             LogicError("x was of the wrong size");
@@ -515,14 +511,14 @@ void Initialize
     }
     if( primalInit && dualInit )
     {
-        // TODO: Perform a consistency check
+        // TODO(poulson): Perform a consistency check
         return;
     }
 
     // Form the KKT matrix
     // ===================
-    DistSparseMatrix<Real> JOrig(comm);
-    DistMultiVec<Real> ones(comm);
+    DistSparseMatrix<Real> JOrig(grid);
+    DistMultiVec<Real> ones(grid);
     Ones( ones, k, 1 );
     const bool onlyLower = false;
     lp::affine::StaticKKT( A, G, gamma, delta, beta, JOrig, onlyLower );
@@ -532,7 +528,7 @@ void Initialize
 
     // (Approximately) factor the KKT matrix
     // =====================================
-    DistMultiVec<Real> reg(comm);
+    DistMultiVec<Real> reg(grid);
     reg.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<reg.LocalHeight(); ++iLoc )
     {
@@ -543,18 +539,14 @@ void Initialize
     }
     UpdateRealPartOfDiagonal( J, Real(1), reg );
 
-    DistMap map(comm), invMap(comm);
-    ldl::DistSeparator rootSep;
-    ldl::DistNodeInfo info;
-    NestedDissection( J.LockedDistGraph(), map, rootSep, info );
-    InvertMap( map, invMap );
+    DistSparseLDLFactorization<Real> sparseLDLFact;
+    const bool hermitian = true;
+    const BisectCtrl bisectCtrl;
+    sparseLDLFact.Initialize( J, hermitian, bisectCtrl );
+    sparseLDLFact.Factor( LDL_2D );
 
-    ldl::DistFront<Real> JFront;
-    JFront.Pull( J, map, rootSep, info );
-    LDL( info, JFront, LDL_2D );
-
-    DistMultiVec<Real> rc(comm), rb(comm), rh(comm), rmu(comm), u(comm),
-                       d(comm);
+    DistMultiVec<Real> rc(grid), rb(grid), rh(grid), rmu(grid), u(grid),
+                       d(grid);
     Zeros( rmu, k, 1 );
     if( !primalInit )
     {
@@ -573,7 +565,7 @@ void Initialize
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, x, u, s );
         s *= -1;
@@ -593,7 +585,7 @@ void Initialize
 
         lp::affine::KKTRHS( rc, rb, rh, rmu, ones, d );
         reg_ldl::RegularizedSolveAfter
-        ( JOrig, reg, invMap, info, JFront, d,
+        ( JOrig, reg, sparseLDLFact, d,
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
         lp::affine::ExpandCoreSolution( m, n, k, d, u, y, z );
     }
@@ -644,17 +636,17 @@ void Initialize
           Matrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift ); \
   template void Initialize \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& b, \
-    const ElementalMatrix<Real>& c, \
-    const ElementalMatrix<Real>& h, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, \
-          ElementalMatrix<Real>& x, \
-          ElementalMatrix<Real>& y, \
-          ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& s, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& G, \
+    const DistMatrix<Real>& b, \
+    const DistMatrix<Real>& c, \
+    const DistMatrix<Real>& h, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, \
+          DistMatrix<Real>& x, \
+          DistMatrix<Real>& y, \
+          DistMatrix<Real>& z, \
+          DistMatrix<Real>& s, \
     bool primalInit, bool dualInit, bool standardShift, Int cutoff ); \
   template void Initialize \
   ( const SparseMatrix<Real>& A, \

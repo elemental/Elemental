@@ -16,7 +16,7 @@ void TestGraded
   const herm_tridiag_eig::QRCtrl& qrCtrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = 5;
     Output("Testing small graded matrix with ",TypeName<Real>());
 
@@ -35,7 +35,8 @@ void TestGraded
     e(1) = Pow( Real(10), Real(2) );
     e(2) = Pow( Real(10), Real(5) );
     e(3) = Pow( Real(10), Real(8) );
-    auto dOrig(d), eOrig(e);
+    auto dOrig(d);
+    auto eOrig(e);
 
     const Real TOne = HermitianTridiagOneNorm( d, e );
     Output("|| T ||_1 = ",TOne);
@@ -90,7 +91,7 @@ void TestRandom
   const herm_tridiag_eig::QRCtrl& qrCtrl,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Output("Testing random tridiagonal matrix with ",TypeName<Real>());
 
     HermitianTridiagEigCtrl<Real> ctrl;
@@ -101,7 +102,8 @@ void TestRandom
     Matrix<Real> d, e;
     Uniform( d, n, 1 );
     Uniform( e, n-1, 1 );
-    auto dOrig(d), eOrig(e);
+    auto dOrig(d);
+    auto eOrig(e);
 
     const Real TOne = HermitianTridiagOneNorm( d, e );
     Output("|| T ||_1 = ",TOne);

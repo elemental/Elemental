@@ -1,0 +1,6 @@
+elemental (0.87.4-8) unstable; urgency=low
+
+  * No changes have been made to the official source, as this Debian package is
+    being maintained within the official repository.
+
+ -- Jack Poulson <jack.poulson@gmail.com>  Tue, 15 Nov 2016 21:23:59 -0008

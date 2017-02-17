@@ -26,8 +26,8 @@ void Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("Triangular matrix must be square");
       if( side == LEFT )
@@ -56,7 +56,7 @@ void Trmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     X *= alpha;
     if( side == LEFT && uplo == LOWER )
     {
@@ -94,8 +94,8 @@ void LocalTrmm
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,STAR,STAR>& A, AbstractDistMatrix<T>& B )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( (side == LEFT && B.ColDist() != STAR) ||
           (side == RIGHT && B.RowDist() != STAR) )
           LogicError

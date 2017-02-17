@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -35,21 +35,21 @@ Int LocalTrr2kBlocksizeHelper<T>::value = 64;
 namespace El {
 
 Int Blocksize()
-{ 
-    DEBUG_ONLY(
+{
+    EL_DEBUG_ONLY(
       if( ::blocksizeStack.empty() )
           LogicError("Attempted to extract blocksize from empty stack");
     )
-    return ::blocksizeStack.top(); 
+    return ::blocksizeStack.top();
 }
 
 void SetBlocksize( Int blocksize )
-{ 
-    DEBUG_ONLY(
+{
+    EL_DEBUG_ONLY(
       if( ::blocksizeStack.empty() )
           LogicError("Attempted to set blocksize at top of empty stack");
     )
-    ::blocksizeStack.top() = blocksize; 
+    ::blocksizeStack.top() = blocksize;
 }
 
 void PushBlocksizeStack( Int blocksize )
@@ -57,7 +57,7 @@ void PushBlocksizeStack( Int blocksize )
 
 void PopBlocksizeStack()
 {
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( ::blocksizeStack.empty() )
           LogicError("Attempted to pop an empty blocksize stack");
     )
@@ -100,7 +100,7 @@ Int LocalTrr2kBlocksize()
   template void SetLocalTrrkBlocksize<T>( Int blocksize ); \
   template Int LocalTrrkBlocksize<T>(); \
   template void SetLocalTrr2kBlocksize<T>( Int blocksize ); \
-  template Int LocalTrr2kBlocksize<T>(); 
+  template Int LocalTrr2kBlocksize<T>();
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

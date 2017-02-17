@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_PSEUDOSPECTRA_IRA_HPP
@@ -21,11 +21,15 @@ void ComputeNewEstimates
         Matrix<Real>& activeEsts,
         Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
         return;
+
+    HessenbergSchurCtrl ctrl;
+    ctrl.fullTriangle = false;
+
     Matrix<Complex<Real>> H, HTL;
     Matrix<Complex<Real>> w(n,1);
     for( Int j=0; j<numShifts; ++j )
@@ -36,8 +40,7 @@ void ComputeNewEstimates
         {
             if( !HasNan(HTL) )
             {
-                lapack::HessenbergEig
-                ( n, HTL.Buffer(), HTL.LDim(), w.Buffer() );
+                HessenbergSchur( HTL, w, ctrl );
                 Real estSquared=0;
                 for( Int k=0; k<n; ++k )
                     if( RealPart(w(k)) > estSquared )
@@ -57,7 +60,7 @@ void ComputeNewEstimates
         DistMatrix<Real,MR,STAR>& activeEsts,
         Int n )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ComputeNewEstimates
     ( HList, activeConverged.LockedMatrix(), activeEsts.Matrix(), n );
 }
@@ -68,12 +71,13 @@ void Restart
   const Matrix<Int>& activeConverged,
         vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
         return;
     const Int basisSize = HList[0].Width();
+
     Matrix<Complex<Real>> H, HTL, Q(basisSize,basisSize);
     Matrix<Complex<Real>> w(basisSize,1), u(n,1);
     for( Int j=0; j<numShifts; ++j )
@@ -85,10 +89,7 @@ void Restart
         {
             if( !HasNan(HTL) )
             {
-                // TODO: Switch to lapack::HessenbergEig
-                lapack::Eig
-                ( basisSize, HTL.Buffer(), HTL.LDim(), w.Buffer(), 
-                  Q.Buffer(), Q.LDim() );
+                HessenbergSchur( HTL, w, Q );
 
                 Real maxReal=0;
                 Int maxIdx=0;
@@ -105,7 +106,7 @@ void Restart
                 for( Int k=0; k<basisSize; ++k )
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
-                    auto v = V( ALL, IR(j) ); 
+                    auto v = V( ALL, IR(j) );
                     Axpy( Q(k,maxIdx), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
@@ -123,7 +124,7 @@ void Restart
         vector<Matrix<Real>>& VRealList,
         vector<Matrix<Real>>& VImagList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = VRealList[0].Height();
     const Int numShifts = VRealList[0].Width();
     if( numShifts == 0 )
@@ -140,10 +141,7 @@ void Restart
         {
             if( !HasNan(HTL) )
             {
-                // TODO: Switch to lapack::HessenbergEig
-                lapack::Eig
-                ( basisSize, HTL.Buffer(), HTL.LDim(), w.Buffer(), 
-                  Q.Buffer(), Q.LDim() );
+                HessenbergSchur( HTL, w, Q );
 
                 Real maxReal=0;
                 Int maxIdx=0;
@@ -161,8 +159,8 @@ void Restart
                 {
                     const Matrix<Real>& VReal = VRealList[k];
                     const Matrix<Real>& VImag = VImagList[k];
-                    auto vReal = VReal( ALL, IR(j) ); 
-                    auto vImag = VImag( ALL, IR(j) ); 
+                    auto vReal = VReal( ALL, IR(j) );
+                    auto vImag = VImag( ALL, IR(j) );
                     for( Int i=0; i<n; ++i )
                         v(i) = Complex<Real>(vReal(i),vImag(i));
                     Axpy( Q(k,maxIdx), v, u );
@@ -187,7 +185,7 @@ void Restart
   const DistMatrix<Int,MR,STAR>& activeConverged,
         vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int basisSize = HList[0].Width();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -202,14 +200,14 @@ void Restart
         vector<DistMatrix<Real>>& VRealList,
         vector<DistMatrix<Real>>& VImagList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int basisSize = HList[0].Width();
     vector<Matrix<Real>> VRealLocList(basisSize+1),
                          VImagLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
     {
         View( VRealLocList[j], VRealList[j].Matrix() );
-        View( VImagLocList[j], VImagList[j].Matrix() ); 
+        View( VImagLocList[j], VImagList[j].Matrix() );
     }
     Restart
     ( HList, activeConverged.LockedMatrix(), VRealLocList, VImagLocList );
@@ -218,11 +216,11 @@ void Restart
 template<typename Real>
 Matrix<Int> IRA
 ( const Matrix<Complex<Real>>& U,
-  const Matrix<Complex<Real>>& shifts, 
+  const Matrix<Complex<Real>>& shifts,
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -282,7 +280,7 @@ Matrix<Int> IRA
         auto activeEsts = estimates( IR(0,numActive), ALL );
         auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], ALL, IR(0,numActive) ); 
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) );
         if( deflate )
         {
             View( activePreimage, preimage, IR(0,numActive), ALL );
@@ -306,10 +304,10 @@ Matrix<Int> IRA
                 if( progress )
                     subtimer.Start();
                 MultiShiftTrsm
-                ( LEFT, UPPER, NORMAL, 
+                ( LEFT, UPPER, NORMAL,
                   C(1), UCopy, activeShifts, activeVList[j+1] );
                 MultiShiftTrsm
-                ( LEFT, UPPER, ADJOINT, 
+                ( LEFT, UPPER, ADJOINT,
                   C(1), UCopy, activeShifts, activeVList[j+1] );
                 if( progress )
                 {
@@ -326,18 +324,18 @@ Matrix<Int> IRA
                 if( progress )
                     subtimer.Start();
                 MultiShiftHessSolve
-                ( UPPER, NORMAL, 
+                ( UPPER, NORMAL,
                   C(1), U, activeShifts, activeVList[j+1] );
                 Matrix<C> activeShiftsConj;
                 Conjugate( activeShifts, activeShiftsConj );
                 MultiShiftHessSolve
-                ( LOWER, NORMAL, 
+                ( LOWER, NORMAL,
                   C(1), UAdj, activeShiftsConj, activeVList[j+1] );
                 if( progress )
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
-                    const double gflops = 
+                    const double gflops =
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
                     Output
                     ("  MultiShiftHessSolve's: ",msTime," seconds, ",
@@ -388,7 +386,7 @@ Matrix<Int> IRA
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
             // restarting
-            if( j != 0 ) 
+            if( j != 0 )
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
@@ -423,7 +421,7 @@ Matrix<Int> IRA
         else if( deflate && numActiveDone != 0 )
         {
             Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+            ( activeShifts, activePreimage, activeVList[0], activeEsts,
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
@@ -431,7 +429,7 @@ Matrix<Int> IRA
         // Save snapshots of the estimates at the requested rate
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )
@@ -445,11 +443,11 @@ template<typename Real>
 Matrix<Int>
 IRA
 ( const Matrix<Real>& U,
-  const Matrix<Complex<Real>>& shifts, 
+  const Matrix<Complex<Real>>& shifts,
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -475,7 +473,7 @@ IRA
     }
 
     // Simultaneously run IRA for different shifts
-    vector<Matrix<Real>> VRealList(basisSize+1), 
+    vector<Matrix<Real>> VRealList(basisSize+1),
                          VImagList(basisSize+1),
                          activeVRealList(basisSize+1),
                          activeVImagList(basisSize+1);
@@ -510,8 +508,8 @@ IRA
         auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
         {
-            activeVRealList[j] = VRealList[j]( ALL, IR(0,numActive) ); 
-            activeVImagList[j] = VImagList[j]( ALL, IR(0,numActive) ); 
+            activeVRealList[j] = VRealList[j]( ALL, IR(0,numActive) );
+            activeVImagList[j] = VImagList[j]( ALL, IR(0,numActive) );
         }
         if( deflate )
         {
@@ -535,17 +533,17 @@ IRA
             if( progress )
                 subtimer.Start();
             MultiShiftQuasiTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, 
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts,
               activeVRealList[j+1], activeVImagList[j+1] );
             MultiShiftQuasiTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, 
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts,
               activeVRealList[j+1], activeVImagList[j+1] );
             if( progress )
             {
                 const double msTime = subtimer.Stop();
                 const Int numActiveShifts = activeShifts.Height();
                 const double gflops = (4.*n*n*numActiveShifts)/(msTime*1.e9);
-                cout << "  MultiShiftQuasiTrsm's: " << msTime 
+                cout << "  MultiShiftQuasiTrsm's: " << msTime
                      << " seconds, " << gflops << " GFlops" << endl;
             }
 
@@ -556,7 +554,7 @@ IRA
                 // TODO: Conjugate components?
                 PlaceList( HList, components, j-1, j );
                 ColumnSubtractions
-                ( components, activeVRealList[j-1], activeVImagList[j-1], 
+                ( components, activeVRealList[j-1], activeVImagList[j-1],
                               activeVRealList[j+1], activeVImagList[j+1] );
             }
 
@@ -602,7 +600,7 @@ IRA
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
             // restarting
-            if( j != 0 ) 
+            if( j != 0 )
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
@@ -637,8 +635,8 @@ IRA
         else if( deflate && numActiveDone != 0 )
         {
             Deflate
-            ( activeShifts, activePreimage, 
-              activeVRealList[0], activeVImagList[0], activeEsts, 
+            ( activeShifts, activePreimage,
+              activeVRealList[0], activeVImagList[0], activeEsts,
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
@@ -646,7 +644,7 @@ IRA
         // Save snapshots of the estimates at the requested rate
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )
@@ -659,12 +657,12 @@ IRA
 template<typename Real>
 DistMatrix<Int,VR,STAR>
 IRA
-( const ElementalMatrix<Complex<Real>>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& invNormsPre, 
+( const AbstractDistMatrix<Complex<Real>>& UPre,
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre,
+        AbstractDistMatrix<Real>& invNormsPre,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -767,16 +765,16 @@ IRA
             if( psCtrl.schur )
             {
                 if( progress )
-                { 
+                {
                     mpi::Barrier( g.Comm() );
                     if( g.Rank() == 0 )
                         subtimer.Start();
                 }
                 MultiShiftTrsm
-                ( LEFT, UPPER, NORMAL, 
+                ( LEFT, UPPER, NORMAL,
                   C(1), U, activeShifts, activeVList[j+1] );
                 MultiShiftTrsm
-                ( LEFT, UPPER, ADJOINT, 
+                ( LEFT, UPPER, ADJOINT,
                   C(1), U, activeShifts, activeVList[j+1] );
                 if( progress )
                 {
@@ -785,9 +783,9 @@ IRA
                     {
                         const double msTime = subtimer.Stop();
                         const Int numActiveShifts = activeShifts.Height();
-                        const double gflops = 
+                        const double gflops =
                             (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                        cout << "  MultiShiftTrsm's: " << msTime 
+                        cout << "  MultiShiftTrsm's: " << msTime
                              << " seconds, " << gflops << " GFlops" << endl;
                     }
                 }
@@ -869,7 +867,7 @@ IRA
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
             // restarting
-            if( j != 0 ) 
+            if( j != 0 )
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
@@ -916,7 +914,7 @@ IRA
         else if( deflate && numActiveDone != 0 )
         {
             Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+            ( activeShifts, activePreimage, activeVList[0], activeEsts,
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
@@ -924,7 +922,7 @@ IRA
         // Save snapshots of the estimates at the requested rate
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )
@@ -937,12 +935,12 @@ IRA
 template<typename Real>
 DistMatrix<Int,VR,STAR>
 IRA
-( const ElementalMatrix<Real>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& invNormsPre, 
+( const AbstractDistMatrix<Real>& UPre,
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre,
+        AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -982,7 +980,7 @@ IRA
     }
 
     // Simultaneously run IRA for different shifts
-    vector<DistMatrix<Real>> VRealList(basisSize+1), 
+    vector<DistMatrix<Real>> VRealList(basisSize+1),
                              VImagList(basisSize+1),
                              activeVRealList(basisSize+1),
                              activeVImagList(basisSize+1);
@@ -1020,8 +1018,8 @@ IRA
         auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
         {
-            View( activeVRealList[j], VRealList[j], ALL, IR(0,numActive) ); 
-            View( activeVImagList[j], VImagList[j], ALL, IR(0,numActive) ); 
+            View( activeVRealList[j], VRealList[j], ALL, IR(0,numActive) );
+            View( activeVImagList[j], VImagList[j], ALL, IR(0,numActive) );
         }
         if( deflate )
         {
@@ -1047,16 +1045,16 @@ IRA
             activeVRealList[j+1] = activeVRealList[j];
             activeVImagList[j+1] = activeVImagList[j];
             if( progress )
-            { 
+            {
                 mpi::Barrier( g.Comm() );
                 if( g.Rank() == 0 )
                     subtimer.Start();
             }
             MultiShiftQuasiTrsm
-            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts, 
+            ( LEFT, UPPER, NORMAL, C(1), U, activeShifts,
               activeVRealList[j+1], activeVImagList[j+1] );
             MultiShiftQuasiTrsm
-            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts, 
+            ( LEFT, UPPER, ADJOINT, C(1), U, activeShifts,
               activeVRealList[j+1], activeVImagList[j+1] );
             if( progress )
             {
@@ -1065,9 +1063,9 @@ IRA
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
-                    const double gflops = 
+                    const double gflops =
                         (4.*n*n*numActiveShifts)/(msTime*1.e9);
-                    cout << "  MultiShiftQuasiTrsm's: " << msTime 
+                    cout << "  MultiShiftQuasiTrsm's: " << msTime
                          << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
@@ -1125,7 +1123,7 @@ IRA
             ComputeNewEstimates( HList, activeConverged, activeEsts, j+1 );
             // We will have the same estimate two iterations in a row when
             // restarting
-            if( j != 0 ) 
+            if( j != 0 )
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
@@ -1172,8 +1170,8 @@ IRA
         else if( deflate && numActiveDone != 0 )
         {
             Deflate
-            ( activeShifts, activePreimage, 
-              activeVRealList[0], activeVImagList[0], activeEsts, 
+            ( activeShifts, activePreimage,
+              activeVRealList[0], activeVImagList[0], activeEsts,
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
@@ -1181,7 +1179,7 @@ IRA
         // Save snapshots of the estimates at the requested rate
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )

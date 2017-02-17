@@ -39,8 +39,8 @@ namespace El {
 template<typename F>
 F LeftReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -53,7 +53,7 @@ F LeftReflector( F& chi, Matrix<F>& x )
 template<typename F>
 F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     F alpha = chi(0);
     const F tau = LeftReflector( alpha, x );
@@ -63,10 +63,10 @@ F LeftReflector( Matrix<F>& chi, Matrix<F>& x )
 }
 
 template<typename F>
-F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
+F LeftReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -87,10 +87,10 @@ F LeftReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 }
 
 template<typename F>
-F LeftReflector( F& chi, ElementalMatrix<F>& x )
+F LeftReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Width() != 1 )
           LogicError("x must be a column vector");
     )
@@ -116,8 +116,8 @@ F LeftReflector( F& chi, ElementalMatrix<F>& x )
 template<typename F>
 F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
       if( x.Height() != 1 && x.Width() != 1 )
@@ -132,8 +132,8 @@ F RightReflector( Matrix<F>& chi, Matrix<F>& x )
 template<typename F>
 F RightReflector( F& chi, Matrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 && x.Width() != 1 )
           LogicError("x must be a vector");
     )
@@ -144,10 +144,10 @@ F RightReflector( F& chi, Matrix<F>& x )
 }
 
 template<typename F>
-F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
+F RightReflector( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( chi, x );
       if( chi.Height() != 1 || chi.Width() != 1 )
           LogicError("chi must be a scalar");
@@ -168,10 +168,10 @@ F RightReflector( ElementalMatrix<F>& chi, ElementalMatrix<F>& x )
 }
 
 template<typename F>
-F RightReflector( F& chi, ElementalMatrix<F>& x )
+F RightReflector( F& chi, AbstractDistMatrix<F>& x )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( x.Height() != 1 )
           LogicError("x must be a row vector");
     )
@@ -188,21 +188,21 @@ F RightReflector( F& chi, ElementalMatrix<F>& x )
 
 #define PROTO(F) \
   template F LeftReflector( F& chi, Matrix<F>& x ); \
-  template F LeftReflector( F& chi, ElementalMatrix<F>& x ); \
+  template F LeftReflector( F& chi, AbstractDistMatrix<F>& x ); \
   template F LeftReflector( Matrix<F>& chi, Matrix<F>& x ); \
   template F LeftReflector \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
   template F RightReflector( F& chi, Matrix<F>& x ); \
-  template F RightReflector( F& chi, ElementalMatrix<F>& x ); \
+  template F RightReflector( F& chi, AbstractDistMatrix<F>& x ); \
   template F RightReflector( Matrix<F>& chi, Matrix<F>& x ); \
   template F RightReflector \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
-  template F reflector::Col( F& chi, ElementalMatrix<F>& x ); \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  template F reflector::Col( F& chi, AbstractDistMatrix<F>& x ); \
   template F reflector::Col \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x ); \
-  template F reflector::Row( F& chi, ElementalMatrix<F>& x ); \
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x ); \
+  template F reflector::Row( F& chi, AbstractDistMatrix<F>& x ); \
   template F reflector::Row \
-  ( ElementalMatrix<F>& chi, ElementalMatrix<F>& x );
+  ( AbstractDistMatrix<F>& chi, AbstractDistMatrix<F>& x );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

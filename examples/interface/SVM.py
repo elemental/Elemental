@@ -83,7 +83,7 @@ El.EntrywiseMap( d, lambda alpha : 1. if alpha > 0 else -1. )
 if display:
   El.Display( wGen, "wGen" )
   if worldRank == 0:
-    print "offset =", offset
+    print('offset = {}'.format(offset))
   El.Display( A, "A" )
   El.Display( d, "d" )
 
@@ -93,19 +93,16 @@ ctrl.ipmCtrl.mehrotraCtrl.progress = True
 for j in xrange(0,numLambdas):
   lambd = startLambda + j*(endLambda-startLambda)/(numLambdas-1.)
   if worldRank == 0:
-    print "lambda =", lambd
+    print('lambda = {}'.format(lambd))
 
   # TODO: Explicitly return w, beta, and z
   startSVM = El.mpi.Time()
   x = El.SVM( A, d, lambd, ctrl )
   endSVM = El.mpi.Time()
   if worldRank == 0:
-    print "SVM time: ", endSVM-startSVM
+    print('SVM time: {}'.format(endSVM-startSVM))
 
   if display:
     El.Display( x, "[w;beta;z]" )
 
-# Require the user to press a button before the figures are closed
 El.Finalize()
-if worldSize == 1:
-  raw_input('Press Enter to exit')

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -12,16 +12,16 @@ using namespace El;
 // TODO(poulson): Add ability to tune reg0Tmp, reg0Perm, reg1Tmp, etc. within
 // LeastSquaresCtrl
 
-template<typename F>
+template<typename Field>
 void TestSequentialLeastSquares
 ( Int numRHS, double gamma, const string& filename,
   bool feasible, bool ones, bool print )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    Output("Testing with ",TypeName<F>());
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    Output("Testing with ",TypeName<Field>());
 
-    SparseMatrix<F> A;
+    SparseMatrix<Field> A;
     Read( A, filename, MATRIX_MARKET );
     if( print )
         Print( A, "A" );
@@ -29,22 +29,25 @@ void TestSequentialLeastSquares
     const Int n = A.Width();
     Output("Read matrix was ",m," x ",n," with ",A.NumEntries()," nonzeros");
 
-    SparseMatrix<F> ATwice;
+    /*
+    SparseMatrix<Field> ATwice;
     VCat( A, A, ATwice );
     if( print )
         Print( ATwice, "ATwice" );
+    */
 
-    Matrix<F> B;
+    Matrix<Field> B;
     if( feasible )
     {
-        Output("Generating a duplicated feasible linear system");
-        Matrix<F> X;
+        //Output("Generating a duplicated feasible linear system");
+        Output("Generating a feasible linear system");
+        Matrix<Field> X;
         if( ones )
             Ones( X, n, numRHS );
         else
             Uniform( X, n, numRHS );
         Zeros( B, m, numRHS );
-        Multiply( NORMAL, F(1), A, X, F(0), B );
+        Multiply( NORMAL, Field(1), A, X, Field(0), B );
     }
     else
     {
@@ -57,22 +60,29 @@ void TestSequentialLeastSquares
     if( print )
         Print( B, "B" );
 
-    Matrix<F> BTwice;
+    /*
+    Matrix<Field> BTwice;
     VCat( B, B, BTwice );
     if( print )
         Print( BTwice, "BTwice" );
     Matrix<Real> BTwiceNorms;
     ColumnTwoNorms( BTwice, BTwiceNorms );
     Print( BTwiceNorms, "BTwice column norms" );
+    */
+    Matrix<Real> BNorms;
+    ColumnTwoNorms( B, BNorms );
+    Print( BNorms, "B column norms" );
 
-    Matrix<F> X;
+    Matrix<Field> X;
     if( gamma == double(0) )
     {
-        LeastSquares( NORMAL, ATwice, BTwice, X );
+        //LeastSquares( NORMAL, ATwice, BTwice, X );
+        LeastSquares( NORMAL, A, B, X );
     }
     else
     {
-        Ridge( NORMAL, ATwice, BTwice, Real(gamma), X );
+        //Ridge( NORMAL, ATwice, BTwice, Real(gamma), X );
+        Ridge( NORMAL, A, B, Real(gamma), X );
     }
     if( print )
         Print( X, "X" );
@@ -81,12 +91,15 @@ void TestSequentialLeastSquares
     Print( XNorms, "X norms" );
 
     // Compute the residual
-    Matrix<F> E( BTwice );
-    Multiply( NORMAL, F(-1), ATwice, X, F(1), E ); 
+    //Matrix<Field> E( BTwice );
+    //Multiply( NORMAL, Field(-1), ATwice, X, Field(1), E );
+    Matrix<Field> E( B );
+    Multiply( NORMAL, Field(-1), A, X, Field(1), E );
     Matrix<Real> residNorms;
     ColumnTwoNorms( E, residNorms );
     Print( residNorms, "residual norms" );
-    DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
+    //DiagonalSolve( RIGHT, NORMAL, BTwiceNorms, residNorms );
+    DiagonalSolve( RIGHT, NORMAL, BNorms, residNorms );
     Print( residNorms, "relative residual norms" );
     Output("Objectives:");
     for( Int j=0; j<numRHS; ++j )
@@ -94,17 +107,17 @@ void TestSequentialLeastSquares
     Output("");
 }
 
-template<typename F>
+template<typename Field>
 void TestLeastSquares
 ( Int numRHS, double gamma, const string& filename, bool feasible, bool ones,
-  bool print, mpi::Comm comm )
+  bool print, const El::Grid& grid )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
-    const int commRank = mpi::Rank(comm);
-    OutputFromRoot(comm,"Testing with ",TypeName<F>());
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    const int commRank = grid.Rank();
+    OutputFromRoot(grid.Comm(),"Testing with ",TypeName<Field>());
 
-    DistSparseMatrix<F> A(comm);
+    DistSparseMatrix<Field> A(grid);
     Read( A, filename, MATRIX_MARKET );
     if( print )
         Print( A, "A" );
@@ -112,28 +125,29 @@ void TestLeastSquares
     const Int n = A.Width();
     const Int numEntries = A.NumEntries();
     OutputFromRoot
-    (comm,"Read matrix was ",m," x ",n," with ",numEntries," nonzeros");
+    (grid.Comm(),"Read matrix was ",m," x ",n," with ",numEntries," nonzeros");
 
-    DistSparseMatrix<F> ATwice(comm);
+    DistSparseMatrix<Field> ATwice(grid);
     VCat( A, A, ATwice );
     if( print )
         Print( ATwice, "ATwice" );
 
-    DistMultiVec<F> B(comm);
+    DistMultiVec<Field> B(grid);
     if( feasible )
     {
-        OutputFromRoot(comm,"Generating a duplicated feasible linear system");
-        DistMultiVec<F> X(comm);
+        OutputFromRoot
+        (grid.Comm(),"Generating a duplicated feasible linear system");
+        DistMultiVec<Field> X(grid);
         if( ones )
             Ones( X, n, numRHS );
         else
             Uniform( X, n, numRHS );
         Zeros( B, m, numRHS );
-        Multiply( NORMAL, F(1), A, X, F(0), B );
+        Multiply( NORMAL, Field(1), A, X, Field(0), B );
     }
     else
     {
-        OutputFromRoot(comm,"Generating a set of right-hand sides");
+        OutputFromRoot(grid.Comm(),"Generating a set of right-hand sides");
         if( ones )
             Ones( B, m, numRHS );
         else
@@ -142,7 +156,7 @@ void TestLeastSquares
     if( print )
         Print( B, "B" );
 
-    DistMultiVec<F> BTwice(comm);
+    DistMultiVec<Field> BTwice(grid);
     VCat( B, B, BTwice );
     if( print )
         Print( BTwice, "BTwice" );
@@ -151,7 +165,7 @@ void TestLeastSquares
     if( commRank == 0 )
         Print( BTwiceNorms, "BTwice column norms" );
 
-    DistMultiVec<F> X;
+    DistMultiVec<Field> X;
     if( gamma == double(0) )
     {
         LeastSquares( NORMAL, ATwice, BTwice, X );
@@ -172,8 +186,8 @@ void TestLeastSquares
     //   || [A; gamma*I] x - [b; 0] ||_2 =
     //     sqrt( || A x - b ||_2^2 + gamma^2 || x ||_2^2 ).
     //
-    DistMultiVec<F> E( BTwice );
-    Multiply( NORMAL, F(-1), ATwice, X, F(1), E ); 
+    DistMultiVec<Field> E( BTwice );
+    Multiply( NORMAL, Field(-1), ATwice, X, Field(1), E );
     Matrix<Real> residNorms;
     ColumnTwoNorms( E, residNorms );
     if( commRank == 0 )
@@ -198,7 +212,7 @@ int main( int argc, char* argv[] )
     try
     {
         const Int numRHS = Input("--numRHS","num RHS",1);
-        const double gamma = Input("--gamma","regularization",0.001); 
+        const double gamma = Input("--gamma","regularization",0.001);
         const string filename =
           Input
           ("--filename","path to Matrix Market",
@@ -222,7 +236,7 @@ int main( int argc, char* argv[] )
             // excessive runtimes
             TestSequentialLeastSquares<DoubleDouble>
             ( numRHS, gamma, filename, feasible, ones, print );
-#ifdef EL_RELEASE 
+#ifdef EL_RELEASE
             TestSequentialLeastSquares<QuadDouble>
             ( numRHS, gamma, filename, feasible, ones, print );
 #endif
@@ -242,26 +256,27 @@ int main( int argc, char* argv[] )
         }
         if( distributed )
         {
+            const El::Grid grid( comm );
             TestLeastSquares<double>
-            ( numRHS, gamma, filename, feasible, ones, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, grid );
 #ifdef EL_HAVE_QD
             TestLeastSquares<DoubleDouble>
-            ( numRHS, gamma, filename, feasible, ones, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, grid );
 #ifdef EL_RELEASE
             TestLeastSquares<QuadDouble>
-            ( numRHS, gamma, filename, feasible, ones, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, grid );
 #endif
 #endif
 #ifdef EL_HAVE_QUAD
 #ifdef EL_RELEASE
             TestLeastSquares<Quad>
-            ( numRHS, gamma, filename, feasible, ones, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, grid );
 #endif
 #endif
 #ifdef EL_HAVE_MPC
 #ifdef EL_RELEASE
             TestLeastSquares<BigFloat>
-            ( numRHS, gamma, filename, feasible, ones, print, comm );
+            ( numRHS, gamma, filename, feasible, ones, print, grid );
 #endif
 #endif
         }

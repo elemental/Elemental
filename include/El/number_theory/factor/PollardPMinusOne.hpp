@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_NUMBER_THEORY_FACTOR_POLLARD_PMINUSONE_HPP
@@ -14,7 +14,7 @@ namespace El {
 
 namespace factor {
 
-// Pollard's p-1 can occasionally factor much larger numbers than the rho 
+// Pollard's p-1 can occasionally factor much larger numbers than the rho
 // method but is much less reliable (and the ECM method is a generalization
 // which allows it to become more reliable)
 
@@ -66,7 +66,7 @@ void RepeatedPowModRange
         ++checkpointCounter;
         if( checkpoint && checkpointCounter >= checkpointFreq )
         {
-            Output("After p=",p,", exponential was a=",a); 
+            Output("After p=",p,", exponential was a=",a);
             checkpointCounter = 0;
         }
     }
@@ -112,7 +112,7 @@ BigInt StageOne
           ( oddPrimeBeg, sieve.oddPrimes.end(), ctrl.start1 );
     }
     // We stop just before the last prime *greater* than primeBound
-    auto oddPrimeEnd = 
+    auto oddPrimeEnd =
       std::upper_bound( oddPrimeBeg, sieve.oddPrimes.end(), primeBound );
     RepeatedPowModRange
     ( a, oddPrimeBeg, oddPrimeEnd, n, nLog,
@@ -121,7 +121,7 @@ BigInt StageOne
         Output("Done with stage-1 exponentiation");
 
     // gcd := GCD( a-1, n )
-    BigInt tmp = a; 
+    BigInt tmp = a;
     tmp -= 1;
     BigInt gcd = GCD( tmp, n );
     if( gcd > one && gcd < n )
@@ -132,7 +132,7 @@ BigInt StageOne
     }
 
     if( separateOdd )
-    { 
+    {
         const double twoLog = Log(2.);
         unsigned twoExponent = unsigned(nLog/twoLog);
         for( unsigned i=0; i<twoExponent; ++i )
@@ -189,7 +189,7 @@ BigInt StageTwo
 
         a *= diffPowers[diff];
         a %= n;
-        
+
         if( delayCounter >= ctrl.gcdDelay2 )
         {
             // gcd = GCD( a-1, n );
@@ -234,8 +234,8 @@ BigInt FindFactor
 
     TSieve smooth1 = ctrl.smooth1;
     TSieve smooth2 = ctrl.smooth2;
-    TSieve smooth1Bound = Max( Pow(10ULL,9ULL), 8ULL*smooth1 );
-    TSieve smooth2Bound = Max( Pow(10ULL,10ULL), 8ULL*smooth2 );
+    TSieve smooth1Bound = Max( 1000000000ULL, 8ULL*smooth1 );
+    TSieve smooth2Bound = Max( 10000000000ULL, 8ULL*smooth2 );
 
     // Ensure that we do not have a GCD of n appear too many times despite
     // separately checking the powers of two
@@ -250,7 +250,7 @@ BigInt FindFactor
         BigInt a = SampleUniform( two, n );
         while( GCD( a, n ) != one )
         {
-            a = SampleUniform( two, n ); 
+            a = SampleUniform( two, n );
         }
 
         gcd = StageOne( n, a, sieve, separateOdd, smooth1, ctrl );
@@ -280,9 +280,9 @@ BigInt FindFactor
         }
         else
             return gcd;
-        
+
         // Run stage-2
-        // ----------- 
+        // -----------
         gcd = StageTwo( n, a, sieve, smooth1, smooth2, ctrl );
         if( gcd == n )
         {
@@ -378,7 +378,7 @@ vector<BigInt> PollardPMinusOne
                 Output(nRem," is prime (",timer.Stop()," seconds)");
             else if( ctrl.progress )
                 Output(nRem," is prime");
-            factors.push_back( nRem );       
+            factors.push_back( nRem );
             break;
         }
         else if( primality == PROBABLY_PRIME )

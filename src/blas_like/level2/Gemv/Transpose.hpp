@@ -19,8 +19,8 @@ void Transpose
   T beta,
         AbstractDistMatrix<T>& yPre )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( APre, x, yPre );
       if( ( x.Width() != 1 && x.Height() != 1 ) ||
           ( yPre.Width() != 1 && yPre.Height() != 1 )   )
@@ -127,8 +127,8 @@ void Transpose
   T beta,
         DistMatrix<T,VC,STAR>& y )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, x, y );
       if( x.Width() != 1 || y.Width() != 1 )
           LogicError("Expected x and y to be column vectors");

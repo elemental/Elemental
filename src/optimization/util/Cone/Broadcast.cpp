@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,15 +11,15 @@
 namespace El {
 namespace cone {
 
-template<typename F>
+template<typename Field>
 void Broadcast
-(       Matrix<F>& x, 
-  const Matrix<Int>& orders, 
+(       Matrix<Field>& x,
+  const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
@@ -28,12 +28,12 @@ void Broadcast
     {
         const Int order = orders(i);
         const Int firstInd = firstInds(i);
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( i != firstInd )
               LogicError("Inconsistency in orders and firstInds");
         )
 
-        const F x0 = x(i); 
+        const Field x0 = x(i);
         for( Int j=i+1; j<i+order; ++j )
             x(j) = x0;
 
@@ -41,21 +41,21 @@ void Broadcast
     }
 }
 
-template<typename F>
+template<typename Field>
 void Broadcast
-(       ElementalMatrix<F>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre,
+(       AbstractDistMatrix<Field>& xPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre,
   Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = 0;
 
-    DistMatrixReadProxy<F,F,VC,STAR>
+    DistMatrixReadProxy<Field,Field,VC,STAR>
       xProx( xPre, ctrl );
     DistMatrixReadProxy<Int,Int,VC,STAR>
       ordersProx( ordersPre, ctrl ),
@@ -65,22 +65,22 @@ void Broadcast
     auto& firstInds = firstIndsProx.GetLocked();
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
     const Int localHeight = x.LocalHeight();
     mpi::Comm comm = x.DistComm();
-    const int commSize = mpi::Size(comm);
+    const int commSize = x.DistSize();
 
-    F* xBuf = x.Buffer();
+    Field* xBuf = x.Buffer();
     const Int* orderBuf = orders.LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedBuffer();
 
     // Perform an mpi::AllToAll to scatter all of the cone roots of
-    // order less than or equal to the cutoff 
-    // TODO: Find a better strategy
+    // order less than or equal to the cutoff
+    // TODO(poulson): Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
 
     // Handle all cones with order <= cutoff
@@ -125,21 +125,21 @@ void Broadcast
     // ===========================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    vector<Entry<F>> sendData;
+    vector<Entry<Field>> sendData;
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = x.GlobalRow(iLoc);
         const Int order = orderBuf[iLoc];
         const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
-            sendData.push_back( Entry<F>{i,order,xBuf[iLoc]} );
+            sendData.push_back( Entry<Field>{i,order,xBuf[iLoc]} );
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
     mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
     vector<int> recvOffs;
     const int totalRecv = Scan( numRecvCones, recvOffs );
-    vector<Entry<F>> recvData(totalRecv);
+    vector<Entry<Field>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
       recvData.data(), numRecvCones.data(), recvOffs.data(), comm );
@@ -147,37 +147,37 @@ void Broadcast
     {
         const Int i = recvData[largeCone].i;
         const Int order = recvData[largeCone].j;
-        const F x0 = recvData[largeCone].value;
+        const Field x0 = recvData[largeCone].value;
         auto xBot = x( IR(i+1,i+order), ALL );
         Fill( xBot, x0 );
     }
 }
 
-template<typename F>
+template<typename Field>
 void Broadcast
-(       DistMultiVec<F>& x, 
-  const DistMultiVec<Int>& orders, 
+(       DistMultiVec<Field>& x,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds, Int cutoff )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+    const Grid& grid = x.Grid();
+    const int commSize = grid.Size();
 
-    // TODO: Check that the communicators are congruent
-    mpi::Comm comm = x.Comm();
-    const int commSize = mpi::Size(comm);
+    // TODO(poulson): Check that the communicators are congruent
     const Int localHeight = x.LocalHeight();
     const Int firstLocalRow = x.FirstLocalRow();
 
     const Int height = x.Height();
-    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
         LogicError("x, orders, and firstInds should be column vectors");
     if( orders.Height() != height || firstInds.Height() != height )
         LogicError("orders and firstInds should be of the same height as x");
 
-    F* xBuf = x.Matrix().Buffer();
+    Field* xBuf = x.Matrix().Buffer();
     const Int* orderBuf = orders.LockedMatrix().LockedBuffer();
     const Int* firstIndBuf = firstInds.LockedMatrix().LockedBuffer();
 
-    // TODO: Find a better strategy
+    // TODO(poulson): Find a better strategy
     // A short-circuited ring algorithm would likely be significantly faster
 
     // Handle all cones with order <= cutoff
@@ -222,30 +222,30 @@ void Broadcast
     // ===========================================
     // Allgather the list of cones with sufficiently large order
     // ---------------------------------------------------------
-    vector<Entry<F>> sendData;
-    // TODO: Count and reserve
+    vector<Entry<Field>> sendData;
+    // TODO(poulson): Count and reserve
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         const Int i = iLoc + firstLocalRow;
         const Int order = orderBuf[iLoc];
         const Int firstInd = firstIndBuf[iLoc];
         if( order > cutoff && i == firstInd )
-            sendData.push_back( Entry<F>{i,order,xBuf[iLoc]} );
+            sendData.push_back( Entry<Field>{i,order,xBuf[iLoc]} );
     }
     const int numSendCones = sendData.size();
     vector<int> numRecvCones(commSize);
-    mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, comm );
+    mpi::AllGather( &numSendCones, 1, numRecvCones.data(), 1, grid.Comm() );
     vector<int> recvOffs;
-    const int totalRecv = Scan( numRecvCones, recvOffs ); 
-    vector<Entry<F>> recvData(totalRecv);
+    const int totalRecv = Scan( numRecvCones, recvOffs );
+    vector<Entry<Field>> recvData(totalRecv);
     mpi::AllGather
     ( sendData.data(), numSendCones,
-      recvData.data(), numRecvCones.data(), recvOffs.data(), comm );
+      recvData.data(), numRecvCones.data(), recvOffs.data(), grid.Comm() );
     for( Int largeCone=0; largeCone<totalRecv; ++largeCone )
     {
         const Int i = recvData[largeCone].i;
         const Int order = recvData[largeCone].j;
-        const F x0 = recvData[largeCone].value;
+        const Field x0 = recvData[largeCone].value;
 
         // Unpack the root entry
         const Int iFirst = firstLocalRow;
@@ -255,17 +255,17 @@ void Broadcast
     }
 }
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void Broadcast \
-  (       Matrix<F>& x, \
+  (       Matrix<Field>& x, \
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void Broadcast \
-  (       ElementalMatrix<F>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds, Int cutoff ); \
+  (       AbstractDistMatrix<Field>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds, Int cutoff ); \
   template void Broadcast \
-  (       DistMultiVec<F>& x, \
+  (       DistMultiVec<Field>& x, \
     const DistMultiVec<Int>& orders, \
     const DistMultiVec<Int>& firstInds, Int cutoff );
 

@@ -1,11 +1,19 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson, Lexing Ying,
-   The University of Texas at Austin, Stanford University, and the
-   Georgia Insitute of Technology.
+   Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
- 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2012 Jack Poulson, Lexing Ying, and
+   The University of Texas at Austin.
+   All rights reserved.
+
+   Copyright (c) 2013 Jack Poulson, Lexing Ying, and Stanford University.
+   All rights reserved.
+
+   Copyright (c) 2014 Jack Poulson and The Georgia Institute of Technology.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -27,7 +35,7 @@ Int NaturalBisect
         Graph& rightChild,
         vector<Int>& perm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = graph.NumSources();
     if( numSources == 0 )
         LogicError("There is no reason to bisect an empty sequential graph");
@@ -136,7 +144,7 @@ Int NaturalBisect
             for( Int x=0; x<nx; ++x )
                 perm[x+y*nx+nzLeft*nx*ny] = off++;
     }
-    DEBUG_ONLY(EnsurePermutation( perm ))
+    EL_DEBUG_ONLY(EnsurePermutation( perm ))
     BuildChildrenFromPerm
     ( graph, perm, leftChildSize, leftChild, rightChildSize, rightChild );
     return sepSize;
@@ -150,16 +158,17 @@ Int NaturalBisect
         Int& nxChild,
         Int& nyChild,
         Int& nzChild,
+        unique_ptr<Grid>& childGrid,
         DistGraph& child,
         DistMap& perm,
         bool& onLeft )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numSources = graph.NumSources();
     const Int firstLocalSource = graph.FirstLocalSource();
     const Int numLocalSources = graph.NumLocalSources();
-    mpi::Comm comm = graph.Comm();
-    const Int commSize = mpi::Size( comm );
+    const Grid& grid = graph.Grid();
+    const int commSize = grid.Size();
     if( commSize == 1 )
         LogicError
         ("This routine assumes at least two processes are used, "
@@ -167,7 +176,7 @@ Int NaturalBisect
 
     Int leftChildSize, rightChildSize, sepSize;
     Int nxLeft, nyLeft, nzLeft, nxRight, nyRight, nzRight;
-    perm.SetComm( comm );
+    perm.SetGrid( grid );
     perm.Resize( numSources );
     if( nx != 0 && ny != 0 && nz != 0 )
     {
@@ -305,10 +314,10 @@ Int NaturalBisect
         nyRight = ny;
         nzRight = nz;
     }
-    DEBUG_ONLY(EnsurePermutation( perm ))
+    EL_DEBUG_ONLY(EnsurePermutation( perm ))
 
     BuildChildFromPerm
-    ( graph, perm, leftChildSize, rightChildSize, onLeft, child );
+    ( graph, perm, leftChildSize, rightChildSize, onLeft, childGrid, child );
 
     if( onLeft )
     {

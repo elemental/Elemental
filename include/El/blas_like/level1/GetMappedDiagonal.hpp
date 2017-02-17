@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_GETMAPPEDDIAGONAL_HPP
@@ -15,10 +15,10 @@ template<typename T,typename S>
 void GetMappedDiagonal
 ( const Matrix<T>& A,
         Matrix<S>& d,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int diagLength = A.DiagonalLength(offset);
     d.Resize( diagLength, 1 );
 
@@ -39,12 +39,12 @@ void GetMappedDiagonal
 template<typename T,typename S,Dist U,Dist V>
 void GetMappedDiagonal
 ( const DistMatrix<T,U,V>& A,
-        ElementalMatrix<S>& dPre, 
-        function<S(T)> func,
+        AbstractDistMatrix<S>& dPre,
+        function<S(const T&)> func,
         Int offset )
-{ 
-    DEBUG_CSE
-    DEBUG_ONLY(AssertSameGrids( A, dPre ))
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, dPre ))
     ElementalProxyCtrl ctrl;
     ctrl.colConstrain = true;
     ctrl.colAlign = A.DiagonalAlign(offset);
@@ -82,14 +82,45 @@ void GetMappedDiagonal
     }
 }
 
+template<typename T,typename S,Dist U,Dist V>
+void GetMappedDiagonal
+( const DistMatrix<T,U,V,BLOCK>& A,
+        AbstractDistMatrix<S>& d,
+        function<S(const T&)> func,
+        Int offset )
+{
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(AssertSameGrids( A, d ))
+
+    // TODO(poulson): Make this more efficient
+    const Int diagLength = A.DiagonalLength(offset);
+    d.Resize( diagLength, 1 );
+    Zero( d );
+    if( d.Participating() && A.RedundantRank() == 0 )
+    {
+        const Int iStart = Max(-offset,0);
+        const Int jStart = Max( offset,0);
+        for( Int k=0; k<diagLength; ++k )
+        {
+            if( A.IsLocal(iStart+k,jStart+k) )
+            {
+                const Int iLoc = A.LocalRow(iStart+k);
+                const Int jLoc = A.LocalCol(jStart+k);
+                d.QueueUpdate(k,0,func(A.GetLocal(iLoc,jLoc)));
+            }
+        }
+    }
+    d.ProcessQueues();
+}
+
 template<typename T,typename S>
 void GetMappedDiagonal
 ( const SparseMatrix<T>& A,
         Matrix<S>& d,
-        function<S(T)> func,
+        function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();
@@ -123,11 +154,11 @@ void GetMappedDiagonal
 template<typename T,typename S>
 void GetMappedDiagonal
 ( const DistSparseMatrix<T>& A,
-        DistMultiVec<S>& d, 
-        function<S(T)> func,
+        DistMultiVec<S>& d,
+        function<S(const T&)> func,
         Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const T* valBuf = A.LockedValueBuffer();
@@ -138,7 +169,7 @@ void GetMappedDiagonal
     if( offset != 0 )
         LogicError("DistSparseMatrix GetMappedDiagonal assumes offset=0");
 
-    d.SetComm( A.Comm() );
+    d.SetGrid( A.Grid() );
     d.Resize( El::DiagonalLength(m,n,offset), 1 );
     Fill( d, S(1) );
 
@@ -170,17 +201,17 @@ void GetMappedDiagonal
   EL_EXTERN template void GetMappedDiagonal \
   ( const Matrix<T>& A, \
           Matrix<T>& d, \
-          function<T(T)> func, \
+          function<T(const T&)> func, \
           Int offset ); \
   EL_EXTERN template void GetMappedDiagonal \
   ( const SparseMatrix<T>& A, \
           Matrix<T>& d, \
-          function<T(T)> func, \
+          function<T(const T&)> func, \
           Int offset ); \
   EL_EXTERN template void GetMappedDiagonal \
   ( const DistSparseMatrix<T>& A, \
           DistMultiVec<T>& d, \
-          function<T(T)> func, \
+          function<T(const T&)> func, \
           Int offset );
 
 #define EL_ENABLE_DOUBLEDOUBLE

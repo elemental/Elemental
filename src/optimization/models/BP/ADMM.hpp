@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -17,40 +17,40 @@
 namespace El {
 namespace bp {
 
-template<typename F>
+template<typename Field>
 Int ADMM
-( const Matrix<F>& A,
-  const Matrix<F>& b, 
-        Matrix<F>& z, 
-  const ADMMCtrl<Base<F>>& ctrl )
+( const Matrix<Field>& A,
+  const Matrix<Field>& b,
+        Matrix<Field>& z,
+  const ADMMCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
-    // NOTE: If m >= n and A has full column rank, then basis pursuit is 
-    //       irrelevant, as there is a unique solution, which is found 
+    // NOTE: If m >= n and A has full column rank, then basis pursuit is
+    //       irrelevant, as there is a unique solution, which is found
     //       through least squares. If A does *not* have full column rank,
     //       then the QR factorization is not enough.
     //       For the same reason, the LQ factorization will fail if A does
     //       not have full row rank.
     //
-    // TODO: Instead form a basis for the null-space of A
-    typedef Base<F> Real;
+    // TODO(poulson): Instead form a basis for the null-space of A
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    Matrix<F> pinvA;
-    Matrix<F> Q, L, R;
-    Matrix<F> q, s;
+    Matrix<Field> pinvA;
+    Matrix<Field> Q, L, R;
+    Matrix<Field> q, s;
     if( ctrl.usePinv )
     {
         pinvA = A;
         Pseudoinverse( pinvA, ctrl.pinvTol );
-        Gemv( NORMAL, F(1), pinvA, b, q );
+        Gemv( NORMAL, Field(1), pinvA, b, q );
     }
     else if( m >= n )
     {
         Q = A;
         qr::Explicit( Q, R );
-        Gemv( ADJOINT, F(1), Q, b, q );
+        Gemv( ADJOINT, Field(1), Q, b, q );
         Trsv( UPPER, NORMAL, NON_UNIT, R, q );
     }
     else
@@ -59,18 +59,18 @@ Int ADMM
         lq::Explicit( L, Q );
         s = b;
         Trsv( LOWER, NORMAL, NON_UNIT, L, s );
-        Gemv( ADJOINT, F(1), Q, s, q );
+        Gemv( ADJOINT, Field(1), Q, s, q );
     }
 
     if( ctrl.progress )
     {
         const Real qOneNorm = OneNorm( q );
-        cout << " || pinv(A) b ||_1 = " << qOneNorm << endl;
+        Output(" || pinv(A) b ||_1 = ",qOneNorm);
     }
 
     // Start the basis pursuit
     Int numIter=0;
-    Matrix<F> x, u, t, zOld, xHat;
+    Matrix<Field> x, u, t, zOld, xHat;
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
@@ -84,20 +84,20 @@ Int ADMM
         s = z;
         s -= u;
         x = s;
-        Gemv( NORMAL, F(1), A, s, t );
+        Gemv( NORMAL, Field(1), A, s, t );
         if( ctrl.usePinv )
         {
-            Gemv( NORMAL, F(1), pinvA, t, s );
+            Gemv( NORMAL, Field(1), pinvA, t, s );
         }
         else if( m >= n )
         {
-            Gemv( ADJOINT, F(1), Q, t, s );
+            Gemv( ADJOINT, Field(1), Q, t, s );
             Trsv( UPPER, NORMAL, NON_UNIT, R, s );
         }
         else
         {
             Trsv( LOWER, NORMAL, NON_UNIT, L, t );
-            Gemv( ADJOINT, F(1), Q, t, s );
+            Gemv( ADJOINT, Field(1), Q, t, s );
         }
         x -= s;
         x += q;
@@ -134,11 +134,10 @@ Int ADMM
         if( ctrl.progress )
         {
             const Real xOneNorm = OneNorm( x );
-            cout << numIter << ": ||x-z||_2=" << rNorm
-                 << ", epsPri=" << epsPri
-                 << ", |rho| ||z-zOld||_2=" << sNorm
-                 << ", and epsDual=" << epsDual << ", ||x||_1="
-                 << xOneNorm << endl;
+            Output
+            (numIter,": ||x-z||_2=",rNorm,", epsPri=",epsPri,
+             ", |rho| ||z-zOld||_2=",sNorm,", and epsDual=",epsDual,
+             ", ||x||_1=",xOneNorm);
         }
 
         if( rNorm < epsPri && sNorm < epsDual )
@@ -146,55 +145,55 @@ Int ADMM
         ++numIter;
     }
     if( ctrl.maxIter == numIter )
-        cout << "Basis pursuit failed to converge" << endl;
+        RuntimeError("Basis pursuit failed to converge");
     return numIter;
 }
 
-template<typename F>
+template<typename Field>
 Int ADMM
-( const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& bPre, 
-        ElementalMatrix<F>& zPre,
-  const ADMMCtrl<Base<F>>& ctrl )
+( const AbstractDistMatrix<Field>& APre,
+  const AbstractDistMatrix<Field>& bPre,
+        AbstractDistMatrix<Field>& zPre,
+  const ADMMCtrl<Base<Field>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DistMatrixReadProxy<F,F,MC,MR>
+    DistMatrixReadProxy<Field,Field,MC,MR>
       AProx( APre ),
       bProx( bPre );
-    DistMatrixWriteProxy<F,F,MC,MR>
+    DistMatrixWriteProxy<Field,Field,MC,MR>
       zProx( zPre );
     auto& A = AProx.GetLocked();
     auto& b = bProx.GetLocked();
     auto& z = zProx.Get();
 
     // Find a means of quickly applyinv pinv(A) and then form pinv(A) b
-    // NOTE: If m >= n and A has full column rank, then basis pursuit is 
-    //       irrelevant, as there is a unique solution, which is found 
+    // NOTE: If m >= n and A has full column rank, then basis pursuit is
+    //       irrelevant, as there is a unique solution, which is found
     //       through least squares. If A does *not* have full column rank,
     //       then the QR factorization is not enough.
     //       For the same reason, the LQ factorization will fail if A does
     //       not have full row rank.
     //
-    // TODO: Instead form a basis for the null-space of A
-    typedef Base<F> Real;
+    // TODO(poulson): Instead form a basis for the null-space of A
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Grid& grid = A.Grid();
-    DistMatrix<F> pinvA(grid);
-    DistMatrix<F> Q(grid), L(grid), R(grid);
-    DistMatrix<F> q(grid), s(grid);
+    DistMatrix<Field> pinvA(grid);
+    DistMatrix<Field> Q(grid), L(grid), R(grid);
+    DistMatrix<Field> q(grid), s(grid);
     if( ctrl.usePinv )
     {
         pinvA = A;
         Pseudoinverse( pinvA, ctrl.pinvTol );
-        Gemv( NORMAL, F(1), pinvA, b, q );
+        Gemv( NORMAL, Field(1), pinvA, b, q );
     }
     else if( m >= n )
     {
         Q = A;
         qr::Explicit( Q, R );
-        Gemv( ADJOINT, F(1), Q, b, q );
+        Gemv( ADJOINT, Field(1), Q, b, q );
         Trsv( UPPER, NORMAL, NON_UNIT, R, q );
     }
     else
@@ -203,19 +202,19 @@ Int ADMM
         lq::Explicit( L, Q );
         s = b;
         Trsv( LOWER, NORMAL, NON_UNIT, L, s );
-        Gemv( ADJOINT, F(1), Q, s, q );
+        Gemv( ADJOINT, Field(1), Q, s, q );
     }
 
     if( ctrl.progress )
     {
         const Real qOneNorm = OneNorm( q );
         if( grid.Rank() == 0 )
-            cout << " || pinv(A) b ||_1 = " << qOneNorm << endl;
+            Output(" || pinv(A) b ||_1 = ",qOneNorm);
     }
 
     // Start the basis pursuit
     Int numIter=0;
-    DistMatrix<F> x(grid), u(grid), t(grid), zOld(grid), xHat(grid);
+    DistMatrix<Field> x(grid), u(grid), t(grid), zOld(grid), xHat(grid);
     Zeros( x, n, 1 );
     Zeros( z, n, 1 );
     Zeros( u, n, 1 );
@@ -229,20 +228,20 @@ Int ADMM
         s = z;
         s -= u;
         x = s;
-        Gemv( NORMAL, F(1), A, s, t );
+        Gemv( NORMAL, Field(1), A, s, t );
         if( ctrl.usePinv )
         {
-            Gemv( NORMAL, F(1), pinvA, t, s );
+            Gemv( NORMAL, Field(1), pinvA, t, s );
         }
         else if( m >= n )
         {
-            Gemv( ADJOINT, F(1), Q, t, s );
+            Gemv( ADJOINT, Field(1), Q, t, s );
             Trsv( UPPER, NORMAL, NON_UNIT, R, s );
         }
         else
         {
             Trsv( LOWER, NORMAL, NON_UNIT, L, t );
-            Gemv( ADJOINT, F(1), Q, t, s );
+            Gemv( ADJOINT, Field(1), Q, t, s );
         }
         x -= s;
         x += q;
@@ -280,19 +279,18 @@ Int ADMM
         {
             const Real xOneNorm = OneNorm( x );
             if( grid.Rank() == 0 )
-                cout << numIter << ": ||x-z||_2=" << rNorm
-                     << ", epsPri=" << epsPri
-                     << ", |rho| ||z-zOld||_2=" << sNorm
-                     << ", and epsDual=" << epsDual << ", ||x||_1="
-                     << xOneNorm << endl;
+                Output
+                (numIter,": ||x-z||_2=",rNorm,", epsPri=",epsPri,
+                 ", |rho| ||z-zOld||_2=",sNorm,", and epsDual=",epsDual,
+                 ", ||x||_1=",xOneNorm);
         }
 
         if( rNorm < epsPri && sNorm < epsDual )
             break;
         ++numIter;
     }
-    if( ctrl.maxIter == numIter && grid.Rank() == 0 )
-        cout << "Basis pursuit failed to converge" << endl;
+    if( ctrl.maxIter == numIter )
+        RuntimeError("Basis pursuit failed to converge");
     return numIter;
 }
 

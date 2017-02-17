@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -17,51 +17,26 @@ namespace direct {
 // ==========
 template<typename Real>
 void Initialize
-( const Matrix<Real>& A,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-        Matrix<Real>& x,
-        Matrix<Real>& y, 
-        Matrix<Real>& z,
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& b,
-  const ElementalMatrix<Real>& c,
-        ElementalMatrix<Real>& x,
-        ElementalMatrix<Real>& y, 
-        ElementalMatrix<Real>& z,
+( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
+        DirectLPSolution<DistMatrix<Real>>& solution,
   bool primalInit, bool dualInit, bool standardShift );
 template<typename Real>
 void Initialize
-( const SparseMatrix<Real>& A,
-  const Matrix<Real>& b,
-  const Matrix<Real>& c,
-        Matrix<Real>& x,
-        Matrix<Real>& y, 
-        Matrix<Real>& z,
-        vector<Int>& map,
-        vector<Int>& invMap,
-        ldl::Separator& rootSep,
-        ldl::NodeInfo& info,
-  bool primalInit, bool dualInit, bool standardShift, 
+( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+        DirectLPSolution<Matrix<Real>>& solution,
+        SparseLDLFactorization<Real>& sparseLDLFact,
+  bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 template<typename Real>
 void Initialize
-( const DistSparseMatrix<Real>& A,
-  const DistMultiVec<Real>& b,
-  const DistMultiVec<Real>& c,
-        DistMultiVec<Real>& x,
-        DistMultiVec<Real>& y, 
-        DistMultiVec<Real>& z, 
-        DistMap& map,
-        DistMap& invMap,
-        ldl::DistSeparator& rootSep,
-        ldl::DistNodeInfo& info,
-        vector<Int>& mappedSources, 
-        vector<Int>& mappedTargets,
-        vector<Int>& colOffs,
+( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
+        DirectLPSolution<DistMultiVec<Real>>& solution,
+        DistSparseLDLFactorization<Real>& sparseLDLFact,
   bool primalInit, bool dualInit, bool standardShift,
   const RegSolveCtrl<Real>& solveCtrl );
 
@@ -69,21 +44,21 @@ void Initialize
 // ===========
 template<typename Real>
 void KKT
-( const Matrix<Real>& A, 
+( const Matrix<Real>& A,
   const Matrix<Real>& x,
   const Matrix<Real>& z,
         Matrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A, 
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& J,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& x,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const SparseMatrix<Real>& A, 
+( const SparseMatrix<Real>& A,
         Real gamma,
         Real delta,
         Real beta,
@@ -93,7 +68,7 @@ void KKT
   bool onlyLower=true );
 template<typename Real>
 void KKT
-( const DistSparseMatrix<Real>& A, 
+( const DistSparseMatrix<Real>& A,
         Real gamma,
         Real delta,
         Real beta,
@@ -116,10 +91,10 @@ void AugmentedKKT
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& J,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& x,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& J,
   bool onlyLower=true );
 template<typename Real>
 void AugmentedKKT
@@ -156,12 +131,12 @@ void NormalKKT
   bool onlyLower=false );
 template<typename Real>
 void NormalKKT
-( const ElementalMatrix<Real>& A,
+( const DistMatrix<Real>& A,
         Real gamma,
         Real delta,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& J,
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
+        DistMatrix<Real>& J,
   bool onlyLower=false );
 template<typename Real>
 void NormalKKT
@@ -194,14 +169,14 @@ void NormalKKTRHS
         Matrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
-( const ElementalMatrix<Real>& A,
+( const DistMatrix<Real>& A,
         Real gamma,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-  const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rb, 
-  const ElementalMatrix<Real>& rmu,
-        ElementalMatrix<Real>& d );
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
+  const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rb,
+  const DistMatrix<Real>& rmu,
+        DistMatrix<Real>& d );
 template<typename Real>
 void NormalKKTRHS
 ( const SparseMatrix<Real>& A,
@@ -225,26 +200,22 @@ void NormalKKTRHS
 
 template<typename Real>
 void ExpandNormalSolution
-( const Matrix<Real>& A,
+( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         Real gamma,
-  const Matrix<Real>& x,
-  const Matrix<Real>& z,
-  const Matrix<Real>& rc,
-  const Matrix<Real>& rmu,
-        Matrix<Real>& dx, 
-  const Matrix<Real>& dy, 
-        Matrix<Real>& dz );
+  const DirectLPSolution<Matrix<Real>>& solution,
+  const DirectLPResidual<Matrix<Real>>& residual,
+        DirectLPSolution<Matrix<Real>>& correction );
 template<typename Real>
 void ExpandNormalSolution
-( const ElementalMatrix<Real>& A,
+( const DistMatrix<Real>& A,
         Real gamma,
-  const ElementalMatrix<Real>& x,
-  const ElementalMatrix<Real>& z,
-  const ElementalMatrix<Real>& rc,
-  const ElementalMatrix<Real>& rmu,
-        ElementalMatrix<Real>& dx, 
-  const ElementalMatrix<Real>& dy, 
-        ElementalMatrix<Real>& dz );
+  const AbstractDistMatrix<Real>& x,
+  const AbstractDistMatrix<Real>& z,
+  const DistMatrix<Real>& rc,
+  const DistMatrix<Real>& rmu,
+        DistMatrix<Real>& dx,
+  const DistMatrix<Real>& dy,
+        DistMatrix<Real>& dz );
 template<typename Real>
 void ExpandNormalSolution
 ( const SparseMatrix<Real>& A,
@@ -253,8 +224,8 @@ void ExpandNormalSolution
   const Matrix<Real>& z,
   const Matrix<Real>& rc,
   const Matrix<Real>& rmu,
-        Matrix<Real>& dx, 
-  const Matrix<Real>& dy, 
+        Matrix<Real>& dx,
+  const Matrix<Real>& dy,
         Matrix<Real>& dz );
 template<typename Real>
 void ExpandNormalSolution
@@ -265,7 +236,7 @@ void ExpandNormalSolution
   const DistMultiVec<Real>& rc,
   const DistMultiVec<Real>& rmu,
         DistMultiVec<Real>& dx,
-  const DistMultiVec<Real>& dy, 
+  const DistMultiVec<Real>& dy,
         DistMultiVec<Real>& dz );
 
 } // namespace direct

@@ -19,8 +19,8 @@ namespace El {
 template<typename F>
 void Trdtrmm( UpperOrLower uplo, Matrix<F>& A, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -34,8 +34,8 @@ template<typename F>
 void Trdtrmm
 ( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& dOff, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -48,8 +48,8 @@ void Trdtrmm
 template<typename F>
 void Trdtrmm( UpperOrLower uplo, AbstractDistMatrix<F>& A, bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )
@@ -65,8 +65,8 @@ void Trdtrmm
   AbstractDistMatrix<F>& A, const AbstractDistMatrix<F>& dOff, 
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != A.Width() )
           LogicError("A must be square");
     )

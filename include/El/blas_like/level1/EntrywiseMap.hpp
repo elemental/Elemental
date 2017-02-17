@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_ENTRYWISEMAP_HPP
@@ -12,9 +12,9 @@
 namespace El {
 
 template<typename T>
-void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
+void EntrywiseMap( Matrix<T>& A, function<T(const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     T* ABuf = A.Buffer();
@@ -25,9 +25,9 @@ void EntrywiseMap( Matrix<T>& A, function<T(T)> func )
 }
 
 template<typename T>
-void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func )
+void EntrywiseMap( SparseMatrix<T>& A, function<T(const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numEntries = A.NumEntries();
     for( Int k=0; k<numEntries; ++k )
@@ -35,13 +35,13 @@ void EntrywiseMap( SparseMatrix<T>& A, function<T(T)> func )
 }
 
 template<typename T>
-void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(T)> func )
+void EntrywiseMap( AbstractDistMatrix<T>& A, function<T(const T&)> func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 template<typename T>
-void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func )
+void EntrywiseMap( DistSparseMatrix<T>& A, function<T(const T&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numLocalEntries = A.NumLocalEntries();
     for( Int k=0; k<numLocalEntries; ++k )
@@ -49,13 +49,14 @@ void EntrywiseMap( DistSparseMatrix<T>& A, function<T(T)> func )
 }
 
 template<typename T>
-void EntrywiseMap( DistMultiVec<T>& A, function<T(T)> func )
+void EntrywiseMap( DistMultiVec<T>& A, function<T(const T&)> func )
 { EntrywiseMap( A.Matrix(), func ); }
 
 template<typename S,typename T>
-void EntrywiseMap( const Matrix<S>& A, Matrix<T>& B, function<T(S)> func )
+void EntrywiseMap
+( const Matrix<S>& A, Matrix<T>& B, function<T(const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const S* ABuf = A.LockedBuffer();
@@ -73,26 +74,27 @@ template<typename S,typename T>
 void EntrywiseMap
 ( const SparseMatrix<S>& A,
         SparseMatrix<T>& B,
-        function<T(S)> func )
+        function<T(const S&)> func )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int numEntries = A.NumEntries();
-
-    B.graph_ = A.graph_;
-    B.vals_.resize( numEntries );
+    B.ForceNumEntries( numEntries );
+    B.Graph() = A.LockedGraph();
+    const S* AValBuf = A.LockedValueBuffer();
+    T* BValBuf = B.ValueBuffer();
     for( Int k=0; k<numEntries; ++k )
-        B.vals_[k] = func(A.vals_[k]);
-    B.ProcessQueues();
+        BValBuf[k] = func(AValBuf[k]);
 }
 
 template<typename S,typename T>
 void EntrywiseMap
-( const ElementalMatrix<S>& A,
-        ElementalMatrix<T>& B, 
-        function<T(S)> func )
-{ 
+( const AbstractDistMatrix<S>& A,
+        AbstractDistMatrix<T>& B,
+        function<T(const S&)> func )
+{
     if( A.DistData().colDist == B.DistData().colDist &&
-        A.DistData().rowDist == B.DistData().rowDist )
+        A.DistData().rowDist == B.DistData().rowDist &&
+        A.Wrap() == B.Wrap() )
     {
         B.AlignWith( A.DistData() );
         B.Resize( A.Height(), A.Width() );
@@ -101,39 +103,11 @@ void EntrywiseMap
     else
     {
         B.Resize( A.Height(), A.Width() );
-        #define GUARD(CDIST,RDIST) \
-          B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          DistMatrix<S,CDIST,RDIST> AProx(B.Grid()); \
-          AProx.AlignWith( B.DistData() ); \
-          Copy( A, AProx ); \
-          EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
-        #include <El/macros/GuardAndPayload.h>
-        #undef GUARD
-        #undef PAYLOAD
-    }
-}
-
-template<typename S,typename T>
-void EntrywiseMap
-( const BlockMatrix<S>& A,
-        BlockMatrix<T>& B, 
-        function<T(S)> func )
-{ 
-    if( A.DistData().colDist == B.DistData().colDist &&
-        A.DistData().rowDist == B.DistData().rowDist )
-    {
-        B.AlignWith( A.DistData() );
-        B.Resize( A.Height(), A.Width() );
-        EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
-    }
-    else
-    {
-        B.Resize( A.Height(), A.Width() );
-        #define GUARD(CDIST,RDIST) \
-          B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          DistMatrix<S,CDIST,RDIST,BLOCK> AProx(B.Grid()); \
+        #define GUARD(CDIST,RDIST,WRAP) \
+          B.DistData().colDist == CDIST && B.DistData().rowDist == RDIST && \
+          B.Wrap() == WRAP
+        #define PAYLOAD(CDIST,RDIST,WRAP) \
+          DistMatrix<S,CDIST,RDIST,WRAP> AProx(B.Grid()); \
           AProx.AlignWith( B.DistData() ); \
           Copy( A, AProx ); \
           EntrywiseMap( AProx.Matrix(), B.Matrix(), func );
@@ -146,31 +120,28 @@ void EntrywiseMap
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistSparseMatrix<S>& A,
-        DistSparseMatrix<T>& B, 
-        function<T(S)> func )
+        DistSparseMatrix<T>& B,
+        function<T(const S&)> func )
 {
-    DEBUG_CSE
-    const Int numEntries = A.vals_.size();
-    const Int numRemoteEntries = A.remoteVals_.size();
+    EL_DEBUG_CSE
+    const Int numLocalEntries = A.NumLocalEntries();
+    B.ForceNumLocalEntries( numLocalEntries );
+    B.DistGraph() = A.LockedDistGraph();
 
-    B.distGraph_ = A.distGraph_;
-    B.vals_.resize( numEntries );
-    for( Int k=0; k<numEntries; ++k )
-        B.vals_[k] = func(A.vals_[k]);
-    B.remoteVals_.resize( numRemoteEntries );
-    for( Int k=0; k<numRemoteEntries; ++k )
-        B.remoteVals_[k] = func(A.remoteVals_[k]);
-    B.ProcessQueues();
+    const S* AValBuf = A.LockedValueBuffer();
+    T* BValBuf = B.ValueBuffer();
+    for( Int k=0; k<numLocalEntries; ++k )
+        BValBuf[k] = func(AValBuf[k]);
 }
 
 template<typename S,typename T>
 void EntrywiseMap
 ( const DistMultiVec<S>& A,
         DistMultiVec<T>& B,
-        function<T(S)> func )
+        function<T(const S&)> func )
 {
-    DEBUG_CSE
-    B.SetComm( A.Comm() );
+    EL_DEBUG_CSE
+    B.SetGrid( A.Grid() );
     B.Resize( A.Height(), A.Width() );
     EntrywiseMap( A.LockedMatrix(), B.Matrix(), func );
 }
@@ -179,34 +150,30 @@ void EntrywiseMap
 # define EL_EXTERN
 #else
 # define EL_EXTERN extern
-#endif 
+#endif
 
 #define PROTO(T) \
   EL_EXTERN template void EntrywiseMap \
   ( Matrix<T>& A, \
-    function<T(T)> func ); \
+    function<T(const T&)> func ); \
   EL_EXTERN template void EntrywiseMap \
   ( AbstractDistMatrix<T>& A, \
-    function<T(T)> func ); \
+    function<T(const T&)> func ); \
   EL_EXTERN template void EntrywiseMap \
   ( DistMultiVec<T>& A, \
-    function<T(T)> func ); \
+    function<T(const T&)> func ); \
   EL_EXTERN template void EntrywiseMap \
   ( const Matrix<T>& A, \
           Matrix<T>& B, \
-          function<T(T)> func ); \
+          function<T(const T&)> func ); \
   EL_EXTERN template void EntrywiseMap \
-  ( const ElementalMatrix<T>& A, \
-          ElementalMatrix<T>& B, \
-          function<T(T)> func ); \
-  EL_EXTERN template void EntrywiseMap \
-  ( const BlockMatrix<T>& A, \
-          BlockMatrix<T>& B, \
-          function<T(T)> func ); \
+  ( const AbstractDistMatrix<T>& A, \
+          AbstractDistMatrix<T>& B, \
+          function<T(const T&)> func ); \
   EL_EXTERN template void EntrywiseMap \
   ( const DistMultiVec<T>& A, \
           DistMultiVec<T>& B, \
-          function<T(T)> func );
+          function<T(const T&)> func );
 
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

@@ -2,26 +2,26 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
-Base<F> Norm( const Matrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> Norm( const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
     case ENTRYWISE_ONE_NORM:
-        norm = EntrywiseNorm( A, Base<F>(1) );
+        norm = EntrywiseNorm( A, Base<Field>(1) );
         break;
-    case FROBENIUS_NORM: 
+    case FROBENIUS_NORM:
         norm = FrobeniusNorm( A );
         break;
     case INFINITY_NORM:
@@ -44,11 +44,12 @@ Base<F> Norm( const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F>
-Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> SymmetricNorm
+( UpperOrLower uplo, const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -56,7 +57,7 @@ Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
         norm = SymmetricFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = SymmetricEntrywiseNorm( uplo, A, Base<F>(1) );
+        norm = SymmetricEntrywiseNorm( uplo, A, Base<Field>(1) );
         break;
     case INFINITY_NORM:
         norm = SymmetricInfinityNorm( uplo, A );
@@ -78,11 +79,12 @@ Base<F> SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F>
-Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
+template<typename Field>
+Base<Field>
+HermitianNorm( UpperOrLower uplo, const Matrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -90,7 +92,7 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
         norm = HermitianFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = HermitianEntrywiseNorm( uplo, A, Base<F>(1) );
+        norm = HermitianEntrywiseNorm( uplo, A, Base<Field>(1) );
         break;
     case INFINITY_NORM:
         norm = HermitianInfinityNorm( uplo, A );
@@ -112,19 +114,19 @@ Base<F> HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F> 
-Base<F> Norm( const ElementalMatrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> Norm( const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
-    case FROBENIUS_NORM: 
+    case FROBENIUS_NORM:
         norm = FrobeniusNorm( A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = EntrywiseNorm( A, Base<F>(1) );
+        norm = EntrywiseNorm( A, Base<Field>(1) );
         break;
     case INFINITY_NORM:
         norm = InfinityNorm( A );
@@ -146,12 +148,12 @@ Base<F> Norm( const ElementalMatrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F>
-Base<F> SymmetricNorm
-( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> SymmetricNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -159,7 +161,7 @@ Base<F> SymmetricNorm
         norm = SymmetricFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = SymmetricEntrywiseNorm( uplo, A, Base<F>(1) );
+        norm = SymmetricEntrywiseNorm( uplo, A, Base<Field>(1) );
         break;
     case INFINITY_NORM:
         norm = SymmetricInfinityNorm( uplo, A );
@@ -181,12 +183,12 @@ Base<F> SymmetricNorm
     return norm;
 }
 
-template<typename F>
-Base<F> HermitianNorm
-( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type )
+template<typename Field>
+Base<Field> HermitianNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, NormType type )
 {
-    DEBUG_CSE
-    Base<F> norm = 0;
+    EL_DEBUG_CSE
+    Base<Field> norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -194,7 +196,7 @@ Base<F> HermitianNorm
         norm = HermitianFrobeniusNorm( uplo, A );
         break;
     case ENTRYWISE_ONE_NORM:
-        norm = HermitianEntrywiseNorm( uplo, A, Base<F>(1) );
+        norm = HermitianEntrywiseNorm( uplo, A, Base<Field>(1) );
         break;
     case INFINITY_NORM:
         norm = HermitianInfinityNorm( uplo, A );
@@ -216,17 +218,18 @@ Base<F> HermitianNorm
     return norm;
 }
 
-#define PROTO(F) \
-  template Base<F> Norm( const Matrix<F>& A, NormType type ); \
-  template Base<F> Norm( const ElementalMatrix<F>& A, NormType type ); \
-  template Base<F> HermitianNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A, NormType type ); \
-  template Base<F> HermitianNorm \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type ); \
-  template Base<F> SymmetricNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A, NormType type ); \
-  template Base<F> SymmetricNorm \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A, NormType type );
+#define PROTO(Field) \
+  template Base<Field> Norm( const Matrix<Field>& A, NormType type ); \
+  template Base<Field> \
+  Norm( const AbstractDistMatrix<Field>& A, NormType type ); \
+  template Base<Field> HermitianNorm \
+  ( UpperOrLower uplo, const Matrix<Field>& A, NormType type ); \
+  template Base<Field> HermitianNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, NormType type ); \
+  template Base<Field> SymmetricNorm \
+  ( UpperOrLower uplo, const Matrix<Field>& A, NormType type ); \
+  template Base<Field> SymmetricNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, NormType type );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

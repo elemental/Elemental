@@ -19,7 +19,7 @@ void PrintSVDResiduals
   const Matrix<F>& V,
   bool print )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int m = U.Height();
     const Int n = V.Height();

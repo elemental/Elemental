@@ -2,22 +2,25 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F> 
+template<typename F>
 void TestCorrectness
-( const DistMatrix<F,VC,  STAR>& A,
-        DistMatrix<F,VC,  STAR>& B,
+( const DistMatrix<F,VC,STAR>& A,
+        DistMatrix<F,VC,STAR>& B,
   Base<F> tau,
   bool print )
 {
     typedef Base<F> Real;
-    const Grid& g = A.Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real eps = limits::Epsilon<Real>();
+    const Grid& grid = A.Grid();
 
     DistMatrix<F> BNormal( A );
     SVT( BNormal, tau );
@@ -29,11 +32,15 @@ void TestCorrectness
     const Real AFrob = FrobeniusNorm( A );
     const Real BFrob = FrobeniusNorm( B );
     const Real errorFrob = FrobeniusNorm( BNormal );
-    if( g.Rank() == 0 )
+    if( grid.Rank() == 0 )
         Output
         ("  || A ||_F = ",AFrob,"\n",
          "  || B ||_F = ",BFrob,"\n",
          "  || E ||_F = ",errorFrob);
+
+    // TODO(poulson): A more careful failure condition
+    if( errorFrob/BFrob > 100*eps*Max(m,n) )
+        LogicError("The error between the two approaches was too high");
 }
 
 template<typename F>
@@ -42,23 +49,23 @@ void TestSVT
   bool print,
   Int m,
   Int n,
-  const Grid& g,
+  const Grid& grid,
   Base<F> tau )
 {
-    DistMatrix<F,VC,STAR> A(g), B(g);
+    DistMatrix<F,VC,STAR> A(grid), B(grid);
     Uniform( A, m, n );
     if( print )
         Print( A, "A" );
     B = A;
 
-    if( g.Rank() == 0 )
+    if( grid.Rank() == 0 )
         Output("  Starting TS-SVT factorization...");
-    mpi::Barrier( g.Comm() );
+    mpi::Barrier( grid.Comm() );
     const double startTime = mpi::Time();
     SVT( B, tau );
-    mpi::Barrier( g.Comm() );
+    mpi::Barrier( grid.Comm() );
     const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
+    if( grid.Rank() == 0 )
         Output("  ",runTime," seconds");
     if( print )
         Print( B, "B" );
@@ -66,7 +73,7 @@ void TestSVT
         TestCorrectness( A, B, tau, print );
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );

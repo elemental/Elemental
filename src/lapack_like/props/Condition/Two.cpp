@@ -2,19 +2,19 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
-Base<F> TwoCondition( const Matrix<F>& A )
+template<typename Field>
+Base<Field> TwoCondition( const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     Matrix<Real> s;
     SVD( A, s );
 
@@ -25,11 +25,11 @@ Base<F> TwoCondition( const Matrix<F>& A )
     return cond;
 }
 
-template<typename F> 
-Base<F> TwoCondition( const ElementalMatrix<F>& A )
+template<typename Field>
+Base<Field> TwoCondition( const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     DistMatrix<Real,VR,STAR> s( A.Grid() );
     SVD( A, s );
 
@@ -40,9 +40,9 @@ Base<F> TwoCondition( const ElementalMatrix<F>& A )
     return cond;
 }
 
-#define PROTO(F) \
-  template Base<F> TwoCondition( const Matrix<F>& A ); \
-  template Base<F> TwoCondition( const ElementalMatrix<F>& A );
+#define PROTO(Field) \
+  template Base<Field> TwoCondition( const Matrix<Field>& A ); \
+  template Base<Field> TwoCondition( const AbstractDistMatrix<Field>& A );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

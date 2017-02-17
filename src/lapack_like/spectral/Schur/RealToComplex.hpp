@@ -17,15 +17,18 @@ namespace schur {
 template<typename Real>
 void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     typedef Complex<Real> C;
 
     Copy( UQuasi, U );
     const Int n = U.Height();
 
-    Matrix<C> V11(2,2), w1(2,1), U01Copy, U12Copy;
-    const bool fullTriangle=true, multiplyQ=false;
+    Matrix<C> V11, w1, U01Copy, U12Copy;
+
+    HessenbergSchurCtrl ctrl;
+    ctrl.fullTriangle = true;
+    ctrl.accumulateSchurVecs = false;
 
     for( Int j=0; j<n-1; ++j )
     {
@@ -34,9 +37,8 @@ void RealToComplex( const Matrix<Real>& UQuasi, Matrix<Complex<Real>>& U )
             // Compute the Schur decomposition of the 2x2 block.
             // TODO: Switch to an analytical formula which exploits the fact
             //       that the block is in standard real Schur form
-            lapack::HessenbergSchur
-            ( 2, U.Buffer(j,j), U.LDim(), 
-              w1.Buffer(), V11.Buffer(), V11.LDim(), fullTriangle, multiplyQ );
+            auto U11 = U( IR(j,j+2), IR(j,j+2) );
+            HessenbergSchur( U11, w1, V11, ctrl );
             U(j+1,j) = 0;
 
             // Apply V11 from the right to U01
@@ -59,16 +61,19 @@ void RealToComplex
         Matrix<Complex<Real>>& U,
         Matrix<Complex<Real>>& Q )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     Copy( UQuasi, U );
     Copy( QQuasi, Q );
     const Int n = U.Height();
 
-    Matrix<C> V11(2,2), w1(2,1), Q1Copy, U01Copy, U12Copy;
-    const bool fullTriangle=true, multiplyV=false;
+    Matrix<C> V11, w1, Q1Copy, U01Copy, U12Copy;
+
+    HessenbergSchurCtrl ctrl;
+    ctrl.fullTriangle = true;
+    ctrl.accumulateSchurVecs = false;
 
     for( Int j=0; j<n-1; ++j )
     {
@@ -77,9 +82,8 @@ void RealToComplex
             // Compute the Schur decomposition of the 2x2 block.
             // TODO: Switch to an analytical formula which exploits the fact
             //       that the block is in standard real Schur form
-            lapack::HessenbergSchur
-            ( 2, U.Buffer(j,j), U.LDim(), 
-              w1.Buffer(), V11.Buffer(), V11.LDim(), fullTriangle, multiplyV );
+            auto U11 = U( IR(j,j+2), IR(j,j+2) );
+            HessenbergSchur( U11, w1, V11, ctrl );
             U(j+1,j) = 0;
 
             // Apply V11 from the right to Q1
@@ -102,16 +106,16 @@ void RealToComplex
 
 template<typename Real>
 void RealToComplex
-( const ElementalMatrix<        Real >& UQuasi, 
-        ElementalMatrix<Complex<Real>>& UPre )
+( const AbstractDistMatrix<        Real >& UQuasi, 
+        AbstractDistMatrix<Complex<Real>>& UPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre );
     auto& U = UProx.Get();
 
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     Copy( UQuasi, U );
 
     const Int n = U.Height();
@@ -121,7 +125,10 @@ void RealToComplex
     DistMatrix<C,STAR,STAR> U11_STAR_STAR(g), V11(2,2,g), w1(2,1,g);
     DistMatrix<C,VC,STAR> U01_VC_STAR(g), U01Copy_VC_STAR(g); 
     DistMatrix<C,STAR,VR> U12_STAR_VR(g), U12Copy_STAR_VR(g);
-    const bool fullTriangle=true, multiplyQ=false;
+
+    HessenbergSchurCtrl ctrl;
+    ctrl.fullTriangle = true;
+    ctrl.accumulateSchurVecs = false;
 
     for( Int j=0; j<n-1; ++j )
     {
@@ -132,9 +139,8 @@ void RealToComplex
             //       typically does not return the 2x2 blocks in standard form
             auto U11 = U( IR(j,j+2), IR(j,j+2) );
             U11_STAR_STAR = U11;
-            lapack::HessenbergSchur
-            ( 2, U11_STAR_STAR.Buffer(), U11_STAR_STAR.LDim(), 
-              w1.Buffer(), V11.Buffer(), V11.LDim(), fullTriangle, multiplyQ );
+            HessenbergSchur
+            ( U11_STAR_STAR.Matrix(), w1.Matrix(), V11.Matrix(), ctrl );
             U11 = U11_STAR_STAR;
             U.Set(j+1,j,0);
 
@@ -160,19 +166,19 @@ void RealToComplex
 
 template<typename Real>
 void RealToComplex
-( const ElementalMatrix<        Real >& UQuasi, 
-  const ElementalMatrix<        Real >& QQuasi,
-        ElementalMatrix<Complex<Real>>& UPre,
-        ElementalMatrix<Complex<Real>>& QPre )
+( const AbstractDistMatrix<        Real >& UQuasi, 
+  const AbstractDistMatrix<        Real >& QQuasi,
+        AbstractDistMatrix<Complex<Real>>& UPre,
+        AbstractDistMatrix<Complex<Real>>& QPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Complex<Real> C;
 
     DistMatrixWriteProxy<C,C,MC,MR> UProx( UPre ), QProx( QPre );
     auto& U = UProx.Get();
     auto& Q = QProx.Get();
 
-    DEBUG_ONLY(CheckRealSchur(UQuasi))
+    EL_DEBUG_ONLY(CheckRealSchur(UQuasi))
     Copy( UQuasi, U );
     Copy( QQuasi, Q );
 
@@ -184,7 +190,10 @@ void RealToComplex
     DistMatrix<C,VC,STAR> Q1_VC_STAR(g), Q1Copy_VC_STAR(g),
                           U01_VC_STAR(g), U01Copy_VC_STAR(g); 
     DistMatrix<C,STAR,VR> U12_STAR_VR(g), U12Copy_STAR_VR(g);
-    const bool fullTriangle=true, multiplyV=false;
+
+    HessenbergSchurCtrl ctrl;
+    ctrl.fullTriangle = true;
+    ctrl.accumulateSchurVecs = false;
 
     for( Int j=0; j<n-1; ++j )
     {
@@ -195,9 +204,8 @@ void RealToComplex
             //       typically does not return the 2x2 blocks in standard form
             auto U11 = U( IR(j,j+2), IR(j,j+2) );
             U11_STAR_STAR = U11;
-            lapack::HessenbergSchur
-            ( 2, U11_STAR_STAR.Buffer(), U11_STAR_STAR.LDim(), 
-              w1.Buffer(), V11.Buffer(), V11.LDim(), fullTriangle, multiplyV );
+            HessenbergSchur
+            ( U11_STAR_STAR.Matrix(), w1.Matrix(), V11.Matrix(), ctrl );
             U11 = U11_STAR_STAR;
             U.Set(j+1,j,0);
 

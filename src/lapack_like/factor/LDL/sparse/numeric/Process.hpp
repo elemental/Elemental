@@ -1,20 +1,23 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
+   Copyright (c) 2013-2014, Jack Poulson and
    The Georgia Institute of Technology.
    All rights reserved.
 
    Copyright (c) 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2016, Jack Poulson.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_PROCESS_HPP
@@ -25,11 +28,11 @@
 namespace El {
 namespace ldl {
 
-template<typename F> 
-inline void 
-Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
+template<typename Field>
+void Process
+( const NodeInfo& info, Front<Field>& front, LDLFrontType factorType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const int updateSize = info.lowerStruct.size();
     auto& FBR = front.workDense;
     FBR.Empty();
@@ -43,13 +46,13 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
         const Int numEntries = info.LOffsets.back();
         const Int numSources = info.LOffsets.size()-1;
 
-        // TODO: Add support for pivoting here
+        // TODO(poulson): Add support for pivoting here
         if( PivotedFactorization(factorType) )
-            Zeros( front.subdiag, n-1, 1 );
+            Zeros( front.subdiag, Max(n-1,0), 1 );
 
         Zeros( front.LSparse, numSources, numSources );
         front.LSparse.ForceNumEntries( numEntries );
-        F* LValBuf = front.LSparse.ValueBuffer();
+        Field* LValBuf = front.LSparse.ValueBuffer();
         Int* LRowBuf = front.LSparse.SourceBuffer();
         Int* LColBuf = front.LSparse.TargetBuffer();
         Int* LOffsetBuf = front.LSparse.OffsetBuffer();
@@ -66,9 +69,9 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
         front.diag.Resize( numSources, 1 );
 
         // Factor the transpose of L
-        // TODO: Reuse these workspaces
+        // TODO(poulson): Reuse these workspaces
         vector<Int> LNnz(numSources), pattern(numSources), flag(numSources);
-        vector<F> y(numSources);
+        vector<Field> y(numSources);
         suite_sparse::ldl::Numeric
         ( numSources,
           front.workSparse.LockedOffsetBuffer(),
@@ -83,8 +86,8 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
           y.data(),
           pattern.data(),
           flag.data(),
-          (const Int*)nullptr,
-          (const Int*)nullptr,
+          static_cast<const Int*>(nullptr),
+          static_cast<const Int*>(nullptr),
           front.isHermitian );
         front.LSparse.ForceConsistency();
 
@@ -106,12 +109,12 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
         Orientation orientation = ( front.isHermitian ? ADJOINT : TRANSPOSE );
         Trrk
         ( LOWER, NORMAL, orientation,
-          F(-1), front.LDense, ABLCopy, F(0), front.workDense );
+          Field(-1), front.LDense, ABLCopy, Field(0), front.workDense );
     }
     else
     {
         auto& FL = front.LDense;
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( FL.Height() != info.size+updateSize || FL.Width() != info.size )
               LogicError("Front was not the proper size");
         )
@@ -130,7 +133,7 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
                 for( int iChild=jChild; iChild<childUSize; ++iChild )
                 {
                     const int i = info.childRelInds[c][iChild];
-                    const F value = childU(iChild,jChild);
+                    const Field value = childU(iChild,jChild);
                     if( j < info.size )
                         FL(i,j) += value;
                     else
@@ -143,17 +146,16 @@ Process( const NodeInfo& info, Front<F>& front, LDLFrontType factorType )
     }
 }
 
-template<typename F>
-inline void
-Process
-( const DistNodeInfo& info, DistFront<F>& front, LDLFrontType factorType )
+template<typename Field>
+void Process
+( const DistNodeInfo& info, DistFront<Field>& front, LDLFrontType factorType )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Switch to a sequential algorithm if possible
-    if( front.duplicate != nullptr )
+    if( front.duplicate.get() != nullptr )
     {
-        const Grid& grid = *info.grid;
+        const Grid& grid = info.Grid();
         auto& frontDup = *front.duplicate;
 
         Process( *info.duplicate, frontDup, factorType );
@@ -181,7 +183,7 @@ Process
 
     const Int updateSize = info.lowerStruct.size();
     front.work.Empty();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( front.L2D.Height() != info.size+updateSize ||
           front.L2D.Width() != info.size )
           LogicError("Front was not the proper size");
@@ -203,7 +205,7 @@ Process
     const int recvBufSize = Scan( recvSizes, recvOffs );
 
     // Pack the updates
-    vector<F> sendBuf( sendBufSize );
+    vector<Field> sendBuf( sendBufSize );
     const Int myChild = ( childInfo.onLeft ? 0 : 1 );
     auto offs = sendOffs;
     const Int updateLocHeight = childU.LocalHeight();
@@ -221,7 +223,7 @@ Process
             sendBuf[offs[q]++] = childU.GetLocal(iChildLoc,jChildLoc);
         }
     }
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       for( int q=0; q<commSize; ++q )
       {
           if( offs[q]-sendOffs[q] != front.commMeta.numChildSendInds[q] )
@@ -230,12 +232,12 @@ Process
     )
     SwapClear( offs );
     childFront.work.Empty();
-    if( childFront.duplicate != nullptr )
+    if( childFront.duplicate.get() != nullptr )
         childFront.duplicate->workDense.Empty();
 
     // AllToAll to send and receive the child updates
-    vector<F> recvBuf( recvBufSize );
-    DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
+    vector<Field> recvBuf( recvBufSize );
+    EL_DEBUG_ONLY(VerifySendsAndRecvs( sendSizes, recvSizes, comm ))
     SparseAllToAll
     ( sendBuf, sendSizes, sendOffs,
       recvBuf, recvSizes, recvOffs, comm );
@@ -259,7 +261,7 @@ Process
         {
             const Int iLoc = front.commMeta.childRecvInds[q][2*k+0];
             const Int jLoc = front.commMeta.childRecvInds[q][2*k+1];
-            const F value = recvBuf[recvOffs[q]+k];
+            const Field value = recvBuf[recvOffs[q]+k];
             if( jLoc < leftLocWidth )
                 FL.UpdateLocal( iLoc, jLoc, value );
             else

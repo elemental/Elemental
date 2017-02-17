@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -25,7 +25,7 @@ namespace affine {
 //   | A 0        0     | | dy |   |     -r_b        |,
 //   | G 0    -(z <> s) | | dz | = | -rh + z <> r_mu |
 //
-// where 
+// where
 //
 //   r_c  = A^T y + G^T z + c,
 //   r_b  = A x - b,
@@ -41,16 +41,16 @@ void KKT
         Matrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
-    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd); 
-    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd); 
-    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd); 
+    auto Jxx = J(xInd,xInd); auto Jxy = J(xInd,yInd); auto Jxz = J(xInd,zInd);
+    auto Jyx = J(yInd,xInd); auto Jyy = J(yInd,yInd); auto Jyz = J(yInd,zInd);
+    auto Jzx = J(zInd,xInd); auto Jzy = J(zInd,yInd); auto Jzz = J(zInd,zInd);
 
     // Jyx := A
     // ========
@@ -72,7 +72,7 @@ void KKT
     {
         // Jxy := A^T
         // ==========
-        Transpose( A, Jxy ); 
+        Transpose( A, Jxy );
 
         // Jxz := G^T
         // ==========
@@ -82,20 +82,17 @@ void KKT
 
 template<typename Real>
 void KKT
-( const ElementalMatrix<Real>& A,
-  const ElementalMatrix<Real>& G,
-  const ElementalMatrix<Real>& s,
-  const ElementalMatrix<Real>& z,
-        ElementalMatrix<Real>& JPre,
+( const DistMatrix<Real>& A,
+  const DistMatrix<Real>& G,
+  const DistMatrix<Real>& s,
+  const DistMatrix<Real>& z,
+        DistMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     const Int k = G.Height();
-
-    DistMatrixWriteProxy<Real,Real,MC,MR> JProx( JPre );
-    auto& J = JProx.Get();
 
     Zeros( J, n+m+k, n+m+k );
     const IR xInd(0,n), yInd(n,n+m), zInd(n+m,n+m+k);
@@ -139,7 +136,7 @@ void KKT
         SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
@@ -156,7 +153,7 @@ void StaticKKT
         SparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
     SparseMatrix<Real> Q;
     Q.Resize( n, n );
@@ -172,10 +169,9 @@ void KKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
+    DistSparseMatrix<Real> Q(A.Grid());
     Q.Resize( n, n );
     qp::affine::KKT( Q, A, G, s, z, J, onlyLower );
 }
@@ -190,10 +186,9 @@ void StaticKKT
         DistSparseMatrix<Real>& J,
   bool onlyLower )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = A.Width();
-    mpi::Comm comm = A.Comm();
-    DistSparseMatrix<Real> Q(comm);
+    DistSparseMatrix<Real> Q(A.Grid());
     Q.Resize( n, n );
     qp::affine::StaticKKT( Q, A, G, gamma, delta, beta, J, onlyLower );
 }
@@ -206,11 +201,11 @@ void StaticKKT
     const Matrix<Real>& z, \
           Matrix<Real>& J, bool onlyLower ); \
   template void KKT \
-  ( const ElementalMatrix<Real>& A, \
-    const ElementalMatrix<Real>& G, \
-    const ElementalMatrix<Real>& s, \
-    const ElementalMatrix<Real>& z, \
-          ElementalMatrix<Real>& J, \
+  ( const DistMatrix<Real>& A, \
+    const DistMatrix<Real>& G, \
+    const DistMatrix<Real>& s, \
+    const DistMatrix<Real>& z, \
+          DistMatrix<Real>& J, \
     bool onlyLower ); \
   template void KKT \
   ( const SparseMatrix<Real>& A, \

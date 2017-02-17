@@ -6,8 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef EL_SCHUR_CHECkREAL_HPP
-#define EL_SCHUR_CHECkREAL_HPP
+#ifndef EL_SCHUR_CHECKREAL_HPP
+#define EL_SCHUR_CHECKREAL_HPP
 
 namespace El {
 namespace schur {
@@ -15,7 +15,7 @@ namespace schur {
 template<typename Real>
 void CheckRealSchur( const Matrix<Real>& U, bool standardForm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = U.Height();
 
     auto uMain = GetDiagonal(U);
@@ -54,14 +54,14 @@ void CheckRealSchur( const Matrix<Real>& U, bool standardForm )
 template<typename Real>
 void CheckRealSchur( const Matrix<Complex<Real>>& U, bool standardForm )
 {
-    DEBUG_CSE
-    LogicError("ChceckRealSchur called for complex matrix");
+    EL_DEBUG_CSE
+    LogicError("CheckRealSchur called for complex matrix");
 }
 
 template<typename Real>
-void CheckRealSchur( const ElementalMatrix<Real>& UPre, bool standardForm )
+void CheckRealSchur( const AbstractDistMatrix<Real>& UPre, bool standardForm )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadProxy<Real,Real,MC,MR> UProx( UPre );
     auto& U = UProx.GetLocked();
@@ -109,13 +109,13 @@ void CheckRealSchur( const ElementalMatrix<Real>& UPre, bool standardForm )
 
 template<typename Real>
 void CheckRealSchur
-( const ElementalMatrix<Complex<Real>>& U, bool standardForm )
+( const AbstractDistMatrix<Complex<Real>>& U, bool standardForm )
 {
-    DEBUG_CSE
-    LogicError("ChceckRealSchur called for complex matrix");
+    EL_DEBUG_CSE
+    LogicError("CheckRealSchur called for complex matrix");
 }
 
 } // namespace schur
 } // namespace El
 
-#endif // ifndef EL_SCHUR_CHECkREAL_HPP
+#endif // ifndef EL_SCHUR_CHECKREAL_HPP

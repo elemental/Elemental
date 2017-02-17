@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -13,12 +13,12 @@ template<typename T>
 void TestAssociativity
 ( Orientation orientA, Orientation orientB,
   T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B, 
-  T beta,  const DistMatrix<T>& COrig, 
-           const DistMatrix<T>& CFinal, 
+           const DistMatrix<T>& B,
+  T beta,  const DistMatrix<T>& COrig,
+           const DistMatrix<T>& CFinal,
   bool print )
 {
-    DEBUG_ONLY(CallStackEntry cse("TestAssociativity"))
+    EL_DEBUG_ONLY(CallStackEntry cse("TestAssociativity"))
 
     // Test (alpha op(A) op(B) + beta C) X = alpha op(A) (op(B) X) + beta C X
     const Int numRHS = 100;
@@ -41,7 +41,7 @@ void TestAssociativity
       EFrobNorm, "/", YFrobNorm, "=", EFrobNorm/YFrobNorm );
 }
 
-template<typename T> 
+template<typename T>
 void TestGemm
 ( Orientation orientA,
   Orientation orientB,
@@ -50,7 +50,7 @@ void TestGemm
   Int k,
   T alpha,
   T beta,
-  const Grid& g, 
+  const Grid& g,
   bool print,
   bool correctness,
   Int colAlignA=0, Int rowAlignA=0,
@@ -139,9 +139,10 @@ void TestGemm
     if( print )
         Print( C, BuildString("C := ",alpha," A B + ",beta," C") );
     if( correctness )
-        TestAssociativity( orientA, orientB, alpha, A, B, beta, COrig, C, print );
+        TestAssociativity
+        ( orientA, orientB, alpha, A, B, beta, COrig, C, print );
     PopIndent();
-    
+
     if( orientA == NORMAL && orientB == NORMAL )
     {
         // Test the variant of Gemm for panel-panel dot products
@@ -167,7 +168,7 @@ void TestGemm
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -189,13 +190,13 @@ main( int argc, char* argv[] )
         const Int colAlignB = Input("--colAlignB","column align of B",0);
         const Int colAlignC = Input("--colAlignC","column align of C",0);
         const Int rowAlignA = Input("--rowAlignA","row align of A",0);
-        const Int rowAlignB = Input("--rowAlignB","row align of B",0); 
+        const Int rowAlignB = Input("--rowAlignB","row align of B",0);
         const Int rowAlignC = Input("--rowAlignC","row align of C",0);
         ProcessInput();
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
         const Grid g( comm, gridHeight, order );
         const Orientation orientA = CharToOrientation( transA );
@@ -216,7 +217,7 @@ main( int argc, char* argv[] )
           colAlignC, rowAlignC );
         TestGemm<Complex<float>>
         ( orientA, orientB,
-          m, n, k, 
+          m, n, k,
           Complex<float>(3), Complex<float>(4),
           g,
           print, correctness,
@@ -235,7 +236,7 @@ main( int argc, char* argv[] )
           colAlignC, rowAlignC );
         TestGemm<Complex<double>>
         ( orientA, orientB,
-          m, n, k, 
+          m, n, k,
           Complex<double>(3), Complex<double>(4),
           g,
           print, correctness,
@@ -295,7 +296,7 @@ main( int argc, char* argv[] )
           colAlignC, rowAlignC );
         TestGemm<Complex<Quad>>
         ( orientA, orientB,
-          m, n, k, 
+          m, n, k,
           Complex<Quad>(3), Complex<Quad>(4),
           g,
           print, correctness,

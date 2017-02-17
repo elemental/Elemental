@@ -2,7 +2,7 @@
    Copyright 2009-2011, Jack Poulson.
    All rights reserved.
 
-   Copyright 2011-2012, Jack Poulson, Lexing Ying, and 
+   Copyright 2011-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
@@ -14,9 +14,12 @@
 
    Copyright 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright 2016, Jack Poulson.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -24,10 +27,10 @@
 namespace El {
 namespace ldl {
 
-template<typename F>
-DistFront<F>::DistFront( DistFront<F>* parentNode )
-: parent(parentNode), child(nullptr), duplicate(nullptr)
-{ 
+template<typename Field>
+DistFront<Field>::DistFront( DistFront<Field>* parentNode )
+: parent(parentNode)
+{
     if( parentNode != nullptr )
     {
         type = parentNode->type;
@@ -35,51 +38,45 @@ DistFront<F>::DistFront( DistFront<F>* parentNode )
     }
 }
 
-template<typename F>
-DistFront<F>::DistFront
-( const DistSparseMatrix<F>& A, 
+template<typename Field>
+DistFront<Field>::DistFront
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
-  const DistSeparator& sep, 
+  const DistSeparator& sep,
   const DistNodeInfo& info,
   bool conjugate )
-: parent(nullptr), child(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Pull( A, reordering, sep, info, conjugate );
 }
 
-template<typename F>
-DistFront<F>::~DistFront()
-{
-    delete child;
-    delete duplicate;
-}
+template<typename Field>
+DistFront<Field>::~DistFront() { }
 
-template<typename F>
+template<typename Field>
 void UnpackEntriesLocal
 ( const Separator& sep,
-  const NodeInfo& node, 
-        Front<F>& front, 
-  const DistSparseMatrix<F>& A,
+  const NodeInfo& node,
+        Front<Field>& front,
+  const DistSparseMatrix<Field>& A,
   const vector<Int>& rRowLengths,
-  const vector<F>& rEntries, 
+  const vector<Field>& rEntries,
   const vector<Int>& rTargets,
-        vector<int>& offs, 
+        vector<int>& offs,
         vector<int>& entryOffs )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Delete any existing children
-    for( auto* childFront : front.children )
-        delete childFront;
+    SwapClear( front.children );
 
     const Int numChildren = sep.children.size();
     front.children.resize( numChildren );
     for( Int c=0; c<numChildren; ++c )
     {
-        front.children[c] = new Front<F>(&front);
+        front.children[c].reset( new Front<Field>(&front) );
         UnpackEntriesLocal
-        ( *sep.children[c], *node.children[c], *front.children[c], 
+        ( *sep.children[c], *node.children[c], *front.children[c],
           A, rRowLengths, rEntries, rTargets, offs, entryOffs );
     }
     // Mark this node as a sparse leaf if it does not have any children
@@ -110,7 +107,7 @@ void UnpackEntriesLocal
             for( Int k=0; k<numEntries; ++k )
             {
                 const Int target = rTargets[entryOff++];
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -130,23 +127,23 @@ void UnpackEntriesLocal
 
             for( Int k=0; k<numEntries; ++k )
             {
-                const F value = rEntries[entryOff];
+                const Field value = rEntries[entryOff];
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
                 if( target < off+size )
                 {
-                    const F transVal = 
-                      ( front.isHermitian ? Conj(value) : value );
+                    const Field transVal =
+                      front.isHermitian ? Conj(value) : value;
                     front.workSparse.QueueUpdate( target-off, t, transVal );
                 }
                 else
                 {
-                    // TODO: Avoid this binary search?
+                    // TODO(poulson): Avoid this binary search?
                     Int origOff = Find( node.origLowerStruct, target );
                     const Int row = node.origLowerRelInds[origOff];
                     front.LDense(row-size,t) = value;
@@ -169,11 +166,11 @@ void UnpackEntriesLocal
 
             for( Int k=0; k<numEntries; ++k )
             {
-                const F value = rEntries[entryOff];
+                const Field value = rEntries[entryOff];
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -183,7 +180,7 @@ void UnpackEntriesLocal
                 }
                 else
                 {
-                    // TODO: Avoid this binary search?
+                    // TODO(poulson): Avoid this binary search?
                     Int origOff = Find( node.origLowerStruct, target );
                     const Int row = node.origLowerRelInds[origOff];
                     front.LDense(row,t) = value;
@@ -193,37 +190,35 @@ void UnpackEntriesLocal
     }
 }
 
-template<typename F>
+template<typename Field>
 void UnpackEntries
-( const DistSeparator& sep, 
-  const DistNodeInfo& node, 
-        DistFront<F>& front,
-  const DistSparseMatrix<F>& A,
+( const DistSeparator& sep,
+  const DistNodeInfo& node,
+        DistFront<Field>& front,
+  const DistSparseMatrix<Field>& A,
   const vector<Int>& rRowLengths,
-  const vector<F>& rEntries, 
+  const vector<Field>& rEntries,
   const vector<Int>& rTargets,
-        vector<int>& offs, 
+        vector<int>& offs,
         vector<int>& entryOffs )
 {
-    DEBUG_CSE
-    const Grid& grid = *node.grid;
+    EL_DEBUG_CSE
+    const Grid& grid = node.Grid();
 
     if( sep.child == nullptr )
     {
-        delete front.duplicate;
-        front.duplicate = new Front<F>(&front);
+        front.duplicate.reset( new Front<Field>(&front) );
         UnpackEntriesLocal
-        ( *sep.duplicate, *node.duplicate, *front.duplicate, 
+        ( *sep.duplicate, *node.duplicate, *front.duplicate,
           A, rRowLengths, rEntries, rTargets, offs, entryOffs );
 
         front.L2D.Attach( grid, front.duplicate->LDense );
 
         return;
     }
-    delete front.child;
-    front.child = new DistFront<F>(&front);
+    front.child.reset( new DistFront<Field>(&front) );
     UnpackEntries
-    ( *sep.child, *node.child, *front.child, 
+    ( *sep.child, *node.child, *front.child,
       A, rRowLengths, rEntries, rTargets, offs, entryOffs );
 
     const Int size = node.size;
@@ -231,7 +226,7 @@ void UnpackEntries
     const Int lowerSize = node.lowerStruct.size();
     front.L2D.SetGrid( grid );
     Zeros( front.L2D, size+lowerSize, size );
-        
+
     const Int localWidth = front.L2D.LocalWidth();
     for( Int tLoc=0; tLoc<localWidth; ++tLoc )
     {
@@ -244,11 +239,11 @@ void UnpackEntries
 
         for( Int k=0; k<numEntries; ++k )
         {
-            const F value = rEntries[entryOff];
+            const Field value = rEntries[entryOff];
             const Int target = rTargets[entryOff];
             ++entryOff;
 
-            DEBUG_ONLY(
+            EL_DEBUG_ONLY(
               if( target < off+t )
                   LogicError("Received entry from upper triangle");
             )
@@ -256,9 +251,9 @@ void UnpackEntries
             {
                 front.L2D.Set( target-off, t, value );
             }
-            else 
+            else
             {
-                // TODO: Avoid this binary search?
+                // TODO(poulson): Avoid this binary search?
                 const Int origOff = Find( node.origLowerStruct, target );
                 const Int row = node.origLowerRelInds[origOff];
                 front.L2D.Set( row, t, value );
@@ -267,45 +262,44 @@ void UnpackEntries
     }
 }
 
-// NOTE: 
+// NOTE:
 // The current implementation (conjugate-)transposes A into the frontal tree
-template<typename F>
-void DistFront<F>::Pull
-( const DistSparseMatrix<F>& A, 
+template<typename Field>
+void DistFront<Field>::Pull
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
-  const DistSeparator& rootSep, 
+  const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo,
   bool conjugate )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     Pull
-    ( A, reordering, rootSep, rootInfo, 
+    ( A, reordering, rootSep, rootInfo,
       mappedSources, mappedTargets, colOffs,
       conjugate );
 }
 
-template<typename F>
-void DistFront<F>::Pull
-( const DistSparseMatrix<F>& A, 
+template<typename Field>
+void DistFront<Field>::Pull
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
-  const DistSeparator& rootSep, 
+  const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo,
         vector<Int>& mappedSources,
         vector<Int>& mappedTargets,
         vector<Int>& colOffs,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
     const bool time = false;
-   
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm ); 
+    const Grid& grid = A.Grid();
+    const int commRank = grid.Rank();
+    const int commSize = grid.Size();
     Timer timer;
 
     A.MappedSources( reordering, mappedSources );
@@ -315,26 +309,26 @@ void DistFront<F>::Pull
     if( time && commRank == 0 )
         timer.Start();
     vector<int> rRowSizes( commSize, 0 );
-    function<void(const Separator&)> rRowLocalAccumulate = 
+    function<void(const Separator&)> rRowLocalAccumulate =
       [&]( const Separator& sep )
       {
-          for( const Separator* child : sep.children )
+          for( const auto& child : sep.children )
              rRowLocalAccumulate( *child );
           for( const Int& i : sep.inds )
               ++rRowSizes[ A.RowOwner(i) ];
       };
-    function<void(const DistSeparator&,const DistNodeInfo&)> 
+    function<void(const DistSeparator&,const DistNodeInfo&)>
       rRowAccumulate =
       [&]( const DistSeparator& sep, const DistNodeInfo& node )
       {
           if( sep.child == nullptr )
           {
-              rRowLocalAccumulate( *sep.duplicate ); 
+              rRowLocalAccumulate( *sep.duplicate );
               return;
           }
           rRowAccumulate( *sep.child, *node.child );
-          
-          const Grid& grid = *node.grid;
+
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -351,15 +345,15 @@ void DistFront<F>::Pull
         timer.Start();
     vector<Int> rRows( numRecvRows );
     auto offs = rRowOffs;
-    function<void(const Separator&)> rRowsLocalPack = 
+    function<void(const Separator&)> rRowsLocalPack =
       [&]( const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )
+          for( const auto& childSep : sep.children )
               rRowsLocalPack( *childSep );
           for( Int i : sep.inds )
               rRows[offs[A.RowOwner(i)]++] = i;
       };
-    function<void(const DistSeparator&,const DistNodeInfo&)> rRowsPack = 
+    function<void(const DistSeparator&,const DistNodeInfo&)> rRowsPack =
       [&]( const DistSeparator& sep, const DistNodeInfo& node )
       {
           if( sep.child == nullptr )
@@ -368,8 +362,8 @@ void DistFront<F>::Pull
               return;
           }
           rRowsPack( *sep.child, *node.child );
-          
-          const Grid& grid = *node.grid;
+
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -387,13 +381,13 @@ void DistFront<F>::Pull
     if( time && commRank == 0 )
         timer.Start();
     vector<int> sRowSizes( commSize );
-    mpi::AllToAll( rRowSizes.data(), 1, sRowSizes.data(), 1, comm );
+    mpi::AllToAll( rRowSizes.data(), 1, sRowSizes.data(), 1, grid.Comm() );
     vector<int> sRowOffs;
     const Int numSendRows = Scan( sRowSizes, sRowOffs );
     vector<Int> sRows( numSendRows );
     mpi::AllToAll
     ( rRows.data(), rRowSizes.data(), rRowOffs.data(),
-      sRows.data(), sRowSizes.data(), sRowOffs.data(), comm );
+      sRows.data(), sRowSizes.data(), sRowOffs.data(), grid.Comm() );
     if( time && commRank == 0 )
         Output("AllToAll: ",timer.Stop()," secs");
 
@@ -428,7 +422,7 @@ void DistFront<F>::Pull
     }
     vector<int> sEntriesOffs;
     const int numSendEntries = Scan( sEntriesSizes, sEntriesOffs );
-    vector<F> sEntries( numSendEntries );
+    vector<Field> sEntries( numSendEntries );
     vector<Int> sTargets( numSendEntries );
     for( Int q=0; q<commSize; ++q )
     {
@@ -447,14 +441,14 @@ void DistFront<F>::Pull
                 const Int iReord = mappedTargets[colOffs[rowOff+e]];
                 if( iReord >= jReord )
                 {
-                    const F value = A.Value( rowOff+e );
+                    const Field value = A.Value( rowOff+e );
                     sEntries[index] = (conjugate ? Conj(value) : value);
                     sTargets[index] = iReord;
                     ++index;
                 }
             }
         }
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( index != sEntriesOffs[q]+sEntriesSizes[q] )
               LogicError("index was not the correct value");
         )
@@ -468,7 +462,7 @@ void DistFront<F>::Pull
     vector<Int> rRowLengths( numRecvRows );
     mpi::AllToAll
     ( sRowLengths.data(), sRowSizes.data(), sRowOffs.data(),
-      rRowLengths.data(), rRowSizes.data(), rRowOffs.data(), comm );
+      rRowLengths.data(), rRowSizes.data(), rRowOffs.data(), grid.Comm() );
     vector<int> rEntriesSizes(commSize,0);
     for( Int q=0; q<commSize; ++q )
     {
@@ -479,64 +473,63 @@ void DistFront<F>::Pull
     }
     vector<int> rEntriesOffs;
     const int numRecvEntries = Scan( rEntriesSizes, rEntriesOffs );
-    vector<F> rEntries( numRecvEntries );
+    vector<Field> rEntries( numRecvEntries );
     vector<Int> rTargets( numRecvEntries );
     mpi::AllToAll
     ( sEntries.data(), sEntriesSizes.data(), sEntriesOffs.data(),
-      rEntries.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+      rEntries.data(), rEntriesSizes.data(), rEntriesOffs.data(), grid.Comm() );
     mpi::AllToAll
     ( sTargets.data(), sEntriesSizes.data(), sEntriesOffs.data(),
-      rTargets.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+      rTargets.data(), rEntriesSizes.data(), rEntriesOffs.data(), grid.Comm() );
     if( time && commRank == 0 )
         Output("AllToAll time: ",timer.Stop()," secs");
 
     // Unpack the received entries
     if( time && commRank == 0 )
         timer.Start();
-    // TODO: Modify constructor of [Dist]Front to default to SYMM_2D?
+    // TODO(poulson): Modify constructor of [Dist]Front to default to SYMM_2D?
     type = SYMM_2D;
     isHermitian = conjugate;
     UnpackEntries
-    ( rootSep, rootInfo, *this, 
+    ( rootSep, rootInfo, *this,
       A, rRowLengths, rEntries, rTargets, rRowOffs, rEntriesOffs );
     if( time && commRank == 0 )
         Output("Unpack: ",timer.Stop()," secs");
 }
 
-template<typename F>
-void DistFront<F>::PullUpdate
-( const DistSparseMatrix<F>& A, 
+template<typename Field>
+void DistFront<Field>::PullUpdate
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
-  const DistSeparator& rootSep, 
+  const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     vector<Int> mappedSources, mappedTargets, colOffs;
     PullUpdate
     ( A, reordering, rootSep, rootInfo, mappedSources, mappedTargets, colOffs );
 }
 
-// TODO: Begin removing lambdas in a similar manner as for Pull
-template<typename F>
-void DistFront<F>::PullUpdate
-( const DistSparseMatrix<F>& A, 
+// TODO(poulson): Begin removing lambdas in a similar manner as for Pull
+template<typename Field>
+void DistFront<Field>::PullUpdate
+( const DistSparseMatrix<Field>& A,
   const DistMap& reordering,
-  const DistSeparator& rootSep, 
+  const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo,
         vector<Int>& mappedSources,
         vector<Int>& mappedTargets,
         vector<Int>& colOffs )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.LocalHeight() != reordering.NumLocalSources() )
           LogicError("Local mapping was not the right size");
     )
     const bool time = false;
-   
-    mpi::Comm comm = A.Comm();
-    const int commSize = mpi::Size( comm );
-    const int commRank = mpi::Rank( comm ); 
+    const Grid& grid = A.Grid();
+    const int commSize = grid.Size();
+    const int commRank = grid.Rank();
     Timer timer;
 
     A.MappedSources( reordering, mappedSources );
@@ -546,26 +539,26 @@ void DistFront<F>::PullUpdate
     if( time && commRank == 0 )
         timer.Start();
     vector<int> rRowSizes( commSize, 0 );
-    function<void(const Separator&)> rRowLocalAccumulate = 
+    function<void(const Separator&)> rRowLocalAccumulate =
       [&]( const Separator& sep )
       {
-          for( const Separator* child : sep.children )
+          for( const auto& child : sep.children )
              rRowLocalAccumulate( *child );
           for( const Int& i : sep.inds )
               ++rRowSizes[ A.RowOwner(i) ];
       };
-    function<void(const DistSeparator&,const DistNodeInfo&)> 
+    function<void(const DistSeparator&,const DistNodeInfo&)>
       rRowAccumulate =
       [&]( const DistSeparator& sep, const DistNodeInfo& node )
       {
           if( sep.child == nullptr )
           {
-              rRowLocalAccumulate( *sep.duplicate ); 
+              rRowLocalAccumulate( *sep.duplicate );
               return;
           }
           rRowAccumulate( *sep.child, *node.child );
-          
-          const Grid& grid = *node.grid;
+
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -582,15 +575,15 @@ void DistFront<F>::PullUpdate
         timer.Start();
     vector<Int> rRows( numRecvRows );
     auto offs = rRowOffs;
-    function<void(const Separator&)> rRowsLocalPack = 
+    function<void(const Separator&)> rRowsLocalPack =
       [&]( const Separator& sep )
       {
-          for( const Separator* childSep : sep.children )
+          for( const auto& childSep : sep.children )
               rRowsLocalPack( *childSep );
           for( Int i : sep.inds )
               rRows[offs[A.RowOwner(i)]++] = i;
       };
-    function<void(const DistSeparator&,const DistNodeInfo&)> rRowsPack = 
+    function<void(const DistSeparator&,const DistNodeInfo&)> rRowsPack =
       [&]( const DistSeparator& sep, const DistNodeInfo& node )
       {
           if( sep.child == nullptr )
@@ -599,8 +592,8 @@ void DistFront<F>::PullUpdate
               return;
           }
           rRowsPack( *sep.child, *node.child );
-          
-          const Grid& grid = *node.grid;
+
+          const Grid& grid = node.Grid();
           const Int rowShift = grid.Col();
           const Int rowStride = grid.Width();
           const Int numInds = sep.inds.size();
@@ -618,13 +611,13 @@ void DistFront<F>::PullUpdate
     if( time && commRank == 0 )
         timer.Start();
     vector<int> sRowSizes( commSize );
-    mpi::AllToAll( rRowSizes.data(), 1, sRowSizes.data(), 1, comm );
+    mpi::AllToAll( rRowSizes.data(), 1, sRowSizes.data(), 1, grid.Comm() );
     vector<int> sRowOffs;
     const Int numSendRows = Scan( sRowSizes, sRowOffs );
     vector<Int> sRows( numSendRows );
     mpi::AllToAll
     ( rRows.data(), rRowSizes.data(), rRowOffs.data(),
-      sRows.data(), sRowSizes.data(), sRowOffs.data(), comm );
+      sRows.data(), sRowSizes.data(), sRowOffs.data(), grid.Comm() );
     if( time && commRank == 0 )
         Output("AllToAll: ",timer.Stop()," secs");
 
@@ -659,7 +652,7 @@ void DistFront<F>::PullUpdate
     }
     vector<int> sEntriesOffs;
     const int numSendEntries = Scan( sEntriesSizes, sEntriesOffs );
-    vector<F> sEntries( numSendEntries );
+    vector<Field> sEntries( numSendEntries );
     vector<Int> sTargets( numSendEntries );
     for( Int q=0; q<commSize; ++q )
     {
@@ -678,14 +671,14 @@ void DistFront<F>::PullUpdate
                 const Int iReord = mappedTargets[colOffs[rowOff+e]];
                 if( iReord >= jReord )
                 {
-                    const F value = A.Value( rowOff+e );
+                    const Field value = A.Value( rowOff+e );
                     sEntries[index] = (isHermitian ? Conj(value) : value);
                     sTargets[index] = iReord;
                     ++index;
                 }
             }
         }
-        DEBUG_ONLY(
+        EL_DEBUG_ONLY(
           if( index != sEntriesOffs[q]+sEntriesSizes[q] )
               LogicError("index was not the correct value");
         )
@@ -699,7 +692,7 @@ void DistFront<F>::PullUpdate
     vector<Int> rRowLengths( numRecvRows );
     mpi::AllToAll
     ( sRowLengths.data(), sRowSizes.data(), sRowOffs.data(),
-      rRowLengths.data(), rRowSizes.data(), rRowOffs.data(), comm );
+      rRowLengths.data(), rRowSizes.data(), rRowOffs.data(), grid.Comm() );
     vector<int> rEntriesSizes(commSize,0);
     for( Int q=0; q<commSize; ++q )
     {
@@ -710,14 +703,14 @@ void DistFront<F>::PullUpdate
     }
     vector<int> rEntriesOffs;
     const int numRecvEntries = Scan( rEntriesSizes, rEntriesOffs );
-    vector<F> rEntries( numRecvEntries );
+    vector<Field> rEntries( numRecvEntries );
     vector<Int> rTargets( numRecvEntries );
     mpi::AllToAll
     ( sEntries.data(), sEntriesSizes.data(), sEntriesOffs.data(),
-      rEntries.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+      rEntries.data(), rEntriesSizes.data(), rEntriesOffs.data(), grid.Comm() );
     mpi::AllToAll
     ( sTargets.data(), sEntriesSizes.data(), sEntriesOffs.data(),
-      rTargets.data(), rEntriesSizes.data(), rEntriesOffs.data(), comm );
+      rTargets.data(), rEntriesSizes.data(), rEntriesOffs.data(), grid.Comm() );
     if( time && commRank == 0 )
         Output("AllToAll time: ",timer.Stop()," secs");
 
@@ -726,9 +719,9 @@ void DistFront<F>::PullUpdate
         timer.Start();
     offs = rRowOffs;
     auto entryOffs = rEntriesOffs;
-    function<void(const Separator&,const NodeInfo&,Front<F>&)> 
-      unpackEntriesLocal = 
-      [&]( const Separator& sep, const NodeInfo& node, Front<F>& front )
+    function<void(const Separator&,const NodeInfo&,Front<Field>&)>
+      unpackEntriesLocal =
+      [&]( const Separator& sep, const NodeInfo& node, Front<Field>& front )
       {
         const Int numChildren = sep.children.size();
         for( Int c=0; c<numChildren; ++c )
@@ -748,17 +741,17 @@ void DistFront<F>::PullUpdate
             {
                 const Int i = sep.inds[t];
                 const Int q = A.RowOwner(i);
-  
+
                 int& entryOff = entryOffs[q];
                 const Int numEntries = rRowLengths[offs[q]++];
 
                 for( Int k=0; k<numEntries; ++k )
                 {
-                    const F value = rEntries[entryOff];
+                    const Field value = rEntries[entryOff];
                     const Int target = rTargets[entryOff];
                     ++entryOff;
 
-                    DEBUG_ONLY(
+                    EL_DEBUG_ONLY(
                       if( target < off+t )
                           LogicError("Received entry from upper triangle");
                     )
@@ -779,9 +772,9 @@ void DistFront<F>::PullUpdate
       };
     function<void(const DistSeparator&,
                   const DistNodeInfo&,
-                        DistFront<F>&)> unpackEntries = 
-      [&]( const DistSeparator& sep, const DistNodeInfo& node, 
-                 DistFront<F>& front )
+                        DistFront<Field>&)> unpackEntries =
+      [&]( const DistSeparator& sep, const DistNodeInfo& node,
+                 DistFront<Field>& front )
       {
         if( sep.child == nullptr )
         {
@@ -805,11 +798,11 @@ void DistFront<F>::PullUpdate
 
             for( Int k=0; k<numEntries; ++k )
             {
-                const F value = rEntries[entryOff];
+                const Field value = rEntries[entryOff];
                 const Int target = rTargets[entryOff];
                 ++entryOff;
 
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( target < off+t )
                       LogicError("Received entry from upper triangle");
                 )
@@ -817,7 +810,7 @@ void DistFront<F>::PullUpdate
                 {
                     front.L2D.Update( target-off, t, value );
                 }
-                else 
+                else
                 {
                     // TODO: Avoid this binary search?
                     const Int origOff = Find( node.origLowerStruct, target );
@@ -830,7 +823,7 @@ void DistFront<F>::PullUpdate
     unpackEntries( rootSep, rootInfo, *this );
     if( time && commRank == 0 )
         Output("Unpack: ",timer.Stop()," secs");
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       for( Int q=0; q<commSize; ++q )
           if( entryOffs[q] != rEntriesOffs[q]+rEntriesSizes[q] )
               LogicError("entryOffs were incorrect");
@@ -838,39 +831,38 @@ void DistFront<F>::PullUpdate
 }
 
 
-template<typename F>
-void DistFront<F>::Push
-( DistSparseMatrix<F>& A, 
+template<typename Field>
+void DistFront<Field>::Push
+( DistSparseMatrix<Field>& A,
   const DistMap& reordering,
-  const DistSeparator& rootSep, 
+  const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     LogicError("This routine needs to be written");
 }
 
-template<typename F>
-void DistFront<F>::Unpack
-( DistSparseMatrix<F>& A, 
-  const DistSeparator& rootSep, 
+template<typename Field>
+void DistFront<Field>::Unpack
+( DistSparseMatrix<Field>& A,
+  const DistSeparator& rootSep,
   const DistNodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
-    mpi::Comm comm = rootInfo.grid->Comm();
-    A.SetComm( comm );
+    EL_DEBUG_CSE
+    A.SetGrid( rootInfo.Grid() );
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
 
     const Int numLocalEntries = NumLocalEntries();
-    A.Reserve( numLocalEntries, numLocalEntries ); 
-    
+    A.Reserve( numLocalEntries, numLocalEntries );
+
     // Queue the updates
     // =================
     function<void(const Separator&,
                   const NodeInfo&,
-                  const Front<F>&)> localPack =
-      [&]( const Separator& sep, const NodeInfo& node, 
-           const Front<F>& front )
+                  const Front<Field>&)> localPack =
+      [&]( const Separator& sep, const NodeInfo& node,
+           const Front<Field>& front )
       {
         const Int numChildren = sep.children.size();
         for( Int c=0; c<numChildren; ++c )
@@ -889,10 +881,10 @@ void DistFront<F>::Unpack
                 const Int numWorkEntries = front.workSparse.NumEntries();
                 for( Int e=0; e<numWorkEntries; ++e )
                 {
-                    const F value = front.workSparse.Value(e);
-                    if( value != F(0) )
+                    const Field value = front.workSparse.Value(e);
+                    if( value != Field(0) )
                         A.QueueUpdate
-                        ( front.workSparse.Row(e)+node.off, 
+                        ( front.workSparse.Row(e)+node.off,
                           front.workSparse.Col(e)+node.off,
                           value );
                 }
@@ -902,23 +894,23 @@ void DistFront<F>::Unpack
                 // The matrix has already been factored
                 for( Int e=0; e<numEntries; ++e )
                 {
-                    const F value = front.LSparse.Value(e);
-                    if( value != F(0) )
+                    const Field value = front.LSparse.Value(e);
+                    if( value != Field(0) )
                         A.QueueUpdate
-                        ( front.LSparse.Row(e)+node.off, 
+                        ( front.LSparse.Row(e)+node.off,
                           front.LSparse.Col(e)+node.off,
                           value );
                 }
             }
 
             // Queue the lower conectivity
-            for( Int s=0; s<structSize; ++s ) 
+            for( Int s=0; s<structSize; ++s )
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
                 {
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -928,21 +920,21 @@ void DistFront<F>::Unpack
             for( Int s=0; s<node.size; ++s )
             {
                 const Int i = node.off + s;
-                for( Int t=0; t<=s; ++t ) 
+                for( Int t=0; t<=s; ++t )
                 {
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
 
-            for( Int s=0; s<structSize; ++s ) 
+            for( Int s=0; s<structSize; ++s )
             {
                 const Int i = node.lowerStruct[s];
                 for( Int t=0; t<node.size; ++t )
                 {
-                    const F value = front.LDense(node.size+s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(node.size+s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -950,9 +942,9 @@ void DistFront<F>::Unpack
       };
     function<void(const DistSeparator&,
                   const DistNodeInfo&,
-                  const DistFront<F>&)> pack =  
+                  const DistFront<Field>&)> pack =
       [&]( const DistSeparator& sep, const DistNodeInfo& node,
-           const DistFront<F>& front )
+           const DistFront<Field>& front )
       {
         if( sep.duplicate != nullptr )
         {
@@ -966,8 +958,8 @@ void DistFront<F>::Unpack
             const Int frontHeight = front.L1D.Height();
             auto FTL = front.L1D( IR(0,node.size), IR(0,node.size) );
             auto FBL = front.L1D( IR(node.size,frontHeight), IR(0,node.size) );
-            
-            const Int localWidth = FTL.LocalWidth(); 
+
+            const Int localWidth = FTL.LocalWidth();
             const Int topLocalHeight = FTL.LocalHeight();
             const Int botLocalHeight = FBL.LocalHeight();
 
@@ -980,8 +972,8 @@ void DistFront<F>::Unpack
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
                     {
-                        const F value = FTL.GetLocal(sLoc,tLoc);
-                        if( value != F(0) )
+                        const Field value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != Field(0) )
                             A.QueueUpdate( i, t+node.off, value );
                     }
                 }
@@ -994,8 +986,8 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     const Int t = FBL.GlobalCol(tLoc);
-                    const F value = FBL.GetLocal(sLoc,tLoc);
-                    if( value != F(0) )
+                    const Field value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -1006,7 +998,7 @@ void DistFront<F>::Unpack
             auto FTL = front.L2D( IR(0,node.size), IR(0,node.size) );
             auto FBL = front.L2D( IR(node.size,frontHeight), IR(0,node.size) );
 
-            const Int localWidth = FTL.LocalWidth(); 
+            const Int localWidth = FTL.LocalWidth();
             const Int topLocalHeight = FTL.LocalHeight();
             const Int botLocalHeight = FBL.LocalHeight();
 
@@ -1019,8 +1011,8 @@ void DistFront<F>::Unpack
                     const Int t = FTL.GlobalCol(tLoc);
                     if( t <= s )
                     {
-                        const F value = FTL.GetLocal(sLoc,tLoc);
-                        if( value != F(0) )
+                        const Field value = FTL.GetLocal(sLoc,tLoc);
+                        if( value != Field(0) )
                             A.QueueUpdate( i, t+node.off, value );
                     }
                 }
@@ -1033,8 +1025,8 @@ void DistFront<F>::Unpack
                 for( Int tLoc=0; tLoc<localWidth; ++tLoc )
                 {
                     const Int t = FBL.GlobalCol(tLoc);
-                    const F value = FBL.GetLocal(sLoc,tLoc);
-                    if( value != F(0) )
+                    const Field value = FBL.GetLocal(sLoc,tLoc);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, t+node.off, value );
                 }
             }
@@ -1045,18 +1037,17 @@ void DistFront<F>::Unpack
     A.ProcessQueues();
 }
 
-template<typename F>
-const DistFront<F>& 
-DistFront<F>::operator=( const DistFront<F>& front )
+template<typename Field>
+const DistFront<Field>&
+DistFront<Field>::operator=( const DistFront<Field>& front )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     isHermitian = front.isHermitian;
     type = front.type;
     if( front.child == nullptr )
     {
         child = nullptr;
-        delete duplicate;
-        duplicate = new Front<F>(this);
+        duplicate.reset( new Front<Field>(this) );
         *duplicate = *front.duplicate;
         const Grid& grid = front.L2D.Grid();
         L2D.Attach( grid, front.duplicate->LDense );
@@ -1068,8 +1059,7 @@ DistFront<F>::operator=( const DistFront<F>& front )
     else
     {
         duplicate = nullptr;
-        delete child;
-        child = new DistFront<F>(this);  
+        child.reset( new DistFront<Field>(this) );
         *child = *front.child;
         L1D = front.L1D;
         L2D = front.L2D;
@@ -1081,13 +1071,13 @@ DistFront<F>::operator=( const DistFront<F>& front )
     return *this;
 }
 
-template<typename F>
-Int DistFront<F>::NumLocalEntries() const
+template<typename Field>
+Int DistFront<Field>::NumLocalEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1099,7 +1089,7 @@ Int DistFront<F>::NumLocalEntries() const
         // Add in L
         numEntries += front.L1D.LocalHeight() * front.L1D.LocalWidth();
         numEntries += front.L2D.LocalHeight() * front.L2D.LocalWidth();
-        
+
         // Add in the workspace
         numEntries += front.work.LocalHeight() * front.work.LocalWidth();
       };
@@ -1107,13 +1097,13 @@ Int DistFront<F>::NumLocalEntries() const
     return numEntries;
 }
 
-template<typename F>
-Int DistFront<F>::NumTopLeftLocalEntries() const
+template<typename Field>
+Int DistFront<Field>::NumTopLeftLocalEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1122,7 +1112,7 @@ Int DistFront<F>::NumTopLeftLocalEntries() const
         }
         count( *front.child );
 
-        if( FrontIs1D(front.type) ) 
+        if( FrontIs1D(front.type) )
         {
             const Int n = front.L1D.Width();
             auto FTL = front.L1D( IR(0,n), IR(0,n) );
@@ -1139,13 +1129,13 @@ Int DistFront<F>::NumTopLeftLocalEntries() const
     return numEntries;
 }
 
-template<typename F>
-Int DistFront<F>::NumBottomLeftLocalEntries() const
+template<typename Field>
+Int DistFront<Field>::NumBottomLeftLocalEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1154,7 +1144,7 @@ Int DistFront<F>::NumBottomLeftLocalEntries() const
         }
         count( *front.child );
 
-        if( FrontIs1D(front.type) ) 
+        if( FrontIs1D(front.type) )
         {
             const Int m = front.L1D.Height();
             const Int n = front.L1D.Width();
@@ -1173,13 +1163,13 @@ Int DistFront<F>::NumBottomLeftLocalEntries() const
     return numEntries;
 }
 
-template<typename F>
-double DistFront<F>::LocalFactorGFlops( bool selInv ) const
+template<typename Field>
+double DistFront<Field>::LocalFactorGFlops( bool selInv ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1189,7 +1179,7 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
         count( *front.child );
 
         double m, n, p;
-        if( FrontIs1D(front.type) ) 
+        if( FrontIs1D(front.type) )
         {
             m = front.L1D.Height();
             n = front.L1D.Width();
@@ -1201,23 +1191,23 @@ double DistFront<F>::LocalFactorGFlops( bool selInv ) const
             n = front.L2D.Width();
             p = front.L2D.DistSize();
         }
-        double realFrontFlops = 
+        double realFrontFlops =
           ( selInv ? (2*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n
                    : (1*n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n ) / p;
-        gflops += (IsComplex<F>::value ? 4*realFrontFlops
-                                       : realFrontFlops)/1.e9;
+        gflops += (IsComplex<Field>::value ? 4*realFrontFlops
+                                           : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
 }
 
-template<typename F>
-double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
+template<typename Field>
+double DistFront<Field>::LocalSolveGFlops( Int numRHS ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
-    function<void(const DistFront<F>&)> count =
-      [&]( const DistFront<F>& front )
+    function<void(const DistFront<Field>&)> count =
+      [&]( const DistFront<Field>& front )
       {
         if( front.duplicate != nullptr )
         {
@@ -1227,7 +1217,7 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
         count( *front.child );
 
         double m, n, p;
-        if( FrontIs1D(front.type) ) 
+        if( FrontIs1D(front.type) )
         {
             m = front.L1D.Height();
             n = front.L1D.Width();
@@ -1240,26 +1230,29 @@ double DistFront<F>::LocalSolveGFlops( Int numRHS ) const
             p = front.L2D.DistSize();
         }
         double realFrontFlops = (m*n*numRHS) / p;
-        gflops += (IsComplex<F>::value ? 4*realFrontFlops
-                                       : realFrontFlops)/1.e9;
+        gflops += (IsComplex<Field>::value ? 4*realFrontFlops
+                                           : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
 }
 
-template<typename F>
-void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
+template<typename Field>
+void DistFront<Field>::ComputeRecvInds( const DistNodeInfo& info ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     vector<int> gridHeights, gridWidths;
-    GetChildGridDims( info, gridHeights, gridWidths );
+    info.GetChildGridDims( gridHeights, gridWidths );
 
-    const int teamSize = mpi::Size( info.comm );
-    const int teamRank = mpi::Rank( info.comm );
+    const Grid& grid = info.Grid();
+    const Grid& childGrid = info.child->Grid();
+
+    const int teamSize = grid.Size();
+    const int teamRank = grid.Rank();
     const bool onLeft = info.child->onLeft;
-    const int childTeamSize = mpi::Size( info.child->comm );
-    const int childTeamRank = mpi::Rank( info.child->comm );
+    const int childTeamSize = childGrid.Size();
+    const int childTeamRank = childGrid.Rank();
     const bool inFirstTeam = ( childTeamRank == teamRank );
     const bool leftIsFirst = ( onLeft==inFirstTeam );
     vector<int> teamSizes(2), teamOffs(2);
@@ -1267,7 +1260,7 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
     teamSizes[1] = teamSize - teamSizes[0];
     teamOffs[0] = ( leftIsFirst ? 0            : teamSizes[1] );
     teamOffs[1] = ( leftIsFirst ? teamSizes[0] : 0            );
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( teamSizes[0] != gridHeights[0]*gridWidths[0] )
           RuntimeError("Computed left grid incorrectly");
       if( teamSizes[1] != gridHeights[1]*gridWidths[1] )
@@ -1279,7 +1272,7 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
         commMeta.childRecvInds[q].clear();
     for( Int c=0; c<2; ++c )
     {
-        // Compute the recv indices of the child from each process 
+        // Compute the recv indices of the child from each process
         const Int numInds = info.childRelInds[c].size();
         vector<Int> rowInds, colInds;
         for( Int iChild=0; iChild<numInds; ++iChild )
@@ -1308,7 +1301,7 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
             {
                 const Int iChild = rowInds[iPre];
                 const Int i = info.childRelInds[c][iChild];
-                DEBUG_ONLY(
+                EL_DEBUG_ONLY(
                   if( iChild < jChild )
                       LogicError("Invalid iChild");
                 )
@@ -1325,11 +1318,11 @@ void DistFront<F>::ComputeRecvInds( const DistNodeInfo& info ) const
     }
 }
 
-template<typename F>
-void DistFront<F>::ComputeCommMeta
+template<typename Field>
+void DistFront<Field>::ComputeCommMeta
 ( const DistNodeInfo& info, bool computeRecvInds ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     commMeta.Empty();
     if( child == nullptr )
         return;
@@ -1337,7 +1330,7 @@ void DistFront<F>::ComputeCommMeta
     const int teamSize = L2D.DistSize();
     commMeta.numChildSendInds.resize( teamSize );
     El::MemZero( commMeta.numChildSendInds.data(), teamSize );
-    
+
     auto& childFront = *child;
     auto& childInfo = *info.child;
     const auto& childRelInds =
@@ -1367,7 +1360,7 @@ void DistFront<F>::ComputeCommMeta
         ComputeRecvInds( info );
 }
 
-#define PROTO(F) template struct DistFront<F>;
+#define PROTO(Field) template struct DistFront<Field>;
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

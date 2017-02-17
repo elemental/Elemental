@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_ALLREDUCE_HPP
@@ -14,7 +14,7 @@ namespace El {
 template<typename T>
 void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( mpi::Size(comm) == 1 )
         return;
     const Int height = A.Height();
@@ -48,7 +48,7 @@ void AllReduce( Matrix<T>& A, mpi::Comm comm, mpi::Op op )
 template<typename T>
 void AllReduce( AbstractDistMatrix<T>& A, mpi::Comm comm, mpi::Op op )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( mpi::Size(comm) == 1 )
         return;
     if( !A.Participating() )

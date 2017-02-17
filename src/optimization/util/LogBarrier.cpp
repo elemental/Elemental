@@ -2,55 +2,58 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
+template<typename Field>
+Base<Field> LogBarrier( UpperOrLower uplo, const Matrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
 }
 
-template<typename F>
-Base<F> LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
+template<typename Field>
+Base<Field> LogBarrier( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet =
+      SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
 }
 
-template<typename F> 
-Base<F> LogBarrier( UpperOrLower uplo, const ElementalMatrix<F>& A )
+template<typename Field>
+Base<Field> LogBarrier( UpperOrLower uplo, const AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet = SafeHPDDeterminant( uplo, A );
     return -safeDet.kappa*safeDet.n;
 }
 
-template<typename F> 
-Base<F> LogBarrier
-( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite )
+template<typename Field>
+Base<Field> LogBarrier
+( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite )
 {
-    DEBUG_CSE
-    SafeProduct<Base<F>> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
+    EL_DEBUG_CSE
+    SafeProduct<Base<Field>> safeDet =
+      SafeHPDDeterminant( uplo, A, canOverwrite );
     return -safeDet.kappa*safeDet.n;
 }
 
-#define PROTO(F) \
-  template Base<F> LogBarrier( UpperOrLower uplo, const Matrix<F>& A ); \
-  template Base<F> LogBarrier \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A ); \
-  template Base<F> LogBarrier \
-  ( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite ); \
-  template Base<F> LogBarrier \
-  ( UpperOrLower uplo, ElementalMatrix<F>& A, bool canOverwrite );
+#define PROTO(Field) \
+  template Base<Field> LogBarrier \
+  ( UpperOrLower uplo, const Matrix<Field>& A ); \
+  template Base<Field> LogBarrier \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A ); \
+  template Base<Field> LogBarrier \
+  ( UpperOrLower uplo, Matrix<Field>& A, bool canOverwrite ); \
+  template Base<Field> LogBarrier \
+  ( UpperOrLower uplo, AbstractDistMatrix<Field>& A, bool canOverwrite );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

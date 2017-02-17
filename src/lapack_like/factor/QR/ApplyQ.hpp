@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_QR_APPLYQ_HPP
@@ -15,13 +15,13 @@ namespace qr {
 template<typename F>
 void ApplyQ
 ( LeftOrRight side,
-  Orientation orientation, 
+  Orientation orientation,
   const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature, 
+  const Matrix<F>& householderScalars,
+  const Matrix<Base<F>>& signature,
         Matrix<F>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal==onLeft;
@@ -48,7 +48,8 @@ void ApplyQ
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, phase, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, 0,
+      A, householderScalars, B );
 
     if( !applyDFirst )
     {
@@ -68,13 +69,13 @@ void ApplyQ
 template<typename F>
 void ApplyQ
 ( LeftOrRight side,
-  Orientation orientation, 
-  const ElementalMatrix<F>& APre,
-  const ElementalMatrix<F>& phase, 
-  const ElementalMatrix<Base<F>>& signature,
-        ElementalMatrix<F>& BPre )
+  Orientation orientation,
+  const AbstractDistMatrix<F>& APre,
+  const AbstractDistMatrix<F>& householderScalars,
+  const AbstractDistMatrix<Base<F>>& signature,
+        AbstractDistMatrix<F>& BPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const bool normal = (orientation==NORMAL);
     const bool onLeft = (side==LEFT);
     const bool applyDFirst = normal==onLeft;
@@ -86,7 +87,7 @@ void ApplyQ
     DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     DistMatrixReadWriteProxy<F,F,MC,MR> BProx( BPre );
     auto& A = AProx.GetLocked();
-    auto& B = BProx.Get(); 
+    auto& B = BProx.Get();
 
     const Int m = B.Height();
     const Int n = B.Width();
@@ -106,7 +107,8 @@ void ApplyQ
     }
 
     ApplyPackedReflectors
-    ( side, LOWER, VERTICAL, direction, conjugation, 0, A, phase, B );
+    ( side, LOWER, VERTICAL, direction, conjugation, 0,
+      A, householderScalars, B );
 
     if( !applyDFirst )
     {

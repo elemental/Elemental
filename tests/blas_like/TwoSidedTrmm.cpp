@@ -2,14 +2,14 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F> 
+template<typename F>
 void TestCorrectness
 ( UpperOrLower uplo,
   UnitOrNonUnit diag,
@@ -30,20 +30,20 @@ void TestCorrectness
 
     if( uplo == LOWER )
     {
-        // Test correctness by comparing the application of A against a 
-        // random set of k vectors to the application of 
+        // Test correctness by comparing the application of A against a
+        // random set of k vectors to the application of
         // tril(B)^H AOrig tril(B)
         Trmm( LEFT, LOWER, NORMAL, diag, F(1), B, Y );
         Hemm( LEFT, LOWER, F(1), AOrig, Y, F(0), Z );
         Trmm( LEFT, LOWER, ADJOINT, diag, F(1), B, Z );
         Hemm( LEFT, LOWER, F(-1), A, X, F(1), Z );
-        Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
-        Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-        Real infNormA = HermitianInfinityNorm( uplo, A );
-        Real frobNormA = HermitianFrobeniusNorm( uplo, A );
-        Real oneNormError = OneNorm( Z );
-        Real infNormError = InfinityNorm( Z );
-        Real frobNormError = FrobeniusNorm( Z );
+        const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
+        const Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real infNormA = HermitianInfinityNorm( uplo, A );
+        const Real frobNormA = HermitianFrobeniusNorm( uplo, A );
+        const Real oneNormError = OneNorm( Z );
+        const Real infNormError = InfinityNorm( Z );
+        const Real frobNormError = FrobeniusNorm( Z );
         OutputFromRoot
         (g.Comm(),
          "||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig,"\n",Indent(),
@@ -56,20 +56,20 @@ void TestCorrectness
     }
     else
     {
-        // Test correctness by comparing the application of A against a 
-        // random set of k vectors to the application of 
+        // Test correctness by comparing the application of A against a
+        // random set of k vectors to the application of
         // triu(B) AOrig triu(B)^H
         Trmm( LEFT, UPPER, ADJOINT, diag, F(1), B, Y );
         Hemm( LEFT, UPPER, F(1), AOrig, Y, F(0), Z );
         Trmm( LEFT, UPPER, NORMAL, diag, F(1), B, Z );
         Hemm( LEFT, UPPER, F(-1), A, X, F(1), Z );
-        Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
-        Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-        Real infNormA = HermitianInfinityNorm( uplo, A );
-        Real frobNormA = HermitianFrobeniusNorm( uplo, A );
-        Real oneNormError = OneNorm( Z );
-        Real infNormError = InfinityNorm( Z );
-        Real frobNormError = FrobeniusNorm( Z );
+        const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
+        const Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real infNormA = HermitianInfinityNorm( uplo, A );
+        const Real frobNormA = HermitianFrobeniusNorm( uplo, A );
+        const Real oneNormError = OneNorm( Z );
+        const Real infNormError = InfinityNorm( Z );
+        const Real frobNormError = FrobeniusNorm( Z );
         OutputFromRoot
         (g.Comm(),
          "||AOrig||_1 = ||AOrig||_oo     = ",infNormAOrig,"\n",Indent(),
@@ -82,10 +82,10 @@ void TestCorrectness
     }
 }
 
-template<typename F,typename=EnableIf<IsBlasScalar<F>>> 
+template<typename F,typename=EnableIf<IsBlasScalar<F>>>
 void TestTwoSidedTrmm
 ( UpperOrLower uplo,
-  UnitOrNonUnit diag, 
+  UnitOrNonUnit diag,
   Int m,
   const Grid& g,
   bool scalapack,
@@ -141,10 +141,10 @@ void TestTwoSidedTrmm
     PopIndent();
 }
 
-template<typename F> 
+template<typename F>
 void TestTwoSidedTrmm
 ( UpperOrLower uplo,
-  UnitOrNonUnit diag, 
+  UnitOrNonUnit diag,
   Int m,
   const Grid& g,
   bool print,
@@ -184,7 +184,7 @@ void TestTwoSidedTrmm
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -215,8 +215,8 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
-        const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
+        const GridOrder order = colMajor ? COLUMN_MAJOR : ROW_MAJOR;
         const Grid g( comm, gridHeight, order );
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );

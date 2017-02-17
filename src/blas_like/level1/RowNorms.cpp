@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -12,16 +12,16 @@
 
 namespace El {
 
-template<typename F>
+template<typename Field>
 void RowTwoNormsHelper
-( const Matrix<F>& ALoc, Matrix<Base<F>>& normsLoc, mpi::Comm comm )
+( const Matrix<Field>& ALoc, Matrix<Base<Field>>& normsLoc, mpi::Comm comm )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int mLocal = ALoc.Height();
     const Int nLocal = ALoc.Width();
 
-    // TODO: Ensure that NaN's propagate
+    // TODO(poulson): Ensure that NaN's propagate
     Matrix<Real> localScales(mLocal,1 ), localScaledSquares(mLocal,1);
     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
@@ -38,10 +38,10 @@ void RowTwoNormsHelper
     NormsFromScaledSquares( localScales, localScaledSquares, normsLoc, comm );
 }
 
-template<typename F>
-void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
+template<typename Field>
+void RowTwoNorms( const Matrix<Field>& A, Matrix<Base<Field>>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
     norms.Resize( m, 1 );
@@ -54,11 +54,11 @@ void RowTwoNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
         norms(i) = blas::Nrm2( n, &A(i,0), A.LDim() );
 }
 
-template<typename F>
-void RowMaxNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
+template<typename Field>
+void RowMaxNorms( const Matrix<Field>& A, Matrix<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     norms.Resize( m, 1 );
@@ -71,11 +71,11 @@ void RowMaxNorms( const Matrix<F>& A, Matrix<Base<F>>& norms )
     }
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Field,Dist U,Dist V>
 void RowTwoNorms
-( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
+( const DistMatrix<Field,U,V>& A, DistMatrix<Base<Field>,U,STAR>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.AlignWith( A );
     norms.Resize( A.Height(), 1 );
     if( A.Width() == 0 )
@@ -86,42 +86,44 @@ void RowTwoNorms
     RowTwoNormsHelper( A.LockedMatrix(), norms.Matrix(), A.RowComm() );
 }
 
-template<typename F,Dist U,Dist V>
+template<typename Field,Dist U,Dist V>
 void RowMaxNorms
-( const DistMatrix<F,U,V>& A, DistMatrix<Base<F>,U,STAR>& norms )
+( const DistMatrix<Field,U,V>& A, DistMatrix<Base<Field>,U,STAR>& norms )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     norms.AlignWith( A );
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
     AllReduce( norms, A.RowComm(), mpi::MAX );
 }
 
-template<typename F>
-void RowTwoNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
+template<typename Field>
+void RowTwoNorms
+( const DistMultiVec<Field>& A, DistMultiVec<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    norms.SetComm( A.Comm() );
+    EL_DEBUG_CSE
+    norms.SetGrid( A.Grid() );
     norms.Resize( A.Height(), 1 );
     RowTwoNorms( A.LockedMatrix(), norms.Matrix() );
 }
 
-template<typename F>
-void RowMaxNorms( const DistMultiVec<F>& A, DistMultiVec<Base<F>>& norms )
+template<typename Field>
+void RowMaxNorms
+( const DistMultiVec<Field>& A, DistMultiVec<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    norms.SetComm( A.Comm() );
+    EL_DEBUG_CSE
+    norms.SetGrid( A.Grid() );
     norms.Resize( A.Height(), 1 );
     RowMaxNorms( A.LockedMatrix(), norms.Matrix() );
 }
 
-template<typename F>
-void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
+template<typename Field>
+void RowTwoNorms( const SparseMatrix<Field>& A, Matrix<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = A.Height();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
     norms.Resize( m, 1 );
@@ -137,13 +139,13 @@ void RowTwoNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     }
 }
 
-template<typename F>
-void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
+template<typename Field>
+void RowMaxNorms( const SparseMatrix<Field>& A, Matrix<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int m = A.Height();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
     norms.Resize( m, 1 );
@@ -158,16 +160,17 @@ void RowMaxNorms( const SparseMatrix<F>& A, Matrix<Base<F>>& norms )
     }
 }
 
-template<typename F>
-void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
+template<typename Field>
+void RowTwoNorms
+( const DistSparseMatrix<Field>& A, DistMultiVec<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int localHeight = A.LocalHeight();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
-    norms.SetComm( A.Comm() );
+    norms.SetGrid( A.Grid() );
     norms.Resize( A.Height(), 1 );
     auto& normLoc = norms.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -182,16 +185,17 @@ void RowTwoNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
     }
 }
 
-template<typename F>
-void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
+template<typename Field>
+void RowMaxNorms
+( const DistSparseMatrix<Field>& A, DistMultiVec<Base<Field>>& norms )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Int localHeight = A.LocalHeight();
-    const F* valBuf = A.LockedValueBuffer();
+    const Field* valBuf = A.LockedValueBuffer();
     const Int* offsetBuf = A.LockedOffsetBuffer();
 
-    norms.SetComm( A.Comm() );
+    norms.SetGrid( A.Grid() );
     norms.Resize( A.Height(), 1 );
     auto& normsLoc = norms.Matrix();
     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -205,52 +209,52 @@ void RowMaxNorms( const DistSparseMatrix<F>& A, DistMultiVec<Base<F>>& norms )
     }
 }
 
-#define PROTO_DIST(F,U,V) \
+#define PROTO_DIST(Field,U,V) \
   template void RowTwoNorms \
-  ( const DistMatrix<F,U,V>& X, \
-          DistMatrix<Base<F>,U,STAR>& norms ); \
+  ( const DistMatrix<Field,U,V>& X, \
+          DistMatrix<Base<Field>,U,STAR>& norms ); \
   template void RowMaxNorms \
-  ( const DistMatrix<F,U,V>& X, \
-          DistMatrix<Base<F>,U,STAR>& norms );
+  ( const DistMatrix<Field,U,V>& X, \
+          DistMatrix<Base<Field>,U,STAR>& norms );
 
-#define PROTO(F) \
+#define PROTO(Field) \
   template void RowTwoNorms \
-  ( const Matrix<F>& X, \
-          Matrix<Base<F>>& norms ); \
+  ( const Matrix<Field>& X, \
+          Matrix<Base<Field>>& norms ); \
   template void RowMaxNorms \
-  ( const Matrix<F>& X, \
-          Matrix<Base<F>>& norms ); \
+  ( const Matrix<Field>& X, \
+          Matrix<Base<Field>>& norms ); \
   template void RowTwoNorms \
-  ( const DistMultiVec<F>& X, \
-          DistMultiVec<Base<F>>& norms ); \
+  ( const DistMultiVec<Field>& X, \
+          DistMultiVec<Base<Field>>& norms ); \
   template void RowMaxNorms \
-  ( const DistMultiVec<F>& X, \
-          DistMultiVec<Base<F>>& norms ); \
+  ( const DistMultiVec<Field>& X, \
+          DistMultiVec<Base<Field>>& norms ); \
   template void RowTwoNorms \
-  ( const SparseMatrix<F>& A, \
-          Matrix<Base<F>>& norms ); \
+  ( const SparseMatrix<Field>& A, \
+          Matrix<Base<Field>>& norms ); \
   template void RowMaxNorms \
-  ( const SparseMatrix<F>& A, \
-          Matrix<Base<F>>& norms ); \
+  ( const SparseMatrix<Field>& A, \
+          Matrix<Base<Field>>& norms ); \
   template void RowTwoNorms \
-  ( const DistSparseMatrix<F>& A, \
-          DistMultiVec<Base<F>>& norms ); \
+  ( const DistSparseMatrix<Field>& A, \
+          DistMultiVec<Base<Field>>& norms ); \
   template void RowMaxNorms \
-  ( const DistSparseMatrix<F>& A, \
-          DistMultiVec<Base<F>>& norms ); \
-  PROTO_DIST(F,MC,  MR  ) \
-  PROTO_DIST(F,MC,  STAR) \
-  PROTO_DIST(F,MD,  STAR) \
-  PROTO_DIST(F,MR,  MC  ) \
-  PROTO_DIST(F,MR,  STAR) \
-  PROTO_DIST(F,STAR,MC  ) \
-  PROTO_DIST(F,STAR,MD  ) \
-  PROTO_DIST(F,STAR,MR  ) \
-  PROTO_DIST(F,STAR,STAR) \
-  PROTO_DIST(F,STAR,VC  ) \
-  PROTO_DIST(F,STAR,VR  ) \
-  PROTO_DIST(F,VC,  STAR) \
-  PROTO_DIST(F,VR,  STAR)
+  ( const DistSparseMatrix<Field>& A, \
+          DistMultiVec<Base<Field>>& norms ); \
+  PROTO_DIST(Field,MC,  MR  ) \
+  PROTO_DIST(Field,MC,  STAR) \
+  PROTO_DIST(Field,MD,  STAR) \
+  PROTO_DIST(Field,MR,  MC  ) \
+  PROTO_DIST(Field,MR,  STAR) \
+  PROTO_DIST(Field,STAR,MC  ) \
+  PROTO_DIST(Field,STAR,MD  ) \
+  PROTO_DIST(Field,STAR,MR  ) \
+  PROTO_DIST(Field,STAR,STAR) \
+  PROTO_DIST(Field,STAR,VC  ) \
+  PROTO_DIST(Field,STAR,VR  ) \
+  PROTO_DIST(Field,VC,  STAR) \
+  PROTO_DIST(Field,VR,  STAR)
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

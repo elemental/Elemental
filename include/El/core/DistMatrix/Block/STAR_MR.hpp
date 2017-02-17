@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_DISTMATRIX_BLOCKCYCLIC_STAR_MR_HPP
@@ -13,36 +13,36 @@ namespace El {
 
 // Partial specialization to A[* ,MR].
 //
-// The columns of these distributed matrices will be replicated on all 
+// The columns of these distributed matrices will be replicated on all
 // processes (*), and the rows will be distributed like "Matrix Rows" (MR).
 // Thus the rows will be distributed among rows of the process grid.
-template<typename T>
-class DistMatrix<T,STAR,MR,BLOCK> : public BlockMatrix<T>
+template<typename Ring>
+class DistMatrix<Ring,STAR,MR,BLOCK> : public BlockMatrix<Ring>
 {
 public:
-    typedef AbstractDistMatrix<T> absType;
-    typedef BlockMatrix<T> blockType;
-    typedef DistMatrix<T,STAR,MR,BLOCK> type;
-    typedef DistMatrix<T,MR,STAR,BLOCK> transType;
-    typedef DistMatrix<T,MR,STAR,BLOCK> diagType;
+    typedef AbstractDistMatrix<Ring> absType;
+    typedef BlockMatrix<Ring> blockType;
+    typedef DistMatrix<Ring,STAR,MR,BLOCK> type;
+    typedef DistMatrix<Ring,MR,STAR,BLOCK> transType;
+    typedef DistMatrix<Ring,MR,STAR,BLOCK> diagType;
 
     // Constructors and destructors
     // ============================
 
     // Create a 0 x 0 distributed matrix with default (and unpinned) block size
-    DistMatrix( const El::Grid& g=Grid::Default(), int root=0 );
+    DistMatrix( const El::Grid& grid=Grid::Default(), int root=0 );
 
     // Create a 0 x 0 distributed matrix with fixed block size
     DistMatrix
-    ( const El::Grid& g, Int blockHeight, Int blockWidth, int root=0 );
+    ( const El::Grid& grid, Int blockHeight, Int blockWidth, int root=0 );
 
     // Create a height x width distributed matrix with default block size
     DistMatrix
-    ( Int height, Int width, const El::Grid& g=Grid::Default(), int root=0 );
+    ( Int height, Int width, const El::Grid& grid=Grid::Default(), int root=0 );
 
     // Create a height x width distributed matrix with fixed block size
     DistMatrix
-    ( Int height, Int width, const El::Grid& g,
+    ( Int height, Int width, const El::Grid& grid,
       Int blockHeight, Int blockWidth, int root=0 );
 
     // Create a copy of distributed matrix A (redistributing if necessary)
@@ -50,9 +50,9 @@ public:
     DistMatrix( const absType& A );
     DistMatrix( const blockType& A );
     template<Dist colDist,Dist rowDist>
-    DistMatrix( const DistMatrix<T,colDist,rowDist,BLOCK>& A );
+    DistMatrix( const DistMatrix<Ring,colDist,rowDist,BLOCK>& A );
     template<Dist colDist,Dist rowDist>
-    DistMatrix( const DistMatrix<T,colDist,rowDist,ELEMENT>& A );
+    DistMatrix( const DistMatrix<Ring,colDist,rowDist,ELEMENT>& A );
 
     // Move constructor
     DistMatrix( type&& A ) EL_NO_EXCEPT;
@@ -61,9 +61,12 @@ public:
     ~DistMatrix();
 
     type* Copy() const override;
-    type* Construct( const El::Grid& g, int root ) const override;
-    transType* ConstructTranspose( const El::Grid& g, int root ) const override;
-    diagType* ConstructDiagonal( const El::Grid& g, int root ) const override;
+    type* Construct
+    ( const El::Grid& grid, int root ) const override;
+    transType* ConstructTranspose
+    ( const El::Grid& grid, int root ) const override;
+    diagType* ConstructDiagonal
+    ( const El::Grid& grid, int root ) const override;
 
     // Operator overloading
     // ====================
@@ -83,22 +86,22 @@ public:
     // -----------
     type& operator=( const absType& A );
     type& operator=( const blockType& A );
-    type& operator=( const DistMatrix<T,MC,  MR  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,MC,  STAR,BLOCK>& A );
-    type& operator=( const DistMatrix<T,STAR,MR  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,MD,  STAR,BLOCK>& A );
-    type& operator=( const DistMatrix<T,STAR,MD  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,MR,  MC  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,MR,  STAR,BLOCK>& A );
-    type& operator=( const DistMatrix<T,STAR,MC  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,VC,  STAR,BLOCK>& A );
-    type& operator=( const DistMatrix<T,STAR,VC  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,VR,  STAR,BLOCK>& A );
-    type& operator=( const DistMatrix<T,STAR,VR  ,BLOCK>& A );
-    type& operator=( const DistMatrix<T,STAR,STAR,BLOCK>& A );
-    type& operator=( const DistMatrix<T,CIRC,CIRC,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,MC,  MR  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,MC,  STAR,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,STAR,MR  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,MD,  STAR,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,STAR,MD  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,MR,  MC  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,MR,  STAR,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,STAR,MC  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,VC,  STAR,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,STAR,VC  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,VR,  STAR,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,STAR,VR  ,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,STAR,STAR,BLOCK>& A );
+    type& operator=( const DistMatrix<Ring,CIRC,CIRC,BLOCK>& A );
     template<Dist colDist,Dist rowDist>
-    type& operator=( const DistMatrix<T,colDist,rowDist,ELEMENT>& A );
+    type& operator=( const DistMatrix<Ring,colDist,rowDist,ELEMENT>& A );
 
     // Move assignment
     // ---------------
@@ -106,7 +109,7 @@ public:
 
     // Rescaling
     // ---------
-    const type& operator*=( T alpha );
+    const type& operator*=( Ring alpha );
 
     // Addition/subtraction
     // --------------------
@@ -117,8 +120,6 @@ public:
 
     // Basic queries
     // =============
-    El::DistData DistData() const override;
-
     Dist ColDist()             const override EL_NO_EXCEPT;
     Dist RowDist()             const override EL_NO_EXCEPT;
     Dist PartialColDist()      const override EL_NO_EXCEPT;
@@ -158,7 +159,6 @@ public:
     int PartialUnionColRank() const EL_NO_EXCEPT override;
     int PartialUnionRowRank() const EL_NO_EXCEPT override;
 
-private:
     template<typename S,Dist U,Dist V,DistWrap wrap> friend class DistMatrix;
 };
 

@@ -567,26 +567,6 @@ def Fourier(A,n):
     else: DataExcept()
   else: TypeExcept()
 
-# Fourier-Identity
-# ----------------
-lib.ElFourierIdentity_c.argtypes = \
-lib.ElFourierIdentity_z.argtypes = \
-lib.ElFourierIdentityDist_c.argtypes = \
-lib.ElFourierIdentityDist_z.argtypes = \
-  [c_void_p,iType]
-
-def FourierIdentity(A,n):
-  args = [A.obj,n]
-  if type(A) is Matrix:
-    if   A.tag == cTag: lib.ElFourierIdentity_c(*args)
-    elif A.tag == zTag: lib.ElFourierIdentity_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == cTag: lib.ElFourierIdentityDist_c(*args)
-    elif A.tag == zTag: lib.ElFourierIdentityDist_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
-
 # GCD matrix
 # ----------
 lib.ElGCDMatrix_i.argtypes = \
@@ -2178,37 +2158,6 @@ def Walsh(A,k,binary=False):
     elif A.tag == dTag: lib.ElWalshDist_d(*args)
     elif A.tag == cTag: lib.ElWalshDist_c(*args)
     elif A.tag == zTag: lib.ElWalshDist_z(*args)
-    else: DataExcept()
-  else: TypeExcept()
-
-# Walsh-Identity
-# --------------
-lib.ElWalshIdentity_i.argtypes = \
-lib.ElWalshIdentity_s.argtypes = \
-lib.ElWalshIdentity_d.argtypes = \
-lib.ElWalshIdentity_c.argtypes = \
-lib.ElWalshIdentity_z.argtypes = \
-lib.ElWalshIdentityDist_i.argtypes = \
-lib.ElWalshIdentityDist_s.argtypes = \
-lib.ElWalshIdentityDist_d.argtypes = \
-lib.ElWalshIdentityDist_c.argtypes = \
-lib.ElWalshIdentityDist_z.argtypes = \
-  [c_void_p,iType,bType]
-def WalshIdentity(A,k,binary=False):
-  args = [A.obj,k,binary]
-  if type(A) is Matrix:
-    if   A.tag == iTag: lib.ElWalshIdentity_i(*args)
-    elif A.tag == sTag: lib.ElWalshIdentity_s(*args)
-    elif A.tag == dTag: lib.ElWalshIdentity_d(*args)
-    elif A.tag == cTag: lib.ElWalshIdentity_c(*args)
-    elif A.tag == zTag: lib.ElWalshIdentity_z(*args)
-    else: DataExcept()
-  elif type(A) is DistMatrix:
-    if   A.tag == iTag: lib.ElWalshIdentityDist_i(*args)
-    elif A.tag == sTag: lib.ElWalshIdentityDist_s(*args)
-    elif A.tag == dTag: lib.ElWalshIdentityDist_d(*args)
-    elif A.tag == cTag: lib.ElWalshIdentityDist_c(*args)
-    elif A.tag == zTag: lib.ElWalshIdentityDist_z(*args)
     else: DataExcept()
   else: TypeExcept()
 

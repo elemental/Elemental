@@ -19,7 +19,7 @@ void SUMMA_NTA
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = CPre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -63,7 +63,7 @@ void SUMMA_NTB
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = CPre.Height();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -109,7 +109,7 @@ void SUMMA_NTC
   const AbstractDistMatrix<T>& BPre,
         AbstractDistMatrix<T>& CPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int sumDim = APre.Width();
     const Int bsize = Blocksize();
     const Grid& g = APre.Grid();
@@ -161,7 +161,7 @@ void SUMMA_NTDot
         AbstractDistMatrix<T>& CPre,
   Int blockSize=2000 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int m = CPre.Height();
     const Int n = CPre.Width();
     const Grid& g = APre.Grid();
@@ -209,8 +209,8 @@ void SUMMA_NT
         AbstractDistMatrix<T>& C,
   GemmAlgorithm alg=GEMM_DEFAULT )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( A, B, C );
       if( orientB == NORMAL )
           LogicError("B must be (Conjugate)Transposed");

@@ -24,7 +24,7 @@ namespace schur {
 template<typename F>
 int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -44,8 +44,8 @@ int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
     A *= -1;
 
     // Set up the space for explicitly computing the left half of Q
-    Matrix<F> t;
-    Matrix<Base<F>> d;
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
     Matrix<F> Q( 2*n, n );
     auto Q12 = Q( IR(0,n  ), ALL );
     auto Q22 = Q( IR(n,2*n), ALL );
@@ -56,12 +56,12 @@ int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
     while( numIts < maxIts )
     {
         XAlt = X;
-        QR( XAlt, t, d );
+        QR( XAlt, householderScalars, signature );
  
         // Form the left half of Q
         Zero( Q12 );
         MakeIdentity( Q22 );
-        qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
+        qr::ApplyQ( LEFT, NORMAL, XAlt, householderScalars, signature, Q );
 
         // Save a copy of R
         R = BAlt;
@@ -91,9 +91,10 @@ int InverseFreeSign( Matrix<F>& X, Int maxIts=100, Base<F> tau=0 )
 }
 
 template<typename F>
-int InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
+int InverseFreeSign
+( AbstractDistMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();
@@ -118,8 +119,8 @@ int InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
     A *= -1;
 
     // Set up the space for explicitly computing the left half of Q
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
     DistMatrix<F> Q( 2*n, n, g );
     auto Q12 = Q( IR(0,n  ), ALL );
     auto Q22 = Q( IR(n,2*n), ALL );
@@ -130,12 +131,12 @@ int InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
     while( numIts < maxIts )
     {
         XAlt = X;
-        QR( XAlt, t, d );
+        QR( XAlt, householderScalars, signature );
  
         // Form the left half of Q
         Zero( Q12 );
         MakeIdentity( Q22 );
-        qr::ApplyQ( LEFT, NORMAL, XAlt, t, d, Q );
+        qr::ApplyQ( LEFT, NORMAL, XAlt, householderScalars, signature, Q );
 
         // Save a copy of R
         R = BAlt;
@@ -167,7 +168,7 @@ int InverseFreeSign( ElementalMatrix<F>& XPre, Int maxIts=100, Base<F> tau=0 )
 template<typename F>
 Base<F> InverseFreeSignDivide( Matrix<F>& X )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -187,17 +188,17 @@ Base<F> InverseFreeSignDivide( Matrix<F>& X )
     // 3) B := Q^H B
     // 4) [R,Q] := RQ(B)
     B += A;
-    Matrix<F> t;
-    Matrix<Base<F>> d;
-    Matrix<Int> p;
-    QR( A, t, d, p );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
-    RQ( B, t, d );
+    Matrix<F> householderScalars;
+    Matrix<Base<F>> signature;
+    Permutation perm;
+    QR( A, householderScalars, signature, perm );
+    qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, B );
+    RQ( B, householderScalars, signature );
 
     // A := Q^H A Q
     A = ACopy;
-    rq::ApplyQ( LEFT, ADJOINT, B, t, d, A );
-    rq::ApplyQ( RIGHT, NORMAL, B, t, d, A );
+    rq::ApplyQ( LEFT, ADJOINT, B, householderScalars, signature, A );
+    rq::ApplyQ( RIGHT, NORMAL, B, householderScalars, signature, A );
 
     // Return || E21 ||1 / || A ||1
     ValueInt<Real> part = ComputePartition( A );
@@ -206,9 +207,9 @@ Base<F> InverseFreeSignDivide( Matrix<F>& X )
 }
 
 template<typename F>
-ValueInt<Base<F>> InverseFreeSignDivide( ElementalMatrix<F>& XPre )
+ValueInt<Base<F>> InverseFreeSignDivide( AbstractDistMatrix<F>& XPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     DistMatrixReadWriteProxy<F,F,MC,MR> XProx( XPre );
     auto& X = XProx.Get();
@@ -233,17 +234,17 @@ ValueInt<Base<F>> InverseFreeSignDivide( ElementalMatrix<F>& XPre )
     // 3) B := Q^H B
     // 4) [R,Q] := RQ(B)
     B += A;
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Base<F>,MD,STAR> d(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    QR( A, t, d, p );
-    qr::ApplyQ( LEFT, ADJOINT, A, t, d, B );
-    RQ( B, t, d );
+    DistMatrix<F,MD,STAR> householderScalars(g);
+    DistMatrix<Base<F>,MD,STAR> signature(g);
+    DistPermutation perm(g);
+    QR( A, householderScalars, signature, perm );
+    qr::ApplyQ( LEFT, ADJOINT, A, householderScalars, signature, B );
+    RQ( B, householderScalars, signature );
 
     // A := Q^H A Q
     A = ACopy;
-    rq::ApplyQ( LEFT, ADJOINT, B, t, d, A );
-    rq::ApplyQ( RIGHT, NORMAL, B, t, d, A );
+    rq::ApplyQ( LEFT, ADJOINT, B, householderScalars, signature, A );
+    rq::ApplyQ( RIGHT, NORMAL, B, householderScalars, signature, A );
 
     // Return || E21 ||1 / || A ||1
     // Return || E21 ||1 / || A ||1

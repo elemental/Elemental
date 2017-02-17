@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_COPY_COLALLTOALLPROMOTE_HPP
@@ -17,7 +17,7 @@ void ColAllToAllPromote
 ( const DistMatrix<T,        U,                     V   >& A,
         DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>()>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
 
     const Int height = A.Height();
@@ -50,7 +50,7 @@ void ColAllToAllPromote
             T* firstBuf  = &buffer[0];
             T* secondBuf = &buffer[colStrideUnion*portionSize];
 
-            // Pack            
+            // Pack
             util::RowStridedPack
             ( A.LocalHeight(), width,
               B.RowAlign(), colStrideUnion,
@@ -63,7 +63,7 @@ void ColAllToAllPromote
               secondBuf, portionSize, A.PartialUnionColComm() );
 
             // Unpack
-            util::PartialColStridedUnpack 
+            util::PartialColStridedUnpack
             ( height, B.LocalWidth(),
               A.ColAlign(), colStride,
               colStrideUnion, colStridePart, colRankPart,
@@ -105,7 +105,7 @@ void ColAllToAllPromote
           secondBuf, portionSize, A.PartialUnionColComm() );
 
         // Unpack
-        util::PartialColStridedUnpack 
+        util::PartialColStridedUnpack
         ( height, B.LocalWidth(),
           A.ColAlign(), colStride,
           colStrideUnion, colStridePart, recvColRankPart,
@@ -120,7 +120,7 @@ void ColAllToAllPromote
 ( const DistMatrix<T,        U,                     V   ,BLOCK>& A,
         DistMatrix<T,Partial<U>(),PartialUnionRow<U,V>(),BLOCK>& B )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( A, B );
     // TODO: More efficient implementation
     GeneralPurpose( A, B );

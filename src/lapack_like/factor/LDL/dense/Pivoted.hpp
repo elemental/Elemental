@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_LDL_PIVOTED_HPP
@@ -30,7 +30,7 @@ Pivoted
   bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:
@@ -46,13 +46,13 @@ Pivoted
 template<typename F>
 inline void
 Pivoted
-( ElementalMatrix<F>& A,
-  ElementalMatrix<F>& dSub, 
+( AbstractDistMatrix<F>& A,
+  AbstractDistMatrix<F>& dSub,
   DistPermutation& P,
-  bool conjugate, 
+  bool conjugate,
   const LDLPivotCtrl<Base<F>>& ctrl )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     switch( ctrl.pivotType )
     {
     case BUNCH_KAUFMAN_A:

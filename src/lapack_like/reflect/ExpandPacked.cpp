@@ -18,11 +18,14 @@ namespace El {
 template<typename F> 
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, Matrix<F>& H, const Matrix<F>& t )
+  Int offset,
+        Matrix<F>& H,
+  const Matrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
-        expand_packed_reflectors::LV( conjugation, offset, H, t );
+        expand_packed_reflectors::LV
+        ( conjugation, offset, H, householderScalars );
     else
         LogicError("This option is not yet supported");
 }
@@ -30,11 +33,14 @@ void ExpandPackedReflectors
 template<typename F> 
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t )
+  Int offset,
+        AbstractDistMatrix<F>& H,
+  const AbstractDistMatrix<F>& householderScalars )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( uplo == LOWER && dir == VERTICAL )
-        expand_packed_reflectors::LV( conjugation, offset, H, t );
+        expand_packed_reflectors::LV
+        ( conjugation, offset, H, householderScalars );
     else
         LogicError("This option is not yet supported");
 }
@@ -42,10 +48,14 @@ void ExpandPackedReflectors
 #define PROTO(F) \
   template void ExpandPackedReflectors \
   ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
-    Int offset, Matrix<F>& H, const Matrix<F>& t ); \
+    Int offset, \
+          Matrix<F>& H, \
+    const Matrix<F>& householderScalars ); \
   template void ExpandPackedReflectors \
   ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, \
-    Int offset, ElementalMatrix<F>& H, const ElementalMatrix<F>& t );
+    Int offset, \
+          AbstractDistMatrix<F>& H, \
+    const AbstractDistMatrix<F>& householderScalars );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

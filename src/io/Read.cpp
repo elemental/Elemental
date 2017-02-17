@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -19,7 +19,7 @@ namespace El {
 template<typename T>
 void Read( Matrix<T>& A, const string filename, FileFormat format )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( format == AUTO )
         format = DetectFormat( filename );
 
@@ -50,9 +50,9 @@ void Read
 ( AbstractDistMatrix<T>& A, const string filename, FileFormat format,
   bool sequential )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( format == AUTO )
-        format = DetectFormat( filename ); 
+        format = DetectFormat( filename );
 
     if( A.ColStride() == 1 && A.RowStride() == 1 )
     {
@@ -97,7 +97,7 @@ void Read
             read::MatrixMarket( A, filename );
             break;
         default:
-            LogicError("Format unsupported for reading a DistMatrix"); 
+            LogicError("Format unsupported for reading a DistMatrix");
         }
     }
 }
@@ -105,7 +105,7 @@ void Read
 template<typename T>
 void Read( SparseMatrix<T>& A, const string filename, FileFormat format )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( format == AUTO )
         format = DetectFormat( filename );
 
@@ -122,7 +122,7 @@ void Read( SparseMatrix<T>& A, const string filename, FileFormat format )
 template<typename T>
 void Read( DistSparseMatrix<T>& A, const string filename, FileFormat format )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( format == AUTO )
         format = DetectFormat( filename );
 

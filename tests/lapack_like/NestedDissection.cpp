@@ -39,7 +39,8 @@ int main( int argc, char* argv[] )
         ctrl.cutoff = cutoff;
 
         const Int numVertices = n*n*n;
-        DistGraph graph( numVertices, comm );
+        const Grid grid( comm );
+        DistGraph graph( numVertices, grid );
 
         const Int firstLocalSource = graph.FirstLocalSource();
         const Int numLocalSources = graph.NumLocalSources();
@@ -76,13 +77,13 @@ int main( int argc, char* argv[] )
             Print( graph );
 
         OutputFromRoot(comm,"Running nested dissection");
-        ldl::DistNodeInfo info;
+        ldl::DistNodeInfo info(grid);
         ldl::DistSeparator sep;
         DistMap map;
         ldl::NestedDissection( graph, map, sep, info, ctrl );
 
         const int rootSepSize = info.size;
-        // TODO: Print more than just the root separator size
+        // TODO(poulson): Print more than just the root separator size
         OutputFromRoot(comm,rootSepSize," vertices in root separator");
     }
     catch( exception& e ) { ReportException(e); }

@@ -2,69 +2,71 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 
 namespace El {
 
-template<typename F> 
-Base<F> KyFanNorm( const Matrix<F>& A, Int k )
+template<typename Field>
+Base<Field> KyFanNorm( const Matrix<Field>& A, Int k )
 {
-    DEBUG_CSE
-    return KyFanSchattenNorm( A, k, Base<F>(1) );
+    EL_DEBUG_CSE
+    return KyFanSchattenNorm( A, k, Base<Field>(1) );
 }
 
-template<typename F>
-Base<F> HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
+template<typename Field>
+Base<Field>
+HermitianKyFanNorm( UpperOrLower uplo, const Matrix<Field>& A, Int k )
 {
-    DEBUG_CSE
-    return HermitianKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
+    EL_DEBUG_CSE
+    return HermitianKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
-template<typename F>
-Base<F> SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
+template<typename Field>
+Base<Field>
+SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<Field>& A, Int k )
 {
-    DEBUG_CSE
-    return SymmetricKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
+    EL_DEBUG_CSE
+    return SymmetricKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
-template<typename F> 
-Base<F> KyFanNorm( const ElementalMatrix<F>& A, Int k )
+template<typename Field>
+Base<Field> KyFanNorm( const AbstractDistMatrix<Field>& A, Int k )
 {
-    DEBUG_CSE
-    return KyFanSchattenNorm( A, k, Base<F>(1) );
+    EL_DEBUG_CSE
+    return KyFanSchattenNorm( A, k, Base<Field>(1) );
 }
 
-template<typename F>
-Base<F> HermitianKyFanNorm
-( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k )
+template<typename Field>
+Base<Field> HermitianKyFanNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k )
 {
-    DEBUG_CSE
-    return HermitianKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
+    EL_DEBUG_CSE
+    return HermitianKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
-template<typename F>
-Base<F> SymmetricKyFanNorm
-( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k )
+template<typename Field>
+Base<Field> SymmetricKyFanNorm
+( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k )
 {
-    DEBUG_CSE
-    return SymmetricKyFanSchattenNorm( uplo, A, k, Base<F>(1) );
+    EL_DEBUG_CSE
+    return SymmetricKyFanSchattenNorm( uplo, A, k, Base<Field>(1) );
 }
 
-#define PROTO(F) \
-  template Base<F> KyFanNorm( const Matrix<F>& A, Int k ); \
-  template Base<F> KyFanNorm( const ElementalMatrix<F>& A, Int k ); \
-  template Base<F> HermitianKyFanNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
-  template Base<F> HermitianKyFanNorm \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k ); \
-  template Base<F> SymmetricKyFanNorm \
-  ( UpperOrLower uplo, const Matrix<F>& A, Int k ); \
-  template Base<F> SymmetricKyFanNorm \
-  ( UpperOrLower uplo, const ElementalMatrix<F>& A, Int k );
+#define PROTO(Field) \
+  template Base<Field> KyFanNorm( const Matrix<Field>& A, Int k ); \
+  template Base<Field> KyFanNorm( const AbstractDistMatrix<Field>& A, Int k ); \
+  template Base<Field> HermitianKyFanNorm \
+  ( UpperOrLower uplo, const Matrix<Field>& A, Int k ); \
+  template Base<Field> HermitianKyFanNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k ); \
+  template Base<Field> SymmetricKyFanNorm \
+  ( UpperOrLower uplo, const Matrix<Field>& A, Int k ); \
+  template Base<Field> SymmetricKyFanNorm \
+  ( UpperOrLower uplo, const AbstractDistMatrix<Field>& A, Int k );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

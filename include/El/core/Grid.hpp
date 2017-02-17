@@ -84,12 +84,22 @@ public:
     EL_NO_RELEASE_EXCEPT;
     int VCToViewing( int VCRank ) const EL_NO_EXCEPT;
 
-    static int FindFactor( int p ) EL_NO_EXCEPT;
+#ifdef EL_HAVE_SCALAPACK
+    // TODO(poulson): More distribution contexts and handles
+    int BlacsVCHandle() const;
+    int BlacsVRHandle() const;
+    int BlacsMCMRContext() const;
+#endif
+
+    static int DefaultHeight( int gridSize ) EL_NO_EXCEPT;
 
     // To be used internally by Elemental
     static void InitializeDefault();
+    static void InitializeTrivial();
     static void FinalizeDefault(); 
+    static void FinalizeTrivial();
     static const Grid& Default() EL_NO_RELEASE_EXCEPT;
+    static const Grid& Trivial() EL_NO_RELEASE_EXCEPT;
 
 private:
     bool haveViewers_;
@@ -98,6 +108,7 @@ private:
     GridOrder order_;
 
     static Grid* defaultGrid;
+    static Grid* trivialGrid;
 
     vector<int> diagsAndRanks_;
     vector<int> vcToViewing_;
@@ -117,6 +128,11 @@ private:
         mcRank_, mrRank_,
         mdRank_, mdPerpRank_,
         vcRank_, vrRank_;
+
+#ifdef EL_HAVE_SCALAPACK
+    int blacsVCHandle_, blacsVRHandle_;
+    int blacsMCMRContext_;
+#endif
 
     void SetUpGrid();
 

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_AXPYTRAPEZOID_HPP
@@ -17,9 +17,9 @@ void AxpyTrapezoid
   const Matrix<T>& X,
         Matrix<T>& Y, Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
-      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() ||
           X.Height() != Y.Height() )
           LogicError("Nonconformal AxpyTrapezoid");
     )
@@ -50,11 +50,11 @@ void AxpyTrapezoid
 
 template<typename T,typename S>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alphaS, 
+( UpperOrLower uplo, S alphaS,
   const SparseMatrix<T>& X,
         SparseMatrix<T>& Y, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
     const T alpha = T(alphaS);
@@ -77,14 +77,14 @@ void AxpyTrapezoid
 // This version assumes that the alignments are equal
 template<typename T>
 void LocalAxpyTrapezoid
-( UpperOrLower uplo, T alpha, 
+( UpperOrLower uplo, T alpha,
   const AbstractDistMatrix<T>& X,
         AbstractDistMatrix<T>& Y, Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( X, Y );
-      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() ||
           X.Height() != Y.Height() )
           LogicError("Nonconformal AxpyTrapezoid");
     )
@@ -102,7 +102,7 @@ void LocalAxpyTrapezoid
             const Int j = X.GlobalCol(jLoc);
             const Int localHeightAbove = X.LocalRowOffset(j+1-offset);
             blas::Axpy
-            ( localHeightAbove, alpha, 
+            ( localHeightAbove, alpha,
               &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
         }
     }
@@ -114,7 +114,7 @@ void LocalAxpyTrapezoid
             const Int localHeightAbove = X.LocalRowOffset(j-offset);
             const Int localHeightBelow = localHeight - localHeightAbove;
             blas::Axpy
-            ( localHeightBelow, alpha, 
+            ( localHeightBelow, alpha,
               &XBuffer[localHeightAbove+jLoc*XLDim], 1,
               &YBuffer[localHeightAbove+jLoc*YLDim], 1 );
         }
@@ -123,14 +123,14 @@ void LocalAxpyTrapezoid
 
 template<typename T,typename S>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alphaS, 
+( UpperOrLower uplo, S alphaS,
   const ElementalMatrix<T>& X,
         ElementalMatrix<T>& Y, Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( X, Y );
-      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() ||
           X.Height() != Y.Height() )
           LogicError("Nonconformal AxpyTrapezoid");
     )
@@ -154,14 +154,14 @@ void AxpyTrapezoid
 }
 template<typename T,typename S>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alphaS, 
+( UpperOrLower uplo, S alphaS,
   const BlockMatrix<T>& X,
         BlockMatrix<T>& Y, Int offset )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       AssertSameGrids( X, Y );
-      if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
+      if( X.Height() != X.Width() || Y.Height() != Y.Width() ||
           X.Height() != Y.Height() )
           LogicError("Nonconformal AxpyTrapezoid");
     )
@@ -186,14 +186,14 @@ void AxpyTrapezoid
 
 template<typename T,typename S>
 void AxpyTrapezoid
-( UpperOrLower uplo, S alphaS, 
+( UpperOrLower uplo, S alphaS,
   const DistSparseMatrix<T>& X,
         DistSparseMatrix<T>& Y, Int offset )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( X.Height() != Y.Height() || X.Width() != Y.Width() )
         LogicError("X and Y must have the same dimensions");
-    if( X.Comm() != Y.Comm() )
+    if( X.Grid().Comm() != Y.Grid().Comm() )
         LogicError("X and Y must have the same communicator");
     const T alpha = T(alphaS);
     const Int numLocalEntries = X.NumLocalEntries();

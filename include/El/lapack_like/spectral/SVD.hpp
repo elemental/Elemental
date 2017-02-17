@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SPECTRAL_SVD_HPP
@@ -67,15 +67,15 @@ namespace svd {
 //   | alpha00, alpha01 | = | cU, -sU | | sigmaMax,    0     | |  cV, sV |,
 //   |     0,   alpha11 |   | sU,  cU | |     0,    sigmaMin | | -sV, cV |
 //
-// or 
+// or
 //
 //   A = U Sigma V^T,
 //
 // must satisfy
 //
-//   (A^T A) V = V Sigma^2, 
+//   (A^T A) V = V Sigma^2,
 //
-// and so 
+// and so
 //
 //    | tau00 - sigmaMax^2,       tau01        | | cV | = | 0 |,
 //    |       tau01,        tau11 - sigmaMax^2 | | sV |   | 0 |
@@ -95,7 +95,7 @@ namespace svd {
 //    | cV | parallel |    alpha00 alpha01     |.
 //    | sV |          | sigmaMax^2 - alpha00^2 |
 //
-// After carefully computing [cV; sV] using a variant of the above formula 
+// After carefully computing [cV; sV] using a variant of the above formula
 // which exploits the inv(sqrt(1+xi^2)+xi) = sqrt(1+xi^2)-xi identity,
 // one can make use of a simple variant of
 //
@@ -109,7 +109,8 @@ namespace svd {
 //   | alpha00, alpha01 | = | cU, -sU | | sigmaMax,    0     | |  cV, sV |.
 //   |     0,   alpha11 |   | sU,  cU | |     0,    sigmaMin | | -sV, cV |
 //
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwoUpperStandard
 ( const Real& alpha00,
   const Real& alpha01,
@@ -121,7 +122,7 @@ void TwoByTwoUpperStandard
         Real& cV,
         Real& sV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1), two(2), four(4);
 
     // Specially handle the diagonal matrix diag([alpha00;alpha11])
@@ -138,7 +139,7 @@ void TwoByTwoUpperStandard
     const Real epsilon = limits::Epsilon<Real>();
     if( alpha01 > alpha00 && (alpha00/alpha01) < epsilon )
     {
-        sigmaMax = alpha01; 
+        sigmaMax = alpha01;
 
         // Evaluate sigmaMin = det(A) / sigmaMax with moderate intermediates
         if( alpha11 > one)
@@ -147,7 +148,7 @@ void TwoByTwoUpperStandard
             sigmaMin = (alpha00/alpha01)*alpha11;
 
         // alpha01 is very big, so these rotations are very close to the
-        // identity; we follow LAPACK's {s,d}lasv2 
+        // identity; we follow LAPACK's {s,d}lasv2
         cU = one;
         sU = alpha11/alpha01;
         cV = alpha00/alpha01;
@@ -193,7 +194,7 @@ void TwoByTwoUpperStandard
     //   | cV | parallel |    alpha00 alpha01     |
     //   | sV |          | sigmaMax^2 - alpha00^2 |
     //
-    // into 
+    // into
     //
     //   cV = (alpha00 alpha01) /
     //     sqrt((sigmaMax^2 - alpha00^2)^2 + (alpha00 alpha01)^2).
@@ -228,7 +229,7 @@ void TwoByTwoUpperStandard
     //
     //  (alpha00 alpha01) / (sigmaMax^2 - alpha00^2) = phi/2
     //
-    // so that 
+    // so that
     //
     //   sV = (phi/2) cV = phi / sqrt(phi^2 + 4).
     //
@@ -238,7 +239,7 @@ void TwoByTwoUpperStandard
     //
     //   cV = 2 / psi, and sV = phi / psi.
     //
-    // Note that this strategy is due to Demmel and Kahan, which led to 
+    // Note that this strategy is due to Demmel and Kahan, which led to
     // LAPACK's {s,d}lasv2 [CITATION], which was somewhat explained within
     // Bai and Demmel's "Computing the generalized SVD" [CITATION].
     //
@@ -275,7 +276,8 @@ void TwoByTwoUpperStandard
     sU = ((alpha11/alpha00)*sV) / relSigmaMax;
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwoUpper
 ( const Real& alpha00,
   const Real& alpha01,
@@ -289,7 +291,7 @@ void TwoByTwoUpper
         Real& cV,
         Real& sV )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real alpha00Abs = Abs(alpha00);
     const Real alpha01Abs = Abs(alpha01);
     const Real alpha11Abs = Abs(alpha11);
@@ -307,7 +309,7 @@ void TwoByTwoUpper
           sigmaMax, sigmaMin, cU, sU, cV, sV );
         // sgn(sV) = sgn(phi) = sgn(alpha01/alpha00)
         sV = sV*Sgn(alpha01,false)*Sgn(alpha00,false);
-        cU = cU*Sgn(alpha00*cV+alpha01*sV,false); 
+        cU = cU*Sgn(alpha00*cV+alpha01*sV,false);
         sU = sU*Sgn(alpha11,false)*Sgn(sV,false);
     }
     else
@@ -315,12 +317,12 @@ void TwoByTwoUpper
         largest =
           ( alpha01Abs > alpha11Abs ? ALPHA01_LARGEST : ALPHA11_LARGEST );
         // A decomposition of
-        // 
+        //
         //   | |alpha11|, |alpha01| |
         //   |     0,     |alpha00| |
         //
         // needs to be transposed and composed with a [0, 1; 1, 0] similarity
-        // in order to provide a decomposition of 
+        // in order to provide a decomposition of
         //
         //   | |alpha00|, |alpha01| |
         //   |     0,     |alpha11| |.
@@ -333,7 +335,7 @@ void TwoByTwoUpper
           sigmaMax, sigmaMin, sV, cV, sU, cU );
         // sgn(cU) = sgn(phi) = sgn(alpha01/alpha11)
         cU = cU*Sgn(alpha01,false)*Sgn(alpha11,false);
-        sV = sV*Sgn(alpha11*sU+alpha01*cU,false); 
+        sV = sV*Sgn(alpha11*sU+alpha01*cU,false);
         cV = cV*Sgn(alpha00,false)*Sgn(cU,false);
     }
 
@@ -360,7 +362,8 @@ void TwoByTwoUpper
 // singular vector computation (in the style of {s,d}las2 [CITATION]) and
 // implicitly puts the upper bidiagonal matrix into the positive "standard"
 // form described above.
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void TwoByTwoUpper
 ( const Real& alpha00,
   const Real& alpha01,
@@ -368,7 +371,7 @@ void TwoByTwoUpper
         Real& sigmaMax,
         Real& sigmaMin )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real zero(0), one(1), two(2);
     const Real alpha00Abs = Abs(alpha00);
     const Real alpha01Abs = Abs(alpha01);
@@ -382,7 +385,7 @@ void TwoByTwoUpper
             sigmaMax = alpha01Abs;
         else
             sigmaMax = SafeNormAbs( diagMaxAbs, alpha01Abs );
-        sigmaMin = zero; 
+        sigmaMin = zero;
     }
     else
     {
@@ -390,7 +393,7 @@ void TwoByTwoUpper
         {
             const Real relDiagSum = one + diagMinAbs/diagMaxAbs;
             const Real relDiagDiff = (diagMaxAbs-diagMinAbs)/diagMaxAbs;
-            const Real relOffdiag = alpha01Abs/diagMaxAbs; 
+            const Real relOffdiag = alpha01Abs/diagMaxAbs;
             const Real relOffdiagSq = relOffdiag*relOffdiag;
             const Real leftTerm = Sqrt(relOffdiagSq+relDiagSum*relDiagSum);
             const Real rightTerm = Sqrt(relOffdiagSq+relDiagDiff*relDiagDiff);
@@ -406,7 +409,7 @@ void TwoByTwoUpper
             const Real relOffdiagInv = diagMaxAbs/alpha01Abs;
             if( relOffdiagInv == zero )
             {
-                sigmaMax = alpha01Abs; 
+                sigmaMax = alpha01Abs;
                 // Exploit the equivalent determinants
                 sigmaMin = (diagMaxAbs*diagMinAbs)/sigmaMax;
             }

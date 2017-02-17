@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -14,31 +14,33 @@
 
 namespace El {
 
-template<typename F>
-void FrobeniusProx( Matrix<F>& A, Base<F> tau )
+template<typename Field>
+void FrobeniusProx( Matrix<Field>& A, const Base<Field>& tau )
 {
-    DEBUG_CSE
-    const Base<F> frobNorm = FrobeniusNorm( A );
+    EL_DEBUG_CSE
+    const Base<Field> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         A *= 1-1/(tau*frobNorm);
     else
         Zero( A );
 }
 
-template<typename F>
-void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau )
+template<typename Field>
+void FrobeniusProx( AbstractDistMatrix<Field>& A, const Base<Field>& tau )
 {
-    DEBUG_CSE
-    const Base<F> frobNorm = FrobeniusNorm( A );
+    EL_DEBUG_CSE
+    const Base<Field> frobNorm = FrobeniusNorm( A );
     if( frobNorm > 1/tau )
         A *= 1-1/(tau*frobNorm);
     else
         Zero( A );
 }
 
-#define PROTO(F) \
-  template void FrobeniusProx( Matrix<F>& A, Base<F> tau ); \
-  template void FrobeniusProx( AbstractDistMatrix<F>& A, Base<F> tau );
+#define PROTO(Field) \
+  template void FrobeniusProx \
+  ( Matrix<Field>& A, const Base<Field>& tau ); \
+  template void FrobeniusProx \
+  ( AbstractDistMatrix<Field>& A, const Base<Field>& tau );
 
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE

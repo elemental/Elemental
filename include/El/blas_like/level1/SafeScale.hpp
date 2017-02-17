@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_BLAS_SAFE_SCALE_HPP
@@ -11,7 +11,8 @@
 
 namespace El {
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 bool SafeScaleStep
 (       Real& numerator,
         Real& denominator,
@@ -20,7 +21,7 @@ bool SafeScaleStep
   const Real& smallNum,
   const Real& bigNum )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     Real shrunkDenominator = denominator * smallNum;
     if( Abs(shrunkDenominator) > Abs(numerator) && numerator != zero )
@@ -30,7 +31,7 @@ bool SafeScaleStep
         return false;
     }
 
-    Real shrunkNumerator = numerator / bigNum; 
+    Real shrunkNumerator = numerator / bigNum;
     if( Abs(shrunkNumerator) > Abs(denominator) )
     {
         scaleStep = bigNum;
@@ -42,11 +43,11 @@ bool SafeScaleStep
     return true;
 }
 
-template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, F& alpha )
+template<typename Field>
+void SafeScale( Base<Field> numerator, Base<Field> denominator, Field& alpha )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
     const Real bigNum = Real(1) / smallNum;
@@ -62,83 +63,12 @@ void SafeScale( Base<F> numerator, Base<F> denominator, F& alpha )
     }
 }
 
-template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, Matrix<F>& A )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
-    const Real zero(0);
-    const Real smallNum = limits::SafeMin<Real>();
-    const Real bigNum = Real(1) / smallNum;
-
-    bool done = false;
-    Real scaleStep;
-    while( !done )
-    {
-        done =
-          SafeScaleStep
-          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
-        A *= scaleStep;
-    }
-}
-
-template<typename F>
-void SafeScaleTrapezoid
-( Base<F> numerator, Base<F> denominator,
-  UpperOrLower uplo, Matrix<F>& A, Int offset )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
-    const Real zero(0);
-    const Real smallNum = limits::SafeMin<Real>();
-    const Real bigNum = Real(1) / smallNum;
-
-    bool done = false;
-    Real scaleStep;
-    while( !done )
-    {
-        done =
-          SafeScaleStep
-          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
-        ScaleTrapezoid( scaleStep, uplo, A, offset );
-    }
-}
-
-template<typename F>
+template<typename Field>
 void SafeScale
-( Base<F> numerator, Base<F> denominator, AbstractDistMatrix<F>& A )
+( Base<Field> numerator, Base<Field> denominator, Matrix<Field>& A )
 {
-    DEBUG_CSE
-    SafeScale( numerator, denominator, A.Matrix() );
-}
-
-template<typename F>
-void SafeScaleTrapezoid
-( Base<F> numerator, Base<F> denominator,
-  UpperOrLower uplo, AbstractDistMatrix<F>& A, Int offset )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
-    const Real zero(0);
-    const Real smallNum = limits::SafeMin<Real>();
-    const Real bigNum = Real(1) / smallNum;
-
-    bool done = false;
-    Real scaleStep;
-    while( !done )
-    {
-        done =
-          SafeScaleStep
-          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
-        ScaleTrapezoid( scaleStep, uplo, A, offset );
-    }
-}
-
-template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A )
-{
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
     const Real bigNum = Real(1) / smallNum;
@@ -154,13 +84,13 @@ void SafeScale( Base<F> numerator, Base<F> denominator, SparseMatrix<F>& A )
     }
 }
 
-template<typename F>
+template<typename Field>
 void SafeScaleTrapezoid
-( Base<F> numerator, Base<F> denominator,
-  UpperOrLower uplo, SparseMatrix<F>& A, Int offset )
+( Base<Field> numerator, Base<Field> denominator,
+  UpperOrLower uplo, Matrix<Field>& A, Int offset )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
     const Real bigNum = Real(1) / smallNum;
@@ -176,11 +106,42 @@ void SafeScaleTrapezoid
     }
 }
 
-template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
+template<typename Field>
+void SafeScale
+( Base<Field> numerator, Base<Field> denominator, AbstractDistMatrix<Field>& A )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    SafeScale( numerator, denominator, A.Matrix() );
+}
+
+template<typename Field>
+void SafeScaleTrapezoid
+( Base<Field> numerator, Base<Field> denominator,
+  UpperOrLower uplo, AbstractDistMatrix<Field>& A, Int offset )
+{
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real scaleStep;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        ScaleTrapezoid( scaleStep, uplo, A, offset );
+    }
+}
+
+template<typename Field>
+void SafeScale
+( Base<Field> numerator, Base<Field> denominator, SparseMatrix<Field>& A )
+{
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
     const Real bigNum = Real(1) / smallNum;
@@ -196,13 +157,13 @@ void SafeScale( Base<F> numerator, Base<F> denominator, DistSparseMatrix<F>& A )
     }
 }
 
-template<typename F>
+template<typename Field>
 void SafeScaleTrapezoid
-( Base<F> numerator, Base<F> denominator,
-  UpperOrLower uplo, DistSparseMatrix<F>& A, Int offset )
+( Base<Field> numerator, Base<Field> denominator,
+  UpperOrLower uplo, SparseMatrix<Field>& A, Int offset )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
     const Real bigNum = Real(1) / smallNum;
@@ -218,19 +179,64 @@ void SafeScaleTrapezoid
     }
 }
 
-template<typename F>
-void SafeScale( Base<F> numerator, Base<F> denominator, DistMultiVec<F>& A )
+template<typename Field>
+void SafeScale
+( Base<Field> numerator, Base<Field> denominator, DistSparseMatrix<Field>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real scaleStep;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        A *= scaleStep;
+    }
+}
+
+template<typename Field>
+void SafeScaleTrapezoid
+( Base<Field> numerator, Base<Field> denominator,
+  UpperOrLower uplo, DistSparseMatrix<Field>& A, Int offset )
+{
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
+    const Real zero(0);
+    const Real smallNum = limits::SafeMin<Real>();
+    const Real bigNum = Real(1) / smallNum;
+
+    bool done = false;
+    Real scaleStep;
+    while( !done )
+    {
+        done =
+          SafeScaleStep
+          ( numerator, denominator, scaleStep, zero, smallNum, bigNum );
+        ScaleTrapezoid( scaleStep, uplo, A, offset );
+    }
+}
+
+template<typename Field>
+void SafeScale
+( Base<Field> numerator, Base<Field> denominator, DistMultiVec<Field>& A )
+{
+    EL_DEBUG_CSE
     SafeScale( numerator, denominator, A.Matrix() );
 }
 
-template<typename F>
+template<typename Field>
 void SafeScaleHermitianTridiag
-( Base<F> numerator, Base<F> denominator, Matrix<Base<F>>& d, Matrix<F>& e )
+( Base<Field> numerator, Base<Field> denominator,
+  Matrix<Base<Field>>& d, Matrix<Field>& e )
 {
-    DEBUG_CSE
-    typedef Base<F> Real;
+    EL_DEBUG_CSE
+    typedef Base<Field> Real;
     const Real zero(0);
     const Real smallNum = limits::SafeMin<Real>();
     const Real bigNum = Real(1) / smallNum;

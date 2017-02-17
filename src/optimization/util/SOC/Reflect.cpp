@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -11,16 +11,17 @@
 namespace El {
 namespace soc {
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Reflect
-(       Matrix<Real>& x, 
+(       Matrix<Real>& x,
   const Matrix<Int>& orders,
   const Matrix<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int height = x.Height();
-    DEBUG_ONLY(
-      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+    EL_DEBUG_ONLY(
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
@@ -30,13 +31,14 @@ void Reflect
             x(i) = -x(i);
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Reflect
-(       ElementalMatrix<Real>& xPre, 
-  const ElementalMatrix<Int>& ordersPre, 
-  const ElementalMatrix<Int>& firstIndsPre )
+(       AbstractDistMatrix<Real>& xPre,
+  const AbstractDistMatrix<Int>& ordersPre,
+  const AbstractDistMatrix<Int>& firstIndsPre )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     AssertSameGrids( xPre, ordersPre, firstIndsPre );
 
     ElementalProxyCtrl ctrl;
@@ -44,7 +46,7 @@ void Reflect
     ctrl.colAlign = 0;
 
     DistMatrixReadWriteProxy<Real,Real,VC,STAR>
-      xProx( xPre, ctrl ); 
+      xProx( xPre, ctrl );
     DistMatrixReadProxy<Int,Int,VC,STAR>
       ordersProx( ordersPre, ctrl ),
       firstIndsProx( firstIndsPre, ctrl );
@@ -52,9 +54,9 @@ void Reflect
     auto& orders = ordersProx.GetLocked();
     auto& firstInds = firstIndsProx.GetLocked();
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
-      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
@@ -69,17 +71,18 @@ void Reflect
             xBuf[iLoc] = -xBuf[iLoc];
 }
 
-template<typename Real,typename>
+template<typename Real,
+         typename/*=EnableIf<IsReal<Real>>*/>
 void Reflect
-(       DistMultiVec<Real>& x, 
-  const DistMultiVec<Int>& orders, 
+(       DistMultiVec<Real>& x,
+  const DistMultiVec<Int>& orders,
   const DistMultiVec<Int>& firstInds )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       const Int height = x.Height();
-      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 ) 
+      if( x.Width() != 1 || orders.Width() != 1 || firstInds.Width() != 1 )
           LogicError("x, orders, and firstInds should be column vectors");
       if( orders.Height() != height || firstInds.Height() != height )
           LogicError("orders and firstInds should be of the same height as x");
@@ -101,9 +104,9 @@ void Reflect
     const Matrix<Int>& orders, \
     const Matrix<Int>& firstInds ); \
   template void Reflect \
-  (       ElementalMatrix<Real>& x, \
-    const ElementalMatrix<Int>& orders, \
-    const ElementalMatrix<Int>& firstInds ); \
+  (       AbstractDistMatrix<Real>& x, \
+    const AbstractDistMatrix<Int>& orders, \
+    const AbstractDistMatrix<Int>& firstInds ); \
   template void Reflect \
   (       DistMultiVec<Real>& x, \
     const DistMultiVec<Int>& orders, \

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_PSEUDOSPECTRA_IRL_HPP
@@ -21,12 +21,19 @@ void ComputeNewEstimates
   const Matrix<Int>& activeConverged,
   Matrix<Real>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Real normCap = NormCap<Real>();
     const Int numShifts = activeEsts.Height();
     if( numShifts == 0 )
         return;
     const Int basisSize = HDiagList[0].size();
+
+    // We are only requesting the largest eigenvalue
+    HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.subset.indexSubset = true;
+    ctrl.subset.lowerIndex = basisSize-1;
+    ctrl.subset.upperIndex = basisSize-1;
+
     Matrix<Real> HDiag, HSubdiag, w(basisSize);
     for( Int j=0; j<numShifts; ++j )
     {
@@ -36,10 +43,8 @@ void ComputeNewEstimates
         {
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
-                lapack::SymmetricTridiagEig
-                ( basisSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(),
-                  basisSize-1, basisSize-1 );
-                const Real est = Sqrt(w[0]);
+                HermitianTridiagEig( HDiag, HSubdiag, w, ctrl );
+                const Real est = Sqrt(MaxNorm(w));
                 activeEsts(j) = Min(est,normCap);
             }
             else
@@ -55,9 +60,9 @@ void ComputeNewEstimates
   const DistMatrix<Int,MR,STAR>& activeConverged,
         DistMatrix<Real,MR,STAR>& activeEsts )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     ComputeNewEstimates
-    ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(), 
+    ( HDiagList, HSubdiagList, activeConverged.LockedMatrix(),
       activeEsts.Matrix() );
 }
 
@@ -68,12 +73,19 @@ void Restart
   const Matrix<Int>& activeConverged,
   vector<Matrix<Complex<Real>>>& VList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = VList[0].Height();
     const Int numShifts = VList[0].Width();
     if( numShifts == 0 )
         return;
     const Int basisSize = HDiagList[0].size();
+
+    // We are only requesting the largest eigenpair
+    HermitianTridiagEigCtrl<Real> ctrl;
+    ctrl.subset.indexSubset = true;
+    ctrl.subset.lowerIndex = basisSize-1;
+    ctrl.subset.upperIndex = basisSize-1;
+
     Matrix<Real> HDiag, HSubdiag, w(basisSize);
     Matrix<Real> q(basisSize,1);
     Matrix<Complex<Real>> u(n,1);
@@ -86,15 +98,13 @@ void Restart
         {
             if( !HasNan(HDiag) && !HasNan(HSubdiag) )
             {
-                lapack::SymmetricTridiagEig
-                ( basisSize, HDiag.Buffer(), HSubdiag.Buffer(), w.data(), 
-                  q.Buffer(), basisSize, basisSize-1, basisSize-1 );
+                HermitianTridiagEig( HDiag, HSubdiag, w, q, ctrl );
 
                 Zeros( u, n, 1 );
                 for( Int k=0; k<basisSize; ++k )
                 {
                     const Matrix<Complex<Real>>& V = VList[k];
-                    auto v = V( ALL, IR(j) ); 
+                    auto v = V( ALL, IR(j) );
                     Axpy( q(k), v, u );
                 }
                 Matrix<Complex<Real>>& V = VList[0];
@@ -112,7 +122,7 @@ void Restart
   const DistMatrix<Int,MR,STAR>& activeConverged,
   vector<DistMatrix<Complex<Real>>>& VList )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int basisSize = HDiagList[0].size();
     vector<Matrix<Complex<Real>>> VLocList(basisSize+1);
     for( Int j=0; j<basisSize+1; ++j )
@@ -125,11 +135,11 @@ template<typename Real>
 Matrix<Int>
 IRL
 ( const Matrix<Complex<Real>>& U,
-  const Matrix<Complex<Real>>& shifts, 
+  const Matrix<Complex<Real>>& shifts,
         Matrix<Real>& invNorms,
         PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
     const Int n = U.Height();
@@ -171,7 +181,7 @@ IRL
     vector<Matrix<Real>> HDiagList(numShifts), HSubdiagList(numShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
-    Matrix<Real> colNorms; 
+    Matrix<Real> colNorms;
 
     Matrix<Int> activeConverged;
     Zeros( activeConverged, numShifts, 1 );
@@ -191,7 +201,7 @@ IRL
         auto activeEsts = estimates( IR(0,numActive), ALL );
         auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], ALL, IR(0,numActive) ); 
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) );
         if( deflate )
         {
             View( activePreimage, preimage, IR(0,numActive), ALL );
@@ -219,18 +229,18 @@ IRL
                 if( progress )
                     subtimer.Start();
                 MultiShiftTrsm
-                ( LEFT, UPPER, NORMAL, 
+                ( LEFT, UPPER, NORMAL,
                   C(1), UCopy, activeShifts, activeVList[j+1] );
                 MultiShiftTrsm
-                ( LEFT, UPPER, ADJOINT, 
+                ( LEFT, UPPER, ADJOINT,
                   C(1), UCopy, activeShifts, activeVList[j+1] );
                 if( progress )
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
-                    const double gflops = 
+                    const double gflops =
                         (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                    cout << "  MultiShiftTrsm's: " << msTime 
+                    cout << "  MultiShiftTrsm's: " << msTime
                          << " seconds, " << gflops << " GFlops" << endl;
                 }
             }
@@ -239,18 +249,18 @@ IRL
                 if( progress )
                     subtimer.Start();
                 MultiShiftHessSolve
-                ( UPPER, NORMAL, 
+                ( UPPER, NORMAL,
                   C(1), U, activeShifts, activeVList[j+1] );
                 Matrix<C> activeShiftsConj;
                 Conjugate( activeShifts, activeShiftsConj );
                 MultiShiftHessSolve
-                ( LOWER, NORMAL, 
+                ( LOWER, NORMAL,
                   C(1), UAdj, activeShiftsConj, activeVList[j+1] );
                 if( progress )
                 {
                     const double msTime = subtimer.Stop();
                     const Int numActiveShifts = activeShifts.Height();
-                    const double gflops = 
+                    const double gflops =
                         (32.*n*n*numActiveShifts)/(msTime*1.e9);
                     cout << "  MultiShiftHessSolve's: " << msTime
                          << " seconds, " << gflops << " GFlops" << endl;
@@ -293,7 +303,7 @@ IRL
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
             // We will have the same estimate two iterations in a row when
             // restarting
-            if( j != 0 ) 
+            if( j != 0 )
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
@@ -329,7 +339,7 @@ IRL
         else if( deflate && numActiveDone != 0 )
         {
             Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+            ( activeShifts, activePreimage, activeVList[0], activeEsts,
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
@@ -337,7 +347,7 @@ IRL
         // Save snapshots of the estimates at the requested rate
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )
@@ -350,12 +360,12 @@ IRL
 template<typename Real>
 DistMatrix<Int,VR,STAR>
 IRL
-( const ElementalMatrix<Complex<Real>>& UPre, 
-  const ElementalMatrix<Complex<Real>>& shiftsPre, 
-        ElementalMatrix<Real>& invNormsPre, 
+( const AbstractDistMatrix<Complex<Real>>& UPre,
+  const AbstractDistMatrix<Complex<Real>>& shiftsPre,
+        AbstractDistMatrix<Real>& invNormsPre,
   PseudospecCtrl<Real> psCtrl=PseudospecCtrl<Real>() )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     using namespace pspec;
     typedef Complex<Real> C;
 
@@ -412,7 +422,7 @@ IRL
     }
     Gaussian( VList[0], n, numShifts );
     const Int numMRShifts = VList[0].LocalWidth();
-    vector<Matrix<Real>> HDiagList(numMRShifts), 
+    vector<Matrix<Real>> HDiagList(numMRShifts),
                          HSubdiagList(numMRShifts);
     Matrix<Real> realComponents;
     Matrix<Complex<Real>> components;
@@ -436,7 +446,7 @@ IRL
         auto activeEsts = estimates( IR(0,numActive), ALL );
         auto activeItCounts = itCounts( IR(0,numActive), ALL );
         for( Int j=0; j<basisSize+1; ++j )
-            View( activeVList[j], VList[j], ALL, IR(0,numActive) ); 
+            View( activeVList[j], VList[j], ALL, IR(0,numActive) );
         if( deflate )
         {
             View( activePreimage, preimage, IR(0,numActive), ALL );
@@ -467,16 +477,16 @@ IRL
             if( psCtrl.schur )
             {
                 if( progress )
-                { 
+                {
                     mpi::Barrier( g.Comm() );
                     if( g.Rank() == 0 )
                         subtimer.Start();
                 }
                 MultiShiftTrsm
-                ( LEFT, UPPER, NORMAL, 
+                ( LEFT, UPPER, NORMAL,
                   C(1), U, activeShifts, activeVList[j+1] );
                 MultiShiftTrsm
-                ( LEFT, UPPER, ADJOINT, 
+                ( LEFT, UPPER, ADJOINT,
                   C(1), U, activeShifts, activeVList[j+1] );
                 if( progress )
                 {
@@ -485,9 +495,9 @@ IRL
                     {
                         const double msTime = subtimer.Stop();
                         const Int numActiveShifts = activeShifts.Height();
-                        const double gflops = 
+                        const double gflops =
                             (8.*n*n*numActiveShifts)/(msTime*1.e9);
-                        cout << "  MultiShiftTrsm's: " << msTime 
+                        cout << "  MultiShiftTrsm's: " << msTime
                              << " seconds, " << gflops << " GFlops" << endl;
                     }
                 }
@@ -562,7 +572,7 @@ IRL
             ( HDiagList, HSubdiagList, activeConverged, activeEsts );
             // We will have the same estimate two iterations in a row when
             // restarting
-            if( j != 0 ) 
+            if( j != 0 )
                 activeConverged =
                     FindConverged
                     ( lastActiveEsts, activeEsts, activeItCounts, psCtrl.tol );
@@ -609,7 +619,7 @@ IRL
         else if( deflate && numActiveDone != 0 )
         {
             Deflate
-            ( activeShifts, activePreimage, activeVList[0], activeEsts, 
+            ( activeShifts, activePreimage, activeVList[0], activeEsts,
               activeConverged, activeItCounts, progress );
             lastActiveEsts = activeEsts;
         }
@@ -617,7 +627,7 @@ IRL
         // Save snapshots of the estimates at the requested rate
         Snapshot
         ( preimage, estimates, itCounts, numIts, deflate, psCtrl.snapCtrl );
-    } 
+    }
 
     invNorms = estimates;
     if( deflate )

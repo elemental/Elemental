@@ -1,20 +1,23 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and 
+   Copyright (c) 2009-2012, Jack Poulson, Lexing Ying, and
    The University of Texas at Austin.
    All rights reserved.
 
    Copyright (c) 2013, Jack Poulson, Lexing Ying, and Stanford University.
    All rights reserved.
 
-   Copyright (c) 2013-2014, Jack Poulson and 
+   Copyright (c) 2013-2014, Jack Poulson and
    The Georgia Institute of Technology.
    All rights reserved.
 
    Copyright (c) 2014-2015, Jack Poulson and Stanford University.
    All rights reserved.
-   
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+
+   Copyright (c) 2016, Jack Poulson.
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -22,10 +25,10 @@
 namespace El {
 namespace ldl {
 
-template<typename F>
-Front<F>::Front( Front<F>* parentNode )
-: sparseLeaf(false), parent(parentNode), duplicate(nullptr)
-{ 
+template<typename Field>
+Front<Field>::Front( Front<Field>* parentNode )
+: parent(parentNode)
+{
     if( parentNode != nullptr )
     {
         isHermitian = parentNode->isHermitian;
@@ -33,42 +36,37 @@ Front<F>::Front( Front<F>* parentNode )
     }
 }
 
-template<typename F>
-Front<F>::Front( DistFront<F>* dupNode )
-: sparseLeaf(false), parent(nullptr), duplicate(dupNode)
+template<typename Field>
+Front<Field>::Front( DistFront<Field>* dupNode )
+: duplicate(dupNode)
 {
     isHermitian = dupNode->isHermitian;
     type = dupNode->type;
 }
 
-template<typename F>
-Front<F>::Front
-( const SparseMatrix<F>& A, 
+template<typename Field>
+Front<Field>::Front
+( const SparseMatrix<Field>& A,
   const vector<Int>& reordering,
   const NodeInfo& info,
   bool conjugate )
-: sparseLeaf(false), parent(nullptr), duplicate(nullptr)
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Pull( A, reordering, info, conjugate );
 }
 
-template<typename F>
-Front<F>::~Front()
-{
-    for( auto* child : children )
-        delete child;
-}
+template<typename Field>
+Front<Field>::~Front() { }
 
-template<typename F>
-void Front<F>::Pull
-( const SparseMatrix<F>& A, 
+template<typename Field>
+void Front<Field>::Pull
+( const SparseMatrix<Field>& A,
   const vector<Int>& reordering,
   const NodeInfo& rootInfo,
   bool conjugate )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != (Int)reordering.size() )
           LogicError("Mapping was not the right size");
     )
@@ -77,26 +75,25 @@ void Front<F>::Pull
 
     // Invert the reordering
     const Int n = reordering.size();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Height() != n || A.Width() != n )
           LogicError("Expected A to be square and consistent with reordering");
     )
     vector<Int> invReorder(n);
     for( Int j=0; j<n; ++j )
         invReorder[reordering[j]] = j;
-    
-    function<void(const NodeInfo&,Front<F>&)> pull = 
-      [&]( const NodeInfo& node, Front<F>& front )
+
+    function<void(const NodeInfo&,Front<Field>&)> pull =
+      [&]( const NodeInfo& node, Front<Field>& front )
       {
         // Delete any existing children
-        for( auto* child : front.children )
-            delete child;
+        SwapClear( front.children );
 
         const Int numChildren = node.children.size();
         front.children.resize( numChildren );
         for( Int c=0; c<numChildren; ++c )
         {
-            front.children[c] = new Front<F>(&front);
+            front.children[c].reset( new Front<Field>(&front) );
             pull( *node.children[c], *front.children[c] );
         }
         // Mark this node as a sparse leaf if it does not have any children
@@ -104,7 +101,7 @@ void Front<F>::Pull
             front.sparseLeaf = true;
 
         const Int lowerSize = node.lowerStruct.size();
-        const F* AValBuf = A.LockedValueBuffer();
+        const Field* AValBuf = A.LockedValueBuffer();
         const Int* AColBuf = A.LockedTargetBuffer();
         const Int* AOffsetBuf = A.LockedOffsetBuffer();
         if( front.sparseLeaf )
@@ -131,7 +128,7 @@ void Front<F>::Pull
                         ++numEntriesTopLeft;
                 }
             }
-            front.workSparse.Reserve( numEntriesTopLeft ); 
+            front.workSparse.Reserve( numEntriesTopLeft );
 
             for( Int t=0; t<node.size; ++t )
             {
@@ -143,8 +140,8 @@ void Front<F>::Pull
                     const Int iOrig = AColBuf[rowOff+k];
                     const Int i = reordering[iOrig];
 
-                    const F transVal = AValBuf[rowOff+k];
-                    const F value = ( conjugate ? Conj(transVal) : transVal );
+                    const Field transVal = AValBuf[rowOff+k];
+                    const Field value = conjugate ? Conj(transVal) : transVal;
 
                     if( i < node.off+t )
                         continue;
@@ -159,7 +156,7 @@ void Front<F>::Pull
                     {
                         const Int origOff = Find( node.origLowerStruct, i );
                         const Int row = node.origLowerRelInds[origOff];
-                        DEBUG_ONLY(
+                        EL_DEBUG_ONLY(
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
@@ -183,8 +180,8 @@ void Front<F>::Pull
                     const Int iOrig = AColBuf[rowOff+k];
                     const Int i = reordering[iOrig];
 
-                    const F transVal = AValBuf[rowOff+k];
-                    const F value = ( conjugate ? Conj(transVal) : transVal );
+                    const Field transVal = AValBuf[rowOff+k];
+                    const Field value = conjugate ? Conj(transVal) : transVal;
 
                     if( i < node.off+t )
                         continue;
@@ -196,7 +193,7 @@ void Front<F>::Pull
                     {
                         const Int origOff = Find( node.origLowerStruct, i );
                         const Int row = node.origLowerRelInds[origOff];
-                        DEBUG_ONLY(
+                        EL_DEBUG_ONLY(
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
@@ -209,36 +206,36 @@ void Front<F>::Pull
     pull( rootInfo, *this );
 }
 
-template<typename F>
-void Front<F>::PullUpdate
-( const SparseMatrix<F>& A, 
+template<typename Field>
+void Front<Field>::PullUpdate
+( const SparseMatrix<Field>& A,
   const vector<Int>& reordering,
   const NodeInfo& rootInfo )
 {
-    DEBUG_CSE
-    DEBUG_ONLY(
+    EL_DEBUG_CSE
+    EL_DEBUG_ONLY(
       if( A.Height() != (Int)reordering.size() )
           LogicError("Mapping was not the right size");
     )
 
     // Invert the reordering
     const Int n = reordering.size();
-    DEBUG_ONLY(
+    EL_DEBUG_ONLY(
       if( A.Height() != n || A.Width() != n )
           LogicError("Expected A to be square and consistent with reordering");
     )
     vector<Int> invReorder(n);
     for( Int j=0; j<n; ++j )
         invReorder[reordering[j]] = j;
-    
-    function<void(const NodeInfo&,Front<F>&)> pull = 
-      [&]( const NodeInfo& node, Front<F>& front )
+
+    function<void(const NodeInfo&,Front<Field>&)> pull =
+      [&]( const NodeInfo& node, Front<Field>& front )
       {
         const Int numChildren = node.children.size();
         for( Int c=0; c<numChildren; ++c )
             pull( *node.children[c], *front.children[c] );
 
-        const F* AValBuf = A.LockedValueBuffer();
+        const Field* AValBuf = A.LockedValueBuffer();
         const Int* AColBuf = A.LockedTargetBuffer();
         const Int* AOffsetBuf = A.LockedOffsetBuffer();
 
@@ -258,9 +255,9 @@ void Front<F>::PullUpdate
                     const Int iOrig = AColBuf[rowOff+k];
                     const Int i = reordering[iOrig];
 
-                    const F transVal = AValBuf[rowOff+k];
-                    const F value = ( isHermitian ? Conj(transVal) : transVal );
-    
+                    const Field transVal = AValBuf[rowOff+k];
+                    const Field value = isHermitian ? Conj(transVal) : transVal;
+
                     if( i < node.off+t )
                         continue;
                     else if( i < node.off+node.size )
@@ -271,7 +268,7 @@ void Front<F>::PullUpdate
                     {
                         const Int origOff = Find( node.origLowerStruct, i );
                         const Int row = node.origLowerRelInds[origOff];
-                        DEBUG_ONLY(
+                        EL_DEBUG_ONLY(
                           if( row < t )
                               LogicError("Tried to touch upper triangle");
                         )
@@ -284,30 +281,30 @@ void Front<F>::PullUpdate
     pull( rootInfo, *this );
 }
 
-// TODO: Use lower-level access
-template<typename F>
-void Front<F>::Push
-( SparseMatrix<F>& A, 
+// TODO(poulson): Use lower-level access
+template<typename Field>
+void Front<Field>::Push
+( SparseMatrix<Field>& A,
   const vector<Int>& reordering,
   const NodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
 
     // Invert the reordering
     const Int n = reordering.size();
-    vector<Int> invReorder( n ); 
+    vector<Int> invReorder( n );
     for( Int j=0; j<n; ++j )
         invReorder[reordering[j]] = j;
 
     Zeros( A, n, n );
 
     // Reserve space for the lower triangle
-    // TODO: Compensate for sparse leaves
+    // TODO(poulson): Compensate for sparse leaves
     Int numLower = 0;
-    function<void(const Front<F>&)> countLower = 
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> countLower =
+      [&]( const Front<Field>& front )
       {
-          for( const Front<F>* child : front.children )
+          for( const auto& child : front.children )
               countLower( *child );
           const Int nodeSize = front.LDense.Width();
           const Int structSize = front.Height() - nodeSize;
@@ -316,9 +313,9 @@ void Front<F>::Push
     countLower( *this );
     A.Reserve( numLower );
 
-    function<void(const NodeInfo&,const Front<F>&)> 
-      push = 
-      [&]( const NodeInfo& node, const Front<F>& front )
+    function<void(const NodeInfo&,const Front<Field>&)>
+      push =
+      [&]( const NodeInfo& node, const Front<Field>& front )
       {
         const Int numChildren = node.children.size();
         for( Int c=0; c<numChildren; ++c )
@@ -338,8 +335,8 @@ void Front<F>::Push
                 {
                     const Int iSparse = front.workSparse.Row(e);
                     const Int jSparse = front.workSparse.Col(e);
-                    const F value = front.workSparse.Value(e);
-                    if( iSparse < jSparse || value == F(0) )
+                    const Field value = front.workSparse.Value(e);
+                    if( iSparse < jSparse || value == Field(0) )
                         continue;
 
                     const Int j = invReorder[jSparse + node.off];
@@ -353,8 +350,8 @@ void Front<F>::Push
                 {
                     const Int iSparse = front.LSparse.Row(e);
                     const Int jSparse = front.LSparse.Col(e);
-                    const F value = front.LSparse.Value(e);
-                    if( iSparse < jSparse || value == F(0) )
+                    const Field value = front.LSparse.Value(e);
+                    if( iSparse < jSparse || value == Field(0) )
                         continue;
 
                     const Int j = invReorder[jSparse + node.off];
@@ -369,8 +366,8 @@ void Front<F>::Push
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = invReorder[node.lowerStruct[s]];
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, j, value );
                 }
             }
@@ -385,17 +382,17 @@ void Front<F>::Push
                 for( Int s=t; s<node.size; ++s )
                 {
                     const Int i = invReorder[node.off+s];
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, j, value );
                 }
 
-                // Push in the connectivity 
+                // Push in the connectivity
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = invReorder[node.lowerStruct[s]];
-                    const F value = front.LDense(s+node.size,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s+node.size,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, j, value );
                 }
             }
@@ -406,21 +403,22 @@ void Front<F>::Push
     MakeSymmetric( LOWER, A, isHermitian );
 }
 
-// TODO: Use lower-level access
-template<typename F>
-void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
+// TODO(poulson): Use lower-level access
+template<typename Field>
+void Front<Field>::Unpack
+( SparseMatrix<Field>& A, const NodeInfo& rootInfo ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     const Int n = rootInfo.off + rootInfo.size;
     Zeros( A, n, n );
 
     // Reserve space for the lower triangle
-    // TODO: Compensate for sparse leaves
+    // TODO(poulson): Compensate for sparse leaves
     Int numLower = 0;
-    function<void(const Front<F>&)> countLower = 
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> countLower =
+      [&]( const Front<Field>& front )
       {
-          for( const Front<F>* child : front.children )
+          for( const auto& child : front.children )
               countLower( *child );
           const Int nodeSize = front.LDense.Width();
           const Int structSize = front.Height() - nodeSize;
@@ -429,8 +427,8 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
     countLower( *this );
     A.Reserve( numLower );
 
-    function<void(const NodeInfo&,const Front<F>&)> push = 
-      [&]( const NodeInfo& node, const Front<F>& front )
+    function<void(const NodeInfo&,const Front<Field>&)> push =
+      [&]( const NodeInfo& node, const Front<Field>& front )
       {
         const Int numChildren = node.children.size();
         for( Int c=0; c<numChildren; ++c )
@@ -454,8 +452,8 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
                 {
                     const Int iSparse = front.workSparse.Row(e);
                     const Int jSparse = front.workSparse.Col(e);
-                    const F value = front.workSparse.Value(e);
-                    if( iSparse < jSparse || value == F(0) )
+                    const Field value = front.workSparse.Value(e);
+                    if( iSparse < jSparse || value == Field(0) )
                         continue;
 
                     const Int j = jSparse + node.off;
@@ -469,8 +467,8 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
                 {
                     const Int iSparse = front.LSparse.Row(e);
                     const Int jSparse = front.LSparse.Col(e);
-                    const F value = front.LSparse.Value(e);
-                    if( iSparse < jSparse || value == F(0) )
+                    const Field value = front.LSparse.Value(e);
+                    if( iSparse < jSparse || value == Field(0) )
                         continue;
 
                     const Int j = jSparse + node.off;
@@ -485,8 +483,8 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = node.lowerStruct[s];
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, j, value );
                 }
             }
@@ -501,17 +499,17 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
                 for( Int s=t; s<node.size; ++s )
                 {
                     const Int i = node.off+s;
-                    const F value = front.LDense(s,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, j, value );
                 }
 
-                // Push in the connectivity 
+                // Push in the connectivity
                 for( Int s=0; s<lowerSize; ++s )
                 {
                     const Int i = node.lowerStruct[s];
-                    const F value = front.LDense(s+node.size,t);
-                    if( value != F(0) )
+                    const Field value = front.LDense(s+node.size,t);
+                    if( value != Field(0) )
                         A.QueueUpdate( i, j, value );
                 }
             }
@@ -521,10 +519,10 @@ void Front<F>::Unpack( SparseMatrix<F>& A, const NodeInfo& rootInfo ) const
     A.ProcessQueues();
 }
 
-template<typename F>
-const Front<F>& Front<F>::operator=( const Front<F>& front )
+template<typename Field>
+const Front<Field>& Front<Field>::operator=( const Front<Field>& front )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     isHermitian = front.isHermitian;
     sparseLeaf = front.sparseLeaf;
     type = front.type;
@@ -536,32 +534,33 @@ const Front<F>& Front<F>::operator=( const Front<F>& front )
     workDense = front.workDense;
     workSparse = front.workSparse;
     // Do not copy parent...
+
     // Delete any existing children
-    for( auto* child : children )
-        delete child;
+    SwapClear( children );
+
     const int numChildren = front.children.size();
     children.resize( numChildren );
     for( int c=0; c<numChildren; ++c )
     {
-        children[c] = new Front<F>(this);
+        children[c].reset( new Front<Field>(this) );
         *children[c] = *front.children[c];
     }
     return *this;
 }
 
-template<typename F>
-Int Front<F>::Height() const
+template<typename Field>
+Int Front<Field>::Height() const
 { return sparseLeaf ? LDense.Height()+LDense.Width() : LDense.Height(); }
 
-template<typename F>
-Int Front<F>::NumEntries() const
+template<typename Field>
+Int Front<Field>::NumEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const Front<F>&)> count =
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> count =
+      [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
 
         if( front.sparseLeaf )
@@ -588,21 +587,21 @@ Int Front<F>::NumEntries() const
             numEntries += front.LDense.Height() * front.LDense.Width();
         }
         // Add in the workspace for the Schur complement
-        numEntries += front.workDense.Height()*front.workDense.Width(); 
+        numEntries += front.workDense.Height()*front.workDense.Width();
       };
     count( *this );
     return numEntries;
 }
 
-template<typename F>
-Int Front<F>::NumTopLeftEntries() const
+template<typename Field>
+Int Front<Field>::NumTopLeftEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const Front<F>&)> count =
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> count =
+      [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         if( front.sparseLeaf )
         {
@@ -629,15 +628,15 @@ Int Front<F>::NumTopLeftEntries() const
     return numEntries;
 }
 
-template<typename F>
-Int Front<F>::NumBottomLeftEntries() const
+template<typename Field>
+Int Front<Field>::NumBottomLeftEntries() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Int numEntries = 0;
-    function<void(const Front<F>&)> count =
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> count =
+      [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         const Int m = front.LDense.Height();
         const Int n = front.LDense.Width();
@@ -654,15 +653,15 @@ Int Front<F>::NumBottomLeftEntries() const
     return numEntries;
 }
 
-template<typename F>
-double Front<F>::FactorGFlops() const
+template<typename Field>
+double Front<Field>::FactorGFlops() const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
-    function<void(const Front<F>&)> count =
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> count =
+      [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         const double m = front.LDense.Height();
         const double n = front.LDense.Width();
@@ -688,27 +687,27 @@ double Front<F>::FactorGFlops() const
         {
             realFrontFlops = (n*n*n/3) + (m-n)*n + (m-n)*(m-n)*n;
         }
-        gflops += (IsComplex<F>::value ? 4*realFrontFlops
+        gflops += (IsComplex<Field>::value ? 4*realFrontFlops
                                        : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
 }
 
-template<typename F>
-double Front<F>::SolveGFlops( Int numRHS ) const
+template<typename Field>
+double Front<Field>::SolveGFlops( Int numRHS ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     double gflops = 0.;
-    function<void(const Front<F>&)> count =
-      [&]( const Front<F>& front )
+    function<void(const Front<Field>&)> count =
+      [&]( const Front<Field>& front )
       {
-        for( auto* child : front.children )
+        for( const auto& child : front.children )
             count( *child );
         const double m = front.LDense.Height();
         const double n = front.LDense.Width();
         double realFrontFlops = 0;
-        if( front.sparseLeaf ) 
+        if( front.sparseLeaf )
         {
             if( Unfactored(front.type) )
                 LogicError("Matrix has not yet been factored");
@@ -720,14 +719,14 @@ double Front<F>::SolveGFlops( Int numRHS ) const
         {
             realFrontFlops = m*n*numRHS;
         }
-        gflops += (IsComplex<F>::value ? 4*realFrontFlops
+        gflops += (IsComplex<Field>::value ? 4*realFrontFlops
                                        : realFrontFlops)/1.e9;
       };
     count( *this );
     return gflops;
 }
 
-#define PROTO(F) template struct Front<F>;
+#define PROTO(Field) template struct Front<Field>;
 #define EL_NO_INT_PROTO
 #define EL_ENABLE_DOUBLEDOUBLE
 #define EL_ENABLE_QUADDOUBLE

@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 
@@ -25,30 +25,30 @@ namespace El {
 template<typename T>
 BDM::DistMatrix( const El::Grid& g, int root )
 : BCM(g,root)
-{ 
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
-    this->SetShifts(); 
+{
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
+    this->SetShifts();
 }
 
 template<typename T>
 BDM::DistMatrix
 ( const El::Grid& g, Int blockHeight, Int blockWidth, int root )
 : BCM(g,blockHeight,blockWidth,root)
-{ 
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
-    this->SetShifts(); 
+{
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
+    this->SetShifts();
 }
 
 template<typename T>
 BDM::DistMatrix
 ( Int height, Int width, const El::Grid& g, int root )
 : BCM(g,root)
-{ 
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
-    this->SetShifts(); this->Resize(height,width); 
+{
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
+    this->SetShifts(); this->Resize(height,width);
 }
 
 template<typename T>
@@ -56,20 +56,20 @@ BDM::DistMatrix
 ( Int height, Int width, const El::Grid& g,
   Int blockHeight, Int blockWidth, int root )
 : BCM(g,blockHeight,blockWidth,root)
-{ 
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
-    this->SetShifts(); 
-    this->Resize(height,width); 
+{
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
+    this->SetShifts();
+    this->Resize(height,width);
 }
 
 template<typename T>
 BDM::DistMatrix( const BDM& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( &A != this )
         *this = A;
@@ -82,9 +82,9 @@ template<Dist U,Dist V>
 BDM::DistMatrix( const DistMatrix<T,U,V,BLOCK>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     if( COLDIST != U || ROWDIST != V ||
         reinterpret_cast<const BDM*>(&A) != this )
@@ -97,44 +97,34 @@ template<typename T>
 BDM::DistMatrix( const AbstractDistMatrix<T>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
-    if( A.Wrap() == ELEMENT )
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = \
-            static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"
-    }
-    else
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = \
-            static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"
-    }
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = \
+        static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
+      *this = ACast;
+    #include "El/macros/GuardAndPayload.h"
 }
 
 template<typename T>
 BDM::DistMatrix( const BlockMatrix<T>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
-    #define GUARD(CDIST,RDIST) \
-      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST
-    #define PAYLOAD(CDIST,RDIST) \
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.DistData().colDist == CDIST && A.DistData().rowDist == RDIST && \
+      A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
       auto& ACast = \
         static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-      if( COLDIST != CDIST || ROWDIST != RDIST || \
+      if( COLDIST != CDIST || ROWDIST != RDIST || BLOCK != WRAP || \
           reinterpret_cast<const BDM*>(&A) != this ) \
           *this = ACast; \
       else \
@@ -147,34 +137,34 @@ template<Dist U,Dist V>
 BDM::DistMatrix( const DistMatrix<T,U,V>& A )
 : BCM(A.Grid())
 {
-    DEBUG_CSE
-    if( COLDIST == CIRC && ROWDIST == CIRC )
-        this->matrix_.SetViewType( OWNER );
+    EL_DEBUG_CSE
+    if( COLDIST != CIRC || ROWDIST != CIRC )
+        this->Matrix().FixSize();
     this->SetShifts();
     *this = A;
 }
 
 template<typename T>
-BDM::DistMatrix( BDM&& A ) EL_NO_EXCEPT : BCM(std::move(A)) { } 
+BDM::DistMatrix( BDM&& A ) EL_NO_EXCEPT : BCM(std::move(A)) { }
 
 template<typename T> BDM::~DistMatrix() { }
 
-template<typename T> 
+template<typename T>
 BDM* BDM::Copy() const
 { return new DistMatrix<T,COLDIST,ROWDIST,BLOCK>(*this); }
 
-template<typename T> 
+template<typename T>
 BDM* BDM::Construct( const El::Grid& g, int root ) const
 { return new DistMatrix<T,COLDIST,ROWDIST,BLOCK>(g,root); }
 
-template<typename T> 
+template<typename T>
 DistMatrix<T,ROWDIST,COLDIST,BLOCK>* BDM::ConstructTranspose
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,ROWDIST,COLDIST,BLOCK>(g,root); }
 
-template<typename T> 
+template<typename T>
 DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
-             DiagRow<COLDIST,ROWDIST>(),BLOCK>* 
+             DiagRow<COLDIST,ROWDIST>(),BLOCK>*
 BDM::ConstructDiagonal
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
@@ -188,7 +178,7 @@ BDM::ConstructDiagonal
 template<typename T>
 BDM BDM::operator()( Range<Int> I, Range<Int> J )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     if( this->Locked() )
         return LockedView( *this, I, J );
     else
@@ -198,7 +188,7 @@ BDM BDM::operator()( Range<Int> I, Range<Int> J )
 template<typename T>
 const BDM BDM::operator()( Range<Int> I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     return LockedView( *this, I, J );
 }
 
@@ -207,7 +197,7 @@ const BDM BDM::operator()( Range<Int> I, Range<Int> J ) const
 template<typename T>
 BDM BDM::operator()( Range<Int> I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -216,7 +206,7 @@ BDM BDM::operator()( Range<Int> I, const vector<Int>& J ) const
 template<typename T>
 BDM BDM::operator()( const vector<Int>& I, Range<Int> J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -225,7 +215,7 @@ BDM BDM::operator()( const vector<Int>& I, Range<Int> J ) const
 template<typename T>
 BDM BDM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     BDM ASub( this->Grid(), this->BlockHeight(), this->BlockWidth() );
     GetSubmatrix( *this, I, J, ASub );
     return ASub;
@@ -237,25 +227,14 @@ BDM BDM::operator()( const vector<Int>& I, const vector<Int>& J ) const
 template<typename T>
 BDM& BDM::operator=( const AbstractDistMatrix<T>& A )
 {
-    DEBUG_CSE
-    if( A.Wrap() == ELEMENT )
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = \
-            static_cast<const DistMatrix<T,CDIST,RDIST>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"
-    }
-    else
-    {
-        #define GUARD(CDIST,RDIST) A.ColDist() == CDIST && A.RowDist() == RDIST
-        #define PAYLOAD(CDIST,RDIST) \
-          auto& ACast = \
-            static_cast<const DistMatrix<T,CDIST,RDIST,BLOCK>&>(A); \
-          *this = ACast;
-        #include "El/macros/GuardAndPayload.h"
-    }
+    EL_DEBUG_CSE
+    #define GUARD(CDIST,RDIST,WRAP) \
+      A.ColDist() == CDIST && A.RowDist() == RDIST && A.Wrap() == WRAP
+    #define PAYLOAD(CDIST,RDIST,WRAP) \
+      auto& ACast = \
+        static_cast<const DistMatrix<T,CDIST,RDIST,WRAP>&>(A); \
+      *this = ACast;
+    #include "El/macros/GuardAndPayload.h"
     return *this;
 }
 
@@ -263,7 +242,7 @@ template<typename T>
 template<Dist U,Dist V>
 BDM& BDM::operator=( const DistMatrix<T,U,V>& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     // TODO: Use either AllGather or Gather if the distribution of this matrix
     //       is respectively either (STAR,STAR) or (CIRC,CIRC)
     // TODO: Specially handle cases where the block size is 1 x 1
@@ -286,7 +265,7 @@ BDM& BDM::operator=( BDM&& A )
 template<typename T>
 const BDM& BDM::operator*=( T alpha )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Scale( alpha, *this );
     return *this;
 }
@@ -296,7 +275,7 @@ const BDM& BDM::operator*=( T alpha )
 template<typename T>
 const BDM& BDM::operator+=( const BCM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -304,7 +283,7 @@ const BDM& BDM::operator+=( const BCM& A )
 template<typename T>
 const BDM& BDM::operator+=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(1), A, *this );
     return *this;
 }
@@ -312,7 +291,7 @@ const BDM& BDM::operator+=( const ADM& A )
 template<typename T>
 const BDM& BDM::operator-=( const BCM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
@@ -320,17 +299,13 @@ const BDM& BDM::operator-=( const BCM& A )
 template<typename T>
 const BDM& BDM::operator-=( const ADM& A )
 {
-    DEBUG_CSE
+    EL_DEBUG_CSE
     Axpy( T(-1), A, *this );
     return *this;
 }
 
 // Distribution data
 // =================
-
-template<typename T>
-El::DistData BDM::DistData() const { return El::DistData(*this); }
-
 template<typename T>
 Dist BDM::ColDist() const EL_NO_EXCEPT { return COLDIST; }
 template<typename T>

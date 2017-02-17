@@ -234,10 +234,6 @@ def Initialize():
   pythonapi.Py_GetArgcArgv(ctypes.byref(argc),ctypes.byref(argv))
   lib.ElInitialize(pointer(argc),pointer(argv))
 
-lib.ElFinalize.argtypes = []
-def Finalize():
-  lib.ElFinalize()
-
 lib.ElInitialized.argtypes = [POINTER(bType)]
 def Initialized():
   active = bType()

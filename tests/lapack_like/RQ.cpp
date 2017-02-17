@@ -2,21 +2,21 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
 using namespace El;
 
-template<typename F>
+template<typename Field>
 void TestCorrectness
-( const Matrix<F>& A,
-  const Matrix<F>& phase,
-  const Matrix<Base<F>>& signature,
-        Matrix<F>& AOrig )
+( const Matrix<Field>& A,
+  const Matrix<Field>& householderScalars,
+  const Matrix<Base<Field>>& signature,
+        Matrix<Field>& AOrig )
 {
-    typedef Base<F> Real;
+    typedef Base<Field> Real;
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -28,14 +28,14 @@ void TestCorrectness
     PushIndent();
 
     // Form Z := Q Q^H as an approximation to identity
-    Matrix<F> Z;
+    Matrix<Field> Z;
     Identity( Z, m, n );
-    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
-    rq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, householderScalars, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
-    Matrix<F> X;
+    Matrix<Field> X;
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
@@ -50,31 +50,31 @@ void TestCorrectness
     // Form RQ - A
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
-    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, U );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, U );
     U -= AOrig;
-    
+
     const Real infError = InfinityNorm( U );
     const Real relError = infError / (eps*maxDim*oneNormA);
     Output("||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
 
     PopIndent();
 
-    // TODO: More rigorous failure conditions
+    // TODO(poulson): More rigorous failure conditions
     if( relOrthogError > Real(10) )
         LogicError("Unacceptably large relative orthogonality error");
     if( relError > Real(10) )
         LogicError("Unacceptably large relative error");
 }
 
-template<typename F>
+template<typename Field>
 void TestCorrectness
-( const DistMatrix<F>& A,
-  const DistMatrix<F,MD,STAR>& phase,
-  const DistMatrix<Base<F>,MD,STAR>& signature,
-        DistMatrix<F>& AOrig )
+( const DistMatrix<Field>& A,
+  const DistMatrix<Field,MD,STAR>& householderScalars,
+  const DistMatrix<Base<Field>,MD,STAR>& signature,
+        DistMatrix<Field>& AOrig )
 {
-    typedef Base<F> Real;
-    const Grid& g = A.Grid();
+    typedef Base<Field> Real;
+    const Grid& grid = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
     const Int minDim = Min(m,n);
@@ -82,62 +82,62 @@ void TestCorrectness
     const Real eps = limits::Epsilon<Real>();
     const Real oneNormA = OneNorm( AOrig );
 
-    OutputFromRoot(g.Comm(),"Testing orthogonality of Q...");
+    OutputFromRoot(grid.Comm(),"Testing orthogonality of Q...");
     PushIndent();
 
     // Form Z := Q Q^H as an approximation to identity
-    DistMatrix<F> Z(g);
+    DistMatrix<Field> Z(grid);
     Identity( Z, m, n );
-    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, Z );
-    rq::ApplyQ( RIGHT, ADJOINT, A, phase, signature, Z );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, householderScalars, signature, Z );
     auto ZUpper = Z( IR(0,minDim), IR(0,minDim) );
 
     // Form X := I - Q Q^H
-    DistMatrix<F> X(g);
+    DistMatrix<Field> X(grid);
     Identity( X, minDim, minDim );
     X -= ZUpper;
 
     const Real infOrthogError = InfinityNorm( X );
     const Real relOrthogError = infOrthogError / (eps*maxDim);
     OutputFromRoot
-    (g.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
+    (grid.Comm(),"||Q^H Q - I||_oo / (eps Max(m,n)) = ",relOrthogError);
     PopIndent();
 
-    OutputFromRoot(g.Comm(),"Testing if A = RQ...");
+    OutputFromRoot(grid.Comm(),"Testing if A = RQ...");
     PushIndent();
 
     // Form RQ - A
     auto U( A );
     MakeTrapezoidal( UPPER, U, U.Width()-U.Height() );
-    rq::ApplyQ( RIGHT, NORMAL, A, phase, signature, U );
+    rq::ApplyQ( RIGHT, NORMAL, A, householderScalars, signature, U );
     U -= AOrig;
-    
+
     const Real infError = InfinityNorm( U );
     const Real relError = infError / (eps*maxDim*oneNormA);
     OutputFromRoot
-    (g.Comm(),"||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
+    (grid.Comm(),"||A - RQ||_oo / (eps Max(m,n) ||A||_1)= ",relError);
 
     PopIndent();
 
-    // TODO: More rigorous failure conditions
+    // TODO(poulson): More rigorous failure conditions
     if( relOrthogError > Real(10) )
         LogicError("Unacceptably large relative orthogonality error");
     if( relError > Real(10) )
         LogicError("Unacceptably large relative error");
 }
 
-template<typename F>
+template<typename Field>
 void TestRQ
 ( Int m,
   Int n,
   bool correctness,
   bool print )
 {
-    Output("Testing with ",TypeName<F>());
+    Output("Testing with ",TypeName<Field>());
     PushIndent();
-    Matrix<F> A, AOrig;
-    Matrix<F> phase;
-    Matrix<Base<F>> signature;
+    Matrix<Field> A, AOrig;
+    Matrix<Field> householderScalars;
+    Matrix<Base<Field>> signature;
 
     Uniform( A, m, n );
     if( correctness )
@@ -148,25 +148,25 @@ void TestRQ
     Output("Starting RQ factorization...");
     Timer timer;
     timer.Start();
-    RQ( A, phase, signature );
+    RQ( A, householderScalars, signature );
     const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    const double gFlops = IsComplex<Field>::value ? 4*realGFlops : realGFlops;
     Output(runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, phase, signature, AOrig );
+        TestCorrectness( A, householderScalars, signature, AOrig );
     PopIndent();
 }
 
-template<typename F>
+template<typename Field>
 void TestRQ
 ( const Grid& g,
   Int m,
@@ -174,11 +174,11 @@ void TestRQ
   bool correctness,
   bool print )
 {
-    OutputFromRoot(g.Comm(),"Testing with ",TypeName<F>());
+    OutputFromRoot(g.Comm(),"Testing with ",TypeName<Field>());
     PushIndent();
-    DistMatrix<F> A(g), AOrig(g);
-    DistMatrix<F,MD,STAR> phase(g);
-    DistMatrix<Base<F>,MD,STAR> signature(g);
+    DistMatrix<Field> A(g), AOrig(g);
+    DistMatrix<Field,MD,STAR> householderScalars(g);
+    DistMatrix<Base<Field>,MD,STAR> signature(g);
 
     Uniform( A, m, n );
     if( correctness )
@@ -190,26 +190,26 @@ void TestRQ
     mpi::Barrier( g.Comm() );
     Timer timer;
     timer.Start();
-    RQ( A, phase, signature );
+    RQ( A, householderScalars, signature );
     mpi::Barrier( g.Comm() );
     const double runTime = timer.Stop();
     const double mD = double(m);
     const double nD = double(n);
     const double realGFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
-    const double gFlops = ( IsComplex<F>::value ? 4*realGFlops : realGFlops );
+    const double gFlops = IsComplex<Field>::value ? 4*realGFlops : realGFlops;
     OutputFromRoot(g.Comm(),runTime," seconds (",gFlops," GFlop/s)");
     if( print )
     {
         Print( A, "A after factorization" );
-        Print( phase, "phase" );
+        Print( householderScalars, "householderScalars" );
         Print( signature, "signature" );
     }
     if( correctness )
-        TestCorrectness( A, phase, signature, AOrig );
+        TestCorrectness( A, householderScalars, signature, AOrig );
     PopIndent();
 }
 
-int 
+int
 main( int argc, char* argv[] )
 {
     Environment env( argc, argv );
@@ -237,9 +237,9 @@ main( int argc, char* argv[] )
 #endif
 
         if( gridHeight == 0 )
-            gridHeight = Grid::FindFactor( mpi::Size(comm) );
+            gridHeight = Grid::DefaultHeight( mpi::Size(comm) );
         const GridOrder order = ( colMajor ? COLUMN_MAJOR : ROW_MAJOR );
-        const Grid g( comm, gridHeight, order );
+        const Grid grid( comm, gridHeight, order );
         SetBlocksize( nb );
         ComplainIfDebug();
 
@@ -283,39 +283,39 @@ main( int argc, char* argv[] )
         }
 
         TestRQ<float>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
         TestRQ<Complex<float>>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
 
         TestRQ<double>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
         TestRQ<Complex<double>>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
 
 #ifdef EL_HAVE_QD
         TestRQ<DoubleDouble>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
         TestRQ<QuadDouble>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
 
         TestRQ<Complex<DoubleDouble>>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
         TestRQ<Complex<QuadDouble>>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_QUAD
         TestRQ<Quad>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
         TestRQ<Complex<Quad>>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
 #endif
 
 #ifdef EL_HAVE_MPC
         TestRQ<BigFloat>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
         TestRQ<Complex<BigFloat>>
-        ( g, m, n, correctness, print );
+        ( grid, m, n, correctness, print );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
