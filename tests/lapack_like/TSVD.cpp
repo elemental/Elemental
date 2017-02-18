@@ -17,10 +17,10 @@ class AOp {
     AOp( const Matrix& A_, Orientation o_ = El::NORMAL) : A( A_), o(o_) {}
     
     template< typename V>
-    void operator()( V& v) const {
+    void operator*( V& v) const {
         V w;
         Gemv(o, 1.0, A, v, w);
-        v = w;
+        return w;
     }
 
     Int Height() const {
