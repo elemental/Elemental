@@ -320,6 +320,11 @@ void SecularInitialGuess
         state.sigmaRelEst =
           RelativeEigenvalueToRelativeSingularValue
           ( state.rootRelEst, d(state.origin) );
+        if( !limits::IsFinite(state.sigmaRelEst) )
+            RuntimeError
+            ("sigmaRelEst became non-finite after call to "
+             "RelativeEigenvalueToRelativeSingularValue with rootRelEst=",
+             state.rootRelEst);
 
         // TODO(poulson): Document this LAPACK heuristic
         const Real eps = limits::Epsilon<Real>();
@@ -330,6 +335,10 @@ void SecularInitialGuess
         {
             state.geometricAverage = true;
             state.sigmaRelEst = Min( 10*d(k), state.sigmaRelUpperBound );
+            if( !limits::IsFinite(state.sigmaRelEst) )
+                RuntimeError
+                ("sigmaRelEst became non-finite after "
+                 "Min(10*d(k),relUpperBound) LAPACK heuristic");
         }
     }
     else
@@ -361,13 +370,19 @@ void SecularInitialGuess
         state.sigmaRelEst =
           RelativeEigenvalueToRelativeSingularValue
           ( state.rootRelEst, d(state.origin) );
+        if( !limits::IsFinite(state.sigmaRelEst) )
+            RuntimeError
+            ("sigmaRelEst became non-finite after call to "
+             "RelativeEigenvalueToRelativeSingularValue with rootRelEst=",
+             state.rootRelEst);
     }
+    state.sigmaEst = state.sigmaRelEst + d(state.origin);
     if( ctrl.progress )
         Output
         ("Initial relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+         state.sigmaRelUpperBound,"], sigmaRelEst=",state.sigmaRelEst,
+         ", sigmaEst=",state.sigmaEst);
 
-    state.sigmaEst = state.sigmaRelEst + d(state.origin);
     for( Int j=0; j<n; ++j ) 
     {
         state.dPlusShift(j) = (d(j) + d(state.origin)) + state.sigmaRelEst;
@@ -410,6 +425,8 @@ void SecularInitialGuessLast
 
     state.rootRelEst = shiftedCenter;
     state.sigmaRelEst = shiftedCenterRoot;
+    if( !limits::IsFinite(state.sigmaRelEst) )
+        RuntimeError("sigmaRelEst became non-finite due to shiftedCenterRoot");
     state.sigmaEst = state.sigmaRelEst + d(origin);
     for( Int j=0; j<n; ++j ) 
     {
@@ -465,6 +482,11 @@ void SecularInitialGuessLast
             state.sigmaRelEst =
               RelativeEigenvalueToRelativeSingularValue
               ( state.rootRelEst, d(origin) );
+            if( !limits::IsFinite(state.sigmaRelEst) )
+                RuntimeError
+                ("sigmaRelEst became non-finite after call to "
+                 "RelativeEigenvalueToRelativeSingularValue with rootRelEst=",
+                 state.rootRelEst);
         }
         state.sigmaRelLowerBound = shiftedCenterRoot;
         state.sigmaRelUpperBound =
@@ -489,15 +511,21 @@ void SecularInitialGuessLast
         state.sigmaRelEst =
           RelativeEigenvalueToRelativeSingularValue
           ( state.rootRelEst, d(origin) );
+        if( !limits::IsFinite(state.sigmaRelEst) )
+            RuntimeError
+            ("sigmaRelEst became non-finite after call to "
+             "RelativeEigenvalueToRelativeSingularValue with rootRelEst=",
+             state.rootRelEst);
         state.sigmaRelLowerBound = 0;
         state.sigmaRelUpperBound = shiftedCenterRoot;
     }
+    state.sigmaEst = state.sigmaRelEst + d(origin);
     if( ctrl.progress )
         Output
         ("Initial relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+         state.sigmaRelUpperBound,"], sigmaRelEst=",state.sigmaRelEst,
+         ", sigmaEst=",state.sigmaEst);
 
-    state.sigmaEst = state.sigmaRelEst + d(origin);
     for( Int j=0; j<n; ++j ) 
     {
         state.dPlusShift(j) = (d(j) + d(origin)) + state.sigmaRelEst;
@@ -533,7 +561,8 @@ void SecularUpdate
     if( ctrl.progress )
         Output
         ("Relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+         state.sigmaRelUpperBound,"], sigmaRelEst=",state.sigmaRelEst,
+         ", sigmaEst=",state.sigmaEst);
 
     if( state.useThreePoles )
     {
@@ -883,6 +912,8 @@ void SecularUpdate
             }
         }
     }
+    if( !limits::IsFinite(eta) )
+        RuntimeError("eta was non-finite in SecularUpdate");
 
     state.sigmaEst += eta;
     state.sigmaRelEst += eta;
@@ -918,7 +949,7 @@ void SecularUpdateLast
     if( ctrl.progress )
         Output
         ("Relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"]");
+         state.sigmaRelUpperBound,"], sigmaEst=",state.sigmaEst);
 
     const Real kGap = state.dPlusShift(origin)*state.dMinusShift(origin);
     const Real km1Gap = state.dPlusShift(origin-1)*state.dMinusShift(origin-1);
@@ -1010,6 +1041,8 @@ void SecularUpdateLast
         }
     }
 
+    if( !limits::IsFinite(eta) )
+        RuntimeError("eta was non-finite in SecularUpdateLast");
     state.sigmaEst += eta;
     state.sigmaRelEst += eta;
     state.secularOld = state.secular;
@@ -1105,8 +1138,12 @@ SecularInner
         }
         if( info.numIterations >= ctrl.maxIterations )
         {
+            Output("whichValue=",whichValue);
+            Print( d, "d" );
+            Output("rho=",rho);
+            Print( z, "z" );
             RuntimeError
-            ("Secular solver did not converge in ",ctrl.maxIterations,
+            ("SecularInner solver did not converge in ",ctrl.maxIterations,
              " iterations");
         }
 
@@ -1175,7 +1212,7 @@ SecularLast
         if( info.numIterations >= ctrl.maxIterations )
         {
             RuntimeError
-            ("Secular solver did not converge in ",ctrl.maxIterations,
+            ("SecularLast solver did not converge in ",ctrl.maxIterations,
              " iterations");
         }
 
@@ -1240,6 +1277,21 @@ SecularSingularValue
     else if( n == 2 )
     {
         singularValue = secular_svd::TwoByTwo( k, d(0), d(1), rho, z(0), z(1) );
+        return info;
+    }
+
+    // Check if the square-root of the relative two-norm of the update matrix,
+    // Sqrt(rho) / max(d), is below a small multiple of machine precision
+    // (if so, we may ignore it).
+    //
+    // TODO(poulson): Make globalDeflateFudge consistent with SVD D&C.
+    //
+    const Real relativeUpdateTwoNorm = Sqrt(rho) / d(n-1);
+    const Real globalDeflateFudge = Real(10);
+    const Real globalDeflateTol = globalDeflateFudge * limits::Epsilon<Real>();
+    if( relativeUpdateTwoNorm <= globalDeflateTol )
+    {
+        singularValue = d(whichValue);
         return info;
     }
 
@@ -1311,6 +1363,25 @@ SecularSingularValue
         return info;
     }
 
+    // Check if the square-root of the relative two-norm of the update matrix,
+    // Sqrt(rho) / max(d), is below a small multiple of machine precision
+    // (if so, we may ignore it).
+    //
+    // TODO(poulson): Make globalDeflateFudge consistent with SVD D&C.
+    //
+    const Real relativeUpdateTwoNorm = Sqrt(rho) / d(n-1);
+    const Real globalDeflateFudge = Real(10);
+    const Real globalDeflateTol = globalDeflateFudge * limits::Epsilon<Real>();
+    if( relativeUpdateTwoNorm <= globalDeflateTol )
+    {
+        singularValue = d(whichValue);
+        for( Int i=0; i<n; ++i )
+            dPlusShift(i) = d(i) + singularValue;
+        for( Int i=0; i<n; ++i )
+            dMinusShift(i) = d(i) - singularValue;
+        return info;
+    }
+
     if( k < n-1 )
     {
         secular_svd::State<Real> state;
@@ -1351,6 +1422,23 @@ SecularSVD
     {
         U.Resize( n, n );
         V.Resize( n, n );
+        return info;
+    }
+
+    // Check if the square-root of the relative two-norm of the update matrix,
+    // Sqrt(rho) / max(d), is below a small multiple of machine precision
+    // (if so, we may ignore it).
+    //
+    // TODO(poulson): Make globalDeflateFudge consistent with SVD D&C.
+    //
+    const Real relativeUpdateTwoNorm = Sqrt(rho) / d(n-1);
+    const Real globalDeflateFudge = Real(10);
+    const Real globalDeflateTol = globalDeflateFudge * limits::Epsilon<Real>();
+    if( relativeUpdateTwoNorm <= globalDeflateTol )
+    {
+        s = d;
+        Identity( U, n, n );
+        Identity( V, n, n );
         return info;
     }
 

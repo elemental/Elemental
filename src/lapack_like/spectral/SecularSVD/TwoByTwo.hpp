@@ -24,7 +24,17 @@ Real RelativeEigenvalueToRelativeSingularValue
     //
     //   singVal - shiftSqrt.
     //
-    return relEigval / (shiftSqrt + Sqrt(shiftSqrt*shiftSqrt + relEigval));
+    const Real discrim = shiftSqrt*shiftSqrt + relEigval;
+    if( discrim <= Real(0) )
+    {
+        // Force the singular value to zero.
+        // TODO(poulson): Also allow the 'flip' option.
+        return -shiftSqrt;
+    }
+    else
+    {
+        return relEigval / (shiftSqrt + Sqrt(discrim));
+    }
 }
 
 // Compute a single singular value corresponding to the square-root of the 
