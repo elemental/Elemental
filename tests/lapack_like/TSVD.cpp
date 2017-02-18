@@ -17,7 +17,7 @@ class AOp {
     AOp( const Matrix& A_, Orientation o_ = El::NORMAL) : A( A_), o(o_) {}
     
     template< typename V>
-    void operator*( V& v) const {
+    V operator*( V& v) const {
         V w;
         Gemv(o, 1.0, A, v, w);
         return w;
@@ -53,7 +53,7 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
     SVD( A, U, S, V);
     mpi::Barrier( g.Comm() );
     std::cout << "Singular Values: " << std::flush;
-    Display(S, "Singular Values");
+    Display(S(Range<Int>(0,k), 0), "Singular Values");
     std::cout << std::endl;
     if( g.Rank() == 0 )
         Output("  Starting TSVD factorization...");
@@ -61,7 +61,7 @@ void TestTSVD( const DistMatrix<F>& A, Int k=3){
     typedef AOp<DistMatrix<F>> Operator; 
     Operator Aop( A);
     Operator AAdjop( A, El::ADJOINT);
-    TSVD( m, n, Aop, AAdjop, k, Uk, Sk, Vk);
+    TSVD( Aop, AAdjop, k, Uk, Sk, Vk, 5);
     const double runTime = mpi::Time() - startTime;
     Output("TSVD Time = ",runTime);
     Real eps = limits::Epsilon<Real>();
@@ -100,8 +100,8 @@ main( int argc, char* argv[] )
     try
     {
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
-        const Int m = Input("--height","height of matrix",10);
-        const Int n = Input("--width","width of matrix",10);
+        const Int m = Input("--height","height of matrix",3);
+        const Int n = Input("--width","width of matrix",3);
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);

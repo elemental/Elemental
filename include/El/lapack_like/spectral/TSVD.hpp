@@ -12,6 +12,17 @@ namespace El {
 template<typename Real>
 Real CopySign(const Real& x, const Real& y) { return y >= Real(0) ? Abs(x) : -Abs(x); }
 
+template<typename F>
+struct BidiagonalMatrix {
+ typedef Matrix <Base<F>> RealMatrix;
+ 
+ BidiagonalMatrix(El::Int N) : mainDiag(N, 1), superDiag(N - 1, 1) {}
+ 
+ RealMatrix mainDiag;
+ RealMatrix superDiag;
+}; //BidiagonalMatrix
+
+
 struct BidiagInfo {
  Int numVecsReorth;
 }; //struct BidiagInfo
@@ -61,8 +72,6 @@ Int Reorthogonalize(DistMatrix <F>& Q,
  Real alpha = Nrm2(x);
  diagList.Set(j, 0, alpha);
  Scale(Real(1) / alpha, x);
- auto qj = Q(ALL, IR(j));
- qj = x;
  return numVecsReorth;
 }
 
@@ -120,7 +129,7 @@ template<typename F,
 BidiagInfo
 GolubKahan(
  El::Int iter,
- El::Int steps,
+ El::Int k,
  const ForwardOperator& A, const AdjointOperator& AAdj,
  BidiagonalMatrix <F>& B, El::DistMatrix<F>& U, El::DistMatrix<F>& V,
  ReorthogonalizationData<F>& reorthData, const El::BidiagCtrl<F>& ctrl) {
@@ -133,21 +142,42 @@ GolubKahan(
  auto& nuList = reorthData.nuList;
  auto& muList = reorthData.muList;
  El::Int numVecsReorth = 0;
- std::vector<El::Base<F>> maxMuList, maxNuList;
- maxMuList.reserve(steps);
- maxNuList.reserve(steps);
+ //std::vector<El::Base<F>> maxMuList, maxNuList;
+ //maxMuList.reserve(steps);
+ //maxNuList.reserve(steps);
  
- DM v = V(ALL, IR(iter));
- DM u = U(ALL, IR(iter + 1));
- DM vOld(v);
- DM uOld(u);
- Real beta = B.superDiag.Get(iter, 0);
- auto absComp = [](const Real& a, const Real& b) { return Abs(a) < Abs(b); };
- for (Int j = iter + 1; j < iter + steps; ++j) {
-  vOld = v;
-  v = AAdj * u;
-  Axpy(-beta, vOld, v);
-  Real alpha = Nrm2(v);
+ DM v_j = V(ALL, IR(iter));
+ DM u_j = U(ALL, IR(iter + 1));
+ DM v_prev(v_j);
+ DM u_prev(u_j);
+ Real beta_j = 0;
+ Real alpha = B.superDiag.Get(iter, 0);
+ //auto absComp = [](const Real& a, const Real& b) { return Abs(a) < Abs(b); };
+ for (Int j = iter + 1; j < k; ++j) {
+ 
+  //The u step
+  // apply the operator
+  u_prev = u_j;
+  u_j = A * v_prev;
+  Axpy(-alpha, u_prev, u_j);
+  beta_j = Nrm2(u_j);
+  Scale(F(1.0)/beta_j, u_j);
+  
+  //reorthData.tau = Max(reorthData.tau, eps * ( alpha + beta ));
+  ////compute omega recurrence
+  //auto foundInaccurateU = omegaRecurrenceU(j, reorthData.tau, B, nuList, alpha, beta, ctrl, muList);
+  //maxMuList.emplace_back(*std::max_element(muList.begin(), muList.end(), absComp));
+  //muList.emplace_back(1);
+  //if ( reorthB || foundInaccurateU ) {
+  numVecsReorth += Reorthogonalize(U, j, muList, ctrl, u_j, B.superDiag);
+  U(ALL, IR(j)) = u_j;
+  //}
+  
+  v_prev = v_j;
+  v_j = AAdj * u_j;
+  Axpy(-beta_j, v_prev, v_j);
+  Real alpha = Nrm2(v_j);
+  Scale(F(1.0)/alpha, v_j);
   
   //reorthData.tau = Max(reorthData.tau, eps * ( alpha + beta ));
   //bool foundInaccurate;
@@ -156,39 +186,14 @@ GolubKahan(
   //maxNuList.emplace_back(*std::max_element(nuList.begin(), nuList.end(), absComp));
   ////Reorthogonalize if necessary.
   //if ( reorthB || foundInaccurateV ) {
-   numVecsReorth += Reorthogonalize(V, j, nuList, ctrl, v, B.mainDiag);
-  //}
-  
-  //The u step
-  // apply the operator
-  uOld = u;
-  u = A * v;
-  Axpy(-alpha, uOld, u);
-  beta = Nrm2(u);
-  
-  //reorthData.tau = Max(reorthData.tau, eps * ( alpha + beta ));
-  ////compute omega recurrence
-  //auto foundInaccurateU = omegaRecurrenceU(j, reorthData.tau, B, nuList, alpha, beta, ctrl, muList);
-  //maxMuList.emplace_back(*std::max_element(muList.begin(), muList.end(), absComp));
-  //muList.emplace_back(1);
-  //if ( reorthB || foundInaccurateU ) {
-   numVecsReorth += Reorthogonalize(U, j, muList, ctrl, u, B.superDiag);
+  numVecsReorth += Reorthogonalize(V, j, nuList, ctrl, v_j, B.mainDiag);
+  V(ALL, IR(j)) = v_j;
   //}
  }
  BidiagInfo info;
  info.numVecsReorth = numVecsReorth;
  return info;
 }
-
-template<typename F>
-struct BidiagonalMatrix {
- typedef Matrix <Base<F>> RealMatrix;
- 
- BidiagonalMatrix(El::Int N) : mainDiag(N, 1), superDiag(N - 1, 1) {}
- 
- RealMatrix mainDiag;
- RealMatrix superDiag;
-}; //BidiagonalMatrix
 
 template<typename F>
 El::Matrix<F> BidiagonalSVD(const BidiagonalMatrix<F>& B,
@@ -231,31 +236,34 @@ template< typename F,
           typename AdjointOperator>
 ReorthogonalizationData<F> InitialIteration(const ForwardOperator& A, const AdjointOperator& AAdj,
                                             El::AbstractDistMatrix<F>& initialVec,
-                                            DistMatrix<F>& UTilde, DistMatrix<F>& VTilde){
+                                            DistMatrix<F>& UTilde, DistMatrix<F>& VTilde,
+                                            BidiagonalMatrix<F>& B){
    typedef El::Base<F> Real;
    
    const Real eps = El::limits::Epsilon<Real>();
    
    Real initNorm = Nrm2(initialVec);
    Scale(Real(1)/initNorm, initialVec);
-   VTilde(El::ALL, 0) = AAdj * initialVec; //v = A'initialVec;
+   UTilde(El::ALL, 0) = initialVec;
+   DistMatrix<F> x = UTilde(El::ALL, IR(0));
+   VTilde(El::ALL, 0) = AAdj * x;
    
    auto v = VTilde(El::ALL, 0);
   
    Real alpha = El::Nrm2(v); //record the norm, for reorth.
    El::Scale(Real(1)/alpha, v); //make v a unit vector
    
-   UTilde(El::ALL, 0) = initialVec;
    UTilde(El::ALL, 1) = A * v;
    
-   auto u0 = UTilde(El::ALL, 0);
-   auto u1 = UTilde(El::ALL, 1);
+   auto u0 = UTilde(El::ALL, IR(0));
+   auto u1 = UTilde(El::ALL, IR(1));
    
    El::Axpy(-alpha, u0, u1);
    Real beta = El::Nrm2(u1);
    El::Scale(Real(1)/beta,u1);
    auto tau = eps*(alpha + beta);
- 
+   B.mainDiag.Set(0,0, alpha);
+   B.superDiag.Set(0,0, beta);
    //1) Compute nu, a tolerance for reorthoganlization
    Real nu = 1 + tau/alpha; //think of nu = 1+\epsilon1
    Real mu = tau/beta;
@@ -296,30 +304,38 @@ TSVD(
  
         DM VTilde( n, maxIter, g);
         DM UTilde( m, maxIter, g);
-       
-      	 auto reorthData = InitialIteration(A, AAdj, initialVec, UTilde, VTilde);
+ 
         BidiagonalMatrix<F> B(maxIter+1);
+      	 auto reorthData = InitialIteration(A, AAdj, initialVec, UTilde, VTilde, B);
+        El::Display(UTilde, "UTilde");
+        El::Display(VTilde, "VTilde");
         
         RealMatrix sOld( maxIter+1, 1);
         
-        El::Int blockSize = El::Max(nVals, ctrl.minBlockSize);
+        El::Int blockSize = 1;//El::Max(nVals, ctrl.minBlockSize);
         for(Int i = 0; i < maxIter; i+=blockSize){
             Int numSteps = Min( blockSize, maxIter-i);
-            Int k = i+blockSize;
+            Int k = i+numSteps;
             //Write U_kA'V_k = B_k where k is i+numStep and B_k is diagonal.
-            GolubKahan( i, numSteps, A, AAdj, B, UTilde, VTilde, reorthData, ctrl);
+            GolubKahan( i, k, A, AAdj, B, UTilde, VTilde, reorthData, ctrl);
+            El::Display(UTilde(ALL, Range<Int>(0,k)), "UTilde");
+            El::Display(VTilde(ALL, Range<Int>(0,k)), "VTilde");
+         
             //C++17 this should be auto [UHat, S, VThat] = BidiagonalSVD(B,n,m);
-            DM VTHat(i+numSteps,nVals, g);
-            DM UHat(nVals,i+numSteps, g);
+            DM VTHat(k, nVals, g);
+            DM UHat(nVals, k, g);
             auto s = BidiagonalSVD(B,k,nVals,nVals,UHat,VTHat);
+            Display(UHat, "UHat");
+            Display(VTHat, "VTHat");
             Real beta = B.superDiag.Get(k-1,0);
             if( hasConverged(nVals,  k, s, sOld,VTHat, UHat, beta, ctrl)){
+                std::cout << "Apparently, we have converged" << std::endl;
                 El::Gemm(El::NORMAL, El::NORMAL,  Real(1), UTilde,  UHat, Real(0), U);
                 El::Gemm(El::NORMAL, El::ADJOINT, Real(1), VTilde, VTHat, Real(0), V);
                 DistMatrix<F,STAR,STAR> S_STAR_STAR( S.Grid());
                 S_STAR_STAR.LockedAttach( S.Height(), S.Width(), S.Grid(), S.ColAlign(), S.RowAlign(), s.Buffer(), s.LDim(), S.Root());
                 Copy(S_STAR_STAR, S);
-                return i+numSteps;
+                return k;
             }
             sOld = s;
 	           reorthData.tau = eps*s.Get(0,0);
