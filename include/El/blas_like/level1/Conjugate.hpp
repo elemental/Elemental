@@ -21,6 +21,7 @@ void Conjugate( Matrix<Complex<Real>>& A )
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
+    EL_PARALLEL_FOR_COLLAPSE2
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             A(i,j) = Conj(A(i,j));
@@ -33,6 +34,7 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B )
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
+    EL_PARALLEL_FOR_COLLAPSE2
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             B(i,j) = Conj(A(i,j));

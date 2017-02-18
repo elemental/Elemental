@@ -17,9 +17,12 @@ void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,const T&)> func )
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    EL_PARALLEL_FOR_COLLAPSE2    
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A(i,j) = func(i,j,A(i,j));
+            ABuf[i+j*ALDim] = func(i,j,ABuf[i+j*ALDim]);
 }
 
 template<typename T>
@@ -30,12 +33,13 @@ void IndexDependentMap
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
     auto& ALoc = A.Matrix();
+    EL_PARALLEL_FOR_COLLAPSE2    
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
-        const Int j = A.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
+            const Int j = A.GlobalCol(jLoc);
             ALoc(iLoc,jLoc) = func(i,j,ALoc(iLoc,jLoc));
         }
     }
@@ -49,9 +53,14 @@ void IndexDependentMap
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
+    const T* ABuf = A.LockedBuffer();
+    T* BBuf = B.Buffer();
+    const Int ALDim = A.LDim();
+    const Int BLDim = B.LDim();
+    EL_PARALLEL_FOR_COLLAPSE2    
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            B(i,j) = func(i,j,A(i,j));
+            BBuf[i+j*BLDim] = func(i,j,ABuf[i+j*ALDim]);
 }
 
 template<typename S,typename T,Dist U,Dist V,DistWrap wrap>
@@ -67,12 +76,13 @@ void IndexDependentMap
     B.Resize( A.Height(), A.Width() );
     auto& ALoc = A.LockedMatrix();
     auto& BLoc = B.Matrix();
+    EL_PARALLEL_FOR_COLLAPSE2
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
-        const Int j = A.GlobalCol(jLoc);
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
+            const Int j = A.GlobalCol(jLoc);
             BLoc(iLoc,jLoc) = func(i,j,ALoc(iLoc,jLoc));
         }
     }

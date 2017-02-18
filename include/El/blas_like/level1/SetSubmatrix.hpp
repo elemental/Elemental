@@ -23,12 +23,13 @@ void SetSubmatrix
     const Int n = J.size();
 
     // Fill in our locally-owned entries
+    EL_PARALLEL_FOR_COLLAPSE2
     for( Int jSub=0; jSub<n; ++jSub )
     {
-        const Int j = J[jSub];
         for( Int iSub=0; iSub<m; ++iSub )
         {
             const Int i = I[iSub];
+            const Int j = J[jSub];
             A(i,j) = ASub(iSub,jSub);
         }
     }

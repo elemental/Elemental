@@ -17,6 +17,7 @@ void Fill( Matrix<T>& A, T alpha )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
+    EL_PARALLEL_FOR_COLLAPSE2
     for( Int j=0; j<width; ++j )
         for( Int i=0; i<height; ++i )
             A(i,j) = alpha;

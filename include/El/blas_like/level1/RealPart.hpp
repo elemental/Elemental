@@ -18,6 +18,7 @@ void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
     const Int m = A.Height();
     const Int n = A.Width();
     AReal.Resize( m, n );
+    EL_PARALLEL_FOR_COLLAPSE2
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
             AReal(i,j) = RealPart(A(i,j));
