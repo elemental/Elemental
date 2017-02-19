@@ -1,10 +1,10 @@
 /*
    Copyright (c) 2009-2016, Jack Poulson
-                      2013, Jed Brown 
+                      2013, Jed Brown
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El-lite.hpp>
@@ -17,7 +17,7 @@ Grid* Grid::trivialGrid = 0;
 void Grid::InitializeDefault()
 {
     EL_DEBUG_CSE
-    defaultGrid = new Grid( mpi::COMM_WORLD );    
+    defaultGrid = new Grid( mpi::COMM_WORLD );
 }
 
 void Grid::InitializeTrivial()
@@ -67,7 +67,7 @@ const Grid& Grid::Trivial() EL_NO_RELEASE_EXCEPT
 int Grid::DefaultHeight( int gridSize ) EL_NO_EXCEPT
 {
     int gridHeight = int(sqrt(double(gridSize)));
-    while( gridHeight % gridSize != 0 )
+    while( gridSize % gridHeight != 0 )
         ++gridHeight;
     return gridHeight;
 }
@@ -196,7 +196,7 @@ void Grid::SetUpGrid()
             }
         }
         mpi::AllGather
-        ( myDiagAndRank.data(),  2, 
+        ( myDiagAndRank.data(),  2,
           diagsAndRanks_.data(), 2, vcComm_ );
 
         mpi::Split( cartComm_, mdPerpRank_, mdRank_,     mdComm_     );
@@ -215,7 +215,7 @@ void Grid::SetUpGrid()
     {
         mcComm_     = mpi::COMM_NULL;
         mrComm_     = mpi::COMM_NULL;
-        mdComm_     = mpi::COMM_NULL; 
+        mdComm_     = mpi::COMM_NULL;
         mdPerpComm_ = mpi::COMM_NULL;
         vcComm_     = mpi::COMM_NULL;
         vrComm_     = mpi::COMM_NULL;
@@ -360,7 +360,7 @@ int Grid::VRToVC( int vrRank ) const EL_NO_EXCEPT
 }
 
 int Grid::CoordsToVC
-( Dist colDist, Dist rowDist, 
+( Dist colDist, Dist rowDist,
   int distRank, int crossRank, int redundantRank ) const EL_NO_RELEASE_EXCEPT
 {
     if( colDist == CIRC && rowDist == CIRC )
@@ -371,7 +371,7 @@ int Grid::CoordsToVC
     {
         return distRank;
     }
-    else if( (colDist == MC && rowDist == STAR) || 
+    else if( (colDist == MC && rowDist == STAR) ||
              (rowDist == MC && colDist == STAR) )
     {
         return distRank + redundantRank*Height();
@@ -418,7 +418,7 @@ mpi::Comm Grid::OwningComm()  const EL_NO_EXCEPT { return owningComm_; }
 mpi::Comm Grid::ViewingComm() const EL_NO_EXCEPT { return viewingComm_; }
 
 int Grid::Diag() const EL_NO_RELEASE_EXCEPT
-{ 
+{
     const int vcRank = VCRank();
     if( vcRank != mpi::UNDEFINED )
         return diagsAndRanks_[2*vcRank];
@@ -427,15 +427,15 @@ int Grid::Diag() const EL_NO_RELEASE_EXCEPT
 }
 
 int Grid::Diag( int vcRank ) const EL_NO_EXCEPT
-{ 
+{
     if( vcRank != mpi::UNDEFINED )
-        return diagsAndRanks_[2*vcRank]; 
+        return diagsAndRanks_[2*vcRank];
     else
         return mpi::UNDEFINED;
 }
 
 int Grid::DiagRank() const EL_NO_RELEASE_EXCEPT
-{ 
+{
     const int vcRank = VCRank();
     if( vcRank != mpi::UNDEFINED )
         return diagsAndRanks_[2*vcRank+1];
@@ -444,9 +444,9 @@ int Grid::DiagRank() const EL_NO_RELEASE_EXCEPT
 }
 
 int Grid::DiagRank( int vcRank ) const EL_NO_EXCEPT
-{ 
+{
     if( vcRank != mpi::UNDEFINED )
-        return diagsAndRanks_[2*vcRank+1]; 
+        return diagsAndRanks_[2*vcRank+1];
     else
         return mpi::UNDEFINED;
 }

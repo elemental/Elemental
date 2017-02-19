@@ -473,6 +473,7 @@ Helper
             if( ctrl.qrCtrl.demandConverged )
                 LogicError("Did not converge all singular values");
             info.numUnconverged = winEnd;
+            break;
         }
 
         if( !relativeToSelfTol && Abs(mainDiag(winEnd-1)) <= threshold )
@@ -598,26 +599,23 @@ Helper
                 superDiag(winEnd-2) = zero;
                 continue;
             }
-            if( relativeToSelfTol )
+            // Run an ad-hoc variant of Higham's || inv(B) ||_1 estimator
+            Real mu = Abs(mainDiag(winBeg));
+            winMinSingValEst = mu;
+            bool deflated = false;
+            for( Int j=winBeg; j<winEnd-1; ++j )
             {
-                // Run an ad-hoc variant of Higham's || inv(B) ||_1 estimator
-                Real mu = Abs(mainDiag(winBeg));
-                winMinSingValEst = mu;
-                bool deflated = false;
-                for( Int j=winBeg; j<winEnd-1; ++j )
+                if( Abs(superDiag(j)) <= tol*mu )
                 {
-                    if( Abs(superDiag(j)) <= tol*mu )
-                    {
-                        superDiag(j) = zero;
-                        deflated = true;
-                        break;
-                    }
-                    mu = Abs(mainDiag(j+1))*(mu/(mu+Abs(superDiag(j))));
-                    winMinSingValEst = Min( winMinSingValEst, mu );
+                    superDiag(j) = zero;
+                    deflated = true;
+                    break;
                 }
-                if( deflated )
-                    continue;
+                mu = Abs(mainDiag(j+1))*(mu/(mu+Abs(superDiag(j))));
+                winMinSingValEst = Min( winMinSingValEst, mu );
             }
+            if( deflated )
+                continue;
         }
         else
         {
@@ -627,28 +625,26 @@ Helper
                 superDiag(winBeg) = zero;
                 continue;
             }
-            if( relativeToSelfTol )
+            // Run an ad-hoc variant of Higham's || inv(B) ||_oo estimator
+            Real lambda = Abs(mainDiag(winEnd-1));
+            winMinSingValEst = lambda;
+            bool deflated = false;
+            for( Int j=winEnd-2; j>=winBeg; --j )
             {
-                // Run an ad-hoc variant of Higham's || inv(B) ||_oo estimator
-                Real lambda = Abs(mainDiag(winEnd-1));
-                winMinSingValEst = lambda;
-                bool deflated = false;
-                for( Int j=winEnd-2; j>=winBeg; --j )
+                if( Abs(superDiag(j)) <= tol*lambda )
                 {
-                    if( Abs(superDiag(j)) <= tol*lambda )
-                    {
-                        superDiag(j) = zero;
-                        deflated = true;
-                        break;
-                    }
-                    lambda =
-                      Abs(mainDiag(j))*(lambda/(lambda+Abs(superDiag(j))));
-                    winMinSingValEst = Min( winMinSingValEst, lambda );
+                    superDiag(j) = zero;
+                    deflated = true;
+                    break;
                 }
-                if( deflated )
-                    continue;
+                lambda =
+                  Abs(mainDiag(j))*(lambda/(lambda+Abs(superDiag(j))));
+                winMinSingValEst = Min( winMinSingValEst, lambda );
             }
+            if( deflated )
+                continue;
         }
+        const Real winCondEst = winMaxSingValEst / winMinSingValEst;
 
         // No deflation checks succeeded, so save the window before shifting
         oldWinBeg = winBeg;
@@ -663,13 +659,16 @@ Helper
         // diagonal entry is zero to avoid a divide-by-zero when applying the
         // implicit Q theorem within the upcoming sweep.
         const bool zeroStartingValue =
-          ( direction == FORWARD ?
-            mainDiag(winBeg) == zero :
-            mainDiag(winEnd-1) == zero );
+          direction == FORWARD ?
+          mainDiag(winBeg) == zero :
+          mainDiag(winEnd-1) == zero;
         const bool poorlyConditioned =
-          ( zeroShiftFudge*tol*(winMinSingValEst/winMaxSingValEst) <=
-            Max(eps,tol/100) );
-        if( zeroStartingValue || (relativeToSelfTol && poorlyConditioned) )
+          zeroShiftFudge*tol/winCondEst <= Max(eps,tol/100);
+        const bool extremelyPoorlyConditioned =
+          zeroShiftFudge*tol/winCondEst <= eps;
+        if( zeroStartingValue ||
+            (relativeToSelfTol && poorlyConditioned) ||
+            (!relativeToSelfTol && extremelyPoorlyConditioned) )
         {
             shift = zero;
         }
@@ -758,7 +757,9 @@ Helper
     }
 
     // Force the singular values to be positive (absorbing signs into V)
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<info.numUnconverged; ++j )
+        mainDiag(j) = Real(-1);
+    for( Int j=info.numUnconverged; j<n; ++j )
     {
         if( mainDiag(j) < zero )
         {
