@@ -1128,6 +1128,17 @@ SecularEigenvalue
         return info;
     }
 
+    // Check if the relative two-norm of the update matrix, rho / || d ||_max,
+    // is below a small multiple of machine precision (if so, we may ignore it).
+    const Real relativeUpdateTwoNorm = rho / Max( Abs(d(0)), Abs(d(n-1)) );
+    const Real globalDeflateFudge = Real(10);
+    const Real globalDeflateTol = globalDeflateFudge * limits::Epsilon<Real>();
+    if( relativeUpdateTwoNorm <= globalDeflateTol )
+    {
+        eigenvalue = d(whichValue);
+        return info;
+    }
+
     if( k < n-1 )
     {
         secular_evd::State<Real> state;
@@ -1189,6 +1200,19 @@ SecularEigenvalue
         return info;
     }
 
+    // Check if the relative two-norm of the update matrix, rho / || d ||_max,
+    // is below a small multiple of machine precision (if so, we may ignore it).
+    const Real relativeUpdateTwoNorm = rho / Max( Abs(d(0)), Abs(d(n-1)) );
+    const Real globalDeflateFudge = Real(10);
+    const Real globalDeflateTol = globalDeflateFudge * limits::Epsilon<Real>();
+    if( relativeUpdateTwoNorm <= globalDeflateTol )
+    {
+        eigenvalue = d(whichValue);
+        for( Int i=0; i<n; ++i )
+            dMinusShift(i) = d(i) - eigenvalue;
+        return info;
+    }
+
     if( k < n-1 )
     {
         secular_evd::State<Real> state;
@@ -1225,6 +1249,18 @@ SecularEVD
     if( n == 0 )
     {
         Q.Resize( n, n );
+        return info;
+    }
+
+    // Check if the relative two-norm of the update matrix, rho / || d ||_max,
+    // is below a small multiple of machine precision (if so, we may ignore it).
+    const Real relativeUpdateTwoNorm = rho / Max( Abs(d(0)), Abs(d(n-1)) );
+    const Real globalDeflateFudge = Real(10);
+    const Real globalDeflateTol = globalDeflateFudge * limits::Epsilon<Real>();
+    if( relativeUpdateTwoNorm <= globalDeflateTol )
+    {
+        w = d;
+        Identity( Q, n, n );
         return info;
     }
 

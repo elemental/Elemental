@@ -110,10 +110,10 @@ void GenerateData
     Gaussian( z, n, 1 );
     z *= Real(1) / FrobeniusNorm( z );
     rho = SampleUniform( Real(1), Real(1)/Real(2) );
+    Output( "rho=", rho );
     if( print )
     {
         Print( d, "d" );
-        Output( "rho=", rho );
         Print( z, "z" );
     }
 }
