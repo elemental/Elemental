@@ -103,19 +103,21 @@ struct MPSRowData
   Int rangeIndex;
 };
 
+template<typename Real>
 struct MPSRangeData
 {
   string rowName;
   bool rhsIsLowerBound;
-  double rangeSize;
+  Real rangeSize;
 
-  double lowerBound=0.;
+  Real lowerBound=Real(0);
   Int lowerBoundIndex=-1;
 
-  double upperBound=0.;
+  Real upperBound=Real(0);
   Int upperBoundIndex=-1;
 };
 
+template<typename Real>
 struct MPSVariableData
 {
   Int index;
@@ -123,15 +125,15 @@ struct MPSVariableData
 
   bool lowerBounded=false;
   Int lowerBoundIndex=-1;
-  double lowerBound;
+  Real lowerBound;
 
   bool upperBounded=false;
   Int upperBoundIndex=-1;
-  double upperBound;
+  Real upperBound;
 
   bool fixed=false;
   Int fixedIndex=-1;
-  double fixedValue;
+  Real fixedValue;
 
   bool free=false;
   Int freeIndex=-1;
@@ -143,10 +145,11 @@ struct MPSVariableData
   Int nonnegativeIndex=-1;
 };
 
+template<typename Real>
 struct MPSTrivialEquality
 {
   string variableName;
-  double singleNonzero;
+  Real singleNonzero;
 };
 
 void LPMPSMeta::PrintSummary() const
@@ -230,6 +233,7 @@ struct AffineLPEntry
 // The ordering of 'x' is: nontrivial variables, auxiliary variables
 // (introduced by RANGE modifiers), and trivially fixed variables.
 //
+template<typename Real>
 class MPSReader
 {
 public:
@@ -245,12 +249,15 @@ public:
     bool QueuedEntry();
 
     // Only one call is allowed per call to 'QueuedEntry'.
-    AffineLPEntry<double> GetEntry();
+    AffineLPEntry<Real> GetEntry();
 
     const LPMPSMeta& Meta() const;
 
+    static string ToUpper( const string& token );
+
     static bool IsDataLine( std::stringstream& lineStream );
-    static MPSSection DecodeSection( const std::string& sectionToken );
+    static MPSSection DecodeSection( const string& token );
+    static MPSRowType DecodeRowType( const string& token );
 
 private:
     string filename_;
@@ -261,18 +268,18 @@ private:
     LPMPSMeta meta_;
 
     std::map<string,MPSRowData> rowDict_;
-    std::map<string,MPSVariableData> variableDict_;
-    vector<MPSRangeData> rangeList_;
+    std::map<string,MPSVariableData<Real>> variableDict_;
+    vector<MPSRangeData<Real>> rangeList_;
 
     // A map from the original MPS_EQUALITY_ROW row name to the trivial equality
     // struct, which stores the variable name and the floating-point value
     // of the single nonzero in the row (eventually).
-    std::map<string,MPSTrivialEquality> trivialEqualityDict_;
+    std::map<string,MPSTrivialEquality<Real>> trivialEqualityDict_;
 
     std::set<string> emptyLesserRows_;
     std::set<string> emptyGreaterRows_;
 
-    vector<AffineLPEntry<double>> queuedEntries_;
+    vector<AffineLPEntry<Real>> queuedEntries_;
 
     MPSSection section_=MPS_NONE;
 
@@ -294,7 +301,8 @@ private:
     bool boundsHasName_;
 
     // For the final loop over the variable dictionary to extract any bounds.
-    typename std::map<string,MPSVariableData>::const_iterator variableIter_;
+    typename std::map<string,MPSVariableData<Real>>::const_iterator
+      variableIter_;
 
     // For the final loop over bounds on auxiliary variables.
     Int auxBoundIndex_=0;
@@ -356,7 +364,8 @@ private:
     void CountBoundTypes();
 };
 
-bool MPSReader::IsDataLine( std::stringstream& lineStream )
+template<typename Real>
+bool MPSReader<Real>::IsDataLine( std::stringstream& lineStream )
 {
     const char firstChar = lineStream.peek();
     return firstChar == ' ' ||
@@ -365,63 +374,105 @@ bool MPSReader::IsDataLine( std::stringstream& lineStream )
            firstChar == '#';
 }
 
-MPSSection MPSReader::DecodeSection( const string& sectionToken )
+template<typename Real>
+string MPSReader<Real>::ToUpper( const string& token )
+{
+    EL_DEBUG_CSE
+    string upperToken = token;
+    std::transform
+    ( upperToken.begin(), upperToken.end(), upperToken.begin(), ::toupper );
+    return upperToken;
+}
+
+template<typename Real>
+MPSSection MPSReader<Real>::DecodeSection( const string& token )
 {
     EL_DEBUG_CSE
     MPSSection section;
-    if( sectionToken == "NAME" )
+
+    const string upperToken = ToUpper( token );
+    if( upperToken == "NAME" )
     {
         section = MPS_NAME;
     }
-    else if( sectionToken == "OBJSENSE" )
+    else if( upperToken == "OBJSENSE" )
     {
         section = MPS_OBJSENSE;
     }
-    else if( sectionToken == "ROWS" )
+    else if( upperToken == "ROWS" )
     {
         section = MPS_ROWS;
     }
-    else if( sectionToken == "COLUMNS" )
+    else if( upperToken == "COLUMNS" )
     {
         section = MPS_COLUMNS;
     }
-    else if( sectionToken == "RHS" )
+    else if( upperToken == "RHS" )
     {
         section = MPS_RHS;
     }
-    else if( sectionToken == "BOUNDS" )
+    else if( upperToken == "BOUNDS" )
     {
         section = MPS_BOUNDS;
     }
-    else if( sectionToken == "RANGES" )
+    else if( upperToken == "RANGES" )
     {
         section = MPS_RANGES;
     }
-    else if( sectionToken == "ENDATA" )
+    else if( upperToken == "ENDATA" )
     {
         section = MPS_END;
     }
-    else if( sectionToken == "MARKER" )
+    else if( upperToken == "MARKER" )
     {
         section = MPS_MARKER;
     }
-    else if( sectionToken == "SOS" )
+    else if( upperToken == "SOS" )
     {
         section = MPS_SOS;
     }
     else
     {
-        LogicError("Section token ",sectionToken," is not recognized");
+        LogicError("Section token ",token," is not recognized");
     }
+
     return section;
 }
 
-void MPSReader::ProcessRowDataLine( const string& line )
+template<typename Real>
+MPSRowType MPSReader<Real>::DecodeRowType( const string& token )
+{
+    EL_DEBUG_CSE
+    MPSRowType rowType;
+
+    const string upperToken = ToUpper( token );
+    if( upperToken == "L" )
+    {
+        rowType = MPS_LESSER_ROW;
+    }
+    else if( upperToken == "G" )
+    {
+        rowType = MPS_GREATER_ROW;
+    }
+    else if( upperToken == "E" )
+    {
+        rowType = MPS_EQUALITY_ROW;
+    }
+    else if( upperToken == "N" )
+    {
+        rowType = MPS_NONCONSTRAINING_ROW;
+    }
+
+    return rowType;
+}
+
+template<typename Real>
+void MPSReader<Real>::ProcessRowDataLine( const string& line )
 {
     EL_DEBUG_CSE
     std::stringstream stream( line );
-    string rowType;
-    if( !(stream >> rowType) )
+    string rowTypeToken;
+    if( !(stream >> rowTypeToken) )
         LogicError(tooFewRowTokensString);
     string rowName;
     if( !(stream >> rowName) )
@@ -433,33 +484,23 @@ void MPSReader::ProcessRowDataLine( const string& line )
     MPSRowData rowData;
     // We set the 'typeIndex' fields later since it is not uncommon
     // (e.g., see tuff.mps) for rows to be empty.
-    if( rowType == "L" )
+    rowData.type = DecodeRowType( rowTypeToken );
+    rowDict_[rowName] = rowData;
+    if( rowData.type == MPS_NONCONSTRAINING_ROW )
     {
-        rowData.type = MPS_LESSER_ROW;
-        rowDict_[rowName] = rowData;
-    }
-    else if( rowType == "G" )
-    {
-        rowData.type = MPS_GREATER_ROW;
-        rowDict_[rowName] = rowData;
-    }
-    else if( rowType == "E" )
-    {
-        rowData.type = MPS_EQUALITY_ROW;
-        rowDict_[rowName] = rowData;
-    }
-    else if( rowType == "N" )
-    {
-        rowData.type = MPS_NONCONSTRAINING_ROW;
-        rowDict_[rowName] = rowData;
         if( meta_.numNonconstrainingRows == 1 )
             meta_.costName = rowName;
     }
-    else
+    else if( rowData.type != MPS_LESSER_ROW &&
+             rowData.type != MPS_GREATER_ROW &&
+             rowData.type != MPS_EQUALITY_ROW )
+    {
         LogicError(invalidRowTokenString);
+    }
 }
 
-void MPSReader::ProcessColumnDataLine( const string& line )
+template<typename Real>
+void MPSReader<Real>::ProcessColumnDataLine( const string& line )
 {
     EL_DEBUG_CSE
     std::stringstream stream( line );
@@ -469,11 +510,11 @@ void MPSReader::ProcessColumnDataLine( const string& line )
     auto variableIter = variableDict_.find( variableName );
     if( variableIter == variableDict_.end() )
     {
-        MPSVariableData variableData;
+        MPSVariableData<Real> variableData;
         variableDict_[variableName] = variableData;
         variableIter = variableDict_.find( variableName );
     }
-    MPSVariableData& variableData = variableIter->second;
+    auto& variableData = variableIter->second;
 
     // There should be either one or two pairs of entries left to read
     // from this line.
@@ -487,7 +528,7 @@ void MPSReader::ProcessColumnDataLine( const string& line )
             else
                 break;
         }
-        double value;
+        Real value;
         if( !(stream >> value) )
             LogicError(tooManyColumnTokensString);
         ++variableData.numNonzeros;
@@ -524,10 +565,11 @@ void MPSReader::ProcessColumnDataLine( const string& line )
     }
 }
 
-void MPSReader::QueueColumnDataLine( const string& line )
+template<typename Real>
+void MPSReader<Real>::QueueColumnDataLine( const string& line )
 {
     EL_DEBUG_CSE
-    double columnValue;
+    Real columnValue;
     std::stringstream stream( line );
 
     string variableName;
@@ -536,7 +578,7 @@ void MPSReader::QueueColumnDataLine( const string& line )
     auto variableIter = variableDict_.find( variableName );
     if( variableIter == variableDict_.end() )
         LogicError("Could not find variable ",variableName);
-    const MPSVariableData& variableData = variableIter->second;
+    const auto& variableData = variableIter->second;
     const Int column = variableData.index;
 
     // There should be either one or two pairs of entries left to read
@@ -554,7 +596,7 @@ void MPSReader::QueueColumnDataLine( const string& line )
         if( !(stream >> columnValue) )
             LogicError("Invalid 'COLUMNS' section");
 
-        AffineLPEntry<double> entry;
+        AffineLPEntry<Real> entry;
         auto rowIter = rowDict_.find( rowName );
         if( rowIter == rowDict_.end() )
         {
@@ -564,7 +606,7 @@ void MPSReader::QueueColumnDataLine( const string& line )
             {
                 LogicError("Could not find row ",rowName);
             }
-            if( columnValue == 0. )
+            if( columnValue == Real(0) )
             {
                 LogicError
                 ("Trivial rows are not yet allowed to have their only "
@@ -626,7 +668,8 @@ void MPSReader::QueueColumnDataLine( const string& line )
     }
 }
 
-void MPSReader::ProcessRHSDataLine( const string& line )
+template<typename Real>
+void MPSReader<Real>::ProcessRHSDataLine( const string& line )
 {
     EL_DEBUG_CSE
     if( !initializedRHSSection_ )
@@ -684,16 +727,17 @@ void MPSReader::ProcessRHSDataLine( const string& line )
             else
                 break;
         }
-        double value;
+        Real value;
         if( !(stream >> value) )
             LogicError("Invalid 'RHS' section (4)");
         // TODO(poulson): Store fixed value?
     }
 }
 
-void MPSReader::QueueRHSDataLine( const string& line )
+template<typename Real>
+void MPSReader<Real>::QueueRHSDataLine( const string& line )
 {
-    double rhsValue;
+    Real rhsValue;
     std::stringstream stream( line );
 
     if( rhsHasName_ )
@@ -722,7 +766,7 @@ void MPSReader::QueueRHSDataLine( const string& line )
         {
             if( emptyLesserRows_.count(rowName) == 1 )
             {
-                if( rhsValue < 0. )
+                if( rhsValue < Real(0) )
                 {
                     LogicError
                     ("Row ",rowName,
@@ -739,7 +783,7 @@ void MPSReader::QueueRHSDataLine( const string& line )
             }
             else if( emptyGreaterRows_.count(rowName) == 1 )
             {
-                if( rhsValue > 0. )
+                if( rhsValue > Real(0) )
                 {
                     LogicError
                     ("Row ",rowName,
@@ -774,7 +818,7 @@ void MPSReader::QueueRHSDataLine( const string& line )
               rhsValue / trivialData.singleNonzero;
             continue;
         }
-        AffineLPEntry<double> entry;
+        AffineLPEntry<Real> entry;
         const auto& rowData = rowIter->second;
         if( rowData.hasRangeModifier )
         {
@@ -828,7 +872,8 @@ void MPSReader::QueueRHSDataLine( const string& line )
     }
 }
 
-void MPSReader::ProcessBoundsDataLine( const string& line )
+template<typename Real>
+void MPSReader<Real>::ProcessBoundsDataLine( const string& line )
 {
     EL_DEBUG_CSE
     if( !initializedBoundsSection_ )
@@ -845,9 +890,11 @@ void MPSReader::ProcessBoundsDataLine( const string& line )
         string rhsToken;
         while( testStream >> rhsToken )
             ++numTokens;
-        if( boundMark == "LO" ||
-            boundMark == "UP" ||
-            boundMark == "FX" )
+
+        const string upperBoundMark = ToUpper( boundMark );
+        if( upperBoundMark == "LO" ||
+            upperBoundMark == "UP" ||
+            upperBoundMark == "FX" )
         {
             if( numTokens == 4 )
                 boundsHasName_ = true;
@@ -856,9 +903,9 @@ void MPSReader::ProcessBoundsDataLine( const string& line )
             else
                 LogicError("Invalid ",boundMark," 'BOUNDS' line");
         }
-        else if( boundMark == "FR" ||
-                 boundMark == "MI" ||
-                 boundMark == "PL" )
+        else if( upperBoundMark == "FR" ||
+                 upperBoundMark == "MI" ||
+                 upperBoundMark == "PL" )
         {
             if( numTokens == 3 )
                 boundsHasName_ = true;
@@ -905,42 +952,52 @@ void MPSReader::ProcessBoundsDataLine( const string& line )
     if( variableIter == variableDict_.end() )
         LogicError
         ("Invalid 'BOUNDS' section (name ",variableName," not found)");
-    MPSVariableData& data = variableIter->second;
-    if( boundMark == "UP" )
+    auto& data = variableIter->second;
+    const string upperBoundMark = ToUpper( boundMark );
+    if( upperBoundMark == "UP" )
     {
-        double value;
+        Real value;
         if( !(stream >> value) )
             LogicError("Invalid 'BOUNDS' section");
         data.upperBounded = true;
         data.upperBound = value;
     }
-    else if( boundMark == "LO" )
+    else if( upperBoundMark == "LO" )
     {
-        double value;
+        Real value;
         if( !(stream >> value) )
             LogicError("Invalid 'BOUNDS' section");
         data.lowerBounded = true;
         data.lowerBound = value;
     }
-    else if( boundMark == "FX" )
+    else if( upperBoundMark == "FX" )
     {
-        double value;
+        Real value;
         if( !(stream >> value) )
             LogicError("Invalid 'BOUNDS' section");
         data.fixed = true;
         data.fixedValue = value;
     }
-    else if( boundMark == "FR" )
+    else if( upperBoundMark == "FR" )
+    {
         data.free = true;
-    else if( boundMark == "MI" )
+    }
+    else if( upperBoundMark == "MI" )
+    {
         data.nonpositive = true;
-    else if( boundMark == "PL" )
+    }
+    else if( upperBoundMark == "PL" )
+    {
         data.nonnegative = true;
+    }
     else
+    {
         LogicError("Invalid 'BOUNDS' section (unknown bound mark)");
+    }
 }
 
-void MPSReader::ProcessRangesDataLine( const string& line )
+template<typename Real>
+void MPSReader<Real>::ProcessRangesDataLine( const string& line )
 {
     EL_DEBUG_CSE
     if( !initializedRangesSection_ )
@@ -998,22 +1055,22 @@ void MPSReader::ProcessRangesDataLine( const string& line )
             else
                 break;
         }
-        double value;
+        Real value;
         if( !(stream >> value) )
             LogicError("Invalid 'RANGES' section (4)");
-        if( value == 0. )
+        if( value == Real(0) )
             LogicError("Tried to force an empty RANGE");
         auto rowIter = rowDict_.find( rowName );
         if( rowIter == rowDict_.end() )
             LogicError("Could not find row ",rowName);
-        MPSRangeData rangeData;
+        MPSRangeData<Real> rangeData;
         rangeData.rowName = rowName;
         rangeData.rangeSize = Abs(value);
 
         auto& rowData = rowIter->second;
         if( rowData.type == MPS_EQUALITY_ROW )
         {
-            rangeData.rhsIsLowerBound = value > 0.;
+            rangeData.rhsIsLowerBound = value > Real(0);
         }
         else if( rowData.type == MPS_GREATER_ROW )
         {
@@ -1038,10 +1095,11 @@ void MPSReader::ProcessRangesDataLine( const string& line )
     }
 }
 
-void MPSReader::QueueVariableBound()
+template<typename Real>
+void MPSReader<Real>::QueueVariableBound()
 {
     EL_DEBUG_CSE
-    AffineLPEntry<double> entry;
+    AffineLPEntry<Real> entry;
     while( queuedEntries_.size() == 0 &&
            variableIter_ != variableDict_.end() )
     {
@@ -1142,7 +1200,7 @@ void MPSReader::QueueVariableBound()
         const Int column =
           variableDict_.size() - meta_.numFixedBounds + auxBoundIndex_;
         const auto& data = rangeList_[auxBoundIndex_++];
-        AffineLPEntry<double> entry;
+        AffineLPEntry<Real> entry;
 
         // Queue the auxiliary variable introductory entry of -1.
         {
@@ -1196,7 +1254,8 @@ void MPSReader::QueueVariableBound()
     }
 }
 
-void MPSReader::PeekAtRanges( const string& sectionToken )
+template<typename Real>
+void MPSReader<Real>::PeekAtRanges( const string& sectionToken )
 {
     EL_DEBUG_CSE
     std::ifstream::pos_type pos = file_.tellg();
@@ -1230,7 +1289,8 @@ void MPSReader::PeekAtRanges( const string& sectionToken )
     file_.seekg(pos);
 }
 
-void MPSReader::SimplifyRowTypes()
+template<typename Real>
+void MPSReader<Real>::SimplifyRowTypes()
 {
     EL_DEBUG_CSE
     for( auto iter=rowDict_.begin(); iter!=rowDict_.end(); )
@@ -1279,7 +1339,7 @@ void MPSReader::SimplifyRowTypes()
         {
             // Convert to a fixed value. We will divide the
             // corresponding RHS value by the single nonzero.
-            MPSTrivialEquality trivialEquality;
+            MPSTrivialEquality<Real> trivialEquality;
             trivialEqualityDict_[iter->first] = trivialEquality;
             iter = rowDict_.erase( iter );
             // Subtract one from the equality entries
@@ -1328,7 +1388,8 @@ void MPSReader::SimplifyRowTypes()
     }
 }
 
-void MPSReader::SyncRangeData()
+template<typename Real>
+void MPSReader<Real>::SyncRangeData()
 {
     EL_DEBUG_CSE
     Int rangeIndex = 0;
@@ -1350,7 +1411,8 @@ void MPSReader::SyncRangeData()
     }
 }
 
-void MPSReader::FillImplicitRangeBounds()
+template<typename Real>
+void MPSReader<Real>::FillImplicitRangeBounds()
 {
     EL_DEBUG_CSE
     for( auto& rangeData : rangeList_ )
@@ -1366,7 +1428,8 @@ void MPSReader::FillImplicitRangeBounds()
     }
 }
 
-void MPSReader::StoreTrivialEqualityRowVariableNames
+template<typename Real>
+void MPSReader<Real>::StoreTrivialEqualityRowVariableNames
 ( const std::ifstream::pos_type& colSectionBeg )
 {
     EL_DEBUG_CSE
@@ -1385,7 +1448,7 @@ void MPSReader::StoreTrivialEqualityRowVariableNames
         auto variableIter = variableDict_.find( variableName );
         if( variableIter == variableDict_.end() )
             LogicError(invalidColumnTokenString);
-        MPSVariableData& variableData = variableIter->second;
+        auto& variableData = variableIter->second;
         for( Int pair=0; pair<2; ++pair )
         {
             string rowName;
@@ -1396,7 +1459,7 @@ void MPSReader::StoreTrivialEqualityRowVariableNames
                 else
                     break;
             }
-            double value;
+            Real value;
             if( !(columnStream >> value) )
                 LogicError(tooManyColumnTokensString);
             auto trivialEqualityIter =
@@ -1404,7 +1467,7 @@ void MPSReader::StoreTrivialEqualityRowVariableNames
             if( trivialEqualityIter ==
                 trivialEqualityDict_.end() )
                 continue;
-            if( value == 0. )
+            if( value == Real(0) )
                 LogicError
                 ("Trivial equality rows with a zero \"nonzero\""
                  " value are not yet supported");
@@ -1423,7 +1486,8 @@ void MPSReader::StoreTrivialEqualityRowVariableNames
     file_.seekg( pos );
 }
 
-void MPSReader::CountBoundTypes()
+template<typename Real>
+void MPSReader<Real>::CountBoundTypes()
 {
     EL_DEBUG_CSE
     for( auto& entry : variableDict_ )
@@ -1479,14 +1543,14 @@ void MPSReader::CountBoundTypes()
             {
                 // Handling the default non-negativity is somewhat subtle and
                 // varies between different MPS readers.
-                if( data.upperBound > 0. )
+                if( data.upperBound > Real(0) )
                 {
                     // Preserve the default non-negativity assumption.
                     data.upperBoundIndex = meta_.numUpperBounds++;
                     ++meta_.numInequalityEntries;
                     data.nonnegative = true;
                 }
-                else if( data.upperBound == 0. && !data.nonnegative )
+                else if( data.upperBound == Real(0) && !data.nonnegative )
                 {
                     // There is disagreement on how to handle the lower bounds
                     // in the case of a zero upper bound. We print a warning
@@ -1498,7 +1562,7 @@ void MPSReader::CountBoundTypes()
                         data.nonnegative = false;
                         data.upperBounded = false;
                         data.fixed = true;
-                        data.fixedValue = 0.;
+                        data.fixedValue = 0;
                         Output
                         ("WARNING: Fixing ",entry.first,
                          " at zero due to zero upper bound. If this is not "
@@ -1633,7 +1697,8 @@ void MPSReader::CountBoundTypes()
     }
 }
 
-MPSReader::MPSReader
+template<typename Real>
+MPSReader<Real>::MPSReader
 ( const string& filename,
   bool compressed,
   bool minimize,
@@ -1823,7 +1888,8 @@ MPSReader::MPSReader
     meta_.k = meta_.nonnegativeOffset + meta_.numNonnegativeBounds;
 }
 
-bool MPSReader::QueuedEntry()
+template<typename Real>
+bool MPSReader<Real>::QueuedEntry()
 {
     EL_DEBUG_CSE
 
@@ -1893,17 +1959,19 @@ bool MPSReader::QueuedEntry()
     return queuedEntries_.size() > 0;
 }
 
-AffineLPEntry<double> MPSReader::GetEntry()
+template<typename Real>
+AffineLPEntry<Real> MPSReader<Real>::GetEntry()
 {
     EL_DEBUG_CSE
     if( queuedEntries_.size() == 0 )
         LogicError("No entries are currently enqueued");
-    AffineLPEntry<double> entry = queuedEntries_.back();
+    AffineLPEntry<Real> entry = queuedEntries_.back();
     queuedEntries_.pop_back();
     return entry;
 }
 
-const LPMPSMeta& MPSReader::Meta() const
+template<typename Real>
+const LPMPSMeta& MPSReader<Real>::Meta() const
 {
     EL_DEBUG_CSE
     return meta_;
@@ -1923,7 +1991,7 @@ LPMPSMeta Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
 
-    MPSReader reader
+    MPSReader<Real> reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const LPMPSMeta& meta = reader.Meta();
 
@@ -1934,7 +2002,7 @@ LPMPSMeta Helper
     Zeros( problem.h, meta.k, 1 );
     while( reader.QueuedEntry() )
     {
-        const AffineLPEntry<double> entry = reader.GetEntry();
+        const auto entry = reader.GetEntry();
         if( entry.type == AFFINE_LP_COST_VECTOR )
         {
             if( problem.c(entry.row) != Real(0) )
@@ -1992,7 +2060,7 @@ LPMPSMeta Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
 
-    MPSReader reader
+    MPSReader<Real> reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const LPMPSMeta& meta = reader.Meta();
 
@@ -2004,7 +2072,7 @@ LPMPSMeta Helper
 
     while( reader.QueuedEntry() )
     {
-        const AffineLPEntry<double> entry = reader.GetEntry();
+        const auto entry = reader.GetEntry();
         if( entry.type == AFFINE_LP_COST_VECTOR )
             problem.c.Set( entry.row, 0, entry.value );
         else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
@@ -2032,7 +2100,7 @@ LPMPSMeta Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
 
-    MPSReader reader
+    MPSReader<Real> reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const LPMPSMeta& meta = reader.Meta();
 
@@ -2046,7 +2114,7 @@ LPMPSMeta Helper
     problem.G.Reserve( meta.numInequalityEntries );
     while( reader.QueuedEntry() )
     {
-        const AffineLPEntry<double> entry = reader.GetEntry();
+        const auto entry = reader.GetEntry();
         if( entry.type == AFFINE_LP_COST_VECTOR )
             problem.c.Set( entry.row, 0, entry.value );
         else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )
@@ -2076,7 +2144,7 @@ LPMPSMeta Helper
     if( compressed )
         LogicError("Compressed MPS is not yet supported");
 
-    MPSReader reader
+    MPSReader<Real> reader
       ( filename, compressed, minimize, keepNonnegativeWithZeroUpperBound );
     const LPMPSMeta& meta = reader.Meta();
 
@@ -2091,7 +2159,7 @@ LPMPSMeta Helper
     problem.G.Reserve( meta.numInequalityEntries );
     while( reader.QueuedEntry() )
     {
-        const AffineLPEntry<double> entry = reader.GetEntry();
+        const auto entry = reader.GetEntry();
         if( entry.type == AFFINE_LP_COST_VECTOR )
             problem.c.Set( entry.row, 0, entry.value );
         else if( entry.type == AFFINE_LP_EQUALITY_MATRIX )

@@ -1517,76 +1517,6 @@ void IPM
 }
 
 template<typename Real>
-vector<Real> GetLogQuartiles( const Matrix<Real>& r )
-{
-    EL_DEBUG_CSE
-    const Int numItems = r.Height();
-    auto rCopy( r );
-    for( Int i=0; i<numItems; ++i )
-        rCopy(i) = Log(r(i));
-    std::sort( rCopy.Buffer(), rCopy.Buffer()+numItems );
-
-    vector<Real> quartiles(3);
-    if( numItems == 0 )
-    {
-        quartiles[0] = quartiles[1] = quartiles[2] = 0;
-        return quartiles;
-    }
-    if( numItems == 1 )
-    {
-        quartiles[0] = quartiles[1] = quartiles[2] = rCopy(0);
-        return quartiles;
-    }
-    if( numItems == 2 )
-    {
-        quartiles[0] = rCopy(0);
-        quartiles[1] = (rCopy(0)+rCopy(1)) / 2;
-        quartiles[2] = rCopy(1);
-        return quartiles;
-    }
-
-    if( numItems % 2 == 0 )
-    {
-        // Average the two middle items for the Q2 quartile.
-        quartiles[1] = (rCopy(numItems/2-1) + rCopy(numItems/2)) / 2;
-
-        // Q1/Q3 is the median of the first/second numItems/2 items.
-        if( (numItems/2) % 2 == 0 )
-        {
-            quartiles[0] = (rCopy(numItems/4)+rCopy(numItems/4-1)) / 2;
-            quartiles[2] = (rCopy(3*numItems/4)+rCopy(3*numItems/4-1))/ 2;
-        }
-        else
-        {
-            // Directly read off Q1 and Q3.
-            quartiles[0] = rCopy(numItems/4);
-            quartiles[2] = rCopy(3*numItems/4);
-        }
-    }
-    else
-    {
-        // Directly read off Q2.
-        quartiles[1] = rCopy(numItems/2);
-
-        // Q1/Q3 is the median of the first/last numItems/2 items.
-        if( (numItems/2) % 2 == 0 )
-        {
-            quartiles[0] = (rCopy(numItems/4)+rCopy(numItems/4-1)) / 2;
-            quartiles[2] =
-              (rCopy(numItems/2+numItems/4)+
-               rCopy(numItems/2+numItems/4-1)) / 2;
-        }
-        else
-        {
-            // Directly read off Q1 and Q3.
-            quartiles[0] = rCopy(numItems/4);
-            quartiles[2] = rCopy(numItems/2 + numItems/4);
-        }
-    }
-    return quartiles;
-}
-
-template<typename Real>
 void RescalePrimal
 ( const Real& primalScale, 
   SparseAffineLPEquilibration<Real>& equilibration,
@@ -1669,50 +1599,6 @@ void RescaleKKTButNotRegularization
             {
                 // G block
                 valBuf[index] *= xScale(col) * zScale(row-(n+m));
-            }
-        }
-    }
-}
-
-template<typename Real>
-void RescaleKKTDualSlackButNotRegularization
-( Int m, Int n, const Matrix<Real>& zScale, SparseMatrix<Real>& J )
-{
-    EL_DEBUG_CSE
-    Real* valBuf = J.ValueBuffer();
-    const Int numEntries = J.NumEntries();
-    for( Int index=0; index<numEntries; ++index )
-    {
-        const Int row = J.Row(index);
-        const Int col = J.Col(index);
-        // | 0 A^T G^T |
-        // | A  0   0  |
-        // | G  0   0  |
-        if( row < n )
-        {
-            if( col >= n && col < n+m )
-            {
-                // A^T block
-            }
-            else if( col >= n+m )
-            {
-                // G^T block
-                valBuf[index] *= zScale(col-(n+m));
-            }
-        }
-        else if( row < n+m )
-        {
-            if( col < n )
-            {
-                // A block
-            }
-        }
-        else
-        {
-            if( col < n )
-            {
-                // G block
-                valBuf[index] *= zScale(row-(n+m));
             }
         }
     }
@@ -1931,87 +1817,7 @@ void EquilibratedIPM
     const Int indent = PushIndent();
     for( ; numIts<=ctrl.maxIts; ++numIts, muOld=mu, dimacsErrorOld=dimacsError )
     {
-        if( ctrl.dynamicallyRescale && !backingOffEquilibration )
-        {
-            Matrix<Real> sOutlierScale;
-            Ones( sOutlierScale, k, 1 );
-            auto sLogQuartiles = GetLogQuartiles( solution.s );
-            const Real sLogIQR = sLogQuartiles[2] - sLogQuartiles[0];
-            const Real sLogOutlierLowerStart =
-              Min( sLogQuartiles[0] - outlierIQRMultiple*sLogIQR, Real(1) );
-            const Real sLogOutlierUpperStart =
-              Max( sLogQuartiles[2] + outlierIQRMultiple*sLogIQR, Real(1) );
-            Int sNumOutliers = 0;
-            for( Int i=0; i<k; ++i )
-            {
-                if( solution.s(i) < Exp(sLogOutlierLowerStart) ||
-                    solution.s(i) > Exp(sLogOutlierUpperStart) )
-                    ++sNumOutliers;
-            }
-            Output
-            ("s log quartiles: ",sLogQuartiles[0],", ",sLogQuartiles[1],", ",
-             sLogQuartiles[2],", sLogIQR=",sLogIQR,
-             ", sNumOutliers=",sNumOutliers);
-
-            // Rescale any upper outliers to the upper limit.
-            for( Int i=0; i<k; ++i )
-            {
-                if( solution.s(i) > Exp(sLogOutlierUpperStart) )
-                {
-                    sOutlierScale(i) =
-                      solution.s(i) / Exp(sLogOutlierUpperStart);
-                }
-            }
-            DiagonalSolve( LEFT, NORMAL, sOutlierScale, solution.s );
-            DiagonalScale( LEFT, NORMAL, sOutlierScale, solution.z );
-            DiagonalSolve( LEFT, NORMAL, sOutlierScale, equilibration.zScale );
-            DiagonalSolve( LEFT, NORMAL, sOutlierScale, problem.G );
-            // The two-norm of h will be updated below
-            DiagonalSolve( LEFT, NORMAL, sOutlierScale, problem.h );
-
-            Matrix<Real> zOutlierScale;
-            Ones( zOutlierScale, k, 1 );
-            auto zLogQuartiles = GetLogQuartiles( solution.z );
-            const Real zLogIQR = zLogQuartiles[2] - zLogQuartiles[0];
-            const Real zLogOutlierLowerStart =
-              Min( zLogQuartiles[0] - outlierIQRMultiple*zLogIQR, Real(1) );
-            const Real zLogOutlierUpperStart =
-              Max( zLogQuartiles[2] + outlierIQRMultiple*zLogIQR, Real(1) );
-
-            Int zNumOutliers = 0;
-            for( Int i=0; i<k; ++i )
-            {
-                if( solution.z(i) < Exp(zLogOutlierLowerStart) ||
-                    solution.z(i) > Exp(zLogOutlierUpperStart) )
-                    ++zNumOutliers;
-            }
-            Output
-            ("z log quartiles: ",zLogQuartiles[0],", ",zLogQuartiles[1],", ",
-             zLogQuartiles[2],", zLogIQR=",zLogIQR,
-             ", zNumOutliers=",zNumOutliers);
-
-            for( Int i=0; i<k; ++i )
-            {
-                if( solution.z(i) > Exp(zLogOutlierUpperStart) )
-                {
-                    zOutlierScale(i) =
-                      solution.z(i) / Exp(zLogOutlierUpperStart);
-                }
-            }
-            DiagonalScale( LEFT, NORMAL, zOutlierScale, solution.s );
-            DiagonalSolve( LEFT, NORMAL, zOutlierScale, solution.z );
-            DiagonalScale( LEFT, NORMAL, zOutlierScale, equilibration.zScale );
-            DiagonalScale( LEFT, NORMAL, zOutlierScale, problem.G );
-            DiagonalScale( LEFT, NORMAL, zOutlierScale, problem.h );
-            hNrm2 = FrobeniusNorm( problem.h );
-
-            // dualSlackScale := zOutlierScale ./ sOutlierScale.
-            auto dualSlackScale( zOutlierScale );
-            DiagonalSolve( LEFT, NORMAL, sOutlierScale, dualSlackScale );
-            RescaleKKTDualSlackButNotRegularization
-            ( m, n, dualSlackScale, JStatic );
-        }
-        else if( backingOffEquilibration )
+        if( backingOffEquilibration )
         {
             const Real xScaleMin = Min( equilibration.xScale );
             const Real yScaleMin = Min( equilibration.yScale );
@@ -2213,18 +2019,6 @@ void EquilibratedIPM
              "  scaled rel obj gap = ",relObjGap,"\n",Indent(),
              "  scaled rel comp gap = ",relCompGap,"\n",Indent(),
              "  scaled dimacs error = ",dimacsError);
-
-            /*
-            Print( solution.x, "x" + std::to_string(numIts) );
-            Print( solution.s, "s" + std::to_string(numIts) );
-            Print( solution.y, "y" + std::to_string(numIts) );
-            Print( solution.z, "z" + std::to_string(numIts) );
-
-            Print( origSolution.x, "xOrig" + std::to_string(numIts) );
-            Print( origSolution.s, "sOrig" + std::to_string(numIts) );
-            Print( origSolution.y, "yOrig" + std::to_string(numIts) );
-            Print( origSolution.z, "zOrig" + std::to_string(numIts) );
-            */
 
             Output("  s^T z = ",gapOrig);
             Output("  primal: ",primObjOrig);

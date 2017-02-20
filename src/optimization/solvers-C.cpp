@@ -46,7 +46,6 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->ruizEquilTol = Pow(eps,float(-0.25));
     ctrl->ruizMaxIter = 3;
     ctrl->diagEquilTol = Pow(eps,float(-0.15));
-    ctrl->dynamicallyRescale = true;
 
 #ifdef EL_RELEASE
     ctrl->checkResiduals = false;
@@ -100,7 +99,6 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->ruizEquilTol = Pow(eps,double(-0.25));
     ctrl->ruizMaxIter = 3;
     ctrl->diagEquilTol = Pow(eps,double(-0.15));
-    ctrl->dynamicallyRescale = true;
 
 #ifdef EL_RELEASE
     ctrl->checkResiduals = false;

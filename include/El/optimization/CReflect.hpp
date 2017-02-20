@@ -59,7 +59,6 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
     ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
     ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol = ctrl.diagEquilTol;
-    ctrlC.dynamicallyRescale = ctrl.dynamicallyRescale;
 
     ctrlC.checkResiduals = ctrl.checkResiduals;
 
@@ -121,7 +120,6 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
     ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
     ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol = ctrl.diagEquilTol;
-    ctrlC.dynamicallyRescale = ctrl.dynamicallyRescale;
 
     ctrlC.checkResiduals = ctrl.checkResiduals;
 
@@ -176,7 +174,6 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
     ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
     ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol = ctrlC.diagEquilTol;
-    ctrl.dynamicallyRescale = ctrlC.dynamicallyRescale;
 
     ctrl.checkResiduals = ctrlC.checkResiduals;
 
@@ -231,7 +228,6 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
     ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
     ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol = ctrlC.diagEquilTol;
-    ctrl.dynamicallyRescale = ctrlC.dynamicallyRescale;
 
     ctrl.checkResiduals = ctrlC.checkResiduals;
 

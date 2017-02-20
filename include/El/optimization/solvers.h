@@ -50,7 +50,6 @@ typedef struct {
   float ruizEquilTol;
   ElInt ruizMaxIter;
   float diagEquilTol;
-  bool dynamicallyRescale;
 
   bool checkResiduals;
 
@@ -101,7 +100,6 @@ typedef struct {
   double ruizEquilTol;
   ElInt ruizMaxIter;
   double diagEquilTol;
-  bool dynamicallyRescale;
 
   bool checkResiduals;
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -152,10 +152,6 @@ void SparseLoadAndSolve
     ctrl.ipmCtrl.checkResiduals = true;
     ctrl.ipmCtrl.solveCtrl.progress = true;
     ctrl.ipmCtrl.zMinPivotValue = El::Pow(eps,Real(1.5));
-    /*
-    El::Output("Forcing maxComplementRatio = 50");
-    ctrl.ipmCtrl.maxComplementRatio = 50;
-    */
     El::Output("xRegLarge=",ctrl.ipmCtrl.xRegLarge);
     El::Output("yRegLarge=",ctrl.ipmCtrl.yRegLarge);
     El::Output("zRegLarge=",ctrl.ipmCtrl.zRegLarge);
@@ -232,7 +228,7 @@ int main( int argc, char* argv[] )
           El::Input
           ("--upperTargetRatioLogCompRatio","log_compratio(upperTargetRatio)",
            0.25);
-        const bool twoStage = El::Input("--twoStage","two-stage solver?",false);
+        const bool twoStage = El::Input("--twoStage","two-stage solver?",true);
         const bool mehrotra =
           El::Input("--mehrotra","Mehrotra predictor-corrector?",true);
         El::ProcessInput();

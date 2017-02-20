@@ -177,9 +177,6 @@ struct IPMCtrl
     // for solving the KKT system.
     Real diagEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.15));
 
-    // TODO(poulson): Description.
-    bool dynamicallyRescale = true;
-
     // Whether or not additional matrix-vector multiplications should be
     // performed in order to check the accuracy of the solution to each
     // block row of the KKT system.
