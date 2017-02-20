@@ -617,7 +617,8 @@ struct LPMPSMeta
   Int numNonnegativeBounds=0;
 
   // From the RANGES section
-  // TODO(poulson)
+  string rangesName="";
+  Int numRanges=0;
 
   // From the RHS section
   string rhsName="";

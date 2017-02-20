@@ -1,0 +1,46 @@
+                 LINEAR PROGRAMMING TEST PROBLEMS          August 1984
+
+Collected by:    Systems Optimization Laboratory
+                 Department of Operations Research
+                 Stanford University
+                 Stanford, California 94305
+
+Data Format:     MPS format, with the following sections...
+
+                 NAME, ROWS, COLUMNS, RHS, RANGES, BOUNDS, ENDATA
+                                           <--optional-->
+
+                                                     (unscaled)   (scaled)
+File   Name    Rows  Cols  Elems  Optimal Objective  Itns  Time  Itns  Time
+---- --------  ----  ----  -----  -----------------  ----  ----  ----  ----
+
+  1. AFIRO       28    32     88 -4.6475314E+02         6   0.5     6   0.5
+  2. ADLITTLE    57    97    465  2.2549496E+05       123   1.3    98   1.1
+  3. SHARE2B     99    79    802 -4.1573224E+02        91   1.3   121   1.4
+  4. SHARE1B    118   225   1182 -7.6589319E+04       296   3.4   260   2.8
+  5. BEACONFD   174   262   3476  3.3592486E+04        38   1.9    39   1.8
+  6. ISRAEL     175   142   2358 -8.9664482E+05       345   5.0   231   3.7
+  7. BRANDY     221   249   2150  1.5185099E+03       292   4.9   377   5.9
+  8. E226       226   282   3038 -1.8751929E+01       570   9.4   471   7.5
+  9. CAPRI      272   353   1786  2.6900129E+03       273   4.4   235   3.9
+ 10. BANDM      306   472   2659 -1.5862802E+02       362   7.6   534  10.0
+ 11. STAIR      357   467   3867  2.5126695E+02 MAX   519  15.7   389  13.1
+ 12. ETAMACRO   401   689   2489  7.5571521E+02 MAX   904  15.0   927  17.6
+ 13. PILOT     1460  3652  43645  5.5742994E+02 MAX    ?     ?  20000* 2hrs*
+
+* Objective  is the first row of type N.  It is minimized except as shown.
+
+* Itns       is the number of iterations required to solve the problem
+             by the primal simplex method, as implemented in the Fortran
+             code MINOS 5.0 (May 1985), using default values for all
+             parameters.  (The initial basis is triangular.)
+
+* Time       is the processor time required on an IBM 3081K.  The MINOS
+             source code was compiled with the IBM Fortran 77 compiler
+             VS FORTRAN, using the options NOSDUMP, NOSYM and OPT(3).
+
+* PILOT      is a linearized form of a quadratic program.  The first 45
+             objective elements are the optimal gradients of the quadratic
+             terms in the objective of the QP.  PILOT is normally solved
+             from an advanced basis, with scaling.  The Itns and Time shown
+             above are estimates.
