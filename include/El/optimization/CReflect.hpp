@@ -76,8 +76,8 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
 
     ctrlC.maxComplementRatio = ctrl.maxComplementRatio;
     ctrlC.softDualityTargets = ctrl.softDualityTargets;
-    ctrlC.lowerTargetRatioLogCompRatio;
-    ctrlC.upperTargetRatioLogCompRatio;
+    ctrlC.lowerTargetRatioLogCompRatio = ctrl.lowerTargetRatioLogCompRatio;
+    ctrlC.upperTargetRatioLogCompRatio = ctrl.upperTargetRatioLogCompRatio;
 
     return ctrlC;
 }
@@ -137,8 +137,8 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
 
     ctrlC.maxComplementRatio = ctrl.maxComplementRatio;
     ctrlC.softDualityTargets = ctrl.softDualityTargets;
-    ctrlC.lowerTargetRatioLogCompRatio;
-    ctrlC.upperTargetRatioLogCompRatio;
+    ctrlC.lowerTargetRatioLogCompRatio = ctrl.lowerTargetRatioLogCompRatio;
+    ctrlC.upperTargetRatioLogCompRatio = ctrl.upperTargetRatioLogCompRatio;
 
     return ctrlC;
 }

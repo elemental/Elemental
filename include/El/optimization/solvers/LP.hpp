@@ -602,7 +602,6 @@ struct LPMPSMeta
   Int numEqualityRows=0;
   Int numNonconstrainingRows=0;
 
-
   // From the COLUMNS section
   Int numEqualityEntries=0;
   Int numInequalityEntries=0;
@@ -672,10 +671,79 @@ void WriteMPS
   const string& filename,
   bool compressed=false );
 
+// NOTE: These are not yet supported but are eventually planned
+// (despite the custom compression format being worse than gzip...).
 void CompressMPS
 ( const string& filename, const string& compressedFilename );
 void DecompressMPS
 ( const string& filename, const string& decompressedFilename );
+
+// The CPLEX "LP" format
+// ---------------------
+// Please see http://lpsolve.sourceforge.net/5.5/CPLEX-format.htm for a
+// reference.
+
+struct LPCPLEXMeta
+{
+  // From the objective section
+  string objectiveName="";
+
+  // From the "Subject To" section
+  Int numLesserRows=0;
+  Int numGreaterRows=0;
+  Int numEqualityRows=0;
+  Int numEqualityEntries=0;
+  Int numInequalityEntries=0;
+
+  // From the "Bounds" section
+  Int numUpperBounds=0;
+  Int numLowerBounds=0;
+  Int numFixedBounds=0; // The bottom rows of 'A' and 'x'
+  Int numFreeBounds=0;
+  Int numNonpositiveBounds=0;
+  Int numNonnegativeBounds=0;
+
+  Int m=0, n=0, k=0;
+
+  //
+  //   | A0 | x = | b0 |
+  //   | A1 |     | b1 |
+  //
+  Int equalityOffset=-1, fixedOffset=-1;
+
+  //
+  //   | G0 | x <= | h0 |
+  //   | G1 |      | h1 |
+  //   | G2 |      | h2 |
+  //   | G3 |      | h3 |
+  //   | G4 |      | h4 |
+  //   | G5 |      | h5 |
+  //
+  Int lesserOffset=-1,
+      greaterOffset=-1,
+      upperBoundOffset=-1,
+      lowerBoundOffset=-1,
+      nonpositiveOffset=-1,
+      nonnegativeOffset=-1;
+
+  void PrintSummary() const;
+};
+
+// Load an affine conic form LP stored in the Mathematical Programming System
+// (LP CPLEX) format.
+template<class MatrixType,class VectorType>
+LPCPLEXMeta ReadLPCPLEX
+( AffineLPProblem<MatrixType,VectorType>& problem, const string& filename );
+
+// Write out an LP in the LP CPLEX format.
+template<class MatrixType,class VectorType>
+void WriteLPCPLEX
+( const DirectLPProblem<MatrixType,VectorType>& problem,
+  const string& filename );
+template<class MatrixType,class VectorType>
+void WriteLPCPLEX
+( const AffineLPProblem<MatrixType,VectorType>& problem,
+  const string& filename );
 
 } // namespace El
 

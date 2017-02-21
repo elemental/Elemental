@@ -11,9 +11,6 @@
 template<typename Real>
 void DenseLoadAndSolve
 ( const std::string& filename,
-  bool compressed,
-  bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
   bool metadataSummary,
   bool print,
   bool outerEquil,
@@ -35,9 +32,7 @@ void DenseLoadAndSolve
 
     timer.Start();
     El::AffineLPProblem<El::Matrix<Real>,El::Matrix<Real>> problem;
-    auto meta = El::ReadMPS
-    ( problem, filename, compressed,
-      minimize, keepNonnegativeWithZeroUpperBound );
+    auto meta = El::ReadLPCPLEX( problem, filename );
     if( metadataSummary )
         meta.PrintSummary();
     El::Output("Reading took ",timer.Stop()," seconds");
@@ -85,9 +80,6 @@ void DenseLoadAndSolve
 template<typename Real>
 void SparseLoadAndSolve
 ( const std::string& filename,
-  bool compressed,
-  bool minimize,
-  bool keepNonnegativeWithZeroUpperBound,
   bool metadataSummary,
   bool print,
   bool outerEquil,
@@ -111,9 +103,7 @@ void SparseLoadAndSolve
 
     timer.Start();
     El::AffineLPProblem<El::SparseMatrix<Real>,El::Matrix<Real>> problem;
-    auto meta = El::ReadMPS
-    ( problem, filename, compressed,
-      minimize, keepNonnegativeWithZeroUpperBound );
+    auto meta = El::ReadLPCPLEX( problem, filename );
     if( metadataSummary )
         meta.PrintSummary();
     El::Output("Reading took ",timer.Stop()," seconds");
@@ -180,16 +170,10 @@ int main( int argc, char* argv[] )
     {
         const std::string filename =
           El::Input
-          ("--filename","MPS filename",
-           std::string("../data/optimization/lp_data/share1b.mps"));
-        const bool compressed = El::Input("--compressed","compressed?",false);
-        const bool minimize = El::Input("--minimize","minimize c^T?",true);
-        const bool keepNonnegativeWithZeroUpperBound =
-          El::Input
-          ("--keepNonnegativeWithZeroUpperBound",
-           "do not remove zero lower bound unless negative upper bound",true);
+          ("--filename","LP CPLEX filename",
+           std::string("../data/optimization/delsarte_small.lpt"));
         const bool metadataSummary =
-          El::Input("--metadataSummary","summarize MPS metadata?",true);
+          El::Input("--metadataSummary","summarize LP CPLEX metadata?",true);
         const bool testDense =
           El::Input("--testDense","test with dense matrices?",false);
         const bool testDouble =
@@ -240,8 +224,7 @@ int main( int argc, char* argv[] )
         {
             if( testDouble )
                 DenseLoadAndSolve<double>
-                ( filename, compressed,
-                  minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+                ( filename, metadataSummary,
                   print, outerEquil,
                   infeasibilityTolLogEps,
                   relativeObjectiveGapTolLogEps,
@@ -251,8 +234,7 @@ int main( int argc, char* argv[] )
                   twoStage, mehrotra );
 #ifdef EL_HAVE_QD
             DenseLoadAndSolve<El::DoubleDouble>
-            ( filename, compressed,
-              minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+            ( filename, metadataSummary,
               print, outerEquil,
               infeasibilityTolLogEps,
               relativeObjectiveGapTolLogEps,
@@ -261,8 +243,7 @@ int main( int argc, char* argv[] )
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               twoStage, mehrotra );
             DenseLoadAndSolve<El::QuadDouble>
-            ( filename, compressed,
-              minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+            ( filename, metadataSummary,
               print, outerEquil,
               infeasibilityTolLogEps,
               relativeObjectiveGapTolLogEps,
@@ -273,8 +254,7 @@ int main( int argc, char* argv[] )
 #endif
 #ifdef EL_HAVE_QUAD
             DenseLoadAndSolve<El::Quad>
-            ( filename, compressed,
-              minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+            ( filename, metadataSummary,
               print, outerEquil,
               infeasibilityTolLogEps,
               relativeObjectiveGapTolLogEps,
@@ -289,8 +269,7 @@ int main( int argc, char* argv[] )
                 // TODO(poulson): Make this configurable.
                 El::mpfr::SetPrecision( 512 );
                 DenseLoadAndSolve<El::BigFloat>
-                ( filename, compressed,
-                  minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+                ( filename, metadataSummary,
                   print, outerEquil,
                   infeasibilityTolLogEps,
                   relativeObjectiveGapTolLogEps,
@@ -302,10 +281,10 @@ int main( int argc, char* argv[] )
 #endif
         }
 
+        /*
         if( testDouble )
             SparseLoadAndSolve<double>
-            ( filename, compressed,
-              minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+            ( filename, metadataSummary,
               print, outerEquil,
               infeasibilityTolLogEps,
               relativeObjectiveGapTolLogEps,
@@ -316,8 +295,7 @@ int main( int argc, char* argv[] )
               twoStage, mehrotra );
 #ifdef EL_HAVE_QD
         SparseLoadAndSolve<El::DoubleDouble>
-        ( filename, compressed,
-          minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+        ( filename, metadataSummary,
           print, outerEquil,
           infeasibilityTolLogEps,
           relativeObjectiveGapTolLogEps,
@@ -327,8 +305,7 @@ int main( int argc, char* argv[] )
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
           twoStage, mehrotra );
         SparseLoadAndSolve<El::QuadDouble>
-        ( filename, compressed,
-          minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+        ( filename, metadataSummary,
           print, outerEquil,
           infeasibilityTolLogEps,
           relativeObjectiveGapTolLogEps,
@@ -340,8 +317,7 @@ int main( int argc, char* argv[] )
 #endif
 #ifdef EL_HAVE_QUAD
         SparseLoadAndSolve<El::Quad>
-        ( filename, compressed,
-          minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+        ( filename, metadataSummary,
           print, outerEquil,
           infeasibilityTolLogEps,
           relativeObjectiveGapTolLogEps,
@@ -351,14 +327,14 @@ int main( int argc, char* argv[] )
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
           twoStage, mehrotra );
 #endif
+        */
 #ifdef EL_HAVE_MPC
         if( testArbitrary )
         {
-            // TODO(poulson): Make this configurable
+            // TODO(poulson): Make this configurable.
             El::mpfr::SetPrecision( 512 );
             SparseLoadAndSolve<El::BigFloat>
-            ( filename, compressed,
-              minimize, keepNonnegativeWithZeroUpperBound, metadataSummary,
+            ( filename, metadataSummary,
               print, outerEquil,
               infeasibilityTolLogEps,
               relativeObjectiveGapTolLogEps,

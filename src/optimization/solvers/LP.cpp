@@ -10,6 +10,7 @@
 #include "./LP/direct/IPM.hpp"
 #include "./LP/affine/IPM.hpp"
 #include "./LP/MPS.hpp"
+#include "./LP/LPCPLEX.hpp"
 
 namespace El {
 
@@ -537,7 +538,43 @@ void LP
   template void WriteMPS \
   ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
     const string& filename, \
-    bool compressed );
+    bool compressed ); \
+  template LPCPLEXMeta ReadLPCPLEX \
+  ( AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+    const string& filename ); \
+  template LPCPLEXMeta ReadLPCPLEX \
+  ( AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+    const string& filename ); \
+  template LPCPLEXMeta ReadLPCPLEX \
+  ( AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+    const string& filename ); \
+  template LPCPLEXMeta ReadLPCPLEX \
+  ( AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const DirectLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const DirectLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const DirectLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const DirectLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
+    const string& filename ); \
+  template void WriteLPCPLEX \
+  ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
+    const string& filename );
 
 #define EL_NO_INT_PROTO
 #define EL_NO_COMPLEX_PROTO

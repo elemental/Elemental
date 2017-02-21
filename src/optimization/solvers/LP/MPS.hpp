@@ -28,6 +28,15 @@ const string tooManyColumnTokensString =
   "Too many tokens in a line of the 'COLUMNS' section: please check that your "
   "variable names do not have spaces in them.";
 
+string ToUpper( const string& token )
+{
+    EL_DEBUG_CSE
+    string upperToken = token;
+    std::transform
+    ( upperToken.begin(), upperToken.end(), upperToken.begin(), ::toupper );
+    return upperToken;
+}
+
 } // anonymous namespace
 
 // We will follow the de facto convention of assuming that variables live within
@@ -253,8 +262,6 @@ public:
 
     const LPMPSMeta& Meta() const;
 
-    static string ToUpper( const string& token );
-
     static bool IsDataLine( std::stringstream& lineStream );
     static MPSSection DecodeSection( const string& token );
     static MPSRowType DecodeRowType( const string& token );
@@ -288,8 +295,8 @@ private:
     bool initializedRHSSection_=false;
     bool rhsHasName_;
 
-    // The RHS section typically has a name followed by either one or two pairs
-    // per row, but some models do not involve a name.
+    // The RANGES section typically has a name followed by either one or two
+    // pairs per row, but some models do not involve a name.
     bool initializedRangesSection_=false;
     bool rangesHasName_;
 
@@ -375,16 +382,6 @@ bool MPSReader<Real>::IsDataLine( std::stringstream& lineStream )
 }
 
 template<typename Real>
-string MPSReader<Real>::ToUpper( const string& token )
-{
-    EL_DEBUG_CSE
-    string upperToken = token;
-    std::transform
-    ( upperToken.begin(), upperToken.end(), upperToken.begin(), ::toupper );
-    return upperToken;
-}
-
-template<typename Real>
 MPSSection MPSReader<Real>::DecodeSection( const string& token )
 {
     EL_DEBUG_CSE
@@ -460,6 +457,11 @@ MPSRowType MPSReader<Real>::DecodeRowType( const string& token )
     }
     else if( upperToken == "N" )
     {
+        rowType = MPS_NONCONSTRAINING_ROW;
+    }
+    else
+    {
+        LogicError("Unknown row type token: ",token);
         rowType = MPS_NONCONSTRAINING_ROW;
     }
 
@@ -1195,7 +1197,7 @@ void MPSReader<Real>::QueueVariableBound()
     }
     if( queuedEntries_.size() > 0 )
         return;
-    if( auxBoundIndex_ < rangeList_.size() )
+    if( auxBoundIndex_ < Int(rangeList_.size()) )
     {
         const Int column =
           variableDict_.size() - meta_.numFixedBounds + auxBoundIndex_;
@@ -1719,9 +1721,6 @@ MPSReader<Real>::MPSReader
     // column name.
     std::ifstream::pos_type colSectionBeg;
 
-    // TODO(poulson): Convert each token to upper-case letters before each
-    // comparison. While capital letters are used by convention, they are
-    // not required.
     MPSSection section = MPS_NONE;
     string line, token;
     while( std::getline( file_, line ) )
