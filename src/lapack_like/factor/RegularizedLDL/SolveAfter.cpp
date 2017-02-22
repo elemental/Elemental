@@ -189,7 +189,7 @@ RegularizedSolveAfterPromote
   bool time )
 {
     EL_DEBUG_CSE
-    return RegularizedSolveAfter
+    return RegularizedSolveAfterNoPromote
       ( A, reg, d, sparseLDLFact, B, relTol, maxRefineIts, progress, time );
 }
 
