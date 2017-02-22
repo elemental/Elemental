@@ -1810,7 +1810,6 @@ void EquilibratedIPM
     // (with the exception of the initial value).
     Real muMin = 1.e6;
 
-    const Real outlierIQRMultiple = Real(3.0);
     bool backingOffEquilibration = false;
 
     Real mu = 0.1, muOld = 0.1;
@@ -1830,16 +1829,19 @@ void EquilibratedIPM
                 yScaleMin != yScaleMax ||
                 zScaleMin != zScaleMax )
             {
-                Output
-                ("Backing off with "
-                 "  primalScale = ",equilibration.primalScale,
-                 ", dualScale = ",equilibration.dualScale,
-                 "  || xScale ||_min = ",xScaleMin,
-                 ", || yScale ||_min = ",yScaleMin,
-                 ", || zScale ||_min = ",zScaleMin,
-                 "  || xScale ||_max = ",xScaleMax,
-                 ", || yScale ||_max = ",yScaleMax,
-                 ", || zScale ||_max = ",zScaleMax);
+                if( ctrl.print )
+                {
+                    Output
+                    ("Backing off with "
+                     "  primalScale = ",equilibration.primalScale,
+                     ", dualScale = ",equilibration.dualScale,
+                     "  || xScale ||_min = ",xScaleMin,
+                     ", || yScale ||_min = ",yScaleMin,
+                     ", || zScale ||_min = ",zScaleMin,
+                     "  || xScale ||_max = ",xScaleMax,
+                     ", || yScale ||_max = ",yScaleMax,
+                     ", || zScale ||_max = ",zScaleMax);
+                }
 
                 // Force || xScale ||_max =
                 //       max(|| yScale ||_max,|| zScale ||_max) = 1
@@ -1993,7 +1995,6 @@ void EquilibratedIPM
           ( primObjOrig, dualObjOrig, gapOrig );
         const Real relObjGapOrig =
           RelativeObjectiveGap( primObjOrig, dualObjOrig );
-        const Real maxRelGapOrig = Max( relCompGapOrig, relObjGapOrig );
 
         if( ctrl.print )
         {
@@ -2061,7 +2062,8 @@ void EquilibratedIPM
         {
             // TODO(poulson): Start undoing the equilibration?
             backingOffEquilibration = true;
-            Output("Backing off equilibration");
+            if( ctrl.print )
+                Output("Backing off equilibration");
         }
 
         // Compute the scaling point
@@ -2135,7 +2137,8 @@ void EquilibratedIPM
         }
         else
         {
-            Output("Not forcing monotonic decrease");
+            if( ctrl.print )
+                Output("Not forcing monotonic decrease");
             //mu = Min( muClassical, muMin );
             mu = muClassical;
             muMin = Min( mu, muMin );
@@ -2148,7 +2151,8 @@ void EquilibratedIPM
         residual.dualConic = zPivot;
         DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
         const Real dualConicAffineNrm2 = FrobeniusNorm( residual.dualConic );
-        Output("|| dualConicAffine ||_2 = ",dualConicAffineNrm2);
+        if( ctrl.print )
+            Output("|| dualConicAffine ||_2 = ",dualConicAffineNrm2);
 
         // Solve for the proposed step
         // ---------------------------
@@ -2174,10 +2178,13 @@ void EquilibratedIPM
         const Real yAffineNrm2 = FrobeniusNorm( affineCorrection.y );
         const Real zAffineNrm2 = FrobeniusNorm( affineCorrection.z );
         const Real sAffineNrm2 = FrobeniusNorm( affineCorrection.s );
-        Output("|| dxAffine ||_2 = ",xAffineNrm2);
-        Output("|| dyAffine ||_2 = ",yAffineNrm2);
-        Output("|| dzAffine ||_2 = ",zAffineNrm2);
-        Output("|| dsAffine ||_2 = ",sAffineNrm2);
+        if( ctrl.print )
+        {
+            Output("|| dxAffine ||_2 = ",xAffineNrm2);
+            Output("|| dyAffine ||_2 = ",yAffineNrm2);
+            Output("|| dzAffine ||_2 = ",zAffineNrm2);
+            Output("|| dsAffine ||_2 = ",sAffineNrm2);
+        }
 
         if( ctrl.checkResiduals && ctrl.print )
         {
@@ -2230,7 +2237,8 @@ void EquilibratedIPM
             sMin = Min( sMin, solution.s(i) );
             zMin = Min( zMin, solution.z(i) );
         }
-        Output("sMin = ",sMin,", zMin = ",zMin);
+        if( ctrl.print )
+            Output("sMin = ",sMin,", zMin = ",zMin);
 
         // Compute a centrality parameter
         // ==============================
@@ -2377,7 +2385,6 @@ void EquilibratedIPM
             else
                 dInner(i+n+m) = Min(zAffineNrm2/affineBaseline,maxRescaleRatio);
         }
-        const Real dInnerNrm2 = FrobeniusNorm( dInner );
         DiagonalScale( LEFT, NORMAL, dInner, JOrigScaled );
         DiagonalScale( RIGHT, NORMAL, dInner, JOrigScaled );
         DiagonalScale( LEFT, NORMAL, dInner, regLargeScaled );
@@ -2394,9 +2401,12 @@ void EquilibratedIPM
         const Real dxSubNrm2 = FrobeniusNorm( dxSub );
         const Real dySubNrm2 = FrobeniusNorm( dySub );
         const Real dzSubNrm2 = FrobeniusNorm( dzSub );
-        Output("|| dxSub ||_2 = ",dxSubNrm2);
-        Output("|| dySub ||_2 = ",dySubNrm2);
-        Output("|| dzSub ||_2 = ",dzSubNrm2);
+        if( ctrl.print )
+        {
+            Output("|| dxSub ||_2 = ",dxSubNrm2);
+            Output("|| dySub ||_2 = ",dySubNrm2);
+            Output("|| dzSub ||_2 = ",dzSubNrm2);
+        }
         DiagonalScale( LEFT, NORMAL, dInner, d );
         ExpandSolution
         ( m, n, d, residual.dualConic, solution.s, zDoublePivot,
@@ -2405,15 +2415,21 @@ void EquilibratedIPM
         const Real yCombinedNrm2 = FrobeniusNorm( correction.y );
         const Real zCombinedNrm2 = FrobeniusNorm( correction.z );
         const Real sCombinedNrm2 = FrobeniusNorm( correction.s );
-        Output("|| dxCombined ||_2 = ",xCombinedNrm2);
-        Output("|| dyCombined ||_2 = ",yCombinedNrm2);
-        Output("|| dzCombined ||_2 = ",zCombinedNrm2);
-        Output("|| dsCombined ||_2 = ",sCombinedNrm2);
+        if( ctrl.print )
+        {
+            Output("|| dxCombined ||_2 = ",xCombinedNrm2);
+            Output("|| dyCombined ||_2 = ",yCombinedNrm2);
+            Output("|| dzCombined ||_2 = ",zCombinedNrm2);
+            Output("|| dsCombined ||_2 = ",sCombinedNrm2);
+        }
 
         const Real sCombinedTwo = FrobeniusNorm( correction.s );
         const Real zCombinedTwo = FrobeniusNorm( correction.z );
-        Output("|| sCombined ||_2 = ",sCombinedTwo);
-        Output("|| zCombined ||_2 = ",zCombinedTwo);
+        if( ctrl.print )
+        {
+            Output("|| sCombined ||_2 = ",sCombinedTwo);
+            Output("|| zCombined ||_2 = ",zCombinedTwo);
+        }
 
         // Update the current estimates
         // ============================
@@ -2510,11 +2526,15 @@ void IPM
             // Compute the dual refinement scale.
             const Real cHatMax = MaxNorm( refinedProblem.c );
             const Real dualRefineScale = Real(1)/cHatMax;
-            Output("|| bHat ||_max = ",bHatMax);
-            Output("|| hHat ||_max = ",hHatMax);
-            Output("|| cHat ||_max = ",cHatMax);
-            Output
-            ("primalScale=",primalRefineScale,", dualScale=",dualRefineScale);
+            if( ctrl.print )
+            {
+                Output("|| bHat ||_max = ",bHatMax);
+                Output("|| hHat ||_max = ",hHatMax);
+                Output("|| cHat ||_max = ",cHatMax);
+                Output
+                ("primalScale=",primalRefineScale,
+                 ", dualScale=",dualRefineScale);
+            }
             refinedProblem.b *= primalRefineScale;
             refinedProblem.h *= primalRefineScale;
             refinedProblem.c *= dualRefineScale;
@@ -2548,7 +2568,8 @@ void IPM
             const Real newPrimal = Dot( problem.c, solution.x );
             const Real newDual = -Dot( problem.b, solution.y ) -
               Dot( problem.h, solution.z );
-            Output("New primal: ",newPrimal,", new dual: ",newDual);
+            if( ctrl.print )
+                Output("New primal: ",newPrimal,", new dual: ",newDual);
         }
     }
     else
