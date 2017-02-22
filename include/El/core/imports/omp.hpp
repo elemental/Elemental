@@ -20,7 +20,7 @@
 # ifdef EL_HAVE_OMP_SIMD
 #  define EL_SIMD _Pragma("omp simd")
 # else
-#  define EL_SIMD _Pragma("omp for")
+#  define EL_SIMD
 # endif
 #else
 # define EL_PARALLEL_FOR 

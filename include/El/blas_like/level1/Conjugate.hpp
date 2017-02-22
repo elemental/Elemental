@@ -19,7 +19,8 @@ template<typename Real>
 void Conjugate( Matrix<Complex<Real>>& A )
 {
     EL_DEBUG_CSE
-    EntrywiseMap( A, MakeFunction(Conj<Complex<Real>>) );
+    auto conj = [](const Complex<Real> &alpha) { return Conj(alpha); };
+    EntrywiseMap( A, MakeFunction(conj) );
 }
 
 template<typename T>

@@ -15,7 +15,8 @@ template<typename T>
 void RealPart( const Matrix<T>& A, Matrix<Base<T>>& AReal )
 {
     EL_DEBUG_CSE
-    EntrywiseMap( A, MakeFunction(RealPart<T>) );
+    auto realPart = []( const T& alpha ) { return RealPart(alpha); };
+    EntrywiseMap( A, AReal, MakeFunction(realPart) );
 }
 
 template<typename T>

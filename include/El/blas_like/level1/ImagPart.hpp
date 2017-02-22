@@ -15,7 +15,8 @@ template<typename T>
 void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 {
     EL_DEBUG_CSE
-    EntrywiseMap( A, MakeFunction(ImagPart<T>) );
+    auto imagPart = []( const T& alpha ) { return ImagPart(alpha); };
+    EntrywiseMap( A, AImag, MakeFunction(imagPart) );
 }
 
 template<typename T>

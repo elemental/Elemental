@@ -41,7 +41,7 @@ void IndexDependentMap
         {
             const Int i = A.GlobalRow(iLoc);
             const Int j = A.GlobalCol(jLoc);
-            ALocBuf[iLoc+jLoc*ALocLDim] = func(i,j,ALoc(iLoc,jLoc));
+            ALocBuf[iLoc+jLoc*ALocLDim] = func(i,j,ALocBuf[iLoc+jLoc*ALocLDim]);
         }
     }
 }
@@ -75,16 +75,18 @@ void IndexDependentMap
     const Int nLoc = A.LocalWidth();
     B.AlignWith( A.DistData() );
     B.Resize( A.Height(), A.Width() );
-    auto& ALoc = A.LockedMatrix();
-    auto& BLoc = B.Matrix();
-    EL_PARALLEL_FOR_COLLAPSE2
+    const T* ALocBuf = A.LockedBuffer();
+    T* BLocBuf = B.Buffer();
+    const Int ALocLDim = A.LDim();
+    const Int BLocLDim = B.LDim();
+    EL_PARALLEL_FOR_COLLAPSE2    
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
             const Int j = A.GlobalCol(jLoc);
-            BLoc(iLoc,jLoc) = func(i,j,ALoc(iLoc,jLoc));
+            BLocBuf[iLoc+jLoc*BLocLDim] = func(i,j,ALocBuf[iLoc+jLoc*ALocLDim]);
         }
     }
 }

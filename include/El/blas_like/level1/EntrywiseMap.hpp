@@ -62,11 +62,10 @@ void EntrywiseMap
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const S* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-
     B.Resize( m, n );
+    const S* ABuf = A.LockedBuffer();
     T* BBuf = B.Buffer();
+    const Int ALDim = A.LDim();
     const Int BLDim = B.LDim();
     EL_PARALLEL_FOR_COLLAPSE2
     for( Int j=0; j<n; ++j )
