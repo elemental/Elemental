@@ -281,7 +281,6 @@ int main( int argc, char* argv[] )
 #endif
         }
 
-        /*
         if( testDouble )
             SparseLoadAndSolve<double>
             ( filename, metadataSummary,
@@ -327,7 +326,6 @@ int main( int argc, char* argv[] )
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
           twoStage, mehrotra );
 #endif
-        */
 #ifdef EL_HAVE_MPC
         if( testArbitrary )
         {
