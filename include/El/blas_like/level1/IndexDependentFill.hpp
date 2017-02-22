@@ -30,7 +30,20 @@ void IndexDependentFill
 ( AbstractDistMatrix<T>& A, function<T(Int,Int)> func )
 {
     EL_DEBUG_CSE
-    IndexDependentFill( A.Matrix(), func );
+    const Int mLoc = A.LocalHeight();
+    const Int nLoc = A.LocalWidth();
+    T* ALocBuf = A.Buffer();
+    const Int ALocLDim = A.LDim();
+    EL_PARALLEL_FOR_COLLAPSE2
+    for( Int jLoc=0; jLoc<nLoc; ++jLoc )
+    {
+        for( Int iLoc=0; iLoc<mLoc; ++iLoc )
+        {
+            const Int i = A.GlobalRow(iLoc);
+            const Int j = A.GlobalCol(jLoc);
+            ALocBuf[iLoc+jLoc*ALocLDim] = func(i,j);
+        }
+    }
 }
 
 #ifdef EL_INSTANTIATE_BLAS_LEVEL1

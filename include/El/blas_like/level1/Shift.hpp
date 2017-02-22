@@ -19,10 +19,15 @@ void Shift( Matrix<T>& A, S alpha )
     const Int width = A.Width();
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR_COLLAPSE2
+    EL_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<height; ++i )
+        {
             ABuf[i+j*ALDim] += alpha;
+        }
+    }
 }
 
 template<typename T,typename S>

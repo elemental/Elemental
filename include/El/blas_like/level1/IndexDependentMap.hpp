@@ -32,7 +32,8 @@ void IndexDependentMap
     EL_DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
-    auto& ALoc = A.Matrix();
+    T* ALocBuf = A.Buffer();
+    const Int ALocLDim = A.LDim();
     EL_PARALLEL_FOR_COLLAPSE2    
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
@@ -40,7 +41,7 @@ void IndexDependentMap
         {
             const Int i = A.GlobalRow(iLoc);
             const Int j = A.GlobalCol(jLoc);
-            ALoc(iLoc,jLoc) = func(i,j,ALoc(iLoc,jLoc));
+            ALocBuf[iLoc+jLoc*ALocLDim] = func(i,j,ALoc(iLoc,jLoc));
         }
     }
 }
