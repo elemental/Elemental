@@ -21,10 +21,15 @@ void Round( Matrix<T>& A )
     const Int n = A.Width();
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR_COLLAPSE2
+    EL_PARALLEL_FOR
     for( Int j=0; j<n; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<m; ++i )
+        {
             ABuf[i+j*ALDim] = Round(ABuf[i+j*ALDim]);
+        }
+    }
 }
 
 template<>

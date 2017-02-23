@@ -19,10 +19,15 @@ void IndexDependentFill( Matrix<T>& A, function<T(Int,Int)> func )
     const Int n = A.Width();
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR_COLLAPSE2
+    EL_PARALLEL_FOR
     for( Int j=0; j<n; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<m; ++i )
+        {
             ABuf[i+j*ALDim] = func(i,j);
+        }
+    }
 }
 
 template<typename T>
@@ -34,9 +39,10 @@ void IndexDependentFill
     const Int nLoc = A.LocalWidth();
     T* ALocBuf = A.Buffer();
     const Int ALocLDim = A.LDim();
-    EL_PARALLEL_FOR_COLLAPSE2
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
+        EL_SIMD
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);

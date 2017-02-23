@@ -28,7 +28,7 @@ T PowerLawVariable( T x, Base<T> alpha )
         if( u < Real(0) )
             u += Real(1);
     }
-    u = Max(Min(u, Real(0.999)), Real(0));
+    u = Max(Min(u, Real(1)), Real(0));
       
     // Generate random number from power-law distribution
     int iters = int(Pow((Real(1)-u), -Real(1)/(alpha -Real(1))));
