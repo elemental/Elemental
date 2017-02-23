@@ -349,13 +349,48 @@ Complex<BigFloat> Exp( const Complex<BigFloat>& alpha ) EL_NO_EXCEPT
 #endif
 
 #ifdef EL_HAVE_QD
+// The QD implementation of 'pow' appears to have severe bugs when raising
+// non-positive numbers to non-integer powers, as the implementation is:
+//
+//   dd_real pow(const dd_real &a, const dd_real &b) {
+//       return exp(b * log(a));
+//   }
+//
 DoubleDouble Pow( const DoubleDouble& alpha, const DoubleDouble& beta )
-{ return pow(alpha,beta); }
+{
+    if( alpha > DoubleDouble(0) )
+    {
+        return Exp( beta * Log(alpha) );
+    }
+    else if( alpha == DoubleDouble(0) )
+    {
+        return DoubleDouble(0);
+    }
+    else
+    {
+        RuntimeError(alpha,"^",beta," not yet supported");
+        return DoubleDouble(0);
+    }
+}
 DoubleDouble Pow( const DoubleDouble& alpha, const int& beta )
 { return pow(alpha,beta); }
 
 QuadDouble Pow( const QuadDouble& alpha, const QuadDouble& beta )
-{ return pow(alpha,beta); }
+{
+    if( alpha > QuadDouble(0) )
+    {
+        return Exp( beta * Log(alpha) );
+    }
+    else if( alpha == QuadDouble(0) )
+    {
+        return QuadDouble(0);
+    }
+    else
+    {
+        RuntimeError(alpha,"^",beta," not yet supported");
+        return QuadDouble(0);
+    }
+}
 QuadDouble Pow( const QuadDouble& alpha, const int& beta )
 { return pow(alpha,beta); }
 #endif
