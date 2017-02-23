@@ -19,23 +19,16 @@ template<typename Real>
 void Conjugate( Matrix<Complex<Real>>& A )
 {
     EL_DEBUG_CSE
-    const Int m = A.Height();
-    const Int n = A.Width();
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            A(i,j) = Conj(A(i,j));
+    auto conj = [](const Complex<Real> &alpha) { return Conj(alpha); };
+    EntrywiseMap( A, MakeFunction(conj) );
 }
 
 template<typename T>
 void Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
     EL_DEBUG_CSE
-    const Int m = A.Height();
-    const Int n = A.Width();
-    B.Resize( m, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            B(i,j) = Conj(A(i,j));
+    Copy( A, B );
+    Conjugate( B );
 }
 
 template<typename T>
