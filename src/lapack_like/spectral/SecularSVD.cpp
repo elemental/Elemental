@@ -80,6 +80,24 @@ struct LastState
 
     Real sigmaEst; 
     Real sigmaRelEst;
+    // Note A:
+    //
+    // Explicit tracking of the lower and upper bounds has been disabled due
+    // to the corner case
+    //
+    //   d = [0; 9.497810204345251e-15; 3.593043726431422e-14],
+    //
+    //   rho=0.96,
+    //
+    //   z=[0.08353882592169727; 0.0001617369158364897; -0.9965045099771476].
+    //
+    // An infinite loop can be entered where attempting to average between the
+    // current estimate and the upper bound, sqrt(0.96), leads to updates of
+    // size zero despite the secular function still being slightly larger than
+    // the error bound.
+    //
+    // We therefore only initialize these values.
+    //
     Real sigmaRelLowerBound;
     Real sigmaRelUpperBound;
 
@@ -103,7 +121,8 @@ struct LastState
     Real relErrorBound;
 };
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void EvaluateSecular
 ( const Real& rho,
   const Matrix<Real>& z,
@@ -166,7 +185,8 @@ void EvaluateSecular
         state.relErrorBound += Abs(state.rootRelEst)*state.secularDeriv;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void EvaluateSecularLast
 ( const Real& rho,
   const Matrix<Real>& z,
@@ -210,7 +230,8 @@ void EvaluateSecularLast
         state.relErrorBound += Abs(state.rootRelEst)*state.secularDeriv;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void SecularInitialGuess
 ( const Int whichValue,
   const Matrix<Real>& d,
@@ -396,7 +417,8 @@ void SecularInitialGuess
 //
 //   (d(n-1)^2, d(n-1)^2+rho).
 //
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void SecularInitialGuessLast
 ( const Matrix<Real>& d,
   const Real& rho,
@@ -534,7 +556,8 @@ void SecularInitialGuessLast
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void SecularUpdate
 ( bool  initialize,
   Int   whichValue,
@@ -561,8 +584,9 @@ void SecularUpdate
     if( ctrl.progress )
         Output
         ("Relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"], sigmaRelEst=",state.sigmaRelEst,
-         ", sigmaEst=",state.sigmaEst);
+         state.sigmaRelUpperBound,"]=",
+         state.sigmaRelUpperBound-state.sigmaRelLowerBound,
+         ", sigmaRelEst=",state.sigmaRelEst,", sigmaEst=",state.sigmaEst);
 
     if( state.useThreePoles )
     {
@@ -927,7 +951,8 @@ void SecularUpdate
     EvaluateSecular( rho, z, state, ctrl.penalizeDerivative );
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 void SecularUpdateLast
 ( bool  initialize,
   const Real& rho,
@@ -940,16 +965,9 @@ void SecularUpdateLast
     const Int n = state.dPlusShift.Height();
     const Int origin = n-1;
 
-    if( state.secular <= zero )
-        state.sigmaRelLowerBound =
-          Max( state.sigmaRelLowerBound, state.sigmaRelEst );
-    else
-        state.sigmaRelUpperBound =
-          Min( state.sigmaRelUpperBound, state.sigmaRelEst );
     if( ctrl.progress )
         Output
-        ("Relative interval is [",state.sigmaRelLowerBound,",",
-         state.sigmaRelUpperBound,"], sigmaEst=",state.sigmaEst);
+        ("sigmaRelEst=",state.sigmaRelEst,", sigmaEst=",state.sigmaEst);
 
     const Real kGap = state.dPlusShift(origin)*state.dMinusShift(origin);
     const Real km1Gap = state.dPlusShift(origin-1)*state.dMinusShift(origin-1);
@@ -1008,39 +1026,29 @@ void SecularUpdateLast
         eta = -state.secular / (state.psiMinusDeriv+state.psiOriginDeriv);
     }
 
-    // Convert eta from an eigenvalue update to singular value update
-    eta = RelativeEigenvalueToRelativeSingularValue( eta, state.sigmaEst );
-
-    // Since sigmaRelEst = sigmaEst - d(origin), the following sets
-    // sigmaRelEstProp = sigmaEstProp - d(origin).
-    const Real sigmaRelEstProp = state.sigmaRelEst + eta;
-    if( sigmaRelEstProp > state.sigmaRelUpperBound ||
-        sigmaRelEstProp < state.sigmaRelLowerBound )
+    if( initialize )
     {
-        if( ctrl.progress )
-            Output("Stepped out of bounds");
-        // While LAPACK's {s,d}lasd4 uses this approach for the inner singular
-        // values, it does not for outer singular values and instead uses
-        // trivial lower and upper bounds. We part ways with LAPACK here.
-
-        if( state.secular < zero )
+        if( (eta - kGap) > rho )
         {
-            // Since the secular equation implies that the root is to the right
-            // of the un-updated estimate, but our update pushed us out of
-            // bounds, we default to the update pushing us to the center of the
-            // feasible domain, [sigmaRelEst, sigmaRelUpperBound).
-            eta = (state.sigmaRelUpperBound - state.sigmaRelEst) / 2;
+            if( ctrl.progress )
+                Output("Bounding eta from above at ",kGap+rho);
+            eta = kGap + rho;
         }
-        else
+    }
+    else
+    {
+        while( (eta - kGap) <= Real(0) )
         {
-            // Since the secular equation implies that the root is to the left
-            // of the un-updated estimate, but our update pushed us out of
-            // bounds, we default to the update being in the center of the
-            // feasible domain, (sigmaRelLowerBound,sigmaRelEst].
-            eta = (state.sigmaRelLowerBound - state.sigmaRelEst) / 2;
+            if( ctrl.progress )
+                Output("Preventing non-positive eta-kGap by halving eta=",eta);
+            eta /= Real(2);
         }
     }
 
+    // Convert eta from an eigenvalue update to singular value update
+    eta = RelativeEigenvalueToRelativeSingularValue( eta, state.sigmaEst );
+    if( ctrl.progress )
+        Output("eta=",eta,", secular=",state.secular);
     if( !limits::IsFinite(eta) )
         RuntimeError("eta was non-finite in SecularUpdateLast");
     state.sigmaEst += eta;
@@ -1055,7 +1063,8 @@ void SecularUpdateLast
     EvaluateSecularLast( rho, z, state, ctrl.penalizeDerivative );
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 SecularSVDInfo
 SecularInner
 ( Int whichValue,
@@ -1162,7 +1171,8 @@ SecularInner
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsReal<Real>>>
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
 SecularSVDInfo
 SecularLast
 ( Int whichValue,
@@ -1204,6 +1214,10 @@ SecularLast
     initialize = false;
     while( true )
     {
+        if( ctrl.progress )
+            Output
+            ("|state.secular|=",Abs(state.secular),
+             ", eps*state.relErrorBound=",eps*state.relErrorBound);
         if( Abs(state.secular) <= eps*state.relErrorBound ) 
         {
             // We have converged
@@ -1211,6 +1225,9 @@ SecularLast
         }
         if( info.numIterations >= ctrl.maxIterations )
         {
+            Print( d, "d" );
+            Output("rho=",rho);
+            Print( z, "z" );
             RuntimeError
             ("SecularLast solver did not converge in ",ctrl.maxIterations,
              " iterations");
