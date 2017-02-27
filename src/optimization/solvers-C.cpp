@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -21,18 +21,19 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->primalInit = false;
     ctrl->dualInit = false;
 
-    ctrl->infeasibilityTol = Pow(eps,float(0.7));
-    ctrl->relativeObjectiveGapTol = Pow(eps,float(0.3));
+    ctrl->infeasibilityTol = Pow(eps,float(0.45));
+    ctrl->relativeObjectiveGapTol = Pow(eps,float(0.05));
     ctrl->relativeComplementarityGapTol = Pow(eps,float(0.3));
     ctrl->minDimacsDecreaseRatio = 0.99f;
 
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
-    ctrl->mehrotra = true;
+    ctrl->compositeNewton = false;
+    ctrl->compositeNewtonAssumeFeasible = false;
     ctrl->centralityRule = &StepLengthCentrality<float>;
     ctrl->standardInitShift = true;
-    ctrl->forceSameStep = true;
+    ctrl->forceSameStep = false;
     ElRegSolveCtrlDefault_s( &ctrl->solveCtrl );
     ctrl->outerEquil = true;
     ctrl->twoNormKrylovBasisSize = 6;
@@ -47,17 +48,11 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->ruizMaxIter = 3;
     ctrl->diagEquilTol = Pow(eps,float(-0.15));
 
-#ifdef EL_RELEASE
-    ctrl->checkResiduals = false;
-#else
-    ctrl->checkResiduals = true;
-#endif
-
     ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,float(0.8));
     ctrl->zMinPivotValue = eps;
-    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,float(0.7));
-    ctrl->twoStage = true;
-    ctrl->regIncreaseFactor = Pow(eps,float(0.01));
+    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,float(0.6));
+    ctrl->twoStage = false;
+    ctrl->regIncreaseFactor = Pow(eps,float(-0.02));
 
     ctrl->maxComplementRatio = float(1000);
     ctrl->softDualityTargets = true;
@@ -74,18 +69,19 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->primalInit = false;
     ctrl->dualInit = false;
 
-    ctrl->infeasibilityTol = Pow(eps,double(0.5));
-    ctrl->relativeObjectiveGapTol = Pow(eps,double(0.3));
+    ctrl->infeasibilityTol = Pow(eps,double(0.45));
+    ctrl->relativeObjectiveGapTol = Pow(eps,double(0.05));
     ctrl->relativeComplementarityGapTol = Pow(eps,double(0.3));
     ctrl->minDimacsDecreaseRatio = 0.99;
 
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
     ctrl->system = EL_FULL_KKT;
-    ctrl->mehrotra = true;
+    ctrl->compositeNewton = false;
+    ctrl->compositeNewtonAssumeFeasible = false;
     ctrl->centralityRule = &StepLengthCentrality<double>;
     ctrl->standardInitShift = true;
-    ctrl->forceSameStep = true;
+    ctrl->forceSameStep = false;
     ElRegSolveCtrlDefault_d( &ctrl->solveCtrl );
     ctrl->outerEquil = true;
     ctrl->twoNormKrylovBasisSize = 6;
@@ -100,17 +96,11 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->ruizMaxIter = 3;
     ctrl->diagEquilTol = Pow(eps,double(-0.15));
 
-#ifdef EL_RELEASE
-    ctrl->checkResiduals = false;
-#else
-    ctrl->checkResiduals = true;
-#endif
-
     ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,double(0.8));
     ctrl->zMinPivotValue = eps;
-    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,double(0.7));
-    ctrl->twoStage = true;
-    ctrl->regIncreaseFactor = Pow(eps,double(0.01));
+    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,double(0.6));
+    ctrl->twoStage = false;
+    ctrl->regIncreaseFactor = Pow(eps,double(-0.02));
 
     ctrl->maxComplementRatio = double(1000);
     ctrl->softDualityTargets = true;

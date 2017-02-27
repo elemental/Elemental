@@ -21,25 +21,25 @@ void RandomFeasibleLP( El::Int m, El::Int n, El::Int k )
     El::Uniform( xFeas, n, 1 ); // Sample over B_1(0)
     El::Uniform( sFeas, k, 1, Real(1), Real(1) ); // Sample over B_1(1)
 
-    El::Matrix<Real> A, G;
-    El::Matrix<Real> b, c, h;
-    El::Uniform( A, m, n );
-    El::Uniform( G, k, n );
-    El::Gemv( El::NORMAL, Real(1), A, xFeas, b );
-    El::Gemv( El::NORMAL, Real(1), G, xFeas, h );
-    h += sFeas;
-    El::Uniform( c, n, 1 );
+    El::AffineLPProblem<El::Matrix<Real>,El::Matrix<Real>> problem;
+    El::Uniform( problem.c, n, 1 );
+    El::Uniform( problem.A, m, n );
+    El::Gemv( El::NORMAL, Real(1), problem.A, xFeas, problem.b );
+    El::Uniform( problem.G, k, n );
+    El::Gemv( El::NORMAL, Real(1), problem.G, xFeas, problem.h );
+    problem.h += sFeas;
 
     // Solve the primal/dual Linear Program with the default options
-    El::Matrix<Real> x, y, z, s;
     El::Timer timer;
     timer.Start();
-    El::LP( A, G, b, c, h, x, y, z, s );
+    El::AffineLPSolution<El::Matrix<Real>> solution;
+    El::LP( problem, solution );
     El::Output("Primal-dual LP took ",timer.Stop()," seconds");
 
     // Print the primal and dual objective values
-    const Real primal = El::Dot(c,x);
-    const Real dual = -El::Dot(b,y) - El::Dot(h,z);
+    const Real primal = El::Dot(problem.c,solution.x);
+    const Real dual = -El::Dot(problem.b,solution.y) -
+      El::Dot(problem.h,solution.z);
     const Real relGap = El::Abs(primal-dual) / El::Max(El::Abs(dual),Real(1));
     El::Output("c^T x = ",primal);
     El::Output("-b^T y - h^T z = ",dual);
@@ -48,9 +48,9 @@ void RandomFeasibleLP( El::Int m, El::Int n, El::Int k )
     // Print the relative primal feasibility residual,
     //   || A x - b ||_2 / max( || b ||_2, 1 ).
     El::Matrix<Real> rPrimal;
-    El::Gemv( El::NORMAL, Real(1), A, x, rPrimal );
-    rPrimal -= b;
-    const Real bFrob = El::FrobeniusNorm( b );
+    El::Gemv( El::NORMAL, Real(1), problem.A, solution.x, rPrimal );
+    rPrimal -= problem.b;
+    const Real bFrob = El::FrobeniusNorm( problem.b );
     const Real rPrimalFrob = El::FrobeniusNorm( rPrimal );
     const Real primalRelResid = rPrimalFrob / El::Max( bFrob, Real(1) );
     El::Output("|| A x - b ||_2 / || b ||_2 = ",primalRelResid);
@@ -58,10 +58,10 @@ void RandomFeasibleLP( El::Int m, El::Int n, El::Int k )
     // Print the relative dual feasiability residual,
     //   || A^T y + G^T z + c ||_2 / max( || c ||_2, 1 ).
     El::Matrix<Real> rDual;
-    El::Gemv( El::TRANSPOSE, Real(1), A, y, rDual );
-    El::Gemv( El::TRANSPOSE, Real(1), G, z, Real(1), rDual );
-    rDual += c;
-    const Real cFrob = El::FrobeniusNorm( c );
+    El::Gemv( El::TRANSPOSE, Real(1), problem.A, solution.y, rDual );
+    El::Gemv( El::TRANSPOSE, Real(1), problem.G, solution.z, Real(1), rDual );
+    rDual += problem.c;
+    const Real cFrob = El::FrobeniusNorm( problem.c );
     const Real rDualFrob = El::FrobeniusNorm( rDual );
     const Real dualRelResid = rDualFrob / El::Max( cFrob, Real(1) );
     El::Output

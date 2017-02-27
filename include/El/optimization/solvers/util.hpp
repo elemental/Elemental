@@ -23,12 +23,12 @@ using namespace KKTSystemNS;
 // Infeasible Interior Point Method
 // ================================
 template<typename Real>
-inline Real StepLengthCentrality
-( Real mu, Real muAff, Real alphaAffPri, Real alphaAffDual )
-{ return Pow(1-Min(alphaAffPri,alphaAffDual),Real(3)); }
+Real StepLengthCentrality
+( Real barrier, Real barrierAff, Real primalAffineStep, Real dualAffineStep )
+{ return Pow(1-Min(primalAffineStep,dualAffineStep),Real(3)); }
 
 template<typename Real>
-inline Real MehrotraCentrality
+Real PredictorCorrectorCentrality
 ( Real mu, Real muAff, Real alphaAffPri, Real alphaAffDual )
 { return Min(Pow(muAff/mu,Real(3)),Real(1)); }
 
@@ -67,7 +67,8 @@ struct IPMCtrl
     // system solvers and it seems challenging to achieve more than two digits
     // of accuracy in double precision with this metric. We therefore default
     // to only demanding that the relative complementarity gap is nontrivial
-    // by default.
+    // by default. (Although using larger amounts of regularization yields more
+    // than three digits of relative objective gap accuracy.)
     Real relativeObjectiveGapTol=
       Pow(limits::Epsilon<Real>(),Real(0.05));
 
@@ -96,7 +97,7 @@ struct IPMCtrl
 
     // The maximum number of iterations of the IPM. This should only be
     // activated in pathological circumstances, as even 100 iterations of an
-    // IPM is excessive.
+    // IPM is usually excessive.
     Int maxIts=1000;
 
     // If a step of length alpha would hit the boundary, instead step a distance
@@ -113,12 +114,21 @@ struct IPMCtrl
     // (larger) augmented formulation.
     KKTSystem system=FULL_KKT;
 
-    // Use Mehrotra's second-order corrector?
-    // TODO(poulson): Add support for Gondzio's correctors
-    bool mehrotra=true;
+    // Use a damped (level-1) composite Newton method?
+    //
+    // Cf. Tapia et al., "The Mehrotra Predictor-Corrector Interior-Point
+    // Method as a Perturbed Composite Newton Method", July, 1990.
+    // http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
+    bool compositeNewton=false;
+
+    // If the composite Newton method is to be used, typical formulae assume
+    // that the correction involves a strictly feasible point. But this is
+    // often a gross error for challenging systems (e.g., netlib/LP_data).
+    bool compositeNewtonAssumeFeasible=false;
 
     // For determining the ratio of the amount to balance the affine and
-    // correction updates. The other common option is 'MehrotraCentrality'.
+    // correction updates. The other common option is
+    // 'PredictorCorrectorCentrality'.
     function<Real(Real,Real,Real,Real)>
       centralityRule=StepLengthCentrality<Real>;
 
@@ -126,7 +136,9 @@ struct IPMCtrl
     bool standardInitShift=true;
 
     // Force the primal and dual step lengths to be the same size?
-    bool forceSameStep=true;
+    // Allowing different step lengths can substantially decrease the number
+    // of iterations for Linear Programming.
+    bool forceSameStep=false;
 
     // The controls for quasi-(semi)definite solves
     RegSolveCtrl<Real> solveCtrl;
@@ -157,6 +169,8 @@ struct IPMCtrl
     // scale being very large (and of large rank) in the original scale.
     // Further, equilibration in the single-stage scheme seems to lead to a few
     // more iterations for PILOT87.
+    //
+    // DEPRECATED for LP's and QP's.
     bool equilibrateIfSingleStage=false;
 
     // If the Nesterov-Todd scaling point has an entry of magnitude greater than
@@ -164,27 +178,24 @@ struct IPMCtrl
     // and declare success. This is meant to prevent expensive (equilibrated)
     // further steps which are too polluted with floating-point error to
     // make substantial progress.
+    //
+    // DEPRECATED for LP's and QP's.
     Real wMaxLimit=Pow(limits::Epsilon<Real>(),Real(-0.4));
 
     // If the maximum entry in the NT scaling point is larger in magnitude than
     // this value, then use Ruiz equilibration on the KKT system (with the
     // specified limit on the number of iterations).
+    //
+    // DEPRECATED for LP's and QP's.
     Real ruizEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.25));
     Int ruizMaxIter=3;
 
     // If Ruiz equilibration was not performed, but the max norm of the NT
     // scaling point is larger than this value, then use diagonal equilibration
     // for solving the KKT system.
+    //
+    // DEPRECATED for LP's and QP's.
     Real diagEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.15));
-
-    // Whether or not additional matrix-vector multiplications should be
-    // performed in order to check the accuracy of the solution to each
-    // block row of the KKT system.
-#ifdef EL_RELEASE
-    bool checkResiduals=false;
-#else
-    bool checkResiduals=true;
-#endif
 
     // Rather than solving the prescribed conic programs, we could add in
     // "small" amounts of permanent regularization for the primal and dual
@@ -217,32 +228,31 @@ struct IPMCtrl
     // only involves "small" amounts of regularization. But if we continue to
     // fail to solve with "small" amounts of regularization, we fall back to
     // solving with "large" amounts.
-    Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
-    Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.7));
+    Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+    Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+    Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
 
     // Initially attempt to solve with only the "small" regularization by
     // preconditioning with a factorization involving the "large"
     // regularization? If this two-stage procedure breaks down before the
     // minimum tolerance is met, we will not attempt to resolve down to the
     // "small" regularization level.
-    bool twoStage=true;
+    //
+    // DEPRECATED for LP's and QP's.
+    bool twoStage=false;
 
-    // If it turns out that even the "large" regularization cannot be resolved,'
+    // If it turns out that the "large" regularization cannot be resolved,'
     // we will increase it by the following factor at each iteration.
     Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(-0.02));
 
     // If the maximum ratio between the primary and dual variables exceeds this
-    // value, the barrier parameter is kept at its previous value to attempt to
-    // increase the centrality.
+    // value, a centering step is taken instead of a predictor-corrector
+    // step.
     Real maxComplementRatio = Real(1000);
 
     bool softDualityTargets = true;
     Real lowerTargetRatioLogCompRatio = Real(-0.25);
     Real upperTargetRatioLogCompRatio = Real( 0.25);
-
-    // TODO(poulson): Add a user-definable (muAff,mu) -> sigma function to
-    // replace the default, (muAff/mu)^3
 };
 
 // Alternating Direction Method of Multipliers

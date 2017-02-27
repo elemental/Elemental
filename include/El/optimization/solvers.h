@@ -33,7 +33,8 @@ typedef struct {
   ElInt maxIts;
   float maxStepRatio;
   ElKKTSystem system;
-  bool mehrotra;
+  bool compositeNewton;
+  bool compositeNewtonAssumeFeasible;
   float (*centralityRule)(float,float,float,float);
   bool standardInitShift;
   bool forceSameStep;
@@ -50,8 +51,6 @@ typedef struct {
   float ruizEquilTol;
   ElInt ruizMaxIter;
   float diagEquilTol;
-
-  bool checkResiduals;
 
   /* Regularization controls */
   float xRegSmall;
@@ -83,7 +82,8 @@ typedef struct {
   ElInt maxIts;
   double maxStepRatio;
   ElKKTSystem system;
-  bool mehrotra;
+  bool compositeNewton;
+  bool compositeNewtonAssumeFeasible;
   double (*centralityRule)(double,double,double,double);
   bool standardInitShift;
   bool forceSameStep;
@@ -100,8 +100,6 @@ typedef struct {
   double ruizEquilTol;
   ElInt ruizMaxIter;
   double diagEquilTol;
-
-  bool checkResiduals;
 
   /* Regularization controls */
   double xRegSmall;

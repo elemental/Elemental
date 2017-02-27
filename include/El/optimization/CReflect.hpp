@@ -34,7 +34,8 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
     ctrlC.maxIts = ctrl.maxIts;
     ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system = CReflect(ctrl.system);
-    ctrlC.mehrotra = ctrl.mehrotra;
+    ctrlC.compositeNewton = ctrl.compositeNewton;
+    ctrlC.compositeNewtonAssumeFeasible = ctrl.compositeNewtonAssumeFeasible;
 
     auto centralityRuleRes =
       ctrl.centralityRule.target<float(*)(float,float,float,float)>();
@@ -59,8 +60,6 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
     ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
     ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol = ctrl.diagEquilTol;
-
-    ctrlC.checkResiduals = ctrl.checkResiduals;
 
     ctrlC.xRegSmall = ctrl.xRegSmall;
     ctrlC.yRegSmall = ctrl.yRegSmall;
@@ -95,7 +94,8 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
     ctrlC.maxIts = ctrl.maxIts;
     ctrlC.maxStepRatio = ctrl.maxStepRatio;
     ctrlC.system = CReflect(ctrl.system);
-    ctrlC.mehrotra = ctrl.mehrotra;
+    ctrlC.compositeNewton = ctrl.compositeNewton;
+    ctrlC.compositeNewtonAssumeFeasible = ctrl.compositeNewtonAssumeFeasible;
 
     auto centralityRuleRes =
       ctrl.centralityRule.target<double(*)(double,double,double,double)>();
@@ -120,8 +120,6 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
     ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
     ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
     ctrlC.diagEquilTol = ctrl.diagEquilTol;
-
-    ctrlC.checkResiduals = ctrl.checkResiduals;
 
     ctrlC.xRegSmall = ctrl.xRegSmall;
     ctrlC.yRegSmall = ctrl.yRegSmall;
@@ -156,7 +154,8 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
     ctrl.maxIts = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system = CReflect(ctrlC.system);
-    ctrl.mehrotra = ctrlC.mehrotra;
+    ctrl.compositeNewton = ctrlC.compositeNewton;
+    ctrl.compositeNewtonAssumeFeasible = ctrlC.compositeNewtonAssumeFeasible;
     ctrl.centralityRule = ctrlC.centralityRule;
     ctrl.standardInitShift = ctrlC.standardInitShift;
     ctrl.forceSameStep = ctrlC.forceSameStep;
@@ -174,8 +173,6 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
     ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
     ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol = ctrlC.diagEquilTol;
-
-    ctrl.checkResiduals = ctrlC.checkResiduals;
 
     ctrl.xRegSmall = ctrlC.xRegSmall;
     ctrl.yRegSmall = ctrlC.yRegSmall;
@@ -210,7 +207,8 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
     ctrl.maxIts = ctrlC.maxIts;
     ctrl.maxStepRatio = ctrlC.maxStepRatio;
     ctrl.system = CReflect(ctrlC.system);
-    ctrl.mehrotra = ctrlC.mehrotra;
+    ctrl.compositeNewton = ctrlC.compositeNewton;
+    ctrl.compositeNewtonAssumeFeasible = ctrlC.compositeNewtonAssumeFeasible;
     ctrl.centralityRule = ctrlC.centralityRule;
     ctrl.standardInitShift = ctrlC.standardInitShift;
     ctrl.forceSameStep = ctrlC.forceSameStep;
@@ -228,8 +226,6 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
     ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
     ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
     ctrl.diagEquilTol = ctrlC.diagEquilTol;
-
-    ctrl.checkResiduals = ctrlC.checkResiduals;
 
     ctrl.xRegSmall = ctrlC.xRegSmall;
     ctrl.yRegSmall = ctrlC.yRegSmall;

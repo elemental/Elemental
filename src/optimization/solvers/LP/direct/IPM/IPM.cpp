@@ -51,33 +51,6 @@ void Gemv
 
 namespace lp {
 
-// TODO(poulson): Move this into a central location.
-template<typename Real>
-Real RelativeComplementarityGap
-( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
-{
-    EL_DEBUG_CSE
-    Real relCompGap;
-    if( primalObj < Real(0) )
-        relCompGap = dualityProduct / -primalObj;
-    else if( dualObj > Real(0) )
-        relCompGap = dualityProduct / dualObj;
-    else
-        relCompGap = 2; // 200% error if the signs differ inadmissibly.
-    return relCompGap;
-}
-
-// TODO(poulson): Move this into a central location.
-template<typename Real>
-Real RelativeObjectiveGap
-( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
-{
-    EL_DEBUG_CSE
-    const Real relObjGap =
-      Abs(primalObj-dualObj) / (Max(Abs(primalObj),Abs(dualObj))+1);
-    return relObjGap;
-}
-
 namespace direct {
 
 // The following solves the pair of linear programs in "direct" conic form:
@@ -573,10 +546,9 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     // Compute the objectives and relative duality gap
     primalObjective = Dot(problem.c,solution.x);
     dualObjective = -Dot(problem.b,solution.y);
+    relObjGap = RelativeObjectiveGap( primalObjective, dualObjective );
     relCompGap =
       RelativeComplementarityGap( primalObjective, dualObjective, dualProd );
-    relObjGap =
-      RelativeObjectiveGap( primalObjective, dualObjective, dualProd );
     const Real maxRelGap = Max( relCompGap, relObjGap );
 
     // Compute the primal equality residual,
@@ -855,11 +827,13 @@ void EquilibratedIPM
         solver.SolveSystem
         ( problem, smallReg, state.residual, solution, affineCorrection,
           ctrl.system );
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             state.PrintResiduals
             ( problem, solution, affineCorrection, smallReg );
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -892,7 +866,7 @@ void EquilibratedIPM
         state.residual.primalEquality *= 1-state.sigma;
         state.residual.dualEquality *= 1-state.sigma;
         Shift( state.residual.dualConic, -state.sigma*state.barrier );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -904,10 +878,12 @@ void EquilibratedIPM
         solver.SolveSystem
         ( problem, smallReg, state.residual, solution, correction,
           ctrl.system );
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             state.PrintResiduals( problem, solution, correction, smallReg );
         }
+        */
 
         // Update the current estimates
         // ============================
@@ -963,8 +939,7 @@ void IPM
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real dualProd = Dot(solution.x,solution.z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1096,8 +1071,7 @@ void EquilibratedIPM
         // ----------------------
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1258,6 +1232,7 @@ void EquilibratedIPM
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             error.primalEquality = residual.primalEquality;
@@ -1294,6 +1269,7 @@ void EquilibratedIPM
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -1322,7 +1298,7 @@ void EquilibratedIPM
         // Solve for the combined direction
         // ================================
         Shift( residual.dualConic, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -1486,8 +1462,7 @@ void IPM
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real dualProd = Dot(solution.x,solution.z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1639,8 +1614,7 @@ void EquilibratedIPM
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real dualProd = Dot(solution.x,solution.z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1886,6 +1860,7 @@ void EquilibratedIPM
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             error.primalEquality = residual.primalEquality;
@@ -1922,6 +1897,7 @@ void EquilibratedIPM
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -1951,7 +1927,7 @@ void EquilibratedIPM
         // ================================
         Shift( residual.dualConic, -sigma*mu );
         // TODO(poulson): Gondzio's corrections
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -2119,8 +2095,7 @@ void IPM
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real dualProd = Dot(solution.x,solution.z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -2299,8 +2274,7 @@ void EquilibratedIPM
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real dualProd = Dot(solution.x,solution.z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -2591,6 +2565,7 @@ void EquilibratedIPM
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             error.primalEquality = residual.primalEquality;
@@ -2627,6 +2602,7 @@ void EquilibratedIPM
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -2655,7 +2631,7 @@ void EquilibratedIPM
         // Solve for the combined direction
         // ================================
         Shift( residual.dualConic, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -2834,8 +2810,7 @@ void IPM
         const Real primObj = Dot(problem.c,solution.x);
         const Real dualObj = -Dot(problem.b,solution.y);
         const Real dualProd = Dot(solution.x,solution.z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );

@@ -44,44 +44,49 @@ void LAV
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
-    Matrix<Real> c, AHat, G, h;
+
+    AffineLPProblem<Matrix<Real>,Matrix<Real>> problem;
 
     // c := [0;1;1]
     // ============
-    Zeros( c, n+2*m, 1 );
-    auto cuv = c( IR(n,n+2*m), ALL );
+    Zeros( problem.c, n+2*m, 1 );
+    auto cuv = problem.c( IR(n,n+2*m), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [A, I, -I]
     // ====================
-    Zeros( AHat, m, n+2*m );
-    auto AHatx = AHat( IR(0,m), xInd );
-    auto AHatu = AHat( IR(0,m), uInd );
-    auto AHatv = AHat( IR(0,m), vInd );
+    Zeros( problem.A, m, n+2*m );
+    auto AHatx = problem.A( IR(0,m), xInd );
+    auto AHatu = problem.A( IR(0,m), uInd );
+    auto AHatv = problem.A( IR(0,m), vInd );
     AHatx = A;
     FillDiagonal( AHatu, Real( 1) );
     FillDiagonal( AHatv, Real(-1) );
 
+    // \hat b := b
+    // ===========
+    problem.b = b;
+
     // G := | 0 -I  0 |
     //      | 0  0 -I |
     // ================
-    Zeros( G, 2*m, n+2*m );
-    auto Guv = G( IR(0,2*m), IR(n,n+2*m) );
+    Zeros( problem.G, 2*m, n+2*m );
+    auto Guv = problem.G( IR(0,2*m), IR(n,n+2*m) );
     FillDiagonal( Guv, Real(-1) );
 
     // h := | 0 |
     //      | 0 |
     // ==========
-    Zeros( h, 2*m, 1 );
+    Zeros( problem.h, 2*m, 1 );
 
     // Solve the affine linear program
     // ===============================
-    Matrix<Real> xHat, y, z, s;
-    LP( AHat, G, b, c, h, xHat, y, z, s, ctrl );
+    AffineLPSolution<Matrix<Real>> solution;
+    LP( problem, solution, ctrl );
 
     // Extract x
     // ==========
-    x = xHat( xInd, ALL );
+    x = solution.x( xInd, ALL );
 }
 
 template<typename Real>
@@ -98,46 +103,60 @@ void LAV
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Grid& g = A.Grid();
+    const Grid& grid = A.Grid();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
-    DistMatrix<Real> c(g), AHat(g), G(g), h(g);
+
+    AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>> problem;
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.G.SetGrid( grid );
+    problem.h.SetGrid( grid );
 
     // c := [0;1;1]
     // ============
-    Zeros( c, n+2*m, 1 );
-    auto cuv = c( IR(n,n+2*m), ALL );
+    Zeros( problem.c, n+2*m, 1 );
+    auto cuv = problem.c( IR(n,n+2*m), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [A, I, -I]
     // ====================
-    Zeros( AHat, m, n+2*m );
-    auto AHatx = AHat( IR(0,m), xInd );
-    auto AHatu = AHat( IR(0,m), uInd );
-    auto AHatv = AHat( IR(0,m), vInd );
+    Zeros( problem.A, m, n+2*m );
+    auto AHatx = problem.A( IR(0,m), xInd );
+    auto AHatu = problem.A( IR(0,m), uInd );
+    auto AHatv = problem.A( IR(0,m), vInd );
     AHatx = A;
     FillDiagonal( AHatu, Real( 1) );
     FillDiagonal( AHatv, Real(-1) );
 
+    // \hat b := b
+    // ===========
+    problem.b = b;
+
     // G := | 0 -I  0 |
     //      | 0  0 -I |
     // ================
-    Zeros( G, 2*m, n+2*m );
-    auto Guv = G( IR(0,2*m), IR(n,n+2*m) );
+    Zeros( problem.G, 2*m, n+2*m );
+    auto Guv = problem.G( IR(0,2*m), IR(n,n+2*m) );
     FillDiagonal( Guv, Real(-1) );
 
     // h := | 0 |
     //      | 0 |
     // ==========
-    Zeros( h, 2*m, 1 );
+    Zeros( problem.h, 2*m, 1 );
 
     // Solve the affine linear program
     // ===============================
-    DistMatrix<Real> xHat(g), y(g), z(g), s(g);
-    LP( AHat, G, b, c, h, xHat, y, z, s, ctrl );
+    AffineLPSolution<DistMatrix<Real>> solution;
+    solution.x.SetGrid( grid );
+    solution.s.SetGrid( grid );
+    solution.y.SetGrid( grid );
+    solution.z.SetGrid( grid );
+    LP( problem, solution, ctrl );
 
     // Extract x
     // =========
-    x = xHat( xInd, ALL );
+    x = solution.x( xInd, ALL );
 }
 
 template<typename Real>
@@ -151,51 +170,55 @@ void LAV
     const Int m = A.Height();
     const Int n = A.Width();
     const Range<Int> xInd(0,n), uInd(n,n+m), vInd(n+m,n+2*m);
-    SparseMatrix<Real> AHat, G;
-    Matrix<Real> c, h;
+
+    AffineLPProblem<SparseMatrix<Real>,Matrix<Real>> problem;
 
     // c := [0;1;1]
     // ============
-    Zeros( c, n+2*m, 1 );
-    auto cuv = c( IR(n,n+2*m), ALL );
+    Zeros( problem.c, n+2*m, 1 );
+    auto cuv = problem.c( IR(n,n+2*m), ALL );
     Fill( cuv, Real(1) );
 
     // \hat A := [A, I, -I]
     // ====================
-    Zeros( AHat, m, n+2*m );
+    Zeros( problem.A, m, n+2*m );
     const Int numEntriesA = A.NumEntries();
-    AHat.Reserve( numEntriesA + 2*m );
+    problem.A.Reserve( numEntriesA + 2*m );
     for( Int e=0; e<numEntriesA; ++e )
-        AHat.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
+        problem.A.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
     for( Int i=0; i<m; ++i )
     {
-        AHat.QueueUpdate( i, i+n,   Real( 1) );
-        AHat.QueueUpdate( i, i+n+m, Real(-1) );
+        problem.A.QueueUpdate( i, i+n,   Real( 1) );
+        problem.A.QueueUpdate( i, i+n+m, Real(-1) );
     }
-    AHat.ProcessQueues();
+    problem.A.ProcessQueues();
+
+    // \hat b := b
+    // ===========
+    problem.b = b;
 
     // G := | 0 -I  0 |
     //      | 0  0 -I |
     // ================
-    Zeros( G, 2*m, n+2*m );
-    G.Reserve( G.Height() );
+    Zeros( problem.G, 2*m, n+2*m );
+    problem.G.Reserve( problem.G.Height() );
     for( Int i=0; i<2*m; ++i )
-        G.QueueUpdate( i, i+n, Real(-1) );
-    G.ProcessQueues();
+        problem.G.QueueUpdate( i, i+n, Real(-1) );
+    problem.G.ProcessQueues();
 
     // h := | 0 |
     //      | 0 |
     // ==========
-    Zeros( h, 2*m, 1 );
+    Zeros( problem.h, 2*m, 1 );
 
     // Solve the affine linear program
     // ===============================
-    Matrix<Real> xHat, y, z, s;
-    LP( AHat, G, b, c, h, xHat, y, z, s, ctrl );
+    AffineLPSolution<Matrix<Real>> solution;
+    LP( problem, solution, ctrl );
 
     // Extract x
     // =========
-    x = xHat( xInd, ALL );
+    x = solution.x( xInd, ALL );
 }
 
 template<typename Real>
@@ -210,53 +233,66 @@ void LAV
     const Int n = A.Width();
     const Grid& grid = A.Grid();
 
-    DistSparseMatrix<Real> AHat(grid), G(grid);
-    DistMultiVec<Real> c(grid), h(grid);
+    AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>> problem;
+    problem.c.SetGrid( grid );
+    problem.A.SetGrid( grid );
+    problem.b.SetGrid( grid );
+    problem.G.SetGrid( grid );
+    problem.h.SetGrid( grid );
 
     // c := [0;1;1]
     // ============
-    Zeros( c, n+2*m, 1 );
-    for( Int iLoc=0; iLoc<c.LocalHeight(); ++iLoc )
-        if( c.GlobalRow(iLoc) >= n )
-            c.SetLocal( iLoc, 0, Real(1) );
+    Zeros( problem.c, n+2*m, 1 );
+    for( Int iLoc=0; iLoc<problem.c.LocalHeight(); ++iLoc )
+        if( problem.c.GlobalRow(iLoc) >= n )
+            problem.c.SetLocal( iLoc, 0, Real(1) );
 
     // \hat A := [A, I, -I]
     // ====================
-    Zeros( AHat, m, n+2*m );
+    Zeros( problem.A, m, n+2*m );
     const Int numLocalEntriesA = A.NumLocalEntries();
-    AHat.Reserve( numLocalEntriesA + 2*AHat.LocalHeight() );
+    problem.A.Reserve( numLocalEntriesA + 2*problem.A.LocalHeight() );
     for( Int e=0; e<numLocalEntriesA; ++e )
-        AHat.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
-    for( Int iLoc=0; iLoc<AHat.LocalHeight(); ++iLoc )
+        problem.A.QueueUpdate( A.Row(e), A.Col(e), A.Value(e) );
+    for( Int iLoc=0; iLoc<problem.A.LocalHeight(); ++iLoc )
     {
-        const Int i = AHat.GlobalRow(iLoc);
-        AHat.QueueLocalUpdate( iLoc, i+n,   Real( 1) );
-        AHat.QueueLocalUpdate( iLoc, i+n+m, Real(-1) );
+        const Int i = problem.A.GlobalRow(iLoc);
+        problem.A.QueueLocalUpdate( iLoc, i+n,   Real( 1) );
+        problem.A.QueueLocalUpdate( iLoc, i+n+m, Real(-1) );
     }
-    AHat.ProcessLocalQueues();
+    problem.A.ProcessLocalQueues();
+
+    // \hat b := b
+    // ===========
+    problem.b = b;
 
     // G := | 0 -I  0 |
     //      | 0  0 -I |
     // ================
-    Zeros( G, 2*m, n+2*m );
-    G.Reserve( G.LocalHeight() );
-    for( Int iLoc=0; iLoc<G.LocalHeight(); ++iLoc )
-        G.QueueLocalUpdate( iLoc, G.GlobalRow(iLoc)+n, Real(-1) );
-    G.ProcessLocalQueues();
+    Zeros( problem.G, 2*m, n+2*m );
+    problem.G.Reserve( problem.G.LocalHeight() );
+    for( Int iLoc=0; iLoc<problem.G.LocalHeight(); ++iLoc )
+        problem.G.QueueLocalUpdate
+        ( iLoc, problem.G.GlobalRow(iLoc)+n, Real(-1) );
+    problem.G.ProcessLocalQueues();
 
     // h := | 0 |
     //      | 0 |
     // ==========
-    Zeros( h, 2*m, 1 );
+    Zeros( problem.h, 2*m, 1 );
 
     // Solve the affine QP
     // ===================
-    DistMultiVec<Real> xHat(grid), y(grid), z(grid), s(grid);
-    LP( AHat, G, b, c, h, xHat, y, z, s, ctrl );
+    AffineLPSolution<DistMultiVec<Real>> solution;
+    solution.x.SetGrid( grid );
+    solution.s.SetGrid( grid );
+    solution.y.SetGrid( grid );
+    solution.z.SetGrid( grid );
+    LP( problem, solution, ctrl );
 
     // Extract x
     // =========
-    x = xHat( IR(0,n), ALL );
+    x = solution.x( IR(0,n), ALL );
 }
 
 #define PROTO(Real) \

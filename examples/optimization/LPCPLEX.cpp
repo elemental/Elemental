@@ -23,8 +23,7 @@ void DenseLoadAndSolve
   double xRegLargeLogEps,
   double yRegLargeLogEps,
   double zRegLargeLogEps,
-  bool twoStage,
-  bool mehrotra )
+  bool compositeNewton )
 {
     EL_DEBUG_CSE
     El::Output("Will load into El::Matrix<",El::TypeName<Real>(),">");
@@ -51,7 +50,7 @@ void DenseLoadAndSolve
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = true;
     ctrl.ipmCtrl.outerEquil = outerEquil;
-    ctrl.ipmCtrl.mehrotra = mehrotra;
+    ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.infeasibilityTol = El::Pow(eps,Real(infeasibilityTolLogEps));
     ctrl.ipmCtrl.relativeObjectiveGapTol =
       El::Pow(eps,Real(relativeObjectiveGapTolLogEps));
@@ -63,7 +62,6 @@ void DenseLoadAndSolve
     ctrl.ipmCtrl.xRegSmall = El::Pow(eps,Real(xRegSmallLogEps));
     ctrl.ipmCtrl.yRegSmall = El::Pow(eps,Real(yRegSmallLogEps));
     ctrl.ipmCtrl.zRegSmall = El::Pow(eps,Real(zRegSmallLogEps));
-    ctrl.ipmCtrl.twoStage = twoStage;
     El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
@@ -94,8 +92,7 @@ void SparseLoadAndSolve
   double zRegLargeLogEps,
   double lowerTargetRatioLogCompRatio,
   double upperTargetRatioLogCompRatio,
-  bool twoStage,
-  bool mehrotra )
+  bool compositeNewton )
 {
     EL_DEBUG_CSE
     El::Output("Will load into El::SparseMatrix<",El::TypeName<Real>(),">");
@@ -124,7 +121,7 @@ void SparseLoadAndSolve
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = true;
     ctrl.ipmCtrl.outerEquil = outerEquil;
-    ctrl.ipmCtrl.mehrotra = mehrotra;
+    ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.infeasibilityTol = El::Pow(eps,Real(infeasibilityTolLogEps));
     ctrl.ipmCtrl.relativeObjectiveGapTol =
       El::Pow(eps,Real(relativeObjectiveGapTolLogEps));
@@ -138,8 +135,6 @@ void SparseLoadAndSolve
     ctrl.ipmCtrl.zRegSmall = El::Pow(eps,Real(zRegSmallLogEps));
     ctrl.ipmCtrl.lowerTargetRatioLogCompRatio = lowerTargetRatioLogCompRatio;
     ctrl.ipmCtrl.upperTargetRatioLogCompRatio = upperTargetRatioLogCompRatio;
-    ctrl.ipmCtrl.twoStage = twoStage;
-    ctrl.ipmCtrl.checkResiduals = true;
     ctrl.ipmCtrl.solveCtrl.progress = true;
     ctrl.ipmCtrl.zMinPivotValue = El::Pow(eps,Real(1.5));
     El::Output("xRegLarge=",ctrl.ipmCtrl.xRegLarge);
@@ -195,11 +190,11 @@ int main( int argc, char* argv[] )
           ("--relativeComplementarityGapTolLogEps",
            "log_eps(relativeComplementarityGapTol)",0.3);
         const double xRegSmallLogEps =
-          El::Input("--xRegSmallLogEps","log_eps(xRegSmall)",0.7);
+          El::Input("--xRegSmallLogEps","log_eps(xRegSmall)",0.8);
         const double yRegSmallLogEps =
-          El::Input("--yRegSmallLogEps","log_eps(yRegSmall)",0.7);
+          El::Input("--yRegSmallLogEps","log_eps(yRegSmall)",0.8);
         const double zRegSmallLogEps =
-          El::Input("--zRegSmallLogEps","log_eps(zRegSmall)",0.7);
+          El::Input("--zRegSmallLogEps","log_eps(zRegSmall)",0.8);
         const double xRegLargeLogEps =
           El::Input("--xRegLargeLogEps","log_eps(xRegLarge)",0.6);
         const double yRegLargeLogEps =
@@ -214,9 +209,8 @@ int main( int argc, char* argv[] )
           El::Input
           ("--upperTargetRatioLogCompRatio","log_compratio(upperTargetRatio)",
            0.25);
-        const bool twoStage = El::Input("--twoStage","two-stage solver?",true);
-        const bool mehrotra =
-          El::Input("--mehrotra","Mehrotra predictor-corrector?",true);
+        const bool compositeNewton =
+          El::Input("--compositeNewton","Mehrotra predictor-corrector?",false);
         El::ProcessInput();
         El::PrintInputReport();
 
@@ -231,7 +225,7 @@ int main( int argc, char* argv[] )
                   relativeComplementarityGapTolLogEps,
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-                  twoStage, mehrotra );
+                  compositeNewton );
 #ifdef EL_HAVE_QD
             DenseLoadAndSolve<El::DoubleDouble>
             ( filename, metadataSummary,
@@ -241,7 +235,7 @@ int main( int argc, char* argv[] )
               relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage, mehrotra );
+              compositeNewton );
             DenseLoadAndSolve<El::QuadDouble>
             ( filename, metadataSummary,
               print, outerEquil,
@@ -250,7 +244,7 @@ int main( int argc, char* argv[] )
               relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage, mehrotra );
+              compositeNewton );
 #endif
 #ifdef EL_HAVE_QUAD
             DenseLoadAndSolve<El::Quad>
@@ -261,7 +255,7 @@ int main( int argc, char* argv[] )
               relativeComplementarityGapTolLogEps,
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-              twoStage, mehrotra );
+              compositeNewton );
 #endif
 #ifdef EL_HAVE_MPC
             if( testArbitrary )
@@ -276,7 +270,7 @@ int main( int argc, char* argv[] )
                   relativeComplementarityGapTolLogEps,
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
-                  twoStage, mehrotra );
+                  compositeNewton );
             }
 #endif
         }
@@ -291,7 +285,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              twoStage, mehrotra );
+              compositeNewton );
 #ifdef EL_HAVE_QD
         SparseLoadAndSolve<El::DoubleDouble>
         ( filename, metadataSummary,
@@ -302,7 +296,7 @@ int main( int argc, char* argv[] )
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-          twoStage, mehrotra );
+          compositeNewton );
         SparseLoadAndSolve<El::QuadDouble>
         ( filename, metadataSummary,
           print, outerEquil,
@@ -312,7 +306,7 @@ int main( int argc, char* argv[] )
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-          twoStage, mehrotra );
+          compositeNewton );
 #endif
 #ifdef EL_HAVE_QUAD
         SparseLoadAndSolve<El::Quad>
@@ -324,7 +318,7 @@ int main( int argc, char* argv[] )
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-          twoStage, mehrotra );
+          compositeNewton );
 #endif
 #ifdef EL_HAVE_MPC
         if( testArbitrary )
@@ -340,7 +334,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              twoStage, mehrotra );
+              compositeNewton );
         }
 #endif
     }

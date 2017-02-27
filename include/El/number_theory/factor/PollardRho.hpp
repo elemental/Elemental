@@ -1,9 +1,9 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_NUMBER_THEORY_FACTOR_POLLARD_RHO_HPP
@@ -17,7 +17,7 @@ namespace factor {
 
 namespace pollard_rho {
 
-// TODO: Add the ability to set a maximum number of iterations
+// TODO(poulson): Add the ability to set a maximum number of iterations
 inline BigInt FindFactor
 ( const BigInt& n,
   Int a,
@@ -97,7 +97,7 @@ inline BigInt FindFactor
                 else
                 {
                     if( ctrl.progress )
-                        Output("Found factor ",gcd," at i=",i); 
+                        Output("Found factor ",gcd," at i=",i);
                     return gcd;
                 }
             }
@@ -150,7 +150,7 @@ inline vector<BigInt> PollardRho
                 Output(nRem," is prime (",timer.Stop()," seconds)");
             else if( ctrl.progress )
                 Output(nRem," is prime");
-            factors.push_back( nRem );       
+            factors.push_back( nRem );
             break;
         }
         else if( primality == PROBABLY_PRIME )
@@ -180,7 +180,7 @@ inline vector<BigInt> PollardRho
         {
             factor = pollard_rho::FindFactor( nRem, ctrl.a0, ctrl );
         }
-        catch( const exception& e ) // TODO: Introduce factor exception?
+        catch( const exception& e ) // TODO(poulson): Use a factor exception?
         {
             // Try again with a=ctrl.a1
             if( ctrl.progress )

@@ -20,60 +20,74 @@
 // http://doc.sagemath.org/html/en/reference/coding/sage/coding/delsarte_bounds.html.
 //
 
+// Please see https://en.wikipedia.org/wiki/Hamming_bound for a straight-forward
+// derivation of this sphere-packing bound.
 template<typename Real>
-Real HammingBound( El::Int q, El::Int d, El::Int r )
+Real HammingBound
+( El::Int primePower, El::Int codeLength, El::Int codeDistance )
 {
     EL_DEBUG_CSE
-    const El::Int t = (r-1) / 2;
-    Real denominator = 0;
-    for( El::Int k=0; k<=t; ++k )
-        denominator += El::Choose<Real>( d, k ) * El::Pow( Real(q-1), k );
-    const Real hammingBound = El::Pow( Real(q), d ) / denominator;
+    const Real alphabetSize = El::Pow( Real(primePower), codeLength );
+    const El::Int errorTolerance = (codeDistance-1) / 2;
+
+    Real numWordsPerSphere = 0;
+    for( El::Int numErrors=0; numErrors<=errorTolerance; ++numErrors )
+    {
+        // Add the number of words that differ from a given code word in
+        // exactly 'numErrors' positions.
+        numWordsPerSphere += El::Choose<Real>( codeLength, numErrors ) *
+          El::Pow( Real(primePower-1), numErrors );
+    }
+
+    const Real hammingBound = alphabetSize / numWordsPerSphere;
     return hammingBound;
 }
 
-// K_k(x) = sum_{i=1}^k choose(x,i) choose(n-x,k-i) (-1)^i (q-1)^{k-i}.
+// K_k(x) = sum_{i=1}^k choose(x,i) choose(codeLength-x,k-i) (-1)^i
+//          (primePower-1)^{k-i}.
 template<typename Real>
-Real Kravchuk( El::Int q, El::Int k, El::Int d, El::Int x )
+Real Kravchuk( El::Int primePower, El::Int k, El::Int codeLength, El::Int x )
 {
     EL_DEBUG_CSE
     Real eval = 0;
     for( El::Int i=0; i<=k; ++i )
     {
-        if( x >= i && d-x >= k-i )
+        if( x >= i && codeLength-x >= k-i )
         {
             eval += El::Choose<Real>( x, i ) *
-                    El::Choose<Real>( d-x, k-i ) *
+                    El::Choose<Real>( codeLength-x, k-i ) *
                     El::Pow( Real(-1), i ) *
-                    El::Pow( Real(q-1), k-i );
+                    El::Pow( Real(primePower-1), k-i );
         }
     }
     return eval;
 }
 
 template<typename Real>
-void KravchukMatrix( El::Matrix<Real>& A, El::Int d, El::Int q )
+void KravchukMatrix
+( El::Matrix<Real>& A, El::Int codeLength, El::Int primePower )
 {
     EL_DEBUG_CSE
-    El::Zeros( A, d+1, d+1 );
-    for( El::Int i=0; i<d+1; ++i )
-        for( El::Int j=0; j<d+1; ++j )
-            A(i,j) = Kravchuk<Real>(q,j,d,i);
+    El::Zeros( A, codeLength+1, codeLength+1 );
+    for( El::Int i=0; i<codeLength+1; ++i )
+        for( El::Int j=0; j<codeLength+1; ++j )
+            A(i,j) = Kravchuk<Real>(primePower,j,codeLength,i);
 }
 
 template<typename Real>
 void DelsarteBound
-( El::Int q, El::Int d, El::Int r, bool print, bool ipmProgress )
+( El::Int primePower, El::Int codeLength, El::Int codeDistance,
+  bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     El::Output("Testing with ",El::TypeName<Real>());
-    const El::Int m = r;
-    const El::Int n = d+1;
-    const El::Int k = ((d+1)-r) + (d+1);
+    const El::Int m = codeDistance;
+    const El::Int n = codeLength+1;
+    const El::Int k = ((codeLength+1)-codeDistance) + (codeLength+1);
 
     El::AffineLPProblem<El::SparseMatrix<Real>,El::Matrix<Real>> problem;
 
-    El::Ones( problem.c, d+1, 1 );
+    El::Ones( problem.c, codeLength+1, 1 );
     problem.c *= Real(-1);
 
     El::Zeros( problem.A, m, n );
@@ -86,12 +100,15 @@ void DelsarteBound
     problem.b(0) = Real(1);
 
     El::Zeros( problem.G, k, n );
-    problem.G.Reserve( (d+1)-r + (d+1)*(d+1) );
-    for( El::Int i=0; i<(d+1)-r; ++i )
-        problem.G.QueueUpdate( i, i+r, Real(-1) );
-    for( El::Int i=0; i<d+1; ++i )
-        for( El::Int j=0; j<d+1; ++j )
-            problem.G.QueueUpdate( (d+1)-r+i, j, -Kravchuk<Real>(q,i,d,j) );
+    problem.G.Reserve
+    ( (codeLength+1)-codeDistance + (codeLength+1)*(codeLength+1) );
+    for( El::Int i=0; i<(codeLength+1)-codeDistance; ++i )
+        problem.G.QueueUpdate( i, i+codeDistance, Real(-1) );
+    for( El::Int i=0; i<codeLength+1; ++i )
+        for( El::Int j=0; j<codeLength+1; ++j )
+            problem.G.QueueUpdate
+            ( (codeLength+1)-codeDistance+i, j,
+              -Kravchuk<Real>(primePower,i,codeLength,j) );
     problem.G.ProcessQueues();
 
     El::Zeros( problem.h, k, 1 );
@@ -113,7 +130,8 @@ void DelsarteBound
         El::Print( solution.x, "x" );
     const Real delsarteBound = -El::Dot(problem.c,solution.x);
     El::Output("Delsarte bound: ",delsarteBound);
-    const Real hammingBound = HammingBound<Real>( q, d, r );
+    const Real hammingBound =
+      HammingBound<Real>( primePower, codeLength, codeDistance );
     El::Output("Hamming bound: ",hammingBound);
     const Real improvementRatio = hammingBound / delsarteBound;
     El::Output("Improvement ratio: ",improvementRatio);
@@ -125,9 +143,12 @@ int main( int argc, char* argv[] )
 
     try
     {
-        const El::Int q = El::Input("--q","prime power",2);
-        const El::Int d = El::Input("--d","number of words in message",3);
-        const El::Int r = El::Input("--r","code word distance",2);
+        const El::Int primePower =
+          El::Input("--primePower","prime power for finite field",2);
+        const El::Int codeLength =
+          El::Input("--codeLength","number of words in message",3);
+        const El::Int codeDistance =
+          El::Input("--codeDistance","code word distance",2);
         const bool testDouble =
           El::Input("--testDouble","test double-precision?",false);
 #ifdef EL_HAVE_QD
@@ -151,22 +172,35 @@ int main( int argc, char* argv[] )
         El::ProcessInput();
         El::PrintInputReport();
 
+        auto factors = El::TrialDivision( primePower, primePower );
+        const auto prime = factors[0];
+        for( size_t i=1; i<factors.size(); ++i )
+            if( factors[i] != prime )
+                El::LogicError
+                ("primePower=",primePower," was not a prime power, as both ",
+                 prime," and ",factors[i]," are factors");
+
         if( testDouble )
-            DelsarteBound<double>( q, d, r, print, ipmProgress );
+            DelsarteBound<double>
+            ( primePower, codeLength, codeDistance, print, ipmProgress );
 #ifdef EL_HAVE_QD
         if( testDoubleDouble )
-            DelsarteBound<El::DoubleDouble>( q, d, r, print, ipmProgress );
+            DelsarteBound<El::DoubleDouble>
+            ( primePower, codeLength, codeDistance, print, ipmProgress );
         if( testQuadDouble )
-            DelsarteBound<El::QuadDouble>( q, d, r, print, ipmProgress );
+            DelsarteBound<El::QuadDouble>
+            ( primePower, codeLength, codeDistance, print, ipmProgress );
 #endif
 #ifdef EL_HAVE_QUAD
         if( testQuad )
-            DelsarteBound<El::Quad>( q, d, r, print, ipmProgress );
+            DelsarteBound<El::Quad>
+            ( primePower, codeLength, codeDistance, print, ipmProgress );
 #endif
 #ifdef EL_HAVE_MPC
         El::mpfr::SetPrecision( prec );
         if( testBigFloat )
-            DelsarteBound<El::BigFloat>( q, d, r, print, ipmProgress );
+            DelsarteBound<El::BigFloat>
+            ( primePower, codeLength, codeDistance, print, ipmProgress );
 #endif
     }
     catch( std::exception& e ) { El::ReportException(e); }

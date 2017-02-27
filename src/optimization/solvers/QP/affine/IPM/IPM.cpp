@@ -10,34 +10,6 @@
 #include "./util.hpp"
 
 namespace El {
-
-// TODO(poulson): Move this into a central location.
-template<typename Real>
-Real RelativeComplementarityGap
-( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
-{
-    EL_DEBUG_CSE
-    Real relCompGap;
-    if( primalObj < Real(0) )
-        relCompGap = dualityProduct / -primalObj;
-    else if( dualObj > Real(0) )
-        relCompGap = dualityProduct / dualObj;
-    else
-        relCompGap = 2; // 200% error if the signs differ inadmissibly.
-    return relCompGap;
-}
-
-// TODO(poulson): Move this into a central location.
-template<typename Real>
-Real RelativeObjectiveGap
-( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
-{
-    EL_DEBUG_CSE
-    const Real relObjGap =
-      Abs(primalObj-dualObj) / (Max(Abs(primalObj),Abs(dualObj))+1);
-    return relObjGap;
-}
-
 namespace qp {
 namespace affine {
 
@@ -199,8 +171,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -313,6 +284,7 @@ void IPM
         }
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -340,6 +312,7 @@ void IPM
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rhNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -366,7 +339,7 @@ void IPM
         // Solve for the combined direction
         // ================================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dsAff o dzAff
             // ---------------------
@@ -582,14 +555,13 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
 
-        // || A x - b ||_2 / (1 + || b ||_2) <= tol ?
-        // --------------------------------------
+        // || A x - b ||_2 / (1 + || b ||_2)
+        // ---------------------------------
         rb = b; rb *= -1;
         Gemv( NORMAL, Real(1), A, x, Real(1), rb );
         const Real rbNrm2 = Nrm2( rb );
@@ -706,6 +678,7 @@ void IPM
         }
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -734,6 +707,7 @@ void IPM
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rhNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -760,7 +734,7 @@ void IPM
         // Solve for the combined direction
         // ================================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dsAff o dzAff
             // ---------------------
@@ -977,8 +951,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1129,6 +1102,7 @@ void IPM
         }
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -1158,6 +1132,7 @@ void IPM
              "|| dzError ||_2 / (1 + || r_h ||_2) = ",
              dzErrorNrm2/(1+rhNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -1184,7 +1159,7 @@ void IPM
         // Solve for the combined direction
         // ================================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dsAff o dzAff
             // ---------------------
@@ -1442,8 +1417,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y) - Dot(h,z);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1612,6 +1586,7 @@ void IPM
             Output("Affine solve: ",timer.Stop()," secs");
         ExpandSolution( m, n, d, rmu, s, z, dxAff, dyAff, dzAff, dsAff );
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -1642,6 +1617,7 @@ void IPM
                  "|| dzError ||_2 / (1 + || r_h ||_2) = ",
                  dzErrorNrm2/(1+rhNrm2));
         }
+        */
 
         // Compute a centrality parameter using Mehrotra's formula
         // =======================================================
@@ -1668,7 +1644,7 @@ void IPM
         // Solve for the combined direction
         // ================================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dsAff o dzAff
             // ---------------------

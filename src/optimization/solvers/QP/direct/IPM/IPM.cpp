@@ -10,34 +10,6 @@
 #include "./util.hpp"
 
 namespace El {
-
-// TODO(poulson): Move this into a central location.
-template<typename Real>
-Real RelativeComplementarityGap
-( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
-{
-    EL_DEBUG_CSE
-    Real relCompGap;
-    if( primalObj < Real(0) )
-        relCompGap = dualityProduct / -primalObj;
-    else if( dualObj > Real(0) )
-        relCompGap = dualityProduct / dualObj;
-    else
-        relCompGap = 2; // 200% error if the signs differ inadmissibly.
-    return relCompGap;
-}
-
-// TODO(poulson): Move this into a central location.
-template<typename Real>
-Real RelativeObjectiveGap
-( const Real& primalObj, const Real& dualObj, const Real& dualityProduct )
-{
-    EL_DEBUG_CSE
-    const Real relObjGap =
-      Abs(primalObj-dualObj) / (Max(Abs(primalObj),Abs(dualObj))+1);
-    return relObjGap;
-}
-
 namespace qp {
 namespace direct {
 
@@ -180,8 +152,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -317,6 +288,7 @@ void IPM
         else
             LogicError("Invalid KKT system choice");
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -347,6 +319,7 @@ void IPM
              "|| dzError ||_2 / (1 + || r_mu ||_2) = ",
              dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -373,7 +346,7 @@ void IPM
         // Solve for the combined direction
         // ================================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -604,8 +577,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -742,6 +714,7 @@ void IPM
         else
             LogicError("Invalid KKT system choice");
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -773,6 +746,7 @@ void IPM
                  "|| dzError ||_2 / (1 + || r_mu ||_2) = ",
                  dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -799,7 +773,7 @@ void IPM
         // Compute the combined direction
         // ==============================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu := dxAff o dzAff
             // ---------------------
@@ -1042,8 +1016,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1207,6 +1180,7 @@ void IPM
         else
             LogicError("Invalid KKT system choice");
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -1237,6 +1211,7 @@ void IPM
              "|| dzError ||_2 / (1 + || r_mu ||_2) = ",
              dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -1263,7 +1238,7 @@ void IPM
         // Compute the combined direction
         // ==============================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
@@ -1553,8 +1528,7 @@ void IPM
         const Real xTQx = Dot(x,d);
         const Real primObj =  xTQx/2 + Dot(c,x);
         const Real dualObj = -xTQx/2 - Dot(b,y);
-        const Real relObjGap =
-          RelativeObjectiveGap( primObj, dualObj, dualProd );
+        const Real relObjGap = RelativeObjectiveGap( primObj, dualObj );
         const Real relCompGap =
           RelativeComplementarityGap( primObj, dualObj, dualProd );
         const Real maxRelGap = Max( relObjGap, relCompGap );
@@ -1748,6 +1722,7 @@ void IPM
         else
             LogicError("Invalid KKT system choice");
 
+        /*
         if( ctrl.checkResiduals && ctrl.print )
         {
             dxError = rb;
@@ -1779,6 +1754,7 @@ void IPM
                  "|| dzError ||_2 / (1 + || r_mu ||_2) = ",
                  dzErrorNrm2/(1+rmuNrm2));
         }
+        */
 
         // Compute a centrality parameter
         // ==============================
@@ -1805,7 +1781,7 @@ void IPM
         // Solve for the combined direction
         // ================================
         Shift( rmu, -sigma*mu );
-        if( ctrl.mehrotra )
+        if( ctrl.compositeNewton )
         {
             // r_mu += dxAff o dzAff
             // ---------------------
