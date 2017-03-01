@@ -18,7 +18,6 @@ namespace El {
 namespace herm_eig {
 
 using El::schur::ComputePartition;
-using El::schur::SplitGrid;
 using El::schur::PushSubproblems;
 using El::schur::PullSubproblems;
 

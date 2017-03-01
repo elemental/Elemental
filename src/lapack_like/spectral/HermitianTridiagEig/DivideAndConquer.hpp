@@ -1327,7 +1327,8 @@ DivideAndConquer
     // TODO(poulson): A more intelligent split point.
     const Int split = (n/2) + 1;
     const Grid *leftGrid, *rightGrid;
-    SplitGrid( split, n-split, grid, leftGrid, rightGrid );
+    const bool splitGrid =
+      SplitGrid( split, n-split, grid, leftGrid, rightGrid );
     const Real& beta = superDiag(split-1);
 
     auto mainDiag0 = mainDiag( IR(0,split), ALL );
@@ -1423,6 +1424,12 @@ DivideAndConquer
           info1.secularInfo.numCloseDiagonalDeflations;
         secularInfo.numSmallUpdateDeflations +=
           info1.secularInfo.numSmallUpdateDeflations;
+    }
+    if( splitGrid )
+    {
+        // TODO(poulson): Introduce a smart pointer instead?
+        delete leftGrid;
+        delete rightGrid;
     }
 
     if( topLevel )

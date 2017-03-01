@@ -1988,7 +1988,8 @@ DivideAndConquer
     // deflation (which tends to be vastly more common).
     const Int split = m/2;
     const Grid *leftGrid, *rightGrid;
-    SplitGrid( split, m-(split+1), grid, leftGrid, rightGrid );
+    const bool splitGrid =
+      SplitGrid( split, m-(split+1), grid, leftGrid, rightGrid );
 
     const Real alpha = mainDiag(split);
     const Real beta = superDiag(split);
@@ -2107,6 +2108,12 @@ DivideAndConquer
           info1.secularInfo.numCloseDiagonalDeflations;
         secularInfo.numSmallUpdateDeflations +=
           info1.secularInfo.numSmallUpdateDeflations;
+    }
+    if( splitGrid )
+    {
+        // TODO(poulson): Introduce a smart pointer instead?
+        delete leftGrid;
+        delete rightGrid;
     }
 
     if( topLevel )
