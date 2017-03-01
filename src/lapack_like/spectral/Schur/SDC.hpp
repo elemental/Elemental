@@ -1240,7 +1240,7 @@ SDC
     if( ctrl.progress && g.Rank() == 0 )
         Output("Pushing subproblems");
     bool splitGrid;
-    Grid *leftGrid, *rightGrid;
+    const Grid *leftGrid, *rightGrid;
     {
         DistMatrix<F> ATLSub, ABRSub;
         DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
