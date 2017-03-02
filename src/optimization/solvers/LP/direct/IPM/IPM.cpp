@@ -533,6 +533,7 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
 {
     EL_DEBUG_CSE
     const Int degree = problem.A.Width();
+    const Real epsilon = limits::Epsilon<Real>();
 
     // Compute the new barrier parameter
     // ---------------------------------
@@ -595,9 +596,9 @@ void DirectState<Real,Matrix<Real>,Matrix<Real>>::Update
     dimacsError = Max(infeasError,maxRelGap);
 
     metTolerances =
-      infeasError <= ctrl.infeasibilityTol &&
-      relCompGap <= ctrl.relativeComplementarityGapTol &&
-      relObjGap <= ctrl.relativeObjectiveGapTol;
+      infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+      relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
 
     if( ctrl.print )
     {
@@ -996,12 +997,13 @@ void EquilibratedIPM
     const Int degree = n;
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
+    const Real epsilon = limits::Epsilon<Real>();
 
     const Real bNrm2 = FrobeniusNorm( problem.b );
     const Real cNrm2 = FrobeniusNorm( problem.c );
+    const Real ANrm1 = OneNorm( problem.A );
     if( ctrl.print )
     {
-        const Real ANrm1 = OneNorm( problem.A );
         if( commRank == 0 )
         {
             Output("|| A ||_1 = ",ANrm1);
@@ -1009,6 +1011,11 @@ void EquilibratedIPM
             Output("|| c ||_2 = ",cNrm2);
         }
     }
+
+    const Real xRegSmall0 = ANrm1*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = ANrm1*Pow(epsilon,ctrl.yRegSmallLogEps);
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
 
     Initialize
     ( problem, solution,
@@ -1120,9 +1127,9 @@ void EquilibratedIPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -1207,10 +1214,10 @@ void EquilibratedIPM
             // Construct the KKT system
             // ------------------------
             NormalKKT
-            ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
+            ( problem.A, Sqrt(xRegSmall), Sqrt(yRegSmall),
               solution.x, solution.z, J );
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
 
@@ -1227,7 +1234,7 @@ void EquilibratedIPM
                 break;
             }
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
@@ -1239,14 +1246,14 @@ void EquilibratedIPM
             Gemv
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
-            Axpy( -ctrl.yRegSmall, affineCorrection.y, error.primalEquality );
+            Axpy( -yRegSmall, affineCorrection.y, error.primalEquality );
             Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
-            Axpy( ctrl.xRegSmall, affineCorrection.x, error.dualEquality );
+            Axpy( xRegSmall, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
             Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -1349,7 +1356,7 @@ void EquilibratedIPM
             // Construct the new KKT RHS
             // -------------------------
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, correction.y );
 
@@ -1361,7 +1368,7 @@ void EquilibratedIPM
                 break;
             }
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               correction.x, correction.y, correction.z );
         }
@@ -1522,6 +1529,7 @@ void EquilibratedIPM
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int degree = n;
+    const Real epsilon = limits::Epsilon<Real>();
 
     const Real bNrm2 = FrobeniusNorm( problem.b );
     const Real cNrm2 = FrobeniusNorm( problem.c );
@@ -1534,6 +1542,19 @@ void EquilibratedIPM
         Output("|| b ||_2 = ",bNrm2);
         Output("|| c ||_2 = ",cNrm2);
     }
+
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
 
     SparseLDLFactorization<Real> sparseLDLFact;
     // The initialization involves an augmented KKT system, and so we can
@@ -1561,9 +1582,9 @@ void EquilibratedIPM
         regLarge.Resize( m+2*n, 1 );
         for( Int i=0; i<m+2*n; ++i )
         {
-            if( i < n )        regLarge(i) =  ctrl.xRegLarge;
-            else if( i < n+m ) regLarge(i) = -ctrl.yRegLarge;
-            else               regLarge(i) = -ctrl.zRegLarge;
+            if( i < n )        regLarge(i) =  xRegLarge;
+            else if( i < n+m ) regLarge(i) = -yRegLarge;
+            else               regLarge(i) = -zRegLarge;
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -1571,14 +1592,14 @@ void EquilibratedIPM
         regLarge.Resize( n+m, 1 );
         for( Int i=0; i<n+m; ++i )
         {
-            if( i < n ) regLarge(i) =  ctrl.xRegLarge;
-            else        regLarge(i) = -ctrl.yRegLarge;
+            if( i < n ) regLarge(i) =  xRegLarge;
+            else        regLarge(i) = -yRegLarge;
         }
     }
     else if( ctrl.system == NORMAL_KKT )
     {
         regLarge.Resize( m, 1 );
-        Fill( regLarge, ctrl.yRegLarge );
+        Fill( regLarge, yRegLarge );
     }
     regLarge *= origTwoNormEst;
 
@@ -1676,9 +1697,9 @@ void EquilibratedIPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -1716,9 +1737,9 @@ void EquilibratedIPM
             {
                 KKT
                 ( problem.A,
-                  Sqrt(ctrl.xRegSmall),
-                  Sqrt(ctrl.yRegSmall),
-                  Sqrt(ctrl.zRegSmall),
+                  Sqrt(xRegSmall),
+                  Sqrt(yRegSmall),
+                  Sqrt(zRegSmall),
                   solution.x, solution.z, JOrig, false );
                 KKTRHS
                 ( residual.dualEquality, residual.primalEquality,
@@ -1727,7 +1748,7 @@ void EquilibratedIPM
             else
             {
                 AugmentedKKT
-                ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
+                ( problem.A, Sqrt(xRegSmall), Sqrt(yRegSmall),
                   solution.x, solution.z, JOrig, false );
                 AugmentedKKTRHS
                 ( solution.x, residual.dualEquality, residual.primalEquality,
@@ -1813,10 +1834,10 @@ void EquilibratedIPM
             // TODO(poulson): Apply updates to a matrix of explicit zeros
             // (with the correct sparsity pattern)
             NormalKKT
-            ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
+            ( problem.A, Sqrt(xRegSmall), Sqrt(yRegSmall),
               solution.x, solution.z, J, false );
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
 
@@ -1855,7 +1876,7 @@ void EquilibratedIPM
                 }
             }
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
@@ -1868,14 +1889,14 @@ void EquilibratedIPM
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
             Axpy
-            ( -ctrl.yRegSmall, affineCorrection.y, error.primalEquality );
+            ( -yRegSmall, affineCorrection.y, error.primalEquality );
             Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
-            Axpy( ctrl.xRegSmall, affineCorrection.x, error.dualEquality );
+            Axpy( xRegSmall, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
             Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -2008,7 +2029,7 @@ void EquilibratedIPM
         else
         {
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, correction.y );
             // NOTE: regLarge should be all zeros; replace with unregularized
@@ -2031,7 +2052,7 @@ void EquilibratedIPM
                 }
             }
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               correction.x, correction.y, correction.z );
         }
@@ -2151,6 +2172,7 @@ void EquilibratedIPM
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int degree = n;
+    const Real epsilon = limits::Epsilon<Real>();
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
     Timer timer;
@@ -2171,6 +2193,19 @@ void EquilibratedIPM
             Output("Imbalance factor of A: ",imbalanceA);
         }
     }
+
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
 
     DistSparseLDLFactorization<Real> sparseLDLFact;
     // The initialization involves an augmented KKT system, and so we can
@@ -2203,9 +2238,9 @@ void EquilibratedIPM
         for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
         {
             const Int i = regLarge.GlobalRow(iLoc);
-            if( i < n )        regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
-            else if( i < n+m ) regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
-            else               regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
+            if( i < n )        regLarge.SetLocal( iLoc, 0,  xRegLarge );
+            else if( i < n+m ) regLarge.SetLocal( iLoc, 0, -yRegLarge );
+            else               regLarge.SetLocal( iLoc, 0, -zRegLarge );
         }
     }
     else if( ctrl.system == AUGMENTED_KKT )
@@ -2214,14 +2249,14 @@ void EquilibratedIPM
         for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
         {
             const Int i = regLarge.GlobalRow(iLoc);
-            if( i < n ) regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
-            else        regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
+            if( i < n ) regLarge.SetLocal( iLoc, 0,  xRegLarge );
+            else        regLarge.SetLocal( iLoc, 0, -yRegLarge );
         }
     }
     else if( ctrl.system == NORMAL_KKT )
     {
         regLarge.Resize( m, 1 );
-        Fill( regLarge, ctrl.yRegLarge );
+        Fill( regLarge, yRegLarge );
     }
     regLarge *= origTwoNormEst;
 
@@ -2324,9 +2359,9 @@ void EquilibratedIPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -2364,9 +2399,9 @@ void EquilibratedIPM
             {
                 KKT
                 ( problem.A,
-                  Sqrt(ctrl.xRegSmall),
-                  Sqrt(ctrl.yRegSmall),
-                  Sqrt(ctrl.zRegSmall),
+                  Sqrt(xRegSmall),
+                  Sqrt(yRegSmall),
+                  Sqrt(zRegSmall),
                   solution.x, solution.z, JOrig, false );
                 KKTRHS
                 ( residual.dualEquality, residual.primalEquality,
@@ -2375,7 +2410,7 @@ void EquilibratedIPM
             else
             {
                 AugmentedKKT
-                ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
+                ( problem.A, Sqrt(xRegSmall), Sqrt(yRegSmall),
                   solution.x, solution.z,
                   JOrig, false );
                 AugmentedKKTRHS
@@ -2493,10 +2528,10 @@ void EquilibratedIPM
             // -----------------------
             // TODO(poulson): Apply updates on top of explicit zeros
             NormalKKT
-            ( problem.A, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall),
+            ( problem.A, Sqrt(xRegSmall), Sqrt(yRegSmall),
               solution.x, solution.z, J, false );
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, affineCorrection.y );
             if( numIts == 0 )
@@ -2560,7 +2595,7 @@ void EquilibratedIPM
             if( commRank == 0 && ctrl.time )
                 Output("Affine: ",timer.Stop()," secs");
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               affineCorrection.x, affineCorrection.y, affineCorrection.z );
         }
@@ -2572,14 +2607,14 @@ void EquilibratedIPM
             Gemv
             ( NORMAL, Real(1), problem.A, affineCorrection.x,
               Real(1), error.primalEquality );
-            Axpy( -ctrl.yRegSmall, affineCorrection.y, error.primalEquality );
+            Axpy( -yRegSmall, affineCorrection.y, error.primalEquality );
             Real dxErrorNrm2 = FrobeniusNorm( error.primalEquality );
 
             error.dualEquality = residual.dualEquality;
             Gemv
             ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
               Real(1), error.dualEquality );
-            Axpy( ctrl.xRegSmall, affineCorrection.x, error.dualEquality );
+            Axpy( xRegSmall, affineCorrection.x, error.dualEquality );
             error.dualEquality -= affineCorrection.z;
             Real dyErrorNrm2 = FrobeniusNorm( error.dualEquality );
 
@@ -2720,7 +2755,7 @@ void EquilibratedIPM
         else
         {
             NormalKKTRHS
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.primalEquality,
               residual.dualConic, correction.y );
             if( commRank == 0 && ctrl.time )
@@ -2746,7 +2781,7 @@ void EquilibratedIPM
             if( commRank == 0 && ctrl.time )
                 Output("Corrector: ",timer.Stop()," secs");
             ExpandNormalSolution
-            ( problem.A, Sqrt(ctrl.xRegSmall), solution.x, solution.z,
+            ( problem.A, Sqrt(xRegSmall), solution.x, solution.z,
               residual.dualEquality, residual.dualConic,
               correction.x, correction.y, correction.z );
         }

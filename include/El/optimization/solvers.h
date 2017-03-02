@@ -25,9 +25,9 @@ typedef enum {
 typedef struct {
   bool primalInit, dualInit;
 
-  float infeasibilityTol;
-  float relativeObjectiveGapTol;
-  float relativeComplementarityGapTol;
+  float infeasibilityTolLogEps;
+  float relativeObjectiveGapTolLogEps;
+  float relativeComplementarityGapTolLogEps;
   float minDimacsDecreaseRatio;
 
   ElInt maxIts;
@@ -43,40 +43,50 @@ typedef struct {
   ElInt twoNormKrylovBasisSize;
   bool print;
   bool time;
-  float wSafeMaxNorm;
-
-  /* Equilibration controls */
-  bool equilibrateIfSingleStage;
-  float wMaxLimit;
-  float ruizEquilTol;
-  ElInt ruizMaxIter;
-  float diagEquilTol;
 
   /* Regularization controls */
-  float xRegSmall;
-  float yRegSmall;
-  float zRegSmall;
-  float zMinPivotValue;
-  float xRegLarge;
-  float yRegLarge;
-  float zRegLarge;
-  bool twoStage;
-  float regIncreaseFactor;
+  float xRegSmallLogEps;
+  float yRegSmallLogEps;
+  float zRegSmallLogEps;
+  float xRegLargeLogEps;
+  float yRegLargeLogEps;
+  float zRegLargeLogEps;
+  float zMinPivotValueLogEps;
+
+  float regIncreaseFactorLogEps;
 
   /* Handling large complementary ratio */
   float maxComplementRatio;
   bool softDualityTargets;
   float lowerTargetRatioLogCompRatio;
   float upperTargetRatioLogCompRatio;
+  float lowerTargetRatioLogMaxCompRatio;
+  float upperTargetRatioLogMaxCompRatio;
 
+  float maxRescaleRatioLogEps;
+
+  float primalNormLowerBound;
+  float primalNormUpperBound;
+  float dualNormLowerBound;
+  float dualNormUpperBound;
+  float backoffScalePower;
+
+  /* Deprecated */
+  bool twoStage;
+  float wSafeMaxNorm;
+  bool equilibrateIfSingleStage;
+  float wMaxLimit;
+  float ruizEquilTol;
+  ElInt ruizMaxIter;
+  float diagEquilTol;
 } ElIPMCtrl_s;
 
 typedef struct {
   bool primalInit, dualInit;
 
-  double infeasibilityTol;
-  double relativeObjectiveGapTol;
-  double relativeComplementarityGapTol;
+  double infeasibilityTolLogEps;
+  double relativeObjectiveGapTolLogEps;
+  double relativeComplementarityGapTolLogEps;
   double minDimacsDecreaseRatio;
 
   ElInt maxIts;
@@ -92,32 +102,42 @@ typedef struct {
   ElInt twoNormKrylovBasisSize;
   bool print;
   bool time;
-  double wSafeMaxNorm;
-
-  /* Equilibration controls */
-  bool equilibrateIfSingleStage;
-  double wMaxLimit;
-  double ruizEquilTol;
-  ElInt ruizMaxIter;
-  double diagEquilTol;
 
   /* Regularization controls */
-  double xRegSmall;
-  double yRegSmall;
-  double zRegSmall;
-  double zMinPivotValue;
-  double xRegLarge;
-  double yRegLarge;
-  double zRegLarge;
-  bool twoStage;
-  double regIncreaseFactor;
+  double xRegSmallLogEps;
+  double yRegSmallLogEps;
+  double zRegSmallLogEps;
+  double xRegLargeLogEps;
+  double yRegLargeLogEps;
+  double zRegLargeLogEps;
+  double zMinPivotValueLogEps;
+
+  double regIncreaseFactorLogEps;
 
   /* Handling large complementary ratio */
   double maxComplementRatio;
   bool softDualityTargets;
   double lowerTargetRatioLogCompRatio;
   double upperTargetRatioLogCompRatio;
+  double lowerTargetRatioLogMaxCompRatio;
+  double upperTargetRatioLogMaxCompRatio;
 
+  double maxRescaleRatioLogEps;
+
+  double primalNormLowerBound;
+  double primalNormUpperBound;
+  double dualNormLowerBound;
+  double dualNormUpperBound;
+  double backoffScalePower;
+
+  /* Deprecated */
+  bool twoStage;
+  double wSafeMaxNorm;
+  bool equilibrateIfSingleStage;
+  double wMaxLimit;
+  double ruizEquilTol;
+  ElInt ruizMaxIter;
+  double diagEquilTol;
 } ElIPMCtrl_d;
 
 EL_EXPORT ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl );
@@ -126,7 +146,7 @@ EL_EXPORT ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl );
 /* Alternating Direction Method of Multipliers
    =========================================== */
 typedef struct {
-  float rho; 
+  float rho;
   float alpha;
   ElInt maxIter;
   float absTol;
@@ -136,7 +156,7 @@ typedef struct {
 } ElADMMCtrl_s;
 
 typedef struct {
-  double rho; 
+  double rho;
   double alpha;
   ElInt maxIter;
   double absTol;
@@ -220,12 +240,12 @@ EL_EXPORT ElError ElLPDirectDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  ElLPApproach approach; 
+  ElLPApproach approach;
   ElADMMCtrl_s admmCtrl;
   ElIPMCtrl_s ipmCtrl;
 } ElLPDirectCtrl_s;
 typedef struct {
-  ElLPApproach approach; 
+  ElLPApproach approach;
   ElADMMCtrl_d admmCtrl;
   ElIPMCtrl_d ipmCtrl;
 } ElLPDirectCtrl_d;
@@ -392,11 +412,11 @@ EL_EXPORT ElError ElLPAffineDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  ElLPApproach approach; 
+  ElLPApproach approach;
   ElIPMCtrl_s ipmCtrl;
 } ElLPAffineCtrl_s;
 typedef struct {
-  ElLPApproach approach; 
+  ElLPApproach approach;
   ElIPMCtrl_d ipmCtrl;
 } ElLPAffineCtrl_d;
 
@@ -575,11 +595,11 @@ EL_EXPORT ElError ElQPDirectDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  ElQPApproach approach; 
+  ElQPApproach approach;
   ElIPMCtrl_s ipmCtrl;
 } ElQPDirectCtrl_s;
 typedef struct {
-  ElQPApproach approach; 
+  ElQPApproach approach;
   ElIPMCtrl_d ipmCtrl;
 } ElQPDirectCtrl_d;
 
@@ -759,11 +779,11 @@ EL_EXPORT ElError ElQPAffineDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  ElQPApproach approach; 
+  ElQPApproach approach;
   ElIPMCtrl_s ipmCtrl;
 } ElQPAffineCtrl_s;
 typedef struct {
-  ElQPApproach approach; 
+  ElQPApproach approach;
   ElIPMCtrl_d ipmCtrl;
 } ElQPAffineCtrl_d;
 
@@ -1021,11 +1041,11 @@ EL_EXPORT ElError ElSOCPDirectDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  ElSOCPApproach approach; 
+  ElSOCPApproach approach;
   ElIPMCtrl_s ipmCtrl;
 } ElSOCPDirectCtrl_s;
 typedef struct {
-  ElSOCPApproach approach; 
+  ElSOCPApproach approach;
   ElIPMCtrl_d ipmCtrl;
 } ElSOCPDirectCtrl_d;
 
@@ -1221,11 +1241,11 @@ EL_EXPORT ElError ElSOCPAffineDistSparse_d
 /* Expert versions
    ^^^^^^^^^^^^^^^ */
 typedef struct {
-  ElSOCPApproach approach; 
+  ElSOCPApproach approach;
   ElIPMCtrl_s ipmCtrl;
 } ElSOCPAffineCtrl_s;
 typedef struct {
-  ElSOCPApproach approach; 
+  ElSOCPApproach approach;
   ElIPMCtrl_d ipmCtrl;
 } ElSOCPAffineCtrl_d;
 

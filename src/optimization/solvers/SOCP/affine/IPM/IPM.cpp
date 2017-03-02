@@ -74,7 +74,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    const Real eps = limits::Epsilon<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
 
     auto A = APre;
     auto G = GPre;
@@ -146,7 +146,7 @@ void IPM
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDist = eps;
+        const Real minDist = epsilon;
         soc::PushInto( s, orders, firstInds, minDist );
         soc::PushInto( z, orders, firstInds, minDist );
         soc::NesterovTodd( s, z, w, orders, firstInds );
@@ -215,9 +215,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -441,7 +441,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    const Real eps = limits::Epsilon<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
     const bool onlyLower = true;
     const Int cutoffPar = 1000;
 
@@ -546,7 +546,7 @@ void IPM
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDist = eps;
+        const Real minDist = epsilon;
         soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
         soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
         soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
@@ -616,9 +616,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -853,7 +853,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    const Real eps = limits::Epsilon<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
     const bool onlyLower = false;
     // TODO(poulson): Move into the control structure
     const bool cutoffSparse = 64;
@@ -909,6 +909,19 @@ void IPM
         Output("|| h ||_2 = ",hNrm2);
     }
 
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
+
     Initialize
     ( A, G, b, c, h, orders, firstInds, x, y, z, s,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
@@ -942,11 +955,11 @@ void IPM
     {
         if( i < n )
         {
-            regLarge(i) = ctrl.xRegLarge;
+            regLarge(i) = xRegLarge;
         }
         else if( i < n+m )
         {
-            regLarge(i) = -ctrl.yRegLarge;
+            regLarge(i) = -yRegLarge;
         }
         else
         {
@@ -959,9 +972,9 @@ void IPM
             // TODO(poulson): Use different diagonal modification for the
             // auxiliary variables? These diagonal entries are always +-1.
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regLarge(i) = ctrl.zRegLarge;
+                regLarge(i) = zRegLarge;
             else
-                regLarge(i) = -ctrl.zRegLarge;
+                regLarge(i) = -zRegLarge;
         }
     }
     regLarge *= origTwoNormEst;
@@ -970,7 +983,7 @@ void IPM
     // =========================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+    ( A, G, Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
 
@@ -990,7 +1003,7 @@ void IPM
     {
         // Ensure that s and z are in the cone
         // ===================================
-        const Real minDist = eps;
+        const Real minDist = epsilon;
         soc::PushInto( s, orders, firstInds, minDist );
         soc::PushInto( z, orders, firstInds, minDist );
         soc::NesterovTodd( s, z, w, orders, firstInds );
@@ -1059,9 +1072,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -1343,7 +1356,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    const Real eps = limits::Epsilon<Real>();
+    const Real epsilon = limits::Epsilon<Real>();
     const bool onlyLower = false;
     // TODO(poulson): Move these into the control structur
     const Int cutoffSparse = 64;
@@ -1416,6 +1429,19 @@ void IPM
         }
     }
 
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
+
     if( commRank == 0 && ctrl.time )
         timer.Start();
     Initialize
@@ -1463,9 +1489,9 @@ void IPM
     {
         const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
+          regLarge.SetLocal( iLoc, 0,  xRegLarge );
         else if( i < n+m )
-          regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
+          regLarge.SetLocal( iLoc, 0, -yRegLarge );
         else break;
     }
     // Perform the portion that requires remote updates
@@ -1481,9 +1507,9 @@ void IPM
             const bool embedded = ( order != sparseOrder );
             const Int firstInd = sparseFirstIndsLoc(iLoc);
             if( embedded && iCone == firstInd+sparseOrder-1 )
-                regLarge.QueueUpdate( n+m+iCone, 0, ctrl.zRegLarge );
+                regLarge.QueueUpdate( n+m+iCone, 0, zRegLarge );
             else
-                regLarge.QueueUpdate( n+m+iCone, 0, -ctrl.zRegLarge );
+                regLarge.QueueUpdate( n+m+iCone, 0, -zRegLarge );
         }
         regLarge.ProcessQueues();
     }
@@ -1493,7 +1519,7 @@ void IPM
     // =========================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+    ( A, G, Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
       orders, firstInds, origToSparseOrders, origToSparseFirstInds,
       kSparse, JStatic, onlyLower );
     if( ctrl.print )
@@ -1526,7 +1552,7 @@ void IPM
         // Ensure that s and z are in the cone
         // ===================================
         // TODO(poulson): Let this be a function of the relative error, etc.
-        const Real minDist = eps;
+        const Real minDist = epsilon;
         soc::PushInto( s, orders, firstInds, minDist, cutoffPar );
         soc::PushInto( z, orders, firstInds, minDist, cutoffPar );
         soc::NesterovTodd( s, z, w, orders, firstInds, cutoffPar );
@@ -1596,9 +1622,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )

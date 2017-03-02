@@ -45,7 +45,7 @@ struct IPMCtrl
     //
     // NOTE: User initialization has not yet been tested, so there might be a
     //       trivial bug.
-    bool primalInit=false, dualInit=false;
+    bool primalInit = false, dualInit = false;
 
     // Demand that
     //
@@ -54,8 +54,7 @@ struct IPMCtrl
     //        || G x + s - h ||_2 / (1 + || h ||_2) }
     //
     // is less than this value.
-    Real infeasibilityTol=
-      Pow(limits::Epsilon<Real>(),Real(0.45));
+    Real infeasibilityTolLogEps = Real(0.45);
 
     // Demand that
     //
@@ -69,8 +68,7 @@ struct IPMCtrl
     // to only demanding that the relative complementarity gap is nontrivial
     // by default. (Although using larger amounts of regularization yields more
     // than three digits of relative objective gap accuracy.)
-    Real relativeObjectiveGapTol=
-      Pow(limits::Epsilon<Real>(),Real(0.05));
+    Real relativeObjectiveGapTolLogEps = Real(0.05);
 
     // Demand that
     //
@@ -87,22 +85,21 @@ struct IPMCtrl
     //
     //   -b^T y - h^T z = c^T x - s^T z.
     //
-    Real relativeComplementarityGapTol=
-      Pow(limits::Epsilon<Real>(),Real(0.3));
+    Real relativeComplementarityGapTolLogEps = Real(0.3);
 
     // If the minimum tolerance has already been achieved, then exit if the
     // DIMACS error is multiplied by a factor larger than the following on any
     // subsequent iteration.
-    Real minDimacsDecreaseRatio=Real(0.99);
+    Real minDimacsDecreaseRatio = Real(0.99);
 
     // The maximum number of iterations of the IPM. This should only be
     // activated in pathological circumstances, as even 100 iterations of an
     // IPM is usually excessive.
-    Int maxIts=1000;
+    Int maxIts = 1000;
 
     // If a step of length alpha would hit the boundary, instead step a distance
     // of 'maxStepRatio*alpha'.
-    Real maxStepRatio=Real(0.99);
+    Real maxStepRatio = Real(0.99);
 
     // For configuring how many reductions of the first-order optimality
     // conditions should be performed before solving a linear system.
@@ -112,90 +109,50 @@ struct IPMCtrl
     // NORMAL_KKT (use a Cholesky solver) are also possible. The latter should
     // be avoided when the normal equations are sufficiently denser than the
     // (larger) augmented formulation.
-    KKTSystem system=FULL_KKT;
+    KKTSystem system = FULL_KKT;
 
     // Use a damped (level-1) composite Newton method?
     //
     // Cf. Tapia et al., "The Mehrotra Predictor-Corrector Interior-Point
     // Method as a Perturbed Composite Newton Method", July, 1990.
     // http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
-    bool compositeNewton=false;
+    bool compositeNewton = false;
 
     // If the composite Newton method is to be used, typical formulae assume
     // that the correction involves a strictly feasible point. But this is
     // often a gross error for challenging systems (e.g., netlib/LP_data).
-    bool compositeNewtonAssumeFeasible=false;
+    bool compositeNewtonAssumeFeasible = false;
 
     // For determining the ratio of the amount to balance the affine and
     // correction updates. The other common option is
     // 'PredictorCorrectorCentrality'.
-    function<Real(Real,Real,Real,Real)>
-      centralityRule=StepLengthCentrality<Real>;
+    function<Real(Real,Real,Real,Real)> centralityRule =
+      StepLengthCentrality<Real>;
 
     // Use a simple shift for forcing cone membership during initialization?
-    bool standardInitShift=true;
+    bool standardInitShift = true;
 
     // Force the primal and dual step lengths to be the same size?
     // Allowing different step lengths can substantially decrease the number
     // of iterations for Linear Programming.
-    bool forceSameStep=false;
+    bool forceSameStep = false;
 
     // The controls for quasi-(semi)definite solves
     RegSolveCtrl<Real> solveCtrl;
 
     // Wrap the Interior Point Method with an equilibration.
     // This should almost always be set to true.
-    bool outerEquil=true;
+    bool outerEquil = true;
 
     // The size of the Krylov subspace used for loosely estimating two-norms of
     // sparse matrices.
     Int twoNormKrylovBasisSize = 6;
 
     // Print the progress of the Interior Point Method?
-    bool print=false;
+    bool print = false;
 
     // Time the components of the Interior Point Method?
-    bool time=false;
-
-    // A lower bound on the maximum entry in the Nesterov-Todd scaling point
-    // before ad-hoc procedures to enforce the cone constraints should be
-    // employed.
-    //
-    // DEPRECATED for LP's and QP's
-    Real wSafeMaxNorm=Pow(limits::Epsilon<Real>(),Real(-0.15));
-
-    // Equilibrating before factoring in the two-stage scheme can prevent the
-    // iterative solver from converging due to small errors in the equilibrated
-    // scale being very large (and of large rank) in the original scale.
-    // Further, equilibration in the single-stage scheme seems to lead to a few
-    // more iterations for PILOT87.
-    //
-    // DEPRECATED for LP's and QP's.
-    bool equilibrateIfSingleStage=false;
-
-    // If the Nesterov-Todd scaling point has an entry of magnitude greater than
-    // the following and the minimum tolerance has been achieved, simply stop
-    // and declare success. This is meant to prevent expensive (equilibrated)
-    // further steps which are too polluted with floating-point error to
-    // make substantial progress.
-    //
-    // DEPRECATED for LP's and QP's.
-    Real wMaxLimit=Pow(limits::Epsilon<Real>(),Real(-0.4));
-
-    // If the maximum entry in the NT scaling point is larger in magnitude than
-    // this value, then use Ruiz equilibration on the KKT system (with the
-    // specified limit on the number of iterations).
-    //
-    // DEPRECATED for LP's and QP's.
-    Real ruizEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.25));
-    Int ruizMaxIter=3;
-
-    // If Ruiz equilibration was not performed, but the max norm of the NT
-    // scaling point is larger than this value, then use diagonal equilibration
-    // for solving the KKT system.
-    //
-    // DEPRECATED for LP's and QP's.
-    Real diagEquilTol=Pow(limits::Epsilon<Real>(),Real(-0.15));
+    bool time = false;
 
     // Rather than solving the prescribed conic programs, we could add in
     // "small" amounts of permanent regularization for the primal and dual
@@ -218,19 +175,44 @@ struct IPMCtrl
     // that pivoting on the (s,s) block of the full KKT system divides by
     // 'z + Gamma_s (s - s_0)' rather than 'z'.
     //
-    Real xRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
-    Real yRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
-    Real zRegSmall = Pow(limits::Epsilon<Real>(),Real(0.8));
-    Real zMinPivotValue = Pow(limits::Epsilon<Real>(),Real(1.0));
+    Real xRegSmallLogEps = Real(0.8);
+    Real yRegSmallLogEps = Real(0.8);
+    Real zRegSmallLogEps = Real(0.8);
+    Real xRegLargeLogEps = Real(0.6);
+    Real yRegLargeLogEps = Real(0.6);
+    Real zRegLargeLogEps = Real(0.6);
+    // The convergence of 80BAU3B in double-precision (with the other
+    // parameters held fixed) is severely damaged if this value is set to
+    // something as strict as 1.0.
+    Real zMinPivotValueLogEps = Real(1.5);
 
-    // "Large" regularization for the primal and dual variables is typically
-    // used in the preconditioning phase in order to help solve a system that
-    // only involves "small" amounts of regularization. But if we continue to
-    // fail to solve with "small" amounts of regularization, we fall back to
-    // solving with "large" amounts.
-    Real xRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
-    Real yRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
-    Real zRegLarge = Pow(limits::Epsilon<Real>(),Real(0.6));
+    // If it turns out that the "large" regularization cannot be resolved,'
+    // we will increase it by the following factor at each iteration.
+    Real regIncreaseFactorLogEps = Real(-0.02);
+
+    // If the maximum ratio between the primary and dual variables exceeds this
+    // value, a centering step is taken instead of a predictor-corrector
+    // step.
+    Real maxComplementRatio = Real(1000);
+    bool softDualityTargets = true;
+    Real lowerTargetRatioLogCompRatio = Real(-0.25);
+    Real upperTargetRatioLogCompRatio = Real( 0.25);
+    Real lowerTargetRatioLogMaxCompRatio = Real(-0.6);
+    Real upperTargetRatioLogMaxCompRatio = Real( 0.6);
+
+    // When solving for the combined direction, previous iterates can be used
+    // to accurately estimate the norms of the x, y, and z portions of the
+    // solution to aid in rescaling. This variable bounds the maximal rescaling
+    // that we allow ourselves to perform there.
+    Real maxRescaleRatioLogEps = Real(-0.5);
+
+    // At each iteration, the primal and dual variables are rescaled so that
+    // they live within the following two-norm ranges.
+    Real primalNormLowerBound = Real(0.1);
+    Real primalNormUpperBound = Real(10);
+    Real dualNormLowerBound = Real(0.1);
+    Real dualNormUpperBound = Real(10);
+    Real backoffScalePower = Real(-0.5);
 
     // Initially attempt to solve with only the "small" regularization by
     // preconditioning with a factorization involving the "large"
@@ -239,20 +221,47 @@ struct IPMCtrl
     // "small" regularization level.
     //
     // DEPRECATED for LP's and QP's.
-    bool twoStage=false;
+    bool twoStage = false;
 
-    // If it turns out that the "large" regularization cannot be resolved,'
-    // we will increase it by the following factor at each iteration.
-    Real regIncreaseFactor = Pow(limits::Epsilon<Real>(),Real(-0.02));
+    // A lower bound on the maximum entry in the Nesterov-Todd scaling point
+    // before ad-hoc procedures to enforce the cone constraints should be
+    // employed.
+    //
+    // DEPRECATED for LP's and QP's
+    Real wSafeMaxNorm = Pow(limits::Epsilon<Real>(),Real(-0.15));
 
-    // If the maximum ratio between the primary and dual variables exceeds this
-    // value, a centering step is taken instead of a predictor-corrector
-    // step.
-    Real maxComplementRatio = Real(1000);
+    // Equilibrating before factoring in the two-stage scheme can prevent the
+    // iterative solver from converging due to small errors in the equilibrated
+    // scale being very large (and of large rank) in the original scale.
+    // Further, equilibration in the single-stage scheme seems to lead to a few
+    // more iterations for PILOT87.
+    //
+    // DEPRECATED for LP's and QP's.
+    bool equilibrateIfSingleStage = false;
 
-    bool softDualityTargets = true;
-    Real lowerTargetRatioLogCompRatio = Real(-0.25);
-    Real upperTargetRatioLogCompRatio = Real( 0.25);
+    // If the Nesterov-Todd scaling point has an entry of magnitude greater than
+    // the following and the minimum tolerance has been achieved, simply stop
+    // and declare success. This is meant to prevent expensive (equilibrated)
+    // further steps which are too polluted with floating-point error to
+    // make substantial progress.
+    //
+    // DEPRECATED for LP's and QP's.
+    Real wMaxLimit = Pow(limits::Epsilon<Real>(),Real(-0.4));
+
+    // If the maximum entry in the NT scaling point is larger in magnitude than
+    // this value, then use Ruiz equilibration on the KKT system (with the
+    // specified limit on the number of iterations).
+    //
+    // DEPRECATED for LP's and QP's.
+    Real ruizEquilTol = Pow(limits::Epsilon<Real>(),Real(-0.25));
+    Int ruizMaxIter = 3;
+
+    // If Ruiz equilibration was not performed, but the max norm of the NT
+    // scaling point is larger than this value, then use diagonal equilibration
+    // for solving the KKT system.
+    //
+    // DEPRECATED for LP's and QP's.
+    Real diagEquilTol = Pow(limits::Epsilon<Real>(),Real(-0.15));
 };
 
 // Alternating Direction Method of Multipliers

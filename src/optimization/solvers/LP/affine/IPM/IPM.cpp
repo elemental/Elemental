@@ -787,6 +787,7 @@ void EquilibratedIPM
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
     const Int degree = k;
+    const Real epsilon = limits::Epsilon<Real>();
 
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
@@ -926,9 +927,9 @@ void EquilibratedIPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -1160,6 +1161,7 @@ void EquilibratedIPM
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
     const Int degree = k;
+    const Real epsilon = limits::Epsilon<Real>();
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
 
@@ -1307,9 +1309,9 @@ void EquilibratedIPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -1656,7 +1658,6 @@ void BackOffEquilibration
   AffineLPState<Real>& state,
   AffineLPSolution<Matrix<Real>>& solution,
   SparseMatrix<Real>& JStatic,
-  Real backoffScalePower,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1705,13 +1706,13 @@ void BackOffEquilibration
     Ones( zScaleMultiple, k, 1 );
     for( Int i=0; i<n; ++i )
         xScaleMultiple(i) =
-          Pow( equilibration.xScale(i), backoffScalePower );
+          Pow( equilibration.xScale(i), ctrl.backoffScalePower );
     for( Int i=0; i<m; ++i )
         yScaleMultiple(i) =
-          Pow( equilibration.yScale(i), backoffScalePower );
+          Pow( equilibration.yScale(i), ctrl.backoffScalePower );
     for( Int i=0; i<k; ++i )
         zScaleMultiple(i) =
-          Pow( equilibration.zScale(i), backoffScalePower );
+          Pow( equilibration.zScale(i), ctrl.backoffScalePower );
 
     // Handle x rescaling (except for first-order optimality matrix)
     DiagonalSolve( LEFT, NORMAL, xScaleMultiple, solution.x );
@@ -1745,11 +1746,7 @@ void BackOffEquilibration
 
 template<typename Real>
 void NeutralizePrimalAndDualNorms
-( const Real& primalNormLowerBound,
-  const Real& primalNormUpperBound,
-  const Real& dualNormLowerBound,
-  const Real& dualNormUpperBound,
-  SparseAffineLPEquilibration<Real>& equilibration,
+( SparseAffineLPEquilibration<Real>& equilibration,
   AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
   AffineLPState<Real>& state,
   AffineLPSolution<Matrix<Real>>& solution,
@@ -1760,8 +1757,8 @@ void NeutralizePrimalAndDualNorms
     // Ensure that max( || x ||_2, || s ||_2 ) ~= 1.
     const Real primalNorm =
       Max( FrobeniusNorm(solution.x), FrobeniusNorm(solution.s) );
-    if( primalNorm < primalNormLowerBound ||
-        primalNorm > primalNormUpperBound )
+    if( primalNorm < ctrl.primalNormLowerBound ||
+        primalNorm > ctrl.primalNormUpperBound )
     {
         RescalePrimal
         ( primalNorm, equilibration, problem, solution, ctrl.print );
@@ -1772,8 +1769,8 @@ void NeutralizePrimalAndDualNorms
     // Ensure that max( || y ||_2, || z ||_2 ) ~= 1.
     const Real dualNorm =
       Max( FrobeniusNorm(solution.y), FrobeniusNorm(solution.z) );
-    if( dualNorm < dualNormLowerBound ||
-        dualNorm > dualNormUpperBound )
+    if( dualNorm < ctrl.dualNormLowerBound ||
+        dualNorm > ctrl.dualNormUpperBound )
     {
         RescaleDual
         ( dualNorm, equilibration, problem, solution, ctrl.print );
@@ -1901,8 +1898,6 @@ void UpdateCombinedDualConicResidualWithoutAffine
   const Real& mu,
   const Real& complementRatio,
   bool largeCompRatio,
-  const Real& lowerTargetRatioLogMaxCompRatio,
-  const Real& upperTargetRatioLogMaxCompRatio,
   const AffineLPSolution<Matrix<Real>>& solution,
         AffineLPResidual<Matrix<Real>>& residual,
   const IPMCtrl<Real>& ctrl )
@@ -1919,10 +1914,10 @@ void UpdateCombinedDualConicResidualWithoutAffine
           Pow(complementRatio,ctrl.upperTargetRatioLogCompRatio);
         lowerTargetRatio =
           Max( lowerTargetRatio,
-            Pow(ctrl.maxComplementRatio,lowerTargetRatioLogMaxCompRatio) );
+            Pow(ctrl.maxComplementRatio,ctrl.lowerTargetRatioLogMaxCompRatio) );
         upperTargetRatio =
           Min( upperTargetRatio,
-            Pow(ctrl.maxComplementRatio,upperTargetRatioLogMaxCompRatio) );
+            Pow(ctrl.maxComplementRatio,ctrl.upperTargetRatioLogMaxCompRatio) );
         if( ctrl.print )
             Output
             ("  lowerTargetRatio=",lowerTargetRatio,
@@ -2004,7 +1999,6 @@ bool AttemptToSolveForUpdateUsingScaling
         Real& dxCombinedNrm2Last,
         Real& dyCombinedNrm2Last,
         Real& dzCombinedNrm2Last,
-  const Real& maxRescaleRatioLogEps,
         Matrix<Real>& packedVector,
         AffineLPSolution<Matrix<Real>>& correction,
   const IPMCtrl<Real>& ctrl )
@@ -2032,7 +2026,7 @@ bool AttemptToSolveForUpdateUsingScaling
     Matrix<Real> diagonalScale;
     Zeros( diagonalScale, n+m+k, 1 );
     const Real maxRescaleRatio =
-      Pow(limits::Epsilon<Real>(),maxRescaleRatioLogEps);
+      Pow(limits::Epsilon<Real>(),ctrl.maxRescaleRatioLogEps);
     const Real baselineNrm2 =
       maxNrm2Last > maxRescaleRatio*minNrm2Last ?
       maxNrm2Last / maxRescaleRatio :
@@ -2151,6 +2145,8 @@ void CheckConvergence
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real zMinPivotValue = Pow(epsilon,ctrl.zMinPivotValueLogEps);
 
     // Form the unequlibrated approximate solution.
     AffineLPSolution<Matrix<Real>> origSolution;
@@ -2216,10 +2212,10 @@ void CheckConvergence
     Zeros( zPerturb, k, 1 );
     for( Int i=0; i<k; ++i )
     {
-        if( zPivot(i) < ctrl.zMinPivotValue )
+        if( zPivot(i) < zMinPivotValue )
         {
-            zPerturb(i) = ctrl.zMinPivotValue - zPivot(i);
-            zPivot(i) = ctrl.zMinPivotValue;
+            zPerturb(i) = zMinPivotValue - zPivot(i);
+            zPivot(i) = zMinPivotValue;
         }
     }
     const Real zPerturbNrm2 = FrobeniusNorm( zPerturb );
@@ -2254,14 +2250,17 @@ void CheckConvergence
     state.dimacsErrorOrig = Max(state.maxRelGapOrig,state.infeasError);
 
     state.metTolerances =
-      state.infeasError <= ctrl.infeasibilityTol &&
-      state.relCompGap <= ctrl.relativeComplementarityGapTol &&
-      state.relObjGap <= ctrl.relativeObjectiveGapTol;
+      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+      state.relCompGap <=
+        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      state.relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
 
     state.metTolerancesOrig =
       state.metTolerances &&
-      state.relCompGapOrig <= ctrl.relativeComplementarityGapTol &&
-      state.relObjGapOrig <= ctrl.relativeObjectiveGapTol;
+      state.relCompGapOrig <=
+        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      state.relObjGapOrig <=
+        Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
 
     state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
 
@@ -2397,20 +2396,10 @@ void EquilibratedIPM
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
     const Int degree = k;
-
-    // TODO(poulson): Expose these as control structure parameters.
-    const Real primalNormLowerBound = Real(0.1);
-    const Real primalNormUpperBound = Real(10);
-    const Real dualNormLowerBound = Real(0.1);
-    const Real dualNormUpperBound = Real(10);
-    //const Real backoffScalePower = Real(-0.2);
-    const Real backoffScalePower = Real(-0.5);
-    const Real maxRescaleRatioLogEps = Real(-0.5);
-    const Real lowerTargetRatioLogMaxCompRatio = Real(-0.6);
-    const Real upperTargetRatioLogMaxCompRatio = Real( 0.6);
-
-    if( ctrl.regIncreaseFactor <= Real(1) )
-        LogicError("Regularization increase factor must be at least 1");
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real regIncreaseFactor = Pow(epsilon,ctrl.regIncreaseFactorLogEps);
+    if( regIncreaseFactor <= Real(1) )
+        LogicError("Regularization increase factor must be > 1");
 
     AffineLPResidual<Matrix<Real>> residual, error;
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
@@ -2432,12 +2421,12 @@ void EquilibratedIPM
         Output("|| h ||_2 = ",state.hNrm2);
     }
 
-    const Real xRegSmall0 = origTwoNormEst*ctrl.xRegSmall;
-    const Real yRegSmall0 = origTwoNormEst*ctrl.yRegSmall;
-    const Real zRegSmall0 = origTwoNormEst*ctrl.zRegSmall;
-    const Real xRegLarge0 = origTwoNormEst*ctrl.xRegLarge;
-    const Real yRegLarge0 = origTwoNormEst*ctrl.yRegLarge;
-    const Real zRegLarge0 = origTwoNormEst*ctrl.zRegLarge;
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
     Real xRegLarge = xRegLarge0;
     Real yRegLarge = yRegLarge0;
     Real zRegLarge = zRegLarge0;
@@ -2488,11 +2477,11 @@ void EquilibratedIPM
         if( ctrl.print )
             Output
             ("Increasing large regularization by a factor of ",
-             ctrl.regIncreaseFactor);
-        regLarge *= ctrl.regIncreaseFactor;
-        xRegLarge *= ctrl.regIncreaseFactor;
-        yRegLarge *= ctrl.regIncreaseFactor;
-        zRegLarge *= ctrl.regIncreaseFactor;
+             regIncreaseFactor);
+        regLarge *= regIncreaseFactor;
+        xRegLarge *= regIncreaseFactor;
+        yRegLarge *= regIncreaseFactor;
+        zRegLarge *= regIncreaseFactor;
     };
 
     auto attemptToFactor = [&]() {
@@ -2536,13 +2525,10 @@ void EquilibratedIPM
         {
             Output("Calling BackOffEquilibration");
             BackOffEquilibration
-            ( equilibration, problem, state, solution, JStatic,
-              backoffScalePower, ctrl );
+            ( equilibration, problem, state, solution, JStatic, ctrl );
         }
         NeutralizePrimalAndDualNorms
-        ( primalNormLowerBound, primalNormUpperBound,
-          dualNormLowerBound, dualNormUpperBound,
-          equilibration, problem, state, solution, ctrl );
+        ( equilibration, problem, state, solution, ctrl );
         AssertPositiveOrthantMembership( solution );
 
         Matrix<Real> zPivot, zPerturb;
@@ -2691,8 +2677,6 @@ void EquilibratedIPM
             // ================================
             UpdateCombinedDualConicResidualWithoutAffine
             ( sigma, state.barrier, state.complementRatio, largeCompRatio,
-              lowerTargetRatioLogMaxCompRatio,
-              upperTargetRatioLogMaxCompRatio,
               solution, residual, ctrl );
             const bool solvedForCombined =
               AttemptToSolveForUpdate
@@ -2765,7 +2749,8 @@ void EquilibratedIPM
             // Solve for the combined direction
             // ================================
             const bool compositeNewton =
-              ctrl.compositeNewton && state.infeasError < ctrl.infeasibilityTol;
+              ctrl.compositeNewton &&
+              state.infeasError < Pow(epsilon,ctrl.infeasibilityTolLogEps);
             UpdateCombinedResidualUsingAffine
             ( sigma, state.barrier, problem,
               xRegSmall, yRegSmall, zRegSmall,
@@ -2777,7 +2762,6 @@ void EquilibratedIPM
               ( solution, state, JOrigScaled, regLargeScaled, sparseLDLFact,
                 zDoublePivot, residual,
                 dxCombinedNrm2Last, dyCombinedNrm2Last, dzCombinedNrm2Last,
-                maxRescaleRatioLogEps,
                 packedVector, correction, ctrl );
             if( !solvedForCombined )
             {
@@ -2950,9 +2934,10 @@ void EquilibratedIPM
     const Grid& grid = problem.A.Grid();
     const int commRank = grid.Rank();
     Timer timer;
-
-    if( ctrl.regIncreaseFactor <= Real(1) )
-        LogicError("Regularization increase factor must be at least 1");
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real regIncreaseFactor = Pow(epsilon,ctrl.regIncreaseFactorLogEps);
+    if( regIncreaseFactor <= Real(1) )
+        LogicError("Regularization increase factor must be > 1");
 
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
@@ -2978,17 +2963,30 @@ void EquilibratedIPM
         }
     }
 
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
+
     DistMultiVec<Real> regLarge(grid);
     regLarge.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
     {
         const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regLarge.SetLocal( iLoc, 0, ctrl.xRegLarge );
+          regLarge.SetLocal( iLoc, 0, xRegLarge );
         else if( i < n+m )
-          regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
+          regLarge.SetLocal( iLoc, 0, -yRegLarge );
         else
-          regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
+          regLarge.SetLocal( iLoc, 0, -zRegLarge );
     }
     regLarge *= origTwoNormEst;
 
@@ -2997,7 +2995,7 @@ void EquilibratedIPM
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( problem.A, problem.G,
-      Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+      Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
       JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
@@ -3166,9 +3164,9 @@ void EquilibratedIPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )

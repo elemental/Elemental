@@ -46,10 +46,8 @@ struct Ctrl
     Ctrl()
     {
         ipmCtrl.system = AUGMENTED_KKT;
-        ipmCtrl.relativeObjectiveGapTol =
-          Pow(limits::Epsilon<Real>(),Real(0.25));
-        ipmCtrl.relativeComplementarityGapTol =
-          Pow(limits::Epsilon<Real>(),Real(0.25));
+        ipmCtrl.relativeObjectiveGapTolLogEps = Real(0.25);
+        ipmCtrl.relativeComplementarityGapTolLogEps = Real(0.25);
     }
 };
 
@@ -78,10 +76,8 @@ struct Ctrl
 
     Ctrl()
     {
-        ipmCtrl.relativeObjectiveGapTol =
-          Pow(limits::Epsilon<Real>(),Real(0.25));
-        ipmCtrl.relativeComplementarityGapTol =
-          Pow(limits::Epsilon<Real>(),Real(0.25));
+        ipmCtrl.relativeObjectiveGapTolLogEps = Real(0.25);
+        ipmCtrl.relativeComplementarityGapTolLogEps = Real(0.25);
     }
 };
 

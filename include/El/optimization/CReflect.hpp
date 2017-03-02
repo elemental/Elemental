@@ -26,9 +26,10 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
     ctrlC.primalInit = ctrl.primalInit;
     ctrlC.dualInit = ctrl.dualInit;
 
-    ctrlC.infeasibilityTol = ctrl.infeasibilityTol;
-    ctrlC.relativeObjectiveGapTol = ctrl.relativeObjectiveGapTol;
-    ctrlC.relativeComplementarityGapTol = ctrl.relativeComplementarityGapTol;
+    ctrlC.infeasibilityTolLogEps = ctrl.infeasibilityTolLogEps;
+    ctrlC.relativeObjectiveGapTolLogEps = ctrl.relativeObjectiveGapTolLogEps;
+    ctrlC.relativeComplementarityGapTolLogEps =
+      ctrl.relativeComplementarityGapTolLogEps;
     ctrlC.minDimacsDecreaseRatio = ctrl.minDimacsDecreaseRatio;
 
     ctrlC.maxIts = ctrl.maxIts;
@@ -53,30 +54,42 @@ inline ElIPMCtrl_s CReflect( const IPMCtrl<float>& ctrl )
 
     ctrlC.print = ctrl.print;
     ctrlC.time = ctrl.time;
-    ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
 
-    ctrlC.equilibrateIfSingleStage = ctrl.equilibrateIfSingleStage;
-    ctrlC.wMaxLimit = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol = ctrl.diagEquilTol;
+    ctrlC.xRegSmallLogEps = ctrl.xRegSmallLogEps;
+    ctrlC.yRegSmallLogEps = ctrl.yRegSmallLogEps;
+    ctrlC.zRegSmallLogEps = ctrl.zRegSmallLogEps;
+    ctrlC.xRegLargeLogEps = ctrl.xRegLargeLogEps;
+    ctrlC.yRegLargeLogEps = ctrl.yRegLargeLogEps;
+    ctrlC.zRegLargeLogEps = ctrl.zRegLargeLogEps;
+    ctrlC.zMinPivotValueLogEps = ctrl.zMinPivotValueLogEps;
 
-    ctrlC.xRegSmall = ctrl.xRegSmall;
-    ctrlC.yRegSmall = ctrl.yRegSmall;
-    ctrlC.zRegSmall = ctrl.zRegSmall;
-    ctrlC.zMinPivotValue = ctrl.zMinPivotValue;
-
-    ctrlC.xRegLarge = ctrl.xRegLarge;
-    ctrlC.yRegLarge = ctrl.yRegLarge;
-    ctrlC.zRegLarge = ctrl.zRegLarge;
-
-    ctrlC.twoStage = ctrl.twoStage;
-    ctrlC.regIncreaseFactor = ctrl.regIncreaseFactor;
+    ctrlC.regIncreaseFactorLogEps = ctrl.regIncreaseFactorLogEps;
 
     ctrlC.maxComplementRatio = ctrl.maxComplementRatio;
     ctrlC.softDualityTargets = ctrl.softDualityTargets;
     ctrlC.lowerTargetRatioLogCompRatio = ctrl.lowerTargetRatioLogCompRatio;
     ctrlC.upperTargetRatioLogCompRatio = ctrl.upperTargetRatioLogCompRatio;
+    ctrlC.lowerTargetRatioLogMaxCompRatio =
+      ctrl.lowerTargetRatioLogMaxCompRatio;
+    ctrlC.upperTargetRatioLogMaxCompRatio =
+      ctrl.upperTargetRatioLogMaxCompRatio;
+
+    ctrlC.maxRescaleRatioLogEps = ctrl.maxRescaleRatioLogEps;
+
+    ctrlC.primalNormLowerBound = ctrl.primalNormLowerBound;
+    ctrlC.primalNormUpperBound = ctrl.primalNormUpperBound;
+    ctrlC.dualNormLowerBound = ctrl.dualNormLowerBound;
+    ctrlC.dualNormUpperBound = ctrl.dualNormUpperBound;
+    ctrlC.backoffScalePower = ctrl.backoffScalePower;
+
+    // Deprecated.
+    ctrlC.twoStage = ctrl.twoStage;
+    ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
+    ctrlC.equilibrateIfSingleStage = ctrl.equilibrateIfSingleStage;
+    ctrlC.wMaxLimit = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol = ctrl.diagEquilTol;
 
     return ctrlC;
 }
@@ -86,13 +99,14 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
     ctrlC.primalInit = ctrl.primalInit;
     ctrlC.dualInit = ctrl.dualInit;
 
-    ctrlC.infeasibilityTol = ctrl.infeasibilityTol;
-    ctrlC.relativeObjectiveGapTol = ctrl.relativeObjectiveGapTol;
-    ctrlC.relativeComplementarityGapTol = ctrl.relativeComplementarityGapTol;
+    ctrlC.infeasibilityTolLogEps = ctrl.infeasibilityTolLogEps;
+    ctrlC.relativeObjectiveGapTolLogEps = ctrl.relativeObjectiveGapTolLogEps;
+    ctrlC.relativeComplementarityGapTolLogEps =
+      ctrl.relativeComplementarityGapTolLogEps;
     ctrlC.minDimacsDecreaseRatio = ctrl.minDimacsDecreaseRatio;
 
     ctrlC.maxIts = ctrl.maxIts;
-    ctrlC.maxStepRatio = ctrl.maxStepRatio;
+    ctrlC.maxStepRatio  = ctrl.maxStepRatio;
     ctrlC.system = CReflect(ctrl.system);
     ctrlC.compositeNewton = ctrl.compositeNewton;
     ctrlC.compositeNewtonAssumeFeasible = ctrl.compositeNewtonAssumeFeasible;
@@ -113,30 +127,42 @@ inline ElIPMCtrl_d CReflect( const IPMCtrl<double>& ctrl )
 
     ctrlC.print = ctrl.print;
     ctrlC.time = ctrl.time;
-    ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
 
-    ctrlC.equilibrateIfSingleStage = ctrl.equilibrateIfSingleStage;
-    ctrlC.wMaxLimit = ctrl.wMaxLimit;
-    ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
-    ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
-    ctrlC.diagEquilTol = ctrl.diagEquilTol;
+    ctrlC.xRegSmallLogEps = ctrl.xRegSmallLogEps;
+    ctrlC.yRegSmallLogEps = ctrl.yRegSmallLogEps;
+    ctrlC.zRegSmallLogEps = ctrl.zRegSmallLogEps;
+    ctrlC.xRegLargeLogEps = ctrl.xRegLargeLogEps;
+    ctrlC.yRegLargeLogEps = ctrl.yRegLargeLogEps;
+    ctrlC.zRegLargeLogEps = ctrl.zRegLargeLogEps;
+    ctrlC.zMinPivotValueLogEps = ctrl.zMinPivotValueLogEps;
 
-    ctrlC.xRegSmall = ctrl.xRegSmall;
-    ctrlC.yRegSmall = ctrl.yRegSmall;
-    ctrlC.zRegSmall = ctrl.zRegSmall;
-    ctrlC.zMinPivotValue = ctrl.zMinPivotValue;
-
-    ctrlC.xRegLarge = ctrl.xRegLarge;
-    ctrlC.yRegLarge = ctrl.yRegLarge;
-    ctrlC.zRegLarge = ctrl.zRegLarge;
-
-    ctrlC.twoStage = ctrl.twoStage;
-    ctrlC.regIncreaseFactor = ctrl.regIncreaseFactor;
+    ctrlC.regIncreaseFactorLogEps = ctrl.regIncreaseFactorLogEps;
 
     ctrlC.maxComplementRatio = ctrl.maxComplementRatio;
     ctrlC.softDualityTargets = ctrl.softDualityTargets;
     ctrlC.lowerTargetRatioLogCompRatio = ctrl.lowerTargetRatioLogCompRatio;
     ctrlC.upperTargetRatioLogCompRatio = ctrl.upperTargetRatioLogCompRatio;
+    ctrlC.lowerTargetRatioLogMaxCompRatio =
+      ctrl.lowerTargetRatioLogMaxCompRatio;
+    ctrlC.upperTargetRatioLogMaxCompRatio =
+      ctrl.upperTargetRatioLogMaxCompRatio;
+
+    ctrlC.maxRescaleRatioLogEps = ctrl.maxRescaleRatioLogEps;
+
+    ctrlC.primalNormLowerBound = ctrl.primalNormLowerBound;
+    ctrlC.primalNormUpperBound = ctrl.primalNormUpperBound;
+    ctrlC.dualNormLowerBound = ctrl.dualNormLowerBound;
+    ctrlC.dualNormUpperBound = ctrl.dualNormUpperBound;
+    ctrlC.backoffScalePower = ctrl.backoffScalePower;
+
+    // Deprecated.
+    ctrlC.twoStage = ctrl.twoStage;
+    ctrlC.wSafeMaxNorm = ctrl.wSafeMaxNorm;
+    ctrlC.equilibrateIfSingleStage = ctrl.equilibrateIfSingleStage;
+    ctrlC.wMaxLimit = ctrl.wMaxLimit;
+    ctrlC.ruizEquilTol = ctrl.ruizEquilTol;
+    ctrlC.ruizMaxIter = ctrl.ruizMaxIter;
+    ctrlC.diagEquilTol = ctrl.diagEquilTol;
 
     return ctrlC;
 }
@@ -146,17 +172,20 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
     ctrl.primalInit = ctrlC.primalInit;
     ctrl.dualInit = ctrlC.dualInit;
 
-    ctrl.infeasibilityTol = ctrlC.infeasibilityTol;
-    ctrl.relativeObjectiveGapTol = ctrlC.relativeObjectiveGapTol;
-    ctrl.relativeComplementarityGapTol = ctrlC.relativeComplementarityGapTol;
+    ctrl.infeasibilityTolLogEps = ctrlC.infeasibilityTolLogEps;
+    ctrl.relativeObjectiveGapTolLogEps = ctrlC.relativeObjectiveGapTolLogEps;
+    ctrl.relativeComplementarityGapTolLogEps =
+      ctrlC.relativeComplementarityGapTolLogEps;
     ctrl.minDimacsDecreaseRatio = ctrlC.minDimacsDecreaseRatio;
 
     ctrl.maxIts = ctrlC.maxIts;
-    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.maxStepRatio  = ctrlC.maxStepRatio;
     ctrl.system = CReflect(ctrlC.system);
     ctrl.compositeNewton = ctrlC.compositeNewton;
     ctrl.compositeNewtonAssumeFeasible = ctrlC.compositeNewtonAssumeFeasible;
+
     ctrl.centralityRule = ctrlC.centralityRule;
+
     ctrl.standardInitShift = ctrlC.standardInitShift;
     ctrl.forceSameStep = ctrlC.forceSameStep;
     ctrl.solveCtrl = CReflect(ctrlC.solveCtrl);
@@ -166,30 +195,42 @@ inline IPMCtrl<float> CReflect( const ElIPMCtrl_s& ctrlC )
 
     ctrl.print = ctrlC.print;
     ctrl.time = ctrlC.time;
-    ctrl.wSafeMaxNorm = ctrlC.wSafeMaxNorm;
 
-    ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
-    ctrl.wMaxLimit = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol = ctrlC.diagEquilTol;
+    ctrl.xRegSmallLogEps = ctrlC.xRegSmallLogEps;
+    ctrl.yRegSmallLogEps = ctrlC.yRegSmallLogEps;
+    ctrl.zRegSmallLogEps = ctrlC.zRegSmallLogEps;
+    ctrl.xRegLargeLogEps = ctrlC.xRegLargeLogEps;
+    ctrl.yRegLargeLogEps = ctrlC.yRegLargeLogEps;
+    ctrl.zRegLargeLogEps = ctrlC.zRegLargeLogEps;
+    ctrl.zMinPivotValueLogEps = ctrlC.zMinPivotValueLogEps;
 
-    ctrl.xRegSmall = ctrlC.xRegSmall;
-    ctrl.yRegSmall = ctrlC.yRegSmall;
-    ctrl.zRegSmall = ctrlC.zRegSmall;
-    ctrl.zMinPivotValue = ctrlC.zMinPivotValue;
-
-    ctrl.xRegLarge = ctrlC.xRegLarge;
-    ctrl.yRegLarge = ctrlC.yRegLarge;
-    ctrl.zRegLarge = ctrlC.zRegLarge;
-
-    ctrl.twoStage = ctrlC.twoStage;
-    ctrl.regIncreaseFactor = ctrlC.regIncreaseFactor;
+    ctrl.regIncreaseFactorLogEps = ctrlC.regIncreaseFactorLogEps;
 
     ctrl.maxComplementRatio = ctrlC.maxComplementRatio;
     ctrl.softDualityTargets = ctrlC.softDualityTargets;
     ctrl.lowerTargetRatioLogCompRatio = ctrlC.lowerTargetRatioLogCompRatio;
     ctrl.upperTargetRatioLogCompRatio = ctrlC.upperTargetRatioLogCompRatio;
+    ctrl.lowerTargetRatioLogMaxCompRatio =
+      ctrlC.lowerTargetRatioLogMaxCompRatio;
+    ctrl.upperTargetRatioLogMaxCompRatio =
+      ctrlC.upperTargetRatioLogMaxCompRatio;
+
+    ctrl.maxRescaleRatioLogEps = ctrlC.maxRescaleRatioLogEps;
+
+    ctrl.primalNormLowerBound = ctrlC.primalNormLowerBound;
+    ctrl.primalNormUpperBound = ctrlC.primalNormUpperBound;
+    ctrl.dualNormLowerBound = ctrlC.dualNormLowerBound;
+    ctrl.dualNormUpperBound = ctrlC.dualNormUpperBound;
+    ctrl.backoffScalePower = ctrlC.backoffScalePower;
+
+    // Deprecated.
+    ctrl.twoStage = ctrlC.twoStage;
+    ctrl.wSafeMaxNorm = ctrlC.wSafeMaxNorm;
+    ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
+    ctrl.wMaxLimit = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol = ctrlC.diagEquilTol;
 
     return ctrl;
 }
@@ -199,17 +240,20 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
     ctrl.primalInit = ctrlC.primalInit;
     ctrl.dualInit = ctrlC.dualInit;
 
-    ctrl.infeasibilityTol = ctrlC.infeasibilityTol;
-    ctrl.relativeObjectiveGapTol = ctrlC.relativeObjectiveGapTol;
-    ctrl.relativeComplementarityGapTol = ctrlC.relativeComplementarityGapTol;
+    ctrl.infeasibilityTolLogEps = ctrlC.infeasibilityTolLogEps;
+    ctrl.relativeObjectiveGapTolLogEps = ctrlC.relativeObjectiveGapTolLogEps;
+    ctrl.relativeComplementarityGapTolLogEps =
+      ctrlC.relativeComplementarityGapTolLogEps;
     ctrl.minDimacsDecreaseRatio = ctrlC.minDimacsDecreaseRatio;
 
     ctrl.maxIts = ctrlC.maxIts;
-    ctrl.maxStepRatio = ctrlC.maxStepRatio;
+    ctrl.maxStepRatio  = ctrlC.maxStepRatio;
     ctrl.system = CReflect(ctrlC.system);
     ctrl.compositeNewton = ctrlC.compositeNewton;
     ctrl.compositeNewtonAssumeFeasible = ctrlC.compositeNewtonAssumeFeasible;
+
     ctrl.centralityRule = ctrlC.centralityRule;
+
     ctrl.standardInitShift = ctrlC.standardInitShift;
     ctrl.forceSameStep = ctrlC.forceSameStep;
     ctrl.solveCtrl = CReflect(ctrlC.solveCtrl);
@@ -219,30 +263,42 @@ inline IPMCtrl<double> CReflect( const ElIPMCtrl_d& ctrlC )
 
     ctrl.print = ctrlC.print;
     ctrl.time = ctrlC.time;
-    ctrl.wSafeMaxNorm = ctrlC.wSafeMaxNorm;
 
-    ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
-    ctrl.wMaxLimit = ctrlC.wMaxLimit;
-    ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
-    ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
-    ctrl.diagEquilTol = ctrlC.diagEquilTol;
+    ctrl.xRegSmallLogEps = ctrlC.xRegSmallLogEps;
+    ctrl.yRegSmallLogEps = ctrlC.yRegSmallLogEps;
+    ctrl.zRegSmallLogEps = ctrlC.zRegSmallLogEps;
+    ctrl.xRegLargeLogEps = ctrlC.xRegLargeLogEps;
+    ctrl.yRegLargeLogEps = ctrlC.yRegLargeLogEps;
+    ctrl.zRegLargeLogEps = ctrlC.zRegLargeLogEps;
+    ctrl.zMinPivotValueLogEps = ctrlC.zMinPivotValueLogEps;
 
-    ctrl.xRegSmall = ctrlC.xRegSmall;
-    ctrl.yRegSmall = ctrlC.yRegSmall;
-    ctrl.zRegSmall = ctrlC.zRegSmall;
-    ctrl.zMinPivotValue = ctrlC.zMinPivotValue;
-
-    ctrl.xRegLarge = ctrlC.xRegLarge;
-    ctrl.yRegLarge = ctrlC.yRegLarge;
-    ctrl.zRegLarge = ctrlC.zRegLarge;
-
-    ctrl.twoStage = ctrlC.twoStage;
-    ctrl.regIncreaseFactor = ctrlC.regIncreaseFactor;
+    ctrl.regIncreaseFactorLogEps = ctrlC.regIncreaseFactorLogEps;
 
     ctrl.maxComplementRatio = ctrlC.maxComplementRatio;
     ctrl.softDualityTargets = ctrlC.softDualityTargets;
     ctrl.lowerTargetRatioLogCompRatio = ctrlC.lowerTargetRatioLogCompRatio;
     ctrl.upperTargetRatioLogCompRatio = ctrlC.upperTargetRatioLogCompRatio;
+    ctrl.lowerTargetRatioLogMaxCompRatio =
+      ctrlC.lowerTargetRatioLogMaxCompRatio;
+    ctrl.upperTargetRatioLogMaxCompRatio =
+      ctrlC.upperTargetRatioLogMaxCompRatio;
+
+    ctrl.maxRescaleRatioLogEps = ctrlC.maxRescaleRatioLogEps;
+
+    ctrl.primalNormLowerBound = ctrlC.primalNormLowerBound;
+    ctrl.primalNormUpperBound = ctrlC.primalNormUpperBound;
+    ctrl.dualNormLowerBound = ctrlC.dualNormLowerBound;
+    ctrl.dualNormUpperBound = ctrlC.dualNormUpperBound;
+    ctrl.backoffScalePower = ctrlC.backoffScalePower;
+
+    // Deprecated.
+    ctrl.twoStage = ctrlC.twoStage;
+    ctrl.wSafeMaxNorm = ctrlC.wSafeMaxNorm;
+    ctrl.equilibrateIfSingleStage = ctrlC.equilibrateIfSingleStage;
+    ctrl.wMaxLimit = ctrlC.wMaxLimit;
+    ctrl.ruizEquilTol = ctrlC.ruizEquilTol;
+    ctrl.ruizMaxIter = ctrlC.ruizMaxIter;
+    ctrl.diagEquilTol = ctrlC.diagEquilTol;
 
     return ctrl;
 }
@@ -298,8 +354,7 @@ inline ADMMCtrl<double> CReflect( const ElADMMCtrl_d& ctrlC )
     return ctrl;
 }
 
-/* Linear programs
-   ^^^^^^^^^^^^^^^ */
+/* Linear programs ^^^^^^^^^^^^^^^ */
 inline ElLPApproach CReflect( LPApproach approach )
 { return static_cast<ElLPApproach>(approach); }
 inline LPApproach CReflect( ElLPApproach approach )

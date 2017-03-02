@@ -49,24 +49,27 @@ void DenseLoadAndSolve
         El::Print( problem.h, "h" );
     }
 
-    timer.Start();
+
     El::AffineLPSolution<El::Matrix<Real>> solution;
-    const Real eps = El::limits::Epsilon<Real>();
+
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = true;
     ctrl.ipmCtrl.outerEquil = outerEquil;
     ctrl.ipmCtrl.compositeNewton = compositeNewton;
-    ctrl.ipmCtrl.infeasibilityTol = El::Pow(eps,Real(infeasibilityTolLogEps));
-    ctrl.ipmCtrl.relativeObjectiveGapTol =
-      El::Pow(eps,Real(relativeObjectiveGapTolLogEps));
-    ctrl.ipmCtrl.relativeComplementarityGapTol =
-      El::Pow(eps,Real(relativeComplementarityGapTolLogEps));
-    ctrl.ipmCtrl.xRegLarge = El::Pow(eps,Real(xRegLargeLogEps));
-    ctrl.ipmCtrl.yRegLarge = El::Pow(eps,Real(yRegLargeLogEps));
-    ctrl.ipmCtrl.zRegLarge = El::Pow(eps,Real(zRegLargeLogEps));
-    ctrl.ipmCtrl.xRegSmall = El::Pow(eps,Real(xRegSmallLogEps));
-    ctrl.ipmCtrl.yRegSmall = El::Pow(eps,Real(yRegSmallLogEps));
-    ctrl.ipmCtrl.zRegSmall = El::Pow(eps,Real(zRegSmallLogEps));
+    ctrl.ipmCtrl.infeasibilityTolLogEps = Real(infeasibilityTolLogEps);
+    ctrl.ipmCtrl.relativeObjectiveGapTolLogEps =
+      Real(relativeObjectiveGapTolLogEps);
+    ctrl.ipmCtrl.relativeComplementarityGapTolLogEps =
+      Real(relativeComplementarityGapTolLogEps);
+    ctrl.ipmCtrl.xRegLargeLogEps = Real(xRegLargeLogEps);
+    ctrl.ipmCtrl.yRegLargeLogEps = Real(yRegLargeLogEps);
+    ctrl.ipmCtrl.zRegLargeLogEps = Real(zRegLargeLogEps);
+    ctrl.ipmCtrl.xRegSmallLogEps = Real(xRegSmallLogEps);
+    ctrl.ipmCtrl.yRegSmallLogEps = Real(yRegSmallLogEps);
+    ctrl.ipmCtrl.zRegSmallLogEps = Real(zRegSmallLogEps);
+    ctrl.ipmCtrl.zMinPivotValueLogEps = Real(1.5);
+
+    timer.Start();
     El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
@@ -124,35 +127,30 @@ void SparseLoadAndSolve
     }
 
     // We will wait to do any presolves until a fast mechanism exists for
-    // deleting empty from a sparse matrix.
+    // deleting entries from a sparse matrix.
 
     El::AffineLPSolution<El::Matrix<Real>> solution;
-    const Real eps = El::limits::Epsilon<Real>();
+
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = true;
     ctrl.ipmCtrl.outerEquil = outerEquil;
     ctrl.ipmCtrl.compositeNewton = compositeNewton;
-    ctrl.ipmCtrl.infeasibilityTol = El::Pow(eps,Real(infeasibilityTolLogEps));
-    ctrl.ipmCtrl.relativeObjectiveGapTol =
-      El::Pow(eps,Real(relativeObjectiveGapTolLogEps));
-    ctrl.ipmCtrl.relativeComplementarityGapTol =
-      El::Pow(eps,Real(relativeComplementarityGapTolLogEps));
-    ctrl.ipmCtrl.xRegLarge = El::Pow(eps,Real(xRegLargeLogEps));
-    ctrl.ipmCtrl.yRegLarge = El::Pow(eps,Real(yRegLargeLogEps));
-    ctrl.ipmCtrl.zRegLarge = El::Pow(eps,Real(zRegLargeLogEps));
-    ctrl.ipmCtrl.xRegSmall = El::Pow(eps,Real(xRegSmallLogEps));
-    ctrl.ipmCtrl.yRegSmall = El::Pow(eps,Real(yRegSmallLogEps));
-    ctrl.ipmCtrl.zRegSmall = El::Pow(eps,Real(zRegSmallLogEps));
+    ctrl.ipmCtrl.infeasibilityTolLogEps = Real(infeasibilityTolLogEps);
+    ctrl.ipmCtrl.relativeObjectiveGapTolLogEps =
+      Real(relativeObjectiveGapTolLogEps);
+    ctrl.ipmCtrl.relativeComplementarityGapTolLogEps =
+      Real(relativeComplementarityGapTolLogEps);
+    ctrl.ipmCtrl.xRegLargeLogEps = Real(xRegLargeLogEps);
+    ctrl.ipmCtrl.yRegLargeLogEps = Real(yRegLargeLogEps);
+    ctrl.ipmCtrl.zRegLargeLogEps = Real(zRegLargeLogEps);
+    ctrl.ipmCtrl.xRegSmallLogEps = Real(xRegSmallLogEps);
+    ctrl.ipmCtrl.yRegSmallLogEps = Real(yRegSmallLogEps);
+    ctrl.ipmCtrl.zRegSmallLogEps = Real(zRegSmallLogEps);
+    ctrl.ipmCtrl.zMinPivotValueLogEps = Real(1.5);
     ctrl.ipmCtrl.lowerTargetRatioLogCompRatio = lowerTargetRatioLogCompRatio;
     ctrl.ipmCtrl.upperTargetRatioLogCompRatio = upperTargetRatioLogCompRatio;
-    ctrl.ipmCtrl.solveCtrl.progress = false;
-    ctrl.ipmCtrl.zMinPivotValue = El::Pow(eps,Real(1.0));
-    El::Output("xRegLarge=",ctrl.ipmCtrl.xRegLarge);
-    El::Output("yRegLarge=",ctrl.ipmCtrl.yRegLarge);
-    El::Output("zRegLarge=",ctrl.ipmCtrl.zRegLarge);
-    El::Output("xRegSmall=",ctrl.ipmCtrl.xRegSmall);
-    El::Output("yRegSmall=",ctrl.ipmCtrl.yRegSmall);
-    El::Output("zRegSmall=",ctrl.ipmCtrl.zRegSmall);
+    ctrl.ipmCtrl.solveCtrl.progress = true;
+
     timer.Start();
     El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");

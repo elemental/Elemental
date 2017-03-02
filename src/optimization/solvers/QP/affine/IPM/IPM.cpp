@@ -73,6 +73,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto A = APre;
@@ -226,9 +227,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -409,6 +410,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
     const Grid& grid = APre.Grid();
     const int commRank = grid.Rank();
     Timer timer;
@@ -611,9 +613,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -825,6 +827,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
 
     // Equilibrate the QP by diagonally scaling [A;G]
     auto Q = QPre;
@@ -885,14 +888,27 @@ void IPM
         Output("|| h ||_2 = ",hNrm2);
     }
 
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
+
     // TODO(poulson): Expose regularization rules to user
     Matrix<Real> regLarge;
     regLarge.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regLarge(i) =  ctrl.xRegLarge;
-        else if( i < n+m ) regLarge(i) = -ctrl.yRegLarge;
-        else               regLarge(i) = -ctrl.zRegLarge;
+        if( i < n )        regLarge(i) =  xRegLarge;
+        else if( i < n+m ) regLarge(i) = -yRegLarge;
+        else               regLarge(i) = -zRegLarge;
     }
     regLarge *= origTwoNormEst;
 
@@ -900,7 +916,7 @@ void IPM
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( Q, A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+    ( Q, A, G, Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
       JStatic, false );
 
     SparseLDLFactorization<Real> sparseLDLFact;
@@ -1006,9 +1022,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )
@@ -1255,6 +1271,7 @@ void IPM
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
 
     //const Real selInvTol = Pow(eps,Real(-0.25));
     const Real selInvTol = 0;
@@ -1336,17 +1353,30 @@ void IPM
         }
     }
 
+    const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
+    const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
+    const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
+    const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
+    const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
+    const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
+    Real xRegLarge = xRegLarge0;
+    Real yRegLarge = yRegLarge0;
+    Real zRegLarge = zRegLarge0;
+    Real xRegSmall = xRegSmall0;
+    Real yRegSmall = yRegSmall0;
+    Real zRegSmall = zRegSmall0;
+
     DistMultiVec<Real> regLarge(grid);
     regLarge.Resize( n+m+k, 1 );
     for( Int iLoc=0; iLoc<regLarge.LocalHeight(); ++iLoc )
     {
         const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regLarge.SetLocal( iLoc, 0,  ctrl.xRegLarge );
+          regLarge.SetLocal( iLoc, 0,  xRegLarge );
         else if( i < n+m )
-          regLarge.SetLocal( iLoc, 0, -ctrl.yRegLarge );
+          regLarge.SetLocal( iLoc, 0, -yRegLarge );
         else
-          regLarge.SetLocal( iLoc, 0, -ctrl.zRegLarge );
+          regLarge.SetLocal( iLoc, 0, -zRegLarge );
     }
     regLarge *= origTwoNormEst;
 
@@ -1354,7 +1384,7 @@ void IPM
     // ============================================
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
-    ( Q, A, G, Sqrt(ctrl.xRegSmall), Sqrt(ctrl.yRegSmall), Sqrt(ctrl.zRegSmall),
+    ( Q, A, G, Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
       JStatic, false );
     JStatic.InitializeMultMeta();
     if( ctrl.print )
@@ -1473,9 +1503,9 @@ void IPM
         }
 
         const bool metTolerances =
-          infeasError <= ctrl.infeasibilityTol &&
-          relCompGap <= ctrl.relativeComplementarityGapTol &&
-          relObjGap <= ctrl.relativeObjectiveGapTol;
+          infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+          relCompGap <= Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+          relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
         if( metTolerances )
         {
             if( dimacsError >= ctrl.minDimacsDecreaseRatio*dimacsErrorOld )

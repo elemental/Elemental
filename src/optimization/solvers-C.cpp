@@ -16,14 +16,12 @@ extern "C" {
    ============== */
 ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
 {
-    const float eps = limits::Epsilon<float>();
-
     ctrl->primalInit = false;
     ctrl->dualInit = false;
 
-    ctrl->infeasibilityTol = Pow(eps,float(0.45));
-    ctrl->relativeObjectiveGapTol = Pow(eps,float(0.05));
-    ctrl->relativeComplementarityGapTol = Pow(eps,float(0.3));
+    ctrl->infeasibilityTolLogEps = 0.45f;
+    ctrl->relativeObjectiveGapTolLogEps = 0.05f;
+    ctrl->relativeComplementarityGapTolLogEps = 0.3f;
     ctrl->minDimacsDecreaseRatio = 0.99f;
 
     ctrl->maxIts = 100;
@@ -40,39 +38,53 @@ ElError ElIPMCtrlDefault_s( ElIPMCtrl_s* ctrl )
     ctrl->print = false;
     ctrl->time = false;
 
-    ctrl->wSafeMaxNorm = Pow(eps,float(-0.15));
+    ctrl->xRegSmallLogEps = 0.8f;
+    ctrl->yRegSmallLogEps = 0.8f;
+    ctrl->zRegSmallLogEps = 0.8f;
+    ctrl->xRegLargeLogEps = 0.6f;
+    ctrl->yRegLargeLogEps = 0.6f;
+    ctrl->zRegLargeLogEps = 0.6f;
+    ctrl->zMinPivotValueLogEps = 1.5f;
 
-    ctrl->equilibrateIfSingleStage = false;
-    ctrl->wMaxLimit = Pow(eps,float(-0.4));
-    ctrl->ruizEquilTol = Pow(eps,float(-0.25));
-    ctrl->ruizMaxIter = 3;
-    ctrl->diagEquilTol = Pow(eps,float(-0.15));
+    ctrl->regIncreaseFactorLogEps = -0.02f;
 
-    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,float(0.8));
-    ctrl->zMinPivotValue = eps;
-    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,float(0.6));
-    ctrl->twoStage = false;
-    ctrl->regIncreaseFactor = Pow(eps,float(-0.02));
-
-    ctrl->maxComplementRatio = float(1000);
+    ctrl->maxComplementRatio = 1000.f;
     ctrl->softDualityTargets = true;
-    ctrl->lowerTargetRatioLogCompRatio = float(-0.25);
-    ctrl->upperTargetRatioLogCompRatio = float( 0.25);
+    ctrl->lowerTargetRatioLogCompRatio = -0.25f;
+    ctrl->upperTargetRatioLogCompRatio =  0.25f;
+    ctrl->lowerTargetRatioLogMaxCompRatio = -0.6f;
+    ctrl->upperTargetRatioLogMaxCompRatio =  0.6f;
+
+    ctrl->maxRescaleRatioLogEps = -0.5f;
+
+    ctrl->primalNormLowerBound = 0.1f;
+    ctrl->primalNormUpperBound = 10.f;
+    ctrl->dualNormLowerBound = 0.1f;
+    ctrl->dualNormUpperBound = 10.f;
+    ctrl->backoffScalePower = -0.5f;
+
+    /* Deprecated */
+    const float eps = limits::Epsilon<float>();
+    ctrl->twoStage = false;
+    ctrl->wSafeMaxNorm = Pow(eps,-0.15f);
+    ctrl->equilibrateIfSingleStage = false;
+    ctrl->wMaxLimit = Pow(eps,-0.4f);
+    ctrl->ruizEquilTol = Pow(eps,-0.25f);
+    ctrl->ruizMaxIter = 3;
+    ctrl->diagEquilTol = Pow(eps,-0.15f);
 
     return EL_SUCCESS;
 }
 
 ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
 {
-    const double eps = limits::Epsilon<double>();
-
     ctrl->primalInit = false;
     ctrl->dualInit = false;
 
-    ctrl->infeasibilityTol = Pow(eps,double(0.45));
-    ctrl->relativeObjectiveGapTol = Pow(eps,double(0.05));
-    ctrl->relativeComplementarityGapTol = Pow(eps,double(0.3));
-    ctrl->minDimacsDecreaseRatio = 0.99;
+    ctrl->infeasibilityTolLogEps = 0.45;
+    ctrl->relativeObjectiveGapTolLogEps = 0.05;
+    ctrl->relativeComplementarityGapTolLogEps = 0.3;
+    ctrl->minDimacsDecreaseRatio = 0.99f;
 
     ctrl->maxIts = 100;
     ctrl->maxStepRatio = 0.99;
@@ -88,24 +100,40 @@ ElError ElIPMCtrlDefault_d( ElIPMCtrl_d* ctrl )
     ctrl->print = false;
     ctrl->time = false;
 
-    ctrl->wSafeMaxNorm = Pow(eps,double(-0.15));
+    ctrl->xRegSmallLogEps = 0.8;
+    ctrl->yRegSmallLogEps = 0.8;
+    ctrl->zRegSmallLogEps = 0.8;
+    ctrl->xRegLargeLogEps = 0.6;
+    ctrl->yRegLargeLogEps = 0.6;
+    ctrl->zRegLargeLogEps = 0.6;
+    ctrl->zMinPivotValueLogEps = 1.5;
 
-    ctrl->equilibrateIfSingleStage = false;
-    ctrl->wMaxLimit = Pow(eps,double(-0.4));
-    ctrl->ruizEquilTol = Pow(eps,double(-0.25));
-    ctrl->ruizMaxIter = 3;
-    ctrl->diagEquilTol = Pow(eps,double(-0.15));
+    ctrl->regIncreaseFactorLogEps = -0.02;
 
-    ctrl->xRegSmall = ctrl->yRegSmall = ctrl->zRegSmall = Pow(eps,double(0.8));
-    ctrl->zMinPivotValue = eps;
-    ctrl->xRegLarge = ctrl->yRegLarge = ctrl->zRegLarge = Pow(eps,double(0.6));
-    ctrl->twoStage = false;
-    ctrl->regIncreaseFactor = Pow(eps,double(-0.02));
-
-    ctrl->maxComplementRatio = double(1000);
+    ctrl->maxComplementRatio = 1000.;
     ctrl->softDualityTargets = true;
-    ctrl->lowerTargetRatioLogCompRatio = double(-0.25);
-    ctrl->upperTargetRatioLogCompRatio = double( 0.25);
+    ctrl->lowerTargetRatioLogCompRatio = -0.25;
+    ctrl->upperTargetRatioLogCompRatio =  0.25;
+    ctrl->lowerTargetRatioLogMaxCompRatio = -0.6;
+    ctrl->upperTargetRatioLogMaxCompRatio =  0.6;
+
+    ctrl->maxRescaleRatioLogEps = -0.5;
+
+    ctrl->primalNormLowerBound = 0.1;
+    ctrl->primalNormUpperBound = 10.;
+    ctrl->dualNormLowerBound = 0.1;
+    ctrl->dualNormUpperBound = 10.;
+    ctrl->backoffScalePower = -0.5;
+
+    /* Deprecated */
+    const double eps = limits::Epsilon<double>();
+    ctrl->twoStage = false;
+    ctrl->wSafeMaxNorm = Pow(eps,-0.15);
+    ctrl->equilibrateIfSingleStage = false;
+    ctrl->wMaxLimit = Pow(eps,-0.4);
+    ctrl->ruizEquilTol = Pow(eps,-0.25);
+    ctrl->ruizMaxIter = 3;
+    ctrl->diagEquilTol = Pow(eps,-0.15);
 
     return EL_SUCCESS;
 }
@@ -228,9 +256,6 @@ ElError ElSOCPDirectCtrlDefault_s( ElSOCPDirectCtrl_s* ctrl )
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_s( &ctrl->ipmCtrl );
     ctrl->ipmCtrl.system = EL_AUGMENTED_KKT;
-    ctrl->ipmCtrl.infeasibilityTol = 1e-4;
-    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-2;
-    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-2;
     return EL_SUCCESS;
 }
 
@@ -239,9 +264,6 @@ ElError ElSOCPDirectCtrlDefault_d( ElSOCPDirectCtrl_d* ctrl )
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_d( &ctrl->ipmCtrl );
     ctrl->ipmCtrl.system = EL_AUGMENTED_KKT;
-    ctrl->ipmCtrl.infeasibilityTol = 1e-8;
-    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-4;
-    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-4;
     return EL_SUCCESS;
 }
 
@@ -251,9 +273,6 @@ ElError ElSOCPAffineCtrlDefault_s( ElSOCPAffineCtrl_s* ctrl )
 {
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_s( &ctrl->ipmCtrl );
-    ctrl->ipmCtrl.infeasibilityTol = 1e-4;
-    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-2;
-    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-2;
     return EL_SUCCESS;
 }
 
@@ -261,9 +280,6 @@ ElError ElSOCPAffineCtrlDefault_d( ElSOCPAffineCtrl_d* ctrl )
 {
     ctrl->approach = EL_SOCP_IPM;
     ElIPMCtrlDefault_d( &ctrl->ipmCtrl );
-    ctrl->ipmCtrl.infeasibilityTol = 1e-8;
-    ctrl->ipmCtrl.relativeObjectiveGapTol = 1e-4;
-    ctrl->ipmCtrl.relativeComplementarityGapTol = 1e-4;
     return EL_SUCCESS;
 }
 
