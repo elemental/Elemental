@@ -259,6 +259,13 @@ struct AffineLPState
     Real barrier=Real(0.1);
     Real barrierOld=Real(0.1);
 
+    Real xRegSmall;
+    Real yRegSmall;
+    Real zRegSmall;
+    Real xRegLarge;
+    Real yRegLarge;
+    Real zRegLarge;
+
     Real cNrm2;
     Real bNrm2;
     Real hNrm2;
@@ -313,6 +320,1423 @@ struct AffineLPState
 
     bool backingOffEquilibration=false;
 };
+
+template<typename Real>
+void RescalePrimal
+( const Real& primalScale,
+  DenseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  AffineLPSolution<Matrix<Real>>& solution,
+  bool print )
+{
+    EL_DEBUG_CSE
+    equilibration.primalScale *= primalScale;
+    if( print )
+        Output
+        ("primal /= ",primalScale," (total is ",
+         equilibration.primalScale,")");
+    problem.b *= Real(1)/primalScale;
+    problem.h *= Real(1)/primalScale;
+    solution.x *= Real(1)/primalScale;
+    solution.s *= Real(1)/primalScale;
+}
+
+template<typename Real>
+void RescalePrimal
+( const Real& primalScale,
+  SparseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  AffineLPSolution<Matrix<Real>>& solution,
+  bool print )
+{
+    EL_DEBUG_CSE
+    equilibration.primalScale *= primalScale;
+    if( print )
+        Output
+        ("primal /= ",primalScale," (total is ",
+         equilibration.primalScale,")");
+    problem.b *= Real(1)/primalScale;
+    problem.h *= Real(1)/primalScale;
+    solution.x *= Real(1)/primalScale;
+    solution.s *= Real(1)/primalScale;
+}
+
+template<typename Real>
+void RescaleDual
+( const Real& dualScale,
+  DenseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  AffineLPSolution<Matrix<Real>>& solution,
+  bool print )
+{
+    equilibration.dualScale *= dualScale;
+    if( print )
+        Output
+        ("dual /= ",dualScale," (total is ",equilibration.dualScale,")");
+    problem.c *= Real(1)/dualScale;
+    solution.y *= Real(1)/dualScale;
+    solution.z *= Real(1)/dualScale;
+}
+
+template<typename Real>
+void RescaleDual
+( const Real& dualScale,
+  SparseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  AffineLPSolution<Matrix<Real>>& solution,
+  bool print )
+{
+    equilibration.dualScale *= dualScale;
+    if( print )
+        Output
+        ("dual /= ",dualScale," (total is ",equilibration.dualScale,")");
+    problem.c *= Real(1)/dualScale;
+    solution.y *= Real(1)/dualScale;
+    solution.z *= Real(1)/dualScale;
+}
+
+template<typename Real>
+void RescaleKKTButNotRegularization
+( const Matrix<Real>& xScale,
+  const Matrix<Real>& yScale,
+  const Matrix<Real>& zScale,
+        Matrix<Real>& J )
+{
+    EL_DEBUG_CSE
+    const Int n = xScale.Height();
+    const Int m = yScale.Height();
+    const Int k = zScale.Height();
+    Real* JBuf = J.Buffer();
+    const Int JLDim = J.LDim();
+    for( Int col=0; col<n+m+k; ++col )
+    {
+        for( Int row=0; row<n+m+k; ++row )
+        {
+            Real& value = JBuf[row+col*JLDim];
+            // | 0 A^T G^T |
+            // | A  0   0  |
+            // | G  0   0  |
+            if( row < n )
+            {
+                if( col >= n && col < n+m )
+                {
+                    // A^T block
+                    value *= yScale(col-n) * xScale(row);
+                }
+                else if( col >= n+m )
+                {
+                    // G^T block
+                    value *= zScale(col-(n+m)) * xScale(row);
+                }
+            }
+            else if( row < n+m )
+            {
+                if( col < n )
+                {
+                    // A block
+                    value *= xScale(col) * yScale(row-n);
+                }
+            }
+            else
+            {
+                if( col < n )
+                {
+                    // G block
+                    value *= xScale(col) * zScale(row-(n+m));
+                }
+            }
+        }
+    }
+}
+
+template<typename Real>
+void RescaleKKTButNotRegularization
+( const Matrix<Real>& xScale,
+  const Matrix<Real>& yScale,
+  const Matrix<Real>& zScale,
+        SparseMatrix<Real>& J )
+{
+    EL_DEBUG_CSE
+    const Int n = xScale.Height();
+    const Int m = yScale.Height();
+    Real* valBuf = J.ValueBuffer();
+    const Int numEntries = J.NumEntries();
+    for( Int index=0; index<numEntries; ++index )
+    {
+        const Int row = J.Row(index);
+        const Int col = J.Col(index);
+        Real& value = valBuf[index];
+        // | 0 A^T G^T |
+        // | A  0   0  |
+        // | G  0   0  |
+        if( row < n )
+        {
+            if( col >= n && col < n+m )
+            {
+                // A^T block
+                value *= yScale(col-n) * xScale(row);
+            }
+            else if( col >= n+m )
+            {
+                // G^T block
+                value *= zScale(col-(n+m)) * xScale(row);
+            }
+        }
+        else if( row < n+m )
+        {
+            if( col < n )
+            {
+                // A block
+                value *= xScale(col) * yScale(row-n);
+            }
+        }
+        else
+        {
+            if( col < n )
+            {
+                // G block
+                value *= xScale(col) * zScale(row-(n+m));
+            }
+        }
+    }
+}
+
+template<typename Real>
+void BackOffEquilibration
+( DenseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  AffineLPState<Real>& state,
+  AffineLPSolution<Matrix<Real>>& solution,
+  Matrix<Real>& JStatic,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Real xScaleMin = Min( equilibration.xScale );
+    const Real yScaleMin = Min( equilibration.yScale );
+    const Real zScaleMin = Min( equilibration.zScale );
+    const Real xScaleMax = MaxNorm( equilibration.xScale );
+    const Real yScaleMax = MaxNorm( equilibration.yScale );
+    const Real zScaleMax = MaxNorm( equilibration.zScale );
+    if( xScaleMin == xScaleMax &&
+        yScaleMin == yScaleMax &&
+        zScaleMin == zScaleMax )
+        return;
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Int k = problem.G.Height();
+
+    if( ctrl.print )
+    {
+        Output
+        ("Backing off with "
+         "  primalScale = ",equilibration.primalScale,
+         ", dualScale = ",equilibration.dualScale,
+         "  || xScale ||_min = ",xScaleMin,
+         ", || yScale ||_min = ",yScaleMin,
+         ", || zScale ||_min = ",zScaleMin,
+         "  || xScale ||_max = ",xScaleMax,
+         ", || yScale ||_max = ",yScaleMax,
+         ", || zScale ||_max = ",zScaleMax);
+    }
+
+    // Force || xScale ||_max =
+    //       max(|| yScale ||_max,|| zScale ||_max) = 1
+    // by absorbing into primalScale and dualScale.
+    const Real primalRescaling = xScaleMax;
+    const Real dualRescaling = Max(yScaleMax,zScaleMax);
+    equilibration.xScale *= Real(1)/primalRescaling;
+    equilibration.yScale *= Real(1)/dualRescaling;
+    equilibration.zScale *= Real(1)/dualRescaling;
+    equilibration.primalScale *= primalRescaling;
+    equilibration.dualScale *= dualRescaling;
+
+    Matrix<Real> xScaleMultiple, yScaleMultiple, zScaleMultiple;
+    Ones( xScaleMultiple, n, 1 );
+    Ones( yScaleMultiple, m, 1 );
+    Ones( zScaleMultiple, k, 1 );
+    for( Int i=0; i<n; ++i )
+        xScaleMultiple(i) =
+          Pow( equilibration.xScale(i), ctrl.backoffScalePower );
+    for( Int i=0; i<m; ++i )
+        yScaleMultiple(i) =
+          Pow( equilibration.yScale(i), ctrl.backoffScalePower );
+    for( Int i=0; i<k; ++i )
+        zScaleMultiple(i) =
+          Pow( equilibration.zScale(i), ctrl.backoffScalePower );
+
+    // Handle x rescaling (except for first-order optimality matrix)
+    DiagonalSolve( LEFT, NORMAL, xScaleMultiple, solution.x );
+    DiagonalScale
+    ( LEFT, NORMAL, xScaleMultiple, equilibration.xScale );
+    DiagonalScale( LEFT, NORMAL, xScaleMultiple, problem.c );
+    state.cNrm2 = FrobeniusNorm( problem.c );
+    DiagonalScale( RIGHT, NORMAL, xScaleMultiple, problem.A );
+    DiagonalScale( RIGHT, NORMAL, xScaleMultiple, problem.G );
+
+    // Handle y rescaling (except for first-order optimality matrix)
+    DiagonalSolve( LEFT, NORMAL, yScaleMultiple, solution.y );
+    DiagonalScale
+    ( LEFT, NORMAL, yScaleMultiple, equilibration.yScale );
+    DiagonalScale( LEFT, NORMAL, yScaleMultiple, problem.A );
+    DiagonalScale( LEFT, NORMAL, yScaleMultiple, problem.b );
+    state.bNrm2 = FrobeniusNorm( problem.b );
+
+    // Handle z rescaling (except for first-order optimality matrix)
+    DiagonalScale( LEFT, NORMAL, zScaleMultiple, solution.s );
+    DiagonalSolve( LEFT, NORMAL, zScaleMultiple, solution.z );
+    DiagonalScale
+    ( LEFT, NORMAL, zScaleMultiple, equilibration.zScale );
+    DiagonalScale( LEFT, NORMAL, zScaleMultiple, problem.G );
+    DiagonalScale( LEFT, NORMAL, zScaleMultiple, problem.h );
+    state.hNrm2 = FrobeniusNorm( problem.h );
+
+    RescaleKKTButNotRegularization
+    ( xScaleMultiple, yScaleMultiple, zScaleMultiple, JStatic );
+}
+
+template<typename Real>
+void BackOffEquilibration
+( SparseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  AffineLPState<Real>& state,
+  AffineLPSolution<Matrix<Real>>& solution,
+  SparseMatrix<Real>& JStatic,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Real xScaleMin = Min( equilibration.xScale );
+    const Real yScaleMin = Min( equilibration.yScale );
+    const Real zScaleMin = Min( equilibration.zScale );
+    const Real xScaleMax = MaxNorm( equilibration.xScale );
+    const Real yScaleMax = MaxNorm( equilibration.yScale );
+    const Real zScaleMax = MaxNorm( equilibration.zScale );
+    if( xScaleMin == xScaleMax &&
+        yScaleMin == yScaleMax &&
+        zScaleMin == zScaleMax )
+        return;
+    const Int m = problem.A.Height();
+    const Int n = problem.A.Width();
+    const Int k = problem.G.Height();
+
+    if( ctrl.print )
+    {
+        Output
+        ("Backing off with "
+         "  primalScale = ",equilibration.primalScale,
+         ", dualScale = ",equilibration.dualScale,
+         "  || xScale ||_min = ",xScaleMin,
+         ", || yScale ||_min = ",yScaleMin,
+         ", || zScale ||_min = ",zScaleMin,
+         "  || xScale ||_max = ",xScaleMax,
+         ", || yScale ||_max = ",yScaleMax,
+         ", || zScale ||_max = ",zScaleMax);
+    }
+
+    // Force || xScale ||_max =
+    //       max(|| yScale ||_max,|| zScale ||_max) = 1
+    // by absorbing into primalScale and dualScale.
+    const Real primalRescaling = xScaleMax;
+    const Real dualRescaling = Max(yScaleMax,zScaleMax);
+    equilibration.xScale *= Real(1)/primalRescaling;
+    equilibration.yScale *= Real(1)/dualRescaling;
+    equilibration.zScale *= Real(1)/dualRescaling;
+    equilibration.primalScale *= primalRescaling;
+    equilibration.dualScale *= dualRescaling;
+
+    Matrix<Real> xScaleMultiple, yScaleMultiple, zScaleMultiple;
+    Ones( xScaleMultiple, n, 1 );
+    Ones( yScaleMultiple, m, 1 );
+    Ones( zScaleMultiple, k, 1 );
+    for( Int i=0; i<n; ++i )
+        xScaleMultiple(i) =
+          Pow( equilibration.xScale(i), ctrl.backoffScalePower );
+    for( Int i=0; i<m; ++i )
+        yScaleMultiple(i) =
+          Pow( equilibration.yScale(i), ctrl.backoffScalePower );
+    for( Int i=0; i<k; ++i )
+        zScaleMultiple(i) =
+          Pow( equilibration.zScale(i), ctrl.backoffScalePower );
+
+    // Handle x rescaling (except for first-order optimality matrix)
+    DiagonalSolve( LEFT, NORMAL, xScaleMultiple, solution.x );
+    DiagonalScale
+    ( LEFT, NORMAL, xScaleMultiple, equilibration.xScale );
+    DiagonalScale( LEFT, NORMAL, xScaleMultiple, problem.c );
+    state.cNrm2 = FrobeniusNorm( problem.c );
+    DiagonalScale( RIGHT, NORMAL, xScaleMultiple, problem.A );
+    DiagonalScale( RIGHT, NORMAL, xScaleMultiple, problem.G );
+
+    // Handle y rescaling (except for first-order optimality matrix)
+    DiagonalSolve( LEFT, NORMAL, yScaleMultiple, solution.y );
+    DiagonalScale
+    ( LEFT, NORMAL, yScaleMultiple, equilibration.yScale );
+    DiagonalScale( LEFT, NORMAL, yScaleMultiple, problem.A );
+    DiagonalScale( LEFT, NORMAL, yScaleMultiple, problem.b );
+    state.bNrm2 = FrobeniusNorm( problem.b );
+
+    // Handle z rescaling (except for first-order optimality matrix)
+    DiagonalScale( LEFT, NORMAL, zScaleMultiple, solution.s );
+    DiagonalSolve( LEFT, NORMAL, zScaleMultiple, solution.z );
+    DiagonalScale
+    ( LEFT, NORMAL, zScaleMultiple, equilibration.zScale );
+    DiagonalScale( LEFT, NORMAL, zScaleMultiple, problem.G );
+    DiagonalScale( LEFT, NORMAL, zScaleMultiple, problem.h );
+    state.hNrm2 = FrobeniusNorm( problem.h );
+
+    RescaleKKTButNotRegularization
+    ( xScaleMultiple, yScaleMultiple, zScaleMultiple, JStatic );
+}
+
+template<typename Real>
+void NeutralizePrimalAndDualNorms
+( DenseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  AffineLPState<Real>& state,
+  AffineLPSolution<Matrix<Real>>& solution,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+
+    // Ensure that max( || x ||_2, || s ||_2 ) ~= 1.
+    const Real primalNorm =
+      Max( FrobeniusNorm(solution.x), FrobeniusNorm(solution.s) );
+    if( primalNorm < ctrl.primalNormLowerBound ||
+        primalNorm > ctrl.primalNormUpperBound )
+    {
+        RescalePrimal
+        ( primalNorm, equilibration, problem, solution, ctrl.print );
+        state.bNrm2 *= Real(1)/primalNorm;
+        state.hNrm2 *= Real(1)/primalNorm;
+    }
+
+    // Ensure that max( || y ||_2, || z ||_2 ) ~= 1.
+    const Real dualNorm =
+      Max( FrobeniusNorm(solution.y), FrobeniusNorm(solution.z) );
+    if( dualNorm < ctrl.dualNormLowerBound ||
+        dualNorm > ctrl.dualNormUpperBound )
+    {
+        RescaleDual
+        ( dualNorm, equilibration, problem, solution, ctrl.print );
+        state.cNrm2 *= Real(1)/dualNorm;
+    }
+}
+
+template<typename Real>
+void NeutralizePrimalAndDualNorms
+( SparseAffineLPEquilibration<Real>& equilibration,
+  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  AffineLPState<Real>& state,
+  AffineLPSolution<Matrix<Real>>& solution,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+
+    // Ensure that max( || x ||_2, || s ||_2 ) ~= 1.
+    const Real primalNorm =
+      Max( FrobeniusNorm(solution.x), FrobeniusNorm(solution.s) );
+    if( primalNorm < ctrl.primalNormLowerBound ||
+        primalNorm > ctrl.primalNormUpperBound )
+    {
+        RescalePrimal
+        ( primalNorm, equilibration, problem, solution, ctrl.print );
+        state.bNrm2 *= Real(1)/primalNorm;
+        state.hNrm2 *= Real(1)/primalNorm;
+    }
+
+    // Ensure that max( || y ||_2, || z ||_2 ) ~= 1.
+    const Real dualNorm =
+      Max( FrobeniusNorm(solution.y), FrobeniusNorm(solution.z) );
+    if( dualNorm < ctrl.dualNormLowerBound ||
+        dualNorm > ctrl.dualNormUpperBound )
+    {
+        RescaleDual
+        ( dualNorm, equilibration, problem, solution, ctrl.print );
+        state.cNrm2 *= Real(1)/dualNorm;
+    }
+}
+
+template<typename Real>
+void AssertPositiveOrthantMembership
+( const AffineLPSolution<Matrix<Real>>& solution )
+{
+    EL_DEBUG_CSE
+    const Int sNumNonPos = pos_orth::NumOutside( solution.s );
+    const Int zNumNonPos = pos_orth::NumOutside( solution.z );
+    if( sNumNonPos > 0 || zNumNonPos > 0 )
+        LogicError
+        (sNumNonPos," entries of s were nonpositive and ",
+         zNumNonPos," entries of z were nonpositive");
+}
+
+template<typename Real>
+void UpdateCombinedResidualUsingAffine
+( const Real& sigma,
+  const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  const AffineLPState<Real>& state,
+  const AffineLPSolution<Matrix<Real>>& solution,
+  const AffineLPSolution<Matrix<Real>>& affineCorrection,
+        AffineLPResidual<Matrix<Real>>& residual,
+  bool compositeNewton )
+{
+    EL_DEBUG_CSE
+    Shift( residual.dualConic, -sigma*state.barrier );
+    // Use the interpretation of Section 2 of [CITATION]
+    //
+    //   R.A. Tapia, Y. Zhang, M. Saltzman, and A. Weiser's
+    //   "The Mehrotra Predictor-Corrector Interior-Point Method as a
+    //   Perturbed Composite Newton Method", July, 1990
+    //   http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
+    //
+    // as a means of generalizing the classic Mehrotra predictor-corrector
+    // to approximate feasibility by updating with
+    // F(solution+affineCorrection) rather than (0,0,0,dsAff o dzAff).
+    //
+    // With that said, it appears that neither the original or generalized
+    // algorithm is generally helpful on the netlib/LP_data examples
+    // (at least, on top of the current regularization and dynamic scaling).
+    //
+    const bool infeasibleCompositeNewton = true;
+    if( compositeNewton && infeasibleCompositeNewton )
+    {
+        Matrix<Real> input, update;
+
+        // residual.primalEquality +=
+        //   A (x + dxAff) - b - (yRegSmall + yRegLarge) dyAff
+        Zeros( update, problem.A.Height(), 1 );
+        input = solution.x;
+        input += affineCorrection.x;
+        Gemv( NORMAL, Real(1), problem.A, input, Real(1), update );
+        Axpy( Real(-1), problem.b, update );
+        Axpy( -state.yRegSmall-state.yRegLarge, affineCorrection.y, update );
+        const Real primalEqualityUpdateNrm2 = FrobeniusNorm( update );
+        residual.primalEquality += update;
+
+        // residual.dualEquality +=
+        //   c + A^T (y + dyAff) + G^T (z + dzAff) +
+        //   (xRegSmall + xRegLarge) dxAff
+        Zeros( update, problem.A.Width(), 1 );
+        input += problem.c;
+        input = solution.y;
+        input += affineCorrection.y;
+        Gemv( TRANSPOSE, Real(1), problem.A, input, Real(1), update );
+        input = solution.z;
+        input += affineCorrection.z;
+        Gemv( TRANSPOSE, Real(1), problem.G, input, Real(1), update );
+        Axpy( state.xRegSmall+state.xRegLarge, affineCorrection.x, update );
+        const Real dualEqualityUpdateNrm2 = FrobeniusNorm( update );
+        residual.dualEquality += update;
+
+        // residual.primalConic +=
+        //   G (x + dxAff) + (s + dsAff) - h - (zRegSmall + zRegLarge) dzAff
+        Zeros( update, problem.G.Height(), 1 );
+        input = solution.x;
+        input += affineCorrection.x;
+        Gemv( NORMAL, Real(1), problem.G, input, Real(1), update );
+        input = solution.s;
+        input += affineCorrection.s;
+        update += input;
+        Axpy( Real(-1), problem.h, update );
+        Axpy( -state.zRegSmall-state.zRegLarge, affineCorrection.z, update );
+        const Real primalConicUpdateNrm2 = FrobeniusNorm( update );
+        residual.primalConic += update;
+
+        // residual.dualConic += (s + dsAff) o (z + dzAff)
+        // TODO(poulson): Incorporate zPivot instead of z?
+        input = solution.s;
+        input += affineCorrection.s;
+        update = solution.z;
+        update += affineCorrection.z;
+        DiagonalScale( LEFT, NORMAL, input, update );
+        const Real dualConicUpdateNrm2 = FrobeniusNorm( update );
+        residual.dualConic += update;
+    }
+    else if( compositeNewton )
+    {
+        // Use the approximation of the composite Newton method that assumes
+        // the update would provide strict feasibility.
+
+        // r_mu := dsAff o dzAff
+        // ---------------------
+        Matrix<Real> update( affineCorrection.z );
+        DiagonalScale( LEFT, NORMAL, affineCorrection.s, update );
+        residual.dualConic += update;
+    }
+}
+
+template<typename Real>
+void UpdateCombinedResidualUsingAffine
+( const Real& sigma,
+  const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  const AffineLPState<Real>& state,
+  const AffineLPSolution<Matrix<Real>>& solution,
+  const AffineLPSolution<Matrix<Real>>& affineCorrection,
+        AffineLPResidual<Matrix<Real>>& residual,
+  bool compositeNewton )
+{
+    EL_DEBUG_CSE
+    Shift( residual.dualConic, -sigma*state.barrier );
+    // Use the interpretation of Section 2 of [CITATION]
+    //
+    //   R.A. Tapia, Y. Zhang, M. Saltzman, and A. Weiser's
+    //   "The Mehrotra Predictor-Corrector Interior-Point Method as a
+    //   Perturbed Composite Newton Method", July, 1990
+    //   http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
+    //
+    // as a means of generalizing the classic Mehrotra predictor-corrector
+    // to approximate feasibility by updating with
+    // F(solution+affineCorrection) rather than (0,0,0,dsAff o dzAff).
+    //
+    // With that said, it appears that neither the original or generalized
+    // algorithm is generally helpful on the netlib/LP_data examples
+    // (at least, on top of the current regularization and dynamic scaling).
+    //
+    const bool infeasibleCompositeNewton = true;
+    if( compositeNewton && infeasibleCompositeNewton )
+    {
+        Matrix<Real> input, update;
+
+        // residual.primalEquality +=
+        //   A (x + dxAff) - b - (yRegSmall + yRegLarge) dyAff
+        Zeros( update, problem.A.Height(), 1 );
+        input = solution.x;
+        input += affineCorrection.x;
+        Multiply( NORMAL, Real(1), problem.A, input, Real(1), update );
+        Axpy( Real(-1), problem.b, update );
+        Axpy( -state.yRegSmall-state.yRegLarge, affineCorrection.y, update );
+        const Real primalEqualityUpdateNrm2 = FrobeniusNorm( update );
+        residual.primalEquality += update;
+
+        // residual.dualEquality +=
+        //   c + A^T (y + dyAff) + G^T (z + dzAff) +
+        //   (xRegSmall + xRegLarge) dxAff
+        Zeros( update, problem.A.Width(), 1 );
+        input += problem.c;
+        input = solution.y;
+        input += affineCorrection.y;
+        Multiply( TRANSPOSE, Real(1), problem.A, input, Real(1), update );
+        input = solution.z;
+        input += affineCorrection.z;
+        Multiply( TRANSPOSE, Real(1), problem.G, input, Real(1), update );
+        Axpy( state.xRegSmall+state.xRegLarge, affineCorrection.x, update );
+        const Real dualEqualityUpdateNrm2 = FrobeniusNorm( update );
+        residual.dualEquality += update;
+
+        // residual.primalConic +=
+        //   G (x + dxAff) + (s + dsAff) - h - (zRegSmall + zRegLarge) dzAff
+        Zeros( update, problem.G.Height(), 1 );
+        input = solution.x;
+        input += affineCorrection.x;
+        Multiply( NORMAL, Real(1), problem.G, input, Real(1), update );
+        input = solution.s;
+        input += affineCorrection.s;
+        update += input;
+        Axpy( Real(-1), problem.h, update );
+        Axpy( -state.zRegSmall-state.zRegLarge, affineCorrection.z, update );
+        const Real primalConicUpdateNrm2 = FrobeniusNorm( update );
+        residual.primalConic += update;
+
+        // residual.dualConic += (s + dsAff) o (z + dzAff)
+        // TODO(poulson): Incorporate zPivot instead of z?
+        input = solution.s;
+        input += affineCorrection.s;
+        update = solution.z;
+        update += affineCorrection.z;
+        DiagonalScale( LEFT, NORMAL, input, update );
+        const Real dualConicUpdateNrm2 = FrobeniusNorm( update );
+        residual.dualConic += update;
+    }
+    else if( compositeNewton )
+    {
+        // Use the approximation of the composite Newton method that assumes
+        // the update would provide strict feasibility.
+
+        // r_mu := dsAff o dzAff
+        // ---------------------
+        Matrix<Real> update( affineCorrection.z );
+        DiagonalScale( LEFT, NORMAL, affineCorrection.s, update );
+        residual.dualConic += update;
+    }
+}
+
+template<typename Real>
+void UpdateCombinedDualConicResidualWithoutAffine
+( const Real& sigma,
+  const Real& mu,
+  const Real& complementRatio,
+  bool largeCompRatio,
+  const AffineLPSolution<Matrix<Real>>& solution,
+        AffineLPResidual<Matrix<Real>>& residual,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int k = solution.s.Height();
+    if( largeCompRatio && ctrl.softDualityTargets )
+    {
+        // Attempt to correct s o z entrywise into
+        // [lowerTargetRatio,upperTargetRatio]*sigma*mu.
+        Real lowerTargetRatio =
+          Pow(complementRatio,ctrl.lowerTargetRatioLogCompRatio);
+        Real upperTargetRatio =
+          Pow(complementRatio,ctrl.upperTargetRatioLogCompRatio);
+        lowerTargetRatio =
+          Max( lowerTargetRatio,
+            Pow(ctrl.maxComplementRatio,ctrl.lowerTargetRatioLogMaxCompRatio) );
+        upperTargetRatio =
+          Min( upperTargetRatio,
+            Pow(ctrl.maxComplementRatio,ctrl.upperTargetRatioLogMaxCompRatio) );
+        if( ctrl.print )
+            Output
+            ("  lowerTargetRatio=",lowerTargetRatio,
+             ", upperTargetRatio=",upperTargetRatio);
+        const Real lowerTarget = lowerTargetRatio*sigma*mu;
+        const Real upperTarget = upperTargetRatio*sigma*mu;
+        Int numBelowLower=0, numInterior=0, numAboveUpper=0;
+        for( Int i=0; i<k; ++i )
+        {
+            const Real prod = solution.s(i)*solution.z(i);
+            if( prod < lowerTarget )
+            {
+                residual.dualConic(i) -= lowerTarget;
+                ++numBelowLower;
+            }
+            else if( prod > upperTarget )
+            {
+                residual.dualConic(i) -= upperTarget;
+                ++numAboveUpper;
+            }
+            else
+            {
+                residual.dualConic(i) -= prod;
+                ++numInterior;
+            }
+        }
+        if( ctrl.print )
+            Output
+            ("  num targets (belowLower,interior,aboveUpper)=(",
+             numBelowLower,",",numInterior,",",numAboveUpper,")");
+    }
+    else
+    {
+        Shift( residual.dualConic, -sigma*mu );
+    }
+}
+
+// Despite having a factorization of 'J', we will solve the linear system
+//
+//   (D J D) (inv(D) x) = D b,
+//
+// where 'D = diag(diagonalScale)', rather than the original system, 'J x = b'.
+//
+// Without the usage of an iterative method (such as iterative refinement or
+// FGMRES(k)), this is does not change the solution process. Its primary effect
+// is to reweight the norm used to detect convergence in a way that helps to
+// promote relative accuracy in each of the subvectors of the solution.
+// 
+template<typename Real>
+bool AttemptToSolve
+( const AffineLPState<Real>& state,
+  const Matrix<Real>& JFactored,
+  const Matrix<Real>& dSub,
+  const Matrix<Int>& permutation,
+  const Matrix<Real>& diagonalScale,
+        Matrix<Real>& rhs,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_ONLY(auto callStack = CopyCallStack())
+    try
+    {
+        ldl::SolveAfter( JFactored, dSub, permutation, rhs, false );
+    }
+    catch( const std::exception& except )
+    {
+        if( ctrl.print )
+            Output
+            ("WARNING: solve failed with error: ",except.what());
+        EL_DEBUG_ONLY(SetCallStack(callStack))
+        return false;
+    }
+    return true;
+}
+
+template<typename Real>
+bool AttemptToSolve
+( const AffineLPState<Real>& state,
+  const SparseLDLFactorization<Real>& sparseLDLFact,
+  const SparseMatrix<Real>& JOrigScaled,
+  const Matrix<Real>& regLargeScaled,
+  const Matrix<Real>& diagonalScale,
+        Matrix<Real>& rhs,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_ONLY(auto callStack = CopyCallStack())
+    RegSolveInfo<Real> solveInfo;
+    try
+    {
+        solveInfo =
+          reg_ldl::RegularizedSolveAfter
+          ( JOrigScaled, regLargeScaled, diagonalScale,
+            sparseLDLFact, rhs,
+            ctrl.solveCtrl.relTol,
+            ctrl.solveCtrl.maxRefineIts,
+            ctrl.solveCtrl.progress );
+    }
+    catch( const std::exception& except )
+    {
+        if( ctrl.print )
+            Output
+            ("WARNING: solveInfo failed with error: ",except.what());
+        EL_DEBUG_ONLY(SetCallStack(callStack))
+    }
+    return solveInfo.metRequestedTol;
+}
+
+template<typename Real>
+bool AttemptToSolveForUpdateUsingScaling
+( const AffineLPSolution<Matrix<Real>>& solution,
+  const AffineLPState<Real>& state,
+        SparseMatrix<Real>& JOrigScaled,
+        Matrix<Real>& regLargeScaled,
+  const SparseLDLFactorization<Real>& sparseLDLFact,
+  const Matrix<Real>& zDoublePivot,
+  const AffineLPResidual<Matrix<Real>>& residual,
+        Real& dxCombinedNrm2Last,
+        Real& dyCombinedNrm2Last,
+        Real& dzCombinedNrm2Last,
+        Matrix<Real>& packedVector,
+        AffineLPSolution<Matrix<Real>>& correction,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int m = solution.y.Height();
+    const Int n = solution.x.Height();
+    const Int k = solution.s.Height();
+    const Real minNrm2Last =
+      Min( Min(dxCombinedNrm2Last,dyCombinedNrm2Last), dzCombinedNrm2Last );
+    const Real maxNrm2Last =
+      Max( Max(dxCombinedNrm2Last,dyCombinedNrm2Last), dzCombinedNrm2Last );
+
+    // Construct the new KKT RHS
+    // -------------------------
+    KKTRHS
+    ( residual.dualEquality,
+      residual.primalEquality,
+      residual.primalConic,
+      residual.dualConic,
+      zDoublePivot, packedVector );
+
+    // Solve for the proposed (scaled) step
+    // ------------------------------------
+    Matrix<Real> diagonalScale;
+    Zeros( diagonalScale, n+m+k, 1 );
+    const Real maxRescaleRatio =
+      Pow(limits::Epsilon<Real>(),ctrl.maxRescaleRatioLogEps);
+    const Real baselineNrm2 =
+      maxNrm2Last > maxRescaleRatio*minNrm2Last ?
+      maxNrm2Last / maxRescaleRatio :
+      minNrm2Last;
+    if( dxCombinedNrm2Last < baselineNrm2 )
+    {
+        for( Int i=0; i<n; ++i )
+            diagonalScale(i) = Real(1) / maxRescaleRatio;
+    }
+    else
+    {
+        for( Int i=0; i<n; ++i )
+            diagonalScale(i) = Real(1) /
+              Min(maxNrm2Last/dxCombinedNrm2Last,maxRescaleRatio);
+    }
+    if( dyCombinedNrm2Last < baselineNrm2 )
+    {
+        for( Int i=0; i<m; ++i )
+            diagonalScale(i+n) = Real(1) / maxRescaleRatio;
+    }
+    else
+    {
+        for( Int i=0; i<m; ++i )
+            diagonalScale(i+n) = Real(1) /
+              Min(maxNrm2Last/dyCombinedNrm2Last,maxRescaleRatio);
+    }
+    if( dzCombinedNrm2Last < baselineNrm2 )
+    {
+        for( Int i=0; i<k; ++i )
+            diagonalScale(i+n+m) = Real(1) / maxRescaleRatio;
+    }
+    else
+    {
+        for( Int i=0; i<k; ++i )
+            diagonalScale(i+n+m) = Real(1) /
+              Min(maxNrm2Last/dzCombinedNrm2Last,maxRescaleRatio);
+    }
+    DiagonalScale( LEFT, NORMAL, diagonalScale, JOrigScaled );
+    DiagonalScale( RIGHT, NORMAL, diagonalScale, JOrigScaled );
+    DiagonalScale( LEFT, NORMAL, diagonalScale, regLargeScaled );
+    DiagonalScale( LEFT, NORMAL, diagonalScale, regLargeScaled );
+    DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
+    const bool solved =
+      AttemptToSolve
+      ( state, sparseLDLFact, JOrigScaled, regLargeScaled, diagonalScale,
+        packedVector, ctrl );
+    if( !solved )
+        return false;
+
+    DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
+    ExpandSolution
+    ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
+      correction.x, correction.y, correction.z, correction.s );
+
+    dxCombinedNrm2Last = FrobeniusNorm( correction.x );
+    dyCombinedNrm2Last = FrobeniusNorm( correction.y );
+    dzCombinedNrm2Last = FrobeniusNorm( correction.z );
+
+    return true;
+}
+
+template<typename Real>
+bool AttemptToSolveForUpdate
+( const AffineLPSolution<Matrix<Real>>& solution,
+  const AffineLPState<Real>& state,
+  const Matrix<Real>& JFactored,
+  const Matrix<Real>& dSub,
+  const Matrix<Int>& permutation,
+  const Matrix<Real>& zDoublePivot,
+  const AffineLPResidual<Matrix<Real>>& residual,
+        Matrix<Real>& packedVector,
+        AffineLPSolution<Matrix<Real>>& correction,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int m = solution.y.Height();
+    const Int n = solution.x.Height();
+    const Int k = solution.s.Height();
+
+    // Construct the new KKT RHS
+    // -------------------------
+    KKTRHS
+    ( residual.dualEquality,
+      residual.primalEquality,
+      residual.primalConic,
+      residual.dualConic,
+      zDoublePivot, packedVector );
+
+    // Solve for the proposed (scaled) step
+    // ------------------------------------
+    Matrix<Real> diagonalScale;
+    Ones( diagonalScale, n+m+k, 1 );
+    const bool solved =
+      AttemptToSolve
+      ( state, JFactored, dSub, permutation, diagonalScale, packedVector,
+        ctrl );
+    if( !solved )
+        return false;
+
+    ExpandSolution
+    ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
+      correction.x, correction.y, correction.z, correction.s );
+    return true;
+}
+
+template<typename Real>
+bool AttemptToSolveForUpdate
+( const AffineLPSolution<Matrix<Real>>& solution,
+  const AffineLPState<Real>& state,
+        SparseMatrix<Real>& JOrigScaled,
+        Matrix<Real>& regLargeScaled,
+  const SparseLDLFactorization<Real>& sparseLDLFact,
+  const Matrix<Real>& zDoublePivot,
+  const AffineLPResidual<Matrix<Real>>& residual,
+        Matrix<Real>& packedVector,
+        AffineLPSolution<Matrix<Real>>& correction,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int m = solution.y.Height();
+    const Int n = solution.x.Height();
+    const Int k = solution.s.Height();
+
+    // Construct the new KKT RHS
+    // -------------------------
+    KKTRHS
+    ( residual.dualEquality,
+      residual.primalEquality,
+      residual.primalConic,
+      residual.dualConic,
+      zDoublePivot, packedVector );
+
+    // Solve for the proposed (scaled) step
+    // ------------------------------------
+    Matrix<Real> diagonalScale;
+    Ones( diagonalScale, n+m+k, 1 );
+    const bool solved =
+      AttemptToSolve
+      ( state, sparseLDLFact, JOrigScaled, regLargeScaled, diagonalScale,
+        packedVector, ctrl );
+    if( !solved )
+        return false;
+
+    ExpandSolution
+    ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
+      correction.x, correction.y, correction.z, correction.s );
+    return true;
+}
+
+template<typename Real>
+void CheckConvergence
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& origProblem,
+  const DenseAffineLPEquilibration<Real>& equilibration,
+  const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  const AffineLPSolution<Matrix<Real>>& solution,
+        Matrix<Real>& zPivot,
+        Matrix<Real>& zPerturb,
+        AffineLPResidual<Matrix<Real>>& residual,
+        AffineLPState<Real>& state,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real zMinPivotValue = Pow(epsilon,ctrl.zMinPivotValueLogEps);
+
+    // Form the unequlibrated approximate solution.
+    AffineLPSolution<Matrix<Real>> origSolution;
+    UndoEquilibration( solution, equilibration, origSolution );
+
+    // A x - b
+    // -------
+    residual.primalEquality = problem.b;
+    Gemv
+    ( NORMAL, Real(1), problem.A, solution.x,
+      Real(-1), residual.primalEquality );
+
+    // || A x - b ||_2
+    // ---------------
+    state.primalEqualityInfeasNrm2 = FrobeniusNorm( residual.primalEquality );
+
+    // || A x - b ||_2 / (1 + || b ||_2)
+    // ---------------------------------
+    state.primalEqualityInfeasNrm2Rel =
+      state.primalEqualityInfeasNrm2 / (1 + state.bNrm2);
+
+    // c + A^T y + G^T z
+    // -----------------
+    residual.dualEquality = problem.c;
+    Gemv
+    ( TRANSPOSE, Real(1), problem.A, solution.y,
+      Real(1), residual.dualEquality );
+    Gemv
+    ( TRANSPOSE, Real(1), problem.G, solution.z,
+      Real(1), residual.dualEquality );
+
+    // || c + A^T y + G^T z ||_2
+    // -------------------------
+    state.dualEqualityInfeasNrm2 = FrobeniusNorm( residual.dualEquality );
+
+    // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
+    // -------------------------------------------
+    state.dualEqualityInfeasNrm2Rel =
+      state.dualEqualityInfeasNrm2 / (1 + state.cNrm2);
+
+    // G x + s - h
+    // -----------
+    residual.primalConic = problem.h;
+    Gemv
+    ( NORMAL, Real(1), problem.G, solution.x,
+      Real(-1), residual.primalConic );
+    residual.primalConic += solution.s;
+
+    // || G x + s - h ||_2
+    // -------------------
+    state.primalConicInfeasNrm2 = FrobeniusNorm( residual.primalConic );
+    state.primalConicInfeasNrm2Rel =
+      state.primalConicInfeasNrm2 / (1 + state.hNrm2);
+
+    state.equalityError =
+      Max(state.primalEqualityInfeasNrm2Rel,
+          state.dualEqualityInfeasNrm2Rel);
+    state.infeasError = Max(state.primalConicInfeasNrm2Rel,state.equalityError);
+
+    // Compute the regularized 'z' pivot.
+    zPivot = solution.z;
+    const Int k = solution.z.Height();
+    Zeros( zPerturb, k, 1 );
+    for( Int i=0; i<k; ++i )
+    {
+        if( zPivot(i) < zMinPivotValue )
+        {
+            zPerturb(i) = zMinPivotValue - zPivot(i);
+            zPivot(i) = zMinPivotValue;
+        }
+    }
+    const Real zPerturbNrm2 = FrobeniusNorm( zPerturb );
+    // s o zPivot
+    // ----------
+    residual.dualConic = zPivot;
+    DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
+
+    // Form objective convergence information relative to the original scaling.
+    state.gapOrig = Dot( origSolution.s, origSolution.z );
+    state.primalObjOrig =
+      PrimalObjective<Real>( origProblem, origSolution );
+    state.dualObjOrig =
+      DualObjective<Real>( origProblem, origSolution );
+    state.relCompGapOrig =
+      RelativeComplementarityGap
+      ( state.primalObjOrig, state.dualObjOrig, state.gapOrig );
+    state.relObjGapOrig =
+      RelativeObjectiveGap( state.primalObjOrig, state.dualObjOrig );
+    state.maxRelGapOrig = Max( state.relCompGapOrig, state.relObjGapOrig );
+
+    // Form objective convergence information relative to the current scaling.
+    state.gap = Dot( solution.s, solution.z );
+    state.primalObj = PrimalObjective<Real>( problem, solution );
+    state.dualObj = DualObjective<Real>( problem, solution );
+    state.relCompGap =
+      RelativeComplementarityGap( state.primalObj, state.dualObj, state.gap );
+    state.relObjGap = RelativeObjectiveGap( state.primalObj, state.dualObj );
+    state.maxRelGap = Max( state.relCompGap, state.relObjGap );
+
+    state.dimacsError = Max(state.maxRelGap,state.infeasError);
+    state.dimacsErrorOrig = Max(state.maxRelGapOrig,state.infeasError);
+
+    state.metTolerances =
+      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+      state.relCompGap <=
+        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      state.relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
+
+    state.metTolerancesOrig =
+      state.metTolerances &&
+      state.relCompGapOrig <=
+        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      state.relObjGapOrig <=
+        Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
+
+    state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
+
+    if( ctrl.print )
+    {
+        Output
+        ("iter ",state.numIts,":\n",Indent(),
+         "  || primalEqualityInfeas ||_2 / (1 + || b ||_2) = ",
+         state.primalEqualityInfeasNrm2Rel,"\n",Indent(),
+         "  || dualEqualityInfeas   ||_2 / (1 + || c ||_2) = ",
+         state.dualEqualityInfeasNrm2Rel,"\n",Indent(),
+         "  || primalConicInfeas    ||_2 / (1 + || h ||_2) = ",
+         state.primalConicInfeasNrm2Rel,"\n",Indent(),
+         "\n",Indent(),
+         "  orig   s^T z        = ",state.gapOrig,"\n",Indent(),
+         "  orig   primal       = ",state.primalObjOrig,"\n",Indent(),
+         "  orig   dual         = ",state.dualObjOrig,"\n",Indent(),
+         "  orig   rel obj gap  = ",state.relObjGapOrig,"\n",Indent(),
+         "  orig   rel comp gap = ",state.relCompGapOrig,"\n",Indent(),
+         "  orig   dimacs error = ",state.dimacsErrorOrig,"\n",Indent(),
+         "\n",Indent(),
+         "  scaled s^T z        = ",state.gap,"\n",Indent(),
+         "  scaled primal       = ",state.primalObj,"\n",Indent(),
+         "  scaled dual         = ",state.dualObj,"\n",Indent(),
+         "  scaled rel obj gap  = ",state.relObjGap,"\n",Indent(),
+         "  scaled rel comp gap = ",state.relCompGap,"\n",Indent(),
+         "  scaled dimacs error = ",state.dimacsError,"\n",Indent(),
+         "\n",Indent(),
+         "  complement ratio    = ",state.complementRatio);
+        if( zPerturbNrm2 > Real(0) )
+            Output
+            ("\n",Indent(),
+             "  || zPerturb ||_2 = ",zPerturbNrm2);
+    }
+}
+
+template<typename Real>
+void CheckConvergence
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
+  const SparseAffineLPEquilibration<Real>& equilibration,
+  const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  const AffineLPSolution<Matrix<Real>>& solution,
+        Matrix<Real>& zPivot,
+        Matrix<Real>& zPerturb,
+        AffineLPResidual<Matrix<Real>>& residual,
+        AffineLPState<Real>& state,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Real epsilon = limits::Epsilon<Real>();
+    const Real zMinPivotValue = Pow(epsilon,ctrl.zMinPivotValueLogEps);
+
+    // Form the unequlibrated approximate solution.
+    AffineLPSolution<Matrix<Real>> origSolution;
+    UndoEquilibration( solution, equilibration, origSolution );
+
+    // A x - b
+    // -------
+    residual.primalEquality = problem.b;
+    Multiply
+    ( NORMAL, Real(1), problem.A, solution.x,
+      Real(-1), residual.primalEquality );
+
+    // || A x - b ||_2
+    // ---------------
+    state.primalEqualityInfeasNrm2 = FrobeniusNorm( residual.primalEquality );
+
+    // || A x - b ||_2 / (1 + || b ||_2)
+    // ---------------------------------
+    state.primalEqualityInfeasNrm2Rel =
+      state.primalEqualityInfeasNrm2 / (1 + state.bNrm2);
+
+    // c + A^T y + G^T z
+    // -----------------
+    residual.dualEquality = problem.c;
+    Multiply
+    ( TRANSPOSE, Real(1), problem.A, solution.y,
+      Real(1), residual.dualEquality );
+    Multiply
+    ( TRANSPOSE, Real(1), problem.G, solution.z,
+      Real(1), residual.dualEquality );
+
+    // || c + A^T y + G^T z ||_2
+    // -------------------------
+    state.dualEqualityInfeasNrm2 = FrobeniusNorm( residual.dualEquality );
+
+    // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
+    // -------------------------------------------
+    state.dualEqualityInfeasNrm2Rel =
+      state.dualEqualityInfeasNrm2 / (1 + state.cNrm2);
+
+    // G x + s - h
+    // -----------
+    residual.primalConic = problem.h;
+    Multiply
+    ( NORMAL, Real(1), problem.G, solution.x,
+      Real(-1), residual.primalConic );
+    residual.primalConic += solution.s;
+
+    // || G x + s - h ||_2
+    // -------------------
+    state.primalConicInfeasNrm2 = FrobeniusNorm( residual.primalConic );
+    state.primalConicInfeasNrm2Rel =
+      state.primalConicInfeasNrm2 / (1 + state.hNrm2);
+
+    state.equalityError =
+      Max(state.primalEqualityInfeasNrm2Rel,
+          state.dualEqualityInfeasNrm2Rel);
+    state.infeasError = Max(state.primalConicInfeasNrm2Rel,state.equalityError);
+
+    // Compute the regularized 'z' pivot.
+    zPivot = solution.z;
+    const Int k = solution.z.Height();
+    Zeros( zPerturb, k, 1 );
+    for( Int i=0; i<k; ++i )
+    {
+        if( zPivot(i) < zMinPivotValue )
+        {
+            zPerturb(i) = zMinPivotValue - zPivot(i);
+            zPivot(i) = zMinPivotValue;
+        }
+    }
+    const Real zPerturbNrm2 = FrobeniusNorm( zPerturb );
+    // s o zPivot
+    // ----------
+    residual.dualConic = zPivot;
+    DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
+
+    // Form objective convergence information relative to the original scaling.
+    state.gapOrig = Dot( origSolution.s, origSolution.z );
+    state.primalObjOrig =
+      PrimalObjective<Real>( origProblem, origSolution );
+    state.dualObjOrig =
+      DualObjective<Real>( origProblem, origSolution );
+    state.relCompGapOrig =
+      RelativeComplementarityGap
+      ( state.primalObjOrig, state.dualObjOrig, state.gapOrig );
+    state.relObjGapOrig =
+      RelativeObjectiveGap( state.primalObjOrig, state.dualObjOrig );
+    state.maxRelGapOrig = Max( state.relCompGapOrig, state.relObjGapOrig );
+
+    // Form objective convergence information relative to the current scaling.
+    state.gap = Dot( solution.s, solution.z );
+    state.primalObj = PrimalObjective<Real>( problem, solution );
+    state.dualObj = DualObjective<Real>( problem, solution );
+    state.relCompGap =
+      RelativeComplementarityGap( state.primalObj, state.dualObj, state.gap );
+    state.relObjGap = RelativeObjectiveGap( state.primalObj, state.dualObj );
+    state.maxRelGap = Max( state.relCompGap, state.relObjGap );
+
+    state.dimacsError = Max(state.maxRelGap,state.infeasError);
+    state.dimacsErrorOrig = Max(state.maxRelGapOrig,state.infeasError);
+
+    state.metTolerances =
+      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+      state.relCompGap <=
+        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      state.relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
+
+    state.metTolerancesOrig =
+      state.metTolerances &&
+      state.relCompGapOrig <=
+        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
+      state.relObjGapOrig <=
+        Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
+
+    state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
+
+    if( ctrl.print )
+    {
+        Output
+        ("iter ",state.numIts,":\n",Indent(),
+         "  || primalEqualityInfeas ||_2 / (1 + || b ||_2) = ",
+         state.primalEqualityInfeasNrm2Rel,"\n",Indent(),
+         "  || dualEqualityInfeas   ||_2 / (1 + || c ||_2) = ",
+         state.dualEqualityInfeasNrm2Rel,"\n",Indent(),
+         "  || primalConicInfeas    ||_2 / (1 + || h ||_2) = ",
+         state.primalConicInfeasNrm2Rel,"\n",Indent(),
+         "\n",Indent(),
+         "  orig   s^T z        = ",state.gapOrig,"\n",Indent(),
+         "  orig   primal       = ",state.primalObjOrig,"\n",Indent(),
+         "  orig   dual         = ",state.dualObjOrig,"\n",Indent(),
+         "  orig   rel obj gap  = ",state.relObjGapOrig,"\n",Indent(),
+         "  orig   rel comp gap = ",state.relCompGapOrig,"\n",Indent(),
+         "  orig   dimacs error = ",state.dimacsErrorOrig,"\n",Indent(),
+         "\n",Indent(),
+         "  scaled s^T z        = ",state.gap,"\n",Indent(),
+         "  scaled primal       = ",state.primalObj,"\n",Indent(),
+         "  scaled dual         = ",state.dualObj,"\n",Indent(),
+         "  scaled rel obj gap  = ",state.relObjGap,"\n",Indent(),
+         "  scaled rel comp gap = ",state.relCompGap,"\n",Indent(),
+         "  scaled dimacs error = ",state.dimacsError,"\n",Indent(),
+         "\n",Indent(),
+         "  complement ratio    = ",state.complementRatio);
+        if( zPerturbNrm2 > Real(0) )
+            Output
+            ("\n",Indent(),
+             "  || zPerturb ||_2 = ",zPerturbNrm2);
+    }
+}
+
+template<typename Real>
+void PrintErrorResiduals
+( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
+  const AffineLPSolution<Matrix<Real>>& affineCorrection,
+  const AffineLPResidual<Matrix<Real>>& residual,
+  const AffineLPState<Real>& state )
+{
+    EL_DEBUG_CSE
+    AffineLPResidual<Matrix<Real>> error;
+
+    error.primalEquality = residual.primalEquality;
+    Gemv
+    ( NORMAL, Real(1), problem.A, affineCorrection.x,
+      Real(1), error.primalEquality );
+    Axpy( -state.yRegSmall, affineCorrection.y, error.primalEquality );
+    Axpy( -state.yRegLarge, affineCorrection.y, error.primalEquality );
+    const Real dxErrorNrm2 = Nrm2( error.primalEquality );
+
+    error.dualEquality = residual.dualEquality;
+    Axpy( state.xRegSmall, affineCorrection.x, error.dualEquality );
+    Axpy( state.xRegLarge, affineCorrection.x, error.dualEquality );
+    Gemv
+    ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
+      Real(1), error.dualEquality );
+    Gemv
+    ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
+      Real(1), error.dualEquality );
+    const Real dyErrorNrm2 = Nrm2( error.dualEquality );
+
+    error.primalConic = residual.primalConic;
+    error.primalConic += affineCorrection.s;
+    Gemv
+    ( NORMAL, Real(1), problem.G, affineCorrection.x,
+      Real(1), error.primalConic );
+    Axpy( -state.zRegSmall, affineCorrection.z, error.primalConic );
+    Axpy( -state.zRegLarge, affineCorrection.z, error.primalConic );
+    const Real dzErrorNrm2 = Nrm2( error.primalConic );
+
+    // TODO(poulson): error.dualConic
+
+    Output
+    ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+     dxErrorNrm2/(1+state.primalEqualityInfeasNrm2),"\n",Indent(),
+     "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+     dyErrorNrm2/(1+state.dualEqualityInfeasNrm2),"\n",Indent(),
+     "|| dzError ||_2 / (1 + || r_h ||_2) = ",
+     dzErrorNrm2/(1+state.primalConicInfeasNrm2));
+}
+
+template<typename Real>
+void PrintErrorResiduals
+( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
+  const AffineLPSolution<Matrix<Real>>& affineCorrection,
+  const AffineLPResidual<Matrix<Real>>& residual,
+  const AffineLPState<Real>& state )
+{
+    EL_DEBUG_CSE
+    AffineLPResidual<Matrix<Real>> error;
+
+    error.primalEquality = residual.primalEquality;
+    Multiply
+    ( NORMAL, Real(1), problem.A, affineCorrection.x,
+      Real(1), error.primalEquality );
+    Axpy( -state.yRegSmall, affineCorrection.y, error.primalEquality );
+    Axpy( -state.yRegLarge, affineCorrection.y, error.primalEquality );
+    const Real dxErrorNrm2 = Nrm2( error.primalEquality );
+
+    error.dualEquality = residual.dualEquality;
+    Axpy( state.xRegSmall, affineCorrection.x, error.dualEquality );
+    Axpy( state.xRegLarge, affineCorrection.x, error.dualEquality );
+    Multiply
+    ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
+      Real(1), error.dualEquality );
+    Multiply
+    ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
+      Real(1), error.dualEquality );
+    const Real dyErrorNrm2 = Nrm2( error.dualEquality );
+
+    error.primalConic = residual.primalConic;
+    error.primalConic += affineCorrection.s;
+    Multiply
+    ( NORMAL, Real(1), problem.G, affineCorrection.x,
+      Real(1), error.primalConic );
+    Axpy( -state.zRegSmall, affineCorrection.z, error.primalConic );
+    Axpy( -state.zRegLarge, affineCorrection.z, error.primalConic );
+    const Real dzErrorNrm2 = Nrm2( error.primalConic );
+
+    // TODO(poulson): error.dualConic
+
+    Output
+    ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
+     dxErrorNrm2/(1+state.primalEqualityInfeasNrm2),"\n",Indent(),
+     "|| dyError ||_2 / (1 + || r_c ||_2) = ",
+     dyErrorNrm2/(1+state.dualEqualityInfeasNrm2),"\n",Indent(),
+     "|| dzError ||_2 / (1 + || r_h ||_2) = ",
+     dzErrorNrm2/(1+state.primalConicInfeasNrm2));
+}
+
+template<typename Real>
+std::pair<Real,Real>
+ComputePrimalDualStepSizes
+( const AffineLPSolution<Matrix<Real>>& solution,
+  const AffineLPSolution<Matrix<Real>>& correction,
+  const Real& upperBound,
+  const Real& maxStepRatio,
+  bool forceSameStep )
+{
+    EL_DEBUG_CSE
+    Real primalStep = pos_orth::MaxStep( solution.s, correction.s, upperBound );
+    Real dualStep = pos_orth::MaxStep( solution.z, correction.z, upperBound );
+    if( forceSameStep )
+        primalStep = dualStep = Min(primalStep,dualStep);
+    primalStep = Min(maxStepRatio*primalStep,Real(1));
+    dualStep = Min(maxStepRatio*dualStep,Real(1));
+    return std::make_pair( primalStep, dualStep );
+}
+
+template<typename Real>
+Real MedianBarrier
+( const Matrix<Real>& s, const Matrix<Real>& z )
+{
+    EL_DEBUG_CSE
+    auto dualProd( s );
+    DiagonalScale( LEFT, NORMAL, z, dualProd );
+    auto medianPair = Median( dualProd );
+    const Real barrierMedian = medianPair.value;
+    return barrierMedian;
+}
 
 template<typename Real>
 void Equilibrate
@@ -1564,826 +2988,6 @@ void IPM
 }
 
 template<typename Real>
-void RescalePrimal
-( const Real& primalScale,
-  SparseAffineLPEquilibration<Real>& equilibration,
-  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  AffineLPSolution<Matrix<Real>>& solution,
-  bool print )
-{
-    EL_DEBUG_CSE
-    equilibration.primalScale *= primalScale;
-    if( print )
-        Output
-        ("primal /= ",primalScale," (total is ",
-         equilibration.primalScale,")");
-    problem.b *= Real(1)/primalScale;
-    problem.h *= Real(1)/primalScale;
-    solution.x *= Real(1)/primalScale;
-    solution.s *= Real(1)/primalScale;
-}
-
-template<typename Real>
-void RescaleDual
-( const Real& dualScale,
-  SparseAffineLPEquilibration<Real>& equilibration,
-  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  AffineLPSolution<Matrix<Real>>& solution,
-  bool print )
-{
-    equilibration.dualScale *= dualScale;
-    if( print )
-        Output
-        ("dual /= ",dualScale," (total is ",equilibration.dualScale,")");
-    problem.c *= Real(1)/dualScale;
-    solution.y *= Real(1)/dualScale;
-    solution.z *= Real(1)/dualScale;
-}
-
-template<typename Real>
-void RescaleKKTButNotRegularization
-( const Matrix<Real>& xScale,
-  const Matrix<Real>& yScale,
-  const Matrix<Real>& zScale,
-        SparseMatrix<Real>& J )
-{
-    EL_DEBUG_CSE
-    const Int n = xScale.Height();
-    const Int m = yScale.Height();
-    Real* valBuf = J.ValueBuffer();
-    const Int numEntries = J.NumEntries();
-    for( Int index=0; index<numEntries; ++index )
-    {
-        const Int row = J.Row(index);
-        const Int col = J.Col(index);
-        // | 0 A^T G^T |
-        // | A  0   0  |
-        // | G  0   0  |
-        if( row < n )
-        {
-            if( col >= n && col < n+m )
-            {
-                // A^T block
-                valBuf[index] *= yScale(col-n) * xScale(row);
-            }
-            else if( col >= n+m )
-            {
-                // G^T block
-                valBuf[index] *= zScale(col-(n+m)) * xScale(row);
-            }
-        }
-        else if( row < n+m )
-        {
-            if( col < n )
-            {
-                // A block
-                valBuf[index] *= xScale(col) * yScale(row-n);
-            }
-        }
-        else
-        {
-            if( col < n )
-            {
-                // G block
-                valBuf[index] *= xScale(col) * zScale(row-(n+m));
-            }
-        }
-    }
-}
-
-template<typename Real>
-void BackOffEquilibration
-( SparseAffineLPEquilibration<Real>& equilibration,
-  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  AffineLPState<Real>& state,
-  AffineLPSolution<Matrix<Real>>& solution,
-  SparseMatrix<Real>& JStatic,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_CSE
-    const Real xScaleMin = Min( equilibration.xScale );
-    const Real yScaleMin = Min( equilibration.yScale );
-    const Real zScaleMin = Min( equilibration.zScale );
-    const Real xScaleMax = MaxNorm( equilibration.xScale );
-    const Real yScaleMax = MaxNorm( equilibration.yScale );
-    const Real zScaleMax = MaxNorm( equilibration.zScale );
-    if( xScaleMin == xScaleMax &&
-        yScaleMin == yScaleMax &&
-        zScaleMin == zScaleMax )
-        return;
-    const Int m = problem.A.Height();
-    const Int n = problem.A.Width();
-    const Int k = problem.G.Height();
-
-    if( ctrl.print )
-    {
-        Output
-        ("Backing off with "
-         "  primalScale = ",equilibration.primalScale,
-         ", dualScale = ",equilibration.dualScale,
-         "  || xScale ||_min = ",xScaleMin,
-         ", || yScale ||_min = ",yScaleMin,
-         ", || zScale ||_min = ",zScaleMin,
-         "  || xScale ||_max = ",xScaleMax,
-         ", || yScale ||_max = ",yScaleMax,
-         ", || zScale ||_max = ",zScaleMax);
-    }
-
-    // Force || xScale ||_max =
-    //       max(|| yScale ||_max,|| zScale ||_max) = 1
-    // by absorbing into primalScale and dualScale.
-    const Real primalRescaling = xScaleMax;
-    const Real dualRescaling = Max(yScaleMax,zScaleMax);
-    equilibration.xScale *= Real(1)/primalRescaling;
-    equilibration.yScale *= Real(1)/dualRescaling;
-    equilibration.zScale *= Real(1)/dualRescaling;
-    equilibration.primalScale *= primalRescaling;
-    equilibration.dualScale *= dualRescaling;
-
-    Matrix<Real> xScaleMultiple, yScaleMultiple, zScaleMultiple;
-    Ones( xScaleMultiple, n, 1 );
-    Ones( yScaleMultiple, m, 1 );
-    Ones( zScaleMultiple, k, 1 );
-    for( Int i=0; i<n; ++i )
-        xScaleMultiple(i) =
-          Pow( equilibration.xScale(i), ctrl.backoffScalePower );
-    for( Int i=0; i<m; ++i )
-        yScaleMultiple(i) =
-          Pow( equilibration.yScale(i), ctrl.backoffScalePower );
-    for( Int i=0; i<k; ++i )
-        zScaleMultiple(i) =
-          Pow( equilibration.zScale(i), ctrl.backoffScalePower );
-
-    // Handle x rescaling (except for first-order optimality matrix)
-    DiagonalSolve( LEFT, NORMAL, xScaleMultiple, solution.x );
-    DiagonalScale
-    ( LEFT, NORMAL, xScaleMultiple, equilibration.xScale );
-    DiagonalScale( LEFT, NORMAL, xScaleMultiple, problem.c );
-    state.cNrm2 = FrobeniusNorm( problem.c );
-    DiagonalScale( RIGHT, NORMAL, xScaleMultiple, problem.A );
-    DiagonalScale( RIGHT, NORMAL, xScaleMultiple, problem.G );
-
-    // Handle y rescaling (except for first-order optimality matrix)
-    DiagonalSolve( LEFT, NORMAL, yScaleMultiple, solution.y );
-    DiagonalScale
-    ( LEFT, NORMAL, yScaleMultiple, equilibration.yScale );
-    DiagonalScale( LEFT, NORMAL, yScaleMultiple, problem.A );
-    DiagonalScale( LEFT, NORMAL, yScaleMultiple, problem.b );
-    state.bNrm2 = FrobeniusNorm( problem.b );
-
-    // Handle z rescaling (except for first-order optimality matrix)
-    DiagonalScale( LEFT, NORMAL, zScaleMultiple, solution.s );
-    DiagonalSolve( LEFT, NORMAL, zScaleMultiple, solution.z );
-    DiagonalScale
-    ( LEFT, NORMAL, zScaleMultiple, equilibration.zScale );
-    DiagonalScale( LEFT, NORMAL, zScaleMultiple, problem.G );
-    DiagonalScale( LEFT, NORMAL, zScaleMultiple, problem.h );
-    state.hNrm2 = FrobeniusNorm( problem.h );
-
-    RescaleKKTButNotRegularization
-    ( xScaleMultiple, yScaleMultiple, zScaleMultiple, JStatic );
-}
-
-template<typename Real>
-void NeutralizePrimalAndDualNorms
-( SparseAffineLPEquilibration<Real>& equilibration,
-  AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  AffineLPState<Real>& state,
-  AffineLPSolution<Matrix<Real>>& solution,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_CSE
-
-    // Ensure that max( || x ||_2, || s ||_2 ) ~= 1.
-    const Real primalNorm =
-      Max( FrobeniusNorm(solution.x), FrobeniusNorm(solution.s) );
-    if( primalNorm < ctrl.primalNormLowerBound ||
-        primalNorm > ctrl.primalNormUpperBound )
-    {
-        RescalePrimal
-        ( primalNorm, equilibration, problem, solution, ctrl.print );
-        state.bNrm2 *= Real(1)/primalNorm;
-        state.hNrm2 *= Real(1)/primalNorm;
-    }
-
-    // Ensure that max( || y ||_2, || z ||_2 ) ~= 1.
-    const Real dualNorm =
-      Max( FrobeniusNorm(solution.y), FrobeniusNorm(solution.z) );
-    if( dualNorm < ctrl.dualNormLowerBound ||
-        dualNorm > ctrl.dualNormUpperBound )
-    {
-        RescaleDual
-        ( dualNorm, equilibration, problem, solution, ctrl.print );
-        state.cNrm2 *= Real(1)/dualNorm;
-    }
-}
-
-template<typename Real>
-void AssertPositiveOrthantMembership
-( const AffineLPSolution<Matrix<Real>>& solution )
-{
-    EL_DEBUG_CSE
-    const Int sNumNonPos = pos_orth::NumOutside( solution.s );
-    const Int zNumNonPos = pos_orth::NumOutside( solution.z );
-    if( sNumNonPos > 0 || zNumNonPos > 0 )
-        LogicError
-        (sNumNonPos," entries of s were nonpositive and ",
-         zNumNonPos," entries of z were nonpositive");
-}
-
-template<typename Real>
-void UpdateCombinedResidualUsingAffine
-( const Real& sigma,
-  const Real& mu,
-  const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  const Real& xRegSmall,
-  const Real& yRegSmall,
-  const Real& zRegSmall,
-  const Real& xRegLarge,
-  const Real& yRegLarge,
-  const Real& zRegLarge,
-  const AffineLPSolution<Matrix<Real>>& solution,
-  const AffineLPSolution<Matrix<Real>>& affineCorrection,
-        AffineLPResidual<Matrix<Real>>& residual,
-  bool compositeNewton )
-{
-    EL_DEBUG_CSE
-    Shift( residual.dualConic, -sigma*mu );
-    // Use the interpretation of Section 2 of [CITATION]
-    //
-    //   R.A. Tapia, Y. Zhang, M. Saltzman, and A. Weiser's
-    //   "The Mehrotra Predictor-Corrector Interior-Point Method as a
-    //   Perturbed Composite Newton Method", July, 1990
-    //   http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
-    //
-    // as a means of generalizing the classic Mehrotra predictor-corrector
-    // to approximate feasibility by updating with
-    // F(solution+affineCorrection) rather than (0,0,0,dsAff o dzAff).
-    //
-    // With that said, it appears that neither the original or generalized
-    // algorithm is generally helpful on the netlib/LP_data examples
-    // (at least, on top of the current regularization and dynamic scaling).
-    //
-    const bool infeasibleCompositeNewton = true;
-    if( compositeNewton && infeasibleCompositeNewton )
-    {
-        Matrix<Real> input, update;
-
-        // residual.primalEquality +=
-        //   A (x + dxAff) - b - (yRegSmall + yRegLarge) dyAff
-        Zeros( update, problem.A.Height(), 1 );
-        input = solution.x;
-        input += affineCorrection.x;
-        Multiply( NORMAL, Real(1), problem.A, input, Real(1), update );
-        Axpy( Real(-1), problem.b, update );
-        Axpy( -yRegSmall-yRegLarge, affineCorrection.y, update );
-        const Real primalEqualityUpdateNrm2 = FrobeniusNorm( update );
-        residual.primalEquality += update;
-
-        // residual.dualEquality +=
-        //   c + A^T (y + dyAff) + G^T (z + dzAff) +
-        //   (xRegSmall + xRegLarge) dxAff
-        Zeros( update, problem.A.Width(), 1 );
-        input += problem.c;
-        input = solution.y;
-        input += affineCorrection.y;
-        Multiply( TRANSPOSE, Real(1), problem.A, input, Real(1), update );
-        input = solution.z;
-        input += affineCorrection.z;
-        Multiply( TRANSPOSE, Real(1), problem.G, input, Real(1), update );
-        Axpy( xRegSmall+xRegLarge, affineCorrection.x, update );
-        const Real dualEqualityUpdateNrm2 = FrobeniusNorm( update );
-        residual.dualEquality += update;
-
-        // residual.primalConic +=
-        //   G (x + dxAff) + (s + dsAff) - h - (zRegSmall + zRegLarge) dzAff
-        Zeros( update, problem.G.Height(), 1 );
-        input = solution.x;
-        input += affineCorrection.x;
-        Multiply( NORMAL, Real(1), problem.G, input, Real(1), update );
-        input = solution.s;
-        input += affineCorrection.s;
-        update += input;
-        Axpy( Real(-1), problem.h, update );
-        Axpy( -zRegSmall-zRegLarge, affineCorrection.z, update );
-        const Real primalConicUpdateNrm2 = FrobeniusNorm( update );
-        residual.primalConic += update;
-
-        // residual.dualConic += (s + dsAff) o (z + dzAff)
-        // TODO(poulson): Incorporate zPivot instead of z?
-        input = solution.s;
-        input += affineCorrection.s;
-        update = solution.z;
-        update += affineCorrection.z;
-        DiagonalScale( LEFT, NORMAL, input, update );
-        const Real dualConicUpdateNrm2 = FrobeniusNorm( update );
-        residual.dualConic += update;
-    }
-    else if( compositeNewton )
-    {
-        // Use the approximation of the composite Newton method that assumes
-        // the update would provide strict feasibility.
-
-        // r_mu := dsAff o dzAff
-        // ---------------------
-        Matrix<Real> update( affineCorrection.z );
-        DiagonalScale( LEFT, NORMAL, affineCorrection.s, update );
-        residual.dualConic += update;
-    }
-}
-
-template<typename Real>
-void UpdateCombinedDualConicResidualWithoutAffine
-( const Real& sigma,
-  const Real& mu,
-  const Real& complementRatio,
-  bool largeCompRatio,
-  const AffineLPSolution<Matrix<Real>>& solution,
-        AffineLPResidual<Matrix<Real>>& residual,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_CSE
-    const Int k = solution.s.Height();
-    if( largeCompRatio && ctrl.softDualityTargets )
-    {
-        // Attempt to correct s o z entrywise into
-        // [lowerTargetRatio,upperTargetRatio]*sigma*mu.
-        Real lowerTargetRatio =
-          Pow(complementRatio,ctrl.lowerTargetRatioLogCompRatio);
-        Real upperTargetRatio =
-          Pow(complementRatio,ctrl.upperTargetRatioLogCompRatio);
-        lowerTargetRatio =
-          Max( lowerTargetRatio,
-            Pow(ctrl.maxComplementRatio,ctrl.lowerTargetRatioLogMaxCompRatio) );
-        upperTargetRatio =
-          Min( upperTargetRatio,
-            Pow(ctrl.maxComplementRatio,ctrl.upperTargetRatioLogMaxCompRatio) );
-        if( ctrl.print )
-            Output
-            ("  lowerTargetRatio=",lowerTargetRatio,
-             ", upperTargetRatio=",upperTargetRatio);
-        const Real lowerTarget = lowerTargetRatio*sigma*mu;
-        const Real upperTarget = upperTargetRatio*sigma*mu;
-        Int numBelowLower=0, numInterior=0, numAboveUpper=0;
-        for( Int i=0; i<k; ++i )
-        {
-            const Real prod = solution.s(i)*solution.z(i);
-            if( prod < lowerTarget )
-            {
-                residual.dualConic(i) -= lowerTarget;
-                ++numBelowLower;
-            }
-            else if( prod > upperTarget )
-            {
-                residual.dualConic(i) -= upperTarget;
-                ++numAboveUpper;
-            }
-            else
-            {
-                residual.dualConic(i) -= prod;
-                ++numInterior;
-            }
-        }
-        if( ctrl.print )
-            Output
-            ("  num targets (belowLower,interior,aboveUpper)=(",
-             numBelowLower,",",numInterior,",",numAboveUpper,")");
-    }
-    else
-    {
-        Shift( residual.dualConic, -sigma*mu );
-    }
-}
-
-template<typename Real>
-bool AttemptToSolve
-( const AffineLPState<Real>& state,
-  const SparseLDLFactorization<Real>& sparseLDLFact,
-  const SparseMatrix<Real>& JOrigScaled,
-  const Matrix<Real>& regLargeScaled,
-  const Matrix<Real>& diagonalScale,
-        Matrix<Real>& rhs,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_ONLY(auto callStack = CopyCallStack())
-    RegSolveInfo<Real> solveInfo;
-    try
-    {
-        solveInfo =
-          reg_ldl::RegularizedSolveAfter
-          ( JOrigScaled, regLargeScaled, diagonalScale,
-            sparseLDLFact, rhs,
-            ctrl.solveCtrl.relTol,
-            ctrl.solveCtrl.maxRefineIts,
-            ctrl.solveCtrl.progress );
-    }
-    catch( const std::exception& except )
-    {
-        if( ctrl.print )
-            Output
-            ("WARNING: solveInfo failed with error: ",except.what());
-        EL_DEBUG_ONLY(SetCallStack(callStack))
-    }
-    return solveInfo.metRequestedTol;
-}
-
-template<typename Real>
-bool AttemptToSolveForUpdateUsingScaling
-( const AffineLPSolution<Matrix<Real>>& solution,
-  const AffineLPState<Real>& state,
-        SparseMatrix<Real>& JOrigScaled,
-        Matrix<Real>& regLargeScaled,
-  const SparseLDLFactorization<Real>& sparseLDLFact,
-  const Matrix<Real>& zDoublePivot,
-  const AffineLPResidual<Matrix<Real>>& residual,
-        Real& dxCombinedNrm2Last,
-        Real& dyCombinedNrm2Last,
-        Real& dzCombinedNrm2Last,
-        Matrix<Real>& packedVector,
-        AffineLPSolution<Matrix<Real>>& correction,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_CSE
-    const Int m = solution.y.Height();
-    const Int n = solution.x.Height();
-    const Int k = solution.s.Height();
-    const Real minNrm2Last =
-      Min( Min(dxCombinedNrm2Last,dyCombinedNrm2Last), dzCombinedNrm2Last );
-    const Real maxNrm2Last =
-      Max( Max(dxCombinedNrm2Last,dyCombinedNrm2Last), dzCombinedNrm2Last );
-
-    // Construct the new KKT RHS
-    // -------------------------
-    KKTRHS
-    ( residual.dualEquality,
-      residual.primalEquality,
-      residual.primalConic,
-      residual.dualConic,
-      zDoublePivot, packedVector );
-
-    // Solve for the proposed (scaled) step
-    // ------------------------------------
-    Matrix<Real> diagonalScale;
-    Zeros( diagonalScale, n+m+k, 1 );
-    const Real maxRescaleRatio =
-      Pow(limits::Epsilon<Real>(),ctrl.maxRescaleRatioLogEps);
-    const Real baselineNrm2 =
-      maxNrm2Last > maxRescaleRatio*minNrm2Last ?
-      maxNrm2Last / maxRescaleRatio :
-      minNrm2Last;
-    if( dxCombinedNrm2Last < baselineNrm2 )
-    {
-        for( Int i=0; i<n; ++i )
-            diagonalScale(i) = Real(1) / maxRescaleRatio;
-    }
-    else
-    {
-        for( Int i=0; i<n; ++i )
-            diagonalScale(i) = Real(1) /
-              Min(maxNrm2Last/dxCombinedNrm2Last,maxRescaleRatio);
-    }
-    if( dyCombinedNrm2Last < baselineNrm2 )
-    {
-        for( Int i=0; i<m; ++i )
-            diagonalScale(i+n) = Real(1) / maxRescaleRatio;
-    }
-    else
-    {
-        for( Int i=0; i<m; ++i )
-            diagonalScale(i+n) = Real(1) /
-              Min(maxNrm2Last/dyCombinedNrm2Last,maxRescaleRatio);
-    }
-    if( dzCombinedNrm2Last < baselineNrm2 )
-    {
-        for( Int i=0; i<k; ++i )
-            diagonalScale(i+n+m) = Real(1) / maxRescaleRatio;
-    }
-    else
-    {
-        for( Int i=0; i<k; ++i )
-            diagonalScale(i+n+m) = Real(1) /
-              Min(maxNrm2Last/dzCombinedNrm2Last,maxRescaleRatio);
-    }
-    DiagonalScale( LEFT, NORMAL, diagonalScale, JOrigScaled );
-    DiagonalScale( RIGHT, NORMAL, diagonalScale, JOrigScaled );
-    DiagonalScale( LEFT, NORMAL, diagonalScale, regLargeScaled );
-    DiagonalScale( LEFT, NORMAL, diagonalScale, regLargeScaled );
-    DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
-    const bool solved =
-      AttemptToSolve
-      ( state, sparseLDLFact, JOrigScaled, regLargeScaled, diagonalScale,
-        packedVector, ctrl );
-    if( !solved )
-        return false;
-
-    DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
-    ExpandSolution
-    ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
-      correction.x, correction.y, correction.z, correction.s );
-
-    dxCombinedNrm2Last = FrobeniusNorm( correction.x );
-    dyCombinedNrm2Last = FrobeniusNorm( correction.y );
-    dzCombinedNrm2Last = FrobeniusNorm( correction.z );
-
-    return true;
-}
-
-template<typename Real>
-bool AttemptToSolveForUpdate
-( const AffineLPSolution<Matrix<Real>>& solution,
-  const AffineLPState<Real>& state,
-        SparseMatrix<Real>& JOrigScaled,
-        Matrix<Real>& regLargeScaled,
-  const SparseLDLFactorization<Real>& sparseLDLFact,
-  const Matrix<Real>& zDoublePivot,
-  const AffineLPResidual<Matrix<Real>>& residual,
-        Matrix<Real>& packedVector,
-        AffineLPSolution<Matrix<Real>>& correction,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_CSE
-    const Int m = solution.y.Height();
-    const Int n = solution.x.Height();
-    const Int k = solution.s.Height();
-
-    // Construct the new KKT RHS
-    // -------------------------
-    KKTRHS
-    ( residual.dualEquality,
-      residual.primalEquality,
-      residual.primalConic,
-      residual.dualConic,
-      zDoublePivot, packedVector );
-
-    // Solve for the proposed (scaled) step
-    // ------------------------------------
-    Matrix<Real> diagonalScale;
-    Ones( diagonalScale, n+m+k, 1 );
-    const bool solved =
-      AttemptToSolve
-      ( state, sparseLDLFact, JOrigScaled, regLargeScaled, diagonalScale,
-        packedVector, ctrl );
-    if( !solved )
-        return false;
-
-    ExpandSolution
-    ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
-      correction.x, correction.y, correction.z, correction.s );
-    return true;
-}
-
-template<typename Real>
-void CheckConvergence
-( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
-  const SparseAffineLPEquilibration<Real>& equilibration,
-  const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  const AffineLPSolution<Matrix<Real>>& solution,
-        Matrix<Real>& zPivot,
-        Matrix<Real>& zPerturb,
-        AffineLPResidual<Matrix<Real>>& residual,
-        AffineLPState<Real>& state,
-  const IPMCtrl<Real>& ctrl )
-{
-    EL_DEBUG_CSE
-    const Real epsilon = limits::Epsilon<Real>();
-    const Real zMinPivotValue = Pow(epsilon,ctrl.zMinPivotValueLogEps);
-
-    // Form the unequlibrated approximate solution.
-    AffineLPSolution<Matrix<Real>> origSolution;
-    UndoEquilibration( solution, equilibration, origSolution );
-
-    // A x - b
-    // -------
-    residual.primalEquality = problem.b;
-    Multiply
-    ( NORMAL, Real(1), problem.A, solution.x,
-      Real(-1), residual.primalEquality );
-
-    // || A x - b ||_2
-    // ---------------
-    state.primalEqualityInfeasNrm2 = FrobeniusNorm( residual.primalEquality );
-
-    // || A x - b ||_2 / (1 + || b ||_2)
-    // ---------------------------------
-    state.primalEqualityInfeasNrm2Rel =
-      state.primalEqualityInfeasNrm2 / (1 + state.bNrm2);
-
-    // c + A^T y + G^T z
-    // -----------------
-    residual.dualEquality = problem.c;
-    Multiply
-    ( TRANSPOSE, Real(1), problem.A, solution.y,
-      Real(1), residual.dualEquality );
-    Multiply
-    ( TRANSPOSE, Real(1), problem.G, solution.z,
-      Real(1), residual.dualEquality );
-
-    // || c + A^T y + G^T z ||_2
-    // -------------------------
-    state.dualEqualityInfeasNrm2 = FrobeniusNorm( residual.dualEquality );
-
-    // || c + A^T y + G^T z ||_2 / (1 + || c ||_2)
-    // -------------------------------------------
-    state.dualEqualityInfeasNrm2Rel =
-      state.dualEqualityInfeasNrm2 / (1 + state.cNrm2);
-
-    // G x + s - h
-    // -----------
-    residual.primalConic = problem.h;
-    Multiply
-    ( NORMAL, Real(1), problem.G, solution.x,
-      Real(-1), residual.primalConic );
-    residual.primalConic += solution.s;
-
-    // || G x + s - h ||_2
-    // -------------------
-    state.primalConicInfeasNrm2 = FrobeniusNorm( residual.primalConic );
-    state.primalConicInfeasNrm2Rel =
-      state.primalConicInfeasNrm2 / (1 + state.hNrm2);
-
-    state.equalityError =
-      Max(state.primalEqualityInfeasNrm2Rel,
-          state.dualEqualityInfeasNrm2Rel);
-    state.infeasError = Max(state.primalConicInfeasNrm2Rel,state.equalityError);
-
-    // Compute the regularized 'z' pivot.
-    zPivot = solution.z;
-    const Int k = solution.z.Height();
-    Zeros( zPerturb, k, 1 );
-    for( Int i=0; i<k; ++i )
-    {
-        if( zPivot(i) < zMinPivotValue )
-        {
-            zPerturb(i) = zMinPivotValue - zPivot(i);
-            zPivot(i) = zMinPivotValue;
-        }
-    }
-    const Real zPerturbNrm2 = FrobeniusNorm( zPerturb );
-    // s o zPivot
-    // ----------
-    residual.dualConic = zPivot;
-    DiagonalScale( LEFT, NORMAL, solution.s, residual.dualConic );
-
-    // Form objective convergence information relative to the original scaling.
-    state.gapOrig = Dot( origSolution.s, origSolution.z );
-    state.primalObjOrig =
-      PrimalObjective<Real>( origProblem, origSolution );
-    state.dualObjOrig =
-      DualObjective<Real>( origProblem, origSolution );
-    state.relCompGapOrig =
-      RelativeComplementarityGap
-      ( state.primalObjOrig, state.dualObjOrig, state.gapOrig );
-    state.relObjGapOrig =
-      RelativeObjectiveGap( state.primalObjOrig, state.dualObjOrig );
-    state.maxRelGapOrig = Max( state.relCompGapOrig, state.relObjGapOrig );
-
-    // Form objective convergence information relative to the current scaling.
-    state.gap = Dot( solution.s, solution.z );
-    state.primalObj = PrimalObjective<Real>( problem, solution );
-    state.dualObj = DualObjective<Real>( problem, solution );
-    state.relCompGap =
-      RelativeComplementarityGap( state.primalObj, state.dualObj, state.gap );
-    state.relObjGap = RelativeObjectiveGap( state.primalObj, state.dualObj );
-    state.maxRelGap = Max( state.relCompGap, state.relObjGap );
-
-    state.dimacsError = Max(state.maxRelGap,state.infeasError);
-    state.dimacsErrorOrig = Max(state.maxRelGapOrig,state.infeasError);
-
-    state.metTolerances =
-      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
-      state.relCompGap <=
-        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
-      state.relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
-
-    state.metTolerancesOrig =
-      state.metTolerances &&
-      state.relCompGapOrig <=
-        Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
-      state.relObjGapOrig <=
-        Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
-
-    state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
-
-    if( ctrl.print )
-    {
-        Output
-        ("iter ",state.numIts,":\n",Indent(),
-         "  || primalEqualityInfeas ||_2 / (1 + || b ||_2) = ",
-         state.primalEqualityInfeasNrm2Rel,"\n",Indent(),
-         "  || dualEqualityInfeas   ||_2 / (1 + || c ||_2) = ",
-         state.dualEqualityInfeasNrm2Rel,"\n",Indent(),
-         "  || primalConicInfeas    ||_2 / (1 + || h ||_2) = ",
-         state.primalConicInfeasNrm2Rel,"\n",Indent(),
-         "\n",Indent(),
-         "  orig   s^T z        = ",state.gapOrig,"\n",Indent(),
-         "  orig   primal       = ",state.primalObjOrig,"\n",Indent(),
-         "  orig   dual         = ",state.dualObjOrig,"\n",Indent(),
-         "  orig   rel obj gap  = ",state.relObjGapOrig,"\n",Indent(),
-         "  orig   rel comp gap = ",state.relCompGapOrig,"\n",Indent(),
-         "  orig   dimacs error = ",state.dimacsErrorOrig,"\n",Indent(),
-         "\n",Indent(),
-         "  scaled s^T z        = ",state.gap,"\n",Indent(),
-         "  scaled primal       = ",state.primalObj,"\n",Indent(),
-         "  scaled dual         = ",state.dualObj,"\n",Indent(),
-         "  scaled rel obj gap  = ",state.relObjGap,"\n",Indent(),
-         "  scaled rel comp gap = ",state.relCompGap,"\n",Indent(),
-         "  scaled dimacs error = ",state.dimacsError,"\n",Indent(),
-         "\n",Indent(),
-         "  complement ratio    = ",state.complementRatio);
-        if( zPerturbNrm2 > Real(0) )
-            Output
-            ("\n",Indent(),
-             "  || zPerturb ||_2 = ",zPerturbNrm2);
-    }
-}
-
-template<typename Real>
-void PrintErrorResiduals
-( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
-  const AffineLPSolution<Matrix<Real>>& affineCorrection,
-  const AffineLPResidual<Matrix<Real>>& residual,
-  const AffineLPState<Real>& state,
-  const Real& xRegSmall,
-  const Real& yRegSmall,
-  const Real& zRegSmall,
-  const Real& xRegLarge,
-  const Real& yRegLarge,
-  const Real& zRegLarge )
-{
-    EL_DEBUG_CSE
-    AffineLPResidual<Matrix<Real>> error;
-
-    error.primalEquality = residual.primalEquality;
-    Multiply
-    ( NORMAL, Real(1), problem.A, affineCorrection.x,
-      Real(1), error.primalEquality );
-    Axpy( -yRegSmall, affineCorrection.y, error.primalEquality );
-    Axpy( -yRegLarge, affineCorrection.y, error.primalEquality );
-    const Real dxErrorNrm2 = Nrm2( error.primalEquality );
-
-    error.dualEquality = residual.dualEquality;
-    Axpy( xRegSmall, affineCorrection.x, error.dualEquality );
-    Axpy( xRegLarge, affineCorrection.x, error.dualEquality );
-    Multiply
-    ( TRANSPOSE, Real(1), problem.A, affineCorrection.y,
-      Real(1), error.dualEquality );
-    Multiply
-    ( TRANSPOSE, Real(1), problem.G, affineCorrection.z,
-      Real(1), error.dualEquality );
-    const Real dyErrorNrm2 = Nrm2( error.dualEquality );
-
-    error.primalConic = residual.primalConic;
-    error.primalConic += affineCorrection.s;
-    Multiply
-    ( NORMAL, Real(1), problem.G, affineCorrection.x,
-      Real(1), error.primalConic );
-    Axpy( -zRegSmall, affineCorrection.z, error.primalConic );
-    Axpy( -zRegLarge, affineCorrection.z, error.primalConic );
-    const Real dzErrorNrm2 = Nrm2( error.primalConic );
-
-    // TODO(poulson): error.dualConic
-
-    Output
-    ("|| dxError ||_2 / (1 + || r_b ||_2) = ",
-     dxErrorNrm2/(1+state.primalEqualityInfeasNrm2),"\n",Indent(),
-     "|| dyError ||_2 / (1 + || r_c ||_2) = ",
-     dyErrorNrm2/(1+state.dualEqualityInfeasNrm2),"\n",Indent(),
-     "|| dzError ||_2 / (1 + || r_h ||_2) = ",
-     dzErrorNrm2/(1+state.primalConicInfeasNrm2));
-}
-
-template<typename Real>
-std::pair<Real,Real>
-ComputePrimalDualStepSizes
-( const AffineLPSolution<Matrix<Real>>& solution,
-  const AffineLPSolution<Matrix<Real>>& correction,
-  const Real& upperBound,
-  const Real& maxStepRatio,
-  bool forceSameStep )
-{
-    EL_DEBUG_CSE
-    Real primalStep = pos_orth::MaxStep( solution.s, correction.s, upperBound );
-    Real dualStep = pos_orth::MaxStep( solution.z, correction.z, upperBound );
-    if( forceSameStep )
-        primalStep = dualStep = Min(primalStep,dualStep);
-    primalStep = Min(maxStepRatio*primalStep,Real(1));
-    dualStep = Min(maxStepRatio*dualStep,Real(1));
-    return std::make_pair( primalStep, dualStep );
-}
-
-template<typename Real>
-Real MedianBarrier
-( const Matrix<Real>& s, const Matrix<Real>& z )
-{
-    EL_DEBUG_CSE
-    auto dualProd( s );
-    DiagonalScale( LEFT, NORMAL, z, dualProd );
-    auto medianPair = Median( dualProd );
-    const Real barrierMedian = medianPair.value;
-    return barrierMedian;
-}
-
-template<typename Real>
 void EquilibratedIPM
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
         SparseAffineLPEquilibration<Real>& equilibration,
@@ -2420,19 +3024,18 @@ void EquilibratedIPM
         Output("|| c ||_2 = ",state.cNrm2);
         Output("|| h ||_2 = ",state.hNrm2);
     }
-
     const Real xRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.xRegSmallLogEps);
     const Real yRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.yRegSmallLogEps);
     const Real zRegSmall0 = origTwoNormEst*Pow(epsilon,ctrl.zRegSmallLogEps);
     const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
     const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
     const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
-    Real xRegLarge = xRegLarge0;
-    Real yRegLarge = yRegLarge0;
-    Real zRegLarge = zRegLarge0;
-    Real xRegSmall = xRegSmall0;
-    Real yRegSmall = yRegSmall0;
-    Real zRegSmall = zRegSmall0;
+    state.xRegLarge = xRegLarge0;
+    state.yRegLarge = yRegLarge0;
+    state.zRegLarge = zRegLarge0;
+    state.xRegSmall = xRegSmall0;
+    state.yRegSmall = yRegSmall0;
+    state.zRegSmall = zRegSmall0;
 
     // Once the permanent regularization is sufficiently large, we no longer
     // need to have separate 'temporary' regularization.
@@ -2441,25 +3044,26 @@ void EquilibratedIPM
     regSmall.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regSmall(i) =  xRegSmall;
-        else if( i < n+m ) regSmall(i) = -yRegSmall;
-        else               regSmall(i) = -zRegSmall;
+        if( i < n )        regSmall(i) =  state.xRegSmall;
+        else if( i < n+m ) regSmall(i) = -state.yRegSmall;
+        else               regSmall(i) = -state.zRegSmall;
     }
 
     Matrix<Real> regLarge, regLargeScaled;
     regLarge.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
-        if( i < n )        regLarge(i) =  xRegLarge;
-        else if( i < n+m ) regLarge(i) = -yRegLarge;
-        else               regLarge(i) = -zRegLarge;
+        if( i < n )        regLarge(i) =  state.xRegLarge;
+        else if( i < n+m ) regLarge(i) = -state.yRegLarge;
+        else               regLarge(i) = -state.zRegLarge;
     }
 
     // Initialize the static portion of the KKT system
     // ===============================================
     SparseMatrix<Real> JStatic;
     StaticKKT
-    ( problem.A, problem.G, Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
+    ( problem.A, problem.G,
+      Sqrt(state.xRegSmall), Sqrt(state.yRegSmall), Sqrt(state.zRegSmall),
       JStatic, false );
     JStatic.FreezeSparsity();
 
@@ -2479,9 +3083,9 @@ void EquilibratedIPM
             ("Increasing large regularization by a factor of ",
              regIncreaseFactor);
         regLarge *= regIncreaseFactor;
-        xRegLarge *= regIncreaseFactor;
-        yRegLarge *= regIncreaseFactor;
-        zRegLarge *= regIncreaseFactor;
+        state.xRegLarge *= regIncreaseFactor;
+        state.yRegLarge *= regIncreaseFactor;
+        state.zRegLarge *= regIncreaseFactor;
     };
 
     auto attemptToFactor = [&]() {
@@ -2752,11 +3356,8 @@ void EquilibratedIPM
               ctrl.compositeNewton &&
               state.infeasError < Pow(epsilon,ctrl.infeasibilityTolLogEps);
             UpdateCombinedResidualUsingAffine
-            ( sigma, state.barrier, problem,
-              xRegSmall, yRegSmall, zRegSmall,
-              xRegLarge, yRegLarge, zRegLarge,
-              solution, affineCorrection,
-              residual, compositeNewton );
+            ( sigma, problem, state, solution, affineCorrection, residual,
+              compositeNewton );
             const bool solvedForCombined =
               AttemptToSolveForUpdateUsingScaling
               ( solution, state, JOrigScaled, regLargeScaled, sparseLDLFact,
@@ -2939,6 +3540,7 @@ void EquilibratedIPM
     if( regIncreaseFactor <= Real(1) )
         LogicError("Regularization increase factor must be > 1");
 
+    AffineLPState<Real> state;
     const Real bNrm2 = Nrm2( problem.b );
     const Real cNrm2 = Nrm2( problem.c );
     const Real hNrm2 = Nrm2( problem.h );
@@ -2969,12 +3571,12 @@ void EquilibratedIPM
     const Real xRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.xRegLargeLogEps);
     const Real yRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.yRegLargeLogEps);
     const Real zRegLarge0 = origTwoNormEst*Pow(epsilon,ctrl.zRegLargeLogEps);
-    Real xRegLarge = xRegLarge0;
-    Real yRegLarge = yRegLarge0;
-    Real zRegLarge = zRegLarge0;
-    Real xRegSmall = xRegSmall0;
-    Real yRegSmall = yRegSmall0;
-    Real zRegSmall = zRegSmall0;
+    state.xRegLarge = xRegLarge0;
+    state.yRegLarge = yRegLarge0;
+    state.zRegLarge = zRegLarge0;
+    state.xRegSmall = xRegSmall0;
+    state.yRegSmall = yRegSmall0;
+    state.zRegSmall = zRegSmall0;
 
     DistMultiVec<Real> regLarge(grid);
     regLarge.Resize( n+m+k, 1 );
@@ -2982,11 +3584,11 @@ void EquilibratedIPM
     {
         const Int i = regLarge.GlobalRow(iLoc);
         if( i < n )
-          regLarge.SetLocal( iLoc, 0, xRegLarge );
+          regLarge.SetLocal( iLoc, 0, state.xRegLarge );
         else if( i < n+m )
-          regLarge.SetLocal( iLoc, 0, -yRegLarge );
+          regLarge.SetLocal( iLoc, 0, -state.yRegLarge );
         else
-          regLarge.SetLocal( iLoc, 0, -zRegLarge );
+          regLarge.SetLocal( iLoc, 0, -state.zRegLarge );
     }
     regLarge *= origTwoNormEst;
 
@@ -2995,7 +3597,7 @@ void EquilibratedIPM
     DistSparseMatrix<Real> JStatic(grid);
     StaticKKT
     ( problem.A, problem.G,
-      Sqrt(xRegSmall), Sqrt(yRegSmall), Sqrt(zRegSmall),
+      Sqrt(state.xRegSmall), Sqrt(state.yRegSmall), Sqrt(state.zRegSmall),
       JStatic, false );
     JStatic.FreezeSparsity();
     JStatic.InitializeMultMeta();
