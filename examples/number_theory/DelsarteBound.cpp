@@ -122,7 +122,7 @@ Real DenseDelsarteBoundFull
     El::Timer timer;
     timer.Start();
     El::LP( problem, solution, ctrl );
-    El::Output("  Reduced dense LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Full dense LP solve: ",timer.Stop()," [sec]");
     if( print )
         El::Print( solution.x, "x" );
     const Real delsarteBound = -El::Dot(problem.c,solution.x);
@@ -198,7 +198,7 @@ Real DenseDelsarteBoundReduced
     El::Timer timer;
     timer.Start();
     El::LP( problem, solution, ctrl );
-    El::Output("  Dense LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Reduced dense LP solve: ",timer.Stop()," [sec]");
     if( print )
         El::Print( solution.x, "xReduced" );
     // Since the maximization objective is all ones and one of the entries of
@@ -276,7 +276,7 @@ Real SparseDelsarteBoundFull
     El::Timer timer;
     timer.Start();
     El::LP( problem, solution, ctrl );
-    El::Output("  Sparse LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Full sparse LP solve: ",timer.Stop()," [sec]");
     if( print )
         El::Print( solution.x, "x" );
     const Real delsarteBound = -El::Dot(problem.c,solution.x);
@@ -313,7 +313,7 @@ Real SparseDelsarteBoundReduced
     // '-Kravchuk(primePower,i,codeLength,0)'.
     //
     const El::Int m = 0;
-    const El::Int n = codeLength+1;
+    const El::Int n = codeLength+1-codeDistance;
     const El::Int k = ((codeLength+1)-codeDistance) + (codeLength+1);
 
     El::AffineLPProblem<El::SparseMatrix<Real>,El::Matrix<Real>> problem;
@@ -416,13 +416,13 @@ int main( int argc, char* argv[] )
         const El::Int primePower =
           El::Input("--primePower","prime power for finite field",2);
         const El::Int codeLength =
-          El::Input("--codeLength","number of words in message",3);
+          El::Input("--codeLength","number of words in message",20);
         const El::Int codeDistance =
-          El::Input("--codeDistance","code word distance",2);
+          El::Input("--codeDistance","code word distance",6);
         const bool reduceLP =
           El::Input("--reduceLP","eliminate variables?",true);
         const bool testDense =
-          El::Input("--testDense","test dense solves?",true);
+          El::Input("--testDense","test dense solves?",false);
         const bool testSparse =
           El::Input("--testSparse","test sparse solves?",true);
         const bool testDouble =
@@ -447,6 +447,9 @@ int main( int argc, char* argv[] )
           El::Input("--ipmProgress","print IPM progress?",false);
         El::ProcessInput();
         El::PrintInputReport();
+
+        if( !testSparse && !testDense )
+            El::LogicError("Both the dense and sparse solvers were disabled.");
 
         auto factors = El::TrialDivision( primePower, primePower );
         const auto prime = factors[0];

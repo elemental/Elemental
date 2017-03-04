@@ -2343,7 +2343,6 @@ void EquilibratedIPM
     {
         if( state.backingOffEquilibration )
         {
-            Output("Calling BackOffEquilibration");
             BackOffEquilibration
             ( equilibration, problem, state, solution, ctrl );
         }
@@ -3273,7 +3272,6 @@ void EquilibratedIPM
     {
         if( state.backingOffEquilibration )
         {
-            Output("Calling BackOffEquilibration");
             BackOffEquilibration
             ( equilibration, problem, state, solution, JStatic, ctrl );
         }
