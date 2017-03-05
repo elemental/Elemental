@@ -258,6 +258,7 @@ struct AffineLPState
 
     Real barrier=Real(0.1);
     Real barrierOld=Real(0.1);
+    bool centeringStep=false;
 
     Real xRegSmall;
     Real yRegSmall;
@@ -299,6 +300,7 @@ struct AffineLPState
 
     // complementRatio := (max_i s_i * z_i) / (min_i s_i * z_i).
     Real complementRatio=Real(1);
+    bool largeComplementRatio=false;
 
     Real relObjGap=Real(1);
     Real relObjGapOrig=Real(1);
@@ -319,6 +321,7 @@ struct AffineLPState
     bool metTolerancesOrig=false;
 
     bool backingOffEquilibration=false;
+    bool lastStepForcedBarrierIncrease=false;
 };
 
 template<typename Real>
@@ -959,14 +962,14 @@ void UpdateCombinedDualConicResidualWithoutAffine
 ( const Real& sigma,
   const Real& mu,
   const Real& complementRatio,
-  bool largeCompRatio,
+  bool largeComplementRatio,
   const AffineLPSolution<Matrix<Real>>& solution,
         AffineLPResidual<Matrix<Real>>& residual,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
     const Int k = solution.s.Height();
-    if( largeCompRatio && ctrl.softDualityTargets )
+    if( largeComplementRatio && ctrl.softDualityTargets )
     {
         // Attempt to correct s o z entrywise into
         // [lowerTargetRatio,upperTargetRatio]*sigma*mu.
@@ -1276,7 +1279,7 @@ bool AttemptToSolveForUpdate
 }
 
 template<typename Real>
-void CheckConvergence
+bool CheckConvergence
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& origProblem,
   const DenseAffineLPEquilibration<Real>& equilibration,
   const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
@@ -1407,6 +1410,33 @@ void CheckConvergence
 
     state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
 
+    bool converged = false;
+    if( state.metTolerancesOrig )
+    {
+        if( state.dimacsErrorOrig >=
+            ctrl.minDimacsDecreaseRatio*state.dimacsErrorOrigOld )
+        {
+            // We have met the tolerances and progress in the last iteration
+            // was not significant.
+            converged = true;
+        }
+        else if( state.numIts == ctrl.maxIts )
+        {
+            // We have hit the iteration limit but can declare success.
+            converged = true;
+        }
+    }
+    else if( state.metTolerances && !state.metTolerancesOrig )
+    {
+        state.backingOffEquilibration = true;
+        if( ctrl.print )
+            Output("  will back off from equilibration in next step");
+    }
+    else
+    {
+        state.backingOffEquilibration = false;
+    }
+
     if( ctrl.print )
     {
         Output
@@ -1438,10 +1468,12 @@ void CheckConvergence
             ("\n",Indent(),
              "  || zPerturb ||_2 = ",zPerturbNrm2);
     }
+
+    return converged;
 }
 
 template<typename Real>
-void CheckConvergence
+bool CheckConvergence
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
   const SparseAffineLPEquilibration<Real>& equilibration,
   const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
@@ -1572,6 +1604,33 @@ void CheckConvergence
 
     state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
 
+    bool converged = false;
+    if( state.metTolerancesOrig )
+    {
+        if( state.dimacsErrorOrig >=
+            ctrl.minDimacsDecreaseRatio*state.dimacsErrorOrigOld )
+        {
+            // We have met the tolerances and progress in the last iteration
+            // was not significant.
+            converged = true;
+        }
+        else if( state.numIts == ctrl.maxIts )
+        {
+            // We have hit the iteration limit but can declare success.
+            converged = true;
+        }
+    }
+    else if( state.metTolerances && !state.metTolerancesOrig )
+    {
+        state.backingOffEquilibration = true;
+        if( ctrl.print )
+            Output("  will back off from equilibration in next step");
+    }
+    else
+    {
+        state.backingOffEquilibration = false;
+    }
+
     if( ctrl.print )
     {
         Output
@@ -1603,6 +1662,8 @@ void CheckConvergence
             ("\n",Indent(),
              "  || zPerturb ||_2 = ",zPerturbNrm2);
     }
+
+    return converged;
 }
 
 template<typename Real>
@@ -1710,15 +1771,15 @@ ComputePrimalDualStepSizes
   const AffineLPSolution<Matrix<Real>>& correction,
   const Real& upperBound,
   const Real& maxStepRatio,
-  bool forceSameStep )
+  const Real& maxStepImbalance )
 {
     EL_DEBUG_CSE
     Real primalStep = pos_orth::MaxStep( solution.s, correction.s, upperBound );
     Real dualStep = pos_orth::MaxStep( solution.z, correction.z, upperBound );
-    if( forceSameStep )
-        primalStep = dualStep = Min(primalStep,dualStep);
-    primalStep = Min(maxStepRatio*primalStep,Real(1));
-    dualStep = Min(maxStepRatio*dualStep,Real(1));
+    primalStep = Min( primalStep, maxStepImbalance*dualStep );
+    dualStep = Min( dualStep, maxStepImbalance*primalStep );
+    primalStep = Min( maxStepRatio*primalStep, Real(1) );
+    dualStep = Min( maxStepRatio*dualStep, Real(1) );
     return std::make_pair( primalStep, dualStep );
 }
 
@@ -2229,6 +2290,80 @@ void RecenterAffineLPProblem
 }
 
 template<typename Real>
+void DecideBarrierAndStepStrategy
+(       AffineLPState<Real>& state,
+  const AffineLPSolution<Matrix<Real>>& solution,
+  const IPMCtrl<Real>& ctrl )
+{
+    EL_DEBUG_CSE
+    const Int k = solution.s.Height();
+
+    // Decide whether or not we will attempt a predictor-corrector primarily
+    // based upon the complementarity ratio.
+    state.largeComplementRatio =
+      state.complementRatio > ctrl.maxComplementRatio;
+    // It has been observed that models such as wood1w can continually try
+    // to drive down the barrier parameter despite relative infeasibility
+    // (e.g., a relative complementarity gap of 10^-14 while the relative
+    // dual infeasibility is on the order of 10^-7).
+    const Real relativeComplementarityLowerBound =
+      Min(Pow(state.infeasError,Real(1.)),Real(1e-3));
+    const bool relCompGapIsTooSmall =
+      state.relCompGap < relativeComplementarityLowerBound;
+    state.centeringStep = state.largeComplementRatio || relCompGapIsTooSmall;
+    const Real barrierClassical = Dot(solution.s,solution.z) / k;
+    const Real barrierMedian = MedianBarrier( solution.s, solution.z );
+    if( ctrl.print )
+        Output
+        ("  barrierMedian = ",barrierMedian,
+         ", barrierClassical=",barrierClassical);
+    if( state.centeringStep )
+    {
+        if( ctrl.print )
+            Output("  will take a centering step");
+        if( relCompGapIsTooSmall )
+        {
+            state.barrier = Max( state.barrierOld, barrierMedian );
+            if( ctrl.print )
+                Output
+                ("  using barrier = Max( barrierOld=",state.barrierOld,
+                 ", barrierMedian=",barrierMedian,")");
+            state.lastStepForcedBarrierIncrease = true;
+        }
+        else
+        {
+            state.barrier = barrierMedian;
+            if( ctrl.print )
+                Output
+                ("  using barrier = barrierMedian = ",barrierMedian);
+            state.lastStepForcedBarrierIncrease = false;
+        }
+    }
+    else
+    {
+        if( ctrl.print )
+            Output("  will take a predictor-corrector step.");
+        if( state.backingOffEquilibration )
+        {
+            state.barrier = barrierMedian;
+            if( ctrl.print )
+                Output
+                ("  backing off equilibration, using barrierMedian = ",
+                 barrierMedian);
+        }
+        else
+        {
+            state.barrier = Min( state.barrierOld, barrierMedian );
+            if( ctrl.print )
+                Output
+                ("  using barrier = Min( barrierOld=",state.barrierOld,
+                 ", barrierMedian=",barrierMedian," )");
+        }
+        state.lastStepForcedBarrierIncrease = false;
+    }
+}
+
+template<typename Real>
 void EquilibratedIPM
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& origProblem,
         DenseAffineLPEquilibration<Real>& equilibration,
@@ -2247,6 +2382,8 @@ void EquilibratedIPM
         LogicError("Regularization increase factor must be > 1");
 
     const Real minStepSize = Pow(limits::Epsilon<Real>(),Real(0.33));
+    const Real maxPredictorCorrectorStepImbalance =
+      ctrl.forceSameStep ? Real(1) : Real(10);
 
     AffineLPResidual<Matrix<Real>> residual, error;
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
@@ -2331,10 +2468,9 @@ void EquilibratedIPM
         return true;
       };
 
+    Int numTinySteps = 0;
     const Int indent = PushIndent();
     auto lastSolution( solution );
-    bool lastStepForcedBarrierIncrease = false;
-    Int numIts=0;
     for( ; state.numIts<=ctrl.maxIts;
          ++state.numIts,
          state.barrierOld=state.barrier,
@@ -2351,24 +2487,13 @@ void EquilibratedIPM
         AssertPositiveOrthantMembership( solution );
 
         Matrix<Real> zPivot, zPerturb;
-        CheckConvergence
-        ( origProblem, equilibration, problem, solution,
-          zPivot, zPerturb, residual, state, ctrl );
-
-        if( state.metTolerancesOrig )
+        const bool converged =
+          CheckConvergence
+          ( origProblem, equilibration, problem, solution,
+            zPivot, zPerturb, residual, state, ctrl );
+        if( converged )
         {
-            if( state.dimacsErrorOrig >=
-                ctrl.minDimacsDecreaseRatio*state.dimacsErrorOrigOld )
-            {
-                // We have met the tolerances and progress in the last iteration
-                // was not significant.
-                break;
-            }
-            else if( state.numIts == ctrl.maxIts )
-            {
-                // We have hit the iteration limit but can declare success.
-                break;
-            }
+            break;
         }
         else if( state.numIts == ctrl.maxIts )
         {
@@ -2376,7 +2501,7 @@ void EquilibratedIPM
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving tolerances");
         }
-        else if( !lastStepForcedBarrierIncrease &&
+        else if( !state.lastStepForcedBarrierIncrease &&
                  !state.backingOffEquilibration &&
                  state.dimacsErrorOrig > Real(1.05)*state.dimacsErrorOrigOld &&
                  state.dimacsError > Real(1.05)*state.dimacsErrorOld &&
@@ -2388,17 +2513,6 @@ void EquilibratedIPM
             solution = lastSolution;
             increaseRegularization();
             continue;
-        }
-
-        if( state.metTolerances && !state.metTolerancesOrig )
-        {
-            state.backingOffEquilibration = true;
-            if( ctrl.print )
-                Output("  will back off from equilibration in next step");
-        }
-        else
-        {
-            state.backingOffEquilibration = false;
         }
 
         // Factor the KKT system
@@ -2415,70 +2529,10 @@ void EquilibratedIPM
 
         // Decide whether or not we will attempt a predictor-corrector primarily
         // based upon the complementarity ratio.
-        const bool largeCompRatio =
-          state.complementRatio > ctrl.maxComplementRatio;
-        // It has been observed that models such as wood1w can continually try
-        // to drive down the barrier parameter despite relative infeasibility
-        // (e.g., a relative complementarity gap of 10^-14 while the relative
-        // dual infeasibility is on the order of 10^-7).
-        const Real relativeComplementarityLowerBound =
-          Min(Pow(state.infeasError,Real(1.)),Real(1e-3));
-        const bool relCompGapIsTooSmall =
-          state.relCompGap < relativeComplementarityLowerBound;
-        const bool centeringStep = largeCompRatio || relCompGapIsTooSmall;
-        const Real barrierClassical = Dot(solution.s,solution.z) / k;
-        const Real barrierMedian = MedianBarrier( solution.s, solution.z );
-        if( ctrl.print )
-            Output
-            ("  barrierMedian = ",barrierMedian,
-             ", barrierClassical=",barrierClassical);
-        if( centeringStep )
-        {
-            if( ctrl.print )
-                Output("  will take a centering step");
-            if( relCompGapIsTooSmall )
-            {
-                state.barrier = Max( state.barrierOld, barrierMedian );
-                if( ctrl.print )
-                    Output
-                    ("  using barrier = Max( barrierOld=",state.barrierOld,
-                     ", barrierMedian=",barrierMedian,")");
-                lastStepForcedBarrierIncrease = true;
-            }
-            else
-            {
-                state.barrier = barrierMedian;
-                if( ctrl.print )
-                    Output
-                    ("  using barrier = barrierMedian = ",barrierMedian);
-                lastStepForcedBarrierIncrease = false;
-            }
-        }
-        else
-        {
-            if( ctrl.print )
-                Output("  will take a predictor-corrector step.");
-            if( state.backingOffEquilibration )
-            {
-                state.barrier = barrierMedian;
-                if( ctrl.print )
-                    Output
-                    ("  backing off equilibration, using barrierMedian = ",
-                     barrierMedian);
-            }
-            else
-            {
-                state.barrier = Min( state.barrierOld, barrierMedian );
-                if( ctrl.print )
-                    Output
-                    ("  using barrier = Min( barrierOld=",state.barrierOld,
-                     ", barrierMedian=",barrierMedian," )");
-            }
-            lastStepForcedBarrierIncrease = false;
-        }
+        DecideBarrierAndStepStrategy( state, solution, ctrl );
 
         Real sigma;
-        if( centeringStep )
+        if( state.centeringStep )
         {
             sigma = 1;
             if( ctrl.print )
@@ -2487,7 +2541,8 @@ void EquilibratedIPM
             // Solve for the combined direction
             // ================================
             UpdateCombinedDualConicResidualWithoutAffine
-            ( sigma, state.barrier, state.complementRatio, largeCompRatio,
+            ( sigma, state.barrier,
+              state.complementRatio, state.largeComplementRatio,
               solution, residual, ctrl );
             const bool solvedForCombined =
               AttemptToSolveForUpdate
@@ -2534,8 +2589,10 @@ void EquilibratedIPM
             // ==============================
             auto affineStep =
               ComputePrimalDualStepSizes
-              ( solution, affineCorrection, Real(1), Real(1),
-                ctrl.forceSameStep );
+              ( solution, affineCorrection,
+                Real(1) /* upperBound */,
+                Real(1) /* maxStepRatio */,
+                Real(1) /* maxStepImbalance */ );
             if( ctrl.print )
             {
                 Output("  affine primal step size: ",affineStep.first);
@@ -2581,7 +2638,9 @@ void EquilibratedIPM
         lastSolution = solution;
         auto combinedStep = ComputePrimalDualStepSizes
         ( solution, correction,
-          Real(1)/ctrl.maxStepRatio, ctrl.maxStepRatio, ctrl.forceSameStep );
+          Real(1)/ctrl.maxStepRatio,
+          ctrl.maxStepRatio,
+          state.centeringStep ? Real(1) : maxPredictorCorrectorStepImbalance );
         if( ctrl.print )
         {
             Output("  combined primal step size: ",combinedStep.first);
@@ -2600,7 +2659,15 @@ void EquilibratedIPM
             }
             else
             {
-                RuntimeError("Attempted step sizes less than ",minStepSize);
+                if( numTinySteps > 10 )
+                    RuntimeError("Attempted too many tiny steps");
+                if( ctrl.print )
+                  Output
+                  ("Attempted step sizes less than ",minStepSize,
+                   ", so increasing regularization");
+                increaseRegularization();
+                ++numTinySteps;
+                continue;
             }
         }
         if( ctrl.print )
@@ -3153,6 +3220,8 @@ void EquilibratedIPM
     if( regIncreaseFactor <= Real(1) )
         LogicError("Regularization increase factor must be > 1");
     const Real minStepSize = Pow(limits::Epsilon<Real>(),Real(0.33));
+    const Real maxPredictorCorrectorStepImbalance =
+      ctrl.forceSameStep ? Real(1) : Real(10);
 
     AffineLPResidual<Matrix<Real>> residual, error;
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
@@ -3258,9 +3327,9 @@ void EquilibratedIPM
         return true;
       };
 
+    Int numTinySteps = 0;
     const Int indent = PushIndent();
     auto lastSolution( solution );
-    bool lastStepForcedBarrierIncrease = false;
     Real dxCombinedNrm2Last=Real(1),
          dyCombinedNrm2Last=Real(1),
          dzCombinedNrm2Last=Real(1);
@@ -3280,24 +3349,13 @@ void EquilibratedIPM
         AssertPositiveOrthantMembership( solution );
 
         Matrix<Real> zPivot, zPerturb;
-        CheckConvergence
-        ( origProblem, equilibration, problem, solution,
-          zPivot, zPerturb, residual, state, ctrl );
-
-        if( state.metTolerancesOrig )
+        const bool converged =
+          CheckConvergence
+          ( origProblem, equilibration, problem, solution,
+            zPivot, zPerturb, residual, state, ctrl );
+        if( converged )
         {
-            if( state.dimacsErrorOrig >=
-                ctrl.minDimacsDecreaseRatio*state.dimacsErrorOrigOld )
-            {
-                // We have met the tolerances and progress in the last iteration
-                // was not significant.
-                break;
-            }
-            else if( state.numIts == ctrl.maxIts )
-            {
-                // We have hit the iteration limit but can declare success.
-                break;
-            }
+            break;
         }
         else if( state.numIts == ctrl.maxIts )
         {
@@ -3305,7 +3363,7 @@ void EquilibratedIPM
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
              "achieving tolerances");
         }
-        else if( !lastStepForcedBarrierIncrease &&
+        else if( !state.lastStepForcedBarrierIncrease &&
                  !state.backingOffEquilibration &&
                  state.dimacsErrorOrig > Real(1.05)*state.dimacsErrorOrigOld &&
                  state.dimacsError > Real(1.05)*state.dimacsErrorOld &&
@@ -3317,17 +3375,6 @@ void EquilibratedIPM
             solution = lastSolution;
             increaseRegularization();
             continue;
-        }
-
-        if( state.metTolerances && !state.metTolerancesOrig )
-        {
-            state.backingOffEquilibration = true;
-            if( ctrl.print )
-                Output("  will back off from equilibration in next step");
-        }
-        else
-        {
-            state.backingOffEquilibration = false;
         }
 
         // Factor the (rescaled) KKT system
@@ -3352,70 +3399,10 @@ void EquilibratedIPM
 
         // Decide whether or not we will attempt a predictor-corrector primarily
         // based upon the complementarity ratio.
-        const bool largeCompRatio =
-          state.complementRatio > ctrl.maxComplementRatio;
-        // It has been observed that models such as wood1w can continually try
-        // to drive down the barrier parameter despite relative infeasibility
-        // (e.g., a relative complementarity gap of 10^-14 while the relative
-        // dual infeasibility is on the order of 10^-7).
-        const Real relativeComplementarityLowerBound =
-          Min(Pow(state.infeasError,Real(1.)),Real(1e-3));
-        const bool relCompGapIsTooSmall =
-          state.relCompGap < relativeComplementarityLowerBound;
-        const bool centeringStep = largeCompRatio || relCompGapIsTooSmall;
-        const Real barrierClassical = Dot(solution.s,solution.z) / k;
-        const Real barrierMedian = MedianBarrier( solution.s, solution.z );
-        if( ctrl.print )
-            Output
-            ("  barrierMedian = ",barrierMedian,
-             ", barrierClassical=",barrierClassical);
-        if( centeringStep )
-        {
-            if( ctrl.print )
-                Output("  will take a centering step");
-            if( relCompGapIsTooSmall )
-            {
-                state.barrier = Max( state.barrierOld, barrierMedian );
-                if( ctrl.print )
-                    Output
-                    ("  using barrier = Max( barrierOld=",state.barrierOld,
-                     ", barrierMedian=",barrierMedian,")");
-                lastStepForcedBarrierIncrease = true;
-            }
-            else
-            {
-                state.barrier = barrierMedian;
-                if( ctrl.print )
-                    Output
-                    ("  using barrier = barrierMedian = ",barrierMedian);
-                lastStepForcedBarrierIncrease = false;
-            }
-        }
-        else
-        {
-            if( ctrl.print )
-                Output("  will take a predictor-corrector step.");
-            if( state.backingOffEquilibration )
-            {
-                state.barrier = barrierMedian;
-                if( ctrl.print )
-                    Output
-                    ("  backing off equilibration, using barrierMedian = ",
-                     barrierMedian);
-            }
-            else
-            {
-                state.barrier = Min( state.barrierOld, barrierMedian );
-                if( ctrl.print )
-                    Output
-                    ("  using barrier = Min( barrierOld=",state.barrierOld,
-                     ", barrierMedian=",barrierMedian," )");
-            }
-            lastStepForcedBarrierIncrease = false;
-        }
+        DecideBarrierAndStepStrategy( state, solution, ctrl );
 
         Real sigma;
-        if( centeringStep )
+        if( state.centeringStep )
         {
             sigma = 1;
             if( ctrl.print )
@@ -3424,7 +3411,8 @@ void EquilibratedIPM
             // Solve for the combined direction
             // ================================
             UpdateCombinedDualConicResidualWithoutAffine
-            ( sigma, state.barrier, state.complementRatio, largeCompRatio,
+            ( sigma, state.barrier,
+              state.complementRatio, state.largeComplementRatio,
               solution, residual, ctrl );
             const bool solvedForCombined =
               AttemptToSolveForUpdate
@@ -3471,8 +3459,10 @@ void EquilibratedIPM
             // ==============================
             auto affineStep =
               ComputePrimalDualStepSizes
-              ( solution, affineCorrection, Real(1), Real(1),
-                ctrl.forceSameStep );
+              ( solution, affineCorrection,
+                Real(1) /* upperBound */,
+                Real(1) /* maxStepRatio */,
+                Real(1) /* maxStepImbalance */ );
             if( ctrl.print )
             {
                 Output("  affine primal step size: ",affineStep.first);
@@ -3520,7 +3510,9 @@ void EquilibratedIPM
         lastSolution = solution;
         auto combinedStep = ComputePrimalDualStepSizes
         ( solution, correction,
-          Real(1)/ctrl.maxStepRatio, ctrl.maxStepRatio, ctrl.forceSameStep );
+          Real(1)/ctrl.maxStepRatio,
+          ctrl.maxStepRatio,
+          state.centeringStep ? Real(1) : maxPredictorCorrectorStepImbalance );
         if( ctrl.print )
         {
             Output("  combined primal step size: ",combinedStep.first);
@@ -3539,7 +3531,15 @@ void EquilibratedIPM
             }
             else
             {
-                RuntimeError("Attempted step sizes less than ",minStepSize);
+                if( numTinySteps > 10 )
+                    RuntimeError("Attempted too many tiny steps");
+                if( ctrl.print )
+                  Output
+                  ("Attempted step sizes less than ",minStepSize,
+                   ", so increasing regularization");
+                increaseRegularization();
+                ++numTinySteps;
+                continue;
             }
         }
         if( ctrl.print )
