@@ -84,9 +84,36 @@ template<> struct MantissaIsLonger<BigFloat,BigFloat>
 { static const bool value = false; };
 #endif
 
+inline Int BinaryToDecimalPrecision( Int prec )
+{ return Int(Floor(prec*std::log10(2.))); }
+
 namespace limits {
 
-// TODO: Extend this list of functions as needed
+template<typename Real,
+         typename=EnableIf<IsReal<Real>>>
+inline Int DecimalPrecision( const Real& alpha=Real(1) );
+template<> inline Int DecimalPrecision<float>( const float& alpha )
+{ return 6; }
+template<> inline Int DecimalPrecision<double>( const double& alpha )
+{ return 16; }
+#ifdef EL_HAVE_QD
+template<> inline Int DecimalPrecision<DoubleDouble>
+( const DoubleDouble& alpha )
+{ return 32; }
+template<> inline Int DecimalPrecision<QuadDouble>
+( const QuadDouble& alpha )
+{ return 64; }
+#endif
+#ifdef EL_HAVE_QUAD
+template<> inline Int DecimalPrecision<Quad>( const Quad& alpha )
+{ return 32; }
+#endif
+#ifdef EL_HAVE_MPC
+template<> inline Int DecimalPrecision<BigFloat>( const BigFloat& alpha )
+{ return BinaryToDecimalPrecision(alpha.Precision()); }
+#endif
+
+// TODO(poulson): Extend this list of functions as needed
 
 // NOTE: These functions take arguments so that types such as BigFloat,
 //       which have configurable properties, can be passed a particular
@@ -307,7 +334,8 @@ inline Real SafeMin( const Real& alpha=Real(1) )
 template<>
 inline BigFloat SafeMin( const BigFloat& alpha )
 {
-    // TODO: Decide how to only recompute this when the precision changes
+    // TODO(poulson): Decide how to only recompute this when the precision
+    // changes.
     const BigFloat one = BigFloat(1,alpha.Precision());
     const BigFloat eps = Epsilon(alpha);
     const BigFloat minVal = Min(alpha);
@@ -349,7 +377,8 @@ inline Real SafeMinToSquare( const Real& alpha=Real(1) )
 template<>
 inline BigFloat SafeMinToSquare( const BigFloat& alpha )
 {
-    // TODO: Decide how to only recompute this when the precision changes
+    // TODO(poulson): Decide how to only recompute this when the precision
+    // changes.
     const BigFloat two(2);
     const BigFloat safeMinToSquare =
       Pow( two, Round((Log2(SafeMin(alpha)/Epsilon(alpha)))/two) );
@@ -375,7 +404,8 @@ inline Real SafeMinToCube( const Real& alpha=Real(1) )
 template<>
 inline BigFloat SafeMinToCube( const BigFloat& alpha )
 {
-    // TODO: Decide how to only recompute this when the precision changes
+    // TODO(poulson): Decide how to only recompute this when the precision
+    // changes.
     const BigFloat base(2);
     const BigFloat safeMinToSquare =
       Pow( base, Round((Log2(SafeMin(alpha)/Epsilon(alpha)))/3) );
@@ -437,9 +467,6 @@ inline bool IsFinite( const BigFloat& alpha )
 #endif
 
 } // namespace limits
-
-inline Int BinaryToDecimalPrecision( Int prec )
-{ return Int(Floor(prec*std::log10(2.))); }
 
 } // namespace El
 

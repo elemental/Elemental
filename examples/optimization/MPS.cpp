@@ -223,7 +223,10 @@ void SparseNetlibLPData
     El::Timer timer;
 
     std::vector<std::pair<std::string,Real>> problemObjectives; 
-    problemObjectives.emplace_back( "25fv47",   Real(+5.5018458883e+03) );
+    // The netlib-documented value for 25fv47 is +5.5018458883e+03.
+    problemObjectives.emplace_back( "25fv47",
+      Real(+5.501845888286744794581232588391644178145257e+03) );
+    // TODO(poulson): Extend the remaining values with the QuadDouble output.
     problemObjectives.emplace_back( "80bau3b",  Real(+9.8723216072e+05) );
     problemObjectives.emplace_back( "adlittle", Real(+2.2549496316e+05) );
     problemObjectives.emplace_back( "afiro",    Real(-4.6475314286e+02) );
@@ -359,6 +362,7 @@ void SparseNetlibLPData
        problemRelErrors.emplace_back( relativeError, name );
        problemIterations.emplace_back( info.ipmInfo.numIterations, name );
     }
+    El::Output("");
 
     const El::Int numWorstErrors = 10;
     std::sort( problemRelErrors.rbegin(), problemRelErrors.rend() );
@@ -370,6 +374,7 @@ void SparseNetlibLPData
         (problemRelError.second,
          " was only solved to relative accuracy of ",problemRelError.first);
     }
+    El::Output("");
 
     const El::Int numMostIters = 10;
     std::sort( problemIterations.rbegin(), problemIterations.rend() );
@@ -451,6 +456,8 @@ int main( int argc, char* argv[] )
 
         if( testNetlib )
         {
+            // TODO(poulson): Provide a command-line interface for testing the
+            // netlib suite with other datatypes.
             SparseNetlibLPData<double>
             ( netlibDirectory, metadataSummary, print, progress, outerEquil,
               infeasibilityTolLogEps,

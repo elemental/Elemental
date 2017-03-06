@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -178,10 +178,21 @@ template<typename T,
          typename=void>
 void FastResize( vector<T>& v, Int numEntries );
 
+template<typename T,
+         typename=EnableIf<IsField<T>>>
+void PrecisionConsciousOutput( ostringstream& os, const T& item );
+
+template<typename T,
+         typename=DisableIf<IsField<T>>,
+         typename=void>
+void PrecisionConsciousOutput( ostringstream& os, const T& item );
+
 inline void BuildStream( ostringstream& os ) { }
 
 template<typename T,typename... ArgPack>
-void BuildStream( ostringstream& os, const T& item, const ArgPack& ... args );
+void BuildStream
+( ostringstream& os, const T& item, const ArgPack& ... args );
+
 template<typename... ArgPack>
 string BuildString( const ArgPack& ... args );
 
@@ -304,22 +315,6 @@ unique_ptr<T> MakeUnique( ArgPack&& ...args )
 
 // MakeFunction allows for the automatic conversion of a lambda to an
 // std::function and is similar to http://stackoverflow.com/a/24068396/1119818.
-
-/*
-namespace make_function {
-
-template<typename T>
-struct Helper { using type = void; };
-template<typename Ret,typename Class,typename... Args>
-struct Helper<Ret(Class::*)(Args...) const>
-{ using type = std::function<Ret(Args...)>; };
-
-} // namespace make_function
-
-template<typename Function>
-typename make_function::Helper<decltype(&Function::operator())>::type
-MakeFunction(Function const& func) { return func; }
-*/
 
 // Handles generic types that are functors, delegate to its 'operator()'
 template<typename T>

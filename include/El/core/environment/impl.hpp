@@ -9,6 +9,8 @@
 #ifndef EL_ENVIRONMENT_IMPL_HPP
 #define EL_ENVIRONMENT_IMPL_HPP
 
+#include <iomanip>
+
 namespace El {
 
 template<typename T>
@@ -161,10 +163,27 @@ template<typename T,
 void FastResize( vector<T>& v, Int numEntries )
 { v.resize( numEntries ); }
 
+template<typename T,
+         typename/*=EnableIf<IsField<T>>*/>
+void PrecisionConsciousOutput( ostringstream& os, const T& item )
+{
+    const Base<T>& realPart = RealPart(item);
+    const Int numDigits = limits::DecimalPrecision<Base<T>>(realPart);
+    os << std::setprecision(numDigits) << item;
+}
+
+template<typename T,
+         typename/*=DisableIf<IsField<T>>*/,
+         typename/*=void*/>
+void PrecisionConsciousOutput( ostringstream& os, const T& item )
+{
+    os << item;
+}
+
 template<typename T,typename... ArgPack>
 void BuildStream( ostringstream& os, const T& item, const ArgPack& ... args )
 {
-    os << item;
+    PrecisionConsciousOutput( os, item );
     BuildStream( os, args... );
 }
 
