@@ -57,16 +57,18 @@ void LP
 }
 
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    LPInfo<Real> info;
     if( ctrl.approach == LP_IPM )
-        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
+        info.ipmInfo = lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
+    return info;
 }
 
 // This interface is now deprecated.
@@ -147,16 +149,18 @@ void LP
 }
 
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    LPInfo<Real> info;
     if( ctrl.approach == LP_IPM )
-        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
+        info.ipmInfo = lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
+    return info;
 }
 
 // This interface is now deprecated.
@@ -234,16 +238,18 @@ void LP
 }
 
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    LPInfo<Real> info;
     if( ctrl.approach == LP_IPM )
-        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
+        info.ipmInfo = lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
+    return info;
 }
 
 // This interface is now deprecated.
@@ -324,16 +330,18 @@ void LP
 }
 
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    LPInfo<Real> info;
     if( ctrl.approach == LP_IPM )
-        lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
+        info.ipmInfo = lp::affine::IPM( problem, solution, ctrl.ipmCtrl );
     else
         LogicError("Unsupported solver");
+    return info;
 }
 
 // This interface is now deprecated.
@@ -387,7 +395,7 @@ void LP
           Matrix<Real>& y, \
           Matrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
-  template void LP \
+  template LPInfo<Real> LP \
   ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
           AffineLPSolution<Matrix<Real>>& solution, \
     const lp::affine::Ctrl<Real>& ctrl ); \
@@ -414,7 +422,7 @@ void LP
           AbstractDistMatrix<Real>& y, \
           AbstractDistMatrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
-  template void LP \
+  template LPInfo<Real> LP \
   ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
           AffineLPSolution<DistMatrix<Real>>& solution, \
     const lp::affine::Ctrl<Real>& ctrl ); \
@@ -441,7 +449,7 @@ void LP
           Matrix<Real>& y, \
           Matrix<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
-  template void LP \
+  template LPInfo<Real> LP \
   ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
           AffineLPSolution<Matrix<Real>>& solution, \
     const lp::affine::Ctrl<Real>& ctrl ); \
@@ -468,7 +476,7 @@ void LP
           DistMultiVec<Real>& y, \
           DistMultiVec<Real>& z, \
     const lp::direct::Ctrl<Real>& ctrl ); \
-  template void LP \
+  template LPInfo<Real> LP \
   ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
           AffineLPSolution<DistMultiVec<Real>>& solution, \
     const lp::affine::Ctrl<Real>& ctrl ); \

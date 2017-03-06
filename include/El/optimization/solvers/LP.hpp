@@ -73,6 +73,12 @@ struct Ctrl
 
 } // namespace lp
 
+template<typename Real>
+struct LPInfo
+{
+    IPMInfo<Real> ipmInfo;
+};
+
 // Direct conic form
 // -----------------
 template<typename MatrixType,typename VectorType>
@@ -504,22 +510,22 @@ bool SimpleAlignments
 { return true; }
 
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );
 template<typename Real>
-void LP
+LPInfo<Real> LP
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
   const lp::affine::Ctrl<Real>& ctrl=lp::affine::Ctrl<Real>() );

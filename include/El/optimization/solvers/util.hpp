@@ -264,6 +264,19 @@ struct IPMCtrl
     Real diagEquilTol = Pow(limits::Epsilon<Real>(),Real(-0.15));
 };
 
+template<typename Real>
+struct IPMInfo
+{
+    Real primalObjective;
+    Real dualObjective;
+
+    Real infeasibilityError;
+    Real relativeObjectiveGap;
+    Real relativeComplementarityGap;
+
+    Int numIterations;
+};
+
 // Alternating Direction Method of Multipliers
 // ===========================================
 template<typename Real>

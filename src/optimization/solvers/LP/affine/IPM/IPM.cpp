@@ -254,7 +254,7 @@ struct DistSparseAffineLPEquilibration
 template<typename Real>
 struct AffineLPState
 {
-    Int numIts=0;
+    Int numIterations=0;
 
     Real barrier=Real(0.1);
     Real barrierOld=Real(0.1);
@@ -317,6 +317,7 @@ struct AffineLPState
     Real dimacsErrorOld=Real(1);
     Real dimacsErrorOrigOld=Real(1);
 
+    bool approxFeasible=false;
     bool metTolerances=false;
     bool metTolerancesOrig=false;
 
@@ -756,7 +757,7 @@ void NeutralizePrimalAndDualNorms
 
 template<typename Real>
 void AssertPositiveOrthantMembership
-( const AffineLPSolution<Matrix<Real>>& solution )
+( const AffineLPSolution<Matrix<Real>>& solution, bool print )
 {
     EL_DEBUG_CSE
     const Int sNumNonPos = pos_orth::NumOutside( solution.s );
@@ -765,6 +766,21 @@ void AssertPositiveOrthantMembership
         LogicError
         (sNumNonPos," entries of s were nonpositive and ",
          zNumNonPos," entries of z were nonpositive");
+
+    if( print )
+    {
+        const Int k = solution.s.Height();
+        const Real sMax = MaxNorm( solution.s );
+        const Real zMax = MaxNorm( solution.z );
+        Real sMin = sMax;
+        for( Int i=0; i<k; ++i )
+            sMin = Min( sMin, solution.s(i) );
+        Real zMin = zMax;
+        for( Int i=0; i<k; ++i )
+            zMin = Min( zMin, solution.z(i) );
+        Output("  sMin = ",sMin,", zMin = ",zMin);
+        Output("  sMax = ",sMax,", zMax = ",zMax);
+    }
 }
 
 template<typename Real>
@@ -1395,8 +1411,11 @@ bool CheckConvergence
     state.dimacsError = Max(state.maxRelGap,state.infeasError);
     state.dimacsErrorOrig = Max(state.maxRelGapOrig,state.infeasError);
 
+    state.approxFeasible =
+      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps);
+
     state.metTolerances =
-      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+      state.approxFeasible &&
       state.relCompGap <=
         Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
       state.relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
@@ -1420,7 +1439,7 @@ bool CheckConvergence
             // was not significant.
             converged = true;
         }
-        else if( state.numIts == ctrl.maxIts )
+        else if( state.numIterations == ctrl.maxIts )
         {
             // We have hit the iteration limit but can declare success.
             converged = true;
@@ -1440,7 +1459,7 @@ bool CheckConvergence
     if( ctrl.print )
     {
         Output
-        ("iter ",state.numIts,":\n",Indent(),
+        ("iter ",state.numIterations,":\n",Indent(),
          "  || primalEqualityInfeas ||_2 / (1 + || b ||_2) = ",
          state.primalEqualityInfeasNrm2Rel,"\n",Indent(),
          "  || dualEqualityInfeas   ||_2 / (1 + || c ||_2) = ",
@@ -1589,8 +1608,11 @@ bool CheckConvergence
     state.dimacsError = Max(state.maxRelGap,state.infeasError);
     state.dimacsErrorOrig = Max(state.maxRelGapOrig,state.infeasError);
 
+    state.approxFeasible =
+      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps);
+
     state.metTolerances =
-      state.infeasError <= Pow(epsilon,ctrl.infeasibilityTolLogEps) &&
+      state.approxFeasible &&
       state.relCompGap <=
         Pow(epsilon,ctrl.relativeComplementarityGapTolLogEps) &&
       state.relObjGap <= Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
@@ -1614,7 +1636,7 @@ bool CheckConvergence
             // was not significant.
             converged = true;
         }
-        else if( state.numIts == ctrl.maxIts )
+        else if( state.numIterations == ctrl.maxIts )
         {
             // We have hit the iteration limit but can declare success.
             converged = true;
@@ -1634,7 +1656,7 @@ bool CheckConvergence
     if( ctrl.print )
     {
         Output
-        ("iter ",state.numIts,":\n",Indent(),
+        ("iter ",state.numIterations,":\n",Indent(),
          "  || primalEqualityInfeas ||_2 / (1 + || b ||_2) = ",
          state.primalEqualityInfeasNrm2Rel,"\n",Indent(),
          "  || dualEqualityInfeas   ||_2 / (1 + || c ||_2) = ",
@@ -1771,13 +1793,14 @@ ComputePrimalDualStepSizes
   const AffineLPSolution<Matrix<Real>>& correction,
   const Real& upperBound,
   const Real& maxStepRatio,
-  const Real& maxStepImbalance )
+  const Real& maxPrimalStepImbalance,
+  const Real& maxDualStepImbalance )
 {
     EL_DEBUG_CSE
     Real primalStep = pos_orth::MaxStep( solution.s, correction.s, upperBound );
     Real dualStep = pos_orth::MaxStep( solution.z, correction.z, upperBound );
-    primalStep = Min( primalStep, maxStepImbalance*dualStep );
-    dualStep = Min( dualStep, maxStepImbalance*primalStep );
+    primalStep = Min( primalStep, maxPrimalStepImbalance*dualStep );
+    dualStep = Min( dualStep, maxDualStepImbalance*primalStep );
     primalStep = Min( maxStepRatio*primalStep, Real(1) );
     dualStep = Min( maxStepRatio*dualStep, Real(1) );
     return std::make_pair( primalStep, dualStep );
@@ -2364,7 +2387,7 @@ void DecideBarrierAndStepStrategy
 }
 
 template<typename Real>
-void EquilibratedIPM
+IPMInfo<Real> EquilibratedIPM
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& origProblem,
         DenseAffineLPEquilibration<Real>& equilibration,
         AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
@@ -2471,8 +2494,8 @@ void EquilibratedIPM
     Int numTinySteps = 0;
     const Int indent = PushIndent();
     auto lastSolution( solution );
-    for( ; state.numIts<=ctrl.maxIts;
-         ++state.numIts,
+    for( ; state.numIterations<=ctrl.maxIts;
+         ++state.numIterations,
          state.barrierOld=state.barrier,
          state.dimacsErrorOld=state.dimacsError,
          state.dimacsErrorOrigOld=state.dimacsErrorOrig )
@@ -2484,7 +2507,7 @@ void EquilibratedIPM
         }
         NeutralizePrimalAndDualNorms
         ( equilibration, problem, state, solution, ctrl );
-        AssertPositiveOrthantMembership( solution );
+        AssertPositiveOrthantMembership( solution, ctrl.print );
 
         Matrix<Real> zPivot, zPerturb;
         const bool converged =
@@ -2495,7 +2518,7 @@ void EquilibratedIPM
         {
             break;
         }
-        else if( state.numIts == ctrl.maxIts )
+        else if( state.numIterations == ctrl.maxIts )
         {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
@@ -2592,7 +2615,8 @@ void EquilibratedIPM
               ( solution, affineCorrection,
                 Real(1) /* upperBound */,
                 Real(1) /* maxStepRatio */,
-                Real(1) /* maxStepImbalance */ );
+                Real(1) /* maxPrimalStepImbalance */,
+                Real(1) /* maxDualStepImbalance */ );
             if( ctrl.print )
             {
                 Output("  affine primal step size: ",affineStep.first);
@@ -2617,8 +2641,7 @@ void EquilibratedIPM
             // Solve for the combined direction
             // ================================
             const bool compositeNewton =
-              ctrl.compositeNewton &&
-              state.infeasError < Pow(epsilon,ctrl.infeasibilityTolLogEps);
+              ctrl.compositeNewton && state.approxFeasible;
             UpdateCombinedResidualUsingAffine
             ( sigma, problem, state, solution, affineCorrection, residual,
               compositeNewton );
@@ -2636,11 +2659,46 @@ void EquilibratedIPM
         // Update the current estimates
         // ============================
         lastSolution = solution;
-        auto combinedStep = ComputePrimalDualStepSizes
-        ( solution, correction,
-          Real(1)/ctrl.maxStepRatio,
-          ctrl.maxStepRatio,
-          state.centeringStep ? Real(1) : maxPredictorCorrectorStepImbalance );
+        Real primalCorrectionNrm2, dualCorrectionNrm2;
+        {
+            const Real xCorrectionNrm2 = FrobeniusNorm(correction.x);  
+            const Real sCorrectionNrm2 = FrobeniusNorm(correction.s);
+            const Real yCorrectionNrm2 = FrobeniusNorm(correction.y);
+            const Real zCorrectionNrm2 = FrobeniusNorm(correction.z);
+            // TODO(poulson): Use the stable norm update routines instead.
+            primalCorrectionNrm2 =
+              Sqrt(xCorrectionNrm2*xCorrectionNrm2 +
+                   sCorrectionNrm2*sCorrectionNrm2);
+            dualCorrectionNrm2 =
+              Sqrt(yCorrectionNrm2*yCorrectionNrm2 +
+                   zCorrectionNrm2*zCorrectionNrm2);
+        }
+        Real maxPrimalStepImbalance, maxDualStepImbalance;
+        if( state.centeringStep || !state.approxFeasible )
+        {
+            maxPrimalStepImbalance = Real(1);
+            maxDualStepImbalance = Real(1);
+        }
+        else
+        {
+            const Real maxRatio = Pow(epsilon,Real(-0.1));
+
+            if( primalCorrectionNrm2 > maxRatio*dualCorrectionNrm2 )
+                maxDualStepImbalance = Real(1);
+            else
+                maxDualStepImbalance = maxPredictorCorrectorStepImbalance;
+
+            if( dualCorrectionNrm2 > maxRatio*primalCorrectionNrm2 )
+                maxPrimalStepImbalance = Real(1);
+            else
+                maxPrimalStepImbalance = maxPredictorCorrectorStepImbalance;
+        }
+        auto combinedStep =
+          ComputePrimalDualStepSizes
+          ( solution, correction,
+            Real(1)/ctrl.maxStepRatio,
+            ctrl.maxStepRatio,
+            maxPrimalStepImbalance, maxDualStepImbalance );
         if( ctrl.print )
         {
             Output("  combined primal step size: ",combinedStep.first);
@@ -2674,15 +2732,25 @@ void EquilibratedIPM
             Output("");
     }
     SetIndent( indent );
+
+    IPMInfo<Real> info;
+    info.primalObjective = state.primalObjOrig;
+    info.dualObjective = state.dualObjOrig;
+    info.infeasibilityError = state.infeasError;
+    info.relativeObjectiveGap = state.relObjGap;
+    info.relativeComplementarityGap = state.relCompGap;
+    info.numIterations = state.numIterations;
+    return info;
 }
 
 template<typename Real>
-void IPM
+IPMInfo<Real> IPM
 ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    IPMInfo<Real> info;
     if( ctrl.outerEquil )
     {
         AffineLPProblem<Matrix<Real>,Matrix<Real>> equilibratedProblem;
@@ -2692,7 +2760,7 @@ void IPM
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedIPM
+        info = EquilibratedIPM
         ( problem, equilibration,
           equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
@@ -2769,15 +2837,16 @@ void IPM
         Ones( equilibration.zScale, problem.G.Height(), 1 );
         auto equilibratedProblem = problem;
         auto equilibratedSolution = solution;
-        EquilibratedIPM
+        info = EquilibratedIPM
         ( problem, equilibration,
           equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
+    return info;
 }
 
 template<typename Real>
-void EquilibratedIPM
+IPMInfo<Real> EquilibratedIPM
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
@@ -2861,8 +2930,9 @@ void EquilibratedIPM
     ForceSimpleAlignments( correction, grid );
 
     const Int indent = PushIndent();
-    Int numIts=0;
-    for( ; numIts<=ctrl.maxIts; ++numIts, dimacsErrorOld=dimacsError )
+    Int numIterations=0;
+    for( ; numIterations<=ctrl.maxIts;
+         ++numIterations, dimacsErrorOld=dimacsError )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -2931,7 +3001,7 @@ void EquilibratedIPM
             const Real sNrm2 = Nrm2( solution.s );
             if( commRank == 0 )
                 Output
-                ("iter ",numIts,":\n",Indent(),
+                ("iter ",numIterations,":\n",Indent(),
                  "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
@@ -2959,13 +3029,13 @@ void EquilibratedIPM
                 // was not significant.
                 break;
             }
-            else if( numIts == ctrl.maxIts )
+            else if( numIterations == ctrl.maxIts )
             {
                 // We have hit the iteration limit but can declare success.
                 break;
             }
         }
-        else if( numIts == ctrl.maxIts )
+        else if( numIterations == ctrl.maxIts )
         {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
@@ -3134,15 +3204,28 @@ void EquilibratedIPM
         }
     }
     SetIndent( indent );
+
+    IPMInfo<Real> info;
+    Output("WARNING: Info not currently being filled in");
+    /*
+    info.primalObjective = state.primalObjOrig;
+    info.dualObjective = state.dualObjOrig;
+    info.infeasibilityError = state.infeasError;
+    info.relativeObjectiveGap = state.relObjGap;
+    info.relativeComplementarityGap = state.relCompGap;
+    info.numIterations = state.numIterations;
+    */
+    return info;
 }
 
 template<typename Real>
-void IPM
+IPMInfo<Real> IPM
 ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem,
         AffineLPSolution<DistMatrix<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    IPMInfo<Real> info;
     const Grid& grid = problem.A.Grid();
     if( ctrl.outerEquil )
     {
@@ -3155,7 +3238,8 @@ void IPM
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
+        info =
+          EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
@@ -3163,14 +3247,14 @@ void IPM
         // Avoid creating unnecessary copies where we can.
         if( SimpleAlignments(problem) && SimpleAlignments(solution) )
         {
-            EquilibratedIPM( problem, solution, ctrl );
+            info = EquilibratedIPM( problem, solution, ctrl );
         }
         else if( SimpleAlignments(problem) )
         {
             AffineLPSolution<DistMatrix<Real>> alignedSolution;
             ForceSimpleAlignments( alignedSolution, grid );
             alignedSolution = solution;
-            EquilibratedIPM( problem, alignedSolution, ctrl );
+            info = EquilibratedIPM( problem, alignedSolution, ctrl );
             solution = alignedSolution;
         }
         else if( SimpleAlignments(solution) )
@@ -3182,7 +3266,7 @@ void IPM
             CopyOrViewHelper( problem.b, alignedProblem.b );
             CopyOrViewHelper( problem.G, alignedProblem.G );
             CopyOrViewHelper( problem.h, alignedProblem.h );
-            EquilibratedIPM( alignedProblem, solution, ctrl );
+            info = EquilibratedIPM( alignedProblem, solution, ctrl );
         }
         else
         {
@@ -3196,14 +3280,15 @@ void IPM
             AffineLPSolution<DistMatrix<Real>> alignedSolution;
             ForceSimpleAlignments( alignedSolution, grid );
             alignedSolution = solution;
-            EquilibratedIPM( alignedProblem, alignedSolution, ctrl );
+            info = EquilibratedIPM( alignedProblem, alignedSolution, ctrl );
             solution = alignedSolution;
         }
     }
+    return info;
 }
 
 template<typename Real>
-void EquilibratedIPM
+IPMInfo<Real> EquilibratedIPM
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& origProblem,
         SparseAffineLPEquilibration<Real>& equilibration,
         AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
@@ -3220,7 +3305,7 @@ void EquilibratedIPM
     if( regIncreaseFactor <= Real(1) )
         LogicError("Regularization increase factor must be > 1");
     const Real minStepSize = Pow(limits::Epsilon<Real>(),Real(0.33));
-    const Real maxPredictorCorrectorStepImbalance =
+    Real maxPredictorCorrectorStepImbalance =
       ctrl.forceSameStep ? Real(1) : Real(10);
 
     AffineLPResidual<Matrix<Real>> residual, error;
@@ -3307,7 +3392,7 @@ void EquilibratedIPM
         EL_DEBUG_ONLY(auto callStack = CopyCallStack())
         try
         {
-            if( state.numIts == 0 && ctrl.primalInit && ctrl.dualInit )
+            if( state.numIterations == 0 && ctrl.primalInit && ctrl.dualInit )
             {
                 const bool hermitian = true;
                 const BisectCtrl bisectCtrl;
@@ -3333,8 +3418,8 @@ void EquilibratedIPM
     Real dxCombinedNrm2Last=Real(1),
          dyCombinedNrm2Last=Real(1),
          dzCombinedNrm2Last=Real(1);
-    for( ; state.numIts<=ctrl.maxIts;
-         ++state.numIts,
+    for( ; state.numIterations<=ctrl.maxIts;
+         ++state.numIterations,
          state.barrierOld=state.barrier,
          state.dimacsErrorOld=state.dimacsError,
          state.dimacsErrorOrigOld=state.dimacsErrorOrig )
@@ -3346,7 +3431,7 @@ void EquilibratedIPM
         }
         NeutralizePrimalAndDualNorms
         ( equilibration, problem, state, solution, ctrl );
-        AssertPositiveOrthantMembership( solution );
+        AssertPositiveOrthantMembership( solution, ctrl.print );
 
         Matrix<Real> zPivot, zPerturb;
         const bool converged =
@@ -3357,7 +3442,7 @@ void EquilibratedIPM
         {
             break;
         }
-        else if( state.numIts == ctrl.maxIts )
+        else if( state.numIterations == ctrl.maxIts )
         {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
@@ -3462,7 +3547,8 @@ void EquilibratedIPM
               ( solution, affineCorrection,
                 Real(1) /* upperBound */,
                 Real(1) /* maxStepRatio */,
-                Real(1) /* maxStepImbalance */ );
+                Real(1) /* maxPrimalStepImbalance */,
+                Real(1) /* maxDualStepImbalance */ );
             if( ctrl.print )
             {
                 Output("  affine primal step size: ",affineStep.first);
@@ -3487,8 +3573,7 @@ void EquilibratedIPM
             // Solve for the combined direction
             // ================================
             const bool compositeNewton =
-              ctrl.compositeNewton &&
-              state.infeasError < Pow(epsilon,ctrl.infeasibilityTolLogEps);
+              ctrl.compositeNewton && state.approxFeasible;
             UpdateCombinedResidualUsingAffine
             ( sigma, problem, state, solution, affineCorrection, residual,
               compositeNewton );
@@ -3508,11 +3593,46 @@ void EquilibratedIPM
         // Update the current estimates
         // ============================
         lastSolution = solution;
-        auto combinedStep = ComputePrimalDualStepSizes
-        ( solution, correction,
-          Real(1)/ctrl.maxStepRatio,
-          ctrl.maxStepRatio,
-          state.centeringStep ? Real(1) : maxPredictorCorrectorStepImbalance );
+        Real primalCorrectionNrm2, dualCorrectionNrm2;
+        {
+            const Real xCorrectionNrm2 = FrobeniusNorm(correction.x);  
+            const Real sCorrectionNrm2 = FrobeniusNorm(correction.s);
+            const Real yCorrectionNrm2 = FrobeniusNorm(correction.y);
+            const Real zCorrectionNrm2 = FrobeniusNorm(correction.z);
+            // TODO(poulson): Use the stable norm update routines instead.
+            primalCorrectionNrm2 =
+              Sqrt(xCorrectionNrm2*xCorrectionNrm2 +
+                   sCorrectionNrm2*sCorrectionNrm2);
+            dualCorrectionNrm2 =
+              Sqrt(yCorrectionNrm2*yCorrectionNrm2 +
+                   zCorrectionNrm2*zCorrectionNrm2);
+        }
+        Real maxPrimalStepImbalance, maxDualStepImbalance;
+        if( state.centeringStep || !state.approxFeasible )
+        {
+            maxPrimalStepImbalance = Real(1);
+            maxDualStepImbalance = Real(1);
+        }
+        else
+        {
+            const Real maxRatio = Pow(epsilon,Real(-0.1));
+
+            if( primalCorrectionNrm2 > maxRatio*dualCorrectionNrm2 )
+                maxDualStepImbalance = Real(1);
+            else
+                maxDualStepImbalance = maxPredictorCorrectorStepImbalance;
+
+            if( dualCorrectionNrm2 > maxRatio*primalCorrectionNrm2 )
+                maxPrimalStepImbalance = Real(1);
+            else
+                maxPrimalStepImbalance = maxPredictorCorrectorStepImbalance;
+        }
+        auto combinedStep =
+          ComputePrimalDualStepSizes
+          ( solution, correction,
+            Real(1)/ctrl.maxStepRatio,
+            ctrl.maxStepRatio,
+            maxPrimalStepImbalance, maxDualStepImbalance );
         if( ctrl.print )
         {
             Output("  combined primal step size: ",combinedStep.first);
@@ -3532,11 +3652,23 @@ void EquilibratedIPM
             else
             {
                 if( numTinySteps > 10 )
+                {
+                    Print( problem.c, "c" );
+                    Print( problem.A, "A" );
+                    Print( problem.b, "b" );
+                    Print( problem.G, "G" );
+                    Print( problem.h, "h" );
+                    Print( solution.x, "x" );
+                    Print( solution.s, "s" );
+                    Print( solution.y, "y" );
+                    Print( solution.z, "z" );
                     RuntimeError("Attempted too many tiny steps");
+                }
                 if( ctrl.print )
                   Output
                   ("Attempted step sizes less than ",minStepSize,
                    ", so increasing regularization");
+                maxPredictorCorrectorStepImbalance = Real(1);
                 increaseRegularization();
                 ++numTinySteps;
                 continue;
@@ -3546,15 +3678,25 @@ void EquilibratedIPM
             Output("");
     }
     SetIndent( indent );
+
+    IPMInfo<Real> info;
+    info.primalObjective = state.primalObjOrig;
+    info.dualObjective = state.dualObjOrig;
+    info.infeasibilityError = state.infeasError;
+    info.relativeObjectiveGap = state.relObjGap;
+    info.relativeComplementarityGap = state.relCompGap;
+    info.numIterations = state.numIterations;
+    return info;
 }
 
 template<typename Real>
-void IPM
+IPMInfo<Real> IPM
 ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
         AffineLPSolution<Matrix<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    IPMInfo<Real> info;
     if( ctrl.outerEquil )
     {
         AffineLPProblem<SparseMatrix<Real>,Matrix<Real>> equilibratedProblem;
@@ -3564,7 +3706,7 @@ void IPM
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedIPM
+        info = EquilibratedIPM
         ( problem, equilibration,
           equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
@@ -3641,15 +3783,16 @@ void IPM
         Ones( equilibration.zScale, problem.G.Height(), 1 );
         auto equilibratedProblem = problem;
         auto equilibratedSolution = solution;
-        EquilibratedIPM
+        info = EquilibratedIPM
         ( problem, equilibration,
           equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
+    return info;
 }
 
 template<typename Real>
-void EquilibratedIPM
+IPMInfo<Real> EquilibratedIPM
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
@@ -3745,7 +3888,7 @@ void EquilibratedIPM
     if( commRank == 0 && ctrl.time )
         Output("Init: ",timer.Stop()," secs");
 
-    Int numIts = 0;
+    Int numIterations = 0;
     Real dimacsError = 1, dimacsErrorOld = 1;
     Real infeasError = 1;
     DistSparseMatrix<Real> J(grid), JOrig(grid);
@@ -3757,7 +3900,7 @@ void EquilibratedIPM
         {
             Ones( dInner, J.Height(), 1 );
 
-            if( numIts == 0 && ctrl.primalInit && ctrl.dualInit )
+            if( numIterations == 0 && ctrl.primalInit && ctrl.dualInit )
             {
                 const bool hermitian = true;
                 const BisectCtrl bisectCtrl;
@@ -3805,7 +3948,8 @@ void EquilibratedIPM
     ForceSimpleAlignments( correction, grid );
 
     const Int indent = PushIndent();
-    for( ; numIts<=ctrl.maxIts; ++numIts, dimacsErrorOld=dimacsError )
+    for( ; numIterations<=ctrl.maxIts;
+         ++numIterations, dimacsErrorOld=dimacsError )
     {
         // Ensure that s and z are in the cone
         // ===================================
@@ -3876,7 +4020,7 @@ void EquilibratedIPM
             const Real sNrm2 = Nrm2( solution.s );
             if( commRank == 0 )
                 Output
-                ("iter ",numIts,":\n",Indent(),
+                ("iter ",numIterations,":\n",Indent(),
                  "  ||  x  ||_2 = ",xNrm2,"\n",Indent(),
                  "  ||  y  ||_2 = ",yNrm2,"\n",Indent(),
                  "  ||  z  ||_2 = ",zNrm2,"\n",Indent(),
@@ -3904,13 +4048,13 @@ void EquilibratedIPM
                 // was not significant.
                 break;
             }
-            else if( numIts == ctrl.maxIts )
+            else if( numIterations == ctrl.maxIts )
             {
                 // We have hit the iteration limit but can declare success.
                 break;
             }
         }
-        else if( numIts == ctrl.maxIts )
+        else if( numIterations == ctrl.maxIts )
         {
             RuntimeError
             ("Maximum number of iterations (",ctrl.maxIts,") exceeded without ",
@@ -4088,15 +4232,28 @@ void EquilibratedIPM
         }
     }
     SetIndent( indent );
+
+    IPMInfo<Real> info;
+    Output("WARNING: Info not currently being filled in");
+    /*
+    info.primalObjective = state.primalObjOrig;
+    info.dualObjective = state.dualObjOrig;
+    info.infeasibilityError = state.infeasError;
+    info.relativeObjectiveGap = state.relObjGap;
+    info.relativeComplementarityGap = state.relCompGap;
+    info.numIterations = state.numIterations;
+    */
+    return info;
 }
 
 template<typename Real>
-void IPM
+IPMInfo<Real> IPM
 ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem,
         AffineLPSolution<DistMultiVec<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
+    IPMInfo<Real> info;
     if( ctrl.outerEquil )
     {
         const Grid& grid = problem.A.Grid();
@@ -4112,29 +4269,31 @@ void IPM
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
+        info =
+          EquilibratedIPM( equilibratedProblem, equilibratedSolution, ctrl );
         UndoEquilibration( equilibratedSolution, equilibration, solution );
     }
     else
     {
-        EquilibratedIPM( problem, solution, ctrl );
+        info = EquilibratedIPM( problem, solution, ctrl );
     }
+    return info;
 }
 
 #define PROTO(Real) \
-  template void IPM \
+  template IPMInfo<Real> IPM \
   ( const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem, \
           AffineLPSolution<Matrix<Real>>& solution, \
     const IPMCtrl<Real>& ctrl ); \
-  template void IPM \
+  template IPMInfo<Real> IPM \
   ( const AffineLPProblem<DistMatrix<Real>,DistMatrix<Real>>& problem, \
           AffineLPSolution<DistMatrix<Real>>& solution, \
     const IPMCtrl<Real>& ctrl ); \
-  template void IPM \
+  template IPMInfo<Real> IPM \
   ( const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem, \
           AffineLPSolution<Matrix<Real>>& solution, \
     const IPMCtrl<Real>& ctrl ); \
-  template void IPM \
+  template IPMInfo<Real> IPM \
   ( const AffineLPProblem<DistSparseMatrix<Real>,DistMultiVec<Real>>& problem, \
           AffineLPSolution<DistMultiVec<Real>>& solution, \
     const IPMCtrl<Real>& ctrl );

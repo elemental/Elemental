@@ -9,7 +9,7 @@
 #include <El.hpp>
 
 template<typename Real>
-Real DenseLoadAndSolve
+El::LPInfo<Real> DenseLoadAndSolve
 ( const std::string& filename,
   bool metadataSummary,
   bool print,
@@ -26,6 +26,7 @@ Real DenseLoadAndSolve
   double zRegLargeLogEps,
   double lowerTargetRatioLogCompRatio,
   double upperTargetRatioLogCompRatio,
+  bool forceSameStep,
   bool compositeNewton )
 {
     EL_DEBUG_CSE
@@ -58,6 +59,7 @@ Real DenseLoadAndSolve
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = progress;
     ctrl.ipmCtrl.outerEquil = outerEquil;
+    ctrl.ipmCtrl.forceSameStep = forceSameStep;
     ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.infeasibilityTolLogEps = Real(infeasibilityTolLogEps);
     ctrl.ipmCtrl.relativeObjectiveGapTolLogEps =
@@ -74,7 +76,7 @@ Real DenseLoadAndSolve
     ctrl.ipmCtrl.upperTargetRatioLogCompRatio = upperTargetRatioLogCompRatio;
 
     timer.Start();
-    El::LP( problem, solution, ctrl );
+    auto info = El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
     {
@@ -83,14 +85,23 @@ Real DenseLoadAndSolve
         El::Print( solution.y, "y" );
         El::Print( solution.z, "z" );
     }
-    const Real objective = El::Dot(problem.c,solution.x);
-    El::Output("c^T x = ",objective);
-    El::Output("");
-    return objective;
+    El::Output
+    ("primal objective:       ",info.ipmInfo.primalObjective);
+    El::Output
+    ("dual   objective:       ",info.ipmInfo.dualObjective);
+    El::Output
+    ("infeasibility:          ",info.ipmInfo.infeasibilityError);
+    El::Output
+    ("relative objective gap: ",info.ipmInfo.relativeObjectiveGap);
+    El::Output
+    ("relative comp. gap:     ",info.ipmInfo.relativeComplementarityGap);
+    El::Output
+    ("num iterations:         ",info.ipmInfo.numIterations);
+    return info;
 }
 
 template<typename Real>
-Real SparseLoadAndSolve
+El::LPInfo<Real> SparseLoadAndSolve
 ( const std::string& filename,
   bool metadataSummary,
   bool print,
@@ -107,6 +118,7 @@ Real SparseLoadAndSolve
   double zRegLargeLogEps,
   double lowerTargetRatioLogCompRatio,
   double upperTargetRatioLogCompRatio,
+  bool forceSameStep,
   bool compositeNewton )
 {
     EL_DEBUG_CSE
@@ -141,6 +153,7 @@ Real SparseLoadAndSolve
     El::lp::affine::Ctrl<Real> ctrl;
     ctrl.ipmCtrl.print = progress;
     ctrl.ipmCtrl.outerEquil = outerEquil;
+    ctrl.ipmCtrl.forceSameStep = forceSameStep;
     ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.infeasibilityTolLogEps = Real(infeasibilityTolLogEps);
     ctrl.ipmCtrl.relativeObjectiveGapTolLogEps =
@@ -155,9 +168,10 @@ Real SparseLoadAndSolve
     ctrl.ipmCtrl.zRegSmallLogEps = Real(zRegSmallLogEps);
     ctrl.ipmCtrl.lowerTargetRatioLogCompRatio = lowerTargetRatioLogCompRatio;
     ctrl.ipmCtrl.upperTargetRatioLogCompRatio = upperTargetRatioLogCompRatio;
+    ctrl.ipmCtrl.zMinPivotValueLogEps = Real(2.0);
 
     timer.Start();
-    El::LP( problem, solution, ctrl );
+    auto info = El::LP( problem, solution, ctrl );
     El::Output("Solving took ",timer.Stop()," seconds");
     if( print )
     {
@@ -166,10 +180,19 @@ Real SparseLoadAndSolve
         El::Print( solution.y, "y" );
         El::Print( solution.z, "z" );
     }
-    const Real objective = El::Dot(problem.c,solution.x);
-    El::Output("c^T x = ",objective);
-    El::Output("");
-    return objective;
+    El::Output
+    ("primal objective:       ",info.ipmInfo.primalObjective);
+    El::Output
+    ("dual   objective:       ",info.ipmInfo.dualObjective);
+    El::Output
+    ("infeasibility:          ",info.ipmInfo.infeasibilityError);
+    El::Output
+    ("relative objective gap: ",info.ipmInfo.relativeObjectiveGap);
+    El::Output
+    ("relative comp. gap:     ",info.ipmInfo.relativeComplementarityGap);
+    El::Output
+    ("num iterations:         ",info.ipmInfo.numIterations);
+    return info;
 }
 
 template<typename Real>
@@ -190,6 +213,7 @@ void SparseNetlibLPData
   double zRegLargeLogEps,
   double lowerTargetRatioLogCompRatio,
   double upperTargetRatioLogCompRatio,
+  bool forceSameStep,
   bool compositeNewton )
 {
     EL_DEBUG_CSE
@@ -210,14 +234,7 @@ void SparseNetlibLPData
     problemObjectives.emplace_back( "beaconfd", Real(+3.3592485807e+04) );
     problemObjectives.emplace_back( "blend",    Real(-3.0812149846e+01) );
     problemObjectives.emplace_back( "bnl1",     Real(+1.9776292856e+03) );
-    // This will be enabled when its convergence issues are resolved.
-    // It appears to be an issue with primal steps being much larger than the
-    // dual steps, but forcing all linear programs to take equal primal and
-    // dual step sizes would lead to adverse effects. There is likely to be
-    // a better solution.
-    /*
     problemObjectives.emplace_back( "bnl2",     Real(+1.8112365404e+03) );
-    */
     problemObjectives.emplace_back( "boeing1",  Real(-3.3521356751e+02) );
     problemObjectives.emplace_back( "boeing2",  Real(-3.1501872802e+02) );
     problemObjectives.emplace_back( "bore3d",   Real(+1.3730803942e+03) );
@@ -313,12 +330,14 @@ void SparseNetlibLPData
     const Real demandedRelativeError =
       El::Pow( epsilon, relativeObjectiveGapTolLogEps );
     std::vector<std::pair<Real,std::string>> problemRelErrors;
+    std::vector<std::pair<El::Int,std::string>> problemIterations;
     for( const auto& problemObjective : problemObjectives )
     {
-        El::Output("Testing ",problemObjective.first);
-        const std::string filename =
-          directory + "/" + problemObjective.first + ".mps";
-        const Real computedObjective =
+        const std::string& name = problemObjective.first;
+        const Real& objective = problemObjective.second;
+        El::Output("Testing ",name);
+        const std::string filename = directory + "/" + name + ".mps";
+        auto info =
           SparseLoadAndSolve<Real>
           ( filename, metadataSummary, print, progress, outerEquil,
             infeasibilityTolLogEps,
@@ -327,27 +346,39 @@ void SparseNetlibLPData
             xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
             xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
             lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-            compositeNewton );
+            forceSameStep, compositeNewton );
         const Real relativeError =
-          El::Abs(problemObjective.second - computedObjective) /
-          El::Abs(problemObjective.second);
+          El::Abs(objective - info.ipmInfo.primalObjective) /
+          El::Abs(objective);
         if( relativeError > demandedRelativeError )
         {
             El::Output
-            ("WARNING: Only solved ",problemObjective.first," to objective ",
-             computedObjective," (vs. ",problemObjective.second,")");
+            ("WARNING: Only solved ",name," to objective ",
+             info.ipmInfo.primalObjective," (vs. ",objective,")");
         }
-        problemRelErrors.emplace_back( relativeError, problemObjective.first );
+       problemRelErrors.emplace_back( relativeError, name );
+       problemIterations.emplace_back( info.ipmInfo.numIterations, name );
     }
 
     const El::Int numWorstErrors = 10;
     std::sort( problemRelErrors.rbegin(), problemRelErrors.rend() );
+    El::Output(numWorstErrors," problems with highest error:");
     for( El::Int i=0; i<El::Min(numWorstErrors,problemRelErrors.size()); ++i )
     {
         const auto& problemRelError = problemRelErrors[i];
         El::Output
         (problemRelError.second,
          " was only solved to relative accuracy of ",problemRelError.first);
+    }
+
+    const El::Int numMostIters = 10;
+    std::sort( problemIterations.rbegin(), problemIterations.rend() );
+    El::Output(numMostIters," problems taking the most iterations:");
+    for( El::Int i=0; i<El::Min(numMostIters,problemIterations.size()); ++i )
+    {
+        const auto& problemIteration = problemIterations[i];
+        El::Output
+        (problemIteration.second," took ",problemIteration.first," iterations");
     }
 }
 
@@ -404,6 +435,9 @@ int main( int argc, char* argv[] )
           El::Input
           ("--upperTargetRatioLogCompRatio","log_compratio(upperTargetRatio)",
            0.25);
+        const bool forceSameStep =
+          El::Input
+          ("--forceSameStep","force same primal and dual step sizes?",false);
         const bool compositeNewton =
           El::Input("--compositeNewton","Mehrotra predictor-corrector?",false);
         const bool testNetlib =
@@ -425,7 +459,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              compositeNewton );
+              forceSameStep, compositeNewton );
             return 0;
         }
 
@@ -441,7 +475,7 @@ int main( int argc, char* argv[] )
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
                   lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-                  compositeNewton );
+                  forceSameStep, compositeNewton );
 #ifdef EL_HAVE_QD
             DenseLoadAndSolve<El::DoubleDouble>
             ( filename, metadataSummary,
@@ -452,7 +486,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              compositeNewton );
+              forceSameStep, compositeNewton );
             DenseLoadAndSolve<El::QuadDouble>
             ( filename, metadataSummary,
               print, progress, outerEquil,
@@ -462,7 +496,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              compositeNewton );
+              forceSameStep, compositeNewton );
 #endif
 #ifdef EL_HAVE_QUAD
             DenseLoadAndSolve<El::Quad>
@@ -474,7 +508,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              compositeNewton );
+              forceSameStep, compositeNewton );
 #endif
 #ifdef EL_HAVE_MPC
             if( testArbitrary )
@@ -490,7 +524,7 @@ int main( int argc, char* argv[] )
                   xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
                   xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
                   lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-                  compositeNewton );
+                  forceSameStep, compositeNewton );
             }
 #endif
         }
@@ -505,7 +539,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              compositeNewton );
+              forceSameStep, compositeNewton );
 #ifdef EL_HAVE_QD
         SparseLoadAndSolve<El::DoubleDouble>
         ( filename, metadataSummary,
@@ -516,7 +550,7 @@ int main( int argc, char* argv[] )
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-          compositeNewton );
+          forceSameStep, compositeNewton );
         SparseLoadAndSolve<El::QuadDouble>
         ( filename, metadataSummary,
           print, progress, outerEquil,
@@ -526,7 +560,7 @@ int main( int argc, char* argv[] )
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-          compositeNewton );
+          forceSameStep, compositeNewton );
 #endif
 #ifdef EL_HAVE_QUAD
         SparseLoadAndSolve<El::Quad>
@@ -538,7 +572,7 @@ int main( int argc, char* argv[] )
           xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
           xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
           lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-          compositeNewton );
+          forceSameStep, compositeNewton );
 #endif
 #ifdef EL_HAVE_MPC
         if( testArbitrary )
@@ -554,7 +588,7 @@ int main( int argc, char* argv[] )
               xRegSmallLogEps, yRegSmallLogEps, zRegSmallLogEps,
               xRegLargeLogEps, yRegLargeLogEps, zRegLargeLogEps,
               lowerTargetRatioLogCompRatio, upperTargetRatioLogCompRatio,
-              compositeNewton );
+              forceSameStep, compositeNewton );
         }
 #endif
     }
