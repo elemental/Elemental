@@ -1,9 +1,9 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -78,8 +78,8 @@ MRRRPostEstimate
 
 namespace herm_eig {
 
-// We create specialized redistribution routines for redistributing the 
-// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
+// We create specialized redistribution routines for redistributing the
+// real eigenvectors of the symmetric tridiagonal matrix at the core of our
 // eigensolver in order to minimize the temporary memory usage.
 template<typename F>
 void InPlaceRedist( DistMatrix<F>& Q, Int rowAlign, const Base<F>* readBuffer )
@@ -101,7 +101,7 @@ void InPlaceRedist( DistMatrix<F>& Q, Int rowAlign, const Base<F>* readBuffer )
     const Int maxHeight = MaxLength(height,r);
     const Int maxWidth = MaxLength(width,p);
     const Int portionSize = mpi::Pad( maxHeight*maxWidth );
-    
+
     // Allocate our send/recv buffers
     vector<Real> buffer(2*r*portionSize);
     Real* sendBuffer = &buffer[0];
@@ -119,7 +119,7 @@ void InPlaceRedist( DistMatrix<F>& Q, Int rowAlign, const Base<F>* readBuffer )
         EL_INNER_PARALLEL_FOR_COLLAPSE2
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<thisLocalHeight; ++i )
-                data[i+j*thisLocalHeight] = 
+                data[i+j*thisLocalHeight] =
                     readBuffer[thisColShift+i*r+j*height];
     }
 
@@ -172,7 +172,7 @@ template<typename F>
 HermitianEigInfo
 BlackBox
 ( UpperOrLower uplo,
-  Matrix<F>& A, 
+  Matrix<F>& A,
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -205,13 +205,13 @@ BlackBox
         const Int n = A.Height();
         Int numValid = n;
         if( subset.indexSubset )
-        {   
+        {
             numValid = subset.upperIndex-subset.lowerIndex+1;
         }
         else if( subset.rangeSubset )
         {
             if( subset.lowerBound >= Real(0) || subset.upperBound < Real(0) )
-            {   
+            {
                 numValid = 0;
             }
         }
@@ -256,7 +256,7 @@ template<typename F>
 HermitianEigInfo
 HermitianEig
 ( UpperOrLower uplo,
-  Matrix<F>& A, 
+  Matrix<F>& A,
   Matrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -279,7 +279,7 @@ template<typename F>
 HermitianEigInfo
 SequentialHelper
 ( UpperOrLower uplo,
-  AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& A,
   AbstractDistMatrix<Base<F>>& w,
   const HermitianEigCtrl<F>& ctrl )
 {
@@ -426,7 +426,7 @@ BlackBox
         else if( subset.rangeSubset )
         {
             if( subset.lowerBound >= Real(0) || subset.upperBound < Real(0) )
-            {   
+            {
                 numValid = 0;
             }
         }
@@ -451,7 +451,7 @@ BlackBox
         if( A.Grid().Rank() == 0 )
             timer.Start();
     }
-   
+
     // Tridiagonalize A
     herm_tridiag::ExplicitCondensed( uplo, A, ctrl.tridiagCtrl );
 
@@ -540,7 +540,7 @@ BlackBox
 ( UpperOrLower uplo,
   Matrix<F>& A,
   Matrix<Base<F>>& w,
-  Matrix<F>& Q, 
+  Matrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
     EL_DEBUG_CSE
@@ -566,14 +566,14 @@ BlackBox
 ( UpperOrLower uplo,
   AbstractDistMatrix<F>& APre,
   AbstractDistMatrix<Base<F>>& w,
-  AbstractDistMatrix<F>& QPre, 
+  AbstractDistMatrix<F>& QPre,
   const HermitianEigCtrl<F>& ctrl )
 {
     EL_DEBUG_CSE
     const Grid& g = APre.Grid();
     HermitianEigInfo info;
 
-    DistMatrixReadProxy<F,F,MC,MR> AProx( APre ); 
+    DistMatrixReadProxy<F,F,MC,MR> AProx( APre );
     auto& A = AProx.Get();
 
     // TODO(poulson): Extend interface to support ctrl.tridiagCtrl
@@ -613,7 +613,7 @@ HermitianEig
 ( UpperOrLower uplo,
   Matrix<F>& A,
   Matrix<Base<F>>& w,
-  Matrix<F>& Q, 
+  Matrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
     EL_DEBUG_CSE
@@ -648,13 +648,13 @@ HermitianEig
         const Int n = A.Height();
         Int numValid = n;
         if( subset.indexSubset )
-        {   
+        {
             numValid = subset.upperIndex-subset.lowerIndex+1;
         }
         else if( subset.rangeSubset )
         {
             if( subset.lowerBound >= Real(0) || subset.upperBound < Real(0) )
-            {   
+            {
                 numValid = 0;
             }
         }
@@ -701,9 +701,9 @@ template<typename F>
 HermitianEigInfo
 SequentialHelper
 ( UpperOrLower uplo,
-  AbstractDistMatrix<F>& A, 
+  AbstractDistMatrix<F>& A,
   AbstractDistMatrix<Base<F>>& w,
-  AbstractDistMatrix<F>& Q, 
+  AbstractDistMatrix<F>& Q,
   const HermitianEigCtrl<F>& ctrl )
 {
     EL_DEBUG_CSE
@@ -728,7 +728,7 @@ SequentialHelper
         Matrix<Base<F>> wProx;
         Matrix<F> QProx;
         wProx.Resize( n, 1 );
-        QProx.Resize( n, n ); 
+        QProx.Resize( n, n );
 
         info = HermitianEig( uplo, A.Matrix(), wProx, QProx, ctrl );
 
@@ -890,18 +890,18 @@ MRRR
     else
         kEst = n;
 
-    // We will use the same buffer for Q in the vector distribution used by 
-    // PMRRR as for the matrix distribution used by Elemental. In order to 
+    // We will use the same buffer for Q in the vector distribution used by
+    // PMRRR as for the matrix distribution used by Elemental. In order to
     // do so, we must pad Q's dimensions slightly.
     const Int N = MaxLength(n,g.Height())*g.Height();
-    const Int K = MaxLength(kEst,g.Size())*g.Size(); 
+    const Int K = MaxLength(kEst,g.Size())*g.Size();
 
     ElementalProxyCtrl proxCtrl;
     proxCtrl.colConstrain = true;
     proxCtrl.rowConstrain = true;
     proxCtrl.colAlign = 0;
     proxCtrl.rowAlign = 0;
-    
+
     DistMatrixWriteProxy<F,F,MC,MR> QProx( QPre, proxCtrl );
     auto& Q = QProx.Get();
 
@@ -941,14 +941,14 @@ MRRR
 
     const Int k = w.Height();
     {
-        // Redistribute Q piece-by-piece in place. This is to keep the 
+        // Redistribute Q piece-by-piece in place. This is to keep the
         // send/recv buffer memory usage low.
         const Int p = g.Size();
         const Int numEqualPanels = K/p;
         const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
         const Int nbProp = numPanelsPerComm*p;
 
-        // Manually maintain information about the implicit Q[* ,VR] stored 
+        // Manually maintain information about the implicit Q[* ,VR] stored
         // at the end of the Q[MC,MR] buffers.
         Int alignment = 0;
         const Real* readBuffer = Q_STAR_VR.LockedBuffer();

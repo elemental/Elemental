@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License,
@@ -1126,10 +1126,13 @@ DivideAndConquer
     EL_DEBUG_CSE
     const Int n = mainDiag.Height();
     const auto& dcCtrl = ctrl.dcCtrl;
+    if( ctrl.subset.indexSubset || ctrl.subset.rangeSubset )
+        LogicError
+        ("DivideAndConquer should not have been called directly for subset "
+         "computation");
 
     DCInfo info;
     auto& secularInfo = info.secularInfo;
-
     if( n <= Max(dcCtrl.cutoff,3) )
     {
         auto ctrlMod( ctrl );
@@ -1230,11 +1233,15 @@ DivideAndConquer
   bool topLevel=true )
 {
     EL_DEBUG_CSE
-    const Grid& grid = Q.Grid();
     const Int n = mainDiag.Height();
     const auto& dcCtrl = ctrl.dcCtrl;
-    DCInfo info;
+    const Grid& grid = Q.Grid();
+    if( ctrl.subset.indexSubset || ctrl.subset.rangeSubset )
+        LogicError
+        ("DivideAndConquer should not have been called directly for subset "
+         "computation");
 
+    DCInfo info;
     if( n <= Max(dcCtrl.cutoff,3) )
     {
         // Run the problem redundantly locally
@@ -1327,8 +1334,7 @@ DivideAndConquer
     // TODO(poulson): A more intelligent split point.
     const Int split = (n/2) + 1;
     const Grid *leftGrid, *rightGrid;
-    const bool splitGrid =
-      SplitGrid( split, n-split, grid, leftGrid, rightGrid );
+    SplitGrid( split, n-split, grid, leftGrid, rightGrid );
     const Real& beta = superDiag(split-1);
 
     auto mainDiag0 = mainDiag( IR(0,split), ALL );
@@ -1424,12 +1430,6 @@ DivideAndConquer
           info1.secularInfo.numCloseDiagonalDeflations;
         secularInfo.numSmallUpdateDeflations +=
           info1.secularInfo.numSmallUpdateDeflations;
-    }
-    if( splitGrid )
-    {
-        // TODO(poulson): Introduce a smart pointer instead?
-        delete leftGrid;
-        delete rightGrid;
     }
 
     if( topLevel )
