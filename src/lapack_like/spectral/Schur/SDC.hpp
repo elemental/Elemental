@@ -2,8 +2,8 @@
    Copyright (c) 2009-2016, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_SCHUR_SDC_HPP
@@ -14,7 +14,7 @@
 // parallel computers". Currently available at:
 // www.netlib.org/lapack/lawnspdf/lawn91.pdf
 //
-// as well as the improved version, which avoids pivoted QR, in J. Demmel, 
+// as well as the improved version, which avoids pivoted QR, in J. Demmel,
 // I. Dumitriu, and O. Holtz, "Fast linear algebra is stable", 2007.
 // www.netlib.org/lapack/lawnspdf/lawn186.pdf
 
@@ -28,7 +28,7 @@ ValueInt<Base<F>> ComputePartition( Matrix<F>& A )
     EL_DEBUG_CSE
     typedef Base<F> Real;
     const Int n = A.Height();
-    if( n == 0 ) 
+    if( n == 0 )
     {
         ValueInt<Real> part;
         part.value = -1;
@@ -40,7 +40,7 @@ ValueInt<Base<F>> ComputePartition( Matrix<F>& A )
     vector<Real> colSums(n-1,0), rowSums(n-1,0);
     for( Int j=0; j<n-1; ++j )
         for( Int i=j+1; i<n; ++i )
-            colSums[j] += Abs( A(i,j) ); 
+            colSums[j] += Abs( A(i,j) );
     for( Int i=1; i<n-1; ++i )
         for( Int j=0; j<i; ++j )
             rowSums[i-1] += Abs( A(i,j) );
@@ -75,7 +75,7 @@ ValueInt<Base<F>> ComputePartition( DistMatrix<F>& A )
     typedef Base<F> Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    if( n == 0 ) 
+    if( n == 0 )
     {
         ValueInt<Real> part;
         part.value = -1;
@@ -98,7 +98,7 @@ ValueInt<Base<F>> ComputePartition( DistMatrix<F>& A )
                 const Int i = A.GlobalRow(iLoc);
                 if( i > j )
                 {
-                    colSums[j] += Abs( ALoc(iLoc,jLoc) ); 
+                    colSums[j] += Abs( ALoc(iLoc,jLoc) );
                     rowSums[i-1] += Abs( ALoc(iLoc,jLoc) );
                 }
             }
@@ -144,7 +144,7 @@ ValueInt<Base<F>> SignDivide
     ShiftDiagonal( G, F(1) );
     G *= F(1)/F(2);
 
-    // Compute the pivoted QR decomposition of the spectral projection 
+    // Compute the pivoted QR decomposition of the spectral projection
     Matrix<F> householderScalars;
     Matrix<Base<F>> signature;
     Permutation Omega;
@@ -177,7 +177,7 @@ template<typename F>
 ValueInt<Base<F>> SignDivide
 ( DistMatrix<F>& A,
   DistMatrix<F>& G,
-  bool returnQ, 
+  bool returnQ,
   const SDCCtrl<Base<F>>& ctrl )
 {
     EL_DEBUG_CSE
@@ -189,7 +189,7 @@ ValueInt<Base<F>> SignDivide
     ShiftDiagonal( G, F(1) );
     G *= F(1)/F(2);
 
-    // Compute the pivoted QR decomposition of the spectral projection 
+    // Compute the pivoted QR decomposition of the spectral projection
     DistMatrix<F,MD,STAR> householderScalars(g);
     DistMatrix<Base<F>,MD,STAR> signature(g);
     DistPermutation Omega(g);
@@ -396,9 +396,9 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
             else if( ctrl.progress )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
-        { 
+        }
+        catch( SingularMatrixException& e )
+        {
             if( ctrl.progress )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
         }
@@ -406,7 +406,7 @@ SpectralDivide( Matrix<Real>& A, const SDCCtrl<Real>& ctrl )
             A = ACopy;
     }
     if( part.value > tol )
-        RuntimeError 
+        RuntimeError
         ( "Unable to split spectrum to specified accuracy: part.value=",
           part.value, ", tol=", tol );
 
@@ -446,8 +446,8 @@ SpectralDivide( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
         ShiftDiagonal( G, shift );
 
         if( ctrl.progress )
-            cout << "chose gamma=" << gamma << " and shift=" << shift 
-                 << " using -median.value=" << -median.value 
+            cout << "chose gamma=" << gamma << " and shift=" << shift
+                 << " using -median.value=" << -median.value
                  << " and spread=" << spread << endl;
 
         try
@@ -466,8 +466,8 @@ SpectralDivide( Matrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
             else if( ctrl.progress )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
+        }
+        catch( SingularMatrixException& e )
         {
             if( ctrl.progress )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
@@ -534,9 +534,9 @@ SpectralDivide
             else if( ctrl.progress )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
-        { 
+        }
+        catch( SingularMatrixException& e )
+        {
             if( ctrl.progress )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
         }
@@ -555,7 +555,7 @@ template<typename Real>
 ValueInt<Real>
 SpectralDivide
 ( Matrix<Complex<Real>>& A,
-  Matrix<Complex<Real>>& Q, 
+  Matrix<Complex<Real>>& Q,
   const SDCCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -587,8 +587,8 @@ SpectralDivide
         ShiftDiagonal( Q, shift );
 
         if( ctrl.progress )
-            cout << "chose gamma=" << gamma << " and shift=" << shift 
-                 << " using -median.value=" << -median.value 
+            cout << "chose gamma=" << gamma << " and shift=" << shift
+                 << " using -median.value=" << -median.value
                  << " and spread=" << spread << endl;
 
         try
@@ -607,9 +607,9 @@ SpectralDivide
             else if( ctrl.progress )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
-        { 
+        }
+        catch( SingularMatrixException& e )
+        {
             if( ctrl.progress )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
         }
@@ -674,9 +674,9 @@ SpectralDivide( DistMatrix<Real>& A, const SDCCtrl<Real>& ctrl )
             else if( ctrl.progress && g.Rank() == 0 )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
-        { 
+        }
+        catch( SingularMatrixException& e )
+        {
             if( ctrl.progress && g.Rank() == 0 )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
         }
@@ -727,8 +727,8 @@ SpectralDivide( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
         ShiftDiagonal( G, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
-            cout << "chose gamma=" << gamma << " and shift=" << shift 
-                 << " using -median.value=" << -median.value 
+            cout << "chose gamma=" << gamma << " and shift=" << shift
+                 << " using -median.value=" << -median.value
                  << " and spread=" << spread << endl;
 
         try
@@ -747,9 +747,9 @@ SpectralDivide( DistMatrix<Complex<Real>>& A, const SDCCtrl<Real>& ctrl )
             else if( ctrl.progress && g.Rank() == 0 )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
-        { 
+        }
+        catch( SingularMatrixException& e )
+        {
             if( ctrl.progress && g.Rank() == 0 )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
         }
@@ -798,7 +798,7 @@ SpectralDivide
         ShiftDiagonal( Q, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
-            cout << "chose shift=" << shift << " using -median.value=" 
+            cout << "chose shift=" << shift << " using -median.value="
                  << -median.value << " and spread=" << spread << endl;
 
         try
@@ -817,8 +817,8 @@ SpectralDivide
             else if( ctrl.progress && g.Rank() == 0 )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
+        }
+        catch( SingularMatrixException& e )
         {
             if( ctrl.progress && g.Rank() == 0 )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
@@ -873,8 +873,8 @@ SpectralDivide
         ShiftDiagonal( Q, shift );
 
         if( ctrl.progress && g.Rank() == 0 )
-            cout << "chose gamma=" << gamma << " and shift=" << shift 
-                 << " using -median.value=" << -median.value 
+            cout << "chose gamma=" << gamma << " and shift=" << shift
+                 << " using -median.value=" << -median.value
                  << " and spread=" << spread << endl;
 
         try
@@ -893,9 +893,9 @@ SpectralDivide
             else if( ctrl.progress && g.Rank() == 0 )
                 cout << "part.value=" << part.value << " was greater than "
                      << tol << " during outer iter " << it-1 << endl;
-        } 
-        catch( SingularMatrixException& e ) 
-        { 
+        }
+        catch( SingularMatrixException& e )
+        {
             if( ctrl.progress && g.Rank() == 0 )
                 cout << "Caught singular matrix in outer iter " << it-1 << endl;
         }
@@ -914,7 +914,7 @@ template<typename F>
 void
 SDC
 ( Matrix<F>& A,
-  Matrix<Complex<Base<F>>>& w, 
+  Matrix<Complex<Base<F>>>& w,
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     EL_DEBUG_CSE
@@ -961,7 +961,7 @@ void
 SDC
 ( Matrix<F>& A,
   Matrix<Complex<Base<F>>>& w,
-  Matrix<F>& Q, 
+  Matrix<F>& Q,
   bool fullTriangle=true,
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
@@ -1019,7 +1019,7 @@ SDC
     if( ctrl.progress )
         Output("Right subproblem update");
     if( fullTriangle )
-        Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
+        Gemm( NORMAL, NORMAL, F(1), G, Z, ATR );
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
 }
@@ -1032,10 +1032,10 @@ SDC
 // as much work as the other. There is a complicated calculus here that would
 // require a much more sophisticated (machine- and problem-specific) model to
 // make the 'best' splitting, but this approach should be a good compromise.
-inline void SplitGrid
+inline bool SplitGrid
 ( int nLeft,
   int nRight,
-  const Grid& grid, 
+  const Grid& grid,
   const Grid*& leftGrid,
   const Grid*& rightGrid,
   bool progress=false )
@@ -1049,8 +1049,9 @@ inline void SplitGrid
         leftGrid = &grid;
         rightGrid = &grid;
         if( progress && grid.Rank() == 0 )
-            cout << "leftWork/rightWork=" << leftWork/rightWork 
+            cout << "leftWork/rightWork=" << leftWork/rightWork
                  << ", so the grid was not split" << endl;
+        return false;
     }
     else
     {
@@ -1070,26 +1071,27 @@ inline void SplitGrid
         const Int rLeft = Grid::DefaultHeight(pLeft);
         const Int rRight = Grid::DefaultHeight(pRight);
         if( progress && grid.Rank() == 0 )
-            cout << "leftWork/rightWork=" << leftWork/rightWork 
-                 << ", so split " << p << " processes into " 
+            cout << "leftWork/rightWork=" << leftWork/rightWork
+                 << ", so split " << p << " processes into "
                  << rLeft << " x " << pLeft/rLeft << " and "
                  << rRight << " x " << pRight/rRight << " grids" << endl;
         leftGrid = new Grid( grid.VCComm(), leftGroup, rLeft );
         rightGrid = new Grid( grid.VCComm(), rightGroup, rRight );
         mpi::Free( leftGroup );
         mpi::Free( rightGroup );
+        return true;
     }
 }
 
 template<typename F,typename EigType>
-void PushSubproblems
+bool PushSubproblems
 ( DistMatrix<F>& ATL,
-  DistMatrix<F>& ABR, 
+  DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
   DistMatrix<F>& ABRSub,
-  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wT,
   DistMatrix<EigType,VR,STAR>& wB,
-  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wTSub,
   DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
@@ -1098,9 +1100,9 @@ void PushSubproblems
 
     // Split based on the work estimates
     const Grid *leftGrid, *rightGrid;
-    SplitGrid
-    ( ATL.Height(), ABR.Height(), grid, leftGrid, rightGrid, progress );
-    ATLSub.SetGrid( *leftGrid ); 
+    const bool splitGrid = SplitGrid
+      ( ATL.Height(), ABR.Height(), grid, leftGrid, rightGrid, progress );
+    ATLSub.SetGrid( *leftGrid );
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
     wBSub.SetGrid( *rightGrid );
@@ -1108,6 +1110,7 @@ void PushSubproblems
         Output("Pushing ATL and ABR");
     ATLSub = ATL;
     ABRSub = ABR;
+    return splitGrid;
 }
 
 template<typename F,typename EigType>
@@ -1116,9 +1119,9 @@ void PullSubproblems
   DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
   DistMatrix<F>& ABRSub,
-  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wT,
   DistMatrix<EigType,VR,STAR>& wB,
-  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wTSub,
   DistMatrix<EigType,VR,STAR>& wBSub,
   bool progress=false )
 {
@@ -1131,7 +1134,7 @@ void PullSubproblems
     ATL = ATLSub;
     ABR = ABRSub;
 
-    // This section is a hack since no inter-grid redistributions exist for 
+    // This section is a hack since no inter-grid redistributions exist for
     // [VR,* ] distributions yet
     if( progress && grid.Rank() == 0 )
         Output("Pulling wT and wB");
@@ -1142,12 +1145,12 @@ void PullSubproblems
     }
     else
     {
-        bool includeViewers = true; 
+        bool includeViewers = true;
         DistMatrix<EigType> wTSub_MC_MR( wTSub.Grid() );
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent( includeViewers );
-        DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
+        DistMatrix<EigType> wT_MC_MR(wT.Grid());
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
 
@@ -1155,11 +1158,11 @@ void PullSubproblems
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent( includeViewers );
-        DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
+        DistMatrix<EigType> wB_MC_MR(wB.Grid());
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
-    
+
     const Grid *leftGrid = &ATLSub.Grid();
     const Grid *rightGrid = &ABRSub.Grid();
     ATLSub.Empty();
@@ -1177,7 +1180,7 @@ template<typename F>
 void
 SDC
 ( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Complex<Base<F>>>& wPre, 
+  AbstractDistMatrix<Complex<Base<F>>>& wPre,
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     EL_DEBUG_CSE
@@ -1206,7 +1209,7 @@ SDC
     if( n <= ctrl.cutoff )
     {
         if( ctrl.progress && g.Rank() == 0 )
-            Output(n," <= ",ctrl.cutoff,": using QR algorithm"); 
+            Output(n," <= ",ctrl.cutoff,": using QR algorithm");
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
         DistMatrix<Complex<Base<F>>,CIRC,CIRC> w_CIRC_CIRC( w );
 
@@ -1236,29 +1239,41 @@ SDC
 
     if( ctrl.progress && g.Rank() == 0 )
         Output("Pushing subproblems");
-    DistMatrix<F> ATLSub, ABRSub;
-    DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
-    PushSubproblems
-    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ctrl.progress );
-    if( ATLSub.Participating() )
-        SDC( ATLSub, wTSub, ctrl );
-    if( ABRSub.Participating() )
-        SDC( ABRSub, wBSub, ctrl );
-    if( ctrl.progress && g.Rank() == 0 )
-        Output("Pulling subproblems");
-    PullSubproblems
-    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ctrl.progress );
+    bool splitGrid;
+    const Grid *leftGrid, *rightGrid;
+    {
+        DistMatrix<F> ATLSub, ABRSub;
+        DistMatrix<Complex<Base<F>>,VR,STAR> wTSub, wBSub;
+        splitGrid = PushSubproblems
+          ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ctrl.progress );
+        leftGrid = &wTSub.Grid();
+        rightGrid = &wBSub.Grid();
+        if( ATLSub.Participating() )
+            SDC( ATLSub, wTSub, ctrl );
+        if( ABRSub.Participating() )
+            SDC( ABRSub, wBSub, ctrl );
+        if( ctrl.progress && g.Rank() == 0 )
+            Output("Pulling subproblems");
+        PullSubproblems
+        ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ctrl.progress );
+    }
+    if( splitGrid )
+    {
+        // TODO(poulson): Automate this process.
+        delete leftGrid;
+        delete rightGrid;
+    }
 }
 
 template<typename F,typename EigType>
 void PushSubproblems
 ( DistMatrix<F>& ATL,
-  DistMatrix<F>& ABR, 
+  DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
   DistMatrix<F>& ABRSub,
-  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wT,
   DistMatrix<EigType,VR,STAR>& wB,
-  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wTSub,
   DistMatrix<EigType,VR,STAR>& wBSub,
   DistMatrix<F>& ZTSub,
   DistMatrix<F>& ZBSub,
@@ -1291,9 +1306,9 @@ void PullSubproblems
   DistMatrix<F>& ABR,
   DistMatrix<F>& ATLSub,
   DistMatrix<F>& ABRSub,
-  DistMatrix<EigType,VR,STAR>& wT,    
+  DistMatrix<EigType,VR,STAR>& wT,
   DistMatrix<EigType,VR,STAR>& wB,
-  DistMatrix<EigType,VR,STAR>& wTSub, 
+  DistMatrix<EigType,VR,STAR>& wTSub,
   DistMatrix<EigType,VR,STAR>& wBSub,
   DistMatrix<F>& ZT,
   DistMatrix<F>& ZB,
@@ -1310,9 +1325,9 @@ void PullSubproblems
     ATL = ATLSub;
     ABR = ABRSub;
 
-    // This section is a hack since no inter-grid redistributions exist for 
+    // This section is a hack since no inter-grid redistributions exist for
     // [VR,* ] distributions yet
-    bool includeViewers = true; 
+    bool includeViewers = true;
     if( progress && grid.Rank() == 0 )
         Output("Pulling wT and wB");
     if( sameGrid )
@@ -1326,7 +1341,7 @@ void PullSubproblems
         if( wTSub.Participating() )
             wTSub_MC_MR = wTSub;
         wTSub_MC_MR.MakeConsistent( includeViewers );
-        DistMatrix<EigType> wT_MC_MR(wT.Grid()); 
+        DistMatrix<EigType> wT_MC_MR(wT.Grid());
         wT_MC_MR = wTSub_MC_MR;
         wT = wT_MC_MR;
 
@@ -1334,7 +1349,7 @@ void PullSubproblems
         if( wBSub.Participating() )
             wBSub_MC_MR = wBSub;
         wBSub_MC_MR.MakeConsistent( includeViewers );
-        DistMatrix<EigType> wB_MC_MR(wB.Grid()); 
+        DistMatrix<EigType> wB_MC_MR(wB.Grid());
         wB_MC_MR = wBSub_MC_MR;
         wB = wB_MC_MR;
     }
@@ -1368,9 +1383,9 @@ template<typename F>
 void
 SDC
 ( AbstractDistMatrix<F>& APre,
-  AbstractDistMatrix<Complex<Base<F>>>& wPre, 
+  AbstractDistMatrix<Complex<Base<F>>>& wPre,
   AbstractDistMatrix<F>& QPre,
-  bool fullTriangle=true, 
+  bool fullTriangle=true,
   const SDCCtrl<Base<F>> ctrl=SDCCtrl<Base<F>>() )
 {
     EL_DEBUG_CSE
@@ -1441,13 +1456,13 @@ SDC
     if( ctrl.progress && g.Rank() == 0 )
         Output("Pushing subproblems");
     PushSubproblems
-    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub, 
+    ( ATL, ABR, ATLSub, ABRSub, wT, wB, wTSub, wBSub, ZTSub, ZBSub,
       ctrl.progress );
     if( ATLSub.Participating() )
         SDC( ATLSub, wTSub, ZTSub, fullTriangle, ctrl );
     if( ABRSub.Participating() )
         SDC( ABRSub, wBSub, ZBSub, fullTriangle, ctrl );
-    
+
     // Ensure that the results are back on this level's grid
     if( ctrl.progress && g.Rank() == 0 )
         Output("Pulling subproblems");
@@ -1470,7 +1485,7 @@ SDC
             Output("Updating top-right quadrant");
         // Update the top-right quadrant
         Gemm( ADJOINT, NORMAL, F(1), ZT, ATR, G );
-        Gemm( NORMAL, NORMAL, F(1), G, ZB, ATR ); 
+        Gemm( NORMAL, NORMAL, F(1), G, ZB, ATR );
     }
 }
 

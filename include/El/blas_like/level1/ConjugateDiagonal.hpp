@@ -18,6 +18,7 @@ void ConjugateDiagonal( Matrix<T>& A, Int offset )
     const Int iStart = Max(-offset,0);
     const Int jStart = Max( offset,0);
     const Int diagLength = A.DiagonalLength(offset);
+    EL_PARALLEL_FOR
     for( Int k=0; k<diagLength; ++k )
     {
         const Int i = iStart + k;
@@ -33,6 +34,7 @@ void ConjugateDiagonal( AbstractDistMatrix<T>& A, Int offset )
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
     Matrix<T>& ALoc = A.Matrix();
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);

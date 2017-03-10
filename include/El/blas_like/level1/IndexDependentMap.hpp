@@ -17,9 +17,17 @@ void IndexDependentMap( Matrix<T>& A, function<T(Int,Int,const T&)> func )
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
+    T* ABuf = A.Buffer();
+    const Int ALDim = A.LDim();
+    EL_PARALLEL_FOR
     for( Int j=0; j<n; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<m; ++i )
-            A(i,j) = func(i,j,A(i,j));
+        {
+            ABuf[i+j*ALDim] = func(i,j,ABuf[i+j*ALDim]);
+        }
+    }
 }
 
 template<typename T>
@@ -29,14 +37,17 @@ void IndexDependentMap
     EL_DEBUG_CSE
     const Int mLoc = A.LocalHeight();
     const Int nLoc = A.LocalWidth();
-    auto& ALoc = A.Matrix();
+    T* ALocBuf = A.Buffer();
+    const Int ALocLDim = A.LDim();
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
-        const Int j = A.GlobalCol(jLoc);
+        EL_SIMD
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
-            ALoc(iLoc,jLoc) = func(i,j,ALoc(iLoc,jLoc));
+            const Int j = A.GlobalCol(jLoc);
+            ALocBuf[iLoc+jLoc*ALocLDim] = func(i,j,ALocBuf[iLoc+jLoc*ALocLDim]);
         }
     }
 }
@@ -49,9 +60,19 @@ void IndexDependentMap
     const Int m = A.Height();
     const Int n = A.Width();
     B.Resize( m, n );
+    const T* ABuf = A.LockedBuffer();
+    T* BBuf = B.Buffer();
+    const Int ALDim = A.LDim();
+    const Int BLDim = B.LDim();
+    EL_PARALLEL_FOR
     for( Int j=0; j<n; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<m; ++i )
-            B(i,j) = func(i,j,A(i,j));
+        {
+            BBuf[i+j*BLDim] = func(i,j,ABuf[i+j*ALDim]);
+        }
+    }
 }
 
 template<typename S,typename T,Dist U,Dist V,DistWrap wrap>
@@ -65,15 +86,19 @@ void IndexDependentMap
     const Int nLoc = A.LocalWidth();
     B.AlignWith( A.DistData() );
     B.Resize( A.Height(), A.Width() );
-    auto& ALoc = A.LockedMatrix();
-    auto& BLoc = B.Matrix();
+    const T* ALocBuf = A.LockedBuffer();
+    T* BLocBuf = B.Buffer();
+    const Int ALocLDim = A.LDim();
+    const Int BLocLDim = B.LDim();
+    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<nLoc; ++jLoc )
     {
-        const Int j = A.GlobalCol(jLoc);
+        EL_SIMD
         for( Int iLoc=0; iLoc<mLoc; ++iLoc )
         {
             const Int i = A.GlobalRow(iLoc);
-            BLoc(iLoc,jLoc) = func(i,j,ALoc(iLoc,jLoc));
+            const Int j = A.GlobalCol(jLoc);
+            BLocBuf[iLoc+jLoc*BLocLDim] = func(i,j,ALocBuf[iLoc+jLoc*ALocLDim]);
         }
     }
 }

@@ -17,9 +17,15 @@
 # else
 #  define EL_PARALLEL_FOR_COLLAPSE2 EL_PARALLEL_FOR
 # endif
+# ifdef EL_HAVE_OMP_SIMD
+#  define EL_SIMD _Pragma("omp simd")
+# else
+#  define EL_SIMD
+# endif
 #else
 # define EL_PARALLEL_FOR 
 # define EL_PARALLEL_FOR_COLLAPSE2
+# define EL_SIMD
 #endif
 
 #ifdef EL_AVOID_OMP_FMA

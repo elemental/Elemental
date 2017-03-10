@@ -19,9 +19,15 @@ void EntrywiseMap( Matrix<T>& A, function<T(const T&)> func )
     const Int n = A.Width();
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
+    EL_PARALLEL_FOR
     for( Int j=0; j<n; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<m; ++i )
+        {
             ABuf[i+j*ALDim] = func(ABuf[i+j*ALDim]);
+        }
+    }
 }
 
 template<typename T>
@@ -30,6 +36,7 @@ void EntrywiseMap( SparseMatrix<T>& A, function<T(const T&)> func )
     EL_DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numEntries = A.NumEntries();
+    EL_PARALLEL_FOR
     for( Int k=0; k<numEntries; ++k )
         vBuf[k] = func(vBuf[k]);
 }
@@ -44,6 +51,7 @@ void EntrywiseMap( DistSparseMatrix<T>& A, function<T(const T&)> func )
     EL_DEBUG_CSE
     T* vBuf = A.ValueBuffer();
     const Int numLocalEntries = A.NumLocalEntries();
+    EL_PARALLEL_FOR
     for( Int k=0; k<numLocalEntries; ++k )
         vBuf[k] = func(vBuf[k]);
 }
@@ -59,15 +67,20 @@ void EntrywiseMap
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    const S* ABuf = A.LockedBuffer();
-    const Int ALDim = A.LDim();
-
     B.Resize( m, n );
+    const S* ABuf = A.LockedBuffer();
     T* BBuf = B.Buffer();
+    const Int ALDim = A.LDim();
     const Int BLDim = B.LDim();
+    EL_PARALLEL_FOR
     for( Int j=0; j<n; ++j )
+    {
+        EL_SIMD
         for( Int i=0; i<m; ++i )
+        {
             BBuf[i+j*BLDim] = func(ABuf[i+j*ALDim]);
+        }
+    }
 }
 
 template<typename S,typename T>
@@ -82,6 +95,7 @@ void EntrywiseMap
     B.Graph() = A.LockedGraph();
     const S* AValBuf = A.LockedValueBuffer();
     T* BValBuf = B.ValueBuffer();
+    EL_PARALLEL_FOR
     for( Int k=0; k<numEntries; ++k )
         BValBuf[k] = func(AValBuf[k]);
 }
@@ -130,6 +144,7 @@ void EntrywiseMap
 
     const S* AValBuf = A.LockedValueBuffer();
     T* BValBuf = B.ValueBuffer();
+    EL_PARALLEL_FOR
     for( Int k=0; k<numLocalEntries; ++k )
         BValBuf[k] = func(AValBuf[k]);
 }

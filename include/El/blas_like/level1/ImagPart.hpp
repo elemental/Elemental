@@ -15,12 +15,8 @@ template<typename T>
 void ImagPart( const Matrix<T>& A, Matrix<Base<T>>& AImag )
 {
     EL_DEBUG_CSE
-    const Int m = A.Height();
-    const Int n = A.Width();
-    AImag.Resize( m, n );
-    for( Int j=0; j<n; ++j )
-        for( Int i=0; i<m; ++i )
-            AImag(i,j) = ImagPart(A(i,j));
+    auto imagPart = []( const T& alpha ) { return ImagPart(alpha); };
+    EntrywiseMap( A, AImag, MakeFunction(imagPart) );
 }
 
 template<typename T>

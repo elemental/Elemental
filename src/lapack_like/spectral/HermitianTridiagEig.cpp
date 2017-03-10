@@ -1,9 +1,9 @@
 /*
-   Copyright (c) 2009-2016, Jack Poulson
+   Copyright (c) 2009-2017, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include <El.hpp>
@@ -315,7 +315,7 @@ QRHelper
 {
     EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
-    w = d;    
+    w = d;
     info.qrInfo = QRAlg( w, dSub, ctrl );
     herm_eig::SortAndFilter( w, ctrl );
     return info;
@@ -332,6 +332,8 @@ DCHelper
     EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
     auto ctrlMod( ctrl );
+    ctrlMod.subset.indexSubset = false;
+    ctrlMod.subset.rangeSubset = false;
     ctrlMod.wantEigVecs = false;
     Matrix<Real> Q;
     info.dcInfo = DivideAndConquer( d, dSub, w, Q, ctrlMod );
@@ -339,7 +341,8 @@ DCHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 LAPACKHelper
 (       Matrix<Real>& d,
@@ -355,7 +358,7 @@ LAPACKHelper
     if( ctrl.subset.rangeSubset )
     {
          const Int k = lapack::SymmetricTridiagEig
-          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(),
             ctrl.subset.lowerBound, ctrl.subset.upperBound );
          w.Resize( k, 1 );
     }
@@ -363,7 +366,7 @@ LAPACKHelper
     {
         const Int numEig = ctrl.subset.upperIndex-ctrl.subset.lowerIndex+1;
         lapack::SymmetricTridiagEig
-        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(),
           BlasInt(ctrl.subset.lowerIndex),
           BlasInt(ctrl.subset.upperIndex) );
         w.Resize( numEig, 1 );
@@ -376,7 +379,8 @@ LAPACKHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
 ( const Matrix<Real>& d,
@@ -403,7 +407,9 @@ Helper
     return LAPACKHelper( dMod, dSubMod, w, ctrl );
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 Helper
 ( const Matrix<Real>& d,
@@ -462,7 +468,7 @@ HermitianTridiagEigInfo
 QRHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& w, 
+        AbstractDistMatrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -515,6 +521,8 @@ DCHelper
     auto& w = wProx.Get();
 
     auto ctrlMod( ctrl );
+    ctrlMod.subset.indexSubset = false;
+    ctrlMod.subset.rangeSubset = false;
     ctrlMod.wantEigVecs = false;
     DistMatrix<Real> Q(w.Grid());
     info.dcInfo =
@@ -546,6 +554,8 @@ DCHelper
     auto& w = wProx.Get();
 
     auto ctrlMod( ctrl );
+    ctrlMod.subset.indexSubset = false;
+    ctrlMod.subset.rangeSubset = false;
     ctrlMod.wantEigVecs = false;
     DistMatrix<Real> Q(w.Grid());
     info.dcInfo =
@@ -555,7 +565,8 @@ DCHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 MRRRHelper
 ( const AbstractDistMatrix<Real>& d,
@@ -586,17 +597,17 @@ MRRRHelper
     herm_tridiag_eig::Info rangeInfo;
     if( ctrl.subset.rangeSubset )
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
-            wVector.data(), w.ColComm(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(),
+            wVector.data(), w.ColComm(),
             ctrl.subset.lowerBound, ctrl.subset.upperBound );
     else if( ctrl.subset.indexSubset )
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
-            wVector.data(), w.ColComm(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(),
+            wVector.data(), w.ColComm(),
             int(ctrl.subset.lowerIndex), int(ctrl.subset.upperIndex) );
     else
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(),
             wVector.data(), w.ColComm() );
     w.Resize( rangeInfo.numGlobalEigenvalues, 1 );
     for( Int iLoc=0; iLoc<w.LocalHeight(); ++iLoc )
@@ -606,7 +617,8 @@ MRRRHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real>& d,
@@ -629,12 +641,14 @@ Helper
     }
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& w, 
+        AbstractDistMatrix<Real>& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -648,12 +662,13 @@ Helper
     }
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 MRRRHelper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Real         >& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -711,12 +726,13 @@ MRRRHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& wPre, 
+        AbstractDistMatrix<Real         >& wPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -734,12 +750,14 @@ Helper
     }
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& w, 
+        AbstractDistMatrix<Real         >& w,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -760,7 +778,7 @@ HermitianTridiagEigInfo
 HermitianTridiagEig
 ( const AbstractDistMatrix<Base<F>>& d,
   const AbstractDistMatrix<F      >& dSub,
-        AbstractDistMatrix<Base<F>>& w, 
+        AbstractDistMatrix<Base<F>>& w,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
     EL_DEBUG_CSE
@@ -783,7 +801,7 @@ QRHelper
 {
     EL_DEBUG_CSE
     HermitianTridiagEigInfo info;
-    w = d;    
+    w = d;
     info.qrInfo = QRAlg( w, dSub, Q, ctrl );
     herm_eig::SortAndFilter( w, Q, ctrl );
     return info;
@@ -806,13 +824,17 @@ DCHelper
     }
     else
     {
-        info.dcInfo = DivideAndConquer( d, dSub, w, Q, ctrl );
+        auto ctrlMod( ctrl );
+        ctrlMod.subset.indexSubset = false;
+        ctrlMod.subset.rangeSubset = false;
+        info.dcInfo = DivideAndConquer( d, dSub, w, Q, ctrlMod );
         herm_eig::SortAndFilter( w, Q, ctrl );
     }
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 LAPACKHelper
 (       Matrix<Real>& d,
@@ -831,7 +853,7 @@ LAPACKHelper
     {
          Q.Resize( n, n );
          const Int k = lapack::SymmetricTridiagEig
-          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+          ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(),
             Q.Buffer(), BlasInt(Q.LDim()),
             ctrl.subset.lowerBound, ctrl.subset.upperBound );
          w.Resize( k, 1 );
@@ -842,7 +864,7 @@ LAPACKHelper
         const Int numEig = ctrl.subset.upperIndex-ctrl.subset.lowerIndex+1;
         Q.Resize( n, numEig );
         lapack::SymmetricTridiagEig
-        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(),
           Q.Buffer(), BlasInt(Q.LDim()),
           BlasInt(ctrl.subset.lowerIndex),
           BlasInt(ctrl.subset.upperIndex) );
@@ -852,7 +874,7 @@ LAPACKHelper
     {
         Q.Resize( n, n );
         lapack::SymmetricTridiagEig
-        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(), 
+        ( BlasInt(n), d.Buffer(), dSub.Buffer(), w.Buffer(),
           Q.Buffer(), BlasInt(Q.LDim()) );
     }
     auto sortPairs = TaggedSort( w, ctrl.sort );
@@ -863,7 +885,8 @@ LAPACKHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
 ( const Matrix<Real>& d,
@@ -894,7 +917,9 @@ Helper
     }
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 Helper
 ( const Matrix<Real>& d,
@@ -925,7 +950,7 @@ HermitianTridiagEigInfo
 Helper
 ( const Matrix<Real>& d,
   const Matrix<Complex<Real>>& dSub,
-        Matrix<Real>& w, 
+        Matrix<Real>& w,
         Matrix<Complex<Real>>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
@@ -953,7 +978,7 @@ HermitianTridiagEig
 ( const Matrix<Base<F>>& d,
   const Matrix<F>& dSub,
         Matrix<Base<F>>& w,
-        Matrix<F>& Q, 
+        Matrix<F>& Q,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
     EL_DEBUG_CSE
@@ -967,8 +992,8 @@ HermitianTridiagEigInfo
 QRHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& w, 
-        AbstractDistMatrix<Real>& QPre, 
+        AbstractDistMatrix<Real>& w,
+        AbstractDistMatrix<Real>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1000,8 +1025,8 @@ HermitianTridiagEigInfo
 QRHelper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& w, 
-        AbstractDistMatrix<Complex<Real>>& QPre, 
+        AbstractDistMatrix<Real         >& w,
+        AbstractDistMatrix<Complex<Real>>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1048,8 +1073,8 @@ HermitianTridiagEigInfo
 DCHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& wPre, 
-        AbstractDistMatrix<Real>& QPre, 
+        AbstractDistMatrix<Real>& wPre,
+        AbstractDistMatrix<Real>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1066,9 +1091,12 @@ DCHelper
         auto& w = wProx.Get();
         DistMatrixWriteProxy<Real,Real,MC,MR> QProx( QPre );
         auto& Q = QProx.Get();
+        auto ctrlMod( ctrl );
+        ctrlMod.subset.indexSubset = false;
+        ctrlMod.subset.rangeSubset = false;
         info.dcInfo =
           DivideAndConquer
-          ( d_STAR_STAR.Matrix(), dSub_STAR_STAR.Matrix(), w, Q, ctrl );
+          ( d_STAR_STAR.Matrix(), dSub_STAR_STAR.Matrix(), w, Q, ctrlMod );
         herm_eig::SortAndFilter( w, Q, ctrl );
     }
 
@@ -1107,9 +1135,12 @@ DCHelper
         DistMatrixWriteProxy<Real,Real,STAR,STAR> wProx( wPre );
         auto& w = wProx.Get();
 
+        auto ctrlMod( ctrl );
+        ctrlMod.subset.indexSubset = false;
+        ctrlMod.subset.rangeSubset = false;
         info.dcInfo =
           DivideAndConquer
-          ( d_STAR_STAR.Matrix(), dSubReal.Matrix(), w, QReal, ctrl );
+          ( d_STAR_STAR.Matrix(), dSubReal.Matrix(), w, QReal, ctrlMod );
         herm_eig::SortAndFilter( w, QReal, ctrl );
 
         Copy( QReal, Q );
@@ -1119,13 +1150,14 @@ DCHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 MRRRHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& wPre, 
-        AbstractDistMatrix<Real>& QPre, 
+        AbstractDistMatrix<Real>& wPre,
+        AbstractDistMatrix<Real>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1174,17 +1206,17 @@ MRRRHelper
     vector<double> wVector(n);
     if( ctrl.subset.rangeSubset )
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(),
             wVector.data(), Q.Buffer(), Q.LDim(), w.ColComm(),
             ctrl.subset.lowerBound, ctrl.subset.upperBound );
     else if( ctrl.subset.indexSubset )
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(),
             wVector.data(), Q.Buffer(), Q.LDim(), w.ColComm(),
             int(ctrl.subset.lowerIndex), int(ctrl.subset.upperIndex) );
     else
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSub_STAR_STAR.Buffer(),
             wVector.data(), Q.Buffer(), Q.LDim(), w.ColComm() );
     w.Resize( rangeInfo.numGlobalEigenvalues, 1 );
     Q.Resize( n, rangeInfo.numGlobalEigenvalues );
@@ -1199,13 +1231,14 @@ MRRRHelper
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 MRRRHelper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& wPre, 
-        AbstractDistMatrix<Complex<Real>>& QPre, 
+        AbstractDistMatrix<Real         >& wPre,
+        AbstractDistMatrix<Complex<Real>>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1261,17 +1294,17 @@ MRRRHelper
     vector<double> wVector(n);
     if( ctrl.subset.rangeSubset )
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), QReal.Buffer(), QReal.LDim(), w.ColComm(),
             ctrl.subset.lowerBound, ctrl.subset.upperBound );
     else if( ctrl.subset.indexSubset )
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), QReal.Buffer(), QReal.LDim(), w.ColComm(),
             int(ctrl.subset.lowerIndex), int(ctrl.subset.upperIndex) );
     else
         rangeInfo = herm_tridiag_eig::Eig
-          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(), 
+          ( int(n), d_STAR_STAR.Buffer(), dSubReal.Buffer(),
             wVector.data(), QReal.Buffer(), QReal.LDim(), w.ColComm() );
 
     w.Resize( rangeInfo.numGlobalEigenvalues, 1 );
@@ -1287,18 +1320,19 @@ MRRRHelper
     ApplyTaggedSortToEachRow( sortPairs, QReal );
 
     Copy( QReal, Q );
-    DiagonalScale( LEFT, NORMAL, phase, Q ); 
+    DiagonalScale( LEFT, NORMAL, phase, Q );
 
     return info;
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& w, 
-        AbstractDistMatrix<Real>& Q, 
+        AbstractDistMatrix<Real>& w,
+        AbstractDistMatrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1316,13 +1350,15 @@ Helper
     }
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
-        AbstractDistMatrix<Real>& w, 
-        AbstractDistMatrix<Real>& Q, 
+        AbstractDistMatrix<Real>& w,
+        AbstractDistMatrix<Real>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1336,13 +1372,14 @@ Helper
     }
 }
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& w, 
-        AbstractDistMatrix<Complex<Real>>& Q, 
+        AbstractDistMatrix<Real         >& w,
+        AbstractDistMatrix<Complex<Real>>& Q,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1360,13 +1397,15 @@ Helper
     }
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 Helper
 ( const AbstractDistMatrix<Real         >& d,
   const AbstractDistMatrix<Complex<Real>>& dSub,
-        AbstractDistMatrix<Real         >& w, 
-        AbstractDistMatrix<Complex<Real>>& QPre, 
+        AbstractDistMatrix<Real         >& w,
+        AbstractDistMatrix<Complex<Real>>& QPre,
   const HermitianTridiagEigCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1388,7 +1427,7 @@ HermitianTridiagEig
 ( const AbstractDistMatrix<Base<F>>& d,
   const AbstractDistMatrix<F>& dSub,
         AbstractDistMatrix<Base<F>>& w,
-        AbstractDistMatrix<F>& Q, 
+        AbstractDistMatrix<F>& Q,
   const HermitianTridiagEigCtrl<Base<F>>& ctrl )
 {
     EL_DEBUG_CSE
@@ -1397,7 +1436,8 @@ HermitianTridiagEig
 
 namespace herm_tridiag_eig {
 
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 Int MRRREstimateHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
@@ -1421,7 +1461,9 @@ Int MRRREstimateHelper
     return estimate.numGlobalEigenvalues;
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 Int MRRREstimateHelper
 ( const AbstractDistMatrix<Real>& d,
   const AbstractDistMatrix<Real>& dSub,
@@ -1435,7 +1477,8 @@ Int MRRREstimateHelper
 }
 
 // Q is assumed to be sufficiently large and properly aligned
-template<typename Real,typename=EnableIf<IsBlasScalar<Real>>>
+template<typename Real,
+         typename=EnableIf<IsBlasScalar<Real>>>
 HermitianTridiagEigInfo
 MRRRPostEstimateHelper
 ( const AbstractDistMatrix<Real>& d,
@@ -1488,7 +1531,9 @@ MRRRPostEstimateHelper
     return info;
 }
 
-template<typename Real,typename=DisableIf<IsBlasScalar<Real>>,typename=void>
+template<typename Real,
+         typename=DisableIf<IsBlasScalar<Real>>,
+         typename=void>
 HermitianTridiagEigInfo
 MRRRPostEstimateHelper
 ( const AbstractDistMatrix<Real>& d,
