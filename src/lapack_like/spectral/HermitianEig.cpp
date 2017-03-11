@@ -314,7 +314,8 @@ SequentialHelper
 
 
 #ifdef EL_HAVE_SCALAPACK
-template<typename F,typename=EnableIf<IsBlasScalar<Base<F>>>>
+template<typename F,
+         typename=EnableIf<IsBlasScalar<Base<F>>>>
 HermitianEigInfo
 ScaLAPACKHelper
 ( UpperOrLower uplo,
@@ -367,7 +368,9 @@ ScaLAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<Base<F>>>,typename=void>
+template<typename F,
+         typename=DisableIf<IsBlasScalar<Base<F>>>,
+         typename=void>
 HermitianEigInfo
 ScaLAPACKHelper
 ( UpperOrLower uplo,
@@ -749,7 +752,8 @@ SequentialHelper
 }
 
 #ifdef EL_HAVE_SCALAPACK
-template<typename F,typename=EnableIf<IsBlasScalar<Base<F>>>>
+template<typename F,
+         typename=EnableIf<IsBlasScalar<Base<F>>>>
 HermitianEigInfo
 ScaLAPACKHelper
 ( UpperOrLower uplo,
@@ -816,7 +820,9 @@ ScaLAPACKHelper
     return info;
 }
 
-template<typename F,typename=DisableIf<IsBlasScalar<Base<F>>>,typename=void>
+template<typename F,
+         typename=DisableIf<IsBlasScalar<Base<F>>>,
+         typename=void>
 HermitianEigInfo
 ScaLAPACKHelper
 ( UpperOrLower uplo,
@@ -1104,7 +1110,7 @@ HermitianEig
     }
 
     auto sortPairs = TaggedSort( w, ctrl.tridiagEigCtrl.sort );
-    for( Int j=0; j<n; ++j )
+    for( Int j=0; j<w.Height(); ++j )
         w.Set( j, 0, sortPairs[j].value );
     ApplyTaggedSortToEachRow( sortPairs, Q );
 
