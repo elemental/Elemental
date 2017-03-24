@@ -41,7 +41,7 @@ Ring HilbertSchmidt( const Matrix<Ring>& A, const Matrix<Ring>& B )
 
 template<typename Ring>
 Ring HilbertSchmidt
-( const ElementalMatrix<Ring>& A, const ElementalMatrix<Ring>& B )
+( const AbstractDistMatrix<Ring>& A, const AbstractDistMatrix<Ring>& B )
 {
     EL_DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
@@ -112,7 +112,7 @@ Ring HilbertSchmidt( const DistMultiVec<Ring>& A, const DistMultiVec<Ring>& B )
   template Ring HilbertSchmidt \
   ( const Matrix<Ring>& A, const Matrix<Ring>& B ); \
   template Ring HilbertSchmidt \
-  ( const ElementalMatrix<Ring>& A, const ElementalMatrix<Ring>& B ); \
+  ( const AbstractDistMatrix<Ring>& A, const AbstractDistMatrix<Ring>& B ); \
   template Ring HilbertSchmidt \
   ( const DistMultiVec<Ring>& A, const DistMultiVec<Ring>& B );
 

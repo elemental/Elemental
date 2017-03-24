@@ -103,9 +103,9 @@ void ColumnMaxNorms( const Matrix<Field>& X, Matrix<Base<Field>>& norms )
     }
 }
 
-template<typename Field,Dist U,Dist V>
+template<typename Field,Dist U,Dist V,DistWrap W>
 void ColumnTwoNorms
-( const DistMatrix<Field,U,V>& A, DistMatrix<Base<Field>,V,STAR>& norms )
+( const DistMatrix<Field,U,V,W>& A, DistMatrix<Base<Field>,V,STAR,W>& norms )
 {
     EL_DEBUG_CSE
     norms.AlignWith( A );
@@ -118,9 +118,9 @@ void ColumnTwoNorms
     ColumnTwoNormsHelper( A.LockedMatrix(), norms.Matrix(), A.ColComm() );
 }
 
-template<typename Field,Dist U,Dist V>
+template<typename Field,Dist U,Dist V,DistWrap W>
 void ColumnMaxNorms
-( const DistMatrix<Field,U,V>& A, DistMatrix<Base<Field>,V,STAR>& norms )
+( const DistMatrix<Field,U,V,W>& A, DistMatrix<Base<Field>,V,STAR,W>& norms )
 {
     EL_DEBUG_CSE
     norms.AlignWith( A );
@@ -363,11 +363,17 @@ void ColumnTwoNorms
 
 #define PROTO_DIST(Field,U,V) \
   template void ColumnTwoNorms \
-  ( const DistMatrix<Field,U,V>& X, \
-          DistMatrix<Base<Field>,V,STAR>& norms ); \
+  ( const DistMatrix<Field,U,V,ELEMENT>& X, \
+          DistMatrix<Base<Field>,V,STAR,ELEMENT>& norms ); \
   template void ColumnMaxNorms \
-  ( const DistMatrix<Field,U,V>& X, \
-          DistMatrix<Base<Field>,V,STAR>& norms );
+  ( const DistMatrix<Field,U,V,ELEMENT>& X, \
+          DistMatrix<Base<Field>,V,STAR,ELEMENT>& norms ); \
+  template void ColumnTwoNorms \
+  ( const DistMatrix<Field,U,V,BLOCK>& X, \
+          DistMatrix<Base<Field>,V,STAR,BLOCK>& norms ); \
+  template void ColumnMaxNorms \
+  ( const DistMatrix<Field,U,V,BLOCK>& X, \
+          DistMatrix<Base<Field>,V,STAR,BLOCK>& norms );
 
 #define PROTO(Field) \
   template void ColumnTwoNorms \
