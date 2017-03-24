@@ -60,6 +60,9 @@ void Hadamard
         LogicError("A, B, and C must share the same distribution");
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("A and B must be aligned");
+    if ( A.BlockHeight() != B.BlockHeight() ||
+         A.BlockWidth() != B.BlockWidth())
+      LogicError("A and B must have the same block size");
     C.AlignWith( A.DistData() );
     C.Resize( A.Height(), A.Width() );
     Hadamard( A.LockedMatrix(), B.LockedMatrix(), C.Matrix() );

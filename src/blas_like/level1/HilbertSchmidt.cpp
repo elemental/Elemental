@@ -53,6 +53,9 @@ Ring HilbertSchmidt
         LogicError("A and B must have the same distribution");
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
+    if ( A.BlockHeight() != B.BlockHeight() ||
+         A.BlockWidth() != B.BlockWidth())
+      LogicError("A and B must have the same block size");
 
     Ring innerProd;
     if( A.Participating() )
