@@ -33,7 +33,10 @@ void TestColumnTwoNorms(Int m, Int n, const Grid& g, bool print)
     }
     expected = mpi::AllReduce(expected, g.ColComm());
     expected = Sqrt(expected);
-    if (Abs(got - expected) > 10 * limits::Epsilon<El::Base<T>>())
+    // Compute max(expected, 1) to use relative bound.
+    // (std::max and El::Max don't support BigFloat.
+    T div = expected > 1 ? expected : 1;
+    if (Abs(got - expected) / div > m * n * 10 * limits::Epsilon<El::Base<T>>())
     {
       Output("Results do not match, norms(", j, ")=", got,
              " instead of ", expected);
@@ -90,19 +93,17 @@ int main(int argc, char** argv)
     TestColumnTwoNorms<float, BLOCK>(m, n, g, print);
     TestColumnTwoNorms<double, ELEMENT>(m, n, g, print);
     TestColumnTwoNorms<double, BLOCK>(m, n, g, print);
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_DOUBLEDOUBLE)
+#if defined(EL_HAVE_QD)
     TestColumnTwoNorms<DoubleDouble, ELEMENT>(m, n, g, print);
     TestColumnTwoNorms<DoubleDouble, BLOCK>(m, n, g, print);
-#endif
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_QUADDOUBLE)
     TestColumnTwoNorms<QuadDouble, ELEMENT>(m, n, g, print);
     TestColumnTwoNorms<QuadDouble, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
+#if defined(EL_HAVE_QUAD)
     TestColumnTwoNorms<Quad, ELEMENT>(m, n, g, print);
     TestColumnTwoNorms<Quad, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
+#if defined(EL_HAVE_MPC)
     TestColumnTwoNorms<BigFloat, ELEMENT>(m, n, g, print);
     TestColumnTwoNorms<BigFloat, BLOCK>(m, n, g, print);
 #endif
@@ -111,19 +112,17 @@ int main(int argc, char** argv)
     TestColumnMaxNorms<float, BLOCK>(m, n, g, print);
     TestColumnMaxNorms<double, ELEMENT>(m, n, g, print);
     TestColumnMaxNorms<double, BLOCK>(m, n, g, print);
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_DOUBLEDOUBLE)
+#if defined(EL_HAVE_QD)
     TestColumnMaxNorms<DoubleDouble, ELEMENT>(m, n, g, print);
     TestColumnMaxNorms<DoubleDouble, BLOCK>(m, n, g, print);
-#endif
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_QUADDOUBLE)
     TestColumnMaxNorms<QuadDouble, ELEMENT>(m, n, g, print);
     TestColumnMaxNorms<QuadDouble, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
+#if defined(EL_HAVE_QUAD)
     TestColumnMaxNorms<Quad, ELEMENT>(m, n, g, print);
     TestColumnMaxNorms<Quad, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
+#if defined(EL_HAVE_MPC)
     TestColumnMaxNorms<BigFloat, ELEMENT>(m, n, g, print);
     TestColumnMaxNorms<BigFloat, BLOCK>(m, n, g, print);
 #endif

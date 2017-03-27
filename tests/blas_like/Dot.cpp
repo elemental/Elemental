@@ -65,25 +65,23 @@ int main(int argc, char** argv)
     TestDot<double, BLOCK>(m, n, g, print);
     TestDot<Complex<double>, ELEMENT>(m, n, g, print);
     TestDot<Complex<double>, BLOCK>(m, n, g, print);
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_DOUBLEDOUBLE)
+#if defined(EL_HAVE_QD)
     TestDot<DoubleDouble, ELEMENT>(m, n, g, print);
     TestDot<DoubleDouble, BLOCK>(m, n, g, print);
     TestDot<Complex<DoubleDouble>, ELEMENT>(m, n, g, print);
     TestDot<Complex<DoubleDouble>, BLOCK>(m, n, g, print);
-#endif
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_QUADDOUBLE)
     TestDot<QuadDouble, ELEMENT>(m, n, g, print);
     TestDot<QuadDouble, BLOCK>(m, n, g, print);
     TestDot<Complex<QuadDouble>, ELEMENT>(m, n, g, print);
     TestDot<Complex<QuadDouble>, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
+#if defined(EL_HAVE_QUAD)
     TestDot<Quad, ELEMENT>(m, n, g, print);
     TestDot<Quad, BLOCK>(m, n, g, print);
     TestDot<Complex<Quad>, ELEMENT>(m, n, g, print);
     TestDot<Complex<Quad>, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
+#if defined(EL_HAVE_MPC)
     TestDot<BigFloat, ELEMENT>(m, n, g, print);
     TestDot<BigFloat, BLOCK>(m, n, g, print);
     TestDot<Complex<BigFloat>, ELEMENT>(m, n, g, print);

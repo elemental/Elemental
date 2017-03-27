@@ -68,25 +68,23 @@ int main(int argc, char** argv)
     TestHadamard<double, BLOCK>(m, n, g, print);
     TestHadamard<Complex<double>, ELEMENT>(m, n, g, print);
     TestHadamard<Complex<double>, BLOCK>(m, n, g, print);
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_DOUBLEDOUBLE)
+#if defined(EL_HAVE_QD)
     TestHadamard<DoubleDouble, ELEMENT>(m, n, g, print);
     TestHadamard<DoubleDouble, BLOCK>(m, n, g, print);
     TestHadamard<Complex<DoubleDouble>, ELEMENT>(m, n, g, print);
     TestHadamard<Complex<DoubleDouble>, BLOCK>(m, n, g, print);
-#endif
-#if defined(EL_HAVE_QD) && defined(EL_ENABLE_QUADDOUBLE)
     TestHadamard<QuadDouble, ELEMENT>(m, n, g, print);
     TestHadamard<QuadDouble, BLOCK>(m, n, g, print);
     TestHadamard<Complex<QuadDouble>, ELEMENT>(m, n, g, print);
     TestHadamard<Complex<QuadDouble>, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_QUAD) && defined(EL_ENABLE_QUAD)
+#if defined(EL_HAVE_QUAD)
     TestHadamard<Quad, ELEMENT>(m, n, g, print);
     TestHadamard<Quad, BLOCK>(m, n, g, print);
     TestHadamard<Complex<Quad>, ELEMENT>(m, n, g, print);
     TestHadamard<Complex<Quad>, BLOCK>(m, n, g, print);
 #endif
-#if defined(EL_HAVE_MPC) && defined(EL_ENABLE_BIGFLOAT)
+#if defined(EL_HAVE_MPC)
     TestHadamard<BigFloat, ELEMENT>(m, n, g, print);
     TestHadamard<BigFloat, BLOCK>(m, n, g, print);
     TestHadamard<Complex<BigFloat>, ELEMENT>(m, n, g, print);
