@@ -42,9 +42,9 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 
 template<typename T>
 void Hadamard
-( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C )
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C )
 {
     EL_DEBUG_CSE
     const DistData& ADistData = A.DistData();
@@ -60,6 +60,9 @@ void Hadamard
         LogicError("A, B, and C must share the same distribution");
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("A and B must be aligned");
+    if ( A.BlockHeight() != B.BlockHeight() ||
+         A.BlockWidth() != B.BlockWidth())
+      LogicError("A and B must have the same block size");
     C.AlignWith( A.DistData() );
     C.Resize( A.Height(), A.Width() );
     Hadamard( A.LockedMatrix(), B.LockedMatrix(), C.Matrix() );
@@ -87,9 +90,9 @@ void Hadamard
   EL_EXTERN template void Hadamard \
   ( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C ); \
   EL_EXTERN template void Hadamard \
-  ( const ElementalMatrix<T>& A, \
-    const ElementalMatrix<T>& B, \
-          ElementalMatrix<T>& C ); \
+  ( const AbstractDistMatrix<T>& A, \
+    const AbstractDistMatrix<T>& B, \
+          AbstractDistMatrix<T>& C ); \
   EL_EXTERN template void Hadamard \
   ( const DistMultiVec<T>& A, \
     const DistMultiVec<T>& B, \

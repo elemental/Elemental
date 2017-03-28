@@ -196,9 +196,9 @@ void Recv( Matrix<T>& A, mpi::Comm comm, int source );
 template<typename Field>
 void ColumnTwoNorms
 ( const Matrix<Field>& X, Matrix<Base<Field>>& norms );
-template<typename Field,Dist U,Dist V>
+template<typename Field,Dist U,Dist V,DistWrap W>
 void ColumnTwoNorms
-( const DistMatrix<Field,U,V>& X, DistMatrix<Base<Field>,V,STAR>& norms );
+( const DistMatrix<Field,U,V,W>& X, DistMatrix<Base<Field>,V,STAR,W>& norms );
 template<typename Field>
 void ColumnTwoNorms
 ( const DistMultiVec<Field>& X, Matrix<Base<Field>>& norms );
@@ -235,9 +235,9 @@ void ColumnTwoNorms
 template<typename Ring>
 void ColumnMaxNorms
 ( const Matrix<Ring>& X, Matrix<Base<Ring>>& norms );
-template<typename Ring,Dist U,Dist V>
+template<typename Ring,Dist U,Dist V,DistWrap W>
 void ColumnMaxNorms
-( const DistMatrix<Ring,U,V>& X, DistMatrix<Base<Ring>,V,STAR>& norms );
+( const DistMatrix<Ring,U,V,W>& X, DistMatrix<Base<Ring>,V,STAR,W>& norms );
 template<typename Ring>
 void ColumnMaxNorms
 ( const DistMultiVec<Ring>& X, Matrix<Base<Ring>>& norms );
@@ -802,7 +802,7 @@ void DiagonalSolve
 template<typename T>
 T Dot( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
-T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B );
+T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B );
 template<typename T>
 T Dot( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 
@@ -1155,9 +1155,9 @@ template<typename T>
 void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C );
 template<typename T>
 void Hadamard
-( const ElementalMatrix<T>& A,
-  const ElementalMatrix<T>& B,
-        ElementalMatrix<T>& C );
+( const AbstractDistMatrix<T>& A,
+  const AbstractDistMatrix<T>& B,
+        AbstractDistMatrix<T>& C );
 template<typename T>
 void Hadamard
 ( const DistMultiVec<T>& A,
@@ -1170,7 +1170,7 @@ template<typename T>
 T HilbertSchmidt( const Matrix<T>& A, const Matrix<T>& B );
 template<typename T>
 T HilbertSchmidt
-( const ElementalMatrix<T>& A, const ElementalMatrix<T>& C );
+( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& C );
 template<typename T>
 T HilbertSchmidt( const DistMultiVec<T>& A, const DistMultiVec<T>& B );
 

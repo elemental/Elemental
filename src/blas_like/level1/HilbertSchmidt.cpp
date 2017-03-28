@@ -41,7 +41,7 @@ Ring HilbertSchmidt( const Matrix<Ring>& A, const Matrix<Ring>& B )
 
 template<typename Ring>
 Ring HilbertSchmidt
-( const ElementalMatrix<Ring>& A, const ElementalMatrix<Ring>& B )
+( const AbstractDistMatrix<Ring>& A, const AbstractDistMatrix<Ring>& B )
 {
     EL_DEBUG_CSE
     if( A.Height() != B.Height() || A.Width() != B.Width() )
@@ -53,6 +53,9 @@ Ring HilbertSchmidt
         LogicError("A and B must have the same distribution");
     if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
+    if ( A.BlockHeight() != B.BlockHeight() ||
+         A.BlockWidth() != B.BlockWidth())
+      LogicError("A and B must have the same block size");
 
     Ring innerProd;
     if( A.Participating() )
@@ -112,7 +115,7 @@ Ring HilbertSchmidt( const DistMultiVec<Ring>& A, const DistMultiVec<Ring>& B )
   template Ring HilbertSchmidt \
   ( const Matrix<Ring>& A, const Matrix<Ring>& B ); \
   template Ring HilbertSchmidt \
-  ( const ElementalMatrix<Ring>& A, const ElementalMatrix<Ring>& B ); \
+  ( const AbstractDistMatrix<Ring>& A, const AbstractDistMatrix<Ring>& B ); \
   template Ring HilbertSchmidt \
   ( const DistMultiVec<Ring>& A, const DistMultiVec<Ring>& B );
 
