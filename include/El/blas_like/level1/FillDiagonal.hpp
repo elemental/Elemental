@@ -17,7 +17,6 @@ void FillDiagonal( Matrix<T>& A, T alpha, Int offset )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-    EL_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
     {
         const Int i = j-offset;

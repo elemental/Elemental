@@ -19,13 +19,24 @@ void Fill( Matrix<T>& A, T alpha )
     const Int n = A.Width();
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<n; ++j )
+
+    // Iterate over single loop if memory is contiguous. Otherwise
+    // iterate over double loop.
+    if( ALDim == m )
     {
-        EL_SIMD
-        for( Int i=0; i<m; ++i )
+        for( Int i=0; i<m*n; ++i )
         {
-            ABuf[i+j*ALDim] = alpha;
+            ABuf[i] = alpha;
+        }
+    }
+    else
+    {
+        for( Int j=0; j<n; ++j )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                ABuf[i+j*ALDim] = alpha;
+            }
         }
     }
 }
