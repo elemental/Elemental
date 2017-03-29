@@ -61,7 +61,6 @@ void Fill( SparseMatrix<T>& A, T alpha )
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    A.Resize( m, n );
     Zero( A );
     if( alpha != T(0) )
     {
@@ -79,7 +78,6 @@ void Fill( DistSparseMatrix<T>& A, T alpha )
     EL_DEBUG_CSE
     const Int m = A.Height();
     const Int n = A.Width();
-    A.Resize( m, n );
     Zero( A );
     if( alpha != T(0) )
     {
