@@ -19,7 +19,7 @@ T Dot( const Matrix<T>& A, const Matrix<T>& B )
 }
 
 template<typename T>
-T Dot( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B )
+T Dot( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B )
 {
     EL_DEBUG_CSE
     return HilbertSchmidt( A, B );
@@ -114,7 +114,7 @@ T Dotu( const DistMultiVec<T>& A, const DistMultiVec<T>& B )
   EL_EXTERN template T Dot \
   ( const Matrix<T>& A, const Matrix<T>& B ); \
   EL_EXTERN template T Dot \
-  ( const ElementalMatrix<T>& A, const ElementalMatrix<T>& B ); \
+  ( const AbstractDistMatrix<T>& A, const AbstractDistMatrix<T>& B ); \
   EL_EXTERN template T Dot \
   ( const DistMultiVec<T>& A, const DistMultiVec<T>& B ); \
   EL_EXTERN template T Dotu \
