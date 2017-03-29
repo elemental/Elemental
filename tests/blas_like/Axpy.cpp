@@ -10,6 +10,40 @@
 using namespace El;
 
 template<typename T>
+void TestCorrectness
+( T alpha, const DistMatrix<T>& X,
+           const DistMatrix<T>& YOrig,
+           const DistMatrix<T>& YFinal,
+  bool print )
+{
+    EL_DEBUG_ONLY(CallStackEntry cse("TestCorrectness"))
+      
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Grid& g = X.Grid();
+    const Base<T> YFrobNorm = FrobeniusNorm( YOrig );
+    if( g.Rank() == 0 )
+    {
+        Matrix<T> E( m, n );
+        for( Int j=0; j<n; ++j )
+        {
+            for( Int i=0; i<m; ++i )
+            {
+                T Eij = alpha * X.Get(i,j) + YOrig.Get(i,j);
+                Eij -= YFinal.Get(i,j);
+                E.Set( i, j, Eij );
+            }
+        }
+        const Base<T> EFrobNorm = FrobeniusNorm( E );
+        if( print )
+            Print( E, "E" );
+        Output
+        ( "|| E ||_F / || Y ||_F = ",
+          EFrobNorm, "/", YFrobNorm, "=", EFrobNorm/YFrobNorm );
+    }
+}
+
+template<typename T>
 void TestAxpy
 ( Int m,
   Int n,
@@ -17,7 +51,8 @@ void TestAxpy
   Int ldimY,
   Int numThreads,
   const Grid& g,
-  bool print )
+  bool print,
+  bool correctness )
 {
     OutputFromRoot(g.Comm(),"Testing with ",TypeName<T>());
     PushIndent();
@@ -58,7 +93,7 @@ void TestAxpy
     // Apply axpy
     if( g.Rank() == 0 )
     {
-        Output("  Starting Axpy");
+        Output("Starting Axpy");
     }
     mpi::Barrier( g.Comm() );
     timer.Start();
@@ -70,9 +105,9 @@ void TestAxpy
     gflops = 2e-9 * m * n / runTime;
     OutputFromRoot(g.Comm(),"Finished in ",runTime," seconds (",gflops," GFLOPS)");
     if( print )
-    {
         Print( Y, "Y" );
-    }
+    if( correctness )
+        TestCorrectness( alpha.Get(0,0), X, YOrig, Y, print );
 
     PopIndent();
 }
@@ -95,6 +130,7 @@ main( int argc, char* argv[] )
         const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool colMajor = Input("--colMajor","column-major ordering?",true);
         const bool print = Input("--print","print matrices?",false);
+        const bool correctness = Input("--correctness","correctness?",true);
         ProcessInput();
         PrintInputReport();
 
@@ -112,23 +148,23 @@ main( int argc, char* argv[] )
         OutputFromRoot(comm,"Testing Axpy");
 
         // Run tests
-        TestAxpy<float>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<Complex<float>>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<double>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<Complex<double>>( m, n, ldimX, ldimY, numThreads, g, print );
+        TestAxpy<float>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<Complex<float>>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<double>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<Complex<double>>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
 #ifdef EL_HAVE_QD
-        TestAxpy<DoubleDouble>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<QuadDouble>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<Complex<DoubleDouble>>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<Complex<QuadDouble>>( m, n, ldimX, ldimY, numThreads, g, print );
+        TestAxpy<DoubleDouble>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<QuadDouble>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<Complex<DoubleDouble>>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<Complex<QuadDouble>>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
 #endif
 #ifdef EL_HAVE_QUAD
-        TestAxpy<Quad>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<Complex<Quad>>( m, n, ldimX, ldimY, numThreads, g, print );      
+        TestAxpy<Quad>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<Complex<Quad>>( m, n, ldimX, ldimY, numThreads, g, print, correctness );      
 #endif
-#ifdef EL_HAVE_QUAD
-        TestAxpy<BigFloat>( m, n, ldimX, ldimY, numThreads, g, print );
-        TestAxpy<Complex<BigFloat>>( m, n, ldimX, ldimY, numThreads, g, print );
+#ifdef EL_HAVE_MPC
+        TestAxpy<BigFloat>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
+        TestAxpy<Complex<BigFloat>>( m, n, ldimX, ldimY, numThreads, g, print, correctness );
 #endif
     }
     catch( exception& e ) { ReportException(e); }
