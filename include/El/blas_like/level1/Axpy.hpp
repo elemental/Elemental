@@ -25,6 +25,7 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
     const Int ldY = Y.LDim();
     const T* XBuf = X.LockedBuffer();
           T* YBuf = Y.Buffer();
+
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
     if( mX == 1 || nX == 1 )
@@ -38,21 +39,32 @@ void Axpy( S alphaS, const Matrix<T>& X, Matrix<T>& Y )
           if( XLength != YLength )
               LogicError("Nonconformal Axpy");
         )
-        blas::Axpy( XLength, alpha, XBuf, XStride, YBuf, YStride );
+        for( Int i=0; i<XLength; ++i )
+        {
+            YBuf[i*YStride] += alpha*XBuf[i*XStride];
+        }
     }
     else
     {
-        EL_DEBUG_ONLY(
-          const Int mY = Y.Height();
-          if( mX != mY || nX != nY )
-              LogicError("Nonconformal Axpy");
-        )
-        if( nX <= mX )
-            for( Int j=0; j<nX; ++j )
-                blas::Axpy( mX, alpha, &XBuf[j*ldX], 1, &YBuf[j*ldY], 1 );
+        // Iterate over single loop if X and Y are both contiguous in
+        // memory. Otherwise iterate over double loop.
+        if( ldX == mX && ldY == mX )
+        {
+            for( Int i=0; i<mX*nX; ++i )
+            {
+                YBuf[i] += alpha*XBuf[i];
+            }
+        }
         else
-            for( Int i=0; i<mX; ++i )
-                blas::Axpy( nX, alpha, &XBuf[i], ldX, &YBuf[i], ldY );
+        {
+            for( Int j=0; j<nX; ++j )
+            {
+                for( Int i=0; i<mX; ++i )
+                {
+                    YBuf[i+j*ldY] += alpha*XBuf[i+j*ldX];
+                }
+            }
+        }
     }
 }
 

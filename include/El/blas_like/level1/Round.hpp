@@ -17,19 +17,8 @@ template<typename T>
 void Round( Matrix<T>& A )
 {
     EL_DEBUG_CSE
-    const Int m = A.Height();
-    const Int n = A.Width();
-    T* ABuf = A.Buffer();
-    const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<n; ++j )
-    {
-        EL_SIMD
-        for( Int i=0; i<m; ++i )
-        {
-            ABuf[i+j*ALDim] = Round(ABuf[i+j*ALDim]);
-        }
-    }
+    auto round = []( const T& alpha ) { return Round(alpha); };
+    EntrywiseMap( A, MakeFunction(round) );
 }
 
 template<>

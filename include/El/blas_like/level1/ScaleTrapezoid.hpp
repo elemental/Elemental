@@ -25,7 +25,6 @@ void ScaleTrapezoid( S alphaS, UpperOrLower uplo, Matrix<T>& A, Int offset )
 
     if( uplo == UPPER )
     {
-        EL_PARALLEL_FOR
         for( Int j=Max(0,offset-1); j<width; ++j )
         {
             const Int numRows = j-offset+1;
@@ -35,7 +34,6 @@ void ScaleTrapezoid( S alphaS, UpperOrLower uplo, Matrix<T>& A, Int offset )
     }
     else
     {
-        EL_PARALLEL_FOR
         for( Int j=0; j<width; ++j )
         {
             const Int numZeroRows = Max(j-offset,0);
@@ -62,7 +60,6 @@ ScaleTrapezoid
     {
         T* buffer = A.Buffer();
         const Int ldim = A.LDim();
-        EL_PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);
@@ -78,7 +75,6 @@ ScaleTrapezoid
     {
         T* buffer = A.Buffer();
         const Int ldim = A.LDim();
-        EL_PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = A.GlobalCol(jLoc);

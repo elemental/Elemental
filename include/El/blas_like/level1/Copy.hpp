@@ -22,10 +22,23 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     const Int height = A.Height();
     const Int width = A.Width();
     B.Resize( height, width );
+    const Int ldA = A.LDim();
+    const Int ldB = B.LDim();
+    const T* ABuf = A.LockedBuffer();
+          T* BBuf = B.Buffer();
 
-    lapack::Copy
-    ( 'F', A.Height(), A.Width(),
-      A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+    // Copy all entries if memory is contiguous. Otherwise copy each
+    // column.
+    if( ldA == height && ldB == height ) {
+        MemCopy( BBuf, ABuf, height*width );
+    }
+    else {
+        EL_PARALLEL_FOR
+        for( Int j=0; j<width; ++j ) {
+            MemCopy(&BBuf[j*ldB], &ABuf[j*ldA], height);
+        }
+    }
+
 }
 
 template<typename S,typename T,

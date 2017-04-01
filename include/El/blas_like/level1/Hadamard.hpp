@@ -29,14 +29,43 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
     const Int ALDim = A.LDim();
     const Int BLDim = B.LDim();
     const Int CLDim = C.LDim();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
+
+    // Iterate over single loop if memory is contiguous. Otherwise
+    // iterate over double loop.
+    if( ALDim == height && BLDim == height && CLDim == height )
     {
-        EL_SIMD
-        for( Int i=0; i<height; ++i )
-          {
-              CBuf[i+j*CLDim] = ABuf[i+j*ALDim] * BBuf[i+j*BLDim];
-          }
+        // Check if output matrix is equal to either input matrix
+        if( CBuf == BBuf )
+        {
+            for( Int i=0; i<height*width; ++i )
+            {
+                CBuf[i] *= ABuf[i];
+            }
+        }
+        else if( CBuf == ABuf )
+        {
+            for( Int i=0; i<height*width; ++i )
+            {
+                CBuf[i] *= BBuf[i];
+            }
+        }
+        else
+        {
+            for( Int i=0; i<height*width; ++i )
+            {
+                CBuf[i] = ABuf[i] * BBuf[i];
+            }
+        }
+    }
+    else
+    {
+        for( Int j=0; j<width; ++j )
+        {
+            for( Int i=0; i<height; ++i )
+            {
+                CBuf[i+j*CLDim] = ABuf[i+j*ALDim] * BBuf[i+j*BLDim];
+            }
+        }
     }
 }
 

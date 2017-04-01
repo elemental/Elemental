@@ -17,11 +17,8 @@ void ShiftDiagonal( Matrix<T>& A, S alpha, Int offset )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-
-    EL_PARALLEL_FOR
     for( Int j=0; j<width; ++j )
     {
         const Int i = j-offset;
@@ -36,11 +33,8 @@ void ShiftDiagonal( AbstractDistMatrix<T>& A, S alpha, Int offset )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int localWidth = A.LocalWidth();
-
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-
-    EL_PARALLEL_FOR
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int j = A.GlobalCol(jLoc);

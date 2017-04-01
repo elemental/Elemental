@@ -19,15 +19,27 @@ void Shift( Matrix<T>& A, S alpha )
     const Int width = A.Width();
     T* ABuf = A.Buffer();
     const Int ALDim = A.LDim();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
+
+    // Iterate over single loop if memory is contiguous. Otherwise
+    // iterate over double loop.
+    if( height == ALDim )
     {
-        EL_SIMD
-        for( Int i=0; i<height; ++i )
+        for( Int i=0; i<height*width; ++i )
         {
-            ABuf[i+j*ALDim] += alpha;
+            ABuf[i] += alpha;
         }
     }
+    else
+    {
+        for( Int j=0; j<width; ++j )
+        {
+            for( Int i=0; i<height; ++i )
+            {
+                ABuf[i+j*ALDim] += alpha;
+            }
+        }
+    }
+
 }
 
 template<typename T,typename S>

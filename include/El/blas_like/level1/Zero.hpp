@@ -17,9 +17,24 @@ void Zero( Matrix<T>& A )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
-    EL_PARALLEL_FOR
-    for( Int j=0; j<width; ++j )
-        MemZero( A.Buffer(0,j), height );
+    const Int ALDim = A.LDim();
+    T* ABuf = A.Buffer();
+
+    // Zero out all entries if memory is contiguous. Otherwise zero
+    // out each column.
+    if( ALDim == height )
+    {
+        MemZero( ABuf, height*width );
+    }
+    else
+    {
+        EL_PARALLEL_FOR
+        for( Int j=0; j<width; ++j )
+        {
+            MemZero( &ABuf[j*ALDim], height );
+        }
+    }
+
 }
 
 template<typename T>
