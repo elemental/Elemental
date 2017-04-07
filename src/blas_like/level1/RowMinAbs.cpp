@@ -19,12 +19,13 @@ void RowMinAbs( const Matrix<Ring>& A, Matrix<Base<Ring>>& mins )
     const Int m = A.Height();
     const Int n = A.Width();
     mins.Resize( m, 1 );
+    Zero( mins );
     for( Int i=0; i<m; ++i )
     {
         RealRing rowMin = limits::Max<RealRing>();
         for( Int j=0; j<n; ++j )
-            rowMin = Min(rowMin,Abs(A.Get(i,j)));
-        mins.Set( i, 0, rowMin );
+            rowMin = Min(rowMin,Abs(A(i,j)));
+        mins(i) = rowMin;
     }
 }
 
@@ -39,16 +40,17 @@ void RowMinAbsNonzero
     const Int m = A.Height();
     const Int n = A.Width();
     mins.Resize( m, 1 );
+    Zero( mins );
     for( Int i=0; i<m; ++i )
     {
-        RealRing rowMin = upperBounds.Get(i,0);
+        RealRing rowMin = upperBounds(i);
         for( Int j=0; j<n; ++j )
         {
-            const RealRing absVal = Abs(A.Get(i,j));
+            const RealRing absVal = Abs(A(i,j));
             if( absVal > RealRing(0) )
                 rowMin = Min(rowMin,absVal);
         }
-        mins.Set( i, 0, rowMin );
+        mins(i) = rowMin;
     }
 }
 

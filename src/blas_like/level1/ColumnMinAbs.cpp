@@ -23,8 +23,8 @@ void ColumnMinAbs( const Matrix<Ring>& X, Matrix<Base<Ring>>& mins )
     {
         RealRing colMin = limits::Max<RealRing>();
         for( Int i=0; i<m; ++i )
-            colMin = Min(colMin,Abs(X.Get(i,j)));
-        mins.Set( j, 0, colMin );
+            colMin = Min(colMin,Abs(X(i,j)));
+        mins(j) = colMin;
     }
 }
 
@@ -41,14 +41,14 @@ void ColumnMinAbsNonzero
     mins.Resize( n, 1 );
     for( Int j=0; j<n; ++j )
     {
-        RealRing colMin = upperBounds.Get(j,0);
+        RealRing colMin = upperBounds(j);
         for( Int i=0; i<m; ++i )
         {
-            RealRing absVal = Abs(X.Get(i,j));
+            RealRing absVal = Abs(X(i,j));
             if( absVal > RealRing(0) )
                 colMin = Min(colMin,absVal);
         }
-        mins.Set( j, 0, colMin );
+        mins(j) = colMin;
     }
 }
 

@@ -101,6 +101,12 @@ void TestSequentialSVD
         if( wantV )
             Print( V, "VSeq" );
     }
+
+    // Check that s is decreasing.
+    for( Int i=1; i<s.Height(); ++i )
+        if( s(i) > s(i-1) )
+            LogicError("s(",i,")=",s(i)," > s(",i-1,")=",s(i-1));
+
     // Check that U and V are unitary
     Matrix<F> E;
     if( wantU )
@@ -170,10 +176,10 @@ void TestDistributedSVD
         Output("Distributed test with ",TypeName<F>());
     Timer timer;
 
-    Grid g( mpi::COMM_WORLD );
+    Grid grid( mpi::COMM_WORLD );
     if( commRank == 0 )
-        Output("Grid is ",g.Height()," x ",g.Width());
-    DistMatrix<F> A(g), X(g), Y(g);
+        Output("Grid is ",grid.Height()," x ",grid.Width());
+    DistMatrix<F> A(grid), X(grid), Y(grid);
     Uniform( X, m, rank );
     Uniform( Y, rank, n );
     Gemm( NORMAL, NORMAL, F(1), X, Y, A );
@@ -200,8 +206,8 @@ void TestDistributedSVD
     mpi::Barrier( mpi::COMM_WORLD );
     if( commRank == 0 )
         timer.Start();
-    DistMatrix<F> U(g), V(g);
-    DistMatrix<Real,VR,STAR> s(g);
+    DistMatrix<F> U(grid), V(grid);
+    DistMatrix<Real,STAR,STAR> s(grid);
     auto info = SVD( A, U, s, V, ctrl );
     mpi::Barrier( mpi::COMM_WORLD );
     if( commRank == 0 )
@@ -259,8 +265,16 @@ void TestDistributedSVD
             Print( V, "V" );
     }
 
+    // Check that s is decreasing.
+    {
+        const auto& sLoc = s.LockedMatrix();
+        for( Int i=1; i<sLoc.Height(); ++i )
+            if( sLoc(i) > sLoc(i-1) )
+                LogicError("s(",i,")=",sLoc(i)," > s(",i-1,")=",sLoc(i-1));
+    }
+
     // Check that U and V are unitary
-    DistMatrix<F> E(g);
+    DistMatrix<F> E(grid);
     if( wantU )
     {
         Identity( E, U.Width(), U.Width() );
