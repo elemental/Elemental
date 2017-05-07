@@ -46,6 +46,7 @@ void Initialize
   const Matrix<Real>& regTmp,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
+  const SparseMatrix<Real>& G,
   const Matrix<Real>& h,
         Matrix<Real>& x,
         Matrix<Real>& y,

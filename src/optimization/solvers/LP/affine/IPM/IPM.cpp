@@ -9,6 +9,14 @@
 #include <El.hpp>
 #include "./util.hpp"
 
+// See the following for a discussion of driving down the amount of Tikhonov
+// regularization as a function of the barrier parameter:
+//
+//   Yun-Bin Zhao and Duan Li,
+//   "Locating the Least 2-Norm Solution of Linear Programs via a
+//   Path-Following Method", SIAM J. Optim., 12(4), pp. 893--912, 2002.
+//
+
 namespace El {
 
 template<typename Real>
@@ -193,6 +201,40 @@ namespace affine {
 // 's_0' is not exactly equal to 's_0'.
 //
 
+// Alternatively, we may use a homogeneous self-dual embedding: for an in-depth
+// review, please see
+//
+//   Erling D. Andersen and Knud D. Andersen,
+//   "The MOSEK interior point optimizer for linear programming:
+//   an implementation of the homogeneous algorithm".
+//
+// We make use of a generalized version that supports a conic inequality
+// 'G x + s = h, s >= 0', rather than 'x >= 0'.
+//
+// |P, 0,  0,   0 |0,   0,   0,  0 |  0,   0,   S,   0  | |d_s    |   |r_s    |
+// |0, Z,  0,   0 |0,   0,   V,  0 |  0,   0,   0,   0  | |d_v    |   |r_v    |
+// |0, 0,gamma, 0 |0,   0,   0,  0 |  0,   0,   0, kappa| |d_kappa|   |r_kappa|
+// |0, 0,  0,  tau|0,   0,   0, phi|  0,   0,   0,   0  | |d_phi  |   |r_phi  |
+// |--------------|----------------|--------------------| |-------|   |-------|
+// |0, 0,  0,   0 |0,   0,   0,  0 |  0,  A^T, G^T,  c  | |d_x    |   |r_x    |
+// |0, 0,  0,   0 |0,   0,   0,  0 | -A,   0,   0,   b  | |d_y    |   |r_y    |
+// |0,-I,  0,   0 |0,   0,   0,  0 | -G,   0,   0,   h  | |d_z    | = |r_z    |.
+// |0, 0,  0,  -1 |0,   0,   0,  0 |-c^T,-b^T,-h^T,  0  | |d_tau  |   |r_tau  |
+// |--------------|----------------|--------------------| |-------|   |-------|
+// |0, 0,  0,   0 |0, -A^T,-G^T,-c |  0,   0    0    0  | |d_u    |   |r_u    |
+// |0, 0,  0,   0 |A,   0,   0, -b |  0,   0    0    0  | |d_q    |   |r_q    |
+// |I, 0,  0,   0 |G,   0,   0, -h |  0,   0    0    0  | |d_p    |   |r_p    |
+// |0, 0,  1,   0 |c^T,b^T, h^T, 0 |  0,   0    0    0  | |d_gamma|   |r_gamma|
+//
+// Given that 'r_x = -r_u', 'r_y = -r_u', etc., and that 'd_x = d_u',
+// 'd_y = d_q', etc., eliminating the upper-left and bottom-right blocks yields:
+//
+// | 0,   A^T,     G^T   |     c      | |  d_x  |   |        -r_x           |
+// | A,    0,       0    |    -b      | |  d_y  |   |         r_y           |
+// | G,    0,  -inv(Z) S |    -h      | |  d_z  | = |  -r_z - inv(z) o r_s  |.
+// |---------------------|------------| |-------|   |-----------------------|
+// | c^T, b^T,     h^T   | -kappa/tau | | d_tau |   | -r_tau - inv(tau) r_x |
+
 template<typename Real,class MatrixType,class VectorType>
 Real PrimalObjective
 ( const AffineLPProblem<MatrixType,VectorType>& problem,
@@ -300,6 +342,8 @@ struct AffineLPState
 
     // complementRatio := (max_i s_i * z_i) / (min_i s_i * z_i).
     Real complementRatio=Real(1);
+    Real lowerComplementRatio=Real(1);
+    Real upperComplementRatio=Real(1);
     bool largeComplementRatio=false;
 
     Real relObjGap=Real(1);
@@ -692,6 +736,7 @@ void NeutralizePrimalAndDualNorms
 ( DenseAffineLPEquilibration<Real>& equilibration,
   AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   AffineLPState<Real>& state,
+  Matrix<Real>& regSmall,
   AffineLPSolution<Matrix<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
 {
@@ -726,6 +771,7 @@ void NeutralizePrimalAndDualNorms
 ( SparseAffineLPEquilibration<Real>& equilibration,
   AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
   AffineLPState<Real>& state,
+  Matrix<Real>& regSmall,
   AffineLPSolution<Matrix<Real>>& solution,
   const IPMCtrl<Real>& ctrl )
 {
@@ -783,9 +829,27 @@ void AssertPositiveOrthantMembership
     }
 }
 
+// It is tempting to use the interpretation of Section 2 of [CITATION]
+//
+//   R.A. Tapia, Y. Zhang, M. Saltzman, and A. Weiser's
+//   "The Mehrotra Predictor-Corrector Interior-Point Method as a
+//   Perturbed Composite Newton Method", July, 1990
+//   http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
+//
+// as a means of generalizing the classic Mehrotra predictor-corrector
+// to approximate feasibility by updating with
+// F(solution+affineCorrection) rather than (0,0,0,dsAff o dzAff).
+//
+// Unfortunately, the composite Newton theory appears to be insufficient for
+// explaining the Mehrotra correction, as the incorporation of infeasibility
+// seems to lead to substantially degraded performance (e.g., on bnl1). And
+// the degradation appears to be explicitly from the infeasibility, as
+// incorporating (s + sAff) o (z + zAff) rather than sAff o zAff does not seem
+// to make a substantial difference.
+//
 template<typename Real>
 void UpdateCombinedResidualUsingAffine
-( const Real& sigma,
+( const Real& mu,
   const AffineLPProblem<Matrix<Real>,Matrix<Real>>& problem,
   const AffineLPState<Real>& state,
   const AffineLPSolution<Matrix<Real>>& solution,
@@ -794,41 +858,28 @@ void UpdateCombinedResidualUsingAffine
   bool compositeNewton )
 {
     EL_DEBUG_CSE
-    Shift( residual.dualConic, -sigma*state.barrier );
-    // Use the interpretation of Section 2 of [CITATION]
-    //
-    //   R.A. Tapia, Y. Zhang, M. Saltzman, and A. Weiser's
-    //   "The Mehrotra Predictor-Corrector Interior-Point Method as a
-    //   Perturbed Composite Newton Method", July, 1990
-    //   http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
-    //
-    // as a means of generalizing the classic Mehrotra predictor-corrector
-    // to approximate feasibility by updating with
-    // F(solution+affineCorrection) rather than (0,0,0,dsAff o dzAff).
-    //
-    // With that said, it appears that neither the original or generalized
-    // algorithm is generally helpful on the netlib/LP_data examples
-    // (at least, on top of the current regularization and dynamic scaling).
-    //
-    const bool infeasibleCompositeNewton = true;
+    Shift( residual.dualConic, -mu );
+    const bool infeasibleCompositeNewton = false;
     if( compositeNewton && infeasibleCompositeNewton )
     {
         Matrix<Real> input, update;
 
         // residual.primalEquality +=
-        //   A (x + dxAff) - b - (yRegSmall + yRegLarge) dyAff
+        //   A (x + dxAff) - b - yRegSmall (y + dyAff) - yRegLarge dyAff
         Zeros( update, problem.A.Height(), 1 );
         input = solution.x;
         input += affineCorrection.x;
         Gemv( NORMAL, Real(1), problem.A, input, Real(1), update );
         Axpy( Real(-1), problem.b, update );
-        Axpy( -state.yRegSmall-state.yRegLarge, affineCorrection.y, update );
-        const Real primalEqualityUpdateNrm2 = FrobeniusNorm( update );
+        input = solution.y;
+        input += affineCorrection.y;
+        Axpy( -state.yRegSmall, input, update );
+        Axpy( -state.yRegLarge, affineCorrection.y, update );
         residual.primalEquality += update;
 
         // residual.dualEquality +=
-        //   c + A^T (y + dyAff) + G^T (z + dzAff) +
-        //   (xRegSmall + xRegLarge) dxAff
+        //   c + A^T (y + dyAff) + G^T (z + dzAff) + xRegSmall (x + dxAff) +
+        //   xRegLarge dxAff
         Zeros( update, problem.A.Width(), 1 );
         input += problem.c;
         input = solution.y;
@@ -837,12 +888,15 @@ void UpdateCombinedResidualUsingAffine
         input = solution.z;
         input += affineCorrection.z;
         Gemv( TRANSPOSE, Real(1), problem.G, input, Real(1), update );
-        Axpy( state.xRegSmall+state.xRegLarge, affineCorrection.x, update );
-        const Real dualEqualityUpdateNrm2 = FrobeniusNorm( update );
+        input = solution.x;
+        input += affineCorrection.x;
+        Axpy( state.xRegSmall, input, update );
+        Axpy( state.xRegLarge, affineCorrection.x, update );
         residual.dualEquality += update;
 
         // residual.primalConic +=
-        //   G (x + dxAff) + (s + dsAff) - h - (zRegSmall + zRegLarge) dzAff
+        //   G (x + dxAff) + (s + dsAff) - h - zRegSmall (z + dzAff) -
+        //   zRegLarge dzAff
         Zeros( update, problem.G.Height(), 1 );
         input = solution.x;
         input += affineCorrection.x;
@@ -851,8 +905,10 @@ void UpdateCombinedResidualUsingAffine
         input += affineCorrection.s;
         update += input;
         Axpy( Real(-1), problem.h, update );
-        Axpy( -state.zRegSmall-state.zRegLarge, affineCorrection.z, update );
-        const Real primalConicUpdateNrm2 = FrobeniusNorm( update );
+        input = solution.z;
+        input += affineCorrection.z;
+        Axpy( -state.zRegSmall, input, update );
+        Axpy( -state.zRegLarge, affineCorrection.z, update );
         residual.primalConic += update;
 
         // residual.dualConic += (s + dsAff) o (z + dzAff)
@@ -862,8 +918,8 @@ void UpdateCombinedResidualUsingAffine
         update = solution.z;
         update += affineCorrection.z;
         DiagonalScale( LEFT, NORMAL, input, update );
-        const Real dualConicUpdateNrm2 = FrobeniusNorm( update );
         residual.dualConic += update;
+
     }
     else if( compositeNewton )
     {
@@ -880,50 +936,40 @@ void UpdateCombinedResidualUsingAffine
 
 template<typename Real>
 void UpdateCombinedResidualUsingAffine
-( const Real& sigma,
+( const Real& mu,
   const AffineLPProblem<SparseMatrix<Real>,Matrix<Real>>& problem,
   const AffineLPState<Real>& state,
   const AffineLPSolution<Matrix<Real>>& solution,
   const AffineLPSolution<Matrix<Real>>& affineCorrection,
         AffineLPResidual<Matrix<Real>>& residual,
-  bool compositeNewton )
+  const Real& complementRatio,
+  bool compositeNewton,
+  const IPMCtrl<Real>& ctrl )
 {
     EL_DEBUG_CSE
-    Shift( residual.dualConic, -sigma*state.barrier );
-    // Use the interpretation of Section 2 of [CITATION]
-    //
-    //   R.A. Tapia, Y. Zhang, M. Saltzman, and A. Weiser's
-    //   "The Mehrotra Predictor-Corrector Interior-Point Method as a
-    //   Perturbed Composite Newton Method", July, 1990
-    //   http://www.caam.rice.edu/tech_reports/1990/TR90-17.pdf
-    //
-    // as a means of generalizing the classic Mehrotra predictor-corrector
-    // to approximate feasibility by updating with
-    // F(solution+affineCorrection) rather than (0,0,0,dsAff o dzAff).
-    //
-    // With that said, it appears that neither the original or generalized
-    // algorithm is generally helpful on the netlib/LP_data examples
-    // (at least, on top of the current regularization and dynamic scaling).
-    //
-    const bool infeasibleCompositeNewton = true;
+    const Int k = solution.s.Height();
+    Shift( residual.dualConic, -mu );
+    const bool infeasibleCompositeNewton = false;
     if( compositeNewton && infeasibleCompositeNewton )
     {
         Matrix<Real> input, update;
 
         // residual.primalEquality +=
-        //   A (x + dxAff) - b - (yRegSmall + yRegLarge) dyAff
+        //   A (x + dxAff) - b - yRegSmall (y + dyAff) - yRegLarge dyAff
         Zeros( update, problem.A.Height(), 1 );
         input = solution.x;
         input += affineCorrection.x;
         Multiply( NORMAL, Real(1), problem.A, input, Real(1), update );
         Axpy( Real(-1), problem.b, update );
-        Axpy( -state.yRegSmall-state.yRegLarge, affineCorrection.y, update );
-        const Real primalEqualityUpdateNrm2 = FrobeniusNorm( update );
+        input = solution.y;
+        input += affineCorrection.y;
+        Axpy( -state.yRegSmall, input, update );
+        Axpy( -state.yRegLarge, affineCorrection.y, update );
         residual.primalEquality += update;
 
         // residual.dualEquality +=
-        //   c + A^T (y + dyAff) + G^T (z + dzAff) +
-        //   (xRegSmall + xRegLarge) dxAff
+        //   c + A^T (y + dyAff) + G^T (z + dzAff) + xRegSmall (x + dxAff) +
+        //   xRegLarge dxAff
         Zeros( update, problem.A.Width(), 1 );
         input += problem.c;
         input = solution.y;
@@ -932,12 +978,15 @@ void UpdateCombinedResidualUsingAffine
         input = solution.z;
         input += affineCorrection.z;
         Multiply( TRANSPOSE, Real(1), problem.G, input, Real(1), update );
-        Axpy( state.xRegSmall+state.xRegLarge, affineCorrection.x, update );
-        const Real dualEqualityUpdateNrm2 = FrobeniusNorm( update );
+        input = solution.x;
+        input += affineCorrection.x;
+        Axpy( state.xRegSmall, input, update );
+        Axpy( state.xRegLarge, affineCorrection.x, update );
         residual.dualEquality += update;
 
         // residual.primalConic +=
-        //   G (x + dxAff) + (s + dsAff) - h - (zRegSmall + zRegLarge) dzAff
+        //   G (x + dxAff) + (s + dsAff) - h - zRegSmall (z + dzAff) -
+        //   zRegLarge dzAff
         Zeros( update, problem.G.Height(), 1 );
         input = solution.x;
         input += affineCorrection.x;
@@ -946,8 +995,10 @@ void UpdateCombinedResidualUsingAffine
         input += affineCorrection.s;
         update += input;
         Axpy( Real(-1), problem.h, update );
-        Axpy( -state.zRegSmall-state.zRegLarge, affineCorrection.z, update );
-        const Real primalConicUpdateNrm2 = FrobeniusNorm( update );
+        input = solution.z;
+        input += affineCorrection.z;
+        Axpy( -state.zRegSmall, input, update );
+        Axpy( -state.zRegLarge, affineCorrection.z, update );
         residual.primalConic += update;
 
         // residual.dualConic += (s + dsAff) o (z + dzAff)
@@ -957,7 +1008,6 @@ void UpdateCombinedResidualUsingAffine
         update = solution.z;
         update += affineCorrection.z;
         DiagonalScale( LEFT, NORMAL, input, update );
-        const Real dualConicUpdateNrm2 = FrobeniusNorm( update );
         residual.dualConic += update;
     }
     else if( compositeNewton )
@@ -977,7 +1027,8 @@ template<typename Real>
 void UpdateCombinedDualConicResidualWithoutAffine
 ( const Real& sigma,
   const Real& mu,
-  const Real& complementRatio,
+  const Real& lowerComplementRatio,
+  const Real& upperComplementRatio,
   bool largeComplementRatio,
   const AffineLPSolution<Matrix<Real>>& solution,
         AffineLPResidual<Matrix<Real>>& residual,
@@ -985,20 +1036,38 @@ void UpdateCombinedDualConicResidualWithoutAffine
 {
     EL_DEBUG_CSE
     const Int k = solution.s.Height();
-    if( largeComplementRatio && ctrl.softDualityTargets )
+    if( ctrl.softDualityTargets )
     {
         // Attempt to correct s o z entrywise into
         // [lowerTargetRatio,upperTargetRatio]*sigma*mu.
+        /*
         Real lowerTargetRatio =
           Pow(complementRatio,ctrl.lowerTargetRatioLogCompRatio);
         Real upperTargetRatio =
           Pow(complementRatio,ctrl.upperTargetRatioLogCompRatio);
+        */
+        /*
         lowerTargetRatio =
           Max( lowerTargetRatio,
             Pow(ctrl.maxComplementRatio,ctrl.lowerTargetRatioLogMaxCompRatio) );
         upperTargetRatio =
           Min( upperTargetRatio,
             Pow(ctrl.maxComplementRatio,ctrl.upperTargetRatioLogMaxCompRatio) );
+        */
+        Output
+        ("lowerComplementRatio=",lowerComplementRatio,
+         ", upperComplementRatio=",upperComplementRatio);
+        Real lowerTargetRatio, upperTargetRatio;
+        if( lowerComplementRatio < Real(0.01) )
+        {
+            lowerTargetRatio = lowerComplementRatio*Real(10.);
+            upperTargetRatio = 10*upperComplementRatio;
+        }
+        else
+        {
+            lowerTargetRatio = Min( lowerComplementRatio*Real(10), Real(0.1) );
+            upperTargetRatio = Max( upperComplementRatio/Real(10), Real(10.) );
+        }
         if( ctrl.print )
             Output
             ("  lowerTargetRatio=",lowerTargetRatio,
@@ -1194,7 +1263,29 @@ bool AttemptToSolveForUpdateUsingScaling
     if( !solved )
         return false;
 
-    DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
+    if( ctrl.print )
+    {
+        auto dx = packedVector( IR(0,n), ALL );
+        auto dy = packedVector( IR(n,n+m), ALL );
+        auto dz = packedVector( IR(n+m,END), ALL );
+        const Real dxScaledNrm2 = FrobeniusNorm( dx );
+        const Real dyScaledNrm2 = FrobeniusNorm( dy );
+        const Real dzScaledNrm2 = FrobeniusNorm( dz );
+        DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
+        const Real dxNrm2 = FrobeniusNorm( dx );
+        const Real dyNrm2 = FrobeniusNorm( dy );
+        const Real dzNrm2 = FrobeniusNorm( dz );
+        Output("  || dxScaled ||_2 = ",dxScaledNrm2);
+        Output("  || dyScaled ||_2 = ",dyScaledNrm2);
+        Output("  || dzScaled ||_2 = ",dzScaledNrm2);
+        Output("  || dx       ||_2 = ",dxNrm2);
+        Output("  || dy       ||_2 = ",dyNrm2);
+        Output("  || dz       ||_2 = ",dzNrm2);
+    }
+    else
+    {
+        DiagonalScale( LEFT, NORMAL, diagonalScale, packedVector );
+    }
     ExpandSolution
     ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
       correction.x, correction.y, correction.z, correction.s );
@@ -1247,6 +1338,7 @@ bool AttemptToSolveForUpdate
     ExpandSolution
     ( m, n, packedVector, residual.dualConic, solution.s, zDoublePivot,
       correction.x, correction.y, correction.z, correction.s );
+
     return true;
 }
 
@@ -1427,7 +1519,21 @@ bool CheckConvergence
       state.relObjGapOrig <=
         Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
 
-    state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
+    const Real avgCompRatio = Dot( solution.s, solution.z ) / Real(k);
+    state.lowerComplementRatio = Real(1);
+    state.upperComplementRatio = Real(1);
+    for( Int i=0; i<k; ++i )
+    {
+        const Real dualProd = solution.s(i) * solution.z(i); 
+        if( dualProd > avgCompRatio )
+            state.upperComplementRatio =
+              Max( state.upperComplementRatio, dualProd / avgCompRatio );
+        else
+            state.lowerComplementRatio =
+              Min( state.lowerComplementRatio, dualProd / avgCompRatio );
+    }
+    state.complementRatio =
+      state.upperComplementRatio / state.lowerComplementRatio;
 
     bool converged = false;
     if( state.metTolerancesOrig )
@@ -1511,8 +1617,8 @@ bool CheckConvergence
     AffineLPSolution<Matrix<Real>> origSolution;
     UndoEquilibration( solution, equilibration, origSolution );
 
-    // A x - b
-    // -------
+    // primalEqualityResid := A x - b
+    // ------------------------------
     residual.primalEquality = problem.b;
     Multiply
     ( NORMAL, Real(1), problem.A, solution.x,
@@ -1527,8 +1633,8 @@ bool CheckConvergence
     state.primalEqualityInfeasNrm2Rel =
       state.primalEqualityInfeasNrm2 / (1 + state.bNrm2);
 
-    // c + A^T y + G^T z
-    // -----------------
+    // dualEqualityResid := c + A^T y + G^T z
+    // --------------------------------------
     residual.dualEquality = problem.c;
     Multiply
     ( TRANSPOSE, Real(1), problem.A, solution.y,
@@ -1546,8 +1652,8 @@ bool CheckConvergence
     state.dualEqualityInfeasNrm2Rel =
       state.dualEqualityInfeasNrm2 / (1 + state.cNrm2);
 
-    // G x + s - h
-    // -----------
+    // primalConicResid := G x + s - h
+    // -------------------------------
     residual.primalConic = problem.h;
     Multiply
     ( NORMAL, Real(1), problem.G, solution.x,
@@ -1564,6 +1670,18 @@ bool CheckConvergence
       Max(state.primalEqualityInfeasNrm2Rel,
           state.dualEqualityInfeasNrm2Rel);
     state.infeasError = Max(state.primalConicInfeasNrm2Rel,state.equalityError);
+
+    // primalEqualityResid := A x - b - yRegSmall y
+    // --------------------------------------------
+    Axpy( -state.yRegSmall, solution.y, residual.primalEquality );
+
+    // dualEqualityResid := c + A^T y + G^T z + xRegSmall x
+    // ----------------------------------------------------
+    Axpy( state.xRegSmall, solution.x, residual.dualEquality );
+
+    // primalConicResid := G x + s - h - zRegSmall z
+    // ---------------------------------------------
+    Axpy( -state.zRegSmall, solution.z, residual.primalConic );
 
     // Compute the regularized 'z' pivot.
     zPivot = solution.z;
@@ -1624,7 +1742,21 @@ bool CheckConvergence
       state.relObjGapOrig <=
         Pow(epsilon,ctrl.relativeObjectiveGapTolLogEps);
 
-    state.complementRatio = pos_orth::ComplementRatio( solution.s, solution.z );
+    const Real avgCompRatio = Dot( solution.s, solution.z ) / Real(k);
+    state.lowerComplementRatio = Real(1);
+    state.upperComplementRatio = Real(1);
+    for( Int i=0; i<k; ++i )
+    {
+        const Real dualProd = solution.s(i) * solution.z(i); 
+        if( dualProd > avgCompRatio )
+            state.upperComplementRatio =
+              Max( state.upperComplementRatio, dualProd / avgCompRatio );
+        else
+            state.lowerComplementRatio =
+              Min( state.lowerComplementRatio, dualProd / avgCompRatio );
+    }
+    state.complementRatio =
+      state.upperComplementRatio / state.lowerComplementRatio;
 
     bool converged = false;
     if( state.metTolerancesOrig )
@@ -1683,6 +1815,22 @@ bool CheckConvergence
             Output
             ("\n",Indent(),
              "  || zPerturb ||_2 = ",zPerturbNrm2);
+        const Real xOrigNrm2 = FrobeniusNorm( origSolution.x );
+        const Real yOrigNrm2 = FrobeniusNorm( origSolution.y );
+        const Real zOrigNrm2 = FrobeniusNorm( origSolution.z );
+        const Real sOrigNrm2 = FrobeniusNorm( origSolution.s );
+        const Real xNrm2 = FrobeniusNorm( solution.x );
+        const Real yNrm2 = FrobeniusNorm( solution.y );
+        const Real zNrm2 = FrobeniusNorm( solution.z );
+        const Real sNrm2 = FrobeniusNorm( solution.s );
+        Output("  || xOrig ||_2 = ",xOrigNrm2);
+        Output("  || yOrig ||_2 = ",yOrigNrm2);
+        Output("  || zOrig ||_2 = ",zOrigNrm2);
+        Output("  || sOrig ||_2 = ",sOrigNrm2);
+        Output("  || x     ||_2 = ",xNrm2);
+        Output("  || y     ||_2 = ",yNrm2);
+        Output("  || z     ||_2 = ",zNrm2);
+        Output("  || s     ||_2 = ",sNrm2);
     }
 
     return converged;
@@ -2017,11 +2165,23 @@ void Equilibrate
     // Unfortunately, this routine returns the inverses of the desired scales,
     // so we manually invert them.
     Matrix<Real> rowScaleA, rowScaleG, colScale;
+    /*
+    Ones( rowScaleA, m, 1 );
+    Ones( rowScaleG, k, 1 );
+    Ones( colScale, n, 1 );
+    */
+    StackedGeomEquil
+    ( equilibratedProblem.A,
+      equilibratedProblem.G,
+      rowScaleA, rowScaleG, colScale,
+      ctrl.print );
+    /*
     StackedRuizEquil
     ( equilibratedProblem.A,
       equilibratedProblem.G,
       rowScaleA, rowScaleG, colScale,
       ctrl.print );
+    */
     Ones( equilibration.xScale, n, 1 );
     Ones( equilibration.yScale, m, 1 );
     Ones( equilibration.zScale, k, 1 );
@@ -2320,11 +2480,20 @@ void DecideBarrierAndStepStrategy
 {
     EL_DEBUG_CSE
     const Int k = solution.s.Height();
+    const Real gap = Dot( solution.s, solution.z );
+    const Real barrierClassical = gap / k;
+    const Real barrierMedian = MedianBarrier( solution.s, solution.z );
+    if( ctrl.print )
+        Output
+        ("  barrierMedian = ",barrierMedian,
+         ", barrierClassical=",barrierClassical);
 
     // Decide whether or not we will attempt a predictor-corrector primarily
     // based upon the complementarity ratio.
+    // TODO(poulson): Generalize these bounds.
     state.largeComplementRatio =
-      state.complementRatio > ctrl.maxComplementRatio;
+      state.lowerComplementRatio < Real(0.01) ||
+      state.upperComplementRatio > Real(1.e4);
     // It has been observed that models such as wood1w can continually try
     // to drive down the barrier parameter despite relative infeasibility
     // (e.g., a relative complementarity gap of 10^-14 while the relative
@@ -2333,34 +2502,20 @@ void DecideBarrierAndStepStrategy
       Min(Pow(state.infeasError,Real(1.)),Real(1e-3));
     const bool relCompGapIsTooSmall =
       state.relCompGap < relativeComplementarityLowerBound;
-    state.centeringStep = state.largeComplementRatio || relCompGapIsTooSmall;
-    const Real barrierClassical = Dot(solution.s,solution.z) / k;
-    const Real barrierMedian = MedianBarrier( solution.s, solution.z );
-    if( ctrl.print )
-        Output
-        ("  barrierMedian = ",barrierMedian,
-         ", barrierClassical=",barrierClassical);
+    const bool gapIsTooSmall = gap < state.infeasError;
+
+    state.centeringStep =
+      state.largeComplementRatio || relCompGapIsTooSmall || gapIsTooSmall;
+
     if( state.centeringStep )
     {
         if( ctrl.print )
             Output("  will take a centering step");
-        if( relCompGapIsTooSmall )
-        {
-            state.barrier = Max( state.barrierOld, barrierMedian );
-            if( ctrl.print )
-                Output
-                ("  using barrier = Max( barrierOld=",state.barrierOld,
-                 ", barrierMedian=",barrierMedian,")");
-            state.lastStepForcedBarrierIncrease = true;
-        }
-        else
-        {
-            state.barrier = barrierMedian;
-            if( ctrl.print )
-                Output
-                ("  using barrier = barrierMedian = ",barrierMedian);
-            state.lastStepForcedBarrierIncrease = false;
-        }
+        state.barrier = barrierClassical;
+        if( ctrl.print )
+            Output
+            ("  using barrier = barrierClassical = ",barrierClassical);
+        state.lastStepForcedBarrierIncrease = false;
     }
     else
     {
@@ -2368,19 +2523,17 @@ void DecideBarrierAndStepStrategy
             Output("  will take a predictor-corrector step.");
         if( state.backingOffEquilibration )
         {
-            state.barrier = barrierMedian;
+            state.barrier = barrierClassical;
             if( ctrl.print )
                 Output
-                ("  backing off equilibration, using barrierMedian = ",
-                 barrierMedian);
+                ("  backing off equilibration, using barrierClassical = ",
+                 barrierClassical);
         }
         else
         {
-            state.barrier = Min( state.barrierOld, barrierMedian );
+            state.barrier = barrierClassical;
             if( ctrl.print )
-                Output
-                ("  using barrier = Min( barrierOld=",state.barrierOld,
-                 ", barrierMedian=",barrierMedian," )");
+                Output("  using barrierClassical = ",barrierClassical);
         }
         state.lastStepForcedBarrierIncrease = false;
     }
@@ -2398,7 +2551,6 @@ IPMInfo<Real> EquilibratedIPM
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
-    const Int degree = k;
     const Real epsilon = limits::Epsilon<Real>();
     const Real regIncreaseFactor = Pow(epsilon,ctrl.regIncreaseFactorLogEps);
     if( regIncreaseFactor <= Real(1) )
@@ -2506,8 +2658,23 @@ IPMInfo<Real> EquilibratedIPM
             ( equilibration, problem, state, solution, ctrl );
         }
         NeutralizePrimalAndDualNorms
-        ( equilibration, problem, state, solution, ctrl );
+        ( equilibration, problem, state, regSmall, solution, ctrl );
         AssertPositiveOrthantMembership( solution, ctrl.print );
+
+        const Real barrierToRegSmallConstant = Pow(epsilon,Real(0.2));
+        const Real barrierToRegSmallExponent = Real(0.6);
+        Real regSmallValue = barrierToRegSmallConstant *
+          Pow(state.barrier,barrierToRegSmallExponent);
+        regSmallValue = Max( regSmallValue, Pow(epsilon,Real(0.9)) );
+        regSmallValue = Min( regSmallValue, Pow(epsilon,Real(0.05)) );
+        Output("barrier=",state.barrier,", regSmallValue=",regSmallValue);
+        state.xRegSmall = state.yRegSmall = state.zRegSmall = regSmallValue;
+        auto regSmall_x = regSmall( IR(0,n), ALL );
+        auto regSmall_y = regSmall( IR(n,n+m), ALL );
+        auto regSmall_z = regSmall( IR(n+m,END), ALL );
+        Fill( regSmall_x, state.xRegSmall );
+        Fill( regSmall_y, -state.yRegSmall );
+        Fill( regSmall_z, -state.zRegSmall );
 
         Matrix<Real> zPivot, zPerturb;
         const bool converged =
@@ -2543,7 +2710,7 @@ IPMInfo<Real> EquilibratedIPM
         auto zDoublePivot( zPivot );
         zDoublePivot += zPerturb;
         KKT( problem.A, problem.G, solution.s, zDoublePivot, J );
-        UpdateDiagonal( J, Real(1), regLarge ); 
+        UpdateDiagonal( J, Real(1), regLarge );
         if( !attemptToFactor() )
         {
             increaseRegularization();
@@ -2565,7 +2732,8 @@ IPMInfo<Real> EquilibratedIPM
             // ================================
             UpdateCombinedDualConicResidualWithoutAffine
             ( sigma, state.barrier,
-              state.complementRatio, state.largeComplementRatio,
+              state.lowerComplementRatio, state.upperComplementRatio,
+              state.largeComplementRatio,
               solution, residual, ctrl );
             const bool solvedForCombined =
               AttemptToSolveForUpdate
@@ -2627,8 +2795,8 @@ IPMInfo<Real> EquilibratedIPM
             Axpy( affineStep.first, affineCorrection.s, sAffine );
             auto zAffine( solution.z );
             Axpy( affineStep.second, affineCorrection.z, zAffine );
-            //const Real barrierAff = Dot(sAffine,zAffine) / degree;
-            const Real barrierAff = MedianBarrier( sAffine, zAffine );
+            //const Real barrierAff = MedianBarrier( sAffine, zAffine );
+            const Real barrierAff = Dot( sAffine, zAffine ) / Real(k);
             if( ctrl.print )
                 Output
                 ("  barrierAff = ",barrierAff,", barrier = ",state.barrier);
@@ -2640,11 +2808,9 @@ IPMInfo<Real> EquilibratedIPM
 
             // Solve for the combined direction
             // ================================
-            const bool compositeNewton =
-              ctrl.compositeNewton && state.approxFeasible;
             UpdateCombinedResidualUsingAffine
-            ( sigma, problem, state, solution, affineCorrection, residual,
-              compositeNewton );
+            ( sigma*state.barrier, problem, state, solution, affineCorrection,
+              residual, ctrl.compositeNewton );
             const bool solvedForCombined =
               AttemptToSolveForUpdate
               ( solution, state, J, dSub, permutation,
@@ -2661,7 +2827,7 @@ IPMInfo<Real> EquilibratedIPM
         lastSolution = solution;
         Real primalCorrectionNrm2, dualCorrectionNrm2;
         {
-            const Real xCorrectionNrm2 = FrobeniusNorm(correction.x);  
+            const Real xCorrectionNrm2 = FrobeniusNorm(correction.x);
             const Real sCorrectionNrm2 = FrobeniusNorm(correction.s);
             const Real yCorrectionNrm2 = FrobeniusNorm(correction.y);
             const Real zCorrectionNrm2 = FrobeniusNorm(correction.z);
@@ -3299,7 +3465,6 @@ IPMInfo<Real> EquilibratedIPM
     const Int m = problem.A.Height();
     const Int n = problem.A.Width();
     const Int k = problem.G.Height();
-    const Int degree = k;
     const Real epsilon = limits::Epsilon<Real>();
     const Real regIncreaseFactor = Pow(epsilon,ctrl.regIncreaseFactorLogEps);
     if( regIncreaseFactor <= Real(1) )
@@ -3307,6 +3472,14 @@ IPMInfo<Real> EquilibratedIPM
     const Real minStepSize = Pow(limits::Epsilon<Real>(),Real(0.33));
     Real maxPredictorCorrectorStepImbalance =
       ctrl.forceSameStep ? Real(1) : Real(10);
+
+    /*
+    Print( problem.c, "cEquil" );
+    Print( problem.A, "AEquil" );
+    Print( problem.b, "bEquil" ); 
+    Print( problem.G, "GEquil" );
+    Print( problem.h, "hEquil" );
+    */
 
     AffineLPResidual<Matrix<Real>> residual, error;
     AffineLPSolution<Matrix<Real>> affineCorrection, correction;
@@ -3340,7 +3513,7 @@ IPMInfo<Real> EquilibratedIPM
     state.yRegSmall = yRegSmall0;
     state.zRegSmall = zRegSmall0;
 
-    Matrix<Real> regSmall;
+    Matrix<Real> regSmall, regSmallScaled;
     regSmall.Resize( n+m+k, 1 );
     for( Int i=0; i<n+m+k; ++i )
     {
@@ -3363,7 +3536,8 @@ IPMInfo<Real> EquilibratedIPM
     SparseMatrix<Real> JStatic;
     StaticKKT
     ( problem.A, problem.G,
-      Sqrt(state.xRegSmall), Sqrt(state.yRegSmall), Sqrt(state.zRegSmall),
+      //Sqrt(state.xRegSmall), Sqrt(state.yRegSmall), Sqrt(state.zRegSmall),
+      Real(0), Real(0), Real(0),
       JStatic, false );
     JStatic.FreezeSparsity();
 
@@ -3430,8 +3604,128 @@ IPMInfo<Real> EquilibratedIPM
             ( equilibration, problem, state, solution, JStatic, ctrl );
         }
         NeutralizePrimalAndDualNorms
-        ( equilibration, problem, state, solution, ctrl );
+        ( equilibration, problem, state, regSmall, solution, ctrl );
         AssertPositiveOrthantMembership( solution, ctrl.print );
+        
+        // Manage the duality products
+        {
+            const Real barrierClassical = Dot(solution.s,solution.z) / k;
+            const Real primalObj = Dot(problem.c,solution.x);
+            const Real dualObj = -Dot(problem.b,solution.y) -
+              Dot(problem.h,solution.z);
+            const Real dualityGap = primalObj - dualObj;
+            const Real relDualityGap = Abs(dualityGap) /
+              (Abs(primalObj) + Abs(dualObj) + Real(1));
+
+            Real minDualProd = Real(1e-6)*barrierClassical;
+            //minDualProd = Max( minDualProd, Real(1e-4)*Abs(dualityGap)/k );
+            if( state.numIterations == 0 )
+                minDualProd = Min( minDualProd, Real(1) );
+
+            Real minPrimalConicValue = Real(0); 
+            Real minDualConicValue = Real(0);
+            /*
+            Real minPrimalConicValue = Real(1e-4)*relDualityGap;
+            Real minDualConicValue = Real(1e-4)*relDualityGap;
+            */
+            minDualConicValue = Min( minDualConicValue, Real(1e-6) );
+
+            Real maxProd = 0;
+            for( Int i=0; i<k; ++i )
+                maxProd = Max( maxProd, solution.s(i)*solution.z(i) );
+            Real minProd = maxProd;
+            for( Int i=0; i<k; ++i )
+                minProd = Min( minProd, solution.s(i)*solution.z(i) );
+            Output
+            ("  Before: minProd=",minProd,", avgProd=",barrierClassical,
+             ", maxProd=",maxProd);
+            for( Int i=0; i<k; ++i )
+            {
+                const Real prod = solution.s(i)*solution.z(i);
+                if( prod == minProd || prod == maxProd )
+                    Output
+                    ("  Extremal s(",i,")=",solution.s(i)," * z(",i,")=",
+                     solution.z(i)," = ",prod);
+            }
+
+            for( Int i=0; i<k; ++i )
+            {
+                const Real dualProd = solution.s(i) * solution.z(i);
+                if( dualProd < minDualProd )
+                {
+                    if( solution.s(i) <= solution.z(i) )
+                    {
+                        Output
+                        ("  increasing s(",i,")=",solution.s(i)," to ",
+                         minDualProd/solution.z(i));
+                        solution.s(i) = minDualProd / solution.z(i);
+                    }
+                    else
+                    {
+                        Output
+                        ("  increasing z(",i,")=",solution.z(i)," to ",
+                         minDualProd/solution.s(i));
+                        solution.z(i) = minDualProd / solution.s(i);
+                    }
+                }
+                if( solution.s(i) < minPrimalConicValue )
+                {
+                    Output
+                    ("  increasing s(",i,")=",solution.s(i)," to ",
+                     minPrimalConicValue);
+                    solution.s(i) = minPrimalConicValue;
+                }
+                if( solution.z(i) < minDualConicValue )
+                {
+                    Output
+                    ("  increasing z(",i,")=",solution.z(i)," to ",
+                     minDualConicValue);
+                    solution.z(i) = minDualConicValue;    
+                }
+            }
+
+            maxProd = 0;
+            for( Int i=0; i<k; ++i )
+                maxProd = Max( maxProd, solution.s(i)*solution.z(i) );
+            minProd = maxProd;
+            for( Int i=0; i<k; ++i )
+                minProd = Min( minProd, solution.s(i)*solution.z(i) );
+            Output
+            ("  Before: minProd=",minProd,", avgProd=",barrierClassical,
+             ", maxProd=",maxProd);
+            for( Int i=0; i<k; ++i )
+            {
+                const Real prod = solution.s(i)*solution.z(i);
+                if( prod == minProd || prod == maxProd )
+                    Output
+                    ("  Extremal s(",i,")=",solution.s(i)," * z(",i,")=",
+                     solution.z(i)," = ",prod);
+            }
+        }
+
+        const Real maxAbsObj = Max( Abs(state.primalObj), Abs(state.dualObj) );
+        Real regSmallValue;
+        const Real barrierToRegSmallConstant = Pow(epsilon,Real(0));
+        const Real barrierToRegSmallExponent = Real(0.8);
+        regSmallValue = barrierToRegSmallConstant *
+          Pow(state.barrier,barrierToRegSmallExponent);
+        regSmallValue = Min( regSmallValue, Pow(epsilon,Real(0.8)) );
+
+        /*
+        Print( solution.x, "x"+std::to_string(state.numIterations) );
+        Print( solution.s, "s"+std::to_string(state.numIterations) );
+        Print( solution.y, "y"+std::to_string(state.numIterations) );
+        Print( solution.z, "z"+std::to_string(state.numIterations) );
+        */
+
+        Output("barrier=",state.barrier,", regSmallValue=",regSmallValue);
+        state.xRegSmall = state.yRegSmall = state.zRegSmall = regSmallValue;
+        auto regSmall_x = regSmall( IR(0,n), ALL );
+        auto regSmall_y = regSmall( IR(n,n+m), ALL );
+        auto regSmall_z = regSmall( IR(n+m,END), ALL );
+        Fill( regSmall_x, state.xRegSmall );
+        Fill( regSmall_y, -state.yRegSmall );
+        Fill( regSmall_z, -state.zRegSmall );
 
         Matrix<Real> zPivot, zPerturb;
         const bool converged =
@@ -3470,8 +3764,10 @@ IPMInfo<Real> EquilibratedIPM
         auto zDoublePivot( zPivot );
         zDoublePivot += zPerturb;
         FinishKKT( m, n, solution.s, zDoublePivot, JOrig );
+        UpdateDiagonal( JOrig, Real(1), regSmall );
         JOrigScaled = JOrig;
         JOrigScaled.FreezeSparsity();
+        regSmallScaled = regSmall;
         regLargeScaled = regLarge;
         J = JOrig;
         J.FreezeSparsity();
@@ -3497,7 +3793,8 @@ IPMInfo<Real> EquilibratedIPM
             // ================================
             UpdateCombinedDualConicResidualWithoutAffine
             ( sigma, state.barrier,
-              state.complementRatio, state.largeComplementRatio,
+              state.lowerComplementRatio, state.upperComplementRatio,
+              state.largeComplementRatio,
               solution, residual, ctrl );
             const bool solvedForCombined =
               AttemptToSolveForUpdate
@@ -3508,11 +3805,23 @@ IPMInfo<Real> EquilibratedIPM
                 increaseRegularization();
                 continue;
             }
+            const Real dxNrm2 = FrobeniusNorm( correction.x );
+            const Real dsNrm2 = FrobeniusNorm( correction.s );
+            const Real dyNrm2 = FrobeniusNorm( correction.y );
+            const Real dzNrm2 = FrobeniusNorm( correction.z );
+            Output("  || dx ||_2 = ",dxNrm2,", || ds ||_2 = ",dsNrm2);
+            Output("  || dy ||_2 = ",dyNrm2,", || dz ||_2 = ",dzNrm2);
         }
         else
         {
             // Compute the affine search direction
             // ===================================
+
+            // Set the dualConic residual to a small multiple of the current
+            // median barrier parameter rather than the value of zero?
+            const Real affineBarrierMultiple = Real(1e-3);
+            Shift( residual.dualConic, -affineBarrierMultiple*state.barrier );
+            Output("  affine barrier target: ",affineBarrierMultiple*state.barrier);
 
             // Solve for the proposed step
             // ---------------------------
@@ -3540,6 +3849,9 @@ IPMInfo<Real> EquilibratedIPM
               affineCorrection.z,
               affineCorrection.s );
 
+            // Undo the shift...
+            Shift( residual.dualConic, affineBarrierMultiple*state.barrier );
+
             // Compute a centrality parameter
             // ==============================
             auto affineStep =
@@ -3554,29 +3866,49 @@ IPMInfo<Real> EquilibratedIPM
                 Output("  affine primal step size: ",affineStep.first);
                 Output("  affine dual   step size: ",affineStep.second);
             }
+            const Real minAffineStep =
+              Min( affineStep.first, affineStep.second );
             // TODO(poulson): Experiment with several centrality choices?
             auto sAffine( solution.s );
             Axpy( affineStep.first, affineCorrection.s, sAffine );
             auto zAffine( solution.z );
             Axpy( affineStep.second, affineCorrection.z, zAffine );
-            //const Real barrierAff = Dot(sAffine,zAffine) / degree;
-            const Real barrierAff = MedianBarrier( sAffine, zAffine );
+            //const Real barrierAff = MedianBarrier( sAffine, zAffine );
+            const Real barrierAff = Dot( sAffine, zAffine ) / Real(k);
             if( ctrl.print )
                 Output
                 ("  barrierAff = ",barrierAff,", barrier = ",state.barrier);
-            const Real sigma =
-              ctrl.centralityRule
-              (state.barrier,barrierAff,affineStep.first,affineStep.second);
+            Real sigmaAff = Min(Pow(barrierAff/state.barrier,Real(2)),Real(1));
+            Output("  sigmaAff before: ",sigmaAff);
+            Real weightedLength = Real(0);
+            for( Int i=0; i<k; ++i )
+            {
+                const Real theta = solution.z(i) / solution.s(i);
+                weightedLength +=
+                  affineCorrection.s(i)*affineCorrection.s(i)/theta +
+                  affineCorrection.z(i)*affineCorrection.z(i)*theta;
+            }
             if( ctrl.print )
-                Output("  sigma=",sigma);
+                Output
+                ("  || ds ||^2_{inv(theta)} + || dz ||^2_{theta} = ",
+                 weightedLength);
+            if( weightedLength < state.barrier )
+            {
+                if( minAffineStep >= Real(0.2) )
+                    sigmaAff = Min( sigmaAff, Real(0.1) );
+                else if( minAffineStep >= Real(0.1) )
+                    sigmaAff = Min( sigmaAff, Real(0.2) );
+                else
+                    sigmaAff = Min( sigmaAff, Real(0.33) );
+            }
+            if( ctrl.print )
+                Output("  sigmaAff=",sigmaAff);
 
             // Solve for the combined direction
             // ================================
-            const bool compositeNewton =
-              ctrl.compositeNewton && state.approxFeasible;
             UpdateCombinedResidualUsingAffine
-            ( sigma, problem, state, solution, affineCorrection, residual,
-              compositeNewton );
+            ( sigmaAff*barrierAff, problem, state, solution, affineCorrection,
+              residual, state.complementRatio, ctrl.compositeNewton, ctrl );
             const bool solvedForCombined =
               AttemptToSolveForUpdateUsingScaling
               ( solution, state, JOrigScaled, regLargeScaled, sparseLDLFact,
@@ -3595,7 +3927,7 @@ IPMInfo<Real> EquilibratedIPM
         lastSolution = solution;
         Real primalCorrectionNrm2, dualCorrectionNrm2;
         {
-            const Real xCorrectionNrm2 = FrobeniusNorm(correction.x);  
+            const Real xCorrectionNrm2 = FrobeniusNorm(correction.x);
             const Real sCorrectionNrm2 = FrobeniusNorm(correction.s);
             const Real yCorrectionNrm2 = FrobeniusNorm(correction.y);
             const Real zCorrectionNrm2 = FrobeniusNorm(correction.z);
@@ -3706,9 +4038,18 @@ IPMInfo<Real> IPM
         ( problem, solution,
           equilibratedProblem, equilibratedSolution,
           equilibration, ctrl );
-        info = EquilibratedIPM
-        ( problem, equilibration,
-          equilibratedProblem, equilibratedSolution, ctrl );
+        try
+        {
+            info = EquilibratedIPM
+            ( problem, equilibration,
+              equilibratedProblem, equilibratedSolution, ctrl );
+        }
+        catch( const std::exception& except )
+        {
+            // Preserve the current approximate solution.
+            UndoEquilibration( equilibratedSolution, equilibration, solution );
+            throw except;
+        }
         UndoEquilibration( equilibratedSolution, equilibration, solution );
 
         // Refinement seems to lead to very challenging problems (e.g., for

@@ -640,6 +640,8 @@ void StackedGeomEquil
             {
                 const Real minAbs = minAbsValsA(j);
                 const Real propScale = Sqrt(minAbs*maxAbs);
+                if( propScale < sqrtDamp*maxAbs )
+                    Output("DAMPING from ",propScale," to ",sqrtDamp*maxAbs);
                 const Real scale = Max(propScale,sqrtDamp*maxAbs);
                 colScale(j) = scale;
             }
@@ -670,8 +672,8 @@ void StackedGeomEquil
         DiagonalScale( LEFT, NORMAL, rowScaleA, dRowA );
         DiagonalSolve( LEFT, NORMAL, rowScaleA, A );
 
-        RowMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
         RowMaxNorms( B, maxAbsValsB );
+        RowMinAbsNonzero( B, maxAbsValsB, minAbsValsB );
         for( Int i=0; i<mB; ++i )
         {
             const Real maxAbs = maxAbsValsB(i);

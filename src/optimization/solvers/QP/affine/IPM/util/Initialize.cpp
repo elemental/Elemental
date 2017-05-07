@@ -30,7 +30,7 @@ namespace affine {
 //                   u^T (A x - b) + z^T (G x + s - h),
 //
 //    which must satisfy:
-
+//
 //      Grad_x L = Q x + A^T u + G^T z = 0,
 //      Grad_u L = A x - b = 0,
 //      Grad_z L = G x + s - h = 0,
@@ -394,6 +394,7 @@ void Initialize
   const Matrix<Real>& regLarge,
   const Matrix<Real>& b,
   const Matrix<Real>& c,
+  const SparseMatrix<Real>& G,
   const Matrix<Real>& h,
         Matrix<Real>& x,
         Matrix<Real>& y,
@@ -467,6 +468,11 @@ void Initialize
         rb = b;
         rb *= -1;
         rh = h;
+        /*
+        Output("Forcefully clipping 'h'");
+        LowerClip( rh, Real(1e-2) );
+        UpperClip( rh, Real(1e3) );
+        */
         rh *= -1;
         KKTRHS( rc, rb, rh, rmu, ones, d );
 
@@ -475,7 +481,9 @@ void Initialize
           solveCtrl.relTol, solveCtrl.maxRefineIts, solveCtrl.progress );
 
         ExpandCoreSolution( m, n, k, d, x, u, s );
-        s *= -1;
+        // s := h - G x
+        s = h;
+        Multiply( NORMAL, Real(-1), G, x, Real(1), s );
     }
     if( !dualInit )
     {
@@ -498,6 +506,7 @@ void Initialize
         ExpandCoreSolution( m, n, k, d, u, y, z );
     }
 
+    /*
     const Real eps = limits::Epsilon<Real>();
     const Real sNorm = Nrm2( s );
     const Real zNorm = Nrm2( z );
@@ -528,6 +537,45 @@ void Initialize
     {
         LowerClip( s, gammaPrimal );
         LowerClip( z, gammaDual   );
+    }
+    */
+    // Use Mehrotra's approach:
+    //
+    //   Mehrotra S. (1992): On the Implementation of a Primal-Dual 
+    //     Interior Point Method, SIAM Journal on Optimization 2, 
+    //     No 4, pp. 575-601.
+    //
+    //  Mehrotra S. (1991): Higher Order Methods and their Performance,
+    //     Technical Report 90-16R1, Department of Industrial Engineering
+    //     and Management Sciences, Northwestern University, Evanston,
+    //     Illinois 60208-3119, U.S.A.
+    Output("Forcing Mehrotra's initialization strategy");
+    Real sMin = MaxNorm( s );
+    Real zMin = MaxNorm( z );
+    for( Int i=0; i<k; ++i )
+    {
+        sMin = Min( sMin, s(i) );
+        zMin = Min( zMin, z(i) );
+    }
+    const Real deltaPrimal = Max( Real(-1.5)*sMin, Real(0) );
+    const Real deltaDual = Max( Real(-1.5)*zMin, Real(0) );
+    Output("deltaPrimal=",deltaPrimal,", deltaDual=",deltaDual);
+    Real simpleGap = Real(0);
+    for( Int i=0; i<k; ++i )
+        simpleGap += (s(i)+deltaPrimal)*(z(i)+deltaDual);
+    Output("simpleGap=",simpleGap);
+    Real sSum = Real(0);
+    Real zSum = Real(0);
+    for( Int i=0; i<k; ++i )
+    {
+        sSum += s(i) + deltaPrimal;
+        zSum += z(i) + deltaDual;
+    }
+    Output("sSum=",sSum,", zSum=",zSum);
+    for( Int i=0; i<k; ++i )
+    {
+        s(i) += deltaPrimal + simpleGap/(2*zSum);
+        z(i) += deltaDual + simpleGap/(2*sSum);
     }
 }
 
@@ -712,6 +760,7 @@ void Initialize
     const Matrix<Real>& regLarge, \
     const Matrix<Real>& b, \
     const Matrix<Real>& c, \
+    const SparseMatrix<Real>& G, \
     const Matrix<Real>& h, \
           Matrix<Real>& x, \
           Matrix<Real>& y, \

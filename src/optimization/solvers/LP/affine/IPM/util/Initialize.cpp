@@ -335,7 +335,7 @@ void Initialize
     EL_DEBUG_CSE
     qp::affine::Initialize
     ( JStatic, regTmp,
-      problem.b, problem.c, problem.h,
+      problem.b, problem.c, problem.G, problem.h,
       solution.x, solution.y, solution.z, solution.s,
       sparseLDLFact,
       primalInit, dualInit, standardShift, solveCtrl );

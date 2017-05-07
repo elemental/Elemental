@@ -4,8 +4,7 @@
 
    This file is part of Elemental and is under the BSD 2-Clause License,
    which can be found in the LICENSE file in the root directory, or at
-   http://opensource.org/licenses/BSD-2-Clause
-*/
+   http://opensource.org/licenses/BSD-2-Clause */
 #include <El.hpp>
 
 // This driver allows for the computation of Delsarte's upper bounds on the
@@ -77,7 +76,7 @@ void KravchukMatrix
 template<typename Real>
 Real DenseDelsarteBoundFull
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     El::Output("Testing full dense solve with ",El::TypeName<Real>());
@@ -118,11 +117,13 @@ Real DenseDelsarteBoundFull
 
     El::AffineLPSolution<El::Matrix<Real>> solution;
     El::lp::affine::Ctrl<Real> ctrl;
+    ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.print = ipmProgress;
     El::Timer timer;
     timer.Start();
-    El::LP( problem, solution, ctrl );
+    auto info = El::LP( problem, solution, ctrl );
     El::Output("  Full dense LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Num iterations: ",info.ipmInfo.numIterations);
     if( print )
         El::Print( solution.x, "x" );
     const Real delsarteBound = -El::Dot(problem.c,solution.x);
@@ -132,7 +133,7 @@ Real DenseDelsarteBoundFull
 template<typename Real>
 Real DenseDelsarteBoundReduced
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     El::Output("Testing reduced dense solve with ",El::TypeName<Real>());
@@ -194,11 +195,13 @@ Real DenseDelsarteBoundReduced
 
     El::AffineLPSolution<El::Matrix<Real>> solution;
     El::lp::affine::Ctrl<Real> ctrl;
+    ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.print = ipmProgress;
     El::Timer timer;
     timer.Start();
-    El::LP( problem, solution, ctrl );
+    auto info = El::LP( problem, solution, ctrl );
     El::Output("  Reduced dense LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Num iterations: ",info.ipmInfo.numIterations);
     if( print )
         El::Print( solution.x, "xReduced" );
     // Since the maximization objective is all ones and one of the entries of
@@ -211,21 +214,23 @@ Real DenseDelsarteBoundReduced
 template<typename Real>
 Real DenseDelsarteBound
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance, bool reduceLP,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     if( reduceLP )
         return DenseDelsarteBoundReduced<Real>
-        ( primePower, codeLength, codeDistance, print, ipmProgress );
+        ( primePower, codeLength, codeDistance,
+          compositeNewton, print, ipmProgress );
     else
         return DenseDelsarteBoundFull<Real>
-        ( primePower, codeLength, codeDistance, print, ipmProgress );
+        ( primePower, codeLength, codeDistance,
+          compositeNewton, print, ipmProgress );
 }
 
 template<typename Real>
 Real SparseDelsarteBoundFull
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     El::Output("Testing full sparse solve with ",El::TypeName<Real>());
@@ -272,11 +277,13 @@ Real SparseDelsarteBoundFull
 
     El::AffineLPSolution<El::Matrix<Real>> solution;
     El::lp::affine::Ctrl<Real> ctrl;
+    ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.print = ipmProgress;
     El::Timer timer;
     timer.Start();
-    El::LP( problem, solution, ctrl );
+    auto info = El::LP( problem, solution, ctrl );
     El::Output("  Full sparse LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Num iterations: ",info.ipmInfo.numIterations);
     if( print )
         El::Print( solution.x, "x" );
     const Real delsarteBound = -El::Dot(problem.c,solution.x);
@@ -286,7 +293,7 @@ Real SparseDelsarteBoundFull
 template<typename Real>
 Real SparseDelsarteBoundReduced
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     El::Output("Testing reduced sparse solve with ",El::TypeName<Real>());
@@ -351,11 +358,13 @@ Real SparseDelsarteBoundReduced
 
     El::AffineLPSolution<El::Matrix<Real>> solution;
     El::lp::affine::Ctrl<Real> ctrl;
+    ctrl.ipmCtrl.compositeNewton = compositeNewton;
     ctrl.ipmCtrl.print = ipmProgress;
     El::Timer timer;
     timer.Start();
-    El::LP( problem, solution, ctrl );
+    auto info = El::LP( problem, solution, ctrl );
     El::Output("  Reduced sparse LP solve: ",timer.Stop()," [sec]");
+    El::Output("  Num iterations: ",info.ipmInfo.numIterations);
     if( print )
         El::Print( solution.x, "xReduced" );
     // Since the maximization objective is all ones and one of the entries of
@@ -368,35 +377,39 @@ Real SparseDelsarteBoundReduced
 template<typename Real>
 Real SparseDelsarteBound
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance, bool reduceLP,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     if( reduceLP )
         return SparseDelsarteBoundReduced<Real>
-        ( primePower, codeLength, codeDistance, print, ipmProgress );
+        ( primePower, codeLength, codeDistance,
+          compositeNewton, print, ipmProgress );
     else
         return SparseDelsarteBoundFull<Real>
-        ( primePower, codeLength, codeDistance, print, ipmProgress );
+        ( primePower, codeLength, codeDistance,
+          compositeNewton, print, ipmProgress );
 }
 
 template<typename Real>
 void DelsarteBound
 ( El::Int primePower, El::Int codeLength, El::Int codeDistance,
   bool testDense, bool testSparse, bool reduceLP,
-  bool print, bool ipmProgress )
+  bool compositeNewton, bool print, bool ipmProgress )
 {
     EL_DEBUG_CSE
     Real delsarteBound;
     if( testSparse )
     {
         delsarteBound = SparseDelsarteBound<Real>
-        ( primePower, codeLength, codeDistance, reduceLP, print, ipmProgress );
+        ( primePower, codeLength, codeDistance, reduceLP,
+          compositeNewton, print, ipmProgress );
         El::Output("Delsarte bound (sparse solve): ",delsarteBound);
     }
     if( testDense )
     {
         delsarteBound = DenseDelsarteBound<Real>
-        ( primePower, codeLength, codeDistance, reduceLP, print, ipmProgress );
+        ( primePower, codeLength, codeDistance, reduceLP,
+          compositeNewton, print, ipmProgress );
         El::Output("Delsarte bound (dense solve): ",delsarteBound);
     }
 
@@ -442,6 +455,8 @@ int main( int argc, char* argv[] )
         const bool testBigFloat =
           El::Input("--testBigFloat","test BigFloat?",true);
 #endif
+        const bool compositeNewton =
+          El::Input("--compositeNewton","composite Newton?",false);
         const bool print = El::Input("--print","print?",false);
         const bool ipmProgress =
           El::Input("--ipmProgress","print IPM progress?",false);
@@ -464,7 +479,7 @@ int main( int argc, char* argv[] )
             DelsarteBound<double>
             ( primePower, codeLength, codeDistance,
               testDense, testSparse, reduceLP,
-              print, ipmProgress );
+              compositeNewton, print, ipmProgress );
         }
 #ifdef EL_HAVE_QD
         if( testDoubleDouble )
@@ -472,14 +487,14 @@ int main( int argc, char* argv[] )
             DelsarteBound<El::DoubleDouble>
             ( primePower, codeLength, codeDistance,
               testDense, testSparse, reduceLP,
-              print, ipmProgress );
+              compositeNewton, print, ipmProgress );
         }
         if( testQuadDouble )
         {
             DelsarteBound<El::QuadDouble>
             ( primePower, codeLength, codeDistance,
               testDense, testSparse, reduceLP,
-              print, ipmProgress );
+              compositeNewton, print, ipmProgress );
         }
 #endif
 #ifdef EL_HAVE_QUAD
@@ -488,7 +503,7 @@ int main( int argc, char* argv[] )
             DelsarteBound<El::Quad>
             ( primePower, codeLength, codeDistance,
               testDense, testSparse, reduceLP,
-              print, ipmProgress );
+              compositeNewton, print, ipmProgress );
         }
 #endif
 #ifdef EL_HAVE_MPC
@@ -498,7 +513,7 @@ int main( int argc, char* argv[] )
             DelsarteBound<El::BigFloat>
             ( primePower, codeLength, codeDistance,
               testDense, testSparse, reduceLP,
-              print, ipmProgress );
+              compositeNewton, print, ipmProgress );
         }
 #endif
     }

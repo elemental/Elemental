@@ -23,8 +23,8 @@ void RowMinAbs( const Matrix<Ring>& A, Matrix<Base<Ring>>& mins )
     {
         RealRing rowMin = limits::Max<RealRing>();
         for( Int j=0; j<n; ++j )
-            rowMin = Min(rowMin,Abs(A.Get(i,j)));
-        mins.Set( i, 0, rowMin );
+            rowMin = Min(rowMin,Abs(A(i,j)));
+        mins(i) = rowMin;
     }
 }
 
@@ -41,14 +41,14 @@ void RowMinAbsNonzero
     mins.Resize( m, 1 );
     for( Int i=0; i<m; ++i )
     {
-        RealRing rowMin = upperBounds.Get(i,0);
+        RealRing rowMin = upperBounds(i);
         for( Int j=0; j<n; ++j )
         {
-            const RealRing absVal = Abs(A.Get(i,j));
+            const RealRing absVal = Abs(A(i,j));
             if( absVal > RealRing(0) )
                 rowMin = Min(rowMin,absVal);
         }
-        mins.Set( i, 0, rowMin );
+        mins(i) = rowMin;
     }
 }
 
@@ -108,6 +108,7 @@ void RowMinAbs( const SparseMatrix<Ring>& A, Matrix<Base<Ring>>& mins )
     typedef Base<Ring> RealRing;
     const Int m = A.Height();
     mins.Resize( m, 1 );
+    Zero( mins );
     for( Int i=0; i<m; ++i )
     {
         RealRing rowMin = limits::Max<RealRing>();
@@ -115,7 +116,7 @@ void RowMinAbs( const SparseMatrix<Ring>& A, Matrix<Base<Ring>>& mins )
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
             rowMin = Min(rowMin,Abs(A.Value(e)));
-        mins.Set( i, 0, rowMin );
+        mins(i) = rowMin;
     }
 }
 
@@ -129,9 +130,10 @@ void RowMinAbsNonzero
     typedef Base<Ring> RealRing;
     const Int m = A.Height();
     mins.Resize( m, 1 );
+    Zero( mins );
     for( Int i=0; i<m; ++i )
     {
-        RealRing rowMin = upperBounds.Get(i,0);
+        RealRing rowMin = upperBounds(i);
         const Int offset = A.RowOffset( i );
         const Int numConn = A.NumConnections( i );
         for( Int e=offset; e<offset+numConn; ++e )
@@ -140,7 +142,7 @@ void RowMinAbsNonzero
             if( absVal > RealRing(0) )
                 rowMin = Min(rowMin,absVal);
         }
-        mins.Set( i, 0, rowMin );
+        mins(i) = rowMin;
     }
 }
 

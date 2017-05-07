@@ -922,7 +922,7 @@ void IPM
     SparseLDLFactorization<Real> sparseLDLFact;
 
     Initialize
-    ( JStatic, regLarge, b, c, h, x, y, z, s,
+    ( JStatic, regLarge, b, c, G, h, x, y, z, s,
       sparseLDLFact,
       ctrl.primalInit, ctrl.dualInit, ctrl.standardInitShift, ctrl.solveCtrl );
 
