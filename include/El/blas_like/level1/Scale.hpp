@@ -32,15 +32,16 @@ void Scale( S alphaS, Matrix<T>& A )
     {
         if( ALDim == height )
         {
+            EL_PARALLEL_FOR
             for( Int i=0; i<height*width; ++i )
-            {
                 ABuf[i] *= alpha;
-            }
         }
         else
         {
+            EL_PARALLEL_FOR
             for( Int j=0; j<width; ++j )
             {
+                EL_SIMD
                 for( Int i=0; i<height; ++i )
                 {
                     ABuf[i+j*ALDim] *= alpha;
