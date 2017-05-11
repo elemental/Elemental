@@ -83,24 +83,49 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 #else
     // OpenBLAS's {i,o}matcopy routines where disabled for the reasons detailed
     // in src/core/imports/openblas.cpp
-
-    // TODO(poulson): Optimize this routine
+    
+    // Blocked matrix transpose
+    // Note: block size should be a multiple of cache line size and
+    // should be small enough to fit in L1 cache. On recent Intel
+    // CPUs, cache line size is 64 B and L1 cache is 32 KB per core.
+    const Int bsize = Max( 64 / sizeof(T), 1 );
     const T* ABuf = A.LockedBuffer();
           T* BBuf = B.Buffer();
     const Int ldA = A.LDim();
     const Int ldB = B.LDim();
     if( conjugate )
     {
-        for( Int j=0; j<n; ++j )
-            for( Int i=0; i<m; ++i )
-                BBuf[j+i*ldB] = Conj(ABuf[i+j*ldA]);
+        EL_PARALLEL_FOR_COLLAPSE2
+        for( Int j=0; j<n; j+=bsize )
+        {
+            for( Int i=0; i<m; i+=bsize )
+            {
+                const Int mb = Min( bsize, m - i );
+                const Int nb = Min( bsize, n - j );
+                const T* ABlockBuf = &ABuf[i+j*ldA];
+                      T* BBlockBuf = &BBuf[j+i*ldB];
+                for( Int jb=0; jb<nb; ++jb )
+                    for( Int ib=0; ib<mb; ++ib )
+                        BBlockBuf[jb+ib*ldB] = Conj(ABlockBuf[ib+jb*ldA]);
+            }
+        }
     }
     else
     {
-        copy::util::InterleaveMatrix
-        ( m, n,
-          ABuf, 1,   ldA,
-          BBuf, ldB, 1 );
+        EL_PARALLEL_FOR_COLLAPSE2
+        for( Int j=0; j<n; j+=bsize )
+        {
+            for( Int i=0; i<m; i+=bsize )
+            {
+                const Int mb = Min( bsize, m - i );
+                const Int nb = Min( bsize, n - j );
+                const T* ABlockBuf = &ABuf[i+j*ldA];
+                      T* BBlockBuf = &BBuf[j+i*ldB];
+                for( Int jb=0; jb<nb; ++jb )
+                    for( Int ib=0; ib<mb; ++ib )
+                        BBlockBuf[jb+ib*ldB] = ABlockBuf[ib+jb*ldA];
+            }
+        }
     }
 #endif
 }
