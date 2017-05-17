@@ -37,30 +37,29 @@ void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
         // Check if output matrix is equal to either input matrix
         if( CBuf == BBuf )
         {
+            EL_PARALLEL_FOR
             for( Int i=0; i<height*width; ++i )
-            {
                 CBuf[i] *= ABuf[i];
-            }
         }
         else if( CBuf == ABuf )
         {
+            EL_PARALLEL_FOR
             for( Int i=0; i<height*width; ++i )
-            {
                 CBuf[i] *= BBuf[i];
-            }
         }
         else
         {
+            EL_PARALLEL_FOR
             for( Int i=0; i<height*width; ++i )
-            {
                 CBuf[i] = ABuf[i] * BBuf[i];
-            }
         }
     }
     else
     {
+        EL_PARALLEL_FOR
         for( Int j=0; j<width; ++j )
         {
+            EL_SIMD
             for( Int i=0; i<height; ++i )
             {
                 CBuf[i+j*CLDim] = ABuf[i+j*ALDim] * BBuf[i+j*BLDim];
