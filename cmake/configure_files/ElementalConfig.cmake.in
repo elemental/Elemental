@@ -13,6 +13,6 @@ set(Elemental_LINK_FLAGS "@EL_LINK_FLAGS@")
 set(Elemental_DEFINITIONS "@Qt5Widgets_DEFINITIONS@")
 
 # Our library dependencies (contains definitions for IMPORTED targets)
-include("@CMAKE_INSTALL_PREFIX@/CMake/ElementalTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/ElementalTargets.cmake")
 
 set(Elemental_LIBRARIES El)
