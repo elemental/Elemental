@@ -147,8 +147,7 @@ DistMatrix<T,ROWDIST,COLDIST>* DM::ConstructTranspose
 { return new DistMatrix<T,ROWDIST,COLDIST>(g,root); }
 
 template<typename T>
-DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
-             DiagRow<COLDIST,ROWDIST>()>*
+typename DM::diagType*
 DM::ConstructDiagonal
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
