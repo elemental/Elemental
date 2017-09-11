@@ -176,7 +176,7 @@ template<typename T,
          typename=void>
 void FastResize( vector<T>& v, Int numEntries );
 
-inline void BuildStream( ostringstream& os ) { }
+inline void BuildStream( ostringstream& ) { }
 
 template<typename T,typename... ArgPack>
 void BuildStream( ostringstream& os, const T& item, const ArgPack& ... args );

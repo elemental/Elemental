@@ -667,7 +667,7 @@ namespace aed {
 
 // Cf. LAPACK's IPARMQ for these choices. The primary difference here is that
 // we do not use a fixed value (of 256) for windows of size at least 6000.
-inline Int NumShifts( Int n, Int winSize )
+inline Int NumShifts( Int /*n*/, Int winSize )
 {
     Int numShifts;
     if( winSize < 30 )
