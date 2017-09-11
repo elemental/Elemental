@@ -69,11 +69,10 @@ inline Primality MillerRabinHelper
 inline Primality MillerRabin( const BigInt& n, const BigInt& a )
 {
     const BigInt& zero = BigIntZero();
-    const BigInt& one = BigIntOne();
     const BigInt& two = BigIntTwo();
 
     EL_DEBUG_ONLY(
-      if( n <= one )
+      if( n <= BigIntOne() )
           LogicError("Miller-Rabin is invalid for n <= 1");
     )
     if( n == two )
@@ -95,10 +94,9 @@ inline Primality MillerRabin( const BigInt& n, const BigInt& a )
 inline Primality MillerRabinSequence( const BigInt& n, Int numReps )
 {
     const BigInt& zero = BigIntZero();
-    const BigInt& one = BigIntOne();
     const BigInt& two = BigIntTwo();
     EL_DEBUG_ONLY( 
-      if( n <= one )
+      if( n <= BigIntOne() )
           LogicError("Miller-Rabin is invalid for n <= 1");
     )
     if( n == two )
