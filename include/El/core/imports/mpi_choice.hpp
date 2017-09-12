@@ -46,8 +46,8 @@ protected:
     ostream& error_;
     mpi::Comm comm_;
 
-    virtual void HandleVersion( ostream& os=cout ) const { (void)os; }
-    virtual void HandleBuild( ostream& os=cout ) const { (void)os; }
+    virtual void HandleVersion( ostream& os=cout ) const { EL_UNUSED(os); }
+    virtual void HandleBuild( ostream& os=cout ) const { EL_UNUSED(os); }
 
     struct RequiredArg
     {
