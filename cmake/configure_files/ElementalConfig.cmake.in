@@ -1,9 +1,13 @@
 set(Elemental_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/include")
 set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@MPI_CXX_INCLUDE_PATH@")
-set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@QD_INCLUDES@")
-set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@MPC_INCLUDES@")
-set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@MPFR_INCLUDES@")
-set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@GMP_INCLUDES@")
+IF(@QD_FOUND@)
+   set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@QD_INCLUDES@")
+ENDIF()
+IF(@MPC_FOUND@)
+   set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@MPC_INCLUDES@")
+   set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@MPFR_INCLUDES@")
+   set(Elemental_INCLUDE_DIRS "${Elemental_INCLUDE_DIRS};@GMP_INCLUDES@")
+ENDIF()
 set(Elemental_INCLUDE_DIRS
   "${Elemental_INCLUDE_DIRS};@Qt5Widgets_INCLUDE_DIRS@")
 
