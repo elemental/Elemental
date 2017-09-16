@@ -247,7 +247,7 @@ inline Real Lowest( const Real& alpha=Real(1) )
 template<> inline long long Lowest<long long>( const long long& alpha )
 { return LLONG_MIN; }
 #else
-template<> inline int Lowest<int>( const int& alpha )
+template<> inline int Lowest<int>( const int& /*alpha*/ )
 { return INT_MIN; }
 #endif
 #ifdef EL_HAVE_QD

@@ -4,8 +4,8 @@
 
    This file is a modification of Choice, a simple command-line option library.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_IMPORTS_MPICHOICE_HPP
@@ -27,7 +27,7 @@ class MpiArgs
 {
 public:
     MpiArgs
-    ( int argc, char** argv, 
+    ( int argc, char** argv,
       mpi::Comm comm=mpi::COMM_WORLD, ostream& error=cerr );
     virtual ~MpiArgs() { }
 
@@ -46,32 +46,33 @@ protected:
     ostream& error_;
     mpi::Comm comm_;
 
-    virtual void HandleVersion( ostream& os=cout ) const { }
-    virtual void HandleBuild( ostream& os=cout ) const { }
+    virtual void HandleVersion( ostream& os=cout ) const { EL_UNUSED(os); }
+    virtual void HandleBuild( ostream& os=cout ) const { EL_UNUSED(os); }
 
     struct RequiredArg
-    { 
-        string name, desc, typeInfo, usedVal; 
+    {
+        string name, desc, typeInfo, usedVal;
         bool found;
 
-        RequiredArg( string n, string d, string t, string uv, bool f ) 
+        RequiredArg( string n, string d, string t, string uv, bool f )
         : name(n), desc(d), typeInfo(t), usedVal(uv), found(f) { };
     };
 
     struct OptionalArg
-    { 
-        string name, desc, typeInfo, defaultVal, usedVal; 
+    {
+        string name, desc, typeInfo, defaultVal, usedVal;
         bool found;
 
         OptionalArg
         ( string n, string d, string t, string dv, string uv, bool f )
-        : name(n), desc(d), typeInfo(t), 
-          defaultVal(dv), usedVal(uv), found(f) { } 
+        : name(n), desc(d), typeInfo(t),
+          defaultVal(dv), usedVal(uv), found(f) { }
     };
 
     vector<RequiredArg> requiredArgs_;
     vector<OptionalArg> optionalArgs_;
 };
+
 
 inline
 MpiArgs::MpiArgs( int argc, char** argv, mpi::Comm comm, ostream& error )
@@ -112,7 +113,7 @@ MpiArgs::Input( string name, string desc )
                 error_ << "argument " << offset << endl;
             else
                 error_ << "argument " << offset+1 << endl;
-            error_ << "Please ensure that you did request argument " 
+            error_ << "Please ensure that you did request argument "
                    << name << " multiple times" << endl;
         }
         usedArgs_[offset+0] = true;
@@ -139,7 +140,7 @@ MpiArgs::Input( string name, string desc, T defaultVal )
     if( invalidFound )
     {
         if( commRank == 0 )
-            error_ << "Missing value for last command-line argument" 
+            error_ << "Missing value for last command-line argument"
                    << endl;
         throw ArgException();
     }
@@ -165,7 +166,7 @@ MpiArgs::Input( string name, string desc, T defaultVal )
                 error_ << "argument " << offset << endl;
             else
                 error_ << "argument " << offset+1 << endl;
-            error_ << "Please ensure that you did request argument " 
+            error_ << "Please ensure that you did request argument "
                    << name << " multiple times" << endl;
         }
         usedArgs_[offset+0] = true;
@@ -183,7 +184,7 @@ MpiArgs::Input( string name, string desc, T defaultVal )
         return defaultVal; // avoid the double-cast
 }
 
-inline void 
+inline void
 MpiArgs::Process( ostream& os ) const
 {
     HandleVersion( os );
@@ -192,7 +193,7 @@ MpiArgs::Process( ostream& os ) const
     string help = "--help";
     char** arg = std::find( argv_, argv_+argc_, help );
     const bool foundHelp = ( arg != argv_+argc_ );
-    
+
     int numFailed = 0;
     const int numRequired = requiredArgs_.size();
     for( int i=0; i<numRequired; ++i )
@@ -201,11 +202,11 @@ MpiArgs::Process( ostream& os ) const
     if( numFailed > 0 || foundHelp )
     {
         PrintReport( os );
-        throw ArgException(); 
+        throw ArgException();
     }
 }
 
-inline void 
+inline void
 MpiArgs::PrintReport( ostream& os ) const
 {
     const int commRank = mpi::Rank( comm_ );
@@ -246,7 +247,7 @@ MpiArgs::PrintReport( ostream& os ) const
            << "    " << optArg.desc << "\n\n";
     }
 
-    os << "Out of " << numRequired << " required arguments, " 
+    os << "Out of " << numRequired << " required arguments, "
        << numReqFailed << " were not specified." << endl;
 
     os << "Out of " << numOptional << " optional arguments, "

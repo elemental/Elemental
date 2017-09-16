@@ -31,6 +31,8 @@
 #include <type_traits> // std::enable_if
 #include <vector>
 
+#define EL_UNUSED(expr) (void)(expr)
+
 #ifdef EL_RELEASE
 # define EL_DEBUG_ONLY(cmd)
 # define EL_RELEASE_ONLY(cmd) cmd;

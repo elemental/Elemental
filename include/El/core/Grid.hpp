@@ -1,10 +1,10 @@
 /*
    Copyright (c) 2009-2016, Jack Poulson
-                      2013, Jed Brown 
+                      2013, Jed Brown
    All rights reserved.
 
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
+   This file is part of Elemental and is under the BSD 2-Clause License,
+   which can be found in the LICENSE file in the root directory, or at
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef EL_GRID_HPP
@@ -57,7 +57,7 @@ public:
 
     // Advanced routines
     explicit Grid
-    ( mpi::Comm viewers, mpi::Group owners, int height, 
+    ( mpi::Comm viewers, mpi::Group owners, int height,
       GridOrder order=COLUMN_MAJOR );
     // greatest common denominator of grid height and width
     int GCD() const EL_NO_EXCEPT;
@@ -79,7 +79,7 @@ public:
     int VCToVR( int vcRank ) const EL_NO_EXCEPT;
     int VRToVC( int vrRank ) const EL_NO_EXCEPT;
     int CoordsToVC
-    ( Dist colDist, Dist rowDist, 
+    ( Dist colDist, Dist rowDist,
       int distRank, int crossRank=0, int redundant=0 ) const
     EL_NO_RELEASE_EXCEPT;
     int VCToViewing( int VCRank ) const EL_NO_EXCEPT;
@@ -96,7 +96,7 @@ public:
     // To be used internally by Elemental
     static void InitializeDefault();
     static void InitializeTrivial();
-    static void FinalizeDefault(); 
+    static void FinalizeDefault();
     static void FinalizeTrivial();
     static const Grid& Default() EL_NO_RELEASE_EXCEPT;
     static const Grid& Trivial() EL_NO_RELEASE_EXCEPT;
@@ -118,7 +118,7 @@ private:
 
     mpi::Comm viewingComm_,
               owningComm_,
-              cartComm_, 
+              cartComm_,
               mcComm_, mrComm_,
               mdComm_, mdPerpComm_,
               vcComm_, vrComm_;
@@ -146,7 +146,7 @@ private:
 bool operator==( const Grid& A, const Grid& B ) EL_NO_EXCEPT;
 bool operator!=( const Grid& A, const Grid& B ) EL_NO_EXCEPT;
 
-inline void AssertSameGrids( const Grid& g1 ) { }
+inline void AssertSameGrids( const Grid& /*g1*/ ) { }
 
 inline void AssertSameGrids( const Grid& g1, const Grid& g2 )
 {
