@@ -163,8 +163,7 @@ DistMatrix<T,ROWDIST,COLDIST,BLOCK>* BDM::ConstructTranspose
 { return new DistMatrix<T,ROWDIST,COLDIST,BLOCK>(g,root); }
 
 template<typename T>
-DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),
-             DiagRow<COLDIST,ROWDIST>(),BLOCK>*
+typename BDM::diagType*
 BDM::ConstructDiagonal
 ( const El::Grid& g, int root ) const
 { return new DistMatrix<T,DiagCol<COLDIST,ROWDIST>(),

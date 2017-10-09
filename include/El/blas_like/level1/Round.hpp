@@ -22,12 +22,12 @@ void Round( Matrix<T>& A )
 }
 
 template<>
-inline void Round( Matrix<Int>& A )
+inline void Round( Matrix<Int>& /*A*/ )
 { }
 
 #ifdef EL_HAVE_MPC
 template<>
-inline void Round( Matrix<BigInt>& A )
+inline void Round( Matrix<BigInt>& /*A*/ )
 { }
 #endif
 
