@@ -24,17 +24,29 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     B.Resize( height, width );
     const Int ldA = A.LDim();
     const Int ldB = B.LDim();
-    const T* ABuf = A.LockedBuffer();
-          T* BBuf = B.Buffer();
+    const T* EL_RESTRICT ABuf = A.LockedBuffer();
+          T* EL_RESTRICT BBuf = B.Buffer();
 
-    // Copy all entries if memory is contiguous. Otherwise copy each
-    // column.
-    if( ldA == height && ldB == height ) {
-        MemCopy( BBuf, ABuf, height*width );
-    }
-    else {
+    if( ldA == height && ldB == height )
+    {
+#ifdef _OPENMP
+        // Manually copy entries with OpenMP loop
+        // Note: We attempt to map entries of B to NUMA domains in a
+        // pattern convenient for future OpenMP loops.
         EL_PARALLEL_FOR
-        for( Int j=0; j<width; ++j ) {
+        for( Int i=0; i<height*width; ++i )
+        {
+            BBuf[i] = ABuf[i];
+        }
+#else
+        MemCopy( BBuf, ABuf, height*width );
+#endif
+    }
+    else
+    {
+        EL_PARALLEL_FOR
+        for( Int j=0; j<width; ++j )
+        {
             MemCopy(&BBuf[j*ldB], &ABuf[j*ldA], height);
         }
     }

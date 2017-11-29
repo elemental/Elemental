@@ -20,11 +20,20 @@ void Zero( Matrix<T>& A )
     const Int ALDim = A.LDim();
     T* ABuf = A.Buffer();
 
-    // Zero out all entries if memory is contiguous. Otherwise zero
-    // out each column.
     if( ALDim == height )
     {
+#ifdef _OPENMP
+        // Manually set entries with OpenMP loop
+        // Note: We attempt to map entries of A to NUMA domains in a
+        // pattern convenient for future OpenMP loops.
+        EL_PARALLEL_FOR
+        for( Int i=0; i<height*width; ++i )
+        {
+            ABuf[i] = T(0);
+        }
+#else
         MemZero( ABuf, height*width );
+#endif
     }
     else
     {
