@@ -17,22 +17,24 @@ void Zero( Matrix<T>& A )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
+    const Int size = height * width;
     const Int ALDim = A.LDim();
     T* ABuf = A.Buffer();
 
     if( ALDim == height )
     {
 #ifdef _OPENMP
-        // Manually set entries with OpenMP loop
-        // Note: We attempt to map entries of A to NUMA domains in a
-        // pattern convenient for future OpenMP loops.
-        EL_PARALLEL_FOR
-        for( Int i=0; i<height*width; ++i )
+        #pragma omp parallel
         {
-            ABuf[i] = T(0);
+            const Int numThreads = omp_get_num_threads();
+            const Int thread = omp_get_thread_num();
+            const Int chunk = (size + numThreads - 1) / numThreads;
+            const Int start = Min(chunk * thread, size);
+            const Int end = Min(chunk * (thread + 1), size);
+            MemZero( &ABuf[start], end - start );
         }
 #else
-        MemZero( ABuf, height*width );
+        MemZero( ABuf, size );
 #endif
     }
     else

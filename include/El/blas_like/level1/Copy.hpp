@@ -21,6 +21,7 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     EL_DEBUG_CSE
     const Int height = A.Height();
     const Int width = A.Width();
+    const Int size = height * width;
     B.Resize( height, width );
     const Int ldA = A.LDim();
     const Int ldB = B.LDim();
@@ -30,16 +31,17 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
     if( ldA == height && ldB == height )
     {
 #ifdef _OPENMP
-        // Manually copy entries with OpenMP loop
-        // Note: We attempt to map entries of B to NUMA domains in a
-        // pattern convenient for future OpenMP loops.
-        EL_PARALLEL_FOR
-        for( Int i=0; i<height*width; ++i )
+        #pragma omp parallel
         {
-            BBuf[i] = ABuf[i];
+            const Int numThreads = omp_get_num_threads();
+            const Int thread = omp_get_thread_num();
+            const Int chunk = (size + numThreads - 1) / numThreads;
+            const Int start = Min(chunk * thread, size);
+            const Int end = Min(chunk * (thread + 1), size);
+            MemCopy( &BBuf[start], &ABuf[start], end - start );
         }
 #else
-        MemCopy( BBuf, ABuf, height*width );
+        MemCopy( BBuf, ABuf, size );
 #endif
     }
     else
