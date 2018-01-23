@@ -26,20 +26,24 @@ template<typename T>
 void Print( const Matrix<T>& A, string title, ostream& os )
 {
     EL_DEBUG_CSE
-    if( title != "" )
-        os << title << endl;
 
-    ConfigurePrecision<T>( os );
+    ostringstream msg;
+
+    if( title != "" )
+        msg << title << endl;
+
+    ConfigurePrecision<T>( msg );
 
     const Int height = A.Height();
     const Int width = A.Width();
     for( Int i=0; i<height; ++i )
     {
         for( Int j=0; j<width; ++j )
-            os << A.Get(i,j) << " ";
-        os << endl;
+            msg << A.Get(i,j) << " ";
+        msg << endl;
     }
-    os << endl;
+    msg << endl;
+    os << msg.str();
 }
 
 template<typename T>
@@ -77,21 +81,25 @@ void Print( const DistMultiVec<T>& X, string title, ostream& os )
     }
 }
 
-void Print( const Graph& graph, string msg, ostream& os )
+void Print( const Graph& graph, string title, ostream& os )
 {
     EL_DEBUG_CSE
+
+    ostringstream msg;
+
     graph.AssertConsistent();
-    if( msg != "" )
-        os << msg << endl;
+    if( title != "" )
+        msg << title << endl;
     const Int numEdges = graph.NumEdges();
     const Int* srcBuf = graph.LockedSourceBuffer();
     const Int* tgtBuf = graph.LockedTargetBuffer();
     for( Int e=0; e<numEdges; ++e )
-        os << srcBuf[e] << " " << tgtBuf[e] << "\n";
-    os << endl;
+        msg << srcBuf[e] << " " << tgtBuf[e] << "\n";
+    msg << endl;
+    os << msg.str();
 }
 
-void Print( const DistGraph& graph, string msg, ostream& os )
+void Print( const DistGraph& graph, string title, ostream& os )
 {
     EL_DEBUG_CSE
     graph.AssertLocallyConsistent();
@@ -99,7 +107,7 @@ void Print( const DistGraph& graph, string msg, ostream& os )
     {
         Graph seqGraph;
         CopyFromRoot( graph, seqGraph );
-        Print( seqGraph, msg, os );
+        Print( seqGraph, title, os );
     }
     else
     {
@@ -108,26 +116,31 @@ void Print( const DistGraph& graph, string msg, ostream& os )
 }
 
 template<typename T>
-void Print( const SparseMatrix<T>& A, string msg, ostream& os )
+void Print( const SparseMatrix<T>& A, string title, ostream& os )
 {
     EL_DEBUG_CSE
-    A.AssertConsistent();
-    if( msg != "" )
-        os << msg << endl;
 
-    ConfigurePrecision<T>( os );
+    ostringstream msg;
+
+    A.AssertConsistent();
+    if( title != "" )
+        msg << title << endl;
+
+    ConfigurePrecision<T>( msg );
 
     const Int numEntries = A.NumEntries();
     const Int* srcBuf = A.LockedSourceBuffer();
     const Int* tgtBuf = A.LockedTargetBuffer();
     const T* valBuf = A.LockedValueBuffer();
     for( Int s=0; s<numEntries; ++s )
-        os << srcBuf[s] << " " << tgtBuf[s] << " " << valBuf[s] << "\n";
-    os << endl;
+        msg << srcBuf[s] << " " << tgtBuf[s] << " " << valBuf[s] << "\n";
+    msg << endl;
+
+    os << msg.str();
 }
 
 template<typename T>
-void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
+void Print( const DistSparseMatrix<T>& A, string title, ostream& os )
 {
     EL_DEBUG_CSE
     A.AssertLocallyConsistent();
@@ -135,7 +148,7 @@ void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
     {
         SparseMatrix<T> ASeq;
         CopyFromRoot( A, ASeq );
-        Print( ASeq, msg, os );
+        Print( ASeq, title, os );
     }
     else
     {
@@ -147,7 +160,7 @@ void Print( const DistSparseMatrix<T>& A, string msg, ostream& os )
 // ============
 
 void PrintLocal
-( const ldl::DistNodeInfo& info, string msg, ostream& os )
+( const ldl::DistNodeInfo& info, string title, ostream& os )
 {
     EL_DEBUG_CSE
     LogicError("This routine needs to be rewritten");
@@ -160,15 +173,20 @@ template<typename T>
 void Print( const vector<T>& x, string title, ostream& os )
 {
     EL_DEBUG_CSE
-    if( title != "" )
-        os << title << endl;
 
-    ConfigurePrecision<T>( os );
+    ostringstream msg;
+
+    if( title != "" )
+        msg << title << endl;
+
+    ConfigurePrecision<T>( msg );
 
     const Int length = x.size();
     for( Int i=0; i<length; ++i )
-        os << x[i] << " ";
-    os << endl;
+        msg << x[i] << " ";
+    msg << endl;
+
+    os << msg.str();
 }
 
 #define PROTO(T) \
