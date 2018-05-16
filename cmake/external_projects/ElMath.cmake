@@ -20,6 +20,10 @@ set(MATH_PATHS /usr/lib
                /usr/lib/openmpi/lib
                /usr/lib/gcc/x86_64-linux-gnu/4.8
                /usr/lib/gcc/x86_64-linux-gnu/4.9
+               /usr/lib/gcc/x86_64-linux-gnu/5
+               /usr/lib/gcc/x86_64-linux-gnu/6
+               /usr/lib/gcc/x86_64-linux-gnu/7
+               /usr/lib/gcc/x86_64-linux-gnu/8
                /lib/x86_64-linux-gnu
                /usr/lib/x86_64-linux-gnu
                /usr/lib/openblas-base
