@@ -9,51 +9,81 @@ language: generic
 env:
   global:
     - MPI=mpich
-    - F77=gfortran-5
-    - PATH=/usr/lib/ccache/:$PATH
 #  - MPI=openmpi
 # Open MPI is disabled until there is a way to install a reasonably recent
 # version, as 1.6.5 is known to have bugs that lead to incorrect behavior in
 # Elemental for complex data despite attempts at performing soft casts
 # to twice as many entries of real data (with the exact cause unfortunately
 # currently unknown)
-  matrix:
-    - CC=gcc-5 CXX=g++-5
-    - CC=clang-3.8 CXX=clang++-3.8
+    - PATH=/usr/lib/ccache:$PATH
 
 cache:
   directories:
     - $HOME/.ccache
 
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:ubuntu-toolchain-r/test'
-      - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.8 main'
-        key_url: http://apt.llvm.org/llvm-snapshot.gpg.key
-      - sourceline: 'ppa:dzombie/ccache'
-    packages:
-      - ccache
-      - gcc-5
-      - g++-5
-      - gfortran-5
-      - libstdc++-5-dev
-      - clang-3.8
+matrix:
+  include:
+    # GCC 5
+    - env: CC=gcc-5 CXX=g++-5 F77=gfortran-5
+      addons: { apt: { 
+        sources: [ "ubuntu-toolchain-r-test", { sourceline: "ppa:dzombie/ccache" } ],
+        packages: [ "ccache", "gcc-5", "g++-5", "gfortran-5", "libstdc++-5-dev" ]
+      } }
+
+    # GCC 8
+    - env: CC=gcc-8 CXX=g++-8 F77=gfortran-8
+      addons: { apt: { 
+        sources: [ "ubuntu-toolchain-r-test", { sourceline: "ppa:dzombie/ccache" } ],
+        packages: [ "ccache", "gcc-8", "g++-8", "gfortran-8", "libstdc++-8-dev" ]
+      } }
+
+    # Clang 3.8
+    - env: CC=clang-3.8 CXX=clang++-3.8 F77=gfortran-5
+      addons: { apt: { 
+        sources: [ "ubuntu-toolchain-r-test", { sourceline: "ppa:dzombie/ccache" } ],
+        packages: [ "ccache", "gcc-5", "g++-5", "gfortran-5", "libstdc++-5-dev", "clang-3.8" ]
+      } }
+
+    # Clang 6.0
+    - env: CC=clang-6.0 CXX=clang++-6.0 F77=gfortran-8
+      addons: { apt: { 
+        sources: [ "ubuntu-toolchain-r-test", "llvm-toolchain-trusty-6.0", { sourceline: "ppa:dzombie/ccache" } ],
+        packages: [ "ccache", "gcc-8", "g++-8", "gfortran-8", "libstdc++-8-dev", "clang-6.0" ]
+      } }
 
 install:
-  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang-3.8
-  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang++-3.8
+  - sh travis/install-mpi.sh $MPI
+
+before_script:
+  # ccache symlinks are created in "before_script:" section because they are lost after "install:" section
+  # manually add symlinks to versioned clang because of https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=867705
+  - >
+    sudo update-ccache-symlinks &&
+    for cc in /usr/bin/clang-[0-9\.]* /usr/bin/clang++-[0-9\.]* ; do
+        if [ -e "$cc" ]; then
+          lnk=$(basename "$cc");
+          if [ ! -e "/usr/lib/ccache/$lnk" ]; then
+            sudo ln -s /usr/bin/ccache "/usr/lib/ccache/$lnk";
+          fi;
+        fi;
+    done
+  - nproc
   - echo `which $CC`
   - echo `which $CXX`
-  - sh travis/install-mpi.sh $MPI
-  - curl https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.tar.gz | sudo tar -x -z --strip-components 1 -C /usr
+  - echo `which $F77`
+  - cmake --version
+  - ctest --version
 
 script:
-  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang-3.8
-  - sudo ln -s /usr/bin/ccache /usr/lib/ccache/clang++-3.8
-  - echo `which $CC`
-  - echo `which $CXX`
-  - mkdir build && cd build;
-    cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_C_COMPILER=$CC -DCMAKE_Fortran_COMPILER=$F77 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install .. ;
-    if test $? -ne 0; then cat CMakeFiles/CMakeError.log; fi
-  - make -j2 && sudo make install && sudo ctest --output-on-failure
+#  - set -o errexit
+  - ccache -s
+  - >
+    mkdir build && cd build &&
+    (
+      cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install .. ||
+      (cat CMakeFiles/CMakeError.log; travis_terminate 1)
+    ) &&
+    make -j$(nproc) &&
+    make install &&
+    ctest --output-on-failure &&
+    ccache -s
