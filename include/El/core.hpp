@@ -102,6 +102,16 @@ enum FortranLogicalEnum
 template<typename S,typename T>
 using IsSame = std::is_same<S,T>;
 
+template<typename S, typename T>
+struct And {
+	static constexpr bool value = S::value && T::value;
+};
+
+template<typename T>
+struct Not {
+	static constexpr bool value = !T::value;
+};
+
 template<typename Condition,class T=void>
 using EnableIf = typename std::enable_if<Condition::value,T>::type;
 template<typename Condition,class T=void>

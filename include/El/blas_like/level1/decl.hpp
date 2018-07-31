@@ -487,7 +487,7 @@ void Contract( const BlockMatrix<T>& A, BlockMatrix<T>& B );
 template<typename T>
 void Copy( const Matrix<T>& A, Matrix<T>& B );
 template<typename S,typename T,
-         typename=EnableIf<CanCast<S,T>>>
+         typename=EnableIf<And< CanCast<S,T>, Not<IsSame<S,T>> >>>
 void Copy( const Matrix<S>& A, Matrix<T>& B );
 
 template<typename S,typename T,
@@ -501,7 +501,7 @@ void Copy( const BlockMatrix<S>& A, BlockMatrix<T>& B );
 template<typename T>
 void Copy( const AbstractDistMatrix<T>& A, AbstractDistMatrix<T>& B );
 template<typename S,typename T,
-         typename=EnableIf<CanCast<S,T>>>
+         typename=EnableIf<And< CanCast<S,T>, Not<IsSame<S,T>> >>>
 void Copy( const AbstractDistMatrix<S>& A, AbstractDistMatrix<T>& B );
 
 template<typename T>
@@ -532,7 +532,7 @@ template<typename T>
 void Copy( const SparseMatrix<T>& A, SparseMatrix<T>& B );
 
 template<typename S,typename T,
-         typename=EnableIf<CanCast<S,T>>>
+         typename=EnableIf<And< CanCast<S,T>, Not<IsSame<S,T>> >> >
 void Copy( const SparseMatrix<S>& A, SparseMatrix<T>& B );
 
 template<typename S,typename T,
@@ -543,7 +543,7 @@ template<typename T>
 void Copy( const DistSparseMatrix<T>& A, DistSparseMatrix<T>& B );
 
 template<typename S,typename T,
-         typename=EnableIf<CanCast<S,T>>>
+         typename=EnableIf<And<CanCast<S,T>,Not<IsSame<S,T>>>>>
 void Copy( const DistSparseMatrix<S>& A, DistSparseMatrix<T>& B );
 
 template<typename S,typename T,
@@ -559,7 +559,7 @@ template<typename T>
 void Copy( const DistMultiVec<T>& A, DistMultiVec<T>& B );
 
 template<typename S,typename T,
-         typename=EnableIf<CanCast<S,T>>>
+         typename=EnableIf< And< CanCast<S,T>, Not<IsSame<S,T>> > >>
 void Copy( const DistMultiVec<S>& A, DistMultiVec<T>& B );
 
 template<typename T>
