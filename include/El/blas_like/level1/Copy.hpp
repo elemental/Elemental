@@ -30,7 +30,7 @@ void Copy( const Matrix<T>& A, Matrix<T>& B )
 
     if( ldA == height && ldB == height )
     {
-#ifdef _OPENMP
+#ifdef EL_HYBRID
         #pragma omp parallel
         {
             const Int numThreads = omp_get_num_threads();

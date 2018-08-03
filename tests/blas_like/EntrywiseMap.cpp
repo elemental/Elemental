@@ -56,7 +56,7 @@ void TestEntrywiseMap
     double runTime, opsPerSec;
     Timer timer;
 
-#ifdef _OPENMP
+#ifdef EL_HYBRID
     if( numThreads > 0 )
     {
         omp_set_num_threads(numThreads);

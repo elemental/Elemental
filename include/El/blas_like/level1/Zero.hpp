@@ -23,7 +23,7 @@ void Zero( Matrix<T>& A )
 
     if( ALDim == height )
     {
-#ifdef _OPENMP
+#ifdef EL_HYBRID
         #pragma omp parallel
         {
             const Int numThreads = omp_get_num_threads();
