@@ -44,12 +44,22 @@ matrix:
         packages: [ "ccache", "gcc-5", "g++-5", "gfortran-5", "libstdc++-5-dev", "clang-3.8" ]
       } }
 
+    # Clang 4.0
+    - env: CC=clang-4.0 CXX=clang++-4.0 F77=gfortran-8
+      addons: { apt: { 
+        sources: [ "ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0", { sourceline: "ppa:dzombie/ccache" } ],
+        packages: [ "ccache", "gcc-8", "g++-8", "gfortran-8", "libstdc++-8-dev", "clang-4.0" ]
+      } }
+    
     # Clang 6.0
     - env: CC=clang-6.0 CXX=clang++-6.0 F77=gfortran-8
       addons: { apt: { 
         sources: [ "ubuntu-toolchain-r-test", "llvm-toolchain-trusty-6.0", { sourceline: "ppa:dzombie/ccache" } ],
         packages: [ "ccache", "gcc-8", "g++-8", "gfortran-8", "libstdc++-8-dev", "clang-6.0" ]
       } }
+    
+  allow_failures:
+    - env: CC=clang-6.0 CXX=clang++-6.0 F77=gfortran-8 # compiler crash
 
 install:
   - sh travis/install-mpi.sh $MPI
