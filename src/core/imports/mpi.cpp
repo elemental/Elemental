@@ -2845,238 +2845,248 @@ EL_NO_RELEASE_EXCEPT
 #endif
 }
 
-#define MPI_PROTO(T) \
+#define MPI_PROTO_BASE(T) \
   template bool Test( Request<T>& request ) EL_NO_RELEASE_EXCEPT; \
   template void Wait( Request<T>& request ) EL_NO_RELEASE_EXCEPT; \
   template void Wait( Request<T>& request, Status& status ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void WaitAll( int numRequests, Request<T>* requests ) \
+  template void WaitAll<T>( int numRequests, Request<T>* requests ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void WaitAll \
+  template void WaitAll<T> \
   ( int numRequests, Request<T>* requests, Status* statuses ) \
   EL_NO_RELEASE_EXCEPT; \
   template int GetCount<T>( Status& status ) EL_NO_RELEASE_EXCEPT; \
-  template void TaggedSend \
+  template void TaggedSend<T> \
   ( const T* buf, int count, int to, int tag, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Send( const T* buf, int count, int to, Comm comm ) \
+  template void Send<T>( const T* buf, int count, int to, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedSend( T b, int to, int tag, Comm comm ) \
+  template void TaggedSend<T>( T b, int to, int tag, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Send( T b, int to, Comm comm ) \
+  template void Send<T>( T b, int to, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedISend \
-  ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void ISend \
+  template void ISend<T> \
   ( const T* buf, int count, int to, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedISend \
+  template void TaggedISend<T> \
   ( T buf, int to, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ISend( T buf, int to, Comm comm, Request<T>& request ) \
+  template void ISend<T>( T buf, int to, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedISSend \
+  template void TaggedISSend<T> \
   ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ISSend \
+  template void ISSend<T> \
   ( const T* buf, int count, int to, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedISSend \
+  template void TaggedISSend<T> \
   ( T b, int to, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedRecv \
+  template void TaggedRecv<T> \
   ( T* buf, int count, int from, int tag, Comm comm ) EL_NO_RELEASE_EXCEPT; \
-  template void Recv( T* buf, int count, int from, Comm comm ) \
+  template void Recv<T>( T* buf, int count, int from, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
   template T TaggedRecv<T>( int from, int tag, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T Recv( int from, Comm comm ) EL_NO_RELEASE_EXCEPT; \
-  template void TaggedIRecv \
+  template T Recv<T>( int from, Comm comm ) EL_NO_RELEASE_EXCEPT; \
+  template void TaggedIRecv<T> \
   ( T* buf, int count, int from, int tag, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void IRecv \
+  template void IRecv<T> \
   ( T* buf, int count, int from, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
   template T TaggedIRecv<T> \
   ( int from, int tag, Comm comm, Request<T>& request ) EL_NO_RELEASE_EXCEPT; \
   template T IRecv<T>( int from, Comm comm, Request<T>& request ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedSendRecv \
+  template void TaggedSendRecv<T> \
   ( const T* sbuf, int sc, int to,   int stag, \
           T* rbuf, int rc, int from, int rtag, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void SendRecv \
+  template void SendRecv<T> \
   ( const T* sbuf, int sc, int to, \
           T* rbuf, int rc, int from, Comm comm ) EL_NO_RELEASE_EXCEPT; \
-  template T TaggedSendRecv \
+  template T TaggedSendRecv<T> \
   ( T sb, int to, int stag, int from, int rtag, Comm comm ); \
   template T SendRecv( T sb, int to, int from, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void TaggedSendRecv \
+  template void TaggedSendRecv<T> \
   ( T* buf, int count, int to, int stag, int from, int rtag, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void SendRecv \
+  template void SendRecv<T> \
   ( T* buf, int count, int to, int from, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Broadcast( T* buf, int count, int root, Comm comm ) \
+  template void Broadcast<T>( T& b, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Broadcast( T& b, int root, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void IBroadcast \
+  template void IBroadcast<T> \
   ( T* buf, int count, int root, Comm comm, Request<T>& request ); \
-  template void IBroadcast \
+  template void IBroadcast<T> \
   ( T& b, int root, Comm comm, Request<T>& request ); \
-  template void Gather \
-  ( const T* sbuf, int sc, T* rbuf, int rc, int root, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void IGather \
+  template void IGather<T> \
   ( const T* sbuf, int sc, \
           T* rbuf, int rc, \
     int root, Comm comm, Request<T>& request ); \
-  template void Gather \
-  ( const T* sbuf, int sc, \
-          T* rbuf, const int* rcs, const int* rds, int root, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void AllGather( const T* sbuf, int sc, T* rbuf, int rc, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void AllGather \
-  ( const T* sbuf, int sc, \
-          T* rbuf, const int* rcs, const int* rds, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void Scatter \
-  ( const T* sbuf, int sc, \
-          T* rbuf, int rc, int root, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void Scatter( T* buf, int sc, int rc, int root, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void AllToAll \
-  ( const T* sbuf, int sc, \
-          T* rbuf, int rc, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void AllToAll \
-  ( const T* sbuf, const int* scs, const int* sds, \
-          T* rbuf, const int* rcs, const int* rds, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template vector<T> AllToAll \
+  template vector<T> AllToAll<T> \
   ( const vector<T>& sendBuf, \
     const vector<int>& sendCounts, \
     const vector<int>& sendOffs, \
     Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Reduce \
-  ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void Reduce \
+  template void Reduce<T> \
   ( const T* sbuf, T* rbuf, int count, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T Reduce( T sb, Op op, int root, Comm comm ) \
+  template T Reduce<T>( T sb, Op op, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T Reduce( T sb, int root, Comm comm ) \
+  template T Reduce<T>( T sb, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Reduce( T* buf, int count, Op op, int root, Comm comm ) \
+  template void Reduce<T>( T* buf, int count, Op op, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Reduce( T* buf, int count, int root, Comm comm ) \
+  template void Reduce<T>( T* buf, int count, int root, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void AllReduce \
-  ( const T* sbuf, T* rbuf, int count, Op op, Comm comm ) \
+  template void AllReduce<T>( const T* sbuf, T* rbuf, int count, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm ) \
+  template T AllReduce<T>( T sb, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T AllReduce( T sb, Op op, Comm comm ) \
+  template T AllReduce<T>( T sb, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T AllReduce( T sb, Comm comm ) \
+  template void AllReduce<T>( T* buf, int count, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void AllReduce( T* buf, int count, Op op, Comm comm ) \
+  template void ReduceScatter<T>( T* sbuf, T* rbuf, int rc, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void AllReduce( T* buf, int count, Comm comm ) \
+  template void ReduceScatter<T>( T* sbuf, T* rbuf, int rc, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Op op, Comm comm ) \
+  template T ReduceScatter<T>( T sb, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm ) \
+  template T ReduceScatter<T>( T sb, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T ReduceScatter( T sb, Op op, Comm comm ) \
+  template void ReduceScatter<T>( T* buf, int rc, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T ReduceScatter( T sb, Comm comm ) \
+  template void ReduceScatter<T>( T* buf, int rc, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ReduceScatter( T* buf, int rc, Op op, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void ReduceScatter( T* buf, int rc, Comm comm ) \
-  EL_NO_RELEASE_EXCEPT; \
-  template void ReduceScatter \
+  template void ReduceScatter<T> \
   ( const T* sbuf, T* rbuf, const int* rcs, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void ReduceScatter \
+  template void ReduceScatter<T> \
   ( const T* sbuf, T* rbuf, const int* rcs, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Scan( const T* sbuf, T* rbuf, int count, Op op, Comm comm ) \
+  template void Scan<T>( const T* sbuf, T* rbuf, int count, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Scan( const T* sbuf, T* rbuf, int count, Comm comm ) \
+  template void Scan<T>( const T* sbuf, T* rbuf, int count, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T Scan( T sb, Op op, Comm comm ) \
+  template T Scan<T>( T sb, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template T Scan( T sb, Comm comm ) \
+  template T Scan<T>( T sb, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Scan( T* buf, int count, Op op, Comm comm ) \
+  template void Scan<T>( T* buf, int count, Op op, Comm comm ) \
   EL_NO_RELEASE_EXCEPT; \
-  template void Scan( T* buf, int count, Comm comm ) \
+  template void Scan<T>( T* buf, int count, Comm comm ) \
   EL_NO_RELEASE_EXCEPT;
 
-MPI_PROTO(byte)
-MPI_PROTO(int)
-MPI_PROTO(unsigned)
-MPI_PROTO(long int)
-MPI_PROTO(unsigned long)
+#define MPI_PROTO_DIFF(S,T) \
+  template void TaggedISend<S> \
+  ( const T* buf, int count, int to, int tag, Comm comm, Request<T>& request ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Broadcast<S>( T* buf, int count, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Gather<S> \
+  ( const T* sbuf, int sc, T* rbuf, int rc, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Gather<S> \
+  ( const T* sbuf, int sc, \
+          T* rbuf, const int* rcs, const int* rds, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllGather<S>( const T* sbuf, int sc, T* rbuf, int rc, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllGather<S> \
+  ( const T* sbuf, int sc, \
+          T* rbuf, const int* rcs, const int* rds, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scatter<S> \
+  ( const T* sbuf, int sc, \
+          T* rbuf, int rc, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void Scatter<S>( T* buf, int sc, int rc, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllToAll<S> \
+  ( const T* sbuf, int sc, \
+          T* rbuf, int rc, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllToAll<S> \
+  ( const T* sbuf, const int* scs, const int* sds, \
+          T* rbuf, const int* rcs, const int* rds, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+    template void Reduce<S> \
+  ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllReduce<S> \
+  ( const T* sbuf, T* rbuf, int count, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT; \
+  template void AllReduce<S>( T* buf, int count, Op op, Comm comm ) \
+  EL_NO_RELEASE_EXCEPT;
+
+#define MPI_PROTO_REAL(T) \
+  MPI_PROTO_BASE(T) \
+  MPI_PROTO_DIFF(T, T)
+  
+#define MPI_PROTO_COMPLEX(T) \
+  MPI_PROTO_BASE(Complex<T>) \
+  MPI_PROTO_DIFF(T, Complex<T>)
+
+MPI_PROTO_REAL(byte)
+MPI_PROTO_REAL(int)
+MPI_PROTO_REAL(unsigned)
+MPI_PROTO_REAL(long int)
+MPI_PROTO_REAL(unsigned long)
 #ifdef EL_HAVE_MPI_LONG_LONG
-MPI_PROTO(long long int)
-MPI_PROTO(unsigned long long)
+MPI_PROTO_REAL(long long int)
+MPI_PROTO_REAL(unsigned long long)
 #endif
-MPI_PROTO(ValueInt<Int>)
-MPI_PROTO(Entry<Int>)
-MPI_PROTO(float)
-MPI_PROTO(Complex<float>)
-MPI_PROTO(ValueInt<float>)
-MPI_PROTO(ValueInt<Complex<float>>)
-MPI_PROTO(Entry<float>)
-MPI_PROTO(Entry<Complex<float>>)
-MPI_PROTO(double)
-MPI_PROTO(Complex<double>)
-MPI_PROTO(ValueInt<double>)
-MPI_PROTO(ValueInt<Complex<double>>)
-MPI_PROTO(Entry<double>)
-MPI_PROTO(Entry<Complex<double>>)
+MPI_PROTO_REAL(ValueInt<Int>)
+MPI_PROTO_REAL(Entry<Int>)
+MPI_PROTO_REAL(float)
+MPI_PROTO_COMPLEX(float)
+MPI_PROTO_REAL(ValueInt<float>)
+MPI_PROTO_REAL(ValueInt<Complex<float>>)
+MPI_PROTO_REAL(Entry<float>)
+MPI_PROTO_REAL(Entry<Complex<float>>)
+MPI_PROTO_REAL(double)
+MPI_PROTO_COMPLEX(double)
+MPI_PROTO_REAL(ValueInt<double>)
+MPI_PROTO_REAL(ValueInt<Complex<double>>)
+MPI_PROTO_REAL(Entry<double>)
+MPI_PROTO_REAL(Entry<Complex<double>>)
 #ifdef EL_HAVE_QD
-MPI_PROTO(DoubleDouble)
-MPI_PROTO(QuadDouble)
-MPI_PROTO(Complex<DoubleDouble>)
-MPI_PROTO(Complex<QuadDouble>)
-MPI_PROTO(ValueInt<DoubleDouble>)
-MPI_PROTO(ValueInt<QuadDouble>)
-MPI_PROTO(ValueInt<Complex<DoubleDouble>>)
-MPI_PROTO(ValueInt<Complex<QuadDouble>>)
-MPI_PROTO(Entry<DoubleDouble>)
-MPI_PROTO(Entry<QuadDouble>)
-MPI_PROTO(Entry<Complex<DoubleDouble>>)
-MPI_PROTO(Entry<Complex<QuadDouble>>)
+MPI_PROTO_REAL(DoubleDouble)
+MPI_PROTO_REAL(QuadDouble)
+MPI_PROTO_COMPLEX(DoubleDouble)
+MPI_PROTO_COMPLEX(QuadDouble)
+MPI_PROTO_REAL(ValueInt<DoubleDouble>)
+MPI_PROTO_REAL(ValueInt<QuadDouble>)
+MPI_PROTO_REAL(ValueInt<Complex<DoubleDouble>>)
+MPI_PROTO_REAL(ValueInt<Complex<QuadDouble>>)
+MPI_PROTO_REAL(Entry<DoubleDouble>)
+MPI_PROTO_REAL(Entry<QuadDouble>)
+MPI_PROTO_REAL(Entry<Complex<DoubleDouble>>)
+MPI_PROTO_REAL(Entry<Complex<QuadDouble>>)
 #endif
 #ifdef EL_HAVE_QUAD
-MPI_PROTO(Quad)
-MPI_PROTO(Complex<Quad>)
-MPI_PROTO(ValueInt<Quad>)
-MPI_PROTO(ValueInt<Complex<Quad>>)
-MPI_PROTO(Entry<Quad>)
-MPI_PROTO(Entry<Complex<Quad>>)
+MPI_PROTO_REAL(Quad)
+MPI_PROTO_COMPLEX(Quad)
+MPI_PROTO_REAL(ValueInt<Quad>)
+MPI_PROTO_REAL(ValueInt<Complex<Quad>>)
+MPI_PROTO_REAL(Entry<Quad>)
+MPI_PROTO_REAL(Entry<Complex<Quad>>)
 #endif
 #ifdef EL_HAVE_MPC
-MPI_PROTO(BigInt)
-MPI_PROTO(BigFloat)
-MPI_PROTO(Complex<BigFloat>)
-MPI_PROTO(ValueInt<BigInt>)
-MPI_PROTO(ValueInt<BigFloat>)
-MPI_PROTO(ValueInt<Complex<BigFloat>>)
-MPI_PROTO(Entry<BigInt>)
-MPI_PROTO(Entry<BigFloat>)
-MPI_PROTO(Entry<Complex<BigFloat>>)
+MPI_PROTO_REAL(BigInt)
+MPI_PROTO_REAL(BigFloat)
+MPI_PROTO_REAL(Complex<BigFloat>)
+MPI_PROTO_REAL(ValueInt<BigInt>)
+MPI_PROTO_REAL(ValueInt<BigFloat>)
+MPI_PROTO_REAL(ValueInt<Complex<BigFloat>>)
+MPI_PROTO_REAL(Entry<BigInt>)
+MPI_PROTO_REAL(Entry<BigFloat>)
+MPI_PROTO_REAL(Entry<Complex<BigFloat>>)
 #endif
 
 #define PROTO(T) \
