@@ -1,5 +1,5 @@
 <p align="left" style="padding: 20px">
-<img src="http://libelemental.org/_static/elemental.png">
+<img src="https://github.com/elemental/elemental-web/raw/master/source/_static/elemental.png">
 </p>
 
 [![Build Status](https://api.travis-ci.org/elemental/Elemental.svg?branch=master)](https://travis-ci.org/elemental/Elemental)
@@ -13,9 +13,16 @@ and absorbed, then greatly expanded upon, the functionality from the
 sparse-direct solver [Clique](http://www.github.com/poulson/Clique.git), which 
 was originally released during a project on [Parallel Sweeping Preconditioners](http://epubs.siam.org/doi/abs/10.1137/120871985).
 
+### Deprecation notice
+Elemental has not been maintained since 2016. But the project was [forked by Lawrence Livermore National Lab](https://github.com/LLNL/Elemental). The author stopped being interested in volunteering to develop MPI codes and no one has stepped up after three years.
+
+**Software consists of teams of people. If you want people to continue developing a project after it ceases to be their personal interest, fund them for it.**
+
+The developer is now volunteering time towards high-performance math software for workstations at [hodgestar.com](https://hodgestar.com).
+
 ### Documentation
 
-The (now outdated) [documentation for Elemental](http://libelemental.org/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
+The (now outdated) [documentation for Elemental](http://elemental.github.io/documentation) is built using [Sphinx](http://sphinx.pocoo.org) and the [Read the Docs Theme](http://docs.readthedocs.org/en/latest/theme.html)
 
 ### Unique features
 
