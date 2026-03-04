@@ -45,7 +45,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ccache mpich libmpich-dev ${{ matrix.packages }}
+          sudo apt-get install -y ccache mpich libmpich-dev libopenblas-dev ${{ matrix.packages }}
 
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
