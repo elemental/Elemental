@@ -23,11 +23,6 @@ jobs:
             cxx: g++-14
             f77: gfortran-14
             packages: gcc-14 g++-14 gfortran-14
-          # Clang 16
-          - cc: clang-16
-            cxx: clang++-16
-            f77: gfortran-14
-            packages: gfortran-14 clang-16
           # Clang 18
           - cc: clang-18
             cxx: clang++-18
