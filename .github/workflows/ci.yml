@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # GCC 12
+          - cc: gcc-12
+            cxx: g++-12
+            f77: gfortran-12
+            packages: gcc-12 g++-12 gfortran-12
+          # GCC 14
+          - cc: gcc-14
+            cxx: g++-14
+            f77: gfortran-14
+            packages: gcc-14 g++-14 gfortran-14
+          # Clang 18
+          - cc: clang-18
+            cxx: clang++-18
+            f77: gfortran-14
+            packages: gfortran-14 clang-18
+
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      FC: ${{ matrix.f77 }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache mpich libmpich-dev libopenblas-dev ${{ matrix.packages }}
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ matrix.cc }}
+
+      - name: Configure ccache symlinks
+        run: |
+          sudo update-ccache-symlinks
+          for cc in /usr/bin/clang-[0-9.]* /usr/bin/clang++-[0-9.]* ; do
+            if [ -e "$cc" ]; then
+              lnk=$(basename "$cc")
+              if [ ! -e "/usr/lib/ccache/$lnk" ]; then
+                sudo ln -s /usr/bin/ccache "/usr/lib/ccache/$lnk"
+              fi
+            fi
+          done
+          echo "/usr/lib/ccache" >> $GITHUB_PATH
+
+      - name: Print tool info
+        run: |
+          nproc
+          which $CC
+          which $CXX
+          which $FC
+          cmake --version
+          ctest --version
+
+      - name: Build and test
+        run: |
+          ccache -s
+          mkdir build && cd build
+          cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install .. || \
+            (cat CMakeFiles/CMakeError.log; exit 1)
+          make -j$(nproc)
+          make install
+          ctest --output-on-failure
+          ccache -s
