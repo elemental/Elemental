@@ -37,10 +37,7 @@ jobs:
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
-      F77: ${{ matrix.f77 }}
-      MPICH_CC: ${{ matrix.cc }}
-      MPICH_CXX: ${{ matrix.cxx }}
-      MPICH_F77: ${{ matrix.f77 }}
+      FC: ${{ matrix.f77 }}
 
     steps:
       - uses: actions/checkout@v4
@@ -73,7 +70,7 @@ jobs:
           nproc
           which $CC
           which $CXX
-          which $F77
+          which $FC
           cmake --version
           ctest --version
 
@@ -81,8 +78,7 @@ jobs:
         run: |
           ccache -s
           mkdir build && cd build
-          cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install \
-            -DMPI_C_COMPILER=mpicc -DMPI_CXX_COMPILER=mpicxx -DMPI_Fortran_COMPILER=mpif77 .. || \
+          cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install .. || \
             (cat CMakeFiles/CMakeError.log; exit 1)
           make -j$(nproc)
           make install
