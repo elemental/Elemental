@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # GCC 5
+          - cc: gcc-5
+            cxx: g++-5
+            f77: gfortran-5
+            packages: gcc-5 g++-5 gfortran-5 libstdc++-5-dev
+          # GCC 8
+          - cc: gcc-8
+            cxx: g++-8
+            f77: gfortran-8
+            packages: gcc-8 g++-8 gfortran-8 libstdc++-8-dev
+          # Clang 3.8
+          - cc: clang-3.8
+            cxx: clang++-3.8
+            f77: gfortran-5
+            packages: gcc-5 g++-5 gfortran-5 libstdc++-5-dev clang-3.8
+          # Clang 4.0
+          - cc: clang-4.0
+            cxx: clang++-4.0
+            f77: gfortran-8
+            packages: gcc-8 g++-8 gfortran-8 libstdc++-8-dev clang-4.0
+          # Clang 6.0
+          - cc: clang-6.0
+            cxx: clang++-6.0
+            f77: gfortran-8
+            packages: gcc-8 g++-8 gfortran-8 libstdc++-8-dev clang-6.0
+            continue-on-error: true
+
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      F77: ${{ matrix.f77 }}
+
+    continue-on-error: ${{ matrix.continue-on-error || false }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache mpich libmpich-dev ${{ matrix.packages }}
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ matrix.cc }}
+
+      - name: Configure ccache symlinks
+        run: |
+          sudo update-ccache-symlinks
+          for cc in /usr/bin/clang-[0-9.]* /usr/bin/clang++-[0-9.]* ; do
+            if [ -e "$cc" ]; then
+              lnk=$(basename "$cc")
+              if [ ! -e "/usr/lib/ccache/$lnk" ]; then
+                sudo ln -s /usr/bin/ccache "/usr/lib/ccache/$lnk"
+              fi
+            fi
+          done
+          echo "/usr/lib/ccache" >> $GITHUB_PATH
+
+      - name: Print tool info
+        run: |
+          nproc
+          which $CC
+          which $CXX
+          which $F77
+          cmake --version
+          ctest --version
+
+      - name: Build and test
+        run: |
+          ccache -s
+          mkdir build && cd build
+          cmake -DEL_TESTS=ON -DEL_EXAMPLES=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/Install .. || \
+            (cat CMakeFiles/CMakeError.log; exit 1)
+          make -j$(nproc)
+          make install
+          ctest --output-on-failure
+          ccache -s
