@@ -1,0 +1,43 @@
+package:
+  name: elemental
+  version: 'nightly'
+
+build:
+  number: 1
+
+extra:
+  channels:
+    - defaults
+    - conda-forge
+
+requirements:
+  build:
+    - gcc
+    - python <=3 
+    - numpy
+    - cmake >=2.8
+    - networkx
+    - mpich
+  run:
+    - gcc
+    - python <=3 
+    - numpy
+    - cmake >=2.8
+    - networkx
+    - mpich
+
+# tests seem to want python 3.5 on my box :(
+#test:
+#  requires:
+#    - gcc
+#    - python <=3 
+#    - numpy
+#    - cmake >=2.8
+#    - networkx
+#    - mpich
+#  imports:
+#    - El
+
+about:
+  home: http://libelemental.org/
+  license: New BSD
