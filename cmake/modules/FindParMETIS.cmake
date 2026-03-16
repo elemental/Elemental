@@ -128,8 +128,8 @@ if(PARMETIS_INCLUDE_DIR AND METIS_INCLUDE_DIR AND
 int main( int argc, char* argv[] )
 {
   // FIXME: Find a simple but sensible test for ParMETIS
-  MPI_Init( &argc, &argv );
-  MPI_Finalize();
+  // MPI_Init( &argc, &argv );
+  // MPI_Finalize();
   return 0;
 }
 " PARMETIS_TEST_RUNS)
