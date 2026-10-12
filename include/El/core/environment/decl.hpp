@@ -35,7 +35,14 @@ using std::ostream;
 using std::ostringstream;
 
 using std::exception;
-using std::uncaught_exception;
+inline bool has_uncaught_exception() EL_NO_EXCEPT
+{
+#ifdef __cpp_lib_uncaught_exceptions
+    return std::uncaught_exceptions() > 0;
+#else
+    return std::uncaught_exception();
+#endif
+}
 
 void PrintVersion( ostream& os=cout );
 void PrintConfig( ostream& os=cout );
@@ -251,12 +258,12 @@ EL_DEBUG_ONLY(
     public:
         CallStackEntry( string s )
         {
-            if( !uncaught_exception() )
+            if( !has_uncaught_exception() )
                 PushCallStack(s);
         }
         ~CallStackEntry()
         {
-            if( !uncaught_exception() )
+            if( !has_uncaught_exception() )
                 PopCallStack();
         }
     };

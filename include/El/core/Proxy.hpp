@@ -76,7 +76,7 @@ public:
 
     ~MatrixWriteProxy() 
     { 
-        if( !uncaught_exception() )
+        if( !has_uncaught_exception() )
             Copy( *prox_, orig_ );
         delete prox_;
     }
@@ -116,7 +116,7 @@ public:
 
     ~MatrixReadWriteProxy() 
     { 
-        if( !uncaught_exception() )
+        if( !has_uncaught_exception() )
             Copy( *prox_, orig_ );
         delete prox_;
     }
@@ -506,7 +506,7 @@ public:
 
     ~DistMatrixWriteProxy() 
     { 
-        if( !uncaught_exception() ) 
+        if( !has_uncaught_exception() ) 
             Copy( *prox_, orig_ );
         delete prox_;
     }
@@ -568,7 +568,7 @@ public:
     { 
         if( madeCopy_ )
         {
-            if( !uncaught_exception() )
+            if( !has_uncaught_exception() )
                 Copy( *prox_, orig_ );
             delete prox_;
         }
@@ -606,7 +606,7 @@ public:
 
     ~DistMatrixWriteProxy() 
     { 
-        if( !uncaught_exception() ) 
+        if( !has_uncaught_exception() ) 
             Copy( *prox_, orig_ );
         delete prox_;
     }
@@ -676,7 +676,7 @@ public:
     { 
         if( madeCopy_ )
         {
-            if( !uncaught_exception() )
+            if( !has_uncaught_exception() )
                 Copy( *prox_, orig_ );
             delete prox_;
         }
@@ -718,7 +718,7 @@ public:
 
     ~DistMatrixReadWriteProxy() 
     { 
-        if( !uncaught_exception() )
+        if( !has_uncaught_exception() )
             Copy( *prox_, orig_ );
         delete prox_;
     }
@@ -780,7 +780,7 @@ public:
     { 
         if( madeCopy_ )
         {
-            if( !uncaught_exception() )
+            if( !has_uncaught_exception() )
                 Copy( *prox_, orig_ );
             delete prox_;
         }
@@ -818,7 +818,7 @@ public:
 
     ~DistMatrixReadWriteProxy() 
     { 
-        if( !uncaught_exception() )
+        if( !has_uncaught_exception() )
             Copy( *prox_, orig_ );
         delete prox_;
     }
@@ -888,7 +888,7 @@ public:
     { 
         if( madeCopy_ )
         {
-            if( !uncaught_exception() )
+            if( !has_uncaught_exception() )
                 Copy( *prox_, orig_ );
             delete prox_;
         }
