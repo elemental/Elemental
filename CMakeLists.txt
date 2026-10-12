@@ -385,10 +385,33 @@ endif()
 # --------------
 include(detect/Fortran)
 
-# Detect C++11
-# ------------
+# Select the C++ standard
+# -----------------------
+# Default to C++14; override with -DCMAKE_CXX_STANDARD=17 (or 20). This must
+# precede detect/CXX so that its feature checks compile at the selected
+# standard (CMP0067).
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# CMAKE_CXX_STANDARD only affects this build, so also append the flag to
+# CXX_FLAGS, which is what gets exported to downstream consumers via
+# Elemental_COMPILE_FLAGS and ElVars' EL_COMPILE_FLAGS.
+# GNU needs extended mode (-std=gnu++XX) for libquadmath literals.
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  set(CMAKE_CXX_EXTENSIONS ON)
+  set(CXX_FLAGS
+    "${CXX_FLAGS} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_EXTENSION_COMPILE_OPTION}")
+else()
+  set(CMAKE_CXX_EXTENSIONS OFF)
+  set(CXX_FLAGS
+    "${CXX_FLAGS} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}")
+endif()
+message(STATUS "Building with C++${CMAKE_CXX_STANDARD}")
+
+# Detect C++ features
+# -------------------
 include(detect/CXX)
-set(CXX_FLAGS "${CXX_FLAGS} ${CXX14_COMPILER_FLAGS}")
 
 # Detect MPI
 # ----------
