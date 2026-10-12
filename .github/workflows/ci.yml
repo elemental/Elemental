@@ -8,23 +8,26 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           # GCC 12
-          - cc: gcc-12
+          - os: ubuntu-24.04
+            cc: gcc-12
             cxx: g++-12
             f77: gfortran-12
             packages: gcc-12 g++-12 gfortran-12
           # GCC 14
-          - cc: gcc-14
+          - os: ubuntu-24.04
+            cc: gcc-14
             cxx: g++-14
             f77: gfortran-14
             packages: gcc-14 g++-14 gfortran-14
           # Clang 18
-          - cc: clang-18
+          - os: ubuntu-24.04
+            cc: clang-18
             cxx: clang++-18
             f77: gfortran-14
             packages: gfortran-14 clang-18
@@ -46,7 +49,7 @@ jobs:
       - name: Set up ccache
         uses: hendrikmuhs/ccache-action@v1
         with:
-          key: ${{ matrix.cc }}
+          key: ${{ matrix.os }}-${{ matrix.cc }}
 
       - name: Configure ccache symlinks
         run: |
