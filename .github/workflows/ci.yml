@@ -33,6 +33,7 @@ jobs:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
       FC: ${{ matrix.f77 }}
+      UCX_TLS: tcp,self,sm
 
     steps:
       - uses: actions/checkout@v4
