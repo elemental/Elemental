@@ -56,8 +56,6 @@ void Scale( S alphaS, Matrix<Real>& AReal, Matrix<Real>& AImag )
 {
     EL_DEBUG_CSE
     typedef Complex<Real> C;
-    const Int m = AReal.Height();
-    const Int n = AReal.Width();
     const C alpha = C(alphaS);
     if( alpha != C(1) )
     {
