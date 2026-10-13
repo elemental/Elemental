@@ -76,7 +76,6 @@ template<typename T>
 void Fill( DistSparseMatrix<T>& A, T alpha )
 {
     EL_DEBUG_CSE
-    const Int m = A.Height();
     const Int n = A.Width();
     Zero( A );
     if( alpha != T(0) )
