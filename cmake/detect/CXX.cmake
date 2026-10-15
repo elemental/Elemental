@@ -6,12 +6,10 @@
 #  which can be found in the LICENSE file in the root directory, or at
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-include(FindCXXFeatures)
 include(CheckCXXSourceCompiles)
 
-message(STATUS "CXX11_COMPILER_FLAGS=${CXX11_COMPILER_FLAGS}")
-message(STATUS "CXX14_COMPILER_FLAGS=${CXX14_COMPILER_FLAGS}")
-set(CMAKE_REQUIRED_FLAGS ${CXX14_COMPILER_FLAGS})
+# NOTE: the checks below compile at ${CMAKE_CXX_STANDARD}, which CMake
+#       propagates into try_compile() via CMP0067.
 
 # TODO(poulson): Test for C++14 features such as [[deprecated]]
 
@@ -131,5 +129,4 @@ set(PRETTY_FUNCTION_CODE
      }")
 check_cxx_source_compiles("${PRETTY_FUNCTION_CODE}" EL_HAVE_PRETTY_FUNCTION)
 
-unset(CMAKE_REQUIRED_FLAGS)
 unset(CMAKE_REQUIRED_DEFINITIONS)

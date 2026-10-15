@@ -22,7 +22,7 @@
 function(workaround_9220 language language_works)
   set(text
     "project(test NONE)
-cmake_minimum_required(VERSION 2.6.0)
+cmake_minimum_required(VERSION 3.5)
 set(CMAKE_${language}_COMPILER ${CMAKE_${language}_COMPILER})
 enable_language(${language} OPTIONAL)
 "
